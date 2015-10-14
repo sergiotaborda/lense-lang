@@ -1,14 +1,14 @@
 # lense-lang
 
-Lense is a strong typed, pure object oriented programing language that is - we hope - carefully crafted from what we thing is and ideal aproach to a new modern programing language and a meticulous observation and analysis of other languages design goals and decisions. Even with this analysis and comparation with the state of art, Lense does not aim to be an academic driven language even when it tries to follow a more científic and logic approach to design decision making.
+Lense is a strong typed, pure object oriented programing language that is - we hope - carefully crafted from merging what we think is and ideal aproach to a new modern programming language with a meticulous observation and analysis of other languages design goals and decisions (and mistakes, yes). Even with this analysis and comparation with the state of art, Lense does not aim to be an academic driven language even when it tries to follow a more científic and logic approach to design decision making.
 
 Lense goal is to be a simple language, easy to read and write that could be compiled to any object oriented plataform. The first efford will focus on running Lense in the Java Virtual Machine (JVM).
 
-Lense is currently in the exploratory design stage, i.e. we are designing the language features and trying understand who they interact together.
+Lense is currently in the exploratory design stage, i.e. we are designing the language features and trying to understand how they interact together.
 
 # Some features to expect 
 
-Familiar syntax : Lense uses a c/java style syntax with blocks of code definied within { }
+Familiar syntax : Lense uses a c/c#/java style syntax 
 
 No primitives : all types are treated as objects in the heap. The compiler is free to optimize this to the plataform's primitives as it sees fit. The programmer can define imutable objects in order to hint to the compiler that is a good ideia to optimise that class but this is not mandatory.
 
@@ -26,18 +26,18 @@ String interplation : variables can be easy inserted within a string using a sim
 
 Support to Intervals literals.
 
-Support to Proggression (Range) literals 
+Support to Proggression (Range) literals. 
 
-Suport to Imaginary and Complex numbers 
+Suport to Imaginary and Complex numbers.
 
-Funcional programing support to some extend. Definitly Lambdas.
+Funcional programing support to some extend. Definitly Lambdas and types like Function<A,B>. 
 
 No Static concept. All things exist in an object
 
-Modules : hability to compile meta information in "module bundle" (think .jar or .dll) and their respective dependency. This would allow for the runtime to determine with modules are needed for a given module to run.
+Modules : hability to compile meta information in "module bundle" (think .jar or .dll) and their respective dependencies. This would allow for the runtime to determine the modules that are needed for a given module to run.
 
 # Some features under consideration
 
-Closures : are like lambdas but can capture and modify values in the calling scope.
+Closures : are like lambdas but can capture and modify values in the calling scope. Very usefull we try to allow the user to implement its on control directives.
 
-Constructores like factory methods : A classe is a factory and constructors really construct the object (not only inicialize it). The new keyword can only be used in the constructor and means "create an auto-inicialized" object and would be equivalent to a no parameters private constructor in other languages. So all calls to create new objects are calls to factory methods present in the "Class" object inforcing the "static factory method" design patter out-of the box. Being functions the constructors could be passed as lambdas to other functions.
+Constructores are like factory methods : A classe is a factory and constructors really construct the object (not only inicialize it). The new keyword can only be used in the constructor and means "create an auto-inicialized" object and would be equivalent to a no parameters private constructor in other languages. So all calls to create new objects are calls to factory methods present in the "Class" object inforcing the "static factory method" design patter out-of the box. Being functions the constructors could be passed as lambdas to other functions.
