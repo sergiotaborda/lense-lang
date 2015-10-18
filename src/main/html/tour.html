@@ -1,0 +1,461 @@
+<html>
+<head>
+<title>Sense Tour</title>
+<link rel="stylesheet" type="text/css" href="shCore.css" >
+<link rel="stylesheet" type="text/css" href="shThemeSense.css" >
+<script src="shCore.js"></script>
+<script src="shBrushJava.js"></script>
+<script src="shBrushSense.js"></script>
+<style>
+ .console {
+    background : black;
+    color: white;
+    width: 500px;
+ }
+ p {
+ 	text-align:justified;
+ }
+</style>
+<script type="text/javascript">
+     SyntaxHighlighter.all()
+</script>
+</head>
+<body>
+
+<h1>Basics</h1>
+<h2>Hello, world !</h2>
+<p>This is our version of the quintessential Hello, world program.
+<pre class="brush: sense">
+
+public class Hello extends ConsoleApplication {
+
+	public run (){
+		Console.print("Hello, world!");
+	}
+}
+</pre>
+<p>Prints</p>
+<pre class="console">
+Hello, world!
+</pre>
+<p>We define a classe Hello than extends the  ConsoleApplication class provided in the SDK. This makes the Hello class a executable entry point</p>
+<p>The class can have any name. The entry method is run(). The VM will instanciate the class, set the Aguments property acording to the plataform parameters and execute the run method;
+<p>The method makes use of the print method in the Console object. The Console object is a SDK provided object that allows interaction with the console. Note the method does not declare any parameters or return type.
+The return type is only needed when the compiler could not infer it. In this case the method run is defined in the ConsoleApplication class so the compiler can infer from the base declaration the return is Void.
+Ther is no "void" reserved word. Void is a type like any other. 
+</p>
+
+<p>The print method simply print the given String literal to the console. You can see a string is declared  enclosing the text in double quotes. String literals preserve line breaks and tabulation</p>
+<pre class="brush: sense">
+
+public class Hello extends ConsoleApplication {
+
+	public run () {
+		Console.print("Hello,
+						world!");
+	}
+}
+</pre>
+<p>Prints</p>
+<pre class="console">
+Hello, 
+						world!
+</pre>
+<h3>Escape Sequences</h3>
+<p>Strings suport unicode, and unicode characters can be embeded using the \{ } escape sequence that receives an Hexadecimal value. 
+Also, Strings can be interpolated using he {{ }} escape sequence. Any expression can be use inside the interpolation sequence and its string representation will 
+be printed (by calling the toString() method on the result of the expression).
+<p>
+<pre class="brush: sense">
+public class Hello extends ConsoleApplication {
+
+	public run () {
+		Decimal pi = 3.1415; 
+		Console.print("Hi!, the mathematical constant \{#03C0} is {{ pi }}  ");
+	}
+}
+</pre>
+<p>Prints</p>
+<pre class="console">
+Hi!, the mathematical constant &pi; is 3.1415
+</pre>
+<p>You can notice that #03C0 denotes an hexadecimal number</p>
+
+<h2>Nullability</h2>
+<p>Null referentes are not allowed , but the notion of an absent value is very usefull.<p>
+
+<pre class="brush: sense">
+public class Hello extends ConsoleApplication {
+
+	public run (){
+		
+		Console.print("Hi!, the first argument is {{ Arguments.first() }}.");
+	}
+}
+</pre>
+<p>Prints</p>
+<pre class="console">
+Hi!,  the first argument is null.
+</pre>
+<p>"Arguments" is a read only property of ConsoleAplication that was set with the arguments passed in the console at the momento of running the application.
+With can access the first element of the arguments sequence by invoking the first() method. The first argument in arguments might not be present, the arguments sequence may be empty. 
+So in this case, in other languages, null would be returned and printed. Sense does not have null references, but "null" is printed nontheless. How is that ?
+</p>
+<p>
+Well, left look closer to the return of <code>first</code>
+</p>
+<pre class="brush: sense">
+public class Hello extends ConsoleApplication {
+	public run () {
+		val String? argument = Arguments.first();
+		Console.print("Hi!, the first argument is {{ argument }}.");
+	}
+}
+</pre>
+<p>The type returned by the <code>first</code> method is a Maybe&lt;String&gt;. That why there is a ? after <code>String</code>. String is
+the type of elements contained inside the <code>Arguments</code> sequence.
+<br/> <code> Maybe&lt;T&gt;</code> is a generic types class that allows for only two subclasses : <code>Some&lt;T&gt;</code> and <code>None</code>.
+
+<!-- 
+<pre class="brush: sense">
+public abstract class Maybe&lt;out T&gt; {
+	
+	public val T value;
+	public abstract val Boolean isPresent;
+}
+
+public selead class Some&lt;out T&gt; extends Maybe&lt;T&gt; {
+	
+	public Some (T value){
+	    this.value = value;
+	}
+	
+	public override val Boolean isPresent {return true;}
+}
+
+public selead class None extends Maybe&lt;Nothing&gt; {
+	
+	object none extends None {
+	
+		public String toString (){
+			return "null";
+		}
+	}
+
+	private None (){}
+	
+	public override val Nothing value {
+		throw new AbsentValueException();
+	}
+	
+	public override val Boolean isPresent {return false;}
+}
+
+</pre>
+ -->
+<p>If a value is present the class <code>Some&lt;T&gt;</code> is instanciated with that value, if not, an instance of None is returned. 
+However None has only one instance: the <code>Absent</code> object.
+the <code>Absent</code> object itself overrides the <code>toString</code> method to return the word 'null'. Also 'null' is a reserved word in the language 
+that can used to initialize to an absent value, like: </p>
+<pre class="brush: sense">
+	var String? name = null; // we don't kown the name yet.
+	name = "The Name"; // now we kown.
+</pre>
+<p>The usage is very similar to java and C# and others however is mandatory to declare the variable has maybe absent either explicitly declaring it as <code> Maybe&lt;T&gt;</code> 
+or using the ? sufix abreviation.</p>
+<p>There is a lot of abreviations and syntax sugar so the transition from other languages is not that rought. We can explicitly write the same has: </p>
+<pre class="brush: sense">
+	var Maybe&lt;String&gt; name = Absent; // we don't kown the name yet.
+	name = new Some("The Name"); // now we kown.
+</pre>
+<p>However if we need to have a non absent value we can use the or method, or equivalently the (|) operator</p>
+<pre class="brush: sense">
+public class Main {
+	public Void main(Array&lt;String&gt; args){
+		String? argument = args.first();
+		String = argument | "world"; // the same as argument.or("world");
+		Console.print("Hi!, the first argument is {{ argument }}.");
+	}
+}
+</pre>
+<pre class="console">
+Hi!,  the first argument is world.
+</pre>
+
+<h2>Variables and Values</h2>
+<p>In any scope when can define a value</p>
+<pre class="brush: sense">
+	val k = 3;
+	val u: Int;
+	u = 90;
+	u = 80; // error!
+</pre>
+<p>Values are imutable and cannot be changed after inicialized. All values need to be explicity inicialized before they can be read.</p>
+<p>Once again the compiler will infer the type of the value from the initialization expression. If there is no inicialization, the declarion of the type is required.</p>
+<p>A value can be made mutable by using the <code>var</code> annotation instead of <code>val</code>. An mutable value is called a <i>variable</i>.<p>
+<pre class="brush: sense">
+	 var Int n = 1; // inicialize
+     n = 2; // ok, n is a variable.
+</pre>
+
+<h2>Functions</h2>
+<p>Functions allow for algorithms to be executed before returning a value. 
+Normally this algorithms depend on parameters that the function declares explicitly. </p> 
+<pre class="brush: sense">
+	 doSomething() : Void { 
+	 	Console.print("Doing something");
+	 };
+	 square (Int x) : Int { return x*x; }
+</pre>
+<p>Funtions always return a value. <code>Void</code> is not a keyword is an actual type. <code>Void</code> only has one instance. All functions have an implicity return of the instance
+ of <code>Void</code> at the end. This is correct unless the method return other type. You can explicitly write a return of a instance of <code>Void</code>
+<pre class="brush: sense">
+	 doSomething() : Void { 
+	 	Console.print("Doing something");
+	 	return; // implicitly return the instance of Void.
+	 };
+	 square (Int x) : Int { return x*x; }
+</pre>
+<p>Functions are objects of type Callable:
+<pre class="brush: sense">
+	 Callable&lt;Int, Int&gt; f = x -> x*x;
+	 Callable&lt;Int, Int&gt; g = x -> x*2;
+	 
+	 Callable&lt;Int, Int&gt; h = g.then(f); // the same as f(g(x)) - apply g first, them apply f
+	 
+	 Console.println(h(2)); // (2*2)*(2*2)
+	 Console.println(h(3)); // (3*2)*(3*2)
+</pre>
+<pre class="console">
+16
+36
+</pre>
+If the internal function returns void, the secound applied function cannot have parameters.
+<pre class="brush: sense">
+     Callable&lt;Int, Void&gt; f = () -> 2;
+	 Callable&lt;Void, Int&gt; g = x -> return; ;
+	
+	 
+	 Callable&lt;Void, Void&gt; h = g.then(f); // the same as f(g(x)) - apply g first, them apply f., but g returns Void, so f must required Void as single argument.
+	 
+	 Console.println(h(2)); // 2   
+	 Console.println(h(3)); // 2
+</pre>
+This is a complicated way to write the equivalent function:
+<pre class="brush: sense">
+     Callable&lt;Int, Void&gt; h = x -> {
+     	return 2;
+     }
+</pre>
+</p>
+
+<h2>Numbers</h2>
+<p>Numbers are separated in specific algebric strutures that conform to the matematical rules of the group of elements.<br>
+All numbers implement the <code>Number</code> interface.
+<ul>
+	<li>Whole - numbers with no decimal part.
+		<ul>
+			<li>Natural - Represent elements from the mathematical <b>N</b> set, i.e. positive only whole values that include zero that range from zero to an arbitrary range limited only by available memory. </li>
+			<li>Integer - Represent elements from the mathematical <b>Z</b> set, i.e. negative and positive whole values
+				<ul>
+					<li>Short - negative and positive whole values with range from -2<sup>16</sup> to  2<sup>16</sup>-1 </li>
+					<li>Int - negative and positive whole values with range from -2<sup>32</sup> to  2<sup>32</sup>-1 </li>
+					<li>Long - negative and positive whole values with range from -2<sup>64</sup> to  2<sup>64</sup>-1 </li>
+					<li>BigInt - negative and positive whole values with arbitrary range limited only by available memory</li>
+				</ul>
+			</li>
+		</ul>
+	</li>
+	<li>Decimal - Represent elements from the mathematical <b>R</b> set.
+		<ul>
+			<li>ArbitraryPrecisionDecimal - Represents elements that represent the values with arbitary precision, meaning calculations will not incur in loss of precission
+				<ul>
+					<li>Rational - Represent elements from the mathematical <b>Q</b> set, i.e. rational numbers defined by a natural numerator and a natural denominator like 2/3 or -5/8. The denominator cannot be zero. </li>
+					<li>BigDecimal - Representr elements in the <b>R</b>set incluing truncated version of irracional numbers.Negative and positive decimal values with arbitrary precision limited only by available memory</li>
+					
+				</ul>
+			<li>FixedPrecisionDecimal - Represent elements that have a fixed precision and so calculations may incur in loss of precision.
+				<ul>
+					<li>Float - negative and positive decimal values that follow 32 bits IEEE 3744 conventions </li>
+					<li>Double - negative and positive decimal values that follow 64 bits IEEE 3744 conventions </li>
+				</ul>
+			</li>
+		</ul>
+	</li>
+	<li>Imaginary -Represent elements from the mathematical <b>I</b> set. Numbers with pure imaginary parts of the form bJ where J it the square root of -1.
+		<ul>
+			<li>ImaginaryOverDecimal&lt;T extends Decimal&gt; - uses a Decimal type to store the numeric value
+			</li>
+		</ul>
+	</li>
+	
+	<li>Complex - Represent elements from the mathematical <b>C</b> set. Complex numbers are of the form a + bJ where J it the square root of -1.
+		<ul>
+			<li>ComplexOverDecimals&lt;T extends Decimal&gt; - Use a Decimal to type to store a numeric value for the real part and a ImaginaryOverDecimal&lt;T&gt; for the imaginary part.
+		</ul>
+	</li>
+</ul>
+</p>
+Whole number literals are always assumed Natural and transformed to other types as needed. This conversion may rise <code>OverflowException</code> as the Natural type was no max value
+ being limited only by memory available (It's like a BigInt with no sign). Decimal values are always assumed as BigDecimal. BigDecimal constructor only acepts a string representation of the value
+ this is because the BigDecimal representation must be exact.
+
+<pre class="brush: sense">
+	var Natural n = 1; // equivalent to new Natural("1")
+	
+	// literals are always assumed to be Natural and promoted when necessary
+	var Int i = 1;  // equivalent to new Natural("1").toInt();
+	var Short s = 1;  // equivalent to new Natural("1").toShort();
+	var Long k = 1;  // equivalent to new Natural("1").toLong();
+	var BigInt g = 1;  // equivalent to new Natural("1").toBigInt();
+	
+	// sufixes can be used to inform the compiler the corret type of the literal
+	// only uppercase prefixes are allowed 
+	var Int ii = 1I;  // equivalent to new Int("1");
+	var Short ss = 1S;  // equivalent to new Short("1");
+	var Long kk = 1L;  // equivalent to new Long("1");
+	var BigInt gg = 1G;  // equivalent to new BigInt("1");
+	
+	// Rationals are defined by the division of two whole values
+	var Rational r = 2/3; // equivalent to new Natural("2").divide(new Natural("3"))
+	var Rational q = -5/8; // equivalent to new Natural("5").divide(new Natural("8")).negate();
+	
+	// In this case 1 is a Natural being promoted to a Float.
+	var Float f = 1; // equivalent to new Natural("1").toFloat();
+	
+	// decimal values are always assumed to be BigDecimals
+	var Float ff = 1.6; // equivalent to new BigDecimal("1.6").toFloat();
+	var Double d = 2.0; // equivalent to new BigDecimal("2.0").toDouble();
+	var BigDecimal m = 1.234567890E100; // equivalent to new BigDecimal("1.234567890E100");
+
+	// prefixes can also be used to informe the compiler the corret type of the literal
+	var Float fff = 1.6F; // equivalent to new Float("1.6");
+	var Double dd = 2.0D; // equivalent to new Double("2.0");
+	var BigDecimal mm = 1M; // equivalent to new BigDecimal("1");
+	
+	
+	var Imaginary a = 2; // equivalent to new Natural("2").toImaginary(). 
+	var Imaginary b = 2.5; // equivalent to new BigDecimal("2.5").toImaginary(). 
+	
+	var Imaginary y = 2.5J; // equivalent to new ImaginaryOverReals&lt;BigDecimal&gt;("2.5"). 		
+	
+	var Complex = 5 + 2J; // equivalent to new Natural("5").plus(new ImaginaryOverIntegers&lt;Int&gt;("2"))
+	var Complex = 3.9 + 0.2J; // equivalent to new BigDecimal("3.9").plus(new ImaginaryOverReals&lt;BigDecimal&gt;("0.2"))
+</pre>
+<p> 
+Numeral literals for natural numerals are assumed to be represented in decimal form (base 10). However you can use the hexadecimal (base 16) form or a Binary form (base 2). 
+In any representation you can use _ to logically separate digits in the value to help readability.
+<p>
+<pre class="brush: sense">
+	var Natural color = #A3C1_F100; // hexadecimal
+	var Natural flags = $1111_0000_0101_0110_0010_0001_0101_1001; // binary, 32 bits 
+</pre>
+<p>Remeber whole literals are always assumed to be Natural values in decimal representation and promoted to other types when necessary.</p>
+
+<h1>Object Orientation</h1>
+<h2>Classes</h2>
+<p>A class represents a structural template of an object and acts like a factory and protype ate the same time.  
+You can define a class with the <code>class</code> keyword. Classes can named or anonymous.<p>
+<pre class="brush: sense">
+/**A polar coordinate**/
+public class Polar {
+
+	private val Float angle; // imutable values
+	private val Float radius; // imutable values
+	
+	// an initializer , aka constructor
+	public Polar (Float angle, Float radius){
+		this.angle = angle;
+		this.radius = radius;
+	}
+	
+	// some operations
+    public Polar rotate(Float rotation) {
+        return new Polar(this.angle+rotation, this.radius);
+    }
+
+    public  Polar scale(Float scale) { 
+       return new Polar(angle, radius*scale);
+	}
+
+    public String toString () {
+    	return "({{radius}},{{angle}})";
+    } 
+
+}
+</pre>
+<p>The values angle and radius are imutable, so the class as a whole is imutable. When enforce this fact adding <code>val</code> to the class definition</p>
+
+<pre class="brush: sense">
+/**An imutable polar coordinate**/
+public val class Polar {
+
+ ...
+}
+</pre>
+<p>This will inform the compiler the values in the class are not ment to change and any tentative to do so will rise a compiler error.</p>
+<p>If all constructor parameters are intented to be imutable and private a simpler syntax can be used<p>
+<pre class="brush: sense">
+/**An imutable, simplified, polar coordinate**/
+public class Polar (Float angle, Float radius) {
+
+	// the constructor is removed
+	
+	// some operations
+    public Polar rotate(Float rotation) {
+        return new Polar(this.angle+rotation, this.radius);
+    }
+
+    public  Polar scale(Float scale) { 
+       return new Polar(angle, radius*scale);
+	}
+
+    public String toString () {
+    	return "({{radius}},{{angle}})";
+    } 
+
+}
+</pre>
+<p>A very common use of a class is to model Property Bag objects. Property Bags are intrisicly mutable objets and so is necessary something complitly diferent </p>
+
+<pre class="brush: sense">
+/**An Addres as an example of a propertybag**/
+public class Address  {
+
+	public var String street;
+	public var String number;
+	public var String city;
+	public var String zipcode;
+	
+}
+</pre>
+<p>Bacause those are public properties we can assign values to them, an read those values back, but because variables need to be inicialized before used
+and all properties are of type <code>String</code> that inicialization cannot be absent. So that code will not compile. We need to write it like this:
+</p>
+
+<pre class="brush: sense">
+/**An Addres as an example of a propertybag**/
+public class Address  {
+
+	public var String? street;
+	public var String? number;
+	public var String? city;
+	public var String? zipcode;
+	
+}
+</pre>
+<p>In the case the value can be absent the compiler will inicialize it like this , automaticly:</p>
+<pre class="brush: sense">
+/**An Addres as an example of a propertybag**/
+public class Address  {
+
+	public var String? street = null;
+	public var String? number= null;
+	public var String? city= null;
+	public var String? zipcode= null;
+	
+}
+</pre>
+<p>Remember <code>null</code> is a reserved word that represent <code>None.none</code>.
+</body>
+</html>

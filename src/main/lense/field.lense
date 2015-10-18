@@ -1,0 +1,22 @@
+package field.test;
+
+public class teste {
+
+ 	var Int field = 1;
+ 	
+ 	
+	public Void main(){
+		
+		var Int u = field;
+		
+		
+		var Int h = this.field;
+		
+		
+		var String s = this.field.toString();
+		var Natural n = this.field.toString().size;
+		
+		var Natural x = s.size;
+	}
+
+}

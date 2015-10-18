@@ -1,0 +1,27 @@
+package packageName.subpackageName;
+
+/* Usage of void */
+public class SenseProgram {
+
+	public Void getVoid (){
+		return; // equivalent to return Void.Instance;
+	}
+
+	public Void main() {
+		
+		Void v = getVoid();
+		
+		Console.println(v.toString()); // prints 'void' ? 
+
+		val Array<Void> arr = new Array<Void>(4);
+		/*
+		arr[0] =  v;
+		
+		Void w = arr[0];
+		
+		if (v == w ){
+		
+		}
+		*/
+	}
+}

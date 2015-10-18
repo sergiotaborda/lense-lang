@@ -1,0 +1,14 @@
+package test;
+
+
+public class Test {
+
+	Void method (){
+	
+		Maybe<String> a = null;
+		a = new Some<String>("Oi");
+		a = "Oi"; // auto-promote to new Some<String>("Oi") via Any.toMaybe()
+		Maybe<Natural> b = a.size; // auto handle null and translate to a.map(it -> it.size);
+	}
+
+}

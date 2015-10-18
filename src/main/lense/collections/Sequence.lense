@@ -1,0 +1,9 @@
+package sense.collections;
+
+public interface Sequence<out T> {
+
+
+	public T get(Natural index);
+	
+	public val Natural size;
+} 

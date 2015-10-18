@@ -1,0 +1,15 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>lense-lang</groupId>
+  <artifactId>lense-compiler</artifactId>
+  <version>0.0.1</version>
+  <name>lense compiler</name>
+  <description>lense language compiler</description>
+  <dependencies>
+  	<dependency>
+  		<groupId>compiler-little</groupId>
+  		<artifactId>compiler-little</artifactId>
+  		<version>0.5</version>
+  	</dependency>
+  </dependencies>
+</project>

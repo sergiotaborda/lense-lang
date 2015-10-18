@@ -1,0 +1,127 @@
+/*
+* This is a test program file
+*/
+package packageName.subpackageName;
+
+import lense.lang.Math;
+
+public class SenseProgram extends Any implements Iterable<Int> {
+
+
+	val Int x = new Int(1);
+	val Long y = 2;
+	var String s;
+	
+	public Void main (Array<String> args){
+
+		 try {
+		 	
+		 	//Boolean TRUE = Boolean.True;
+		 
+		 	for (Natural i in 2 .. 3){ // 2 .. 3 is a Progression. Progressions always have a start and an end and are iterable. 
+				continue;
+			}
+			// Intervals are not iterable and may not have extermities.
+			
+			Interval<Int> interval = new Interval<Int>(); // ] -oo , +oo[
+			
+			// Interval<Int> interval = new Interval<Int>().from(2).inclusive().to(6).inclusive(); // [2, 6]
+			// Interval<Int> interval = new Interval<Int>().to(6).inclusive(); // ] -oo, 6] 
+			// Interval<Int> interval = new Interval<Int>().from(6).inclusive(); // [6, +oo [ 
+		    // Interval<Int> interval = new Interval<Int>().from(6).exclusive(); // ] 6, +oo [ 
+			
+			
+		    Boolean contained = interval.contains(4);
+			
+			Int f = -8;
+			// Natural f = -8; is an error because naturals cannot be negative
+		
+			while (false ^ true) {
+	
+				other(5,8);
+				continue;
+			}
+			
+			for (String arg in args){
+				continue;
+			}
+
+			if (true){
+			   Decimal c = 8;
+			   doit();
+			}
+			
+			if (f !== y){
+				arrangeit();
+			} else {
+				Real c = 8;
+				dontarrangeit();
+			}
+			
+			if (f == y){
+				arrangeit();
+			} else if (x != y) {
+				Real c = 8;
+				dontarrangeit();
+			} else if (7 != 6) {
+				Real c = 8;
+				dontarrangeit();
+			} else {
+				dontarrangeit();
+			}
+			
+			if ("s" == "u"){
+				arrangeit();
+			} else if (x != y) {
+				dontarrangeit();
+			}
+			
+			method(3, ++4);
+			
+			switch(args){
+				case (1) {
+					arrangeit();
+				}
+				case (2){
+					Float c = 8;
+					break;
+				}
+				default {
+					somemore();
+				}
+			}
+			
+		 } catch (Exception e){
+			 method(3, 4 % 8);
+		 } finally {
+		     s = "Mensagem 
+					de Erro"; // string literals preseve multiline and tabulations
+		     Character g = s[8];
+		 }
+		 
+	}
+	
+	public Long other (Int u , Int h){
+	   return u +  6 * y % h;
+	}
+	
+	public Void method (Natural a , Natural b){
+	    //no-op
+	}
+	
+	public Void somemore (){
+	    //no-op
+	}
+	public Void dontarrangeit (){
+	    //no-op
+	}
+	
+    Void arrangeit (){
+	    //no-op
+	}
+	
+	private Void doit (){
+	    //no-op
+	}
+	
+}

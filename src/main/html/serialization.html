@@ -1,0 +1,77 @@
+<html>
+<head>
+<title>Sense Tour</title>
+<link rel="stylesheet" type="text/css" href="shCore.css" >
+<link rel="stylesheet" type="text/css" href="shThemeSense.css" >
+<script src="shCore.js"></script>
+<script src="shBrushJava.js"></script>
+<script src="shBrushSense.js"></script>
+<style>
+ .console {
+    background : black;
+    color: white;
+    width: 500px;
+ }
+ p {
+ 	text-align:justified;
+ }
+</style>
+<script type="text/javascript">
+     SyntaxHighlighter.all()
+</script>
+</head>
+<body>
+
+<h1>Serialization</h1>
+
+<pre class="brush: sense">
+
+interface SerializationMemento{
+       Void unserialize(InputStream stream);
+       Void serialize(Outputstream stream);
+}
+trait  Serializable&lt;T extends new(M) ,M extends SerializationMemento&gt; {
+
+     M  toMemento() {
+                 return DefaultSerializationProxie&lt;M&gt;(this);
+    }
+ 
+}
+
+class Customer with Serializable&lt;Customer, CustomerMemento&gt; {
+        
+         private String name; 
+
+    CustomerMemento (CustomerMemento m){ // exigido por new (M)
+            Customer c = new Customer;
+            c.name = m.name;
+            return c;
+      }
+
+       CustomerMemento toMemento(){
+            return CustomerMemento::new (this);
+      }
+}
+
+ class CustomerMemento implements SerializationMemento{
+                        
+     public String name; // property;
+
+    CustomerMemento  (Customer costumer){
+                     CustomerMemento m = new CustomerMemento ();
+        m.name = costumer.name;
+        return m;
+    }
+ 	
+	Void unserialize(InputStream stream) {
+	     name = stream.readString();             
+	}
+
+    Void serialize(Outputstream stream){
+        stream.writeString(name);
+    }
+}
+</pre>
+
+</body>
+</html>

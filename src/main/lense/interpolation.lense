@@ -1,0 +1,16 @@
+package teste;
+
+class Interpolation {
+
+
+   public Void main () {
+   
+   		String name = "Robert";
+   		Real pi = 3.1415; 
+   		String s = "the value of \{#03C0} is {{ pi }}.";
+   		
+   		//Boolean u = Boolean.True;
+   		Boolean t = true;
+   		String p = "It's not {{t}} my name id " + name; 
+   }
+}

@@ -1,0 +1,19 @@
+package sense.lang;
+
+public class Natural {
+
+	public Natural plus(Natural other){
+		// native
+		return other;
+	} 
+
+	public Int plus(Int other){
+		// native
+		return other;
+	} 
+	
+	public Natural subtract(Natural other){
+		// native
+		return other;
+	} 
+}

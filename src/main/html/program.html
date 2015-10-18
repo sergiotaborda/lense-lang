@@ -1,0 +1,254 @@
+<html>
+<head>
+<title>Sense Exemples</title>
+<link rel="stylesheet" type="text/css" href="shCore.css" >
+<link rel="stylesheet" type="text/css" href="shThemeSense.css" >
+<script src="shCore.js"></script>
+<script src="shBrushJava.js"></script>
+<script src="shBrushSense.js"></script>
+</head>
+<body>
+
+<p>Creating a module</p>
+<pre class="brush: sense">
+module org.mysystem  (1.2.3)  {
+      import othermodule 1.2.45;
+      import someotherModule 5.8.76+;
+
+      export alfa.packageA.*
+      export alfa.packageB.OnlyThisClass;
+}
+</pre>
+
+<p>Class constuction with variance</p>
+<pre class="brush: sense">
+package sense;
+
+public interface Comparable &lt; in T&gt; {
+
+	// constants that make part of the contract
+	 public val Int GreaterThan = 1;
+	 public val Int EqualTo = 0;
+	 public val Int LessThan = -1;
+	 
+	 /** abstract method **/
+	 public Int compare (T a, T b) ;
+
+}
+
+public class TestIt &lt; in T &gt; implements Comparable&lt;T&gt; {
+
+	 /** concrete implementation method **/
+	  public val compare : Int = (T a, T b) { return EqualTo; }
+	 
+	 public val compare = function (T a, T b) {
+	 
+	 	if (a &gt; b){
+	 		return GreaterThan;
+	 	} else if (a &lt; b){
+	 		return LessThan;
+	 	} else {
+	 		return EqualTo;
+	 	}
+	 }
+	 
+	  public val compare = function (T a, T b)  -&gt;  (a &gt; b) ? GreaterThan : ((a &lt; b) ? LessThan : EqualTo);
+
+}
+
+</pre>
+
+<p>Calculations and expressions</p>
+<pre class="brush: sense">
+	package packageName.subpackageName;
+	
+	import native java.lang.Math; // possivel sintaxe para Foreign Function Interface (https://en.wikipedia.org/wiki/Foreign_function_interface)
+	
+	public class SenseProgram {
+	
+		var Double y = Math.sin(4D);
+	
+		public Real addIt (){
+			val Double x = 34F.toDouble();
+			y = 30D; // error if y is val
+		 	Real r =  x + 8D + 6.9D * y % Math.sin(4D);
+		 	
+		 	System.out.print("Calculating..");
+		 	Maybe&lt;String&gt; a = System.getProperty("version");
+		 	return r;
+		}
+	
+	}
+</pre>
+
+
+<p>A full program example</p>
+<pre class="brush: sense">
+/**
+* This is a test program file
+*/
+package packageName.subpackageName;
+
+import java.lang.Math;
+
+public class SenseProgram extends Any implements Iterable&lt;Int&gt; {
+
+
+	Int x = new Int(1);
+	Long y = 2;
+	String s;
+	
+	/*
+	 http://www.devoxx.com/display/DV11/Is+Fantom+light+years+ahead+of+Scala
+	 intervals literal
+	 monads are structural (have map and flatmap) because of unit but can use exentions + Monad&lt;T&gt; interface
+	 use in/out in properties for get/set
+	 use ${ } or {{ }} for string interpolation
+	 parentesis are optional for zero arguments methods. UAP 
+	 Peer classes and native
+	 native import ?
+	 native = call to subjacent plataform api. this must be 
+	 compiler plugins and delegation sintax  Regex&lt;| ashdads |>;
+	 Window { Size = Size { 20, 40} }} equivalente to new : xml alternative + parser
+	 constructors are curried Actions like constructor.apply(this): Void. 
+	 Property bag as single loadable/parsable file 
+	 Optional parameters vs overloading vs generics vs compatability with javascritpt
+	 ?. operator is wrong. No nulls means null aware operations
+	 literals for urls (?)
+	 literals for regex
+	 operator for racional division 
+	 list and map literals (javascript like)
+	 list = {"a","b","c"} 
+	 map = { "a": 1, "b": 2 , "c" : 3} 
+	 resolve generics problem of adding list to a list (and a sequence to a sequence)
+	 Methods are wrappers arround functions bacause thery curry arround 'this'. static types do not curry
+	 value classes :  public val class Rational , to mean the class is imutable. properties must also be val or only have methods
+	 value classes are "primitives" and be safely shared by actors: actor.send(message). Message must be imutable or seriablizable.
+	 Mark interfaces Imutable and Serializable and have : class Actor {   Void send&lt;T extends Imutable | Serializable&gt;(T msg)  }
+	 Language shoul help comunication and documentation. 
+	 String?  
+	 all numeric literals are rational numbers
+	 imaginary unit is 'i' and 2i means  Rational("2") * Complex.I;
+	 Constructors and methods vs functions and apply.  Client("A") &lt;=&gt; Client.apply("A") &lt;=&gt; Client.Companion.apply("A")
+	 metadata read from .class
+	 definition of classpath
+	 identify dead code
+	 identify out of range literals
+	*/
+	public Void main (Array&lt;String&gt; args){
+
+		 try {
+		 
+		 	for (Natural i in 2 .. 3){ // 2 .. 3 is a Progression. Progressions always have a start and an end and are iterable. 
+				continue;
+			}
+			// Intervals are not iterable and may not have extermities.
+			
+			Interval&lt;Int&gt; interval = new Interval&lt;Int&gt;(); // ] -oo , +oo[
+			
+			// Interval&lt;Int&gt; interval = new Interval&lt;Int&gt;().from(2).inclusive().to(6).inclusive(); // [2, 6]
+			// Interval&lt;Int&gt; interval = new Interval&lt;Int&gt;().to(6).inclusive(); // ] -oo, 6] 
+			// Interval&lt;Int&gt; interval = new Interval&lt;Int&gt;().from(6).inclusive(); // [6, +oo [ 
+		    // Interval&lt;Int&gt; interval = new Interval&lt;Int&gt;().from(6).exclusive(); // ] 6, +oo [ 
+			
+			
+		    Boolean contained = interval.contains(4);
+			
+			Int f = -8;
+			// Natural f = -8; is an error because naturals cannot be negative
+		
+			while (false ^ true) {
+	
+				other(5,8);
+				continue;
+			}
+			
+			for (String arg in args){
+				continue;
+			}
+
+			if (true){
+			   Decimal c = 8;
+			   doit();
+			}
+			
+			if (f !== y){
+				arrangeit();
+			} else {
+				Real c = 8;
+				dontarrangeit();
+			}
+			
+			if (f == y){
+				arrangeit();
+			} else if (x != y) {
+				Real c = 8;
+				dontarrangeit();
+			} else if (7 != 6) {
+				Real c = 8;
+				dontarrangeit();
+			} else {
+				dontarrangeit();
+			}
+			
+			if ("s" == "u"){
+				arrangeit();
+			} else if (x != y) {
+				dontarrangeit();
+			}
+			
+			method(3, ++4);
+			
+			switch(args){
+				case (1) {
+					arrangeit();
+				}
+				case (2){
+					Float c = 8;
+					break;
+				}
+				default {
+					somemore();
+				}
+			}
+			
+		 } catch (Exception e){
+			 method(3, 4 % 8);
+		 } finally {
+		     s = "Error";
+		     String g = s[9];
+		 }
+		 
+	}
+	
+	public Long other (Int u , Int h){
+	   return u +  6 * y % h;
+	}
+	
+	public Void method (Natural a , Natural b){
+	    //no-op
+	}
+	
+	public Void somemore (){
+	    //no-op
+	}
+	public Void dontarrangeit (){
+	    //no-op
+	}
+	
+    Void arrangeit (){
+	    //no-op
+	}
+	
+	private Void doit (){
+	    //no-op
+	}
+}
+</pre>
+ 
+<!-- Finally, to actually run the highlighter, you need to include this JS on your page -->
+<script type="text/javascript">
+     SyntaxHighlighter.all()
+</script>
+</body>
+</html>

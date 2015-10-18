@@ -1,0 +1,152 @@
+Generics
+	Need GenericType lock to the classe type or method generic defenition
+	
+	Diferenciate ReferenceType and TypeVar 
+	ReferenceType = ClassOrInterfaceType | ArrayType
+	
+	to
+	
+	ReferenceType = ClassOrInterfaceType | ArrayType | TypeVar
+	TypeVar = Identifier
+	ClassOrInterfaceType = ClassOrInterface { < TypeParameters > }
+	ClassOrInterface = Identifier | ClassOrInterfaceType . Identifier
+Maybe<T> não pode ser Maybe<Maybe<T>> . o que acontece se T < Any e Maybe<T> < Any
+	Introduzir mais super tipos na hierarquia. Considerar chaamr Maybe<T> the Reference<T>
+			Any 
+				Object : pode ser qualquer objeto
+					User defined types herdam de Object por definição a menos que o programador define explicitamente que herdam de Any
+				Maybe<V extends Object>  : pode ser Some<V> ou None. Esta estrutrua impede Maybe<Reference<A>> porque Maybe não é um Object
+			
+			Nothing	
+			
+			Isto leva a definições de Map como Map<Object K, Object V> com método get(K key ): Maybe<V> e a impossibilidade de ter Map<Object K , Maybe<V> >
+				Ou seja, a chave não pode estar presente sem o valor. E se map.contains(key) é true, então existe um valor e não é Nono. 
+		
+Lambdas
+     -how to compile 
+     - handle Single Abstract Method types
+     - validate variables used are efectively final
+Monads
+	 monads are structural (have filter, map and flatmap) because of unit but can use exentions + Monad<T> interface
+	 Promisses   do (something) then (something) else (otherthing)
+	 Maybe
+	 Collection (aka Enumerable)
+Properties	 
+	 public String Name { get {} set (String value){   } }
+	 public Name : String { get {} set ( value : String){   } }
+	 public Name : String { get {} set ( value ){   } }
+UAP	 
+	 parentesis are optional for zero arguments methods.  fields == methods == properties, decide by name and uniquencess ?!
+     - maybe is not possible 
+Native	 
+	 Peer classes and native
+	 native import ?
+	 native = call to subjacent plataform api. this must be 
+Meta-Compiler	
+	 compiler plugins and delegation sintax  Regex<| ashdads |> = não é legal, mas ter alguma forma de fazer
+	 		Color color = #3AF90;
+	 Seria legal o que leva ao uso de implicits
+	 Optional parameters vs overloading vs generics vs compatability with javascritpt
+Null propagation
+	 Optional type and abreviations ( String? )  
+More literals	 
+	all numeric literals are rational numbers
+	 imaginary unit is 'i' and 2i means  Rational("2") * Complex.I;
+	 literals for urls (?) - resolved with implicits
+	 literals for regex - resolved with implicits
+	  intervals literal
+	 list and map literals (javascript like)
+	 	list = new List {"a","b","c"} 
+		 map = new HashMap { "a": 1, "b": 2 , "c" : 3} 
+     Builders like Window { Size = Size { 20, 40} }} equivalente to new : xml alternative + parser
+	 Property bag as single loadable/parsable file (JSON style) 
+Operatores and Operacional Interfaces	
+	 operator for racional division 	
+Comparable
+	- handle comparable operators
+Tuples
+	 Because of reification Tuple is diferent from Tuple<A> and diferente from Tuple<A,B> , etc...
+	 Resolve problem with a classe for each rank. rank 0 is equivalent to void
+	 	[]  =>		Tuple === Void
+	    [A]	=>		Tuple<A> => Tuple<A , Void>
+	 	[A,B] =>	Tuple<A,B>  => Tuple<A, Tuple<B, Void>>
+	 	[A,B,C] =>	Tuple<A,B,C> => Tuple<A, Tuple<B, Tuple<C, Void>>
+	 	[A,B,C,D] =>Tuple<A,B,C, D> => Tuple<A, Tuple<B, Tuple<C, Tuple<D,Void>>
+	 
+	 	class Tuple 
+	 		// protected contructor 
+	 		// no methods, because as no value
+	 		
+	 	class Tuple<H, T extends Tuple> extends Tuple
+	 		.Head : H
+	 		.Tail : T
+	 		.get(Natural i);
+	 		.constructor (H, T);
+	 		
+	 	class Void extends Tuple
+	 		// no methods
+
+	 	interface Tuple<T, N> 
+	 	    first: T;
+	 	    next : N; 
+	 	    
+		class Pair<A,B> implements Tuple<A,B>
+			last : B	 	    
+	 	    
+	 Void = Tuple de argumento nenhum
+	 	
+	 	class Void implements Tuple<Nothing, Nothing>
+	 	object Void extends Void;
+	 	
+	 [a, b,c] short notation
+	 A tuple with all types equal is a sequence
+
+	 sintax sugar tuple[0] em vez de tuple.item1  
+	 
+	 	tuple[0] => tuple.first;
+	 	tuple[1] => tuple.next.first;
+	 	tuple[2] => tuple.next.next.first;
+	 
+Reification and Generics
+	 resolve generics problem of adding list to a list (and a sequence to a sequence)
+Understanding
+	 Methods are wrappers arround functions because they curry arround 'this'. static types do not curry
+	  constructors are curried Actions like constructor.apply(this): Void. 
+Insight 
+	 Ceylon does not have new keyword, but forces classes to camel case !!	
+	 Language should help comunication and documentation.   
+	 New should be replaces by static method factory. Can be used insi
+Imutability
+	 value classes :  public val class Rational , to mean the class is imutable. properties must also be val or only have methods
+	 value classes are "primitives" and can be safely shared by actors: actor.send(message). Message must be imutable or seriablizable.
+	 Mark interfaces Imutable and Serializable and have : class Actor {   Void send<T extends Imutable | Serializable>(T msg)  }
+	 
+	 Constructors, companions, and methods vs functions and apply.  Client("A") <=> Client.apply("A") <=> Client.Companion.apply("A")
+Scala way of "all are functions" collapses the Collections variance intuition becasue functions are contravariant 
+	and collections concepts are covariant the result is an invariant collections api
+	http://www.stackoverflow.dluat.com/questions/676615/why-is-scalas-immutable-set-not-covariant-in-its-type	 
+Compilation 	 
+	 read compilation metadata from .class
+	 definition of a classpath = project structure for compiler (maven like)
+	 	project XYZ
+	 		source 
+	 			Module.sense
+	 			org
+	 				XYZ  
+	 					packageA
+	 						X.sense
+	 					packageB
+	 						Y.sense
+	 						Z.sense
+	 		compilation
+	 			java
+	 				bin
+	 					XYZ.jar 
+				js
+					bin
+						XYZ.module.js
+	 		
+Syntax
+	 identify dead code
+	 identify out of range literals
+	
