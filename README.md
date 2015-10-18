@@ -8,7 +8,7 @@ Lense is currently in the exploratory design stage, i.e. we are designing the la
 
 # Some features to expect 
 
-Familiar syntax : Lense uses a c/c#/java style syntax 
+Familiar syntax : Lense uses a c familly style syntax. 
 
 No primitives : all types are treated as objects in the heap. The compiler is free to optimize this to the plataform's primitives as it sees fit. The programmer can define imutable objects in order to hint to the compiler that is a good ideia to optimise that class but this is not mandatory.
 
@@ -26,13 +26,13 @@ String interplation : variables can be easy inserted within a string using a sim
 
 Support to Intervals literals.
 
-Support to Proggression (Range) literals. 
+Support to Progressions (Range) literals. 
 
-Suport to Imaginary and Complex numbers.
+Suport to Rational, Imaginary and Complex numbers.
 
 Funcional programing support to some extend. Definitly Lambdas and types like Function<A,B>. 
 
-No Static concept. All things exist in an object
+No concept of "static' : All things are objects or exist within an object
 
 Modules : hability to compile meta information in "module bundle" (think .jar or .dll) and their respective dependencies. This would allow for the runtime to determine the modules that are needed for a given module to run.
 
