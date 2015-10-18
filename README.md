@@ -1,4 +1,4 @@
-# lense-lang
+# Lense : a new optic on programming
 
 Lense is a strong typed, pure object oriented programing language that is - we hope - carefully crafted from merging what we think is and ideal aproach to a new modern programming language with a meticulous observation and analysis of other languages design goals and decisions (and mistakes, yes). Even with this analysis and comparation with the state of art, Lense does not aim to be an academic driven language even when it tries to follow a more científic and logic approach to design decision making.
 

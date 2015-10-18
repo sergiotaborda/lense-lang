@@ -10,20 +10,20 @@ Generics
 	TypeVar = Identifier
 	ClassOrInterfaceType = ClassOrInterface { < TypeParameters > }
 	ClassOrInterface = Identifier | ClassOrInterfaceType . Identifier
-Maybe<T> não pode ser Maybe<Maybe<T>> . o que acontece se T < Any e Maybe<T> < Any
-	Introduzir mais super tipos na hierarquia. Considerar chaamr Maybe<T> the Reference<T>
+Maybe<T> cannot be Maybe<Maybe<T>> . What appends if T <: Any and Maybe<T> <: Any
+	Introduce more super types in the hierarchy. Consider renaming  Maybe<T> to Reference<T> 
 			Any 
-				Object : pode ser qualquer objeto
-					User defined types herdam de Object por definição a menos que o programador define explicitamente que herdam de Any
-				Maybe<V extends Object>  : pode ser Some<V> ou None. Esta estrutrua impede Maybe<Reference<A>> porque Maybe não é um Object
-			
+				AnyObject : can be any object
+					User defined types inherit from  Object by default unless the programmer explicits otherwise.
+				Maybe<V extends AnyObject>  : can be Some<V> or None. This structure proibits Maybe<Maybe<A>> since Maybe is not an AnyObject
 			Nothing	
 			
-			Isto leva a definições de Map como Map<Object K, Object V> com método get(K key ): Maybe<V> e a impossibilidade de ter Map<Object K , Maybe<V> >
-				Ou seja, a chave não pode estar presente sem o valor. E se map.contains(key) é true, então existe um valor e não é Nono. 
+			This structure can poibit to have some methods like, in a Map<AnyObject K, AnyObject V> with method get(K key ): Maybe<V> 
+			is impossible to have  Map<AnyObject K , Maybe<V> > since Maybe is not AnyObject
+			This means the key cannot be present without the valor. If  map.contains(key) is true, then is also true the value exists and is not None. 
 		
 Lambdas
-     -how to compile 
+     - how to compile 
      - handle Single Abstract Method types
      - validate variables used are efectively final
 Monads
@@ -43,9 +43,9 @@ Native
 	 native import ?
 	 native = call to subjacent plataform api. this must be 
 Meta-Compiler	
-	 compiler plugins and delegation sintax  Regex<| ashdads |> = não é legal, mas ter alguma forma de fazer
+	 compiler plugins and delegation sintax  Regex<| ashdads |> = is ungly, but it would be cool to have some way to write , and have auto-promotion
 	 		Color color = #3AF90;
-	 Seria legal o que leva ao uso de implicits
+	 But preferably without implicits
 	 Optional parameters vs overloading vs generics vs compatability with javascritpt
 Null propagation
 	 Optional type and abreviations ( String? )  
