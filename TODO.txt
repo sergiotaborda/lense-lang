@@ -146,7 +146,4 @@ Compilation
 					bin
 						XYZ.module.js
 	 		
-Syntax
-	 identify dead code
-	 identify out of range literals
 	
