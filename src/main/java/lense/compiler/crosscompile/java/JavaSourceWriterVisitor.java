@@ -44,6 +44,7 @@ import lense.compiler.crosscompile.java.ast.VariableDeclarationNode;
 import lense.compiler.crosscompile.java.ast.VariableReadNode;
 import lense.compiler.crosscompile.java.ast.VariableWriteNode;
 import lense.compiler.crosscompile.java.ast.WhileNode;
+import lense.compiler.typesystem.LenseTypeSystem;
 import compiler.parser.IdentifierNode;
 import compiler.syntax.AstNode;
 import compiler.trees.TreeTransverser;
@@ -524,8 +525,14 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode>  {
 						writer.print(" ");
 					}
 				}
-				TreeTransverser.tranverse(m.getReturnType(), new JavaSourceWriterVisitor(writer));
-
+				
+				if (m.getReturnType().getTypeDefinition().getName().equals(LenseTypeSystem.Void().getName())){
+					writer.print("void");
+				} else {
+					TreeTransverser.tranverse(m.getReturnType(), new JavaSourceWriterVisitor(writer));
+				}
+				
+				
 				writer.print(" ");
 				writer.print(m.getName());
 				writer.print("(");

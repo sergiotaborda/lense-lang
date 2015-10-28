@@ -1,0 +1,8 @@
+module org.lense (0.1.0) {
+
+	import java.mdl 1.2.45; 
+	export lense.*;
+	export lense.Any;
+	
+	import java.mdl2 1.2.45+; 
+}

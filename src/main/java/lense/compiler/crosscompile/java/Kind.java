@@ -6,7 +6,7 @@ package lense.compiler.crosscompile.java;
 /**
  * 
  */
-public enum Kind {
+public enum Kind implements compiler.typesystem.TypeKind{
 
 	Class,
 	Interface,

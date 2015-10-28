@@ -1,3 +1,10 @@
+Compile Module
+	- Add module to bnf
+Static reading
+	Interperter calls like "Console.println" as "Console.Companion.println"
+		in java "Companion" is a static field in "Console".
+		Alternativly "Console" is the name of an object. In this case if "console" exists in package lang.io there will be a classe named "IO$Package" and
+		static field of type Console on it so "Console.println" would be IO$Package.Console.println" 
 Generics
 	Need GenericType lock to the classe type or method generic defenition
 	
@@ -47,8 +54,6 @@ Meta-Compiler
 	 		Color color = #3AF90;
 	 But preferably without implicits
 	 Optional parameters vs overloading vs generics vs compatability with javascritpt
-Null propagation
-	 Optional type and abreviations ( String? )  
 More literals	 
 	all numeric literals are rational numbers
 	 imaginary unit is 'i' and 2i means  Rational("2") * Complex.I;

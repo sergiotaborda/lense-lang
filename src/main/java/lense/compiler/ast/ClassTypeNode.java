@@ -14,7 +14,7 @@ import lense.compiler.ast.TypeParametersListNode;
 /**
  * 
  */
-public class ClassType extends AnnotadedSenseAstNode {
+public class ClassTypeNode extends AnnotadedSenseAstNode {
 
 	private Kind kind;
 	private String name;
@@ -24,7 +24,7 @@ public class ClassType extends AnnotadedSenseAstNode {
 	private ImplementedInterfacesNode interfaces;
 	
 	
-	public ClassType (Kind kind){
+	public ClassTypeNode (Kind kind){
 		this.kind = kind;
 	}
 	

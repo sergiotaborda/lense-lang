@@ -1,11 +1,4 @@
-unit = moduleDeclaration | packageDeclaration? ,  importDeclarations?, typeDeclarations;
-moduleDeclaration = 'module' , qualifiedName, '(', versionLiteral, ')',  moduleBody ;
-moduleBody = '{', '}' | '{' , moduleMemberDeclarations , '}';
-moduleMemberDeclarations = moduleMemberDeclaration | moduleMemberDeclarations, moduleMemberDeclaration;
-moduleMemberDeclaration = moduleImport | moduleExport;
-moduleImport = 'import' , qualifiedName , versionMatchLiteral, ';';
-versionMatchLiteral = versionLiteral | versionLiteral , '+' ;
-moduleExport = 'export' , qualifiedName , '.' , '*', ';' | 'export' , qualifiedName , ';';
+unit = packageDeclaration ,  importDeclarations?, typeDeclarations;
 packageDeclaration  = 'package' , qualifiedName , ';' ;
 qualifiedName = identifier | qualifiedName , '.' , identifier; 
 importDeclarations = importDeclaration | importDeclarations , importDeclaration;

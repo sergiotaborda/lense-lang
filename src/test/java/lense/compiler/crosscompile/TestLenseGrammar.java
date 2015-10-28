@@ -12,7 +12,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 
-import lense.compiler.LenseCompiler;
+import lense.compiler.LenseSourceCompiler;
 import lense.compiler.LenseGrammar;
 import lense.compiler.typesystem.LenseTypeSystem;
 
@@ -169,7 +169,7 @@ public class TestLenseGrammar {
 		unitSet.add(new FileCompilationUnit(file));
 
  
-		final Compiler compiler = new LenseCompiler();
+		final Compiler compiler = new LenseSourceCompiler();
 		compiler.addBackEnd(new PrintOutBackEnd());
 	//	compiler.addBackEnd(new OutToJavaSource(out));
 		compiler.compile(unitSet);
@@ -187,7 +187,7 @@ public class TestLenseGrammar {
 		unitSet.add(new FileCompilationUnit(file));
 
  
-		final Compiler compiler = new LenseCompiler();
+		final Compiler compiler = new LenseSourceCompiler();
 		compiler.addBackEnd(new PrintOutBackEnd());
 		compiler.addBackEnd(new OutToJavaSource(out));
 		compiler.compile(unitSet);
@@ -205,7 +205,7 @@ public class TestLenseGrammar {
 		unitSet.add(new FileCompilationUnit(file));
 
  
-		final Compiler compiler = new LenseCompiler();
+		final Compiler compiler = new LenseSourceCompiler();
 		compiler.addBackEnd(new PrintOutBackEnd());
 		compiler.addBackEnd(new OutToJavaSource(out));
 		compiler.compile(unitSet);
@@ -223,7 +223,7 @@ public class TestLenseGrammar {
 		unitSet.add(new FileCompilationUnit(file));
 
  
-		final Compiler compiler = new LenseCompiler();
+		final Compiler compiler = new LenseSourceCompiler();
 		compiler.addBackEnd(new PrintOutBackEnd());
 		compiler.addBackEnd(new OutToJavaSource(out));
 		compiler.compile(unitSet);
@@ -269,7 +269,7 @@ public class TestLenseGrammar {
 		unitSet.add(new FileCompilationUnit(file));
 
  
-		final Compiler compiler = new LenseCompiler();
+		final Compiler compiler = new LenseSourceCompiler();
 		compiler.addBackEnd(new PrintOutBackEnd());
 		compiler.addBackEnd(new OutToJavaSource(out));
 		compiler.compile(unitSet);
@@ -288,7 +288,7 @@ public class TestLenseGrammar {
 		unitSet.add(new FileCompilationUnit(file));
 
  
-		final Compiler compiler = new LenseCompiler();
+		final Compiler compiler = new LenseSourceCompiler();
 		compiler.addBackEnd(new OutToJavaSource(out));
 		compiler.compile(unitSet);
 
@@ -302,7 +302,7 @@ public class TestLenseGrammar {
 		unitSet.add(new FileCompilationUnit(file));
 
  
-		final Compiler compiler = new LenseCompiler();
+		final Compiler compiler = new LenseSourceCompiler();
 		compiler.addBackEnd(new OutToJavaSource(out));
 		compiler.compile(unitSet);
 
@@ -318,32 +318,26 @@ public class TestLenseGrammar {
 		unitSet.add(new FileCompilationUnit(file));
 
  
-		final Compiler compiler = new LenseCompiler();
+		final Compiler compiler = new LenseSourceCompiler();
 		compiler.addBackEnd(new OutToJavaSource(out));
 		compiler.compile(unitSet);
 
 	}
 	
-//	@Test 
-//	public void testlenseType() throws IOException {
-//		 
-//		TypeDefinition sMaybe = LenseTypeSystem.getInstance().specify(LenseTypeSystem.Maybe(), LenseTypeSystem.String());
-//				
-//		MethodSignature mapSignature = new MethodSignature(
-//				sMaybe, 
-//				"map", 
-//				new MethodParameter(lenseType.Function1.of(lenseType.Natural, lenseType.String), "it")
-//		);
-//		
-//		Optional<Method> mapMethod = sMaybe.getAppropriateMethod(mapSignature);
-//		
-//		lenseType binded = (lenseType) mapMethod.get().bindGenerics(mapSignature);
-//		
-//		Method m = binded.getAppropriateMethod(mapSignature).get();
-//		
-//		assertNotNull(m);
-//		assertEquals(LenseTypeSystem.getInstance().specify(LenseTypeSystem.Maybe(), LenseTypeSystem.Natural()), m.getReturningType().getUpperbound());
-//	}
+	@Test 
+	public void testCompileModule() throws IOException {
+		File file = new File(new File(".").getAbsoluteFile().getParentFile(), "src/main/lense/module.lense");
+
+		assertTrue("File does not exist", file.exists());
+		ListCompilationUnitSet unitSet = new ListCompilationUnitSet();
+		unitSet.add(new FileCompilationUnit(file));
+
+ 
+		final Compiler compiler = new LenseSourceCompiler();
+		compiler.addBackEnd(new PrintOutBackEnd());
+		compiler.compile(unitSet);
+
+	}
 	
 	@Test 
 	public void testVoid() throws IOException {
@@ -356,7 +350,7 @@ public class TestLenseGrammar {
 		unitSet.add(new FileCompilationUnit(file));
 
  
-		final Compiler compiler = new LenseCompiler();
+		final Compiler compiler = new LenseSourceCompiler();
 		compiler.addBackEnd(new OutToJavaSource(out));
 		compiler.compile(unitSet);
 
@@ -374,7 +368,7 @@ public class TestLenseGrammar {
 		unitSet.add(new FileCompilationUnit(file));
 
  
-		final Compiler compiler = new LenseCompiler();
+		final Compiler compiler = new LenseSourceCompiler();
 		compiler.addBackEnd(new PrintOutBackEnd());
 		compiler.addBackEnd(new OutToJavaSource(out));
 		compiler.compile(unitSet);
@@ -390,7 +384,7 @@ public class TestLenseGrammar {
 		unitSet.add(new FileCompilationUnit(file));
 
  
-		final Compiler compiler = new LenseCompiler();
+		final Compiler compiler = new LenseSourceCompiler();
 		compiler.addBackEnd(new PrintOutBackEnd());
 		compiler.compile(unitSet);
 	}
@@ -402,7 +396,7 @@ public class TestLenseGrammar {
 		
 		assertTrue("File does not exist", folder.exists());
 		
-		final Compiler compiler = new LenseCompiler();
+		final Compiler compiler = new LenseSourceCompiler();
 		compiler.addBackEnd(new OutToJavaSource(out));
 
 		CompilationUnitSet unitSet = new FolderCompilationUnionSet(folder , name -> name.endsWith(".lense"));

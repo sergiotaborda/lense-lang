@@ -24,18 +24,20 @@ import compiler.typesystem.TypeMember;
  */
 public class JavaType implements TypeDefinition {
 
-	public static final TypeDefinition Object = null;
-	public static final TypeDefinition NullType = null;
-	public static final TypeDefinition Boolean = null;
-	public static final TypeDefinition String = null;
-
+	public static final TypeDefinition Object = new JavaType(Object.class, null);
+	public static final TypeDefinition NullType =  new JavaType(Void.class, null);
+	public static final TypeDefinition Boolean = new JavaType(Boolean.class, null);
+	public static final TypeDefinition String =  new JavaType(String.class, null);
+	
+	private Class<?> type;
+	
 	/**
 	 * Constructor.
 	 * @param type
 	 * @param javaTypeResolver
 	 */
 	public JavaType(Class<?> type, JavaTypeResolver javaTypeResolver) {
-		// TODO Auto-generated constructor stub
+		this.type = type;
 	}
 
 	/**
@@ -43,7 +45,7 @@ public class JavaType implements TypeDefinition {
 	 */
 	@Override
 	public String getName() {
-		throw new UnsupportedOperationException("Not implememented yet");
+		return type.getName();
 	}
 
 	/**
@@ -51,7 +53,7 @@ public class JavaType implements TypeDefinition {
 	 */
 	@Override
 	public String getSimpleName() {
-		throw new UnsupportedOperationException("Not implememented yet");
+		return type.getSimpleName();
 	}
 
 	/**
@@ -59,7 +61,15 @@ public class JavaType implements TypeDefinition {
 	 */
 	@Override
 	public TypeKind getKind() {
-		throw new UnsupportedOperationException("Not implememented yet");
+		if (type.isAnnotation()){
+			return Kind.Annotation;
+		} else if (type.isEnum()){
+			return Kind.Enum;
+		} else if (type.isInterface()){
+			return Kind.Interface;
+		} else {
+			return Kind.Class;
+		}
 	}
 
 	/**

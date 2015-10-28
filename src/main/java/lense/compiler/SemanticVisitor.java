@@ -21,7 +21,7 @@ import lense.compiler.ast.AssignmentNode;
 import lense.compiler.ast.BlockNode;
 import lense.compiler.ast.CatchOptionNode;
 import lense.compiler.ast.ClassInstanceCreation;
-import lense.compiler.ast.ClassType;
+import lense.compiler.ast.ClassTypeNode;
 import lense.compiler.ast.ConditionalStatement;
 import lense.compiler.ast.FieldDeclarationNode;
 import lense.compiler.ast.FieldOrPropertyAccessNode;
@@ -116,8 +116,8 @@ public class SemanticVisitor implements Visitor<AstNode> {
 	public VisitorNext visitBeforeChildren(AstNode node) {
 		if (node instanceof MethodDeclarationNode){
 			semanticContext.beginScope(((MethodDeclarationNode)node).getName());
-		} else if (node instanceof ClassType){
-			ClassType t = (ClassType)node;
+		} else if (node instanceof ClassTypeNode){
+			ClassTypeNode t = (ClassTypeNode)node;
 
 			semanticContext.beginScope(t.getName());
 
@@ -805,9 +805,9 @@ public class SemanticVisitor implements Visitor<AstNode> {
 
 			semanticContext.endScope();
 
-		}else if (node instanceof ClassType){
+		}else if (node instanceof ClassTypeNode){
 			semanticContext.endScope();
-			ClassType t = (ClassType)node;
+			ClassTypeNode t = (ClassTypeNode)node;
 			if (t.getInterfaces() != null){
 
 				for(AstNode n : t.getInterfaces().getChildren()){

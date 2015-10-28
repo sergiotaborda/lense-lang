@@ -15,21 +15,27 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import lense.compiler.AstNodeProperty;
+import lense.compiler.ast.ClassTypeNode;
 import lense.compiler.ast.FieldOrPropertyAccessNode;
 import lense.compiler.ast.ForEachNode;
 import lense.compiler.ast.LenseAstNode;
 import lense.compiler.ast.NumericValue;
 import lense.compiler.ast.RangeNode;
 import lense.compiler.ast.TypeParametersListNode;
+import lense.compiler.crosscompile.java.JavaType;
 import lense.compiler.crosscompile.java.ast.ArithmeticOperation;
 import lense.compiler.crosscompile.java.ast.BlockNode;
+import lense.compiler.crosscompile.java.ast.ClassBodyNode;
 import lense.compiler.crosscompile.java.ast.ComparisonNode;
 import lense.compiler.crosscompile.java.ast.ExpressionNode;
 import lense.compiler.crosscompile.java.ast.ForNode;
+import lense.compiler.crosscompile.java.ast.ImplementedInterfacesNode;
 import lense.compiler.crosscompile.java.ast.PosExpression;
+import lense.compiler.crosscompile.java.ast.TypeNode;
 import lense.compiler.crosscompile.java.ast.VariableDeclarationNode;
 import lense.compiler.crosscompile.java.ast.VariableReadNode;
-
+import lense.compiler.typesystem.Kind;
+import lense.compiler.typesystem.LenseTypeSystem;
 import compiler.parser.IdentifierNode;
 import compiler.syntax.AstNode;
 import compiler.trees.TreeTransverser;
@@ -98,6 +104,40 @@ public class Lense2JavaTransformer implements Function<AstNode, AstNode> {
 			} 
 		} else if (snode instanceof RangeNode){
 			return null;
+		} else if (snode instanceof ClassTypeNode){
+			ClassTypeNode type = (ClassTypeNode)snode;
+			lense.compiler.crosscompile.java.ast.ClassType jtype = new lense.compiler.crosscompile.java.ast.ClassType();
+			jtype.setName(type.getName());
+			
+			if (type.getKind() == Kind.Class){
+				jtype.setKind(lense.compiler.crosscompile.java.Kind.Class);
+			} else if (type.getKind() == Kind.Interface){
+				jtype.setKind(lense.compiler.crosscompile.java.Kind.Interface);
+			} else if (type.getKind() == Kind.Enum){
+				jtype.setKind(lense.compiler.crosscompile.java.Kind.Enum);
+			} else if (type.getKind() == Kind.Annotation){
+				jtype.setKind(lense.compiler.crosscompile.java.Kind.Annotation);
+			}			
+
+			if (type.getSuperType() == null){
+				// the any type it self
+			} else if (type.getSuperType().getTypeDefinition().equals(LenseTypeSystem.Any())){
+				TypeNode sp = new TypeNode("java.lang.Object");
+				sp.setTypeDefinition(JavaType.Object);
+				jtype.setSuperType(sp);
+				jtype.setInterfaces(new ImplementedInterfacesNode());
+				
+				lense.compiler.crosscompile.java.ast.ClassType any = new lense.compiler.crosscompile.java.ast.ClassType(lense.compiler.crosscompile.java.Kind.Interface);
+				any.setName(LenseTypeSystem.Any().getName());
+				jtype.getInterfaces().add(any);
+			} 
+			
+			jtype.setBody((ClassBodyNode) TreeTransverser.transform((AstNode)type.getBody(), this));
+			jtype.setInterfaces( (ImplementedInterfacesNode) TreeTransverser.transform((AstNode)type.getInterfaces(), this));
+			jtype.setGenerics((lense.compiler.crosscompile.java.ast.TypeParametersListNode) TreeTransverser.transform((AstNode)type.getGenerics(), this));
+			
+			return jtype;
+			
 		}
 		
 		

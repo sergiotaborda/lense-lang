@@ -17,6 +17,7 @@ import compiler.parser.Production;
 import compiler.parser.ProductionItem;
 import compiler.parser.Terminal;
 import compiler.parser.Text;
+import compiler.parser.VersionLiteral;
 import lense.compiler.LenseGrammar;
 
 /**
@@ -58,6 +59,8 @@ public class LenseLookupTable extends AbstractLookupTable {
 						productions[i] = Numeric.instance();
 					} else if (columns[i].equals("Text")){
 						productions[i] = Text.instance();
+					} else if (columns[i].equals("Version")){
+						productions[i] = VersionLiteral.instance();
 					} else if (columns[i].startsWith("'")){
 						productions[i] = Terminal.of(columns[i].substring(1, columns[i].length() - 1));
 					} else {

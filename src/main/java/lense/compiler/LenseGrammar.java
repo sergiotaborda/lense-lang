@@ -7,6 +7,12 @@ import java.math.BigDecimal;
 import java.util.Optional;
 import java.util.Set;
 
+
+
+
+
+import com.sun.xml.internal.fastinfoset.QualifiedName;
+
 import compiler.SymbolBasedToken;
 import compiler.TokenSymbol;
 import compiler.lexer.ScanPosition;
@@ -15,7 +21,7 @@ import compiler.lexer.Token;
 import compiler.parser.IdentifierNode;
 import compiler.parser.SemanticAction;
 import compiler.parser.Symbol;
-import lense.compiler.AbstractSenseGrammar;
+import lense.compiler.AbstractLenseGrammar;
 import lense.compiler.CompilationError;
 import lense.compiler.LenseScanner;
 import lense.compiler.ast.AnnotationListNode;
@@ -32,7 +38,7 @@ import lense.compiler.ast.CatchOptionNode;
 import lense.compiler.ast.CatchOptionsNode;
 import lense.compiler.ast.ClassBodyNode;
 import lense.compiler.ast.ClassInstanceCreation;
-import lense.compiler.ast.ClassType;
+import lense.compiler.ast.ClassTypeNode;
 import lense.compiler.ast.ComparisonNode;
 import lense.compiler.ast.ContinueNode;
 import lense.compiler.ast.DecisionNode;
@@ -50,6 +56,8 @@ import lense.compiler.ast.LambdaExpressionNode;
 import lense.compiler.ast.MethodCallNode;
 import lense.compiler.ast.MethodDeclarationNode;
 import lense.compiler.ast.MethodInvocationNode;
+import lense.compiler.ast.ModuleMembersNode;
+import lense.compiler.ast.ModuleNode;
 import lense.compiler.ast.NullValue;
 import lense.compiler.ast.NumericValue;
 import lense.compiler.ast.ParametersListNode;
@@ -73,6 +81,9 @@ import lense.compiler.ast.VariablesList;
 import lense.compiler.ast.VariableReadNode;
 import lense.compiler.ast.VariableWriteNode;
 import lense.compiler.ast.VarianceNode;
+import lense.compiler.ast.VersionNode;
+import lense.compiler.ast.ModuleExportNode;
+import lense.compiler.ast.ModuleImportNode;
 import lense.compiler.ast.WhileNode;
 import lense.compiler.typesystem.Kind;
 import lense.compiler.typesystem.LenseTypeSystem;
@@ -84,7 +95,7 @@ import compiler.typesystem.Variance;
 /**
  * 
  */
-public class LenseGrammar extends AbstractSenseGrammar{
+public class LenseGrammar extends AbstractLenseGrammar{
 
 
 	public LenseGrammar (){
@@ -170,6 +181,10 @@ public class LenseGrammar extends AbstractSenseGrammar{
 				|| c == 'N'	|| c == 'S'	|| c == 'I' || c == 'L' || c == 'D' || c == 'F'  || c == 'M' || c == 'J' ;
 	}
 
+	
+	public boolean isNumberStarter (char c){
+		return super.isNumberStarter(c) || c == '0';
+	}
 	/**
 	 * @param text
 	 * @return
@@ -273,7 +288,15 @@ public class LenseGrammar extends AbstractSenseGrammar{
 
 			UnitTypes types;
 			if (r.size() == 1){
-				p.setSemanticAttribute("node",r.get(0).getSemanticAttribute("node").get());
+				AstNode n = r.get(0).getAstNode().get();
+				if (n instanceof UnitTypes){
+					p.setAstNode(n);
+				} else {
+					types = new UnitTypes();
+					types.add(n);
+					p.setAstNode(types);
+				}
+			
 			} else if (r.isEmpty()){
 				types = new UnitTypes();
 				p.setSemanticAttribute("node", types);
@@ -289,10 +312,10 @@ public class LenseGrammar extends AbstractSenseGrammar{
 				}
 
 				AstNode node = r.get(index).getAstNode().get();
-				if (node instanceof ClassType){
+				if (node instanceof ClassTypeNode){
 					types = new UnitTypes();
 
-					ClassType type = (ClassType)node;
+					ClassTypeNode type = (ClassTypeNode)node;
 
 					type.setName(packageName.getName() + "." + type.getName());
 
@@ -302,7 +325,7 @@ public class LenseGrammar extends AbstractSenseGrammar{
 					types = (UnitTypes)node;
 
 					for (AstNode a : types.getChildren()){
-						ClassType type = (ClassType)a;
+						ClassTypeNode type = (ClassTypeNode)a;
 
 						type.setName(packageName.getName() + "." + type.getName());
 					}
@@ -320,7 +343,97 @@ public class LenseGrammar extends AbstractSenseGrammar{
 
 		});
 
+		getNonTerminal("moduleDeclaration").addSemanticAction( (p, r) -> {
+				ModuleNode module = new ModuleNode();
+				module.setName(ensureQualifiedName(r.get(1).getAstNode().get()));
+				module.setVersion(new VersionNode( r.get(3).getLexicalValue(), false));
+				
+				Optional<AstNode> all = r.get(5).getAstNode();
+				ModuleMembersNode imports = new ModuleMembersNode();
+				ModuleMembersNode exports = new ModuleMembersNode();
+				
+				module.setImports(imports);
+				module.setExports(exports);
+				
+				if (all.isPresent()){
+					for (AstNode n : all.get().getChildren()){
+						if (n instanceof ModuleImportNode){
+							imports.add(n);
+						} else {
+							exports.add(n);
+						}
+					}
+				}
+	
+				p.setAstNode( module);
+		});
+		
 
+		getNonTerminal("versionMatchLiteral").addSemanticAction( (p, r) -> {
+			if (r.size() == 1 ){
+				p.setAstNode( new VersionNode(r.get(0).getLexicalValue(), true));
+			} else  {
+				p.setAstNode( new VersionNode(r.get(0).getLexicalValue(), false));
+			}
+		});
+		
+		
+		getNonTerminal("moduleBody").addSemanticAction( (p, r) -> {
+			p.setAstNode(r.get(1).getAstNode().get());
+		});
+		
+		getNonTerminal("moduleMemberDeclarations").addSemanticAction( (p, r) -> {
+			if (r.size() == 1 ){
+				if (r.get(0).getAstNode().get() instanceof ModuleMembersNode){
+					p.setAstNode(r.get(0).getAstNode().get());
+				} else {
+					ModuleMembersNode in = new ModuleMembersNode();
+					in.add(r.get(0).getAstNode().get());
+					p.setAstNode(in);
+				}
+
+			} else {
+				AstNode node = r.get(0).getAstNode().get();
+				ModuleMembersNode in;
+				if (node instanceof ModuleMembersNode){
+					in = (ModuleMembersNode)node;
+					in.add(r.get(1).getAstNode().get());
+				} else {
+					in = new ModuleMembersNode();
+					in.add(r.get(0).getAstNode().get());
+					in.add(r.get(1).getAstNode().get());
+				}
+
+				p.setAstNode(in);
+			}
+
+
+		});
+		
+		getNonTerminal("moduleMemberDeclaration").addSemanticAction( (p, r) -> {
+			p.setAstNode(r.get(0).getAstNode().get());
+
+		});
+		
+		getNonTerminal("moduleImport").addSemanticAction( (p, r) -> {
+			if (r.size() == 4 ){
+				p.setAstNode(new ModuleImportNode(
+						r.get(1).getAstNode(QualifiedNameNode.class).get(), 
+						r.get(2).getAstNode(VersionNode.class).get()
+				));
+			}
+
+		});
+		
+		getNonTerminal("moduleExport").addSemanticAction( (p, r) -> {
+			if (r.size() == 5 ){
+				p.setAstNode(new ModuleExportNode(r.get(1).getAstNode(QualifiedNameNode.class).get(), true));
+			} else if (r.size() == 3){
+				p.setAstNode(new ModuleExportNode(r.get(1).getAstNode(QualifiedNameNode.class).get(), false));
+			}
+
+		});
+		
 		getNonTerminal("importDeclarations").addSemanticAction( (p, r) -> {
 			if (r.size() == 1 ){
 				if (r.get(0).getAstNode().get() instanceof ImportsNode){
@@ -440,7 +553,7 @@ public class LenseGrammar extends AbstractSenseGrammar{
 				p.setAstNode(r.get(0).getAstNode().get());
 			} else {
 
-				ClassType n = new ClassType(Kind.Class);
+				ClassTypeNode n = new ClassTypeNode(Kind.Class);
 
 				Optional<AnnotationListNode> annots = r.get(0).getAstNode(AnnotationListNode.class);
 
@@ -502,7 +615,7 @@ public class LenseGrammar extends AbstractSenseGrammar{
 				p.setAstNode(r.get(0).getAstNode().get());
 			} else {
 
-				ClassType n = new ClassType(Kind.Interface);
+				ClassTypeNode n = new ClassTypeNode(Kind.Interface);
 
 				Optional<AnnotationListNode> annots = r.get(0).getAstNode(AnnotationListNode.class);
 

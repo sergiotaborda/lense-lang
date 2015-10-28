@@ -11,11 +11,10 @@ import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 
-import lense.compiler.LenseGrammar;
-import lense.compiler.LenseLookupTable;
-
 import org.junit.Test;
 
+import lense.compiler.LenseGrammar;
+import lense.compiler.LenseLookupTable;
 import compiler.Compiler;
 import compiler.FileCompilationUnit;
 import compiler.bnf.BnfCompiler;
@@ -34,21 +33,6 @@ import compiler.parser.Production;
 public class Builder {
 
 	@Test
-	public void test() throws IOException {
-		
-		File file = new File(new File(".").getAbsoluteFile().getParentFile(), "src/test/resources/sense.bnf");
-		File javaOut = new File(new File(".").getAbsoluteFile().getParentFile(), "src/main/java/compiler/sense/AbstractSenseGrammar.java");
-
-		ListCompilationUnitSet unitSet = new ListCompilationUnitSet();
-		unitSet.add(new FileCompilationUnit(file));
-
-
-		final Compiler compiler = new BnfCompiler();
-		compiler.addBackEnd(new ToJavaBackEnd(javaOut, "compiler.sense.AbstractSenseGrammar"));
-		compiler.compile(unitSet);
-	}
-
-	@Test 
 	public void testProduceTableAndTestLALR() throws IOException  {
 
 		LenseGrammar g = new LenseGrammar();

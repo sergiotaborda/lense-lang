@@ -35,6 +35,14 @@ public class TypeNode extends JavaAstNode implements TypedNode{
 	}
 
 	/**
+	 * Constructor.
+	 * @param string
+	 */
+	public TypeNode(String name) {
+		this(new QualifiedNameNode(name));
+	}
+
+	/**
 	 * @param generic
 	 */
 	public void setParametricTypes(GenericTypeParameterNode generic) {

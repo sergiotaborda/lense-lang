@@ -8,7 +8,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 
-import lense.compiler.ast.ClassType;
+import lense.compiler.ast.ClassTypeNode;
 import lense.compiler.crosscompile.java.JavaSourceWriterVisitor;
 
 import compiler.CompilerBackEnd;
@@ -42,7 +42,7 @@ public class OutToJavaSource implements CompilerBackEnd {
 		
 		File compiled = out;
 		if (out.isDirectory()){
-			ClassType t = (ClassType) root.getChildren().get(0);
+			ClassTypeNode t = (ClassTypeNode) root.getChildren().get(0);
 			String path = t.getName().replace('.', '/');
 			int pos = path.lastIndexOf('/');
 			String filename = path.substring(pos+1) + ".java";
@@ -60,7 +60,7 @@ public class OutToJavaSource implements CompilerBackEnd {
 			}
 			
 		}
-		
+
 		try(PrintWriter writer = new PrintWriter(new FileWriter(compiled))){
 			TreeTransverser.tranverse(javaRoot, new JavaSourceWriterVisitor(writer));
 		} catch (IOException e) {
