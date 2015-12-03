@@ -1,8 +1,8 @@
-package test;
+package noname;
 
-public class Test{
+class Test{
 	
-lense.lang.Void  method(lense.lang.Maybe<T extends lense.lang.String>  name){
-final lense.lang.Maybe count = (name.equals(None.None)) ? (0) : (sizename).toMaybe();
+void method(lense.core.lang.Maybe<T>  name){
+final lense.core.lang.Double d = 0.5.toDouble();
 }
 }

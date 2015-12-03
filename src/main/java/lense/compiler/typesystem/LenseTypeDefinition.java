@@ -37,7 +37,7 @@ public class LenseTypeDefinition implements TypeDefinition {
 	private TypeKind kind;
 	private List<TypeMember> members= new ArrayList<TypeMember>();
 	private List<GenericTypeParameter> genericParameters;
-	private LenseTypeDefinition superDefinition;
+	private TypeDefinition superDefinition;
 
 	public LenseTypeDefinition (String name, TypeKind kind, LenseTypeDefinition superDefinition){
 		this.name = name;
@@ -61,7 +61,12 @@ public class LenseTypeDefinition implements TypeDefinition {
 		
 		StringBuilder builder = new StringBuilder(name).append("<");
 		for(GenericTypeParameter p : genericParameters){
-			builder.append(p.getUpperbound().toString()).append(",");
+			if (p.getUpperbound() == null){
+				builder.append("lense.core.lang.Any").append(",");
+			} else {
+				builder.append(p.getUpperbound().toString()).append(",");
+			}
+			
 		}
 		builder.delete(builder.length()-1, builder.length());
 		
@@ -107,7 +112,7 @@ public class LenseTypeDefinition implements TypeDefinition {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public LenseTypeDefinition getSuperDefinition() {
+	public TypeDefinition getSuperDefinition() {
 		return superDefinition;
 	}
 
@@ -138,6 +143,15 @@ public class LenseTypeDefinition implements TypeDefinition {
 	public void addMethod(String name, TypeDefinition returnType, MethodParameter ... parameters) {
 		Method m = new Method(name, new MethodReturn(new FixedTypeVariable(returnType)), parameters);
 		m.setDeclaringType(this);
+		
+		if (!members.isEmpty())
+		{
+			Optional<Method> previous = getMethodBySignature(new MethodSignature(name, parameters));
+			if (previous.isPresent()){
+				this.members.remove(previous.get());
+			}
+		}
+		
 		this.members.add(m);
 	}
 
@@ -149,6 +163,10 @@ public class LenseTypeDefinition implements TypeDefinition {
 	public void addField(String name, TypeDefinition typeDefinition,Imutability imutabilityValue) {
 		final Field field = new Field(name, typeDefinition,imutabilityValue == Imutability.Imutable);
 		field.setDeclaringType(this);
+		
+		// fields are unique by name
+		
+		this.members.remove(field);
 		this.members.add(field);
 	}
 
@@ -156,7 +174,7 @@ public class LenseTypeDefinition implements TypeDefinition {
 	 * @param superType
 	 */
 	public void setSuperTypeDefinition(TypeDefinition superType) {
-		this.superDefinition = (LenseTypeDefinition) superType;
+		this.superDefinition =  superType;
 		if (this.genericParameters.size() == 0){
 			this.genericParameters = superType.getGenericParameters();
 		}
@@ -223,15 +241,24 @@ public class LenseTypeDefinition implements TypeDefinition {
 	 */
 	@Override
 	public Optional<Method> getMethodBySignature(MethodSignature signature) {
+		
+		if (signature.getName() == null){
+			throw new IllegalArgumentException("Signature must have a name");
+		}
+	
 		// find exact local
-		Optional<Method>  member = members.stream().filter(m -> m.isMethod() && m.getName().equals(signature.getName()) && LenseTypeSystem.getInstance().isSignatureImplementedBy(signature, (CallableMember)m)).map(m -> (Method)m).findAny();
-
+		for (TypeMember m :  members){
+			if (m.isMethod() && signature.getName().equals(m.getName()) && LenseTypeSystem.isSignatureImplementedBy(signature, (CallableMember)m)){
+				return Optional.of((Method)m);
+			}
+		}
+		
 		// find exact upper class
-		if (!member.isPresent() && this.superDefinition != null){
+		if (this.superDefinition != null){
 			return this.superDefinition.getMethodBySignature(signature);
 		}
 
-		return member;
+		return Optional.empty();
 	}
 	@Override
 	public Optional<Method> getMethodByPromotableSignature(MethodSignature signature)

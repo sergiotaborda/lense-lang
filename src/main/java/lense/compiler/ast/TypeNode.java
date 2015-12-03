@@ -60,14 +60,7 @@ public class TypeNode extends LenseAstNode implements TypedNode{
 	 * @return
 	 */
 	public String getName() {
-		return isVoid ? "sense.Void" : name.toString();
-	}
-
-	/**
-	 * @return
-	 */
-	public boolean isVoid() {
-		return this.isVoid;
+		return name.toString();
 	}
 
 	/**
@@ -90,6 +83,12 @@ public class TypeNode extends LenseAstNode implements TypedNode{
 		} else {
 			return this.getChildren().size();
 		}
+	}
+	/**
+	 * @param qualifiedNameNode
+	 */
+	public void setName(QualifiedNameNode qualifiedNameNode) {
+		this.name = qualifiedNameNode;
 	}
 
 

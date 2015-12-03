@@ -1,9 +1,0 @@
-package helloword.start;
-
-public class Main {
-
-  	public Void main() {
-  	     Console.println("Hello World");
-  	}
-
-}

@@ -1,4 +1,3 @@
-package sense;
 
 public interface Comparable<in T> {
 

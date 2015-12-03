@@ -3,6 +3,8 @@
  */
 package lense.compiler.ast;
 
+import lense.compiler.repository.Version;
+
 
 /**
  * 
@@ -52,10 +54,12 @@ public class ModuleNode extends LenseAstNode {
 	/**
 	 * @return
 	 */
-	public String getVersion() {
+	public Version getVersion() {
 		return version.getVersion();
 	}
 
-
+	public ModuleMembersNode getImports(){
+		return imports;
+	}
 
 }

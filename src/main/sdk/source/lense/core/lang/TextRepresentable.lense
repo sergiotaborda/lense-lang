@@ -1,0 +1,7 @@
+
+import lense.core.lang.String;
+
+public interface TextRepresentable  {
+
+	public String toString();
+} 

@@ -10,4 +10,5 @@ import compiler.syntax.AstNode;
  */
 public class JavaAstNode extends AstNode{
 
+
 }

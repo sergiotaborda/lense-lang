@@ -1,0 +1,44 @@
+
+
+import test.Servlet;
+import test.functions.F;
+import test.functions.G;
+import test.functions.H;
+import test.functions.S;
+import test.functions.Z;
+import test.K;
+import test.wrong; // wrong name, does not indicate a type
+import test.wrong.W; // never used
+import another.U;
+
+/***
+* every type must be imported by name. types residing in lense.lang do not need to be imported explicitly. 
+*/
+public class Test extends Servlet implements Function<String, K, T> { // T is generic
+
+	public Void method (Int a , Test b){
+	
+		 F c = G.valueOf (a);
+		 
+		 Whole w = new Integer();
+		 F d = new H();
+		 F e = S.staticField.method();
+		 F e3 = S.staticField.otherproperty.someotherproperty.method();
+		 F e4 = S.staticField.othermethod().someotherproperty.method(); 
+		 F e5 = S.staticMethod().otherproperty.someotherMethod().method;
+		   
+		 F f = S.staticMethod().method(); 
+		 F g = Z.staticField;
+		  
+		 F h = c.staticField.method(); 
+		 F h2 = c.staticField.otherproperty.someotherproperty.method();
+		 F h3 = c.staticField.othermethod().someotherproperty.method(); 
+		 F h4 = c.staticMethod().otherproperty.someotherMethod().method();
+		  
+		 F i = Z.staticField;
+		 F j = U.staticMethod();
+		 
+		
+	     return;
+	}
+}

@@ -1,11 +1,12 @@
-package test;
+package noname;
 
-public class Test{
+class Test{
 	
-lense.lang.Void  method(){
-final lense.lang.Maybe a = None.None;
-a =  new lense.lang.Some ( new lense.lang.String ("Oi"));
-a =  new lense.lang.String ("Oi").toMaybe();
-final lense.lang.Maybe b = a.map( new lense.lang.Function ());
+void method(){
+final lense.core.lang.Maybe a = ;
+a =  new lense.core.lang.Some ("Oi");
+a = "Oi".toMaybe();
+final lense.core.lang.Maybe b = a.map( new lense.core.lang.Function ());
 }
+
 }

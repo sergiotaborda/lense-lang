@@ -1,9 +1,8 @@
-package sense.collections;
 
 public class Array<T> {
 
 
-	public T get(Natural index) { // TODO return generic type
+	public Maybe<T> get(Natural index) { // TODO return generic type
 		// native
 		return null;
 	}

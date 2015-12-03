@@ -1,13 +1,14 @@
-package field.test;
+package noname;
 
-public class teste{
+class teste{
 
-Int field =  new lense.lang.Natural ( new lense.lang.String ("1")).toInt();	
-public lense.lang.Void  main(){
-final lense.lang.Int u = field;
-final lense.lang.Int h = fieldthis;
-final lense.lang.String s = fieldthis.toString();
-final lense.lang.Natural n = sizefieldthis.toString();
-final lense.lang.Natural x = sizes;
+Int field = 1.toInt();	
+public void main(){
+final lense.core.lang.Int u = field;
+final lense.core.lang.Int h = fieldthis;
+final lense.core.lang.String s = fieldthis.toString();
+final lense.core.lang.Natural n = sizefieldthis.toString();
+final lense.core.lang.Natural x = sizes;
 }
+
 }

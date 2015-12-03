@@ -3,8 +3,6 @@
  */
 package lense.compiler.ast;
 
-import lense.compiler.ast.QualifiedNameNode;
-import lense.compiler.ast.LenseAstNode;
 
 
 
@@ -19,6 +17,14 @@ public class QualifiedNameNode extends LenseAstNode {
 	public QualifiedNameNode (){}
 	public QualifiedNameNode (String name){
 		this.name= new StringBuilder(name);
+	}
+	
+	public boolean equals(Object other){
+		return other instanceof QualifiedNameNode && ((QualifiedNameNode)other).name.toString().equals(name.toString());
+	}
+	
+	public int hashCode(){
+		return name.toString().hashCode();
 	}
 	
 	public String getName() {
@@ -54,10 +60,19 @@ public class QualifiedNameNode extends LenseAstNode {
 		}
 	}
 	
+	public QualifiedNameNode getNext() {
+		int pos = name.indexOf(".");
+		if (pos < 0){
+			return null;
+		} else {
+			return new QualifiedNameNode(name.subSequence(pos + 1, name.length() ).toString());
+		}
+	}
+	
 	public QualifiedNameNode getLast() {
 		int pos = name.lastIndexOf(".");
 		if (pos < 0){
-			return null;
+			return this;
 		} else {
 			return new QualifiedNameNode(name.substring(pos + 1));
 		}
@@ -67,5 +82,23 @@ public class QualifiedNameNode extends LenseAstNode {
 	 */
 	public boolean isComposed() {
 		return name.indexOf(".") > 0;
+	}
+	/**
+	 * 
+	 */
+	public QualifiedNameNode getFirst() {
+		int pos = name.indexOf(".");
+		if (pos < 0){
+			return this;
+		} else {
+			return new QualifiedNameNode(name.substring(0, pos));
+		}
+	}
+	/**
+	 * @param qnt
+	 * @return
+	 */
+	public QualifiedNameNode concat(QualifiedNameNode qnt) {
+		return new QualifiedNameNode(this.getName() + "." + qnt.getName());
 	}
 }

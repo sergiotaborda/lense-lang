@@ -1,6 +1,7 @@
-package sense.collections;
+package noname;
 
-public class Sequence{
+interface Sequence{
 	
-public lense.lang.Any  get(lense.lang.Natural  index)
-Natural size;}
+public lense.core.lang.Any  get(lense.core.lang.Natural  index)
+Natural size;
+}

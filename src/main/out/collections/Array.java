@@ -1,11 +1,12 @@
-package sense.collections;
+package noname;
 
-public class Array{
+class Array{
 	
-public lense.lang.Any  get(lense.lang.Natural  index){
-return None.None;
+public lense.core.lang.Maybe<T extends lense.core.lang.Any>  get(lense.core.lang.Natural  index){
+return ;
 }
 	
-public lense.lang.Void  set(lense.lang.Natural  index, lense.lang.Any  value){
+public void set(lense.core.lang.Natural  index, lense.core.lang.Any  value){
 }
+
 }

@@ -1,0 +1,5 @@
+
+import lense.core.lang.Character;
+import lense.core.collections.Sequence;
+
+public class String extends Sequence<Character> {} 

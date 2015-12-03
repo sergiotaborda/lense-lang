@@ -1,0 +1,7 @@
+
+import lense.core.lang.TextRepresentable;
+
+public class Whole implements TextRepresentable {
+
+
+}

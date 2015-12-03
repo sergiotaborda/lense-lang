@@ -62,6 +62,15 @@ public class JavaTypeResolver implements TypeResolver{
 	}
 
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void registerType(TypeDefinition type) {
+		throw new UnsupportedOperationException("Not implememented yet");
+	}
+
+
 
 	
 }

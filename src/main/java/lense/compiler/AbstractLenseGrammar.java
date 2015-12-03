@@ -18,10 +18,6 @@ public abstract class AbstractLenseGrammar extends AbstractGrammar {
 
 		NonTerminal unit = addNonTerminal(NonTerminal.of("unit"));
 		NonTerminal moduleDeclaration = addNonTerminal(NonTerminal.of("moduleDeclaration"));
-		NonTerminal versionLiteral = addNonTerminal(NonTerminal.of("versionLiteral"));
-		NonTerminal qualifiedNumber = addNonTerminal(NonTerminal.of("qualifiedNumber"));
-		NonTerminal digits = addNonTerminal(NonTerminal.of("digits"));
-		NonTerminal digit = addNonTerminal(NonTerminal.of("digit"));
 		NonTerminal moduleBody = addNonTerminal(NonTerminal.of("moduleBody"));
 		NonTerminal moduleMemberDeclarations = addNonTerminal(NonTerminal.of("moduleMemberDeclarations"));
 		NonTerminal moduleMemberDeclaration = addNonTerminal(NonTerminal.of("moduleMemberDeclaration"));
@@ -32,12 +28,15 @@ public abstract class AbstractLenseGrammar extends AbstractGrammar {
 		NonTerminal qualifiedName = addNonTerminal(NonTerminal.of("qualifiedName"));
 		NonTerminal importDeclarations = addNonTerminal(NonTerminal.of("importDeclarations"));
 		NonTerminal importDeclaration = addNonTerminal(NonTerminal.of("importDeclaration"));
+		NonTerminal importTypes = addNonTerminal(NonTerminal.of("importTypes"));
+		NonTerminal importName = addNonTerminal(NonTerminal.of("importName"));
 		NonTerminal typeDeclarations = addNonTerminal(NonTerminal.of("typeDeclarations"));
 		NonTerminal typeDeclaration = addNonTerminal(NonTerminal.of("typeDeclaration"));
 		NonTerminal classDeclaration = addNonTerminal(NonTerminal.of("classDeclaration"));
 		NonTerminal implementsInterfaces = addNonTerminal(NonTerminal.of("implementsInterfaces"));
 		NonTerminal interfaceDeclaration = addNonTerminal(NonTerminal.of("interfaceDeclaration"));
 		NonTerminal extendsInterfaces = addNonTerminal(NonTerminal.of("extendsInterfaces"));
+		NonTerminal extendsInterfaceType = addNonTerminal(NonTerminal.of("extendsInterfaceType"));
 		NonTerminal interfaceBody = addNonTerminal(NonTerminal.of("interfaceBody"));
 		NonTerminal interfaceMemberDeclarations = addNonTerminal(NonTerminal.of("interfaceMemberDeclarations"));
 		NonTerminal interfaceMemberDeclaration = addNonTerminal(NonTerminal.of("interfaceMemberDeclaration"));
@@ -138,12 +137,8 @@ public abstract class AbstractLenseGrammar extends AbstractGrammar {
 		NonTerminal nullLiteral = addNonTerminal(NonTerminal.of("nullLiteral"));
 
 
-		unit.setRule(moduleDeclaration.or(packageDeclaration.add(importDeclarations).add(typeDeclarations).or(packageDeclaration.add(typeDeclarations)).or(importDeclarations.add(typeDeclarations)).or(typeDeclarations)));
+		unit.setRule(moduleDeclaration.or(packageDeclaration.or(importDeclarations.add(typeDeclarations).or(typeDeclarations))));
 		moduleDeclaration.setRule(Terminal.of("module").add(qualifiedName).add(Terminal.of("(")).add(VersionLiteral.instance()).add(Terminal.of(")")).add(moduleBody));
-		versionLiteral.setRule(qualifiedNumber);
-		qualifiedNumber.setRule(digits.or(qualifiedNumber.add(Terminal.of(".")).add(digits)));
-		digits.setRule(digit.or(digits.add(digit)));
-		digit.setRule(Terminal.of("0").or(Terminal.of("1").or(Terminal.of("2").or(Terminal.of("3").or(Terminal.of("4").or(Terminal.of("5").or(Terminal.of("6").or(Terminal.of("7").or(Terminal.of("8").or(Terminal.of("9")))))))))));
 		moduleBody.setRule(Terminal.of("{").add(Terminal.of("}")).or(Terminal.of("{").add(moduleMemberDeclarations).add(Terminal.of("}"))));
 		moduleMemberDeclarations.setRule(moduleMemberDeclaration.or(moduleMemberDeclarations.add(moduleMemberDeclaration)));
 		moduleMemberDeclaration.setRule(moduleImport.or(moduleExport));
@@ -153,13 +148,16 @@ public abstract class AbstractLenseGrammar extends AbstractGrammar {
 		packageDeclaration.setRule(Terminal.of("package").add(qualifiedName).add(Terminal.of(";")));
 		qualifiedName.setRule(Identifier.instance().or(qualifiedName.add(Terminal.of(".")).add(Identifier.instance())));
 		importDeclarations.setRule(importDeclaration.or(importDeclarations.add(importDeclaration)));
-		importDeclaration.setRule(Terminal.of("import").add(qualifiedName).add(Terminal.of(";")));
+		importDeclaration.setRule(Terminal.of("import").add(qualifiedName).add(Terminal.of(";")).or(Terminal.of("import").add(qualifiedName).add(Terminal.of("as")).add(Identifier.instance()).add(Terminal.of(";")).or(Terminal.of("import").add(qualifiedName).add(Terminal.of("{")).add(importTypes).add(Terminal.of("}")))));
+		importTypes.setRule(importName.or(importTypes.add(Terminal.of(",")).add(importName)));
+		importName.setRule(Identifier.instance().or(Identifier.instance().add(Terminal.of("as")).add(Identifier.instance())));
 		typeDeclarations.setRule(typeDeclaration.or(typeDeclarations.add(typeDeclaration)));
 		typeDeclaration.setRule(classDeclaration.or(interfaceDeclaration));
 		classDeclaration.setRule(annotations.add(Terminal.of("class")).add(qualifiedName).add(genericTypesDeclaration).add(superDeclaration).add(implementsInterfaces).add(classBody).or(annotations.add(Terminal.of("class")).add(qualifiedName).add(genericTypesDeclaration).add(superDeclaration).add(classBody)).or(Terminal.of("class").add(qualifiedName).add(genericTypesDeclaration).add(superDeclaration).add(implementsInterfaces).add(classBody)).or(Terminal.of("class").add(qualifiedName).add(genericTypesDeclaration).add(superDeclaration).add(classBody)));
-		implementsInterfaces.setRule(Terminal.of("implements").add(type).or(implementsInterfaces.add(Terminal.of(",")).add(type)));
+		implementsInterfaces.setRule(Terminal.of("implements").add(extendsInterfaceType));
 		interfaceDeclaration.setRule(annotations.add(Terminal.of("interface")).add(qualifiedName).add(genericTypesDeclaration).add(extendsInterfaces).add(interfaceBody).or(annotations.add(Terminal.of("interface")).add(qualifiedName).add(genericTypesDeclaration).add(interfaceBody)).or(Terminal.of("interface").add(qualifiedName).add(genericTypesDeclaration).add(extendsInterfaces).add(interfaceBody)).or(Terminal.of("interface").add(qualifiedName).add(genericTypesDeclaration).add(interfaceBody)));
-		extendsInterfaces.setRule(Terminal.of("extends").add(type).or(extendsInterfaces.add(Terminal.of(",")).add(type)));
+		extendsInterfaces.setRule(Terminal.of("extends").add(extendsInterfaceType));
+		extendsInterfaceType.setRule(type.or(extendsInterfaceType.add(Terminal.of(",")).add(type)));
 		interfaceBody.setRule(Terminal.of("{").add(interfaceMemberDeclarations).add(Terminal.of("}")).or(Terminal.of("{").add(Terminal.of("}"))));
 		interfaceMemberDeclarations.setRule(interfaceMemberDeclaration.or(interfaceMemberDeclarations.add(interfaceMemberDeclaration)));
 		interfaceMemberDeclaration.setRule(constantDeclaration.or(abstractMethodDeclaration));
@@ -167,7 +165,7 @@ public abstract class AbstractLenseGrammar extends AbstractGrammar {
 		imutabilityModifier.setRule(Terminal.of("var").or(Terminal.of("val")));
 		abstractMethodDeclaration.setRule(annotations.add(type).add(Identifier.instance()).add(Terminal.of("(")).add(formalParameterList).add(Terminal.of(")")).add(Terminal.of(";")).or(type.add(Identifier.instance()).add(Terminal.of("(")).add(formalParameterList).add(Terminal.of(")")).add(Terminal.of(";"))).or(annotations.add(type).add(Identifier.instance()).add(Terminal.of("(")).add(Terminal.of(")")).add(Terminal.of(";")).or(type.add(Identifier.instance()).add(Terminal.of("(")).add(Terminal.of(")")).add(Terminal.of(";")))));
 		annotations.setRule(annotation.or(annotations.add(annotation)));
-		annotation.setRule(Terminal.of("public").or(Terminal.of("private").or(Terminal.of("abstract").or(Terminal.of("final")))));
+		annotation.setRule(Identifier.instance());
 		genericTypesDeclaration.setRule(EmptyTerminal.instance().or(Terminal.of("<").add(parametricTypes).add(Terminal.of(">"))));
 		superDeclaration.setRule(EmptyTerminal.instance().or(Terminal.of("extends").add(type)));
 		classBody.setRule(Terminal.of("{").add(classBodyDeclarations).add(Terminal.of("}")).or(Terminal.of("{").add(Terminal.of("}"))));
@@ -175,12 +173,12 @@ public abstract class AbstractLenseGrammar extends AbstractGrammar {
 		classBodyDeclaration.setRule(classMemberDeclaration);
 		classMemberDeclaration.setRule(fieldDeclaration.or(methodDeclaration));
 		fieldDeclaration.setRule(imutabilityModifier.add(type).add(variableName).add(Terminal.of(";")).or(type.add(variableName).add(Terminal.of(";"))).or(imutabilityModifier.add(type).add(variableName).add(Terminal.of("=")).add(expression).add(Terminal.of(";")).or(type.add(variableName).add(Terminal.of("=")).add(expression).add(Terminal.of(";")))));
-		type.setRule(qualifiedName.or(qualifiedName.add(Terminal.of("<")).add(parametricTypes).add(Terminal.of(">"))));
+		type.setRule(Identifier.instance().or(Identifier.instance().add(Terminal.of("<")).add(parametricTypes).add(Terminal.of(">"))));
 		parametricTypes.setRule(parametricType.or(parametricTypes.add(Terminal.of(",")).add(parametricType)));
 		parametricType.setRule(varianceModifier.add(type));
 		varianceModifier.setRule(Terminal.of("in").or(Terminal.of("out").or(Terminal.of("inv").or(EmptyTerminal.instance()))));
 		variableName.setRule(Identifier.instance());
-		methodDeclaration.setRule(methodHeader.add(methodBody));
+		methodDeclaration.setRule(methodHeader.add(methodBody).or(methodHeader.add(Terminal.of(";"))));
 		methodHeader.setRule(annotations.add(type).add(Identifier.instance()).add(Terminal.of("(")).add(formalParameterList).add(Terminal.of(")")).or(type.add(Identifier.instance()).add(Terminal.of("(")).add(formalParameterList).add(Terminal.of(")"))).or(annotations.add(type).add(Identifier.instance()).add(Terminal.of("(")).add(Terminal.of(")")).or(type.add(Identifier.instance()).add(Terminal.of("(")).add(Terminal.of(")")))));
 		methodBody.setRule(block);
 		block.setRule(Terminal.of("{").add(Terminal.of("}")).or(Terminal.of("{").add(blockStatements).add(Terminal.of("}"))));

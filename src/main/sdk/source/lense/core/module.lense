@@ -1,0 +1,4 @@
+module lense.core (0.1.0) {
+
+	export lense.core.*;
+}

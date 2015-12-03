@@ -3,16 +3,15 @@
  */
 package lense.compiler.ast;
 
-import compiler.syntax.AstNode;
 import compiler.typesystem.Variance;
 
 /**
  * 
  */
-public class VarianceNode extends AstNode {
+public class VarianceNode extends LenseAstNode {
 
 	private Variance variance;
-
+	
 	/**
 	 * Constructor.
 	 * @param variant

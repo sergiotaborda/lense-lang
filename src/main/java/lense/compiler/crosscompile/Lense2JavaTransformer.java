@@ -18,7 +18,10 @@ import lense.compiler.AstNodeProperty;
 import lense.compiler.ast.ClassTypeNode;
 import lense.compiler.ast.FieldOrPropertyAccessNode;
 import lense.compiler.ast.ForEachNode;
+import lense.compiler.ast.ImportDeclarationsListNode;
+import lense.compiler.ast.LambdaExpressionNode;
 import lense.compiler.ast.LenseAstNode;
+import lense.compiler.ast.ModuleNode;
 import lense.compiler.ast.NumericValue;
 import lense.compiler.ast.RangeNode;
 import lense.compiler.ast.TypeParametersListNode;
@@ -51,12 +54,14 @@ public class Lense2JavaTransformer implements Function<AstNode, AstNode> {
 	@Override
 	public AstNode apply(AstNode snode) {
 		
-		if (snode == null){
+		if (snode == null || snode instanceof ModuleNode || snode instanceof ImportDeclarationsListNode){
 			return null;
 		}
 		
 		if (snode instanceof IdentifierNode){
 			return snode;
+		} else if (snode instanceof LambdaExpressionNode){
+			return null;
 		} else if (snode instanceof NumericValue){
 			
 			return new lense.compiler.crosscompile.java.ast.NumericValue(((NumericValue)snode).getValue());

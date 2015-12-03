@@ -3,13 +3,11 @@
  */
 package lense.compiler.crosscompile.java.ast;
 
-import compiler.syntax.AstNode;
 import compiler.typesystem.Variance;
-
 /**
  * 
  */
-public class VarianceNode extends AstNode {
+public class VarianceNode extends JavaAstNode {
 
 	private Variance variance;
 
@@ -17,7 +15,7 @@ public class VarianceNode extends AstNode {
 	 * Constructor.
 	 * @param variant
 	 */
-	public VarianceNode(Variance variance) {
+	public VarianceNode( Variance variance) {
 		this.variance = variance;
 	}
 

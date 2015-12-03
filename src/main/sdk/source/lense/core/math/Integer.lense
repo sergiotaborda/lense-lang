@@ -1,0 +1,7 @@
+
+import lense.core.math.Whole;
+
+public class Integer extends Whole{
+
+
+}

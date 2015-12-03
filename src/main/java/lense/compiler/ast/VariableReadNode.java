@@ -59,7 +59,7 @@ public class VariableReadNode extends ExpressionNode {
 	}
 
 	public TypeDefinition getTypeDefinition(){
-		return variableInfo.getTypeDefinition();
+		return variableInfo == null ? null : variableInfo.getTypeDefinition();
 	}
 
 }

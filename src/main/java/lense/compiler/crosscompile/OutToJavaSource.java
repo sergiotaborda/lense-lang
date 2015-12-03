@@ -10,7 +10,7 @@ import java.io.PrintWriter;
 
 import lense.compiler.ast.ClassTypeNode;
 import lense.compiler.crosscompile.java.JavaSourceWriterVisitor;
-
+import compiler.CompiledUnit;
 import compiler.CompilerBackEnd;
 import compiler.syntax.AstNode;
 import compiler.trees.TreeTransverser;
@@ -35,19 +35,30 @@ public class OutToJavaSource implements CompilerBackEnd {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void use(AstNode root) {
+	public void use(CompiledUnit unit) {
 		
 
-		AstNode javaRoot = TreeTransverser.transform(root, new Lense2JavaTransformer());
+		AstNode javaRoot = TreeTransverser.transform(unit.getAstRootNode(), new Lense2JavaTransformer());
 		
 		File compiled = out;
 		if (out.isDirectory()){
-			ClassTypeNode t = (ClassTypeNode) root.getChildren().get(0);
+			AstNode node = unit.getAstRootNode().getChildren().get(0);
+			
+			if (!(node instanceof ClassTypeNode)){
+				return;
+			}
+			ClassTypeNode t = (ClassTypeNode)node;
 			String path = t.getName().replace('.', '/');
 			int pos = path.lastIndexOf('/');
 			String filename = path.substring(pos+1) + ".java";
-			path = path.substring(0, pos);
-			File folder = new File(out, path );
+			File folder;
+			if (pos >=0){
+				path = path.substring(0, pos);
+				folder = new File(out, path );
+			} else {
+				folder = out;
+			}
+			
 			folder.mkdirs();
 			
 			compiled = new File(folder, filename);

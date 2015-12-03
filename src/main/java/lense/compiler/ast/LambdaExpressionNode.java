@@ -11,8 +11,15 @@ import compiler.syntax.AstNode;
  */
 public class LambdaExpressionNode extends ExpressionNode {
 
+	private static int nextId = 1;
+	private int lambdaId =0;
+	
 	private ExpressionNode body;
 	private AstNode parameters;
+	
+	public LambdaExpressionNode(){
+		lambdaId = nextId++;
+	}
 	
 	/**
 	 * @param astNode
@@ -36,5 +43,13 @@ public class LambdaExpressionNode extends ExpressionNode {
 
 	public AstNode getParameters(){
 		return parameters;
+	}
+
+	public int getLambdaId() {
+		return lambdaId;
+	}
+
+	public void setLambdaId(int lambdaId) {
+		this.lambdaId = lambdaId;
 	}
 }

@@ -3,13 +3,16 @@
  */
 package lense.compiler;
 
-import compiler.Compiler;
-import lense.compiler.LenseLanguage;
-import lense.compiler.LenseTypeResolver;
+import lense.compiler.phases.LenseSemanticPhase;
+import lense.compiler.phases.NameResolutionPhase;
+import compiler.AstCompiler;
+import compiler.CompilationResultSet;
+import compiler.CompilationUnit;
+import compiler.CompilationUnitSet;
 /**
  * 
  */
-public class LenseSourceCompiler extends Compiler {
+public class LenseSourceCompiler extends AstCompiler {
 
 	/**
 	 * Constructor.
@@ -17,8 +20,19 @@ public class LenseSourceCompiler extends Compiler {
 	 */
 	public LenseSourceCompiler() {
 		super(new LenseLanguage());
-		
-		addTypeResolver(LenseTypeResolver.getInstance());
 	}
 
+	public CompilationResultSet parse(CompilationUnitSet unitSet){
+		LenseTypeRepository repo = new LenseTypeRepository();
+		
+		PackageResolver resolver = new PackageResolver(){
+
+			@Override
+			public String resolveUnitPackageName(CompilationUnit compilationUnit) {
+				return "noname";
+			}
+			
+		};
+		return super.parse(unitSet).passBy(new NameResolutionPhase(repo, resolver, this.getListener())).passBy(new LenseSemanticPhase(this.getListener()));
+	}
 }

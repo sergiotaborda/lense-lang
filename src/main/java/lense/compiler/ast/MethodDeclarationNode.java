@@ -3,6 +3,7 @@
  */
 package lense.compiler.ast;
 
+import lense.compiler.Visibility;
 import lense.compiler.ast.AnnotadedSenseAstNode;
 import lense.compiler.ast.BlockNode;
 import lense.compiler.ast.ParametersListNode;
@@ -20,6 +21,8 @@ public class MethodDeclarationNode extends AnnotadedSenseAstNode {
 	private ParametersListNode parameters;
 	private BlockNode block;
 	private boolean isAbstract;
+	private boolean isNative;
+	private Visibility visibility;
 	
 	public TypeNode getReturnType() {
 		return returnType;
@@ -55,6 +58,19 @@ public class MethodDeclarationNode extends AnnotadedSenseAstNode {
 	public void setAbstract(boolean isAbstract) {
 		this.isAbstract = isAbstract;
 	}
+	public boolean isNative() {
+		return isNative;
+	}
+	public void setNative(boolean isNative) {
+		this.isNative = isNative;
+	}
+	public Visibility getVisibility() {
+		return visibility;
+	}
+	public void setVisibility(Visibility visibility) {
+		this.visibility = visibility;
+	}
+
 
 	
 	

@@ -1,0 +1,12 @@
+
+import lense.core.lang.Void;
+import lense.core.math.Natural;
+import lense.core.collections.Sequence;
+
+public native class Array<T> extends Sequence<T> {
+
+
+	public native T get(Natural index);
+	
+	public native Void set(Natural index, T value);
+} 

@@ -5,15 +5,13 @@ package lense.compiler;
 
 import java.util.ArrayList;
 import java.util.Deque;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
+import lense.compiler.repository.UpdatableTypeRepository;
 import compiler.typesystem.TypeDefinition;
 import compiler.typesystem.TypeNotFoundException;
-import compiler.typesystem.TypeResolver;
 import compiler.typesystem.TypeSearchParameters;
 import compiler.typesystem.VariableInfo;
 
@@ -25,13 +23,18 @@ public class SemanticContext {
 	Deque<SemanticScope> scopes = new LinkedList<SemanticScope>();
 	private List<String> imports = new ArrayList<String>();
 	
-	private Map<TypeSearchParameters, TypeDefinition> types = new HashMap<>();
-	private TypeResolver resolver;
+	private UpdatableTypeRepository resolver;
+	private String currentpackage;
 	
-	public SemanticContext(TypeResolver resolver){
+	public SemanticContext(UpdatableTypeRepository resolver, String currentpackage){
 		this.resolver = resolver;
-
-		imports.add("lense.lang");
+		this.currentpackage= currentpackage;
+		
+		imports.add(currentpackage);
+	}
+	
+	public String getCurrentPackageName(){
+		return currentpackage;
 	}
 
 	/**
@@ -51,7 +54,7 @@ public class SemanticContext {
 	}
 
 	public SemanticScope currentScope(){
-		return scopes.getFirst();
+		return scopes.isEmpty() ? null : scopes.getFirst();
 	}
 
 	/**
@@ -61,9 +64,6 @@ public class SemanticContext {
 		imports.add(importName);
 	}
 
-	public TypeDefinition typeForName(String name) {
-		return typeForName(name, 0);
-	}
 	/**
 	 * @param name
 	 * @param size
@@ -87,30 +87,32 @@ public class SemanticContext {
 
 		if(name.contains(".")){
 			// is qualified
-			TypeDefinition type = typeForQualifiedName(name,genericParametersCount);
-			if (type!= null){
-				return Optional.of(type);
-			} else {
-				return Optional.empty();
-			}
+			return typeForQualifiedName(name,genericParametersCount);
+
 		} else {
 
 			// try type variable
-			VariableInfo variableInfo = currentScope().searchVariable(name);
+			final SemanticScope currentScope = currentScope();
+			if (currentScope != null){
+				VariableInfo variableInfo = currentScope.searchVariable(name);
 
-			if (variableInfo != null && variableInfo.isTypeVariable()){
-				return Optional.of(variableInfo.getTypeDefinition());
-			}
-
-
-			// not type variable, attach imports and look again
-
-			for (String importPackage : imports){
-				TypeDefinition type = typeForQualifiedName(importPackage + "." + name, genericParametersCount);
-				if (type != null){
-					return Optional.of(type);
+				if (variableInfo != null && variableInfo.isTypeVariable()){
+					return Optional.of(variableInfo.getTypeDefinition());
 				}
+
+
+				// not type variable, attach imports and look again
+
+				for (String importPackage : imports){
+					Optional<TypeDefinition> type = typeForQualifiedName(importPackage + "." + name, genericParametersCount);
+					if (type.isPresent()){
+						return type;
+					}
+				}
+				
+				return typeForQualifiedName(name,genericParametersCount );
 			}
+		
 			return Optional.empty();
 		}
 
@@ -120,22 +122,12 @@ public class SemanticContext {
 	 * @param name
 	 * @return
 	 */
-	private TypeDefinition typeForQualifiedName(String name, int genericParametersCount) {
+	private Optional<TypeDefinition> typeForQualifiedName(String name, int genericParametersCount) {
 
 		TypeSearchParameters filter = new TypeSearchParameters(name,  genericParametersCount);
 		
-		TypeDefinition type = types.get(filter);
+		return resolver.resolveType(filter);
 
-
-		if (type == null){
-			
-			type = resolver.resolveTypeByName(filter);
-
-			if (type != null){
-				types.put(filter, type);
-			}
-		}
-		return type;
 	}
 
 	/**
@@ -144,7 +136,15 @@ public class SemanticContext {
 	 * @param myType
 	 */
 	public void registerType(TypeDefinition type, int genericParametersCount) {
-		types.put(new TypeSearchParameters(type.getName(),  genericParametersCount), type);
+		resolver.registerType(type);
+	}
+
+	/**
+	 * @param name
+	 * @return
+	 */
+	public Optional<TypeDefinition> resolvePackageForName(String name) {
+		return Optional.empty();
 	}
 
 

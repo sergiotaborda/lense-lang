@@ -3,10 +3,6 @@
  */
 package lense.compiler.ast;
 
-import lense.compiler.ast.BlockNode;
-import lense.compiler.ast.ExpressionNode;
-import lense.compiler.ast.LenseAstNode;
-import lense.compiler.ast.VariableDeclarationNode;
 
 
 
@@ -15,13 +11,13 @@ import lense.compiler.ast.VariableDeclarationNode;
  */
 public class CatchOptionNode extends LenseAstNode {
 
-	private VariableDeclarationNode exceptions;
+	private FormalParameterNode exceptions;
 	private BlockNode instructions;
 
 	/**
 	 * @param astNode
 	 */
-	public void setExceptions(VariableDeclarationNode node) {
+	public void setExceptions(FormalParameterNode node) {
 		this.exceptions = node;
 		this.add(node);
 	}
@@ -38,7 +34,7 @@ public class CatchOptionNode extends LenseAstNode {
 	 * Obtains {@link ExpressionNode}.
 	 * @return the exceptions
 	 */
-	public VariableDeclarationNode getExceptions() {
+	public FormalParameterNode getExceptions() {
 		return exceptions;
 	}
 

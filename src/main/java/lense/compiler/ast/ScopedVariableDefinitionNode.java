@@ -33,4 +33,6 @@ public interface ScopedVariableDefinitionNode extends TypedNode {
 	void setInfo(VariableInfo info);
 	
     Imutability getImutabilityValue();
+    
+    public TypeNode getTypeNode();
 }

@@ -3,6 +3,8 @@
  */
 package lense.compiler.ast;
 
+import lense.compiler.repository.Version;
+
 /**
  * 
  */
@@ -10,12 +12,18 @@ public class VersionNode extends LenseAstNode {
 
 	String[] parts;
 	private boolean matchExact;
-	private String version;
+	private Version version;
 	
 	public VersionNode (String version, boolean matchExact){
-		this.version = version;
-		parts = version.split("\\.");
 		this.matchExact = matchExact;
+		
+		parts = version.split("\\.");
+		
+		int[] iparts = new int[parts.length];
+		for(int i=0; i < parts.length; i++){
+			iparts[i] = Integer.parseInt(parts[i]);
+		}
+		this.version = new Version(iparts);
 	}
 	
 	public boolean mustMatchExactly(){
@@ -25,7 +33,7 @@ public class VersionNode extends LenseAstNode {
 		return parts;
 	}
 	
-	public String getVersion(){
+	public Version getVersion(){
 		return version;
 	}
 }

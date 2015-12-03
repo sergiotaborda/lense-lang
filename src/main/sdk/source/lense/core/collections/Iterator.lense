@@ -1,0 +1,8 @@
+
+import lense.core.lang.Boolean;
+
+public interface Iterator<out T> {
+
+	public Boolean hasNext();
+	public T next();
+} 

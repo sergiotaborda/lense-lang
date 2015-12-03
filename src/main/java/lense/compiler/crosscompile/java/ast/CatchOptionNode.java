@@ -11,13 +11,13 @@ package lense.compiler.crosscompile.java.ast;
  */
 public class CatchOptionNode extends JavaAstNode {
 
-	private VariableDeclarationNode exceptions;
+	private FormalParameterNode exceptions;
 	private BlockNode instructions;
 
 	/**
 	 * @param astNode
 	 */
-	public void setExceptions(VariableDeclarationNode node) {
+	public void setExceptions(FormalParameterNode node) {
 		this.exceptions = node;
 		this.add(node);
 	}
@@ -34,7 +34,7 @@ public class CatchOptionNode extends JavaAstNode {
 	 * Obtains {@link ExpressionNode}.
 	 * @return the exceptions
 	 */
-	public VariableDeclarationNode getExceptions() {
+	public FormalParameterNode getExceptions() {
 		return exceptions;
 	}
 

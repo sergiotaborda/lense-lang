@@ -23,9 +23,5 @@ public class ArgumentListNode extends LenseAstNode {
 			this.add(n);
 		}
 	}
-	public MethodParameter[] asMethodParameters(){
-		return this.getChildren().stream().map(v -> new MethodParameter(((TypedNode)v).getTypeDefinition()))
-		.collect(Collectors.toList())
-		.toArray(new MethodParameter[this.getChildren().size()]);
-	}
+
 }

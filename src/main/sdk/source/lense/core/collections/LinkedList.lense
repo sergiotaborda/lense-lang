@@ -1,0 +1,9 @@
+import lense.core.collections.Sequence;
+import lense.core.lang.Void;
+
+public native class LinkedList<T> implements Sequence<T> {
+
+
+	public native Void Add(T element);
+	
+}

@@ -1,4 +1,5 @@
-package packageName.subpackageName;
+
+import lense.io.Console;
 
 /* Usage of void */
 public class SenseProgram {

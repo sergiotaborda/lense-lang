@@ -72,7 +72,7 @@ public class SemanticScope {
 	public VariableInfo defineVariable(String name, TypeDefinition type) {
 		
 		if (variables.containsKey(name)){
-			throw new CompilationError("Varible " + name + " is already defined in this scope.");
+			throw new TypeAlreadyDefinedException("Varible " + name + " is already defined in this scope.");
 		}
 	   final VariableInfo variableInfo = new VariableInfo(name, type, false);
 	   variables.put(name, variableInfo);

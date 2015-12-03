@@ -1,4 +1,5 @@
-package sense.collections;
+
+import lense.core.lang.Natural;
 
 public interface Sequence<out T> {
 

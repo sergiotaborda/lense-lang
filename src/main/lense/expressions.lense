@@ -1,6 +1,6 @@
-package packageName.subpackageName;
 
-import lense.lang.Math; /* native use of java.lang.Math */
+import lense.core.lang.Math;
+import lense.core.io.Console;
 
 public class SenseProgram {
 

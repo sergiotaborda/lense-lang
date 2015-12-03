@@ -1,0 +1,10 @@
+
+import lense.core.math.Natural;
+import lense.core.collections.Iterable;
+
+public interface Sequence<out T> extends Iterable<T> {
+
+	public T get(Natural index);
+	
+	public val Natural size;
+} 

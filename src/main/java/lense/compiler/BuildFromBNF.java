@@ -4,13 +4,12 @@
 package lense.compiler;
 
 import java.io.File;
-import java.io.IOException;
 
-import compiler.Compiler;
+import compiler.AstCompiler;
 import compiler.FileCompilationUnit;
+import compiler.ListCompilationUnitSet;
 import compiler.bnf.BnfCompiler;
 import compiler.bnf.ToJavaBackEnd;
-import compiler.lexer.ListCompilationUnitSet;
 
 /**
  * 
@@ -27,12 +26,11 @@ public class BuildFromBNF {
 		ListCompilationUnitSet unitSet = new ListCompilationUnitSet();
 		unitSet.add(new FileCompilationUnit(file));
 
+		final AstCompiler compiler = new BnfCompiler();
 
-		final Compiler compiler = new BnfCompiler();
-		compiler.addBackEnd(new ToJavaBackEnd(javaOut, "lense.compiler.AbstractLenseGrammar"));
 		try {
-			compiler.compile(unitSet);
-		} catch (IOException e) {
+			compiler.parse(unitSet).sendTo(new ToJavaBackEnd(javaOut, "lense.compiler.AbstractLenseGrammar"));
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}

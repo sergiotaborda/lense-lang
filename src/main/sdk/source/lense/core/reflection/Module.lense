@@ -1,0 +1,11 @@
+
+import lense.core.collections.Sequence;
+import lense.core.lang.Version;
+import lense.core.reflection.Package;
+
+public interface Module {
+
+	public Version getVersion();
+	public Sequence<Package> getPackages();
+
+}

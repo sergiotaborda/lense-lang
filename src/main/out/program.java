@@ -1,26 +1,26 @@
-package packageName.subpackageName;
+package noname;
 
-public class SenseProgram extends lense.lang.Any{
+class SenseProgram extends java.lang.Object{
 
-Int x =  new lense.lang.Int ( new lense.lang.Natural ( new lense.lang.String ("1")));
-Long y =  new lense.lang.Natural ( new lense.lang.String ("2")).toLong();
+Int x =  new lense.core.lang.Int (1);
+Long y = 2.toLong();
 String s;	
-public lense.lang.Void  main(lense.lang.Array<T extends lense.lang.String>  args){
+public void main(lense.core.lang.Array<T extends lense.core.lang.String>  args){
 try{
- for (final lense.lang.Natural i =  new lense.lang.Natural ( new lense.lang.String ("2")) ; ++ ; )
+ for (final lense.core.lang.Natural i = 2 ; ++ ; )
 {
 }
-final lense.lang.Interval interval =  new lense.lang.Interval ();
-final lense.lang.Boolean contained = interval.contains( new lense.lang.Natural ( new lense.lang.String ("4")));
-final lense.lang.Int f = ++ new lense.lang.Natural ( new lense.lang.String ("8")).toInt();
+final lense.core.lang.Interval interval =  new lense.core.lang.Interval ();
+final lense.core.lang.Boolean contained = interval.contains(4);
+final lense.core.lang.Int f = ++8.toInt();
 
  while (false && false)
  for ( : args)
 if (false)
 if (f.equals(y))
 if (f.equals(y))
-if ( new lense.lang.String ("s").equals( new lense.lang.String ("u")))
-method( new lense.lang.Natural ( new lense.lang.String ("3")),++ new lense.lang.Natural ( new lense.lang.String ("4")));
+if ("s".equals("u"))
+method(3,++4);
 
  switch (args) { 
  case 1:
@@ -30,7 +30,7 @@ arrangeit();
 break;
  case 2:
 {
-final lense.lang.Float c =  new lense.lang.Natural ( new lense.lang.String ("8")).toFloat();
+final lense.core.lang.Float c = 8.toFloat();
 }
 break;
  case :
@@ -40,29 +40,30 @@ somemore();
 break;
 }
 }
- catch (final lense.lang.Exception e)
+ catch (lense.core.lang.Exception )
 {
-method( new lense.lang.Natural ( new lense.lang.String ("3")), new lense.lang.Natural ( new lense.lang.String ("4")) %  new lense.lang.Natural ( new lense.lang.String ("8")));
+method(3,4 % 8);
 }
 
 }
 	
-public lense.lang.Long  other(lense.lang.Int  u, lense.lang.Int  h){
-return u +  new lense.lang.Natural ( new lense.lang.String ("6")) * y % h;
+public lense.core.lang.Long  other(lense.core.lang.Int  u, lense.core.lang.Int  h){
+return u + 6 * y % h;
 }
 	
-public lense.lang.Void  method(lense.lang.Natural  a, lense.lang.Natural  b){
+public void method(lense.core.lang.Natural  a, lense.core.lang.Natural  b){
 }
 	
-public lense.lang.Void  somemore(){
+public void somemore(){
 }
 	
-public lense.lang.Void  dontarrangeit(){
+public void dontarrangeit(){
 }
 	
-lense.lang.Void  arrangeit(){
+void arrangeit(){
 }
 	
-private lense.lang.Void  doit(){
+private void doit(){
 }
+
 }

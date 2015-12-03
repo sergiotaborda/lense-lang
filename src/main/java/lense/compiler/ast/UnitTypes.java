@@ -3,7 +3,9 @@
  */
 package lense.compiler.ast;
 
-import lense.compiler.ast.LenseAstNode;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 
 
@@ -12,5 +14,15 @@ import lense.compiler.ast.LenseAstNode;
  */
 public class UnitTypes extends LenseAstNode {
 
-
+	public List<ClassTypeNode> getTypes(){
+		return this.getChildren().stream().filter( n -> n instanceof ClassTypeNode).map(n -> (ClassTypeNode)n).collect(Collectors.toList());
+	}
+	
+	public Optional<ImportDeclarationsListNode> getImports(){
+		return this.getChildren().stream().filter( n -> n instanceof ImportDeclarationsListNode).map(n -> (ImportDeclarationsListNode)n).findAny();
+	}
+	
+	public Optional<ModuleNode> getModule(){
+		return this.getChildren().stream().filter( n -> n instanceof ModuleNode).map(n -> (ModuleNode)n).findAny();
+	}
 }

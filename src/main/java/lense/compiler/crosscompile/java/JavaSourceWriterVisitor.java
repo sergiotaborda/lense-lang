@@ -23,6 +23,7 @@ import lense.compiler.crosscompile.java.ast.FieldAccessNode;
 import lense.compiler.crosscompile.java.ast.FieldDeclarationNode;
 import lense.compiler.crosscompile.java.ast.ForEachNode;
 import lense.compiler.crosscompile.java.ast.ForNode;
+import lense.compiler.crosscompile.java.ast.FormalParameterNode;
 import lense.compiler.crosscompile.java.ast.IndexedAccessNode;
 import lense.compiler.crosscompile.java.ast.MethodDeclarationNode;
 import lense.compiler.crosscompile.java.ast.MethodInvocationNode;
@@ -126,7 +127,20 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode>  {
 					}
 				}
 
-				writer.print("class ");
+				switch (t.getKind()) {
+					case Annotation:
+					case Class:
+						writer.print("class ");
+						break;
+					case Enum:
+						writer.print("enum ");
+						break;
+					case Interface:
+						writer.print("interface ");
+						break;
+					
+				}
+		
 				writer.print(t.getName().substring(pos+1));
 
 				if (t.getSuperType() != null && t.getSuperType().getTypeDefinition().getName().length() > 0){
@@ -137,6 +151,7 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode>  {
 
 				writer.println("{");
 				TreeTransverser.tranverse(t.getBody(), new JavaSourceWriterVisitor(writer));
+				writer.println();
 				writer.println("}");
 
 				return VisitorNext.Siblings;
@@ -315,7 +330,11 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode>  {
 				ClassInstanceCreation n = (ClassInstanceCreation)node;
 				
 				writer.print(" new ");
-				writer.print(n.getTypeDefinition().getName());
+				if (n.getTypeDefinition() == null){
+					writer.print("????");
+				} else {
+					writer.print(n.getTypeDefinition().getName());
+				}
 				writer.print(" (");
 				TreeTransverser.tranverse(n.getArguments(), new JavaSourceWriterVisitor(writer));
 				writer.print(")");
@@ -375,8 +394,11 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode>  {
 						writer.print("final ");
 					}
 				}
-				
-				writer.print(t.getTypeDefinition().getName());
+				if (t.getTypeDefinition() == null){
+					writer.print("????");
+				} else {
+					writer.print(t.getTypeDefinition().getName());
+				}
 				writer.print(" ");
 				writer.print(t.getName());
 				
@@ -526,11 +548,19 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode>  {
 					}
 				}
 				
-				if (m.getReturnType().getTypeDefinition().getName().equals(LenseTypeSystem.Void().getName())){
-					writer.print("void");
+				if (m.getReturnType() == null){
+					writer.print("null");
+				} else if (m.getReturnType().getTypeDefinition() == null){
+					writer.print("null");
 				} else {
-					TreeTransverser.tranverse(m.getReturnType(), new JavaSourceWriterVisitor(writer));
+					if (m.getReturnType().getTypeDefinition().getName().equals(LenseTypeSystem.Void().getName())){
+						writer.print("void");
+					} else {
+						TreeTransverser.tranverse(m.getReturnType(), new JavaSourceWriterVisitor(writer));
+					}
 				}
+				
+				
 				
 				
 				writer.print(" ");
@@ -540,7 +570,7 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode>  {
 				if (m.getParameters() != null){
 					boolean isFirst = true;
 					for (AstNode n : m.getParameters().getChildren()){
-						VariableDeclarationNode p = (VariableDeclarationNode)n;
+						FormalParameterNode p = (FormalParameterNode)n;
 
 						if(isFirst){
 							isFirst = false;
@@ -599,14 +629,17 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode>  {
 					writer.print(",");
 				}
 				writer.print(p.getName());
-				if (!p.getUpperbound().equals(JavaType.Object)){
-					writer.print(" extends ");
-					writer.print(p.getUpperbound().getName());
-					writeGenerics(p.getUpperbound());
-				} else {
-					writer.print(" super ");
-					writer.print(p.getLowerBound().getName());
-					writeGenerics(p.getLowerBound());
+				if (p.getUpperbound() != null){
+					if (!p.getUpperbound().equals(JavaType.Object)){
+						writer.print(" extends ");
+						writer.print(p.getUpperbound().getName());
+						writeGenerics(p.getUpperbound());
+					} else {
+						writer.print(" super ");
+						writer.print(p.getLowerBound().getName());
+						writeGenerics(p.getLowerBound());
+					}
+					
 				}
 				
 			}

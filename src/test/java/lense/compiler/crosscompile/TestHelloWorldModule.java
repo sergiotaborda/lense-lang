@@ -16,7 +16,7 @@ import org.junit.Test;
 public class TestHelloWorldModule {
 
 	@Test  
-	public void testCompiler() throws IOException {
+	public void testHelloWorldCompilation() throws IOException {
 		File moduleproject = new File(new File(".").getAbsoluteFile().getParentFile(), "src/main/helloworld");
 	
 	

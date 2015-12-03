@@ -1,0 +1,9 @@
+import lense.io.Console;
+
+public class Main {
+
+  	public Void main() {
+  	     Console.println("Hello World");
+  	}
+
+}

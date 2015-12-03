@@ -1,6 +1,25 @@
-Compile Module
-	- Add module to bnf
+Allow module to have any name
+	-place module.lense in source root folder
+	-allow for package in files as optional. if present validate it matches the folder structure
+Error and Warning Listener
+	- add listener of warn and error events. also start and end.
+Ad elvis operator since transparent maybe is no good
+
+Confirm 0.5 is parsable as a double
+Literals
+	- Sequence : { 1, 2, 3,}  => new ImutableNativeSequence(int[] {1,2,3}) 
+	- Association : { 1=2, 3=5,7=9} or { 1:2, 3:4, 5:7} //javascript  => new ImutableAssociation( entry(1,2), entry(3,5), entry(7,9))
+	- Tuple (1,2,3)  or [1,2,3]  => Tuple.of(1,2,3) => new Tuple<Int, Tuple<Int, Tuple<int,Nothing>>(1 , new Tuple<Int, Tuple<int,Nothing>>(2, Tuple<int,Nothing>>(3, _)))
+	- Progression : 1...3 => 1.upTo(3)
+	- Interval :  1..3 |  1... | ...3 |  1<..3 |  1..<3 | 1<..<3 => Interval.from(1).inclusive().to(3).inclusive() , etc... 
+Use constructors
+	- sintax
+	- named constructors 
+	- restrictions on the use of new operator outside constructors.
+	- promote using constructors.
 Static reading
+	- Differenciate objects from types
+	- Differenciate methods called on objetcs (e.x: Console.print) from methods called on companion object, from call to constrcutors.
 	Interperter calls like "Console.println" as "Console.Companion.println"
 		in java "Companion" is a static field in "Console".
 		Alternativly "Console" is the name of an object. In this case if "console" exists in package lang.io there will be a classe named "IO$Package" and
@@ -17,7 +36,7 @@ Generics
 	TypeVar = Identifier
 	ClassOrInterfaceType = ClassOrInterface { < TypeParameters > }
 	ClassOrInterface = Identifier | ClassOrInterfaceType . Identifier
-Maybe<T> cannot be Maybe<Maybe<T>> . What appends if T <: Any and Maybe<T> <: Any
+Maybe<T> cannot be Maybe<Maybe<T>> . What appends if T <: Any and Maybe<T> <: Any ?
 	Introduce more super types in the hierarchy. Consider renaming  Maybe<T> to Reference<T> 
 			Any 
 				AnyObject : can be any object
@@ -135,14 +154,14 @@ Compilation
 	 definition of a classpath = project structure for compiler (maven like)
 	 	project XYZ
 	 		source 
-	 			Module.sense
+	 			Module.lense
 	 			org
 	 				XYZ  
 	 					packageA
-	 						X.sense
+	 						X.lense
 	 					packageB
-	 						Y.sense
-	 						Z.sense
+	 						Y.lense
+	 						Z.lense
 	 		compilation
 	 			java
 	 				bin
