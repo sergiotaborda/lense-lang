@@ -29,5 +29,9 @@ public class PosUnaryExpression extends ExpressionNode {
 	public BooleanOperation getOperation(){
 		return operation;
 	}
+	
+	public void setOperation(BooleanOperation op){
+		this.operation  = op;
+	}
 
 }

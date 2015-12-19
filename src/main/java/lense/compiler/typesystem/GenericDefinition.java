@@ -57,4 +57,11 @@ public class GenericDefinition implements GenericTypeParameter {
 		return name;
 	}
 
+	/**
+	 * @param self
+	 */
+	public void setUpperBound(TypeDefinition other) {
+		this.upper = other;
+	}
+
 }

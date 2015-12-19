@@ -1,0 +1,102 @@
+<html>
+<head>
+<title>Lense Exemples</title>
+<link rel="stylesheet" type="text/css" href="shCore.css" >
+<link rel="stylesheet" type="text/css" href="shThemeLense.css" >
+<script src="shCore.js"></script>
+<script src="shBrushJava.js"></script>
+<script src="shBrushLense.js"></script>
+</head>
+<body>
+
+<p>Lense recognizes literals for Sequences, Associations and Tuples.
+As a rule, because Lense has type inference it must be possible to infer the type of literal from the syntax, so we need a diferent sintax for each container type.
+
+
+</p>
+<pre class="brush: lense">
+
+var Sequence&lt;Natural&gy; sequence = [1, 2, 3];
+var Array&lt;Natural&gy; sequence = [1, 2, 3];
+
+</pre>
+
+<p>
+The first line creates a sequence of elements 1, 2 and 3.  
+The second line creates an array of the elements 1, 2 and 3 by first creating a sequence and them promoting it to an Array. 
+</p>
+
+<pre class="brush: lense">
+
+var Association&lt;Natural,Natural&gt;; association = { 1:2, 2:4, 3:6 };
+var Map&lt;Natural, Natural&gt;; map = { 1:2, 2:4, 3:6 };
+
+</pre>
+ 
+<p>
+The first line creates an association of elements.
+The second line creates a map of the same elements by first creating an association and them promoting it to a Map. 
+</p>
+
+<pre class="brush: lense">
+
+var Tuple&lt;Natural , Tuple&lt;String, Tuple&lt; Integer, Nothing &gt;&gt;&gt; association = [ 1 : "2" : -3 ];
+var [Natural : String : Integer] association = [ 1 : "2" : -3 ];
+
+</pre>
+
+<p>
+The first line creates a tuple of elements. A tuple is very similar to a sequence but each index can have it's own type.
+The second line creates the same tuple but uses the tuple short type syntax for representing tuple types. The default form used 
+in the first line can be very long and odd to write and read eventhought is the exact type of that tuple.
+</p>
+
+<p>
+Currently there is no special syntax for sets. a set can be created by promoting a literal sequence.
+</p>
+
+<pre class="brush: lense">
+
+var Set&lt;Natural&gy; sequence = [1, 2, 3];
+
+</pre>
+
+<p>
+There is also not special syntax for record types, eventhought we could devise it to be similar to a map
+</p>
+
+<pre class="brush: lense">
+
+var Address address = Address {
+	Street = "Baker Street",
+	Number = "221B",
+	City = "Lodon",
+	Country = "England"
+}
+
+</pre>
+
+
+<p>
+Also a possible sintax for Matrix is considered, but not currenctly implemented
+</p>
+
+<pre class="brush: lense">
+
+var Matrix&lt;Natural&gy; matrix = [ 1 ,2 ,3 ; 4, 5, 6 ; 5 6 7];
+
+// also can be writem like
+
+var Matrix&lt;Natural&gy; matrix = [ 
+	1 ,2 ,3 ;
+ 	4, 5, 6 ; 
+ 	5, 6, 7
+];
+</pre>
+
+<!-- Finally, to actually run the highlighter, you need to include this JS on your page -->
+<script type="text/javascript">
+     SyntaxHighlighter.all()
+</script>
+</body>
+</html>

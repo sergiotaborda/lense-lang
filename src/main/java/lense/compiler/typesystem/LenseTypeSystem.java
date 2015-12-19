@@ -50,7 +50,7 @@ public class LenseTypeSystem implements TypeSystem{
 	}
 
 	public static TypeDefinition Progression() {
-		return getInstance().getForName("lense.core.lang.Progression",1).get();
+		return getInstance().getForName("lense.core.collections.Progression",1).get();
 	}
 
 	public static TypeDefinition Boolean() {
@@ -63,6 +63,13 @@ public class LenseTypeSystem implements TypeSystem{
 
 	public static TypeDefinition Iterable() {
 		return getInstance().getForName("lense.core.lang.Iterable",1).get();
+	}
+	
+	/**
+	 * @return
+	 */
+	public static TypeDefinition Sequence() {
+		return getInstance().getForName("lense.core.collections.Sequence", 1).get();
 	}
 
 	public static TypeDefinition Exception() {
@@ -123,6 +130,14 @@ public class LenseTypeSystem implements TypeSystem{
 	public static TypeDefinition Long() {
 		return getInstance().getForName("lense.core.lang.Long").get();
 	}
+	
+	/**
+	 * @return
+	 */
+	public static TypeDefinition Tuple() {
+		return getInstance().getForName("lense.core.collections.Tuple", 2).get();
+	}
+
 
 	/**
 	 * @return
@@ -134,7 +149,7 @@ public class LenseTypeSystem implements TypeSystem{
 		}
 		return func.get();
 	}
-
+	
 	/**
 	 * @return
 	 */
@@ -170,8 +185,7 @@ public class LenseTypeSystem implements TypeSystem{
 		maybe.addMethod("map", specify(maybe, any), new MethodParameter(function2)); // TODO return must obey function return
 		maybe.addConstructor(new MethodParameter(any));
 		
-		LenseTypeDefinition svoid = register(new LenseTypeDefinition("lense.core.lang.Void", Kind.Class, any));
-
+		
 		LenseTypeDefinition none = register(new LenseTypeDefinition("lense.core.lang.None", Kind.Class, specify(maybe, nothing), new GenericTypeParameter[0]));
 		
 		none.addField("None", none, Imutability.Imutable); // TODO this a Fake static field 
@@ -182,10 +196,34 @@ public class LenseTypeSystem implements TypeSystem{
 		LenseTypeDefinition character = register(new LenseTypeDefinition("lense.core.lang.Character", Kind.Class, any));
 		register(new LenseTypeDefinition("lense.core.lang.Exception", Kind.Class, any));
 
-		register(new LenseTypeDefinition("lense.core.lang.Progression", Kind.Class, iterable));
-		LenseTypeDefinition sequence = register(new LenseTypeDefinition("lense.core.lang.Sequence", Kind.Interface, iterable));
-		LenseTypeDefinition array = register(new LenseTypeDefinition("lense.core.lang.Array", Kind.Class, sequence));
+		register(new LenseTypeDefinition("lense.core.collections.Progression", Kind.Class, iterable));
+		LenseTypeDefinition sequence = register(new LenseTypeDefinition("lense.core.collections.Sequence", Kind.Interface, iterable));
+		LenseTypeDefinition array = register(new LenseTypeDefinition("lense.core.collections.Array", Kind.Class, sequence));
 
+		GenericDefinition self = new GenericDefinition("T", Variance.Covariant, any,nothing);
+		LenseTypeDefinition tuple =  register(new LenseTypeDefinition("lense.core.collections.Tuple", Kind.Class,any,
+				new GenericDefinition("V", Variance.ContraVariant, any,nothing), 
+				self
+		));
+		self.setUpperBound(tuple);
+		
+		tuple.addMethod("tail", any); // TODO any -> T
+		tuple.addMethod("head", any); // TODO any -> V
+		
+		LenseTypeDefinition svoid = register(new LenseTypeDefinition("lense.core.lang.Void", Kind.Class, specify(tuple, nothing, nothing), new GenericTypeParameter[0]));
+
+	
+		register(new LenseTypeDefinition("lense.core.collections.Association", Kind.Class,any,
+				new GenericDefinition("K", Variance.ContraVariant, any,nothing), 
+				new GenericDefinition("V", Variance.Covariant, any,nothing)
+		));
+		
+		register(new LenseTypeDefinition("lense.core.collections.Pair", Kind.Interface,any,
+				new GenericDefinition("K", Variance.ContraVariant, any,nothing), 
+				new GenericDefinition("V", Variance.Covariant, any,nothing)
+		));
+		
+		
 		register(new LenseTypeDefinition("lense.core.io.Console", Kind.Class, any));
 		register(new LenseTypeDefinition("lense.core.io.Console", Kind.Object, any));
 		
@@ -193,6 +231,9 @@ public class LenseTypeSystem implements TypeSystem{
 		LenseTypeDefinition whole = register(new LenseTypeDefinition("lense.core.lang.Whole", Kind.Class, number));
 		LenseTypeDefinition natural =register(new LenseTypeDefinition("lense.core.lang.Natural", Kind.Class, whole));
 
+		tuple.addMethod("get", any, new MethodParameter(natural, "index"));
+		sequence.addMethod("get", any , new MethodParameter(natural, "index")); // TODO covariant return
+		
 		LenseTypeDefinition integer = register(new LenseTypeDefinition("lense.core.lang.Integer", Kind.Class, whole));
 		LenseTypeDefinition sint = register(new LenseTypeDefinition("lense.core.lang.Int", Kind.Class, integer));
 		LenseTypeDefinition slong =register(new LenseTypeDefinition("lense.core.lang.Long", Kind.Class, integer));
@@ -326,14 +367,15 @@ public class LenseTypeSystem implements TypeSystem{
 		if (type == null || target == null){
 			return false;
 		}
+
 		if (target.getName().equals("lense.core.lang.Any")){
-			return true;
+			return true; // all types are assignable to Any
 		}
 		if (type.getName().equals("lense.core.lang.Nothing")){
-			return true;
+			return true; // nothing is assignable to all types
 		}
 		if (target.getName().equals("lense.core.lang.Nothing")){
-			return false;
+			return false; // only nothing is assignable to nothing
 		}
 		if (type.getName().equals("lense.core.lang.Any")){
 			return false;
@@ -516,6 +558,11 @@ public class LenseTypeSystem implements TypeSystem{
 			
 		}).distinct().collect(Collectors.toSet());
 	}
+
+
+
+
+
 
 
 

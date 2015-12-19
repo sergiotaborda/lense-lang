@@ -10,22 +10,29 @@ import java.util.Set;
 import lense.compiler.CompilationError;
 import lense.compiler.Import;
 import lense.compiler.SemanticContext;
+import lense.compiler.ast.ArgumentListNode;
 import lense.compiler.ast.BlockNode;
+import lense.compiler.ast.ClassInstanceCreation;
 import lense.compiler.ast.ClassTypeNode;
 import lense.compiler.ast.FieldOrPropertyAccessNode;
 import lense.compiler.ast.FormalParameterNode;
 import lense.compiler.ast.GenericTypeParameterNode;
 import lense.compiler.ast.ImplementedInterfacesNode;
+import lense.compiler.ast.LiteralTupleInstanceCreation;
 import lense.compiler.ast.MethodDeclarationNode;
 import lense.compiler.ast.MethodInvocationNode;
+import lense.compiler.ast.NativeArrayInstanceCreation;
+import lense.compiler.ast.NativeAssociationInstanceCreation;
 import lense.compiler.ast.QualifiedNameNode;
 import lense.compiler.ast.ScopedVariableDefinitionNode;
 import lense.compiler.ast.StaticAccessNode;
 import lense.compiler.ast.TypeNode;
-import lense.compiler.ast.VariableDeclarationNode;
+import lense.compiler.ast.TypedNode;
 import lense.compiler.ast.VariableReadNode;
 import lense.compiler.typesystem.LenseTypeDefinition;
+import lense.compiler.typesystem.LenseTypeSystem;
 import compiler.syntax.AstNode;
+import compiler.trees.TreeTransverser;
 import compiler.trees.Visitor;
 import compiler.trees.VisitorNext;
 import compiler.typesystem.TypeDefinition;
@@ -66,7 +73,43 @@ public class NameResolutionVisitor  implements Visitor<AstNode> {
 	 * {@inheritDoc}
 	 */
 	public VisitorNext visitBeforeChildren(AstNode node) {
-		if (node instanceof MethodDeclarationNode){
+		
+		if (node instanceof NativeArrayInstanceCreation){
+			NativeArrayInstanceCreation array = ((NativeArrayInstanceCreation) node);
+			ArgumentListNode args = array.getArguments();
+			
+			TreeTransverser.tranverse(args, this);
+			
+			TypedNode type = (TypedNode) args.getChildren().get(0);
+			array.getTypeNode().addParametricType(new GenericTypeParameterNode( new TypeNode(type.getTypeDefinition()), compiler.typesystem.Variance.Invariant));
+			
+			return VisitorNext.Siblings;
+			
+		} else if (node instanceof NativeAssociationInstanceCreation){
+			NativeAssociationInstanceCreation map = ((NativeAssociationInstanceCreation) node);
+			ArgumentListNode args = map.getArguments();
+			
+			TypeNode typeNode = ((ClassInstanceCreation)args.getChildren().get(0)).getTypeNode();
+			// make all arguments have the same type.
+			for (int i =1 ; i < args.getChildren().size();i++){
+				final ClassInstanceCreation classInstanceCreation = (ClassInstanceCreation)args.getChildren().get(i);
+				classInstanceCreation.replace(classInstanceCreation.getTypeNode(), typeNode);
+			}
+			TypeDefinition pairType = semanticContext.resolveTypeForName(typeNode.getName(), 2).get();
+			typeNode.setTypeDefinition(pairType);
+			
+			TreeTransverser.tranverse(args, this);
+			
+			TypedNode key = (TypedNode) args.getChildren().get(1).getChildren().get(1).getChildren().get(0);
+			TypedNode value = (TypedNode) args.getChildren().get(1).getChildren().get(1).getChildren().get(1);
+			map.getTypeNode().addParametricType(new GenericTypeParameterNode( new TypeNode(key.getTypeDefinition()), compiler.typesystem.Variance.Invariant));
+			map.getTypeNode().addParametricType(new GenericTypeParameterNode( new TypeNode(value.getTypeDefinition()), compiler.typesystem.Variance.Invariant));
+			typeNode.addParametricType(new GenericTypeParameterNode( new TypeNode(key.getTypeDefinition()), compiler.typesystem.Variance.Invariant));
+			typeNode.addParametricType(new GenericTypeParameterNode( new TypeNode(value.getTypeDefinition()), compiler.typesystem.Variance.Invariant));
+			typeNode.setTypeDefinition( LenseTypeSystem.specify( typeNode.getTypeDefinition(), key.getTypeDefinition(), value.getTypeDefinition()));
+			
+			return VisitorNext.Siblings;
+		} else if (node instanceof MethodDeclarationNode){
 			semanticContext.beginScope(((MethodDeclarationNode)node).getName());
 		} else if (node instanceof ClassTypeNode){
 			ClassTypeNode t = (ClassTypeNode)node;
@@ -79,7 +122,9 @@ public class NameResolutionVisitor  implements Visitor<AstNode> {
 			semanticContext.beginScope("block");
 		} else if (node instanceof TypeNode) {
 			TypeNode typeNode = (TypeNode)node;
-
+			if(typeNode.getTypeDefinition() != null){
+				return VisitorNext.Siblings;
+			}
 			//generic type variables are ignored
 			if (genericNames.contains(typeNode.getName())){
 				return VisitorNext.Siblings;
@@ -115,12 +160,12 @@ public class NameResolutionVisitor  implements Visitor<AstNode> {
 				}
 			}
 			
-			// match implicit imports TODO test
+			// match implicit imports 
 			Optional<TypeDefinition> libraryType = semanticContext.resolveTypeForName(typeNode.getName(), typeNode.getGenericParametersCount());
 
 			if (libraryType.isPresent()){
 				typeNode.setName(new QualifiedNameNode(libraryType.get().getName()));
-				final Import implicitType = Import.singleType(new QualifiedNameNode(""), typeNode.getName());
+				final Import implicitType = Import.singleType(new QualifiedNameNode(typeNode.getName()), typeNode.getName());
 				implicitType.setUsed(true);
 				ct.imports().add(implicitType);
 				return VisitorNext.Children; 
@@ -301,6 +346,26 @@ public class NameResolutionVisitor  implements Visitor<AstNode> {
 			}
 	
 		} 
+		else if (node instanceof LiteralTupleInstanceCreation){
+			LiteralTupleInstanceCreation tuple = ((LiteralTupleInstanceCreation)node);
+			TypedNode value = (TypedNode) tuple.getChildren().get(1).getChildren().get(0);
+			
+			TypeNode typeNode =  new TypeNode(new QualifiedNameNode("lense.core.collections.Tuple"));
+			typeNode.addParametricType(new GenericTypeParameterNode(new TypeNode(value.getTypeDefinition())));
+			
+			TypedNode nextTuple;
+			if (tuple.getChildren().get(1).getChildren().size() == 2){
+				nextTuple = (TypedNode) tuple.getChildren().get(1).getChildren().get(1);
+				typeNode.addParametricType(new GenericTypeParameterNode(new TypeNode(new QualifiedNameNode("lense.core.lang.Any"))));
+				
+			} else {
+				nextTuple = new TypeNode(LenseTypeSystem.Nothing());
+				typeNode.addParametricType(new GenericTypeParameterNode(new TypeNode(nextTuple.getTypeDefinition())));
+			}
+		
+				
+			tuple.replace(tuple.getTypeNode(), typeNode);
+		}
 
 	}
 

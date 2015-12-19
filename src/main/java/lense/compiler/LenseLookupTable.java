@@ -17,7 +17,6 @@ import compiler.parser.Production;
 import compiler.parser.ProductionItem;
 import compiler.parser.Terminal;
 import compiler.parser.Text;
-import compiler.parser.VersionLiteral;
 import lense.compiler.LenseGrammar;
 
 /**

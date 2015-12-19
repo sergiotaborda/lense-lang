@@ -16,6 +16,9 @@ public class QualifiedNameNode extends LenseAstNode {
 	
 	public QualifiedNameNode (){}
 	public QualifiedNameNode (String name){
+		if (name.length() == 0){
+			throw new IllegalArgumentException("Name is mandatory");
+		}
 		this.name= new StringBuilder(name);
 	}
 	

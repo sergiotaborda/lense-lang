@@ -53,5 +53,9 @@ public class FixedGenericTypeParameter implements GenericTypeParameter {
 	public String getName() {
 		return name;
 	}
+	
+	public String toString(){
+		return variance.toString() + " " + name +": " + definition.getName();
+	}
 
 }

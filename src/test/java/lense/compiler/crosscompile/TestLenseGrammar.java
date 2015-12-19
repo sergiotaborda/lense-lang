@@ -21,6 +21,7 @@ import lense.compiler.LenseTypeRepository;
 import lense.compiler.PathPackageResolver;
 import lense.compiler.ast.ClassTypeNode;
 import lense.compiler.ast.UnitTypes;
+import lense.compiler.crosscompile.java.OutToJavaSource;
 import lense.compiler.phases.NameResolutionPhase;
 import lense.compiler.typesystem.LenseTypeSystem;
 
@@ -205,6 +206,23 @@ public class TestLenseGrammar {
 				"src/main/lense/maybeTest.lense");
 		File out = new File(new File(".").getAbsoluteFile().getParentFile(),
 				"src/main/out/maybeTest.java");
+
+		assertTrue("File does not exist", file.exists());
+
+		ListCompilationUnitSet unitSet = new ListCompilationUnitSet();
+		unitSet.add(new FileCompilationUnit(file));
+
+		new LenseSourceCompiler().parse(unitSet).sendTo(
+				new OutToJavaSource(out));
+
+	}
+	
+	@Test
+	public void testSequenceLiterals() throws IOException {
+		File file = new File(new File(".").getAbsoluteFile().getParentFile(),
+				"src/main/lense/literals.lense");
+		File out = new File(new File(".").getAbsoluteFile().getParentFile(),
+				"src/main/out/literals.java");
 
 		assertTrue("File does not exist", file.exists());
 

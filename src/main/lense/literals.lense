@@ -1,0 +1,36 @@
+
+public class testeLiterals {
+
+	public Void main((Natural, String, Int, Boolean) params){
+	
+		
+		var Sequence<Natural> array = [ 1, 2, 3 ];
+		
+		var Sequence<Natural> single = [ 1 ];
+	
+		var Association<Natural, Natural> map = { 1:2 , 3:4, 5:6 };
+		
+		var Tuple<Natural, Tuple<String, Tuple<Int, Tuple<Boolean, Nothing>>>> tuple = ( 1 , "2" , -3 , true);
+		
+		
+		
+		var (Natural , String , Int , Boolean) otherTuple = ( 1 , "2" , -3 , true );
+		
+		main(otherTuple);
+		
+		var Natural n = tuple[0];
+		var String  s = tuple[1];
+		var Integer i = tuple[2];
+		var Boolean b = tuple[3];
+		//var Boolean b2 = tuple[4]; // needs cast because is out of bounds.
+		
+		Int index =2;
+		//var Integer ii = tuple[index];  // needs cast because its dynamic
+		
+		var Void voidTuple2 = ();
+		var Tuple<Nothing,Nothing> voidTuple3 = ();
+		
+		//main(("hello",2));
+	}
+
+}

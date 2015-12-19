@@ -10,7 +10,7 @@
 <body>
 
 <p>Creating a module</p>
-<pre class="brush: sense">
+<pre class="brush: lense">
 module org.mysystem  (1.2.3)  {
       import othermodule 1.2.45;
       import someotherModule 5.8.76+;
@@ -21,8 +21,8 @@ module org.mysystem  (1.2.3)  {
 </pre>
 
 <p>Class constuction with variance</p>
-<pre class="brush: sense">
-package sense;
+<pre class="brush: lense">
+package lense;
 
 public interface Comparable &lt; in T&gt; {
 
@@ -59,12 +59,12 @@ public class TestIt &lt; in T &gt; implements Comparable&lt;T&gt; {
 </pre>
 
 <p>Calculations and expressions</p>
-<pre class="brush: sense">
+<pre class="brush: lense">
 	package packageName.subpackageName;
 	
 	import native java.lang.Math; // possivel sintaxe para Foreign Function Interface (https://en.wikipedia.org/wiki/Foreign_function_interface)
 	
-	public class SenseProgram {
+	public class lenseProgram {
 	
 		var Double y = Math.sin(4D);
 	
@@ -83,7 +83,7 @@ public class TestIt &lt; in T &gt; implements Comparable&lt;T&gt; {
 
 
 <p>A full program example</p>
-<pre class="brush: sense">
+<pre class="brush: lense">
 /**
 * This is a test program file
 */
@@ -91,7 +91,7 @@ package packageName.subpackageName;
 
 import java.lang.Math;
 
-public class SenseProgram extends Any implements Iterable&lt;Int&gt; {
+public class LenseProgram extends Any implements Iterable&lt;Int&gt; {
 
 
 	Int x = new Int(1);

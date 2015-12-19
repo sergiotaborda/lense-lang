@@ -6,7 +6,6 @@ import compiler.parser.NonTerminal;
 import compiler.parser.Terminal;
 import compiler.parser.Text;
 import compiler.parser.Numeric;
-import compiler.parser.VersionLiteral;
 
 public abstract class AbstractLenseGrammar extends AbstractGrammar {
 
@@ -53,6 +52,7 @@ public abstract class AbstractLenseGrammar extends AbstractGrammar {
 		NonTerminal classMemberDeclaration = addNonTerminal(NonTerminal.of("classMemberDeclaration"));
 		NonTerminal fieldDeclaration = addNonTerminal(NonTerminal.of("fieldDeclaration"));
 		NonTerminal type = addNonTerminal(NonTerminal.of("type"));
+		NonTerminal tupleTypes = addNonTerminal(NonTerminal.of("tupleTypes"));
 		NonTerminal parametricTypes = addNonTerminal(NonTerminal.of("parametricTypes"));
 		NonTerminal parametricType = addNonTerminal(NonTerminal.of("parametricType"));
 		NonTerminal varianceModifier = addNonTerminal(NonTerminal.of("varianceModifier"));
@@ -77,6 +77,16 @@ public abstract class AbstractLenseGrammar extends AbstractGrammar {
 		NonTerminal expressionStatement = addNonTerminal(NonTerminal.of("expressionStatement"));
 		NonTerminal statementExpression = addNonTerminal(NonTerminal.of("statementExpression"));
 		NonTerminal localVariableDeclarationStatement = addNonTerminal(NonTerminal.of("localVariableDeclarationStatement"));
+		NonTerminal initializer = addNonTerminal(NonTerminal.of("initializer"));
+		NonTerminal arrayInitializer = addNonTerminal(NonTerminal.of("arrayInitializer"));
+		NonTerminal tupleInitializer = addNonTerminal(NonTerminal.of("tupleInitializer"));
+		NonTerminal arrayInitializerVariables = addNonTerminal(NonTerminal.of("arrayInitializerVariables"));
+		NonTerminal initializerVariable = addNonTerminal(NonTerminal.of("initializerVariable"));
+		NonTerminal tupleInitializerVariables = addNonTerminal(NonTerminal.of("tupleInitializerVariables"));
+		NonTerminal mapInitializer = addNonTerminal(NonTerminal.of("mapInitializer"));
+		NonTerminal mapInitializerVariables = addNonTerminal(NonTerminal.of("mapInitializerVariables"));
+		NonTerminal mapInitializerPair = addNonTerminal(NonTerminal.of("mapInitializerPair"));
+		NonTerminal mapInitializerVariable = addNonTerminal(NonTerminal.of("mapInitializerVariable"));
 		NonTerminal whileStatement = addNonTerminal(NonTerminal.of("whileStatement"));
 		NonTerminal forStatement = addNonTerminal(NonTerminal.of("forStatement"));
 		NonTerminal iterationType = addNonTerminal(NonTerminal.of("iterationType"));
@@ -173,7 +183,8 @@ public abstract class AbstractLenseGrammar extends AbstractGrammar {
 		classBodyDeclaration.setRule(classMemberDeclaration);
 		classMemberDeclaration.setRule(fieldDeclaration.or(methodDeclaration));
 		fieldDeclaration.setRule(imutabilityModifier.add(type).add(variableName).add(Terminal.of(";")).or(type.add(variableName).add(Terminal.of(";"))).or(imutabilityModifier.add(type).add(variableName).add(Terminal.of("=")).add(expression).add(Terminal.of(";")).or(type.add(variableName).add(Terminal.of("=")).add(expression).add(Terminal.of(";")))));
-		type.setRule(Identifier.instance().or(Identifier.instance().add(Terminal.of("<")).add(parametricTypes).add(Terminal.of(">"))));
+		type.setRule(Identifier.instance().or(Identifier.instance().add(Terminal.of("<")).add(parametricTypes).add(Terminal.of(">")).or(Terminal.of("(").add(tupleTypes).add(Terminal.of(")")))));
+		tupleTypes.setRule(type.or(tupleTypes.add(Terminal.of(",")).add(type)));
 		parametricTypes.setRule(parametricType.or(parametricTypes.add(Terminal.of(",")).add(parametricType)));
 		parametricType.setRule(varianceModifier.add(type));
 		varianceModifier.setRule(Terminal.of("in").or(Terminal.of("out").or(Terminal.of("inv").or(EmptyTerminal.instance()))));
@@ -197,7 +208,17 @@ public abstract class AbstractLenseGrammar extends AbstractGrammar {
 		ntfinally.setRule(Terminal.of("finally").add(block));
 		expressionStatement.setRule(statementExpression.add(Terminal.of(";")));
 		statementExpression.setRule(assignment.or(postincrementExpression.or(postdecrementExpression.or(methodInvocation.or(classInstanceCreationExpression)))));
-		localVariableDeclarationStatement.setRule(imutabilityModifier.add(type).add(variableName).add(Terminal.of(";")).or(type.add(variableName).add(Terminal.of(";"))).or(imutabilityModifier.add(type).add(variableName).add(Terminal.of("=")).add(expression).add(Terminal.of(";")).or(type.add(variableName).add(Terminal.of("=")).add(expression).add(Terminal.of(";")))));
+		localVariableDeclarationStatement.setRule(imutabilityModifier.add(type).add(variableName).add(Terminal.of(";")).or(type.add(variableName).add(Terminal.of(";"))).or(imutabilityModifier.add(type).add(variableName).add(Terminal.of("=")).add(expression).add(Terminal.of(";")).or(type.add(variableName).add(Terminal.of("=")).add(expression).add(Terminal.of(";"))).or(imutabilityModifier.add(type).add(variableName).add(Terminal.of("=")).add(initializer).add(Terminal.of(";")).or(type.add(variableName).add(Terminal.of("=")).add(initializer).add(Terminal.of(";"))))));
+		initializer.setRule(arrayInitializer.or(tupleInitializer.or(mapInitializer)));
+		arrayInitializer.setRule(Terminal.of("[").add(arrayInitializerVariables).add(Terminal.of("]")));
+		tupleInitializer.setRule(Terminal.of("(").add(tupleInitializerVariables).add(Terminal.of(")")).or(Terminal.of("(").add(Terminal.of(")"))));
+		arrayInitializerVariables.setRule(initializerVariable.or(arrayInitializerVariables.add(Terminal.of(",")).add(initializerVariable)));
+		initializerVariable.setRule(initializer.or(expression));
+		tupleInitializerVariables.setRule(initializerVariable.or(tupleInitializerVariables.add(Terminal.of(",")).add(initializerVariable)));
+		mapInitializer.setRule(Terminal.of("{").add(mapInitializerVariables).add(Terminal.of("}")));
+		mapInitializerVariables.setRule(mapInitializerPair.or(mapInitializerVariables.add(Terminal.of(",")).add(mapInitializerPair)));
+		mapInitializerPair.setRule(mapInitializerVariable.add(Terminal.of(":")).add(mapInitializerVariable));
+		mapInitializerVariable.setRule(initializer.or(expression));
 		whileStatement.setRule(Terminal.of("while").add(Terminal.of("(")).add(expression).add(Terminal.of(")")).add(block).or(Terminal.of("while").add(Terminal.of("(")).add(expression).add(Terminal.of(")"))));
 		forStatement.setRule(Terminal.of("for").add(Terminal.of("(")).add(iterationType).add(Terminal.of("in")).add(expression).add(Terminal.of(")")).add(block));
 		iterationType.setRule(type.add(variableName).or(Terminal.of("val").add(type).add(variableName).or(Terminal.of("val").add(variableName))));

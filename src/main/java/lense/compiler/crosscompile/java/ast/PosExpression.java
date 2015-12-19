@@ -31,6 +31,10 @@ public class PosExpression extends ExpressionNode{
 	public ArithmeticOperation getOperation(){
 		return operation;
 	}
+	
+	public void setOperation(ArithmeticOperation other){
+		this.operation = other;
+	}
 
 	/**
 	 * @param returningType

@@ -19,16 +19,18 @@ import lense.compiler.CompilationError;
 import lense.compiler.SemanticContext;
 import lense.compiler.TypeAlreadyDefinedException;
 import lense.compiler.Visibility;
-import lense.compiler.ast.AnnotationNode;
 import lense.compiler.ast.ArgumentListNode;
 import lense.compiler.ast.ArithmeticNode;
 import lense.compiler.ast.ArithmeticOperation;
 import lense.compiler.ast.AssignmentNode;
 import lense.compiler.ast.BlockNode;
+import lense.compiler.ast.BooleanOperatorNode.BooleanOperation;
+import lense.compiler.ast.AnnotationNode;
 import lense.compiler.ast.CatchOptionNode;
 import lense.compiler.ast.ClassInstanceCreation;
 import lense.compiler.ast.ClassTypeNode;
 import lense.compiler.ast.ConditionalStatement;
+import lense.compiler.ast.ExpressionNode;
 import lense.compiler.ast.FieldDeclarationNode;
 import lense.compiler.ast.FieldOrPropertyAccessNode;
 import lense.compiler.ast.ForEachNode;
@@ -38,10 +40,13 @@ import lense.compiler.ast.Imutability;
 import lense.compiler.ast.IndexedAccessNode;
 import lense.compiler.ast.LambdaExpressionNode;
 import lense.compiler.ast.LiteralExpressionNode;
+import lense.compiler.ast.LiteralTupleInstanceCreation;
 import lense.compiler.ast.MethodDeclarationNode;
 import lense.compiler.ast.MethodInvocationNode;
+import lense.compiler.ast.NumericValue;
 import lense.compiler.ast.ParametersListNode;
 import lense.compiler.ast.PosExpression;
+import lense.compiler.ast.PosUnaryExpression;
 import lense.compiler.ast.QualifiedNameNode;
 import lense.compiler.ast.RangeNode;
 import lense.compiler.ast.ReturnNode;
@@ -50,7 +55,6 @@ import lense.compiler.ast.SwitchOption;
 import lense.compiler.ast.TernaryConditionalExpressionNode;
 import lense.compiler.ast.TypeNode;
 import lense.compiler.ast.TypedNode;
-import lense.compiler.ast.VariableDeclarationNode;
 import lense.compiler.ast.VariableReadNode;
 import lense.compiler.ast.VariableWriteNode;
 import lense.compiler.typesystem.Kind;
@@ -75,6 +79,7 @@ public class SemanticVisitor implements Visitor<AstNode> {
 
 	SemanticContext semanticContext;
 
+	// TODO remove method discovey is done in StructureVisitor
 	private Map<String, Set<MethodSignature>> defined = new HashMap<String, Set<MethodSignature>>();
 	private Map<String, Set<MethodSignature>> expected = new HashMap<String, Set<MethodSignature>>();
 
@@ -133,8 +138,37 @@ public class SemanticVisitor implements Visitor<AstNode> {
 	@Override
 	public VisitorNext visitBeforeChildren(AstNode node) {
 		if (node instanceof MethodDeclarationNode) {
-			semanticContext
-			.beginScope(((MethodDeclarationNode) node).getName());
+			semanticContext.beginScope(((MethodDeclarationNode) node).getName());
+			
+			MethodDeclarationNode m = (MethodDeclarationNode)node;
+			
+			VariableInfo var = semanticContext.currentScope().searchVariable("this");
+
+			// defaults
+			m.setVisibility(Visibility.Private);
+
+			// auto-abstract if interface
+			if (var.getTypeDefinition().getKind() == Kind.Interface) {
+				m.setAbstract(true);
+			}
+
+			// TODO move to grammar ?
+			if (m.getAnnotations() != null) {
+				for (AstNode n : m.getAnnotations().getChildren()) {
+					AnnotationNode in = (AnnotationNode) n;
+					if (in.getName().equals("native")) {
+						m.setAbstract(true);
+						m.setNative(true);
+					} else if (in.getName().equals("abstract")) {
+						m.setAbstract(true);
+					} else if (in.getName().equals("public")) {
+						m.setVisibility(Visibility.Public);
+					} else if (in.getName().equals("protected")) {
+						m.setVisibility(Visibility.Protected);
+					}
+				}
+			}
+		
 		} else if (node instanceof ClassTypeNode) {
 			ClassTypeNode t = (ClassTypeNode) node;
 
@@ -224,14 +258,7 @@ public class SemanticVisitor implements Visitor<AstNode> {
 			}
 			variableInfo.markWrite();
 			v.setVariableInfo(variableInfo);
-		} else if (node instanceof TypeNode) {
-			TypeNode t = (TypeNode) node;
-			try {
-				t.setTypeDefinition(semanticContext.typeForName(t.getName(), t.getGenericParametersCount()));
-			} catch (compiler.typesystem.TypeNotFoundException e) {
-				throw new CompilationError(t, e.getMessage());
-			}
-		} else if (node instanceof LambdaExpressionNode) {
+		}else if (node instanceof LambdaExpressionNode) {
 			semanticContext.beginScope("lambda$" + ((LambdaExpressionNode) node).getLambdaId());
 
 			LambdaExpressionNode n = ((LambdaExpressionNode)node);
@@ -263,7 +290,7 @@ public class SemanticVisitor implements Visitor<AstNode> {
 				semanticContext.currentScope().defineVariable(name, td).setInitialized(true);
 				index++;
 			}
-		}
+		} 
 
 		return VisitorNext.Children;
 	}
@@ -275,22 +302,24 @@ public class SemanticVisitor implements Visitor<AstNode> {
 	public void visitAfterChildren(AstNode node) {
 		if (node instanceof TypeNode) {
 			TypeNode t = (TypeNode) node;
-			TypeDefinition type = t.getTypeDefinition();
-			if (t.getGenericParametersCount() > 0) {
-
-				List<TypeDefinition> generics = new ArrayList<>();
-				for (AstNode p : t.getChildren()) {
-					TypeNode generic = ensureTypeNode(p);
-					generics.add(generic.getTypeDefinition());
-				}
-
-				type = LenseTypeSystem.specify(type,
-						generics.toArray(new TypeDefinition[generics.size()]));
-
-				t.setTypeDefinition(type);
-
+			resolveTypeDefinition(t);
+		}  else if (node instanceof LiteralTupleInstanceCreation){
+			LiteralTupleInstanceCreation tuple = ((LiteralTupleInstanceCreation)node);
+			TypedNode value = (TypedNode) tuple.getChildren().get(1).getChildren().get(0);
+			TypedNode nextTuple;
+			if (tuple.getChildren().get(1).getChildren().size() == 2){
+				nextTuple = (TypedNode) tuple.getChildren().get(1).getChildren().get(1);
+			} else {
+				nextTuple = new TypeNode(LenseTypeSystem.Nothing());
 			}
 
+			TypeNode typeNode =  new TypeNode(new QualifiedNameNode(tuple.getTypeNode().getName()));
+			typeNode.addParametricType(new GenericTypeParameterNode(new TypeNode(value.getTypeDefinition())));
+			typeNode.addParametricType(new GenericTypeParameterNode(new TypeNode(nextTuple.getTypeDefinition())));
+
+			typeNode.setTypeDefinition(LenseTypeSystem.specify(LenseTypeSystem.Tuple(), value.getTypeDefinition(), nextTuple.getTypeDefinition()));
+
+			tuple.replace(tuple.getTypeNode(), typeNode);
 		} else if (node instanceof RangeNode) {
 			RangeNode r = (RangeNode) node;
 
@@ -376,6 +405,7 @@ public class SemanticVisitor implements Visitor<AstNode> {
 		} else if (node instanceof PosExpression) {
 			PosExpression p = (PosExpression) node;
 
+			// TODO other pos operators and PosUni
 			if (p.getOperation().equals(ArithmeticOperation.Subtraction)) {
 
 				final TypeDefinition type = ((TypedNode) p.getChildren().get(0))
@@ -388,11 +418,54 @@ public class SemanticVisitor implements Visitor<AstNode> {
 					throw new CompilationError(
 							"The method negative() is undefined for TypeDefinition "
 									+ type);
-				}
+				} 
 
-				p.setTypeDefinition(list.get().getReturningType()
-						.getUpperbound());
+				// invoke the method
+				MethodInvocationNode method = new MethodInvocationNode( node.getChildren().get(0) , "negative" );
+
+				method.setTypeDefinition(list.get().getReturningType().getUpperbound());
+
+				node.getParent().replace(node, method);
+			} else if (p.getOperation().equals(ArithmeticOperation.Addition)) {
+				// nothing , only remove the pos expression from the node tree
+				node.getParent().replace(node, node.getChildren().get(0));
 			}
+
+		}  else if (node instanceof PosUnaryExpression) {
+			PosUnaryExpression p = (PosUnaryExpression) node;
+
+			final TypeDefinition type = ((TypedNode) p.getChildren().get(0)).getTypeDefinition();
+
+			String methodName;
+			if (p.getOperation().equals(BooleanOperation.LogicNegate)) {
+				methodName = "negate";
+			} else if (p.getOperation().equals(BooleanOperation.BitNegate)){
+				methodName = "flipAll";
+			} else if (p.getOperation().equals(BooleanOperation.LogicNegate)){
+				if (LenseTypeSystem.Boolean().equals(type)){
+					methodName = "negate";
+				} else {
+					throw new CompilationError(node,"Operator ! can only be applied to Boolean instances.");
+				}
+			} else {
+				throw new CompilationError(node,"Unrecognized operator");
+			}
+
+			Optional<Method> list = type.getMethodsByName("negate")
+					.stream().filter(md -> md.getParameters().size() == 0)
+					.findAny();
+
+			if (!list.isPresent()) {
+				throw new CompilationError(node, "The method " + methodName + "() is undefined for TypeDefinition " + type);
+			} 
+
+			// invoke the method
+			MethodInvocationNode method = new MethodInvocationNode( node.getChildren().get(0) , "negate" );
+
+			method.setTypeDefinition(list.get().getReturningType().getUpperbound());
+
+			node.getParent().replace(node, method);
+
 
 		} else if (node instanceof AssignmentNode) {
 			AssignmentNode n = (AssignmentNode) node;
@@ -474,7 +547,7 @@ public class SemanticVisitor implements Visitor<AstNode> {
 			try{
 				semanticContext.currentScope().defineVariable(formal.getName(), formal.getTypeDefinition());
 			} catch (TypeAlreadyDefinedException e){
-			
+
 			}
 		} else if (node instanceof ScopedVariableDefinitionNode) {
 			ScopedVariableDefinitionNode variableDeclaration = (ScopedVariableDefinitionNode) node;
@@ -531,8 +604,7 @@ public class SemanticVisitor implements Visitor<AstNode> {
 
 			TypedNode a = (TypedNode) m.getAccess();
 
-			VariableInfo info = semanticContext.currentScope().searchVariable(
-					"this");
+			VariableInfo info = semanticContext.currentScope().searchVariable("this");
 			TypeDefinition currentType = info.getTypeDefinition();
 
 			TypeDefinition methodOwnerType = currentType;
@@ -540,23 +612,66 @@ public class SemanticVisitor implements Visitor<AstNode> {
 				methodOwnerType = a.getTypeDefinition();
 			}
 
-			if (methodOwnerType.equals(currentType)) {
-				// TODO
-			} else {
-				Optional<Method> list = methodOwnerType.getMethodsByName("get")
-						.stream().filter(md -> md.getParameters().size() == 1)
-						.findAny();
+			if (methodOwnerType.getName().equals("lense.core.collections.Tuple")){
+				Optional<Integer> index = asConstantNumber(m.getIndexExpression());
+				if (index.isPresent()){
 
-				if (!list.isPresent()) {
-					throw new CompilationError("The method get("
-							+ m.getIndexExpression().getTypeDefinition()
-							+ ") is undefined for TypeDefinition "
-							+ methodOwnerType);
-				}
+					Optional<Method> tail = methodOwnerType.getMethodsByName("tail")
+							.stream().filter(md -> md.getParameters().size() == 0)
+							.findAny();
 
-				m.setTypeDefinition(list.get().getReturningType()
-						.getUpperbound());
+					Optional<Method> head = methodOwnerType.getMethodsByName("head")
+							.stream().filter(md -> md.getParameters().size() == 0)
+							.findAny();
+					
+					int max = countTupleSize(methodOwnerType);
+
+					if (index.get().intValue() == 0){
+						MethodInvocationNode invoke = new MethodInvocationNode(m.getAccess(), "head");
+						
+						node.getParent().replace(node, invoke);
+						invoke.setTypeDefinition(methodOwnerType.getGenericParameters().get(0).getUpperbound());
+						return;
+					} else if ( index.get() < max){
+						MethodInvocationNode previous = new MethodInvocationNode(m.getAccess(), "tail");
+						previous.setTypeDefinition(methodOwnerType.getGenericParameters().get(1).getUpperbound());
+
+						for (int i = 1; i < index.get() -1; i++){
+							MethodInvocationNode current = new MethodInvocationNode(previous, "tail");
+							current.setTypeDefinition(previous.getTypeDefinition().getGenericParameters().get(1).getUpperbound());
+							previous = current;
+						}
+
+						MethodInvocationNode invoke = new MethodInvocationNode(previous, "head");
+						
+						node.getParent().replace(node, invoke);
+						
+						invoke.setTypeDefinition(previous.getTypeDefinition().getGenericParameters().get(1).getUpperbound().getGenericParameters().get(0).getUpperbound());
+						return;
+					}
+
+				
+				} 
+			} 
+
+			Optional<Method> getmethod = methodOwnerType.getMethodsByName("get")
+					.stream().filter(md -> md.getParameters().size() == 1)
+					.findAny();
+
+			if (!getmethod.isPresent()) {
+				throw new CompilationError(node, "The method get("
+						+ m.getIndexExpression().getTypeDefinition()
+						+ ") is undefined for TypeDefinition "
+						+ methodOwnerType);
 			}
+
+			MethodInvocationNode invoke = new MethodInvocationNode(m.getAccess(), "get", m.getIndexExpression());
+			
+			node.getParent().replace(node, invoke);
+			
+			invoke.setTypeDefinition(getmethod.get().getReturningType().getUpperbound());
+
+			
 		} else if (node instanceof PosExpression) {
 			PosExpression n = (PosExpression) node;
 			n.setTypeDefinition(((TypedNode) n.getChildren().get(0))
@@ -757,27 +872,23 @@ public class SemanticVisitor implements Visitor<AstNode> {
 
 			if (access == null) {
 				// access to self
-				MethodParameter[] parameters = asMethodParameters(m.getCall()
-						.getArgumentListNode().getChildren());
-				MethodSignature signature = new MethodSignature(name,
-						parameters);
+				MethodParameter[] parameters = asMethodParameters(m.getCall().getArgumentListNode().getChildren());
+				MethodSignature signature = new MethodSignature(name,parameters);
 
 				Optional<Method> method = methodOwnerType.getMethodBySignature(signature);
 
 				if (!method.isPresent()) {
 
-					method = methodOwnerType
-							.getMethodByPromotableSignature(signature);
+					method = methodOwnerType.getMethodByPromotableSignature(signature);
 
 					if (!method.isPresent()) {
-						throw new CompilationError("Method " + signature
+						throw new CompilationError(node, "Method " + signature
 								+ " is not defined in " + methodOwnerType
 								+ " or its super classes");
 					}
 				}
 
-				m.setTypeDefinition(method.get().getReturningType()
-						.getUpperbound());
+				m.setTypeDefinition(method.get().getReturningType().getUpperbound());
 
 			} else if (access instanceof QualifiedNameNode) {
 				QualifiedNameNode qn = ((QualifiedNameNode) access);
@@ -854,10 +965,7 @@ public class SemanticVisitor implements Visitor<AstNode> {
 				throw new CompilationError("Not supported yet");
 			}
 
-			if (methodOwnerType.equals(currentType)) {
-				markToFind(methodOwnerType, name, m.getCall()
-						.getArgumentListNode());
-			} else {
+			if (!methodOwnerType.equals(currentType)) {
 				MethodParameter[] parameters = asMethodParameters(m.getCall()
 						.getArgumentListNode().getChildren());
 				MethodSignature signature = new MethodSignature(name,
@@ -948,41 +1056,9 @@ public class SemanticVisitor implements Visitor<AstNode> {
 
 		} else if (node instanceof MethodDeclarationNode) {
 
-			MethodDeclarationNode m = (MethodDeclarationNode) node;
-
-			VariableInfo var = semanticContext.currentScope().searchVariable(
-					"this");
-
-			// defaults
-			m.setVisibility(Visibility.Private);
-
-			// auto-abstract if interface
-			if (var.getTypeDefinition().getKind() == Kind.Interface) {
-				m.setAbstract(true);
-			}
-			// TODO move to grammar ?
-			if (m.getAnnotations() != null) {
-				for (AstNode n : m.getAnnotations().getChildren()) {
-					AnnotationNode in = (AnnotationNode) n;
-					if (in.getName().equals("native")) {
-						m.setAbstract(true);
-						m.setNative(true);
-					} else if (in.getName().equals("abstract")) {
-						m.setAbstract(true);
-					} else if (in.getName().equals("public")) {
-						m.setVisibility(Visibility.Public);
-					} else if (in.getName().equals("protected")) {
-						m.setVisibility(Visibility.Protected);
-					}
-				}
-			}
-
+			MethodDeclarationNode m = (MethodDeclarationNode)node;
 			TypeDefinition returnType = m.getReturnType().getTypeDefinition();
-
-			LenseTypeDefinition currentType = (LenseTypeDefinition) var.getTypeDefinition();
-
-			markDefine(currentType, m.getName(), returnType, m.getParameters());
-
+			
 			if (!m.isAbstract()) {
 
 				if (returnType.equals(VOID)) {
@@ -1029,6 +1105,7 @@ public class SemanticVisitor implements Visitor<AstNode> {
 				} 
 
 			}
+			
 			semanticContext.endScope();
 
 		} else if (node instanceof ClassTypeNode) {
@@ -1114,6 +1191,58 @@ public class SemanticVisitor implements Visitor<AstNode> {
 		}
 	}
 
+	private void resolveTypeDefinition(TypeNode t) {
+		try {
+			TypeDefinition type = semanticContext.typeForName(t.getName(), t.getGenericParametersCount());
+			t.setTypeDefinition(type);
+
+			if (t.getGenericParametersCount() > 0){
+				TypeDefinition[] genericParametersCapture = new TypeDefinition[t.getGenericParametersCount()];
+				int index=0;
+				for( AstNode n : t.getChildren()){
+					GenericTypeParameterNode p = (GenericTypeParameterNode)n;
+					TypeNode gt = p.getTypeNode();
+					TypeDefinition gtype  = gt.getTypeDefinition();
+					if (gtype == null){
+						gtype = semanticContext.typeForName(gt.getName(), gt.getGenericParametersCount());
+					}
+					genericParametersCapture[index] = gtype;
+					gt.setTypeDefinition(genericParametersCapture[index]);
+					index++;
+				}
+				t.setTypeDefinition(LenseTypeSystem.specify(type, genericParametersCapture));
+			}
+
+		} catch (compiler.typesystem.TypeNotFoundException e) {
+			throw new CompilationError(t, e.getMessage());
+		}
+	}
+
+	/**
+	 * @param methodOwnerType
+	 * @return
+	 */
+	private int countTupleSize(TypeDefinition methodOwnerType) {
+		int count = 0;
+		TypeDefinition type = methodOwnerType.getGenericParameters().get(1).getUpperbound();
+		while (!type.equals(LenseTypeSystem.Nothing())){
+			count++;
+			type = type.getGenericParameters().get(1).getUpperbound();
+		}
+		return count+1;
+	}
+
+	/**
+	 * @param indexExpression
+	 */
+	private Optional<Integer> asConstantNumber(ExpressionNode indexExpression) {
+		if (indexExpression instanceof NumericValue){
+			return Optional.of( ((NumericValue)indexExpression).getValue().intValue());
+		} else {
+			return Optional.empty();
+		}
+	}
+
 	public MethodParameter[] asMethodParameters(List<AstNode> nodes) {
 		return nodes
 				.stream()
@@ -1138,11 +1267,19 @@ public class SemanticVisitor implements Visitor<AstNode> {
 						}
 
 						if (!maybeType.isPresent()) {
-							throw new CompilationError(((QualifiedNameNode) v)
+							throw new CompilationError(v, ((QualifiedNameNode) v)
 									.getName() + " is not a recognized type");
 						}
 						return new MethodParameter(maybeType.get());
-					} else {
+					} else if (v instanceof IdentifierNode){
+						VariableInfo var = semanticContext.currentScope().searchVariable(((IdentifierNode)v).getId());
+						
+						if (var == null){
+							throw new CompilationError(v , ((QualifiedNameNode) v).getName() + " is not a field or variable");
+						}
+						
+						return new MethodParameter(var.getTypeDefinition());
+					}else {
 						throw new RuntimeException();
 					}
 				}).collect(Collectors.toList())
@@ -1162,32 +1299,7 @@ public class SemanticVisitor implements Visitor<AstNode> {
 		}
 	}
 
-	/**
-	 * @param name
-	 * @param parameters
-	 */
-	private void markDefine(LenseTypeDefinition declaringType, String name, TypeDefinition returnType, ParametersListNode parameters) {
 
-		Set<MethodSignature> signatures = defined.get(name);
-		if (signatures == null) {
-			signatures = new HashSet<>();
-			defined.put(name, signatures);
-		}
-
-		MethodParameter[] params = parameters == null 
-				? new MethodParameter[0]
-						: new MethodParameter[parameters.getChildren().size()];
-
-				for (int i = 0; i < params.length; i++) {
-					FormalParameterNode var = (FormalParameterNode) parameters.getChildren().get(i);
-					params[i] = new MethodParameter(var.getTypeDefinition());
-				}
-				final MethodSignature methodSignature = new MethodSignature(name,params);
-
-				declaringType.addMethod(name, returnType,params);
-
-				signatures.add(methodSignature);
-	}
 
 	/**
 	 * @param name

@@ -9,7 +9,7 @@ return ;
 public void main(){
 final lense.core.lang.Void v = getVoid();
 Console.println(v.toString());
-final lense.core.lang.Array arr =  new lense.core.lang.Array (4);
+final lense.core.collections.Array arr =  new lense.core.collections.Array (4);
 }
 
 }

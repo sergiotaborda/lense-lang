@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8"/>
+    <title>Container Literals</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <meta name="keywords" content="">
+    <meta name="generator" content="JBake">
+    
+    
+  
+	<script src="js/shCore.js"></script>
+
+	<script src="js/shBrushScala.js"></script>
+	<script src="js/shBrushCSharp.js"></script>
+	<script src="js/shBrushDart.js"></script>
+	<script src="js/shBrushJava.js"></script>
+		
+	<script src="js/shBrushLense.js"></script>
+	<style>
+	 .console {
+	    background : black;
+	    color: white;
+	    width: 500px;
+	 }
+	 p {
+	 	text-align:justified;
+	 }
+	 pre {
+	 	background-color:white !important;
+	 	border:0px !important;
+	 	padding:0px !important;
+	 	overflow: visible !important;
+	 }
+	 pre code {
+	 	padding:2px !important;
+	 	margin : 0px !important;
+	 }
+	</style>
+
+    <!-- Le styles -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/asciidoctor.css" rel="stylesheet">
+    <link href="css/base.css" rel="stylesheet">
+    <link href="css/prettify.css" rel="stylesheet">
+  	<link rel="stylesheet" type="text/css" href="css/shCore.css"  >
+	<link rel="stylesheet" type="text/css" href="css/shThemeLense.css" >
+	
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="js/html5shiv.min.js"></script>
+    <![endif]-->
+
+    <!-- Fav and touch icons -->
+    <!--<link rel="apple-touch-icon-precomposed" sizes="144x144" href="../assets/ico/apple-touch-icon-144-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="../assets/ico/apple-touch-icon-114-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="../assets/ico/apple-touch-icon-72-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" href="../assets/ico/apple-touch-icon-57-precomposed.png">-->
+    <link rel="shortcut icon" href="favicon.ico">
+  </head>
+  <body onload="prettyPrint()">
+    <div id="wrap">
+	
+	<!-- Fixed navbar -->
+    <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+      <div class="container">
+        <div class="navbar-header">
+          <a class="navbar-brand" href="index.html">Lense</a>
+        </div>
+        <div class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="download.html">Download</a></li>
+            <li><a href="about.html">About</a></li>
+            <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown">Dropdown <b class="caret"></b></a>
+              <ul class="dropdown-menu">
+                <li><a href="#">Action</a></li>
+                <li><a href="#">Another action</a></li>
+                <li><a href="#">Something else here</a></li>
+                <li class="divider"></li>
+                <li class="dropdown-header">Nav header</li>
+                <li><a href="#">Separated link</a></li>
+                <li><a href="#">One more separated link</a></li>
+              </ul>
+            </li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </div>
+    <div class="container">
+	<p><h1>Container Literals</h1><p>Lense recognizes literals for <code>Sequence</code>s, <code>Association</code>s and <code>Tuple</code>s. As a rule, because Lense has type inference it must be possible to infer the type of literal from the syntax, so we need a diferent sintax for each container type. </p><h2>Sequences</h2><p>For sequences tipally in C-familly languages an array can be created using curly brakets <em>{</em> and <em>}</em>, but in more mathematical oriented languages such as Fortran an Julia common brakets are used. C-familly languages like Java do not have array literals <em>per se</em>, they have array initializers:</p>
+<pre><code class="brush: java">var int[] array = new int[]{1, 2, 3};
+</code></pre><p>What's appening is that an array is being constructed with <code>new int[]</code> and then initialized with the values 1, 2 and 3. The JVM will make this both operations as a single operation, but conceptually is a different thing.</p><p>In C# the same concept is used to initialize both arrays and lists </p>
+<pre><code class="brush: c#">var int[] array = new int[]{1, 2, 3};
+var List&lt;int&gt; list = new List(){1, 2, 3};
+</code></pre><p>In Lense the type of the container is fixed by the syntax and a <a href="constructors.html#convertion">convertion constructor</a> is used to copy the values to another type if needed. The type inside the container is infered from the declared value types. Also initializers are used a little different so there is no need to use the same sintax as other C-familly languages. Lense uses common brakets to represent sequences. Keep in mind arrays are not fundamental types em Lense, sequences are.</p>
+<pre><code class="brush: lense">var Sequence&lt;Natural&gt; sequence = [1, 2, 3];
+var Array&lt;Natural&gt; array = [1, 2, 3];
+</code></pre><p>The first line creates a sequence of elements 1, 2 and 3. The second line creates an array of the elements 1, 2 and 3 by first creating a sequence and them promoting it to an Array. </p><h2>Sets</h2><p>Currently there is no special syntax for sets. A set can be created by promoting a literal sequence. </p>
+<pre><code class="brush: lense">var Set&lt;Natural&gt; sequence = [1, 2, 2, 3, 4, 3];
+</code></pre><p>This code creates a sequence of not unique values and promotes it to a Set. The set will only contain the elements 1, 2, 3 and 4 once.</p><h2>Associations</h2><p>Associations are used to maitain pair or values related to each other. Normally in a key to value relationship. </p>
+<pre><code class="brush: lense">var Association&lt;Natural,Natural&gt; association = { 1:2, 2:4, 3:6 };
+var Map&lt;Natural, Natural&gt; map = { 1:2, 2:4, 3:6 };
+</code></pre><p>Like <code>Sequence</code>, <code>Association</code> is a fundamental type in Lense, so it has its own literal type. </p><p>The first line creates an association of elements. The second line creates a map of the same elements by first creating an association and them promoting it to a Map. </p><h2>Tuples</h2><p>Tuples are similar to sequences, but each index has its own type. Tuples also are fundamental types in Lense.<br/>The syntax is similar to Sequences.</p>
+<pre><code class="brush: lense">var Tuple&lt;Natural , Tuple&lt;String, Tuple&lt; Boolean, Nothing &gt;&gt;&gt; tuple = ( 1 , &quot;2&quot; , true );
+var (Natural , String , Boolean) association = ( 1 : &quot;2&quot; : true );
+</code></pre><p>The first line creates a tuple of elements. The second line creates the same tuple but uses the tuple short type syntax for representing tuple types. The default form used in the first line can be very long and odd to write and read eventhought is the exact correct type of that tuple. </p><h2>Matrix (Under Consideration)</h2><p>It could be possible to define a specific sintax for a two dimentional<code>Matrix</code>. This is not currenly implemented.</p>
+<pre><code class="brush: lense">var Matrix&lt;Natural&gt; matrix = [ 1 ,2 ,3 ; 4, 5, 6 ; 5 6 7];
+
+// also can be writen as
+
+var Matrix&lt;Natural&gt; matrix = [ 
+	1 ,2 ,3 ;
+ 	4, 5, 6 ; 
+ 	5, 6, 7
+];
+</code></pre><p>This would make a lot of sense in order to facilitate using Lense in more math and science scenarios.<br/>An alternative is to write sequence of sequences literals an use convertion constructors :</p>
+<pre><code class="brush: lense">var Matrix&lt;Natural&gt; matrix = [ [1 ,2 ,3 ], [4, 5, 6 ], [ 5 6 7]];
+
+// also can be writen as
+
+var Matrix&lt;Natural&gt; matrix = [ 
+	[1 ,2 ,3],
+ 	[4, 5, 6],
+ 	[5, 6, 7]
+];
+</code></pre><p>The support for matrixes is still under consideration and may not be implemented.</p><h2>Records</h2><p>Records are a special object that represents a non typed property bag.<br/>A possible sintax would be similar to an association, but using = instead of ":". The diference is that on an association both sides of the ":" can be variables,<br/>in a record only the right side can be a variable. The left side is interpreted as the name of a property. </p>
+<pre><code class="brush: lense">var Record address = {
+	Street = &quot;Baker Street&quot;,
+	Number = &quot;221B&quot;,
+	City = &quot;Lodon&quot;,
+	Country = &quot;England&quot;
+}
+
+</code></pre><p>Records are fundamentaly a type in Lense and can be used to initialize other types like so</p>
+<pre><code class="brush: lense">var Address address = new Address {
+	Street = &quot;Baker Street&quot;,
+	Number = &quot;221B&quot;,
+	City = &quot;Lodon&quot;,
+	Country = &quot;England&quot;
+}
+
+</code></pre><p>This a combination of a call to the <a href="constructors.html">primary construtor</a> and a initialization of each property refered in the record literal. This is not a convertion but syntax sugar for:</p>
+<pre><code class="brush: lense"><br/>var Address address = new Address();
+
+address.Street = &quot;Baker Street&quot;,
+address.Number = &quot;221B&quot;,
+address.City = &quot;Lodon&quot;,
+address.Country = &quot;England&quot;
+
+</code></pre><p>This feature is similar to the initialization syntax in C# even thought in Lense we are using the conjuction of two concepts : constructors and records.</p></p>
+	
+		</div>
+		<div id="push"></div>
+    </div>
+    
+    <div id="footer">
+      <div class="container">
+        <p class="muted credit">Lense is an open source project and a comunity diven developement</p>
+      </div>
+    </div>
+    
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="js/jquery-1.11.1.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/prettify.js"></script>
+    <script>
+    	SyntaxHighlighter.config.tagName = 'code';
+		SyntaxHighlighter.all();
+    
+    </script>
+  </body>
+</html>

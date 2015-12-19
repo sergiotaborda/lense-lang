@@ -27,6 +27,7 @@ import lense.compiler.crosscompile.java.ast.FormalParameterNode;
 import lense.compiler.crosscompile.java.ast.IndexedAccessNode;
 import lense.compiler.crosscompile.java.ast.MethodDeclarationNode;
 import lense.compiler.crosscompile.java.ast.MethodInvocationNode;
+import lense.compiler.crosscompile.java.ast.NullValue;
 import lense.compiler.crosscompile.java.ast.NumericValue;
 import lense.compiler.crosscompile.java.ast.ParametersListNode;
 import lense.compiler.crosscompile.java.ast.PosExpression;
@@ -91,7 +92,9 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode>  {
 	@Override
 	public VisitorNext visitBeforeChildren(AstNode node) {
 		try {
-			if (node instanceof StringValue){
+			if (node instanceof NullValue){
+				writer.print("null");
+			} else if (node instanceof StringValue){
 				writer.print("\"");
 				writer.print(((StringValue)node).getValue());
 				writer.print("\"");
@@ -331,7 +334,7 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode>  {
 				
 				writer.print(" new ");
 				if (n.getTypeDefinition() == null){
-					writer.print("????");
+					writer.print(n.getTypeNode().getName());
 				} else {
 					writer.print(n.getTypeDefinition().getName());
 				}
@@ -609,7 +612,7 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode>  {
 				}
 				writer.print(";");
 				return VisitorNext.Siblings;
-			}
+			} 
 
 			return VisitorNext.Children;
 		} finally {

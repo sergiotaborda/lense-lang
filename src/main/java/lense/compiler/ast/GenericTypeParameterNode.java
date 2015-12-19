@@ -21,7 +21,15 @@ public class GenericTypeParameterNode extends LenseAstNode implements TypedNode 
 
 	
 	public GenericTypeParameterNode (){}
-	
+	/**
+	 * Constructor.
+	 * @param typeNode2
+	 * @param variance2
+	 */
+	public GenericTypeParameterNode(TypeNode typeNode) {
+		this(typeNode , Variance.Invariant);
+	}
+
 	/**
 	 * Constructor.
 	 * @param typeNode2
@@ -29,6 +37,7 @@ public class GenericTypeParameterNode extends LenseAstNode implements TypedNode 
 	 */
 	public GenericTypeParameterNode(TypeNode typeNode, Variance variance) {
 		this.typeNode = typeNode;
+		this.add(typeNode);
 		this.variance = variance;
 	}
 

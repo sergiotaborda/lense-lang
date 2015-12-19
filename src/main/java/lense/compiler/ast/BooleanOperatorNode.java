@@ -18,11 +18,11 @@ public class BooleanOperatorNode extends BooleanExpressionNode {
 		BitAnd ("&"),
 		BitOr ("|"),
 		BitXor("^"),
+		BitNegate("~"), // unary
 		LogicShortAnd("&&"),
 		LogicShortOr("||"),
-		LogicNegate("!"), 
-		InstanceofType("instanceof"), 
-		BitNegate("~");
+		LogicNegate("!"),  // unary
+		InstanceofType("instanceof");
 		
 		private String symbol;
 

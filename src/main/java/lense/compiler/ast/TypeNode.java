@@ -16,17 +16,10 @@ import compiler.typesystem.TypeDefinition;
  */
 public class TypeNode extends LenseAstNode implements TypedNode{
 
-	private boolean isVoid;
+
 	private QualifiedNameNode name;
 	private TypeDefinition type;
 
-	/**
-	 * Constructor.
-	 * @param b
-	 */
-	public TypeNode(boolean isVoid) {
-		this.isVoid = isVoid;
-	}
 	/**
 	 * Constructor.
 	 * @param object
@@ -40,13 +33,16 @@ public class TypeNode extends LenseAstNode implements TypedNode{
 		}
 	}
 
-
 	/**
 	 * Constructor.
 	 * @param object
 	 */
 	public TypeNode(QualifiedNameNode name) {
 		this.name = name;
+	}
+	
+	public TypeNode(String name) {
+		this.name = new QualifiedNameNode(name);
 	}
 
 	/**

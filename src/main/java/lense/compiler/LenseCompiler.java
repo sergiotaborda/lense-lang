@@ -26,7 +26,7 @@ import lense.compiler.ast.ModuleNode;
 import lense.compiler.ast.QualifiedNameNode;
 import lense.compiler.ast.TypeNode;
 import lense.compiler.ast.UnitTypes;
-import lense.compiler.crosscompile.OutToJavaSource;
+import lense.compiler.crosscompile.java.OutToJavaSource;
 import lense.compiler.dependency.DependencyGraph;
 import lense.compiler.dependency.DependencyNode;
 import lense.compiler.dependency.DependencyRelation;
@@ -42,7 +42,6 @@ import lense.compiler.repository.MachineRepository;
 import lense.compiler.repository.ModuleRepository;
 import lense.compiler.repository.TypeRepository;
 import lense.compiler.typesystem.LenseTypeDefinition;
-
 import compiler.AstCompiler;
 import compiler.CompilationResult;
 import compiler.CompilationResultSet;

@@ -5,14 +5,14 @@ class SenseProgram extends java.lang.Object{
 Int x =  new lense.core.lang.Int (1);
 Long y = 2.toLong();
 String s;	
-public void main(lense.core.lang.Array<T extends lense.core.lang.String>  args){
+public void main(lense.core.collections.Array<T extends lense.core.lang.String>  args){
 try{
  for (final lense.core.lang.Natural i = 2 ; ++ ; )
 {
 }
 final lense.core.lang.Interval interval =  new lense.core.lang.Interval ();
 final lense.core.lang.Boolean contained = interval.contains(4);
-final lense.core.lang.Int f = ++8.toInt();
+final lense.core.lang.Int f = 8.negative().toInt();
 
  while (false && false)
  for ( : args)
