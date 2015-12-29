@@ -23,6 +23,14 @@
                 -->
               </ul>
             </li>
+            <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown">Content<b class="caret"></b></a>
+              <ul class="dropdown-menu">
+                <#list all_content as post>
+                	<li><a href="${post.uri}">${post.title}</a></li>
+               </#list>
+              </ul>
+            </li>
           </ul>
         </div><!--/.nav-collapse -->
       </div>

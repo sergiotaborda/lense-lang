@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8"/>
-    <title>Home</title>
+    <title>Sum Types</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <meta name="author" content="">
@@ -107,7 +107,54 @@
       </div>
     </div>
     <div class="container">
-	<p><h1>Lense</h1><p>Lense is a strong typed, pure object oriented programming language that is - we hope - carefully crafted from merging what we think is and ideal aproach to a new modern programming language with a meticulous observation and analysis of other languages design goals and decisions (and mistakes, yes). Even with this analysis and comparation with the state of art, Lense does not aim to be an academic driven language even when it tries to follow a more scientific and logic approach to design decision making.</p><p>Lense goal is to be a simple language, easy to read and write that could be compiled to any object oriented platform. The first effort will focus on running Lense in the Java Virtual Machine (JVM). Other possible platforms are Javascript and CRL (.NET)</p><h1>Some features to expect</h1><p>Familiar syntax : Lense uses a c family style syntax. </p><p>No primitives : all types are treated as objects in the heap. The compiler is free to optimize this to the plataform's primitives as it sees fit. The programmer can define immutable objects in order to hint to the compiler that is a good idea to optimize that class but this is not mandatory.</p><p>No nulls : all variables must have been initialized at some point. By default no object type includes the null value. The maybe monad is used when the "absent" value is required. The compiler can understand the maybe monad implicitly in order to free the programmer of writing a special syntax for possible absent value handling, this means... </p><p>No strange null handling operators : because nulls cannot exist, the programmer does not need to inform the compiler about dereference safety and so operators like .? or :? are not needed. When interacting with other libraries written in the plataform's native language the compiler will wrap all call in a safe manner in order to maintain the code simple and do not stress the programmer with annoying details,</p><p>No symbolic noise : operator symbols are predefined and associated with specific interfaces so classes like numbers and strings can use operators.However defining you own operator symbol is not allowed in order to maintain the code simple to read. The use of interfaces to define operations follows an algebraic structure paradigm so the compiler can reason about the operations (example : altering the order of operations the enhance performance if the operation is commutative)</p><p>Reified Generics : The information of the generic type parameters can be reflected upon at runtime. </p><p>Generics with variance : Types can have generic parameters and this parameters can declare their intended variance. </p><p>String interpolation : variables can be easy inserted within a string using a simple syntax.</p><p>Support to Intervals literals.</p><p>Support to Progressions (Range) literals. </p><p>Suport to Rational, Imaginary and Complex numbers.</p><p>Funcional programming support to some extend. Definitely Lambdas and types like Function&lt;A,B&gt;. </p><p>No concept of "static' : All things are objects or exist within an object</p><p>Modules : ability to compile meta information in "module bundle" (think .jar or .dll) and their respective dependencies. This would allow for the runtime to determine the modules that are needed for a given module to run.</p><h1>Some features under consideration</h1><p>Closures : are like lambdas but can capture and modify values in the calling scope. Very usefully we try to allow the user to implement its on control directives.</p><p>Constructors are like factory methods : A class is a factory and constructors really construct the object (not only initialize it). The new keyword can only be used in the constructor and means "create an auto-initialized" object and would be equivalent to a no parameters private constructor in other languages. So all calls to create new objects are calls to factory methods present in the "Class" object enforcing the "static factory method" design patter out-of the box. Being functions the constructors could be passed as lambdas to other functions.</p></p>
+	<p><h1>Sum Types</h1><p>In Lense is possible to define an abstract type that must the implemented by a limited list of other types.<br/>The classic example is the Node type :</p>
+<pre><code class="brush: lense ">public class Node &lt;T&gt; {
+
+	case class Brunch&lt;T&gt; {
+	  constructor (Node&lt;T&gt; left , Node&lt;T&gt; right) 
+	}
+	
+	case class Leaf &lt;T&gt; { 
+	  constructor (T value)
+	}
+}
+</code></pre><p>If we now need to visit a long and complex tree we need to normally do so validation of types. For example, in java would be:</p>
+<pre><code class="brush: java"><br/>public &lt;T&gt; void colectLeafs(Node&lt;T&gt; node, List&lt;T&gt; leafs){
+
+	if (node instanceof Branch){
+	     Branch b = (Branch)node);
+	     collectLeafs(b.left, leafs);
+	     collectLeafs(b.right, leafs);
+	} else if (node instanceof Leaf){
+	    leafs.add(((Leaf)node).value);
+	}
+}
+
+</code></pre><p>We need to make a decision based on the type of the object, then cast it, then capture the properties and use them.<br/>In Lense we could use a similar construction using the flow-cast mechanism:</p>
+<pre><code class="brunch> lense "><br/>public void colectLeafs&lt;T&gt;(Node&lt;T&gt; node, List&lt;T&gt; leafs){
+
+	if (node is Branch&lt;T&gt;){
+	     collectLeafs(node.left, leafs);
+	     collectLeafs(node.right, leafs);
+	} else if (node is Leaf&lt;T&gt;){
+	    leafs.add(node.value);
+	}
+}
+
+</code></pre><p>However the compiler would be blind to the fact <code>Node</code> is a sum type. If we did not had a <code>else if</code> to test for leafs the compiler<br/>would not complain. If we need the be sure all sub types are covered we can use the <code>switch</code> statement.</p>
+<pre><code class="brush: lense">public &lt;T&gt; void colectLeafs(Node&lt;T&gt; node, List&lt;T&gt; leafs){
+
+	switch(node) {
+		case Branch (b){
+			collectLeafs(b.left, leafs);
+	      collectLeafs(b.right, leafs);
+		} 
+		case Leaf (leaf){
+			leafs.add(leaf.value);
+		} 
+	}
+}
+</code></pre></p>
 	
 		</div>
 		<div id="push"></div>

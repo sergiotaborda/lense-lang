@@ -7,16 +7,16 @@ status=published
 
 # Constructors
 
-In an Object Oriented language there is the inate need to instanciate objects. The instanciation occurs in two phases. First the memory needed to hold the object information is alocated and pointed at by a reference. Then this memory space is filled with initialization information. Only after these two phases are complete the object really exists and can be used by other objects.
+In an Object Oriented language there is the innate need to instantiate objects. The instantiation occurs in two phases. First the memory needed to hold the object information is allocated and pointed at by a reference. Then this memory space is filled with initialization information. Only after these two phases are complete the object really exists and can be used by other objects.
 
 The allocation phase can be manual like in C , Python and Swift or automatic like in C# or Java. Lense opts for an automatic allocation.
 
-The inicialization part is more delicate because the object must always exist in a valid state. 
-For simple objects whose state is simply a buch of properties that are inicialized with default values, this process is straitfoward. However when calculations or other computations are needed this presents a problem.
+The initialization part is more delicate because the object must always exist in a valid state. 
+For simple objects whose state is simply a bunch of properties that are initialized with default values, this process is straightforward. However when calculations or other computations are needed this presents a problem.
 
-So there needs to be a contract between the machinary responsable for allocating and inicializing the object and the object class. Some functions must be runned by this machinary in order to garantee the object is in a valid state before it can be release in the wild.
+So there needs to be a contract between the machinery responsible for allocating and initializing the object and the object class. Some functions must be runned by this machinery in order to guarantee the object is in a valid state before it can be release in the wild.
 
-This special function invoked by the machinary is called *Constructor*. Thus, the constructor is often an inicialization method and it does not realy constructs the object. Because the object already exists when the constructor is called (created in the previous phase of the instanciation process) the constructor has access to it to ensure the properties in the object are correclty set to valid values, however it should not call any polimorphic methods on the object.
+This special function invoked by the machinery is called *Constructor*. Thus, the constructor is often an initialization method and it does not really constructs the object. Because the object already exists when the constructor is called (created in the previous phase of the instantiation process) the constructor has access to it to ensure the properties in the object are correctly set to valid values, however it should not call any polymorphic methods on the object.
 
 As an example, in Java, we would write something like:
 
@@ -41,13 +41,13 @@ Fraction third = new Fraction(1,3);
 
 ~~~~   
 
-Pay attention the construtor is vary similar to a method but as no return type and its name is the same as the class.
+Pay attention the constructor is vary similar to a method but as no return type and its name is the same as the class.
 
 Inside the constructor, the ``this`` keyword refers to the already allocated object. So, at this point, the object already exists and it is of the class ``Fraction``.The constructor has no means to return an object of another class because the constructor has no return.
 
 The constructor , being a special kind of method can throw exceptions , however it is considered bad practice to do so[needs references].
 
-Constructors are usefull to garantee the object state is correctly inicialized but have some limitations, so in practice you would prefer to use a static factory method , like so:
+Constructors are usefully to guarantee the object state is correctly initialized but have some limitations, so in practice you would prefer to use a static factory method , like so:
 
 
 ~~~~brush: java
@@ -58,7 +58,7 @@ public class Fraction {
 	
 	public static Fraction of(int numerator, int denominator){
 		if (denominator == 0){
-			trows new IllegalArgumentException("Denominator cannot be zero");
+			throws new IllegalArgumentException("Denominator cannot be zero");
 		}
 		return new Fraction(numerator, denominator);
 	}
@@ -74,24 +74,24 @@ public class Fraction {
 Fraction third = Fraction.of(1,3);
 ~~~~  
 
-The validation of parameters is now moved to a method, so exceptions are allowed. The construtor is private so only the class can invoke it, the rest of the world would have to call the ``of`` static method.
+The validation of parameters is now moved to a method, so exceptions are allowed. The constructor is private so only the class can invoke it, the rest of the world would have to call the ``of`` static method.
 
-The problem with static methods is that they are not inherited so, the static factory method pattern makes sense only for object not intented to be inherited from.
-Nerthelesse this is considered a good practive e several API nowadays use this tecnhique to hide the construtor and provide a more fluent instanciation. 
+The problem with static methods is that they are not inherited so, the static factory method pattern makes sense only for object not intended to be inherited from.
+Nevertheless considered a good practice e several API nowadays use this technique to hide the constructor and provide a more fluent instantiation. 
 
-A great think about this pattern is thar encasuplates the use of ``new`` so the class designed can change the paramters of the construtor at will wihout interfering with the call site.
+A great think about this pattern is that it encasuplates the use of ``new`` so the class designed can change the parameters of the constructor at will without interfering with the call site.
 
 People often criticize java for being to verbose. The numerator and denominator names appear 6 times.
 
-## Types of construtors
+## Types of constructors
 
-Other languages come up with new flavors of construtors to try to reduce the problems with constructors. However, because construtors are essencially linked with the concept of object instanciation and state validity they cannot be removed from the languages. Some type of construtor must exist.
+Other languages come up with new flavors of constructors to try to reduce the problems with constructors. However, because constructors are essentially linked with the concept of object instantiation and state validity they cannot be removed from the languages. Some type of constructor must exist.
 
-### Primary Construtor
+### Primary Constructor
 
-This is special kind of construtors that only inicializes properties in the object. It is funcionally equivalent to the private construtor in our second example above. Because it can only set properties, languages try to come up with special (shorter) syntax.
+This is special kind of constructors that only initializes properties in the object. It is functionally equivalent to the private constructor in our second example above. Because it can only set properties, languages try to come up with special (shorter) syntax.
 
-In Scala, Ceylon and Kotlin, for instance, the primary construtor parameters are declared imediatly after the class name and extra code can be added in the class body without any other special delimiters
+In Scala, Ceylon and Kotlin, for instance, the primary constructor parameters are declared immediately after the class name and extra code can be added in the class body without any other special delimiters:
 
 ~~~~brush: scala
 
@@ -101,11 +101,11 @@ public class Fraction (Integer numerator, Integer denominator) {
 
 ~~~~  
 
-This constructors imediatly inform the compiler there must be a *numerator* and a *denominator* field in the class and the values of the parameters should be directly assign to those fields. This really reduces the boilerplate but leaves the validation of state problem orfan. 
+This constructors immediately inform the compiler there must be a *numerator* and a *denominator* field in the class and the values of the parameters should be directly assign to those fields. This really reduces the boilerplate but leaves the validation of state problem orphan. 
 
-Scala resolves this by means of companion objects that have methods that act like a static factory methods calling the construtor only after validating the parameters are correct. Other special construtors are possible (called auxiliar construtors) but they action is limited. In scala construtors are pretty much ment only for field inicialization, other computations are made in methods on objects.
+Scala resolves this by means of companion objects that have methods that act like a static factory methods calling the constructor only after validating the parameters are correct. Other special constructors are possible (called auxiliary constructors) but they action is limited. In scala constructors are pretty much meant only for field initialization, other computations are made in methods on objects.
 
-In languages with primary constructors implemented like this trade boilerplates :instead of having a delimited boilerplate inside a method like syntax, they provide a shorter syntax for the primary construtor making the other constructors syntax *ad hoc* and not simetric, even to allow code in the class body and require the programaer to conform to special rules for execution of code inside the class body and inside the auxiliar construtors. They remove the boilerplate of having a construtors that sets the fields but have no dedicated place for "advanced" construction code and the class sructure. If simple property bags in what you need this strategy really pais of, but it shows some crack for more complex types that need to isolate construction a little better.
+In languages with primary constructors implemented like this trade one boilerplate for asymmetry: instead of having a delimited boilerplate inside a method like syntax, they provide a shorter syntax for the primary constructor making the other constructors syntax *ad hoc* and not symmetric, even to allow code in the class body and require the programmer to conform to special rules for execution of code inside the class body and inside the auxiliary constructors. They remove the boilerplate of having a constructors that sets the fields but have no dedicated place for "advanced" construction code and the class structure. If simple property bags in what you need this strategy really pays off, but it shows some cracks for more complex types that need to isolate construction a little better.
 
 Dart goes another way.
 
@@ -114,18 +114,17 @@ class Fraction  {
 	Integer numerator;
 	Integer denominator;
 
-    Fraction (this.numerator, this.denominator)
+   Fraction (this.numerator, this.denominator)
 }
 
 ~~~~  
 
-The syntax is different, more in line with the C syntax like Java, but the intent is the same: reducing boilerplate. 
-However we are obliged to repeat the class name simply by the convention rule construtors are created this way. 
-Tradicionally the C familly languages do not use a keyword for the construtor because it was introduces in the language after de initial design and so create a keyword could conflit with existing names in existing code. So the designed made it so the code for the construtor was not valid code in the previous versions.
-Them, by historic and similary reason more modern languages simply copied the syntax like Java and Dart.
+The syntax is different, more in line with the C syntax like Java, but the intent is the same: reducing boilerplate, but maintaining the tradiconal way constructors are represented.
+However we are obliged to repeat the class name simply by the convention rule constructors are created this way. 
+Traditionally the C family languages do not use a keyword for the constructor because it was introduces in the language after de initial design and so create a keyword could conflict with existing names in existing code. So the designed made it so the code for the construtor was not valid code in the previous versions.Them, by historic and similarity reason more modern languages simply copied the syntax like Java and Dart.
 The "same name" rule is not always the case. Scala uses ``def this()`` and some languages use ``new`` in an attempt to not introduce a dedicated keyword. 
 
-In Lense the Primary construtors is writen :
+In Lense the primary constructor is written :
 
 ~~~~brush: lense 
 
@@ -142,18 +141,18 @@ public class Fraction {
 val Fraction third = new Fraction(1, 3);
 ~~~~
 
-A construtor without a body means the parameters should be copied to the fields.
+A constructor without a body means the parameters should be copied to the fields.
 
-All final value fields (the ones with ``val``) must be inicialized by all construtors, i.e. the compiler must be able to prove that all ``val`` fields have been set by the constructor. If this is not the case a compilation error will be raised.
+All final value fields (the ones with ``val``) must be initialized by all constructors, i.e. the compiler must be able to prove that all ``val`` fields have been set by the constructor. If this is not the case a compilation error will be raised.
 
-There is no repetion of the class name and the keyword cleary states that the instruction is a construtor.
+There is no repetition of the class name and the keyword clearly states that the instruction is a constructor.
 There is no boilerplate. The types on the parameters are needed since the private fields must not have the same types.
 
 ## Named Constructors
 
-All is fine when the class only needs a construtor. But more time than people whould realise an object can be created by diferent forms. Design can argument this other forms should be handled by factory object and the class it self as only a set of parameters. While this can obviously accomplished is not practical. 
+All is fine when the class only needs a constructor. But more time than people would realize an object can be created by different forms. Design can argument this other forms should be handled by factory object and the class it self as only a set of parameters. While this can obviously accomplished is not practical. 
 
-If we intend to have a ``Color`` type that can be created from RGB or HSL values the two algortithms are diferent and one or both require calculations before we can set the object private fields. On the other hand we need some practical way of distinguishing between them. Here the static methdo factory come in handy because it provides a name to the construction form, So in java we could write
+If we intend to have a ``Color`` type that can be created from RGB or HSL values the two algorithms are different and one or both require calculations before we can set the object private fields. On the other hand we need some practical way of distinguishing between them. Here the static method factory come in handy because it provides a name to the construction form. So in java we could write
 
 ~~~~brush: java 
 Color a = Color.fromRGB(1.0 , 1.0 , 1.0);
@@ -183,15 +182,11 @@ In Dart you can provide named constructors like
 }
 ~~~~
 
-Its a little odd to have dots in the name of the constructor , but at least is consistent with the call site. In Lense because we have the ``constructor`` key word  we write the same as:
+Its a little odd to have dots in the name of the constructor , but at least is consistent with the tradiconal constructor syntax. In Lense because we have the ``constructor`` key word we simply write the same as:
 
 ~~~~brush: lense 
 class Color {
 
-	 val Natural color;
-	 
-	 constructor(Natural color);
-	
     constructor fromRGB(Rational red, Rational greee,Rational blue){
          // code goes here  
     }
@@ -212,7 +207,7 @@ Color b = new Color.fromHSL(60 , 0.5 , 0.5);
 
 Note the similarity with the anonymous constructor invocation.
 
-The named constructors must, at some point, directly or indirectly, invoke the primary constructor. So the final conde should be something like
+The named constructors must, at some point, directly or indirectly, invoke the primary constructor. So the final code should be something like
 
 ~~~~brush: lense 
 public class Color {
@@ -243,7 +238,7 @@ Notice how the ``new`` keyword is used to call the other constructors. In fact c
 
 ## Factory Constructor
 
-Constructors in Lense are real factories and can create and return any instance. This means constructors can control the number of instances being created and choose to create specific subtypes. For instances the ``Array`` constructor is :
+Constructors in Lense are real factories and can create and return any instance. This means constructors can control the number of instances being created and choose to create specific sub types. For instances the ``Array`` constructor is :
 
 ~~~~brush: lense 
 public class Array<T> {
@@ -292,7 +287,7 @@ public class Natural extends Whole {
     	Natural value = 0;
     	for(char in value.replaceAll("_",""){
     	
-    		val Natural? digit = char.toDigit();
+    		val digit = char.toDigit();
     		
     		if (digit == none){
     			throw new ParseException(char + "is not a digit.");
@@ -308,12 +303,12 @@ public class Natural extends Whole {
 
 ~~~~
 
-It uses and ``object`` to hold ["static like" data](objects.html). If the String is not valid the construtor throws an exception.
-This is valid because a construtors is like a factory, however the compiler will only allow the ``throw`` clause on a named constructor.
+It uses and [``object``](objects.html) to hold the cache data. If the String is not valid the constructor throws an exception.
+This is valid because a constructors is like a factory, however the compiler will only allow the ``throw`` clause on a named constructor.
  
-## Convertion Constructor
+## Conversion Constructor
 
-A convertion construtor is used to obtain the state of the object from another object of a different type. For instance:
+A conversion constructor is used to obtain the state of the object from another object of a different type. For instance:
 
 ~~~~brush: lense 
 Integer k = 23;
@@ -338,7 +333,7 @@ If it exists, the compiler changes the assignment to:
 Integer k = new Integer(23);
 ~~~~
 
-The ``implicit`` keyword is necessary because not every anonymous constructor with a single parameter is meant to be a convertion construtor. The ``Array<T>`` class (used above) has a construtor that receives a ``Natural`` to set the array size,but that without the implicit keyword would mean that:
+The ``implicit`` keyword is necessary because not every anonymous constructor with a single parameter is meant to be a conversion constructor. The ``Array<T>`` class (used above) has a constructor that receives a ``Natural`` to set the array size,but that without the implicit keyword would mean that:
 
 ~~~~brush: lense 
 Array<Integer> array = 3;
@@ -351,30 +346,30 @@ Array<Integer> array = new Array<Integer>(3);
 ~~~~
 
 The instruction would be trying to assign the number 3 to an array but the compiler would try to promote the value.
-This would not be a very coerent form to create arrays because can be confused with:
+This would not be a very coherent form to create arrays because can be confused with:
 
 ~~~~brush: lense 
 Array<Integer> array = [3];
 ~~~~
  
-The programmer may have forgoten to surrond the value to be put in the array with brakets.  
+The programmer may have forgotten to surround the value to be put in the array with brackets.  
 
-Also, this other example could be made to be valid code using a convertion constructor:
+Also, this other example could be made to be valid code using a conversion constructor:
 
 ~~~~brush: lense 
 Uri address = "http://www.google.com"
 ~~~~
 
-But this form is not recomemded because implicity constructor, as primary constructors, cannot throw exceptions. 
-So a parse operation, that possibly could go wrong, is not suited to a convertion constructor.It is recomended that a construtor based on a string be a named construtor like ``parse(String)``. Named constructors can throw exceptions.
+But this form is not recomemded because an implicit constructor, as primary constructors, can not throw exceptions. 
+So a parse operation, that possibly could go wrong, is not suited to a conversion constructor. It is recomemded that a constructor based on a string be a named constructor like ``parse(String)``. Named constructors can throw exceptions.
 
-As we can see from the above examples, that the convertion construtor is a simple way to promote values of one class to another but only if it is garanteed that convertion will never fail.
+As we can see from the above examples, that the conversion constructor is a simple way to promote values of one class to another but only if it is guaranteed that conversion will never fail.
 
-As a limitation of convertion construtors the process only works if the class on the left side of the assignment accepts the instances of the class on the right side as valid argument. 
+As a limitation of conversion constructors the process only works if the class on the left side of the assignment accepts the instances of the class on the right side as valid argument. 
 
-## Construtors Enhancement
+## Constructors Enhancement
 
-If the original designer of the left side class did not added the convertion constructor for some other class we can add one latter by creating an [enhancement](enhancements.html), like so:
+If the original designer of the left side class did not added the conversion constructor for some other class we can add one latter by creating an [enhancement](enhancements.html), like so:
 
 ~~~~brush: lense 
 public enhancement AddNaturalConvertionConstrutorToString extends String { // enhances String
@@ -391,6 +386,6 @@ With this enchamenent in scope we can write:
 String s = 8; // not supported without the enhancement
 ~~~~
 
-This is very powerfull feature of [enhancements](enhancements.html) and can easly be abused, so please design enhancements with care.   
+This is very powerful feature of [enhancements](enhancements.html) and can easly be abused, so please design enhancements with care.   
 
 

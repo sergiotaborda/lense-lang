@@ -11,15 +11,15 @@ Lense recognizes literals for ``Sequence``s, ``Association``s and ``Tuple``s. As
 
 ## Sequences
 
-In C-familly languages an array is a fundamental type and can be created literaly using curly brakets *{* and *}*, but in more mathematical oriented languages such as Fortran an Julia common brakets are used. 
+In C-familly languages an array is a fundamental type and can be created literally using curly brackets *{* and *}*, but in more mathematical oriented languages such as Fortran an Julia common brackets are used. 
 
 ~~~~brush: java
 var int[] array = new int[]{1, 2, 3};
 ~~~~
 
-On a closer look we can understand the C-familly languages syntax like Java or C# as not having array literals *per se*, but initializers applyed to arrays. So the syntax ``{1 ,2 , 3}`` does not denote an array, but an initializer. Initializers do not have type and they are intrinsicly understood by the compiler.
+On a closer look we can understand the C-family languages syntax like Java or C# as not having array literals *per se*, but initializers applied to arrays. So the syntax ``{1 ,2 , 3}`` does not denote an array, but an initializer. Initializers do not have type and they are intrinsically understood by the compiler.
 
-What's appening in that java code is that an array is being constructed with ``new int[]`` and then initialized with the values 1, 2 and 3. The JVM will translate this two operations as a single operation, but conceptually there is a difference.
+What's happening in that java code is that an array is being constructed with ``new int[]`` and then initialized with the values 1, 2 and 3. The JVM will translate this two operations as a single operation, but conceptually there is a difference.
 
 In C# the same concept is used to initialize both arrays and lists 
 
@@ -28,21 +28,21 @@ var int[] array = new int[]{1, 2, 3};
 var List<int> list = new List(){1, 2, 3};
 ~~~~
 
-In Lense the type of the container is fixed by the syntax and a [convertion constructor](constructors.html#convertion) is used to copy the values to another type if needed. So no construtor is called. A runtime object is created that depends on the underlying VM. The type inside the container is infered from the declared value types.
+In Lense the type of the container is fixed by the syntax and a [conversion constructor](constructors.html#conversion) is used to copy the values to another type if needed. So no constructor is called. A runtime object is created that depends on the underlying VM. The type inside the container is inferred from the declared value types.
 
 
-Lense uses common brakets to represent ``Sequence`` literals. Keep in mind arrays are not fundamental types em Lense, sequences are.An array is a special (mutable) subtype of sequence.
+Lense uses common brackets to represent ``Sequence`` literals. Keep in mind arrays are not fundamental types in Lense, sequences are.An array is a special (mutable) sub type of sequence.
 
 ~~~~brush: lense
 var Sequence<Natural> sequence = [1, 2, 3];
 var Array<Natural> array = [1, 2, 3];
 ~~~~
 
-The first line creates a sequence of elements 1, 2 and 3. The second line creates an array of the elements 1, 2 and 3 by first creating a sequence and them promoting it to an Array. In practice the compiler is free to optimize these constructions and not really call the convertion constructor on ``Array<T>``.
+The first line creates a sequence of elements 1, 2 and 3. The second line creates an array of the elements 1, 2 and 3 by first creating a sequence and them promoting it to an Array. In practice the compiler is free to optimize these constructions and not really call the conversion constructor on ``Array<T>``.
 
 ## Sets 
 
-Currently there is no special syntax for sets. A set can be created by using a literal sequence and a construtor.
+Currently there is no special syntax for sets. A set can be created by using a literal sequence and a constructor.
 
 ~~~~brush: lense
 var Set<Natural> sequence = new HashSet([1, 2, 2, 3, 4, 3]);
@@ -73,7 +73,7 @@ The first line creates an association of elements. The second line creates a map
 ## Tuples
 
 Tuples are similar to sequences, but each index has its own type. Tuples also are fundamental types in Lense.
-Structuraly a Tuple is node in a linked-list kind of structure. But Tuples are not Sequences, eventhought they are ``Iterable<Any>``
+Structurally a Tuple is a node in a linked-list kind of structure. But Tuples are not Sequences, eventhought they are ``Iterable<Any>``
 The syntax is similar to Sequences.
 
 ~~~~brush: lense
@@ -86,12 +86,12 @@ The first line creates a tuple of elements. The second line creates the same tup
 
 ## Matrix (Under Consideration)
 
-It could be possible to define a specific sintax for a two dimentional``Matrix``. This is not currenly implemented.
+It could be possible to define a specific syntax for a two dimensional``Matrix``. This is not currently implemented.
 
 ~~~~brush: lense
 var Matrix<Natural> matrix = [ 1 ,2 ,3 ; 4, 5, 6 ; 5 6 7];
 
-// also can be writen as
+// also can be written as
 
 var Matrix<Natural> matrix = [ 
 	1 ,2 ,3 ;
@@ -101,12 +101,12 @@ var Matrix<Natural> matrix = [
 ~~~~
 
 This would  make a lot of sense in order to facilitate using Lense in more math and/or science scenarios. 
-An alternative is to write sequence of sequences literals an use convertion constructors :
+An alternative is to write sequence of sequences literals an use conversion constructors :
 
 ~~~~brush: lense
 var Matrix<Natural> matrix = [ [1 ,2 ,3 ], [4, 5, 6 ], [ 5 6 7]];
 
-// also can be writen as
+// also can be written as
 
 var Matrix<Natural> matrix = [ 
 	[1 ,2 ,3],
@@ -120,7 +120,7 @@ The support for matrixes is still under consideration and may not be implemented
 ## Records
 
 Records are a special object that represents a non typed property bag. Records are not currently implemented.
-A possible sintax would be similar to an association, but using = instead of ":". The diference is that on an association both sides of the ":" can be variables,
+A possible syntax would be similar to an association, but using = instead of ":". The difference is that on an association both sides of the ":" can be variables,
 in a record only the right side can be a variable. The left side is interpreted as the name of a property. 
 
 ~~~~brush: lense
@@ -145,18 +145,18 @@ var Address address = new Address {
 
 ~~~~
 
-This a combination of a call to the [primary construtor](constructors.html) and a initialization of each property refered in the record literal. This is not a convertion but syntax sugar for:
+This a combination of a call to the [primary constructor](constructors.html) and a initialization of each property referred in the record literal. This is not a conversion but syntax sugar for:
 
 ~~~~brush: lense
 var Address address = new Address();
 
 address.Street = "Baker Street",
 address.Number = "221B",
-address.City = "Lodon",
+address.City = "London",
 address.Country = "England"
 
 ~~~~
 
-This feature is similar to the initialization syntax in C# even thought in Lense we are using the conjuction of two concepts : constructors and records.
+This feature is similar to the initialization syntax in C# even thought in Lense we are using the conjunction of two concepts : constructors and records.
 
   

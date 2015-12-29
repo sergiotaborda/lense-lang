@@ -8,7 +8,7 @@ status=published
 
 # Hello, world !
 
-This is our version of the quintessential Hello, world program.
+This is our version of the quintessential *Hello, world program*.
 
 ~~~~brush: lense
 	public class Hello extends ConsoleApplication {
@@ -21,15 +21,14 @@ This is our version of the quintessential Hello, world program.
 
 Prints
 
-~~~~console
-Hello, world!
-~~~~
 
-We define a classe Hello than extends the  ConsoleApplication class provided in the SDK. This makes the Hello class a executable entry point
-The class can have any name. The entry method is run(). The VM will instanciate the class, set the Aguments property acording to the plataform parameters and execute the run method;
+> Hello, world!
+
+We define a class ``Hello`` than extends the ``ConsoleApplication`` class provided in the SDK. This makes the Hello class a executable entry point.
+The class can have any name. The entry method is run(). The VM will instantiate the class, set the Arguments property according to the platform parameters and execute the run method;
 The method makes use of the print method in the Console object. The Console object is a SDK provided object that allows interaction with the console. Note the method does not declare any parameters or return type.
 The return type is only needed when the compiler could not infer it. In this case the method run is defined in the ConsoleApplication class so the compiler can infer from the base declaration the return is Void.
-Ther is no "void" reserved word. Void is a type like any other. 
+There is no "void" reserved word. Void is a type like any other. 
 
 
 The print method simply print the given String literal to the console. You can see a string is declared  enclosing the text in double quotes. String literals preserve line breaks and tabulation
@@ -49,14 +48,14 @@ public class Hello extends ConsoleApplication {
 Prints
 
 ~~~~console
-Hello,							
-						world!  
+Hello,						
+ 					world!  
 ~~~~
 
-<h3>Escape Sequences</h3>
-Strings suport unicode, and unicode characters can be embeded using the \{ } escape sequence that receives an Hexadecimal value. 
-Also, Strings can be interpolated using he {{ }} escape sequence. Any expression can be use inside the interpolation sequence and its string representation will 
-be printed (by calling the toString() method on the result of the expression).
+### Escape Sequences
+
+Strings support unicode, and unicode characters can be embedded using the \{ } escape sequence that receives an Hexadecimal value. 
+Also, Strings can be interpolated using he {{ }} escape sequence. Any expression can be use inside the interpolation sequence and its string representation will be printed (by calling the toString() method on the result of the expression).
 
 ~~~~brush: lense
 public class Hello extends ConsoleApplication {
@@ -71,14 +70,14 @@ public class Hello extends ConsoleApplication {
 
 Prints
 
-Hi!, the mathematical constant &pi; is 3.1415
+> Hi!, the mathematical constant &pi; is 3.1415
 
 You can notice that #03C0 denotes an hexadecimal number.
 
 ## Nullability
 
 
-Null referentes are not allowed , but the notion of an absent value is very usefull.
+Null references are not allowed , but the notion of an absent value is very useful.
 
 ~~~~brush: lense
 public class Hello extends ConsoleApplication {
@@ -93,16 +92,16 @@ public class Hello extends ConsoleApplication {
 
 Prints
 
-~~~~console
-Hi!,  the first argument is null.
-~~~~
+
+> Hi!,  the first argument is null.
+
 
 "Arguments" is a read only property of ConsoleAplication that was set with the arguments passed in the console at the momento of running the application.
 With can access the first element of the arguments sequence by invoking the first() method. The first argument in arguments might not be present, the arguments sequence may be empty. 
 So in this case, in other languages, null would be returned and printed. lense does not have null references, but "null" is printed nontheless. How is that ?
 
 
-Well, left look closer to the return of <code>first</code>
+Well, left look closer to the return of ``first``
 
 ~~~~brush: lense
 public class Hello extends ConsoleApplication {
@@ -114,50 +113,11 @@ public class Hello extends ConsoleApplication {
 
 ~~~~
 
-The type returned by the <code>first</code> method is a Maybe<String>. That why there is a ? after <code>String</code>. String is
-the type of elements contained inside the <code>Arguments</code> sequence.
-<br/> <code> Maybe<T></code> is a generic types class that allows for only two subclasses : <code>Some<T></code> and <code>None</code>.
+The type returned by the ``first`` method is a ``Maybe<String>``. That why there is a ? after ``String``. String is
+the type of elements contained inside the ``Arguments`` sequence. `` Maybe<T>`` is a generic types class that allows for only two subclasses : ``Some<T>`` and ``None``. ``Some<T>`` contains some object of type T, and ``None`` does not contain any value.
 
-
-~~~~brush: lense
-public abstract class Maybe<T> {
-	
-	public val T value;
-	public abstract val Boolean isPresent;
-}
-
-public selead class Some<T> extends Maybe<T> {
-	
-	public Some (T value){
-	    this.value = value;
-	}
-	
-	public override val Boolean isPresent {return true;}
-}
-
-public selead class None extends Maybe<Nothing> {
-	
-	object none extends None {
-	
-		public String toString (){
-			return "null";
-		}
-	}
-
-	private None (){}
-	
-	public override val Nothing value {
-		throw new AbsentValueException();
-	}
-	
-	public override val Boolean isPresent {return false;}
-}
-
-~~~~
-
-If a value is present the class <code>Some<T></code> is instanciated with that value, if not, an instance of None is returned. 
-However None has only one instance: the <code>Absent</code> object.
-the <code>Absent</code> object itself overrides the <code>toString</code> method to return the word 'null'. Also 'null' is a reserved word in the language 
+If a value is present the class ``Some<T>`` is instantiated with that value, if not, an instance of None is returned. 
+However None has only one instance: the ``none`` object. The ``none`` object itself overrides the ``toString`` method to return the word 'null'. Also 'null' is a reserved word in the language 
 that can used to initialize to an absent value, like: 
 
 ~~~~brush: lense
@@ -165,13 +125,12 @@ that can used to initialize to an absent value, like:
 	name = "The Name"; // now we kown.
 ~~~~
 
-The usage is very similar to java and C# and others however is mandatory to declare the variable has maybe absent either explicitly declaring it as <code> Maybe<T></code> 
-or using the ? sufix abreviation.
-There is a lot of abreviations and syntax sugar so the transition from other languages is not that rought. We can explicitly write the same has: 
+The usage is very similar to java and C# and others however is mandatory to declare the variable has maybe absent either explicitly declaring it as `` Maybe<T>`` or using the ? suffix abbreviation.
+There is a lot of abbreviations and syntax sugar so the transition from other languages is not that rought. We can explicitly write the same has: 
 
 ~~~~brush: lense
-	var Maybe<String> name = Absent; // we don't kown the name yet.
-	name = new Some("The Name"); // now we kown.
+	var Maybe<String> name = Absent; // we don't known the name yet.
+	name = new Some("The Name"); // now we known.
 ~~~~
 
 However if we need to have a non absent value we can use the or method, or equivalently the (|) operator
@@ -188,12 +147,10 @@ public class Main {
 
 Prints
 
-~~~~console
-Hi!,  the first argument is world.
-~~~~
+> Hi!,  the first argument is world.
 
-Variables and Values
---------------------------
+
+## Variables and Values
 
 In any scope when can define a value
 
@@ -204,9 +161,9 @@ In any scope when can define a value
 	u = 80; // error!
 ~~~~
 
-Values are imutable and cannot be changed after inicialized. All values need to be explicity inicialized before they can be read.
-Once again the compiler will infer the type of the value from the initialization expression. If there is no inicialization, the declarion of the type is required.
-A value can be made mutable by using the <code>var</code> annotation instead of <code>val</code>. An mutable value is called a <i>variable</i>.
+Values are immutable and cannot be changed after initialized. All values need to be explicit initialized before they can be read.
+Once again the compiler will infer the type of the value from the initialization expression. If there is no initialization, the declarion of the type is required.
+A value can be made mutable by using the ``var`` annotation instead of ``val``. An mutable value is called a <i>variable</i>.
 
 ~~~~brush: lense
 	 var Int n = 1; // inicialize
@@ -222,10 +179,10 @@ Normally this algorithms depend on parameters that the function declares explici
 	 doSomething() : Void { 
 	 	Console.print("Doing something");
 	 };
-	 square (Int x) : Int { return x*x; }
+	 square (Natural x) : Natural { return x*x; }
 ~~~~
 
-Funtions always return a value. <code>Void</code> is not a keyword is an actual type. <code>Void</code> only has one instance. All functions have an implicity return of the instance of ``Void`` at the end. This is correct unless the method return other type. You can explicitly write a return of a instance of ``Void``.
+Functions always return a value. ``Void`` is not a keyword is an actual type. ``Void`` only has one instance denoted ``()`` (the empty tuple). All functions have an implicit return of the instance of ``Void`` at the end. This is correct unless the method return other type. You can explicitly write a return of a instance of ``Void``.
 
 ~~~~brush: lense
 	 doSomething() : Void { 
@@ -254,7 +211,7 @@ Prints
 36						
 ~~~~
 
-If the internal function returns void, the secound applied function cannot have parameters.
+If the internal function returns void, the second applied function cannot have parameters.
 
 ~~~~brush: lense
      Callable<Int, Void> f = () -> 2;
@@ -278,8 +235,8 @@ This is a complicated way to write the equivalent function:
 
 ## Numbers
 
-Numbers are separated in specific algebric strutures that conform to the matematical rules of the group of elements.
-All numbers implement the <code>Number</code> class.
+Numbers are separated in specific algebraic structures that conform to the mathematical rules of the group of elements.
+All numbers implement the ``Number`` class.
 
 * Whole - numbers with no decimal part.
 	- Natural - Represent elements from the mathematical **N** set, i.e. positive only whole values that include zero and range from zero to an arbitrary range limited only by available memory. 
@@ -293,14 +250,14 @@ All numbers implement the <code>Number</code> class.
 	-  Decimal - Represent elements that have a fixed precision and so calculations may incur in loss of precision.
 		*  Decimal32 - negative and positive decimal values that follow 32 bits IEEE 3744 conventions
 		*  Decimal64 - negative and positive decimal values that follow 64 bits IEEE 3744 conventions
-		*  BigDecimal - Representr elements in the **R** set incluing truncated version of irracional numbers.Negative and positive decimal values with arbitrary precision limited only by available memory.
-* Imaginary -Represent elements from the mathematical **I** set. Numbers with pure imaginary parts of the form bi where ``i`` it the square root of -1.
+		*  BigDecimal - Represents elements in the **R** set including truncated version of irrational numbers.Negative and positive decimal values with arbitrary precision limited only by available memory.
+* Imaginary -Represent elements from the mathematical **I** set. Numbers with pure imaginary parts of the form ``bi`` where ``i`` is the square root of -1.
 	- ImaginaryOverReals<T extends Real>; - uses a Real type to store the numeric value
 * Complex - Represent elements from the mathematical **C** set. Complex numbers are of the form ``a + bi`` where ``i`` it the square root of -1.
-	-  ComplexOverReals<T extends Real>; - Use a Real to type to store a numeric value for the real part and a ImaginaryOverReals<T> for the imaginary part.
+	- ComplexOverReals<T extends Real>; - Use a Real to type to store a numeric value for the real part and a ImaginaryOverReals<T> for the imaginary part.
 
 
-Whole number literals are always assumed Natural and transformed to other types as needed. This conversion may rise ``OverflowException`` as the Natural type was no max value being limited only by memory available (It's like a BigInt with no sign). Decimal values are always assumed as BigDecimal. BigDecimal constructor only acepts a string representation of the value this is because the BigDecimal representation must be exact.
+Whole number literals are always assumed Natural and transformed to other types as needed. This conversion may rise ``OverflowException`` as the Natural type was no max value being limited only by memory available (It's like a BigInt with no sign). Decimal values are always assumed as BigDecimal. BigDecimal constructor only accepts a string representation of the value this is because the BigDecimal representation must be exact.
 
 ~~~~brush: lense
 	var Natural n = 1; // equivalent to Natural.valueOf("1")
@@ -407,7 +364,7 @@ There is not automatic promotion from ``Byte`` to any type of ``Number``.
 ## Classes 
 
 A class represents a structural template of an object and acts like a factory and protype ate the same time.  
-You can define a class with the <code>class</code> keyword. Classes can named or anonymous.
+You can define a class with the ``class`` keyword. Classes can named or anonymous.
 
 ~~~~brush: lense
 /**A polar coordinate**/
@@ -438,7 +395,7 @@ public class Polar {
 }
 ~~~~
 
-The values angle and radius are imutable, so the class as a whole is imutable. When enforce this fact adding <code>val</code> to the class definition
+The values angle and radius are imutable, so the class as a whole is imutable. When enforce this fact adding ``val`` to the class definition
 
 ~~~~brush: lense
 /**An imutable polar coordinate**/
@@ -488,7 +445,7 @@ public class Address  {
 ~~~~
 
 Bacause those are public properties we can assign values to them, an read those values back, but because variables need to be inicialized before used
-and all properties are of type <code>String</code> that inicialization cannot be absent. So that code will not compile. We need to write it like this:
+and all properties are of type ``String`` that inicialization cannot be absent. So that code will not compile. We need to write it like this:
 
 
 ~~~~brush: lense
@@ -517,4 +474,4 @@ public class Address  {
 }
 ~~~~
 
-Remember ``null`` is a reserved word that represent <code>None.none</code>.
+Remember ``null`` is a reserved word that represent ``None.none``.

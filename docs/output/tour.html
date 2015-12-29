@@ -88,12 +88,26 @@
                 -->
               </ul>
             </li>
+            <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown">Content<b class="caret"></b></a>
+              <ul class="dropdown-menu">
+                	<li><a href="concurrency.html">Concurrency</a></li>
+                	<li><a href="sumtypes.html">Sum Types</a></li>
+                	<li><a href="containerLiterals.html">Container Literals</a></li>
+                	<li><a href="documents.html">Documentation</a></li>
+                	<li><a href="objects.html">Objects</a></li>
+                	<li><a href="constructors.html">Constructors</a></li>
+                	<li><a href="enhancements.html">Enhancements</a></li>
+                	<li><a href="index.html">Home</a></li>
+                	<li><a href="tour.html">Tour</a></li>
+              </ul>
+            </li>
           </ul>
         </div><!--/.nav-collapse -->
       </div>
     </div>
     <div class="container">
-	<p><h1>Hello, world !</h1><p>This is our version of the quintessential Hello, world program.</p>
+	<p><h1>Hello, world !</h1><p>This is our version of the quintessential <em>Hello, world program</em>.</p>
 <pre><code class="brush: lense">	public class Hello extends ConsoleApplication {
 	
 		public run (){
@@ -101,8 +115,8 @@
 		}
 	}
 </code></pre><p>Prints</p>
-<pre><code class="console">Hello, world!
-</code></pre><p>We define a classe Hello than extends the ConsoleApplication class provided in the SDK. This makes the Hello class a executable entry point<br/>The class can have any name. The entry method is run(). The VM will instanciate the class, set the Aguments property acording to the plataform parameters and execute the run method;<br/>The method makes use of the print method in the Console object. The Console object is a SDK provided object that allows interaction with the console. Note the method does not declare any parameters or return type.<br/>The return type is only needed when the compiler could not infer it. In this case the method run is defined in the ConsoleApplication class so the compiler can infer from the base declaration the return is Void.<br/>Ther is no "void" reserved word. Void is a type like any other. </p><p>The print method simply print the given String literal to the console. You can see a string is declared enclosing the text in double quotes. String literals preserve line breaks and tabulation</p>
+<blockquote><p>Hello, world!</p>
+</blockquote><p>We define a class <code>Hello</code> than extends the <code>ConsoleApplication</code> class provided in the SDK. This makes the Hello class a executable entry point.<br/>The class can have any name. The entry method is run(). The VM will instantiate the class, set the Arguments property according to the platform parameters and execute the run method;<br/>The method makes use of the print method in the Console object. The Console object is a SDK provided object that allows interaction with the console. Note the method does not declare any parameters or return type.<br/>The return type is only needed when the compiler could not infer it. In this case the method run is defined in the ConsoleApplication class so the compiler can infer from the base declaration the return is Void.<br/>There is no "void" reserved word. Void is a type like any other. </p><p>The print method simply print the given String literal to the console. You can see a string is declared enclosing the text in double quotes. String literals preserve line breaks and tabulation</p>
 <pre><code class="brush: lense"><br/>public class Hello extends ConsoleApplication {
 
 	public run () {
@@ -112,10 +126,9 @@
 }
 
 </code></pre><p>Prints</p>
-<pre><code class="console">Hello,							
-						world!  
-</code></pre>
-<h3>Escape Sequences</h3><p>Strings suport unicode, and unicode characters can be embeded using the { } escape sequence that receives an Hexadecimal value.<br/>Also, Strings can be interpolated using he {{ }} escape sequence. Any expression can be use inside the interpolation sequence and its string representation will<br/>be printed (by calling the toString() method on the result of the expression).</p>
+<pre><code class="console">Hello,						
+ 					world!  
+</code></pre><h3>Escape Sequences</h3><p>Strings support unicode, and unicode characters can be embedded using the { } escape sequence that receives an Hexadecimal value.<br/>Also, Strings can be interpolated using he {{ }} escape sequence. Any expression can be use inside the interpolation sequence and its string representation will be printed (by calling the toString() method on the result of the expression).</p>
 <pre><code class="brush: lense">public class Hello extends ConsoleApplication {
 
 	public run () {
@@ -124,7 +137,9 @@
 	}
 }
 
-</code></pre><p>Prints</p><p>Hi!, the mathematical constant &pi; is 3.1415</p><p>You can notice that #03C0 denotes an hexadecimal number.</p><h2>Nullability</h2><p>Null referentes are not allowed , but the notion of an absent value is very usefull.</p>
+</code></pre><p>Prints</p>
+<blockquote><p>Hi!, the mathematical constant &pi; is 3.1415</p>
+</blockquote><p>You can notice that #03C0 denotes an hexadecimal number.</p><h2>Nullability</h2><p>Null references are not allowed , but the notion of an absent value is very useful.</p>
 <pre><code class="brush: lense">public class Hello extends ConsoleApplication {
 
 	public run (){
@@ -134,8 +149,8 @@
 }
 
 </code></pre><p>Prints</p>
-<pre><code class="console">Hi!,  the first argument is null.
-</code></pre><p>"Arguments" is a read only property of ConsoleAplication that was set with the arguments passed in the console at the momento of running the application.<br/>With can access the first element of the arguments sequence by invoking the first() method. The first argument in arguments might not be present, the arguments sequence may be empty.<br/>So in this case, in other languages, null would be returned and printed. lense does not have null references, but "null" is printed nontheless. How is that ?</p><p>Well, left look closer to the return of <code>first</code></p>
+<blockquote><p>Hi!, the first argument is null.</p>
+</blockquote><p>"Arguments" is a read only property of ConsoleAplication that was set with the arguments passed in the console at the momento of running the application.<br/>With can access the first element of the arguments sequence by invoking the first() method. The first argument in arguments might not be present, the arguments sequence may be empty.<br/>So in this case, in other languages, null would be returned and printed. lense does not have null references, but "null" is printed nontheless. How is that ?</p><p>Well, left look closer to the return of <code>first</code></p>
 <pre><code class="brush: lense">public class Hello extends ConsoleApplication {
 	public run () {
 		val String? argument = Arguments.first();
@@ -143,46 +158,12 @@
 	}
 }
 
-</code></pre><p>The type returned by the <code>first</code> method is a Maybe<String>. That why there is a ? after <code>String</code>. String is<br/>the type of elements contained inside the <code>Arguments</code> sequence.<br/><br/> <code> Maybe<T></code> is a generic types class that allows for only two subclasses : <code>Some<T></code> and <code>None</code>.</p>
-<pre><code class="brush: lense">public abstract class Maybe&lt;T&gt; {
-	
-	public val T value;
-	public abstract val Boolean isPresent;
-}
-
-public selead class Some&lt;T&gt; extends Maybe&lt;T&gt; {
-	
-	public Some (T value){
-	    this.value = value;
-	}
-	
-	public override val Boolean isPresent {return true;}
-}
-
-public selead class None extends Maybe&lt;Nothing&gt; {
-	
-	object none extends None {
-	
-		public String toString (){
-			return &quot;null&quot;;
-		}
-	}
-
-	private None (){}
-	
-	public override val Nothing value {
-		throw new AbsentValueException();
-	}
-	
-	public override val Boolean isPresent {return false;}
-}
-
-</code></pre><p>If a value is present the class <code>Some<T></code> is instanciated with that value, if not, an instance of None is returned.<br/>However None has only one instance: the <code>Absent</code> object.<br/>the <code>Absent</code> object itself overrides the <code>toString</code> method to return the word 'null'. Also 'null' is a reserved word in the language<br/>that can used to initialize to an absent value, like: </p>
+</code></pre><p>The type returned by the <code>first</code> method is a <code>Maybe&lt;String&gt;</code>. That why there is a ? after <code>String</code>. String is<br/>the type of elements contained inside the <code>Arguments</code> sequence. <code>Maybe&lt;T&gt;</code> is a generic types class that allows for only two subclasses : <code>Some&lt;T&gt;</code> and <code>None</code>. <code>Some&lt;T&gt;</code> contains some object of type T, and <code>None</code> does not contain any value.</p><p>If a value is present the class <code>Some&lt;T&gt;</code> is instantiated with that value, if not, an instance of None is returned.<br/>However None has only one instance: the <code>none</code> object. The <code>none</code> object itself overrides the <code>toString</code> method to return the word 'null'. Also 'null' is a reserved word in the language<br/>that can used to initialize to an absent value, like: </p>
 <pre><code class="brush: lense">	var String? name = null; // we don&#39;t kown the name yet.
 	name = &quot;The Name&quot;; // now we kown.
-</code></pre><p>The usage is very similar to java and C# and others however is mandatory to declare the variable has maybe absent either explicitly declaring it as <code> Maybe<T></code><br/>or using the ? sufix abreviation.<br/>There is a lot of abreviations and syntax sugar so the transition from other languages is not that rought. We can explicitly write the same has: </p>
-<pre><code class="brush: lense">	var Maybe&lt;String&gt; name = Absent; // we don&#39;t kown the name yet.
-	name = new Some(&quot;The Name&quot;); // now we kown.
+</code></pre><p>The usage is very similar to java and C# and others however is mandatory to declare the variable has maybe absent either explicitly declaring it as <code>Maybe&lt;T&gt;</code> or using the ? suffix abbreviation.<br/>There is a lot of abbreviations and syntax sugar so the transition from other languages is not that rought. We can explicitly write the same has: </p>
+<pre><code class="brush: lense">	var Maybe&lt;String&gt; name = Absent; // we don&#39;t known the name yet.
+	name = new Some(&quot;The Name&quot;); // now we known.
 </code></pre><p>However if we need to have a non absent value we can use the or method, or equivalently the (|) operator</p>
 <pre><code class="brush: lense">public class Main {
 	public Void main(Array&lt;String&gt; args){
@@ -192,21 +173,21 @@ public selead class None extends Maybe&lt;Nothing&gt; {
 	}
 }
 </code></pre><p>Prints</p>
-<pre><code class="console">Hi!,  the first argument is world.
-</code></pre><h2>Variables and Values</h2><p>In any scope when can define a value</p>
+<blockquote><p>Hi!, the first argument is world.</p>
+</blockquote><h2>Variables and Values</h2><p>In any scope when can define a value</p>
 <pre><code class="brush: lense">	val k = 3;
 	val u: Int;
 	u = 90;
 	u = 80; // error!
-</code></pre><p>Values are imutable and cannot be changed after inicialized. All values need to be explicity inicialized before they can be read.<br/>Once again the compiler will infer the type of the value from the initialization expression. If there is no inicialization, the declarion of the type is required.<br/>A value can be made mutable by using the <code>var</code> annotation instead of <code>val</code>. An mutable value is called a <i>variable</i>.</p>
+</code></pre><p>Values are immutable and cannot be changed after initialized. All values need to be explicit initialized before they can be read.<br/>Once again the compiler will infer the type of the value from the initialization expression. If there is no initialization, the declarion of the type is required.<br/>A value can be made mutable by using the <code>var</code> annotation instead of <code>val</code>. An mutable value is called a <i>variable</i>.</p>
 <pre><code class="brush: lense">	 var Int n = 1; // inicialize
      n = 2; // ok, n is a variable.
 </code></pre><h2>Functions</h2><p>Functions allow for algorithms to be executed before returning a value.<br/>Normally this algorithms depend on parameters that the function declares explicitly.</p>
 <pre><code class="brush: lense">	 doSomething() : Void { 
 	 	Console.print(&quot;Doing something&quot;);
 	 };
-	 square (Int x) : Int { return x*x; }
-</code></pre><p>Funtions always return a value. <code>Void</code> is not a keyword is an actual type. <code>Void</code> only has one instance. All functions have an implicity return of the instance of <code>Void</code> at the end. This is correct unless the method return other type. You can explicitly write a return of a instance of <code>Void</code>.</p>
+	 square (Natural x) : Natural { return x*x; }
+</code></pre><p>Functions always return a value. <code>Void</code> is not a keyword is an actual type. <code>Void</code> only has one instance denoted <code>()</code> (the empty tuple). All functions have an implicit return of the instance of <code>Void</code> at the end. This is correct unless the method return other type. You can explicitly write a return of a instance of <code>Void</code>.</p>
 <pre><code class="brush: lense">	 doSomething() : Void { 
 	 	Console.print(&quot;Doing something&quot;);
 	 	return; // implicitly return the instance of Void.
@@ -223,7 +204,7 @@ public selead class None extends Maybe&lt;Nothing&gt; {
 </code></pre><p>Prints</p>
 <pre><code class="console">16						
 36						
-</code></pre><p>If the internal function returns void, the secound applied function cannot have parameters.</p>
+</code></pre><p>If the internal function returns void, the second applied function cannot have parameters.</p>
 <pre><code class="brush: lense">     Callable&lt;Int, Void&gt; f = () -&gt; 2;
 	 Callable&lt;Void, Int&gt; g = x -&gt; return; ;
 	
@@ -237,7 +218,7 @@ public selead class None extends Maybe&lt;Nothing&gt; {
 <pre><code class="brush: lense">     Callable&lt;Int, Void&gt; h = x -&gt; {
      	return 2;
      }
-</code></pre><h2>Numbers</h2><p>Numbers are separated in specific algebric strutures that conform to the matematical rules of the group of elements.<br/>All numbers implement the <code>Number</code> class.</p>
+</code></pre><h2>Numbers</h2><p>Numbers are separated in specific algebraic structures that conform to the mathematical rules of the group of elements.<br/>All numbers implement the <code>Number</code> class.</p>
 <ul>
   <li>Whole - numbers with no decimal part.
   <ul>
@@ -257,10 +238,10 @@ public selead class None extends Maybe&lt;Nothing&gt; {
     <ul>
       <li>Decimal32 - negative and positive decimal values that follow 32 bits IEEE 3744 conventions</li>
       <li>Decimal64 - negative and positive decimal values that follow 64 bits IEEE 3744 conventions</li>
-      <li>BigDecimal - Representr elements in the <strong>R</strong> set incluing truncated version of irracional numbers.Negative and positive decimal values with arbitrary precision limited only by available memory.</li>
+      <li>BigDecimal - Represents elements in the <strong>R</strong> set including truncated version of irrational numbers.Negative and positive decimal values with arbitrary precision limited only by available memory.</li>
     </ul></li>
   </ul></li>
-  <li>Imaginary -Represent elements from the mathematical <strong>I</strong> set. Numbers with pure imaginary parts of the form bi where <code>i</code> it the square root of -1.
+  <li>Imaginary -Represent elements from the mathematical <strong>I</strong> set. Numbers with pure imaginary parts of the form <code>bi</code> where <code>i</code> is the square root of -1.
   <ul>
     <li>ImaginaryOverReals<T extends Real>; - uses a Real type to store the numeric value</li>
   </ul></li>
@@ -268,7 +249,7 @@ public selead class None extends Maybe&lt;Nothing&gt; {
   <ul>
     <li>ComplexOverReals<T extends Real>; - Use a Real to type to store a numeric value for the real part and a ImaginaryOverReals<T> for the imaginary part.</li>
   </ul></li>
-</ul><p>Whole number literals are always assumed Natural and transformed to other types as needed. This conversion may rise <code>OverflowException</code> as the Natural type was no max value being limited only by memory available (It's like a BigInt with no sign). Decimal values are always assumed as BigDecimal. BigDecimal constructor only acepts a string representation of the value this is because the BigDecimal representation must be exact.</p>
+</ul><p>Whole number literals are always assumed Natural and transformed to other types as needed. This conversion may rise <code>OverflowException</code> as the Natural type was no max value being limited only by memory available (It's like a BigInt with no sign). Decimal values are always assumed as BigDecimal. BigDecimal constructor only accepts a string representation of the value this is because the BigDecimal representation must be exact.</p>
 <pre><code class="brush: lense">	var Natural n = 1; // equivalent to Natural.valueOf(&quot;1&quot;)
 	var Whole n = 1; // equivalent to Natural.valueOf(&quot;1&quot;)
 	
