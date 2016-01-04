@@ -1,43 +1,78 @@
-# Lense : a new optic on programming
+# Lense
 
-Lense is a strong typed, pure object oriented programing language that is - we hope - carefully crafted from merging what we think is and ideal aproach to a new modern programming language with a meticulous observation and analysis of other languages design goals and decisions (and mistakes, yes). Even with this analysis and comparation with the state of art, Lense does not aim to be an academic driven language even when it tries to follow a more científic and logic approach to design decision making.
+Lense is a modern,strong typed, concise and safe pure object oriented programing languag. Lense is a crafted language in the sense it does not ignore other languages out there and its design is meant to capture the essence of the best features in each other language without being traped but those languages pitfalls.Lense does not aim to be an academic driven language even thought it tries to stand on state of the art and modern concepts. 
 
-Lense goal is to be a simple language, easy to read and write that could be compiled to any object oriented plataform. The first efford will focus on running Lense in the Java Virtual Machine (JVM).
+Lense goal is to be a simple language, easy to read and write that could be compiled to any object oriented plataform. The first efford will focus on running Lense in the Java Virtual Machine (JVM). A future effort will focus on JavaScript compability.
 
-Lense is currently in the exploratory design stage, i.e. we are designing the language features and trying to understand how they interact together.
+Lense is currently in the exploratory design stage. We are designing the language features and trying to understand how they interact together and providing an AST parser for the language itself. Compilation to targets (like java) is being taken into account on deveplment but not activly persueed at the time. Fee free to contribute.
 
-# Some features to expect 
+## Some features 
 
-Familiar syntax : Lense uses a c familly style syntax. 
+This a small list of features we are aiming at.
 
-No primitives : all types are treated as objects in the heap. The compiler is free to optimize this to the plataform's primitives as it sees fit. The programmer can define imutable objects in order to hint to the compiler that is a good ideia to optimise that class but this is not mandatory.
+###Syntax
 
-No nulls : all variables must have been inicialized at some point. By default no object type includes the null value. The maybe monad is used when the "absent" value is required. The compiler can understand the maybe monad implicitly in order to free the programmer of writing a special syntax for possible absent value handling, this means... 
+Lense uses a c familly style syntax with some improments. there is no fallthought switch-case instruction. Lense's swicth case instruction isolates each case from the others. Fallthouhtg exists, but has to be explicitly declared by the user.
 
-No strange null handling operators : because nulls cannot exist, the programmer does not need to inform the compiler about dereference safty and so operators like .? or :? are not needed. When interacting with other libraries written in the plataform's native language the compiler will wrap all call in a safe manner in order to maintain the code simple and do not strees the programmer with anoying details,
+#### Object Oriented
 
-No symbolic noise : operator symbols are predefined and associated with specific interfaces so classes like numbers and strings can use operators.However defining you own operator symbol is not allowed in order to mantain the code simple to read. The use of interfaces to define operations follows a algebric structure paradigm so the compilr can reason about the operations (example : altering the order of operations the enhance preformance if the operation is cumutative)
+Lense aims to be pure object oriented. Some features that exist in other languages where removed from the language. Some, like primitives, can be made use of if they exist in the target platform.
 
-Reified Generics : The information of the generic type parameters can be reflected upon at runtime. 
+#### No primitives
 
-Generics with variance : Types can have generic parameters and this paremeters can declare their intented variance. 
+All types are treated as objects in the heap. The compiler is free to optimize this to the plataform's primitives as it sees fit. The programmer can define imutable objects in order to hint to the compiler that is a good ideia to optimise that class of objects but this is not mandatory.
 
-String interplation : variables can be easy inserted within a string using a simple sintax.
+#### No nulls 
 
-Support to Intervals literals.
+All variables must have been inicialized at some point. By default no object type includes the ``null`` value. The maybe monad is used when the "absent" value is required. The compiler can understand the maybe monad implicitly and some operators are provided.
 
-Support to Progressions (Range) literals. 
+#### No concept of "static' 
 
-Suport to Rational, Imaginary and Complex numbers.
+All things are objects or exist within an object. 
 
-Funcional programing support to some extend. Definitly Lambdas and types like Function<A,B>. 
+#### Modules 
 
-No concept of "static' : All things are objects or exist within an object
+Lense brings to the table the hability to compile meta information in "module bundle" (think .jar or .dll) and their respective dependencies (think maven or osgi). This would allow for the runtime to determine the modules that are needed for a given module to run.
 
-Modules : hability to compile meta information in "module bundle" (think .jar or .dll) and their respective dependencies. This would allow for the runtime to determine the modules that are needed for a given module to run.
 
-# Some features under consideration
+#### Operators
 
-Closures : are like lambdas but can capture and modify values in the calling scope. Very usefull we try to allow the user to implement its on control directives.
+Lense tries to reduce symbolic noise and so operator symbols are predefined and associated with specific methods in specific interfaces so classes like numbers and strings can use operators. However, contrary to other languages, defining you own operator symbol is not allowed in order to mantain the code simple to read and write.  The use of interfaces to define operations follows a algebric structure paradigm so the compiler can reason about the operations (example : altering the order of operations the enhance preformance if the operation is cumutative)
 
-Constructors are like factory methods : A classe is a factory and constructors really construct the object (not only inicialize it). The new keyword can only be used in the constructor and means "create an auto-inicialized" object and would be equivalent to a no parameters private constructor in other languages. So all calls to create new objects are calls to factory methods present in the "Class" object inforcing the "static factory method" design patter out-of the box. Being functions the constructors could be passed as lambdas to other functions.
+#### Constructors that really construct
+
+A classe is a factory and constructors really construct the object (not only inicialize it). Constructors can be named and ae able to return instances of derived interfaces (like a static factory method would in other languages)
+
+### Generics
+
+Rhe languages undestands generic type parameters (generics).
+
+#### Reified Generics
+Generics information is reified , so the generic type parameters can be reflected upon at runtime. 
+
+#### Generics with variance
+Types can have generic parameters and these paremeters can declare their intented variance: co-variant, contra-variant and invariant. 
+
+### Math support
+
+#### Rational, Imaginary and Complex 
+Lense can target math cenarios other languages don't by suporting Rational, Imaginary and Complex numbers and their respective literal representation.
+
+#### Progressions
+
+Lense suported the concept of Progression (think 'Range') with for-loop support and literals out of the box 
+
+#### Intervals
+
+Lense suported the concept of Interval out of the box an a set of literal forms for representing the diferent combinations.
+
+### String interplation 
+Variables can be easy inserted within a string using a simple sintax.
+
+
+### Funcional programing support 
+
+Lense includes functional support to some extend by means of lambda expressions with convertion to types like Function<A,B> and other Single Abstract Method (SAM) types. Lense also supports the Monad concept.
+
+
+
