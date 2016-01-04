@@ -1,6 +1,6 @@
 # Lense
 
-Lense is a modern,strong typed, concise and safe pure object oriented programing languag. Lense is a crafted language in the sense it does not ignore other languages out there and its design is meant to capture the essence of the best features in each other language without being traped but those languages pitfalls.Lense does not aim to be an academic driven language even thought it tries to stand on state of the art and modern concepts. 
+Lense is a modern, strong typed, concise and safe, pure object oriented programing language. Lense is a crafted language in the sense it does not ignore other languages out there and its design is meant to capture the essence of the best features in each other language without being traped but those languages pitfalls.Lense does not aim to be an academic driven language even thought it tries to stand on state of the art and modern concepts. 
 
 Lense goal is to be a simple language, easy to read and write that could be compiled to any object oriented plataform. The first efford will focus on running Lense in the Java Virtual Machine (JVM). A future effort will focus on JavaScript compability.
 
