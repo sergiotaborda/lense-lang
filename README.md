@@ -1,10 +1,12 @@
 # Lense
 
-Lense is a modern, strong typed, concise and safe, pure object oriented programing language. Lense is a crafted language in the sense it does not ignore other languages out there and its design is meant to capture the essence of the best features in each other language without being traped but those languages pitfalls.Lense does not aim to be an academic driven language even thought it tries to stand on state of the art and modern concepts. 
+Lense is a modern, strong typed, concise and safe, pure object oriented programing language. Lense is a crafted language in the sense it does not ignore other languages out there and its design is meant to capture the essence of the best features in each other language without being traped by those languages pitfalls. Lense does not aim to be an academic driven language even thought it tries to stand on state of the art and modern concepts. 
 
 Lense goal is to be a simple language, easy to read and write that could be compiled to any object oriented plataform. The first efford will focus on running Lense in the Java Virtual Machine (JVM). A future effort will focus on JavaScript compability.
 
-Lense is currently in the exploratory design stage. We are designing the language features and trying to understand how they interact together and providing an AST parser for the language itself. Compilation to targets (like java) is being taken into account on deveplment but not activly persueed at the time. Fee free to contribute.
+## Status
+
+Lense is currently in the exploratory design stage. We are designing the language features and trying to understand how they interact together and providing an AST parser for the language itself. Compilation to targets (like java) is being taken into account on development but not activly persueed at the time. Feel free to contribute.
 
 ## Some features 
 
@@ -12,7 +14,7 @@ This a small list of features we are aiming at.
 
 ###Syntax
 
-Lense uses a c familly style syntax with some improments. there is no fallthought switch-case instruction. Lense's swicth case instruction isolates each case from the others. Fallthouhtg exists, but has to be explicitly declared by the user.
+Lense uses a c familly style syntax with some improments. there is no fallthought switch-case instruction. Lense's swicth case instruction isolates each case from the others. Fallthrough exists, but has to be explicitly declared by the user.
 
 #### Object Oriented
 
@@ -34,7 +36,6 @@ All things are objects or exist within an object.
 
 Lense brings to the table the hability to compile meta information in "module bundle" (think .jar or .dll) and their respective dependencies (think maven or osgi). This would allow for the runtime to determine the modules that are needed for a given module to run.
 
-
 #### Operators
 
 Lense tries to reduce symbolic noise and so operator symbols are predefined and associated with specific methods in specific interfaces so classes like numbers and strings can use operators. However, contrary to other languages, defining you own operator symbol is not allowed in order to mantain the code simple to read and write.  The use of interfaces to define operations follows a algebric structure paradigm so the compiler can reason about the operations (example : altering the order of operations the enhance preformance if the operation is cumutative)
@@ -45,7 +46,7 @@ A classe is a factory and constructors really construct the object (not only ini
 
 ### Generics
 
-Rhe languages undestands generic type parameters (generics).
+The language undestands generic type parameters (generics) with variance.
 
 #### Reified Generics
 Generics information is reified , so the generic type parameters can be reflected upon at runtime. 
