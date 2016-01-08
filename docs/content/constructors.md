@@ -38,7 +38,6 @@ public class Fraction {
 // and can be used like 
 
 Fraction third = new Fraction(1,3);
-
 ~~~~   
 
 Pay attention the constructor is vary similar to a method but as no return type and its name is the same as the class.
@@ -79,7 +78,7 @@ The validation of parameters is now moved to a method, so exceptions are allowed
 The problem with static methods is that they are not inherited so, the static factory method pattern makes sense only for object not intended to be inherited from.
 Nevertheless considered a good practice e several API nowadays use this technique to hide the constructor and provide a more fluent instantiation. 
 
-A great think about this pattern is that it encasuplates the use of ``new`` so the class designed can change the parameters of the constructor at will without interfering with the call site.
+A great thing about this pattern is that it encasuplates the use of ``new`` so the class designed can change the parameters of the constructor at will without interfering with the call site.
 
 People often criticize java for being to verbose. The numerator and denominator names appear 6 times.
 
@@ -94,11 +93,9 @@ This is special kind of constructors that only initializes properties in the obj
 In Scala, Ceylon and Kotlin, for instance, the primary constructor parameters are declared immediately after the class name and extra code can be added in the class body without any other special delimiters:
 
 ~~~~brush: scala
-
 public class Fraction (Integer numerator, Integer denominator) {
     // other code goes where
 }
-
 ~~~~  
 
 This constructors immediately inform the compiler there must be a *numerator* and a *denominator* field in the class and the values of the parameters should be directly assign to those fields. This really reduces the boilerplate but leaves the validation of state problem orphan. 
@@ -127,7 +124,6 @@ The "same name" rule is not always the case. Scala uses ``def this()`` and some 
 In Lense the primary constructor is written :
 
 ~~~~brush: lense 
-
 public class Fraction {
 
    val Integer numerator;
@@ -141,7 +137,7 @@ public class Fraction {
 val Fraction third = new Fraction(1, 3);
 ~~~~
 
-A constructor without a body means the parameters should be copied to the fields.
+A constructor without a body means the parameters should be copied to the fields of the same name.
 
 All final value fields (the ones with ``val``) must be initialized by all constructors, i.e. the compiler must be able to prove that all ``val`` fields have been set by the constructor. If this is not the case a compilation error will be raised.
 
@@ -314,10 +310,9 @@ A conversion constructor is used to obtain the state of the object from another 
 Integer k = 23;
 ~~~~
 
-Because all whole literals are understanded by the compiler as ``Natural``s,  23 is really a ``Natural``. On the other hand, because ``Natural``s are not ``Integer``s the assignment would not be valid. Before a compilation error is risen, the compiler tries to find an anonymous constructor in the class Integer that is marked as ``implicit`` and has a single parameter of type ``Natural``. 
+Because all whole literals are parser by the compiler as ``Natural``s,  23 is really a ``Natural``. On the other hand, because ``Natural``s are not ``Integer``s the assignment would not be valid. Before a compilation error is risen, the compiler tries to find an anonymous constructor in the class Integer that is marked as ``implicit`` and has a single parameter of type ``Natural``. 
 
 ~~~~brush: lense 
-
 public class Integer extends Whole {
 
 	implicit constructor Integer(Natural other){
@@ -333,7 +328,8 @@ If it exists, the compiler changes the assignment to:
 Integer k = new Integer(23);
 ~~~~
 
-The ``implicit`` keyword is necessary because not every anonymous constructor with a single parameter is meant to be a conversion constructor. The ``Array<T>`` class (used above) has a constructor that receives a ``Natural`` to set the array size,but that without the implicit keyword would mean that:
+The ``implicit`` keyword is necessary because not every anonymous constructor with a single parameter is meant to be a conversion constructor. 
+The ``Array<T>`` class (used above) has a constructor that receives a ``Natural`` to set the array size,but that, without the implicit keyword would mean that:
 
 ~~~~brush: lense 
 Array<Integer> array = 3;
