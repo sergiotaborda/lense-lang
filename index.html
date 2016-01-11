@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link href='https://fonts.googleapis.com/css?family=Architects+Daughter' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print">
+
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <title>Lense-lang by sergiotaborda</title>
+  </head>
+
+  <body>
+    <header>
+      <div class="inner">
+        <h1>Lense-lang</h1>
+        <h2>The Lense Language</h2>
+        <a href="https://github.com/sergiotaborda/lense-lang" class="button"><small>View project on</small> GitHub</a>
+      </div>
+    </header>
+
+    <div id="content-wrapper">
+      <div class="inner clearfix">
+        <section id="main-content">
+          <h1>
+<a id="lense" class="anchor" href="#lense" aria-hidden="true"><span class="octicon octicon-link"></span></a>Lense</h1>
+
+<p>Lense is a modern, strong typed, concise and safe, pure object oriented programing language. Lense is a crafted language in the sense it does not ignore other languages out there and its design is meant to capture the essence of the best features in each other language without being traped by those languages pitfalls. Lense does not aim to be an academic driven language even thought it tries to stand on state of the art and modern concepts. </p>
+
+<p>Lense goal is to be a simple language, easy to read and write that could be compiled to any object oriented plataform. The first efford will focus on running Lense in the Java Virtual Machine (JVM). A future effort will focus on JavaScript compability.</p>
+
+<h2>
+<a id="status" class="anchor" href="#status" aria-hidden="true"><span class="octicon octicon-link"></span></a>Status</h2>
+
+<p>Lense is currently in the exploratory design stage. We are designing the language features and trying to understand how they interact together and providing an AST parser for the language itself. Compilation to targets (like java) is being taken into account on development but not activly persueed at the time. Feel free to contribute.</p>
+
+<h2>
+<a id="some-features" class="anchor" href="#some-features" aria-hidden="true"><span class="octicon octicon-link"></span></a>Some features</h2>
+
+<p>This a small list of features we are aiming at.</p>
+
+<h3>
+<a id="syntax" class="anchor" href="#syntax" aria-hidden="true"><span class="octicon octicon-link"></span></a>Syntax</h3>
+
+<p>Lense uses a c familly style syntax with some improments. there is no fallthought switch-case instruction. Lense's swicth case instruction isolates each case from the others. Fallthrough exists, but has to be explicitly declared by the user.</p>
+
+<h4>
+<a id="object-oriented" class="anchor" href="#object-oriented" aria-hidden="true"><span class="octicon octicon-link"></span></a>Object Oriented</h4>
+
+<p>Lense aims to be pure object oriented. Some features that exist in other languages where removed from the language. Some, like primitives, can be made use of if they exist in the target platform.</p>
+
+<h4>
+<a id="no-primitives" class="anchor" href="#no-primitives" aria-hidden="true"><span class="octicon octicon-link"></span></a>No primitives</h4>
+
+<p>All types are treated as objects in the heap. The compiler is free to optimize this to the plataform's primitives as it sees fit. The programmer can define imutable objects in order to hint to the compiler that is a good ideia to optimise that class of objects but this is not mandatory.</p>
+
+<h4>
+<a id="no-nulls" class="anchor" href="#no-nulls" aria-hidden="true"><span class="octicon octicon-link"></span></a>No nulls</h4>
+
+<p>All variables must have been inicialized at some point. By default no object type includes the <code>null</code> value. The maybe monad is used when the "absent" value is required. The compiler can understand the maybe monad implicitly and some operators are provided.</p>
+
+<h4>
+<a id="no-concept-of-static" class="anchor" href="#no-concept-of-static" aria-hidden="true"><span class="octicon octicon-link"></span></a>No concept of "static'</h4>
+
+<p>All things are objects or exist within an object. </p>
+
+<h4>
+<a id="modules" class="anchor" href="#modules" aria-hidden="true"><span class="octicon octicon-link"></span></a>Modules</h4>
+
+<p>Lense brings to the table the hability to compile meta information in "module bundle" (think .jar or .dll) and their respective dependencies (think maven or osgi). This would allow for the runtime to determine the modules that are needed for a given module to run.</p>
+
+<h4>
+<a id="operators" class="anchor" href="#operators" aria-hidden="true"><span class="octicon octicon-link"></span></a>Operators</h4>
+
+<p>Lense tries to reduce symbolic noise and so operator symbols are predefined and associated with specific methods in specific interfaces so classes like numbers and strings can use operators. However, contrary to other languages, defining you own operator symbol is not allowed in order to mantain the code simple to read and write.  The use of interfaces to define operations follows a algebric structure paradigm so the compiler can reason about the operations (example : altering the order of operations the enhance preformance if the operation is cumutative)</p>
+
+<h4>
+<a id="constructors-that-really-construct" class="anchor" href="#constructors-that-really-construct" aria-hidden="true"><span class="octicon octicon-link"></span></a>Constructors that really construct</h4>
+
+<p>A classe is a factory and constructors really construct the object (not only inicialize it). Constructors can be named and ae able to return instances of derived interfaces (like a static factory method would in other languages)</p>
+
+<h3>
+<a id="generics" class="anchor" href="#generics" aria-hidden="true"><span class="octicon octicon-link"></span></a>Generics</h3>
+
+<p>The language undestands generic type parameters (generics) with variance.</p>
+
+<h4>
+<a id="reified-generics" class="anchor" href="#reified-generics" aria-hidden="true"><span class="octicon octicon-link"></span></a>Reified Generics</h4>
+
+<p>Generics information is reified , so the generic type parameters can be reflected upon at runtime. </p>
+
+<h4>
+<a id="generics-with-variance" class="anchor" href="#generics-with-variance" aria-hidden="true"><span class="octicon octicon-link"></span></a>Generics with variance</h4>
+
+<p>Types can have generic parameters and these paremeters can declare their intented variance: co-variant, contra-variant and invariant. </p>
+
+<h3>
+<a id="math-support" class="anchor" href="#math-support" aria-hidden="true"><span class="octicon octicon-link"></span></a>Math support</h3>
+
+<h4>
+<a id="rational-imaginary-and-complex" class="anchor" href="#rational-imaginary-and-complex" aria-hidden="true"><span class="octicon octicon-link"></span></a>Rational, Imaginary and Complex</h4>
+
+<p>Lense can target math cenarios other languages don't by suporting Rational, Imaginary and Complex numbers and their respective literal representation.</p>
+
+<h4>
+<a id="progressions" class="anchor" href="#progressions" aria-hidden="true"><span class="octicon octicon-link"></span></a>Progressions</h4>
+
+<p>Lense suported the concept of Progression (think 'Range') with for-loop support and literals out of the box </p>
+
+<h4>
+<a id="intervals" class="anchor" href="#intervals" aria-hidden="true"><span class="octicon octicon-link"></span></a>Intervals</h4>
+
+<p>Lense suported the concept of Interval out of the box an a set of literal forms for representing the diferent combinations.</p>
+
+<h3>
+<a id="string-interplation" class="anchor" href="#string-interplation" aria-hidden="true"><span class="octicon octicon-link"></span></a>String interplation</h3>
+
+<p>Variables can be easy inserted within a string using a simple sintax.</p>
+
+<h3>
+<a id="funcional-programing-support" class="anchor" href="#funcional-programing-support" aria-hidden="true"><span class="octicon octicon-link"></span></a>Funcional programing support</h3>
+
+<p>Lense includes functional support to some extend by means of lambda expressions with convertion to types like Function and other Single Abstract Method (SAM) types. Lense also supports the Monad concept.</p>
+        </section>
+
+        <aside id="sidebar">
+          <a href="https://github.com/sergiotaborda/lense-lang/zipball/master" class="button">
+            <small>Download</small>
+            .zip file
+          </a>
+          <a href="https://github.com/sergiotaborda/lense-lang/tarball/master" class="button">
+            <small>Download</small>
+            .tar.gz file
+          </a>
+
+          <p class="repo-owner"><a href="https://github.com/sergiotaborda/lense-lang"></a> is maintained by <a href="https://github.com/sergiotaborda">sergiotaborda</a>.</p>
+
+          <p>This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the Architect theme by <a href="https://twitter.com/jasonlong">Jason Long</a>.</p>
+        </aside>
+      </div>
+    </div>
+
+  
+  </body>
+</html>
