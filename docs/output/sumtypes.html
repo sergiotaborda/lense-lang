@@ -71,23 +71,22 @@
         </div>
         <div class="navbar-collapse collapse">
           <ul class="nav navbar-nav">
-            <li><a href="news.html">News</a></li>
-            <li><a href="download.html">Download</a></li>
-            <li><a href="documents.html">Documentation</a></li>
             <li class="dropdown">
-              <a href="#" class="dropdown-toggle" data-toggle="dropdown">Development<b class="caret"></b></a>
-              <ul class="dropdown-menu">
-                <li><a href="https://github.com/sergiotaborda/lense-lang">Source Code</a></li>
-                <!--
-                <li><a href="#">Another action</a></li>
-                <li><a href="#">Something else here</a></li>
-                <li class="divider"></li>
-                <li class="dropdown-header">Nav header</li>
-                <li><a href="#">Separated link</a></li>
-                <li><a href="#">One more separated link</a></li>
-                -->
-              </ul>
+				<a href="#" class="dropdown-toggle" data-toggle="dropdown">Get Started<b class="caret"></b></a>
+				<ul class="dropdown-menu">
+					<li class="disabled"><a href="learn.html">Learn Lense</a></li>
+					<li class="disabled"><a href="try.html">Try Lense</a></li>
+					<li><a href="https://github.com/sergiotaborda/lense-lang">Download</a></li>
+				</ul>
+			</li>
+            <li class="dropdown">
+				<a href="#" class="dropdown-toggle" data-toggle="dropdown">Fundamentals<b class="caret"></b></a>
+				<ul class="dropdown-menu">
+					<li><a href="tour.html">Language Tour</a></li>
+					<li class="disabled"><a href="guide.html">Programmer's Guide</a></li>
+				</ul>
             </li>
+			
             <li class="dropdown">
               <a href="#" class="dropdown-toggle" data-toggle="dropdown">Content<b class="caret"></b></a>
               <ul class="dropdown-menu">
@@ -96,16 +95,25 @@
                 	<li><a href="containerLiterals.html">Container Literals</a></li>
                 	<li><a href="documents.html">Documentation</a></li>
                 	<li><a href="objects.html">Objects</a></li>
+                	<li><a href="status.html">Documentation</a></li>
                 	<li><a href="constructors.html">Constructors</a></li>
                 	<li><a href="enhancements.html">Enhancements</a></li>
                 	<li><a href="index.html">Home</a></li>
                 	<li><a href="tour.html">Tour</a></li>
               </ul>
             </li>
+			<li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown">More<b class="caret"></b></a>
+              <ul class="dropdown-menu">
+                <li><a href="https://github.com/sergiotaborda/lense-lang">Source Code</a></li>
+				<li><a href="status.html">Roadmap &amp; Status</a></li>
+              </ul>
+            </li>
           </ul>
         </div><!--/.nav-collapse -->
       </div>
     </div>
+	<div class="corner-ribbon top-right sticky shadow"><a href="status.html">Exploration Stage</a></div>
     <div class="container">
 	<p><h1>Sum Types</h1><p>In Lense is possible to define an abstract type that must the implemented by a limited list of other types.<br/>The classic example is the Node type :</p>
 <pre><code class="brush: lense ">public class Node &lt;T&gt; {
@@ -172,6 +180,7 @@
     <script src="js/prettify.js"></script>
     <script>
     	SyntaxHighlighter.config.tagName = 'code';
+		SyntaxHighlighter.defaults.toolbar = false;
 		SyntaxHighlighter.all();
     
     </script>

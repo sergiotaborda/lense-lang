@@ -170,7 +170,7 @@ A value can be made mutable by using the ``var`` annotation instead of ``val``. 
      n = 2; // ok, n is a variable.
 ~~~~
 
-## Functions
+## Functions and Method
 
 Functions allow for algorithms to be executed before returning a value. 
 Normally this algorithms depend on parameters that the function declares explicitly.
@@ -192,46 +192,42 @@ Functions always return a value. ``Void`` is not a keyword is an actual type. ``
 	 square (Int x) : Int { return x*x; }
 ~~~~
 
-Functions are objects of type Callable:
+Functions are objects of type Function:
 
 ~~~~brush: lense
-	 Callable<Int, Int> f = x -> x*x;
-	 Callable<Int, Int> g = x -> x*2;
+	 Function<Int, Int> f = x -> x*x; 
+	 Function<Int, Int> g = x -> x*2;
 	 
-	 Callable<Int, Int> h = g.then(f); // the same as f(g(x)) - apply g first, them apply f
-	 
-	 Console.println(h(2)); // (2*2)*(2*2)
-	 Console.println(h(3)); // (3*2)*(3*2)
+	 Console.println(f(3));  
+	 Console.println(g(3));
 ~~~~
 
 Prints
 
 ~~~~console
-16						
-36						
+9						
+6					
 ~~~~
 
-If the internal function returns void, the second applied function cannot have parameters.
+When functions are defined in the context of a class we talk about methods. Methods are functions bound to an instance of a class.
+Method can make calls to the ``this`` variable that implictly represent the instance the function is binded to.
+
+### Trasnforming Methdos to Functions (Under Consideration)
+
+Reflectivly methods can be converter to functions if the instance object is passed explicitly 
 
 ~~~~brush: lense
-     Callable<Int, Void> f = () -> 2;
-	 Callable<Void, Int> g = x -> return; ;
-	
-	 
-	 Callable<Void, Void> h = g.then(f); // the same as f(g(x)) - apply g first, them apply f., but g returns Void, so f must required Void as single argument.
-	 
-	 Console.println(h(2)); // 2   
-	 Console.println(h(3)); // 2
-	 
+    val Number number = 4;
+
+    val two = number.sqrt();
+
+    // extract the underlying function
+    val Function<Number,Number> f = number::sqrt(); // f has a parameter of type Number representing the bounded value of sqrt.
+
+    val alsoTwo = f(4);
 ~~~~
 
-This is a complicated way to write the equivalent function:
-
-~~~~brush: lense
-     Callable<Int, Void> h = x -> {
-     	return 2;
-     }
-~~~~
+Note the use of the `::` operator to detach members from object instances. 
 
 ## Numbers
 
@@ -302,12 +298,12 @@ Whole number literals are always assumed Natural and transformed to other types 
 	var Imaginary a = 2i; // equivalent to Imaginary.valueOf(Natural.valueOf("2"));
 	var Imaginary b = 2.5i; // equivalent to Imaginary.valueOf(BigDecimal.valueOf("2.5"));
 	
-	var Imaginary error = 2; // does not compile because natural ca 
+	var Imaginary error = 2; // does not compile because a Natural can not be converted to an Imaginary number
 
 	var Complex = 5 + 2i; // equivalent to Natural.valueOf("5").plus(Imaginary.valueOf(Natural.valueOf("2")))
 	var Complex = 3.9 + 0.2i; // equivalent to BigDecimal.valueOf("3.9").plus(Imaginary.valueOf(BigDecimal.valueOf("0.2"))
 ~~~~
- 
+
 In any representation you can use _ to logically separate digits in the value to help readability.
 
 ~~~~brush: lense
@@ -315,42 +311,28 @@ In any representation you can use _ to logically separate digits in the value to
 ~~~~
 
 
-### Literals Representations 
+### Base for Literal Representations 
 
 Numeral literals are assumed to be represented in decimal form (base 10) for all types.
-For naturals is possible to use the hexadecimal (base 16) form.
+For naturals it is also possible to use the hexadecimal (base 16) form.
+
+The hexadecimal form begins with a # simbol followed by a valid hexadacimal digit (1, 2, 3, 4, 5, 6, 7, 8, A , B, C, D , E , F).
+You can also use _ to separate digits.
 
 ~~~~brush: lense
 	var Natural color = #A3C1_F100; // hexadecimal
 ~~~~
 
-Some ``Integer`` implementations like Int32 and Int64 implement ``Binary``. This means this numbers   
-
-Remeber whole literals are always assumed to be Natural values in decimal representation and promoted to other types when necessary.
 
 ## Byte and Binary
 
 
-Lense includes the ``Binary`` imutable interface to represent any  value can be understanded as a sequence of bits. Each bit is represented as a Boolean value.
+Lense includes the ``Binary`` imutable interface to represent any value that can be understanded as a sequence of bits. Each bit is represented as a Boolean value.
 
-``Byte`` is a special class that implements ``Binary`` corresponding to a sequence of 8 bits. ``Byte`` is not a number and does not have an assigned numeric value. Also it as no arithemetic operations. It's primarily used for I/O operations.
-
-``Int16`` , ``Int32`` and ``Int64`` also implement ``Binary`` corresponding to a sequence of 16, 32 and 64 bits respectivly. Because this values have a signed 
-numeric value one of the bits (the left most bit) is reserved to determine the sign. The rest of the bits represent the value if the value is possitive (left most bit is zero), else represent the Two Complement representation of the value.
-
-``BitArray`` is a mutable implementation of a ``Binary`` with variable bit size. 
-
-Lense offers a literal representation for ``Binary``. Like in the decimal and hexadecimal representations we can use _ to separate digits.  
-All binary literals are assumed to be ``BitArray``s of the given number of bits. It is not possible to have zero bits. 
-
-~~~~brush: lense
-	var Byte byte = $1111_0000; // equivalent to Byte.valueOf(BitArray.valueOf(1,1,1,1,0,0,0,0));
-	var Int16 short = $1111_0000_1111_0000; // equivalent to Byte.valueOf(BitArray.valueOf(1,1,1,1,0,0,0,0,1,1,1,1,0,0,0,0));
-	var BitArray flags = $1111_0000_0101_0110_0010_0001_0101_1001; // equivalent to BitArray.valueOf(1,1,1,1,0,0,0,0,0,1,0,1,0,1,1,0,0,0,1,0,0,0,0,1,0,1,0,1,1,0,0,1);
-~~~~	
-
-A ``Byte`` can be transformed explictitly to a ``Natural`` between 0 and 255 or to a Integer between -128 and 127.
-There is not automatic promotion from ``Byte`` to any type of ``Number``.
+``Byte`` is a special class that implements ``Binary`` corresponding to a sequence of 8 bits. 
+``Byte`` is not a number,  does not have an assigned numeric value and there is no automatic promotion from ``Byte`` to any type of ``Number``.
+ Also it has no arithemetic operations. It's primarily used for I/O operations.
+However, a ``Byte`` can be transformed explictitly to a ``Natural`` between 0 and 255 or to a Integer between -128 and 127 by means of the ``ToNatural()`` and ``ToInteger()`` functions.
 
 ~~~~brush: lense
 	var Byte byte = $1111_0000; 
@@ -360,11 +342,27 @@ There is not automatic promotion from ``Byte`` to any type of ``Number``.
 	var Natural error = byte; // illegal. Byte is not assignable to Natural.
 ~~~~
 
+
+``Int16`` , ``Int32`` and ``Int64`` also implement ``Binary`` corresponding to a sequence of 16, 32 and 64 bits respectivly. Because this values have a signed 
+numeric value one of the bits (the left most bit) is reserved to determine the sign. The rest of the bits represent the value if the value is possitive (left most bit is zero), else represent the Two Complement representation of the value.
+
+``BitArray`` is a mutable implementation of a ``Binary`` with variable bit size. 
+
+Lense offers a literal representation for ``Binary``. Like in the decimal and hexadecimal representations you can use _ to separate digits.  
+All binary literals are assumed to be ``BitArray``s of the given number of bits. It is not possible to have zero bits. 
+
+~~~~brush: lense
+	var Byte byte = $1111_0000; // equivalent to Byte.valueOf(BitArray.valueOf(true,true,true,true,false,false,false,false));
+	var Int16 short = $1111_0000_1111_0000; // equivalent to Int16.valueOf(BitArray.valueOf(true,true,true,true,false,false,false,false,true,true,true,true,false,false,false,false));
+	var BitArray flags = $1111_0000_0101_0110_0010_0001_0101_1001; // equivalent to BitArray.valueOf(true,true,true,true,false,false,false,false,true,false,tru,false,true,true,false,false,false,false,false,false,false,false,true,false,true,false,true,true,false,false,true);
+~~~~	
+
+
 # Object Orientation
 ## Classes 
 
-A class represents a structural template of an object and acts like a factory and protype ate the same time.  
-You can define a class with the ``class`` keyword. Classes can named or anonymous.
+A class represents a structural template of an object and acts like a factory and protype at the same time.  
+You can define a class with the ``class`` keyword. 
 
 ~~~~brush: lense
 /**A polar coordinate**/
@@ -395,7 +393,7 @@ public class Polar {
 }
 ~~~~
 
-The values angle and radius are imutable, so the class as a whole is imutable. When enforce this fact adding ``val`` to the class definition
+The values angle and radius are imutable, so the class as a whole is imutable. We can inform the compilr of this fact by adding ``val`` to the class definition.
 
 ~~~~brush: lense
 /**An imutable polar coordinate**/
@@ -406,34 +404,12 @@ public val class Polar {
 ~~~~
 
 This will inform the compiler the values in the class are not ment to change and any tentative to do so will rise a compiler error.
-If all constructor parameters are intented to be imutable and private a simpler syntax can be used
+
+### Property Bags 
+A very common use of a class is to model Property Bag objects. Property Bags are sets of  mutable properties. 
 
 ~~~~brush: lense
-/**An imutable, simplified, polar coordinate**/
-public class Polar (Float angle, Float radius) {
-
-	// the constructor is removed
-	
-	// some operations
-    public Polar rotate(Float rotation) {
-        return new Polar(this.angle+rotation, this.radius);
-    }
-
-    public  Polar scale(Float scale) { 
-       return new Polar(angle, radius*scale);
-	}
-
-    public String toString () {
-    	return "({{radius}},{{angle}})";
-    } 
-
-}
-~~~~
-
-A very common use of a class is to model Property Bag objects. Property Bags are intrisicly mutable objets and so is necessary something complitly diferent 
-
-~~~~brush: lense
-/**An Addres as an example of a propertybag**/
+/**An Addres as an example of a property bag**/
 public class Address  {
 
 	public var String street;
