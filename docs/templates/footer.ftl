@@ -14,6 +14,7 @@
     <script src="<#if (content.rootpath)??>${content.rootpath}<#else></#if>js/prettify.js"></script>
     <script>
     	SyntaxHighlighter.config.tagName = 'code';
+		SyntaxHighlighter.defaults.toolbar = false;
 		SyntaxHighlighter.all();
     
     </script>

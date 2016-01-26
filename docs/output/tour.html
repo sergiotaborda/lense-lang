@@ -71,23 +71,22 @@
         </div>
         <div class="navbar-collapse collapse">
           <ul class="nav navbar-nav">
-            <li><a href="news.html">News</a></li>
-            <li><a href="download.html">Download</a></li>
-            <li><a href="documents.html">Documentation</a></li>
             <li class="dropdown">
-              <a href="#" class="dropdown-toggle" data-toggle="dropdown">Development<b class="caret"></b></a>
-              <ul class="dropdown-menu">
-                <li><a href="https://github.com/sergiotaborda/lense-lang">Source Code</a></li>
-                <!--
-                <li><a href="#">Another action</a></li>
-                <li><a href="#">Something else here</a></li>
-                <li class="divider"></li>
-                <li class="dropdown-header">Nav header</li>
-                <li><a href="#">Separated link</a></li>
-                <li><a href="#">One more separated link</a></li>
-                -->
-              </ul>
+				<a href="#" class="dropdown-toggle" data-toggle="dropdown">Get Started<b class="caret"></b></a>
+				<ul class="dropdown-menu">
+					<li class="disabled"><a href="learn.html">Learn Lense</a></li>
+					<li class="disabled"><a href="try.html">Try Lense</a></li>
+					<li><a href="https://github.com/sergiotaborda/lense-lang">Download</a></li>
+				</ul>
+			</li>
+            <li class="dropdown">
+				<a href="#" class="dropdown-toggle" data-toggle="dropdown">Fundamentals<b class="caret"></b></a>
+				<ul class="dropdown-menu">
+					<li><a href="tour.html">Language Tour</a></li>
+					<li class="disabled"><a href="guide.html">Programmer's Guide</a></li>
+				</ul>
             </li>
+			
             <li class="dropdown">
               <a href="#" class="dropdown-toggle" data-toggle="dropdown">Content<b class="caret"></b></a>
               <ul class="dropdown-menu">
@@ -96,16 +95,25 @@
                 	<li><a href="containerLiterals.html">Container Literals</a></li>
                 	<li><a href="documents.html">Documentation</a></li>
                 	<li><a href="objects.html">Objects</a></li>
+                	<li><a href="status.html">Documentation</a></li>
                 	<li><a href="constructors.html">Constructors</a></li>
                 	<li><a href="enhancements.html">Enhancements</a></li>
                 	<li><a href="index.html">Home</a></li>
                 	<li><a href="tour.html">Tour</a></li>
               </ul>
             </li>
+			<li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown">More<b class="caret"></b></a>
+              <ul class="dropdown-menu">
+                <li><a href="https://github.com/sergiotaborda/lense-lang">Source Code</a></li>
+				<li><a href="status.html">Roadmap &amp; Status</a></li>
+              </ul>
+            </li>
           </ul>
         </div><!--/.nav-collapse -->
       </div>
     </div>
+	<div class="corner-ribbon top-right sticky shadow"><a href="status.html">Exploration Stage</a></div>
     <div class="container">
 	<p><h1>Hello, world !</h1><p>This is our version of the quintessential <em>Hello, world program</em>.</p>
 <pre><code class="brush: lense">	public class Hello extends ConsoleApplication {
@@ -182,7 +190,7 @@
 </code></pre><p>Values are immutable and cannot be changed after initialized. All values need to be explicit initialized before they can be read.<br/>Once again the compiler will infer the type of the value from the initialization expression. If there is no initialization, the declarion of the type is required.<br/>A value can be made mutable by using the <code>var</code> annotation instead of <code>val</code>. An mutable value is called a <i>variable</i>.</p>
 <pre><code class="brush: lense">	 var Int n = 1; // inicialize
      n = 2; // ok, n is a variable.
-</code></pre><h2>Functions</h2><p>Functions allow for algorithms to be executed before returning a value.<br/>Normally this algorithms depend on parameters that the function declares explicitly.</p>
+</code></pre><h2>Functions and Method</h2><p>Functions allow for algorithms to be executed before returning a value.<br/>Normally this algorithms depend on parameters that the function declares explicitly.</p>
 <pre><code class="brush: lense">	 doSomething() : Void { 
 	 	Console.print(&quot;Doing something&quot;);
 	 };
@@ -193,32 +201,25 @@
 	 	return; // implicitly return the instance of Void.
 	 };
 	 square (Int x) : Int { return x*x; }
-</code></pre><p>Functions are objects of type Callable:</p>
-<pre><code class="brush: lense">	 Callable&lt;Int, Int&gt; f = x -&gt; x*x;
-	 Callable&lt;Int, Int&gt; g = x -&gt; x*2;
+</code></pre><p>Functions are objects of type Function:</p>
+<pre><code class="brush: lense">	 Function&lt;Int, Int&gt; f = x -&gt; x*x; 
+	 Function&lt;Int, Int&gt; g = x -&gt; x*2;
 	 
-	 Callable&lt;Int, Int&gt; h = g.then(f); // the same as f(g(x)) - apply g first, them apply f
-	 
-	 Console.println(h(2)); // (2*2)*(2*2)
-	 Console.println(h(3)); // (3*2)*(3*2)
+	 Console.println(f(3));  
+	 Console.println(g(3));
 </code></pre><p>Prints</p>
-<pre><code class="console">16						
-36						
-</code></pre><p>If the internal function returns void, the second applied function cannot have parameters.</p>
-<pre><code class="brush: lense">     Callable&lt;Int, Void&gt; f = () -&gt; 2;
-	 Callable&lt;Void, Int&gt; g = x -&gt; return; ;
-	
-	 
-	 Callable&lt;Void, Void&gt; h = g.then(f); // the same as f(g(x)) - apply g first, them apply f., but g returns Void, so f must required Void as single argument.
-	 
-	 Console.println(h(2)); // 2   
-	 Console.println(h(3)); // 2
-	 
-</code></pre><p>This is a complicated way to write the equivalent function:</p>
-<pre><code class="brush: lense">     Callable&lt;Int, Void&gt; h = x -&gt; {
-     	return 2;
-     }
-</code></pre><h2>Numbers</h2><p>Numbers are separated in specific algebraic structures that conform to the mathematical rules of the group of elements.<br/>All numbers implement the <code>Number</code> class.</p>
+<pre><code class="console">9						
+6					
+</code></pre><p>When functions are defined in the context of a class we talk about methods. Methods are functions bound to an instance of a class.<br/>Method can make calls to the <code>this</code> variable that implictly represent the instance the function is binded to.</p><h3>Trasnforming Methdos to Functions (Under Consideration)</h3><p>Reflectivly methods can be converter to functions if the instance object is passed explicitly </p>
+<pre><code class="brush: lense">    val Number number = 4;
+
+    val two = number.sqrt();
+
+    // extract the underlying function
+    val Function&lt;Number,Number&gt; f = number::sqrt(); // f has a parameter of type Number representing the bounded value of sqrt.
+
+    val alsoTwo = f(4);
+</code></pre><p>Note the use of the <code>::</code> operator to detach members from object instances. </p><h2>Numbers</h2><p>Numbers are separated in specific algebraic structures that conform to the mathematical rules of the group of elements.<br/>All numbers implement the <code>Number</code> class.</p>
 <ul>
   <li>Whole - numbers with no decimal part.
   <ul>
@@ -292,25 +293,25 @@
 	var Imaginary a = 2i; // equivalent to Imaginary.valueOf(Natural.valueOf(&quot;2&quot;));
 	var Imaginary b = 2.5i; // equivalent to Imaginary.valueOf(BigDecimal.valueOf(&quot;2.5&quot;));
 	
-	var Imaginary error = 2; // does not compile because natural ca 
+	var Imaginary error = 2; // does not compile because a Natural can not be converted to an Imaginary number
 
 	var Complex = 5 + 2i; // equivalent to Natural.valueOf(&quot;5&quot;).plus(Imaginary.valueOf(Natural.valueOf(&quot;2&quot;)))
 	var Complex = 3.9 + 0.2i; // equivalent to BigDecimal.valueOf(&quot;3.9&quot;).plus(Imaginary.valueOf(BigDecimal.valueOf(&quot;0.2&quot;))
 </code></pre><p>In any representation you can use _ to logically separate digits in the value to help readability.</p>
 <pre><code class="brush: lense">	var Integer = -1_000_000;
-</code></pre><h3>Literals Representations</h3><p>Numeral literals are assumed to be represented in decimal form (base 10) for all types.<br/>For naturals is possible to use the hexadecimal (base 16) form.</p>
+</code></pre><h3>Base for Literal Representations</h3><p>Numeral literals are assumed to be represented in decimal form (base 10) for all types.<br/>For naturals it is also possible to use the hexadecimal (base 16) form.</p><p>The hexadecimal form begins with a # simbol followed by a valid hexadacimal digit (1, 2, 3, 4, 5, 6, 7, 8, A , B, C, D , E , F).<br/>You can also use _ to separate digits.</p>
 <pre><code class="brush: lense">	var Natural color = #A3C1_F100; // hexadecimal
-</code></pre><p>Some <code>Integer</code> implementations like Int32 and Int64 implement <code>Binary</code>. This means this numbers </p><p>Remeber whole literals are always assumed to be Natural values in decimal representation and promoted to other types when necessary.</p><h2>Byte and Binary</h2><p>Lense includes the <code>Binary</code> imutable interface to represent any value can be understanded as a sequence of bits. Each bit is represented as a Boolean value.</p><p><code>Byte</code> is a special class that implements <code>Binary</code> corresponding to a sequence of 8 bits. <code>Byte</code> is not a number and does not have an assigned numeric value. Also it as no arithemetic operations. It's primarily used for I/O operations.</p><p><code>Int16</code> , <code>Int32</code> and <code>Int64</code> also implement <code>Binary</code> corresponding to a sequence of 16, 32 and 64 bits respectivly. Because this values have a signed<br/>numeric value one of the bits (the left most bit) is reserved to determine the sign. The rest of the bits represent the value if the value is possitive (left most bit is zero), else represent the Two Complement representation of the value.</p><p><code>BitArray</code> is a mutable implementation of a <code>Binary</code> with variable bit size. </p><p>Lense offers a literal representation for <code>Binary</code>. Like in the decimal and hexadecimal representations we can use _ to separate digits.<br/>All binary literals are assumed to be <code>BitArray</code>s of the given number of bits. It is not possible to have zero bits. </p>
-<pre><code class="brush: lense">	var Byte byte = $1111_0000; // equivalent to Byte.valueOf(BitArray.valueOf(1,1,1,1,0,0,0,0));
-	var Int16 short = $1111_0000_1111_0000; // equivalent to Byte.valueOf(BitArray.valueOf(1,1,1,1,0,0,0,0,1,1,1,1,0,0,0,0));
-	var BitArray flags = $1111_0000_0101_0110_0010_0001_0101_1001; // equivalent to BitArray.valueOf(1,1,1,1,0,0,0,0,0,1,0,1,0,1,1,0,0,0,1,0,0,0,0,1,0,1,0,1,1,0,0,1);
-</code></pre><p>A <code>Byte</code> can be transformed explictitly to a <code>Natural</code> between 0 and 255 or to a Integer between -128 and 127.<br/>There is not automatic promotion from <code>Byte</code> to any type of <code>Number</code>.</p>
+</code></pre><h2>Byte and Binary</h2><p>Lense includes the <code>Binary</code> imutable interface to represent any value that can be understanded as a sequence of bits. Each bit is represented as a Boolean value.</p><p><code>Byte</code> is a special class that implements <code>Binary</code> corresponding to a sequence of 8 bits.<br/><code>Byte</code> is not a number, does not have an assigned numeric value and there is no automatic promotion from <code>Byte</code> to any type of <code>Number</code>.<br/> Also it has no arithemetic operations. It's primarily used for I/O operations.<br/>However, a <code>Byte</code> can be transformed explictitly to a <code>Natural</code> between 0 and 255 or to a Integer between -128 and 127 by means of the <code>ToNatural()</code> and <code>ToInteger()</code> functions.</p>
 <pre><code class="brush: lense">	var Byte byte = $1111_0000; 
 	var Natural n = byte.ToNatural(); // equivalent to 240;
 	var Integer i = byte.ToInteger(); // -16
 	
 	var Natural error = byte; // illegal. Byte is not assignable to Natural.
-</code></pre><h1>Object Orientation</h1><h2>Classes</h2><p>A class represents a structural template of an object and acts like a factory and protype ate the same time.<br/>You can define a class with the <code>class</code> keyword. Classes can named or anonymous.</p>
+</code></pre><p><code>Int16</code> , <code>Int32</code> and <code>Int64</code> also implement <code>Binary</code> corresponding to a sequence of 16, 32 and 64 bits respectivly. Because this values have a signed<br/>numeric value one of the bits (the left most bit) is reserved to determine the sign. The rest of the bits represent the value if the value is possitive (left most bit is zero), else represent the Two Complement representation of the value.</p><p><code>BitArray</code> is a mutable implementation of a <code>Binary</code> with variable bit size. </p><p>Lense offers a literal representation for <code>Binary</code>. Like in the decimal and hexadecimal representations you can use _ to separate digits.<br/>All binary literals are assumed to be <code>BitArray</code>s of the given number of bits. It is not possible to have zero bits. </p>
+<pre><code class="brush: lense">	var Byte byte = $1111_0000; // equivalent to Byte.valueOf(BitArray.valueOf(true,true,true,true,false,false,false,false));
+	var Int16 short = $1111_0000_1111_0000; // equivalent to Int16.valueOf(BitArray.valueOf(true,true,true,true,false,false,false,false,true,true,true,true,false,false,false,false));
+	var BitArray flags = $1111_0000_0101_0110_0010_0001_0101_1001; // equivalent to BitArray.valueOf(true,true,true,true,false,false,false,false,true,false,tru,false,true,true,false,false,false,false,false,false,false,false,true,false,true,false,true,true,false,false,true);
+</code></pre><h1>Object Orientation</h1><h2>Classes</h2><p>A class represents a structural template of an object and acts like a factory and protype at the same time.<br/>You can define a class with the <code>class</code> keyword. </p>
 <pre><code class="brush: lense">/**A polar coordinate**/
 public class Polar {
 
@@ -337,34 +338,14 @@ public class Polar {
     } 
 
 }
-</code></pre><p>The values angle and radius are imutable, so the class as a whole is imutable. When enforce this fact adding <code>val</code> to the class definition</p>
+</code></pre><p>The values angle and radius are imutable, so the class as a whole is imutable. We can inform the compilr of this fact by adding <code>val</code> to the class definition.</p>
 <pre><code class="brush: lense">/**An imutable polar coordinate**/
 public val class Polar {
 
  ...
 }
-</code></pre><p>This will inform the compiler the values in the class are not ment to change and any tentative to do so will rise a compiler error.<br/>If all constructor parameters are intented to be imutable and private a simpler syntax can be used</p>
-<pre><code class="brush: lense">/**An imutable, simplified, polar coordinate**/
-public class Polar (Float angle, Float radius) {
-
-	// the constructor is removed
-	
-	// some operations
-    public Polar rotate(Float rotation) {
-        return new Polar(this.angle+rotation, this.radius);
-    }
-
-    public  Polar scale(Float scale) { 
-       return new Polar(angle, radius*scale);
-	}
-
-    public String toString () {
-    	return &quot;({{radius}},{{angle}})&quot;;
-    } 
-
-}
-</code></pre><p>A very common use of a class is to model Property Bag objects. Property Bags are intrisicly mutable objets and so is necessary something complitly diferent </p>
-<pre><code class="brush: lense">/**An Addres as an example of a propertybag**/
+</code></pre><p>This will inform the compiler the values in the class are not ment to change and any tentative to do so will rise a compiler error.</p><h3>Property Bags</h3><p>A very common use of a class is to model Property Bag objects. Property Bags are sets of mutable properties. </p>
+<pre><code class="brush: lense">/**An Addres as an example of a property bag**/
 public class Address  {
 
 	public var String street;
@@ -411,6 +392,7 @@ public class Address  {
     <script src="js/prettify.js"></script>
     <script>
     	SyntaxHighlighter.config.tagName = 'code';
+		SyntaxHighlighter.defaults.toolbar = false;
 		SyntaxHighlighter.all();
     
     </script>

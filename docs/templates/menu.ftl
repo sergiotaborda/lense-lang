@@ -6,23 +6,22 @@
         </div>
         <div class="navbar-collapse collapse">
           <ul class="nav navbar-nav">
-            <li><a href="<#if (content.rootpath)??>${content.rootpath}<#else></#if>news.html">News</a></li>
-            <li><a href="<#if (content.rootpath)??>${content.rootpath}<#else></#if>download.html">Download</a></li>
-            <li><a href="<#if (content.rootpath)??>${content.rootpath}<#else></#if>documents.html">Documentation</a></li>
             <li class="dropdown">
-              <a href="#" class="dropdown-toggle" data-toggle="dropdown">Development<b class="caret"></b></a>
-              <ul class="dropdown-menu">
-                <li><a href="https://github.com/sergiotaborda/lense-lang">Source Code</a></li>
-                <!--
-                <li><a href="#">Another action</a></li>
-                <li><a href="#">Something else here</a></li>
-                <li class="divider"></li>
-                <li class="dropdown-header">Nav header</li>
-                <li><a href="#">Separated link</a></li>
-                <li><a href="#">One more separated link</a></li>
-                -->
-              </ul>
+				<a href="#" class="dropdown-toggle" data-toggle="dropdown">Get Started<b class="caret"></b></a>
+				<ul class="dropdown-menu">
+					<li class="disabled"><a href="<#if (content.rootpath)??>${content.rootpath}<#else></#if>learn.html">Learn Lense</a></li>
+					<li class="disabled"><a href="<#if (content.rootpath)??>${content.rootpath}<#else></#if>try.html">Try Lense</a></li>
+					<li><a href="https://github.com/sergiotaborda/lense-lang">Download</a></li>
+				</ul>
+			</li>
+            <li class="dropdown">
+				<a href="#" class="dropdown-toggle" data-toggle="dropdown">Fundamentals<b class="caret"></b></a>
+				<ul class="dropdown-menu">
+					<li><a href="<#if (content.rootpath)??>${content.rootpath}<#else></#if>tour.html">Language Tour</a></li>
+					<li class="disabled"><a href="<#if (content.rootpath)??>${content.rootpath}<#else></#if>guide.html">Programmer's Guide</a></li>
+				</ul>
             </li>
+			
             <li class="dropdown">
               <a href="#" class="dropdown-toggle" data-toggle="dropdown">Content<b class="caret"></b></a>
               <ul class="dropdown-menu">
@@ -31,8 +30,16 @@
                </#list>
               </ul>
             </li>
+			<li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown">More<b class="caret"></b></a>
+              <ul class="dropdown-menu">
+                <li><a href="https://github.com/sergiotaborda/lense-lang">Source Code</a></li>
+				<li><a href="<#if (content.rootpath)??>${content.rootpath}<#else></#if>status.html">Roadmap &amp; Status</a></li>
+              </ul>
+            </li>
           </ul>
         </div><!--/.nav-collapse -->
       </div>
     </div>
+	<div class="corner-ribbon top-right sticky shadow"><a href="<#if (content.rootpath)??>${content.rootpath}<#else></#if>status.html">Exploration Stage</a></div>
     <div class="container">

@@ -115,7 +115,12 @@
     </div>
 	<div class="corner-ribbon top-right sticky shadow"><a href="status.html">Exploration Stage</a></div>
     <div class="container">
-	<p><h1>Documentation</h1></p>
+	<p><h1>Status</h1><p>Lense is currently in the <em>Exploration Stage</em>. We are designing the language features and trying to understand how they interact together<br/>and providing an AST parser for the language itself. Compilation to targets (like java) is being taken into account on development but not<br/> activly persueed at the time. Feel free to contribute.</p><h1>Roadmap</h1><p>Work is focus on stage. In a given stage we focus on reaching the stage goals. This does not mean no work is done in other stages but this work is done<br/>to explore some decision consequences or assertain future dificulties and can change once we move to that stage. </p>
+<ol>
+  <li>Exploration Stage</li>
+  <li>Target : Java Virtual Machine</li>
+  <li>Target : JavaScript</li>
+</ol><h2>Exploration Stage</h2><p>Decide on the core conecpts, the suporting syntax and related keywords. At this stage the work is mainly de definition of a BNF grammar<br/>and testing the parser to obtain the Abstract Syntax Tree (AST) for the language.</p><h2>Target : Java Virtual Machine</h2><p>At this stage the AST obtained in the previous stage and translate it to a Java Virtual Machine compatible AST, then transform this AST to bytecode and finally produce a .class file.</p><h2>Target : JavaScript</h2><p>At this stage the AST obtained in the previous stage and translate it to a Javascript compatible AST, then transform this AST to javascript code and produce a .js file.</p></p>
 	
 		</div>
 		<div id="push"></div>

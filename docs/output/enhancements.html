@@ -71,23 +71,22 @@
         </div>
         <div class="navbar-collapse collapse">
           <ul class="nav navbar-nav">
-            <li><a href="news.html">News</a></li>
-            <li><a href="download.html">Download</a></li>
-            <li><a href="documents.html">Documentation</a></li>
             <li class="dropdown">
-              <a href="#" class="dropdown-toggle" data-toggle="dropdown">Development<b class="caret"></b></a>
-              <ul class="dropdown-menu">
-                <li><a href="https://github.com/sergiotaborda/lense-lang">Source Code</a></li>
-                <!--
-                <li><a href="#">Another action</a></li>
-                <li><a href="#">Something else here</a></li>
-                <li class="divider"></li>
-                <li class="dropdown-header">Nav header</li>
-                <li><a href="#">Separated link</a></li>
-                <li><a href="#">One more separated link</a></li>
-                -->
-              </ul>
+				<a href="#" class="dropdown-toggle" data-toggle="dropdown">Get Started<b class="caret"></b></a>
+				<ul class="dropdown-menu">
+					<li class="disabled"><a href="learn.html">Learn Lense</a></li>
+					<li class="disabled"><a href="try.html">Try Lense</a></li>
+					<li><a href="https://github.com/sergiotaborda/lense-lang">Download</a></li>
+				</ul>
+			</li>
+            <li class="dropdown">
+				<a href="#" class="dropdown-toggle" data-toggle="dropdown">Fundamentals<b class="caret"></b></a>
+				<ul class="dropdown-menu">
+					<li><a href="tour.html">Language Tour</a></li>
+					<li class="disabled"><a href="guide.html">Programmer's Guide</a></li>
+				</ul>
             </li>
+			
             <li class="dropdown">
               <a href="#" class="dropdown-toggle" data-toggle="dropdown">Content<b class="caret"></b></a>
               <ul class="dropdown-menu">
@@ -96,18 +95,30 @@
                 	<li><a href="containerLiterals.html">Container Literals</a></li>
                 	<li><a href="documents.html">Documentation</a></li>
                 	<li><a href="objects.html">Objects</a></li>
+                	<li><a href="status.html">Documentation</a></li>
                 	<li><a href="constructors.html">Constructors</a></li>
                 	<li><a href="enhancements.html">Enhancements</a></li>
                 	<li><a href="index.html">Home</a></li>
                 	<li><a href="tour.html">Tour</a></li>
               </ul>
             </li>
+			<li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown">More<b class="caret"></b></a>
+              <ul class="dropdown-menu">
+                <li><a href="https://github.com/sergiotaborda/lense-lang">Source Code</a></li>
+				<li><a href="status.html">Roadmap &amp; Status</a></li>
+              </ul>
+            </li>
           </ul>
         </div><!--/.nav-collapse -->
       </div>
     </div>
+	<div class="corner-ribbon top-right sticky shadow"><a href="status.html">Exploration Stage</a></div>
     <div class="container">
-	<p><h1>Enhancements</h1></p>
+	<p><h1>Enhancements</h1><p>Normally we extend a class by means of inheritance. Inheritance may not be a good solution in some cases.<br/>Sometimes we need to extends the funcionally of a class without adding to the inheritance tree, e.g. when the class we are trying to extend is final.<br/>The standard pattern to do this is via a Decorator. A decorator holds a value of the original class and adds methods to it.<br/>Both class can share the same interface but normally that does not happen. </p><p>Decorator is a solution for the problem and can be implemented in any object oriented language, however is not very practical.</p><p>Other languages like C# and Gosu, enable the use of Extention Methods. Extention Methods are static methods declared<br/>in a special way so they can be called as normal methods (after a dot). Being static methods this methods can also be<br/>called normally using the static method calling syntax. </p>
+<pre><code class="brush:csharp">var domain = &#39;some@e.mail.com&quot;.GetDomain(); // GetDomain is not a standard method of type String
+Assert.AreEquals(&quot;e.mail.com&quot;, domain);
+</code></pre><p>Lense does not have static elements, so an extention method must be declared on an object and we apply the methods of that<br/>object to the original instance of the class we want to enhance. </p><p>When enhancing a given type we are in fact enhancing all subtypes aswell so polimorfism is at work. More generaly we<br/>can enhance types that conform to some generic rules and thus generics support is needed for enhancement.</p><p>The difference between enhancements and extention methods is that we can add more that just normal methods. We can also<br/>add constructors. </p><p>The difference between enhancements and traits it that traits are a inheritance base mechanism where when doing the mixin a new type is created<br/>while enhacements do not create a new type. They operate like static calls.</p><p>When compiling to he underlying platform the lense compiler does not really create an object so the methods can be called, the compiler is<br/>free to optmize the calls using static semantics if they are possible in he platform. </p><p>Enhancement implementations can only access public members of the enhanced type.</p><p>Interfaces cannot be fullfiled by adding enhancement methods.</p></p>
 	
 		</div>
 		<div id="push"></div>
@@ -125,6 +136,7 @@
     <script src="js/prettify.js"></script>
     <script>
     	SyntaxHighlighter.config.tagName = 'code';
+		SyntaxHighlighter.defaults.toolbar = false;
 		SyntaxHighlighter.all();
     
     </script>

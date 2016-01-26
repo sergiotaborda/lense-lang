@@ -71,23 +71,22 @@
         </div>
         <div class="navbar-collapse collapse">
           <ul class="nav navbar-nav">
-            <li><a href="news.html">News</a></li>
-            <li><a href="download.html">Download</a></li>
-            <li><a href="documents.html">Documentation</a></li>
             <li class="dropdown">
-              <a href="#" class="dropdown-toggle" data-toggle="dropdown">Development<b class="caret"></b></a>
-              <ul class="dropdown-menu">
-                <li><a href="https://github.com/sergiotaborda/lense-lang">Source Code</a></li>
-                <!--
-                <li><a href="#">Another action</a></li>
-                <li><a href="#">Something else here</a></li>
-                <li class="divider"></li>
-                <li class="dropdown-header">Nav header</li>
-                <li><a href="#">Separated link</a></li>
-                <li><a href="#">One more separated link</a></li>
-                -->
-              </ul>
+				<a href="#" class="dropdown-toggle" data-toggle="dropdown">Get Started<b class="caret"></b></a>
+				<ul class="dropdown-menu">
+					<li class="disabled"><a href="learn.html">Learn Lense</a></li>
+					<li class="disabled"><a href="try.html">Try Lense</a></li>
+					<li><a href="https://github.com/sergiotaborda/lense-lang">Download</a></li>
+				</ul>
+			</li>
+            <li class="dropdown">
+				<a href="#" class="dropdown-toggle" data-toggle="dropdown">Fundamentals<b class="caret"></b></a>
+				<ul class="dropdown-menu">
+					<li><a href="tour.html">Language Tour</a></li>
+					<li class="disabled"><a href="guide.html">Programmer's Guide</a></li>
+				</ul>
             </li>
+			
             <li class="dropdown">
               <a href="#" class="dropdown-toggle" data-toggle="dropdown">Content<b class="caret"></b></a>
               <ul class="dropdown-menu">
@@ -96,16 +95,25 @@
                 	<li><a href="containerLiterals.html">Container Literals</a></li>
                 	<li><a href="documents.html">Documentation</a></li>
                 	<li><a href="objects.html">Objects</a></li>
+                	<li><a href="status.html">Documentation</a></li>
                 	<li><a href="constructors.html">Constructors</a></li>
                 	<li><a href="enhancements.html">Enhancements</a></li>
                 	<li><a href="index.html">Home</a></li>
                 	<li><a href="tour.html">Tour</a></li>
               </ul>
             </li>
+			<li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown">More<b class="caret"></b></a>
+              <ul class="dropdown-menu">
+                <li><a href="https://github.com/sergiotaborda/lense-lang">Source Code</a></li>
+				<li><a href="status.html">Roadmap &amp; Status</a></li>
+              </ul>
+            </li>
           </ul>
         </div><!--/.nav-collapse -->
       </div>
     </div>
+	<div class="corner-ribbon top-right sticky shadow"><a href="status.html">Exploration Stage</a></div>
     <div class="container">
 	<p><h1>Constructors</h1><p>In an Object Oriented language there is the innate need to instantiate objects. The instantiation occurs in two phases. First the memory needed to hold the object information is allocated and pointed at by a reference. Then this memory space is filled with initialization information. Only after these two phases are complete the object really exists and can be used by other objects.</p><p>The allocation phase can be manual like in C , Python and Swift or automatic like in C# or Java. Lense opts for an automatic allocation.</p><p>The initialization part is more delicate because the object must always exist in a valid state.<br/>For simple objects whose state is simply a bunch of properties that are initialized with default values, this process is straightforward. However when calculations or other computations are needed this presents a problem.</p><p>So there needs to be a contract between the machinery responsible for allocating and initializing the object and the object class. Some functions must be runned by this machinery in order to guarantee the object is in a valid state before it can be release in the wild.</p><p>This special function invoked by the machinery is called <em>Constructor</em>. Thus, the constructor is often an initialization method and it does not really constructs the object. Because the object already exists when the constructor is called (created in the previous phase of the instantiation process) the constructor has access to it to ensure the properties in the object are correctly set to valid values, however it should not call any polymorphic methods on the object.</p><p>As an example, in Java, we would write something like:</p>
 <pre><code class="brush: java">public class Fraction {
@@ -331,6 +339,7 @@ Color b = new Color.fromHSL(60 , 0.5 , 0.5);
     <script src="js/prettify.js"></script>
     <script>
     	SyntaxHighlighter.config.tagName = 'code';
+		SyntaxHighlighter.defaults.toolbar = false;
 		SyntaxHighlighter.all();
     
     </script>

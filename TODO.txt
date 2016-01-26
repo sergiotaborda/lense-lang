@@ -19,6 +19,12 @@ Literals
 	- Progression : 1...3 => 1.upTo(3)
 	- Interval :  1..3 |  1... | ...3 |  1<..3 |  1..<3 | 1<..<3 => Interval.from(1).inclusive().to(3).inclusive() , etc... 
 
+Callable
+	Functions<R, T...> are subtypes of Callable<R, Tuple<T, Tuple<T...>>>
+	Have method R call([T...] paramsTuple)
+	Have a method 'after' for composition f o g =>  f.after(g) => f(g(x))
+	Have a method 'then' for composition f o g =>  g.then(f) => f(g(x))
+  
 Static reading
 	- Differenciate objects from types
 	- Differenciate methods called on objetcs (e.x: Console.print) from methods called on companion object, from calls to constrcutors.
