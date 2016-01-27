@@ -1,0 +1,10 @@
+package lense.compiler.ir.stack;
+
+public class LoadFromVariable extends StackInstruction {
+
+	private int variableIndex;
+
+	public LoadFromVariable (int variableIndex){
+		this.variableIndex = variableIndex;
+	}
+}
