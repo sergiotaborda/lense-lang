@@ -32,4 +32,7 @@ public class NumericValue extends LiteralExpressionNode {
 		return number.toString();
 	}
 
+	public Number getValue(){
+		return number;
+	}
 }

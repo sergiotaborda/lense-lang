@@ -1,8 +1,10 @@
 /**
  * 
  */
-package lense.compiler.crosscompile.java.ast;
+package lense.compiler.ir.stack;
 
+import lense.compiler.crosscompile.java.ast.ExpressionNode;
+import lense.compiler.crosscompile.java.ast.TypedNode;
 import compiler.syntax.AstNode;
 import compiler.typesystem.TypeDefinition;
 
