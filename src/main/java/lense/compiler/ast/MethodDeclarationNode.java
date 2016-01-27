@@ -18,7 +18,7 @@ public class MethodDeclarationNode extends AnnotadedSenseAstNode {
 
 	private TypeNode returnType;
 	private String name;
-	private ParametersListNode parameters;
+	private ParametersListNode parameters = new ParametersListNode();
 	private BlockNode block;
 	private boolean isAbstract;
 	private boolean isNative;
