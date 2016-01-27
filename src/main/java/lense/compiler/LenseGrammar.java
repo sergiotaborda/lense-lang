@@ -171,7 +171,7 @@ public class LenseGrammar extends AbstractLenseGrammar{
 	 * @param text
 	 * @return
 	 */
-	private boolean isVersionLiteral(String text) {
+	public boolean isVersionLiteral(String text) {
 		return text.length() > 1 && text.contains(".");
 	}
 

@@ -55,7 +55,7 @@ public class LenseNumberLiteralTokenState extends TokenState {
 					return this.getScanner().newInitialState().receive(pos, c, tokensQueue);
 				}
 			} else {
-				// found another dot after a dot is already present, but not imediatly, ex;  1.2.
+				// found another dot after a dot is already present, but not immediately, e.g.  1.2.
 				builder.append(c);
 				return ((LenseScanner)this.getScanner()).getVersionLiteralTokenState(this);
 			}
