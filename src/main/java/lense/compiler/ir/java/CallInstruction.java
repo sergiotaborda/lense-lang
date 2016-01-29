@@ -1,29 +1,31 @@
 package lense.compiler.ir.java;
 
-import lense.compiler.ir.tac.Reference;
-import lense.compiler.ir.tac.TacInstruction;
+import lense.compiler.ir.InstructionType;
+import lense.compiler.ir.tac.Operand;
 
-public class CallInstruction extends TacInstruction {
+public class CallInstruction implements Operand {
 
 	private String methodName;
-	private Reference target;
+	private InstructionType ownerType;
+	private InstructionType returnType;
 
-	public CallInstruction(Reference target, String name) {
+	public CallInstruction(String name, InstructionType ownerType, InstructionType returnType) {
 		this.methodName = name;
-		this.target = target;
+		this.ownerType =ownerType;
+		this.returnType = returnType;
 	}
 	
 	public String toString(){
-		return target.toString() + " := call " + methodName; 
+		return " call " + methodName; 
 	}
 
 	@Override
-	public boolean replace(Reference find, Reference replacement) {
-		if (target.equals(find)){
-			target = replacement;
-			return true;
-		}
+	public boolean isTemporary() {
 		return false;
+	}
+
+	public String getName() {
+		return methodName;
 	}
 
 }

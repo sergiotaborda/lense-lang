@@ -70,6 +70,9 @@ public class MethodDeclarationNode extends AnnotadedSenseAstNode {
 	public void setVisibility(Visibility visibility) {
 		this.visibility = visibility;
 	}
+	public boolean isStatic() {
+		return false;
+	}
 
 
 	

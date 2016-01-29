@@ -3,9 +3,9 @@ package lense.compiler.ir.tac;
 public class Assign  extends AbstractAssignInstruction{
 
 	
-	private Reference source;
+	private Operand source;
 
-	public Assign (Reference target, Reference source){
+	public Assign (Operand target, Operand source){
 		super(target);
 		this.source = source;
 	}
@@ -14,17 +14,19 @@ public class Assign  extends AbstractAssignInstruction{
 		return super.toString() + source.toString();
 	}
 
-	public Reference getSource(){
+	public Operand getSource(){
 		return source;
 	}
 
 	@Override
-	public boolean replace(Reference find, Reference replacement) {
+	public boolean replace(Operand find, Operand replacement) {
+		boolean changed = super.replace(find, replacement);
+		
 		if (this.source.equals(find)){
 			this.source = replacement;
-			return true;
+			changed = true;
 		}
-		return false;
+		return changed;
 		
 	}
 

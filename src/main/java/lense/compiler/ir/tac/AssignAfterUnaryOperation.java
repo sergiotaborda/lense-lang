@@ -1,12 +1,14 @@
 package lense.compiler.ir.tac;
 
+import lense.compiler.ir.Operation;
+
 public class AssignAfterUnaryOperation extends AbstractAssignInstruction {
 
 	
-	private Reference right;
+	private Operand right;
 	private Operation operation;
 
-	public AssignAfterUnaryOperation (Reference target, Operation operation, Reference right){
+	public AssignAfterUnaryOperation (Operand target, Operation operation, Operand right){
 		super(target);
 		this.right = right;
 		this.operation = operation;
@@ -17,11 +19,21 @@ public class AssignAfterUnaryOperation extends AbstractAssignInstruction {
 	}
 	
 	@Override
-	public boolean replace(Reference find, Reference replacement) {
+	public boolean replace(Operand find, Operand replacement) {
+		boolean changed = super.replace(find, replacement);
+		
 		if (this.right.equals(find)){
 			this.right = replacement;
-			return true;
+			changed = true;
 		}
-		return false;
+		return changed;
+	}
+
+	public Operand getRight() {
+		return right;
+	}
+
+	public Operation getOperation() {
+		return operation;
 	}
 }

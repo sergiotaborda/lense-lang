@@ -1,15 +1,17 @@
 package lense.compiler.ir.stack;
 
-import lense.compiler.ir.InstructionType;
+import lense.compiler.ir.Operation;
 
 public class ArithmeticOperate extends StackInstruction{
 
 	
 	private Operation operation;
-	private InstructionType type;
 
-	public ArithmeticOperate (Operation operation, InstructionType type){
-		this.type = type;
+	public ArithmeticOperate (Operation operation){
 		this.operation = operation;
+	}
+	
+	public String toString(){
+		return operation.name();
 	}
 }

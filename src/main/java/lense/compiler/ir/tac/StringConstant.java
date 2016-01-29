@@ -1,7 +1,7 @@
 package lense.compiler.ir.tac;
 
 
-public class StringConstant implements Reference {
+public class StringConstant implements Operand {
 
 
 	private String text;
@@ -25,5 +25,9 @@ public class StringConstant implements Reference {
 	@Override
 	public boolean isTemporary() {
 		return false;
+	}
+
+	public String getValue() {
+		return text;
 	}
 }

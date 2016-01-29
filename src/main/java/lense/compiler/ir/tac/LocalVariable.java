@@ -2,7 +2,7 @@ package lense.compiler.ir.tac;
 
 import lense.compiler.ir.InstructionType;
 
-public class LocalVariable implements Reference {
+public class LocalVariable implements Operand {
 
 	private String name;
 	private InstructionType type;
@@ -13,6 +13,10 @@ public class LocalVariable implements Reference {
 	}
 	
 	public String toString(){
+		return name;
+	}
+	
+	public String getName(){
 		return name;
 	}
 	

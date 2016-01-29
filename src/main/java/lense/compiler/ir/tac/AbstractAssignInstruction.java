@@ -2,9 +2,9 @@ package lense.compiler.ir.tac;
 
 public abstract class AbstractAssignInstruction extends TacInstruction{
 
-	private Reference target;
+	private Operand target;
 
-	public AbstractAssignInstruction (Reference target){
+	public AbstractAssignInstruction (Operand target){
 		this.target = target;
 	}
 	
@@ -12,7 +12,15 @@ public abstract class AbstractAssignInstruction extends TacInstruction{
 		return target.toString() + " := ";
 	}
 	
-	public Reference getTarget() {
+	public Operand getTarget() {
 		return target;
+	}
+	
+	public boolean replace(Operand find, Operand replacement) {
+		if (target.equals(find)){
+			target = replacement;
+			return true;
+		}
+		return false;
 	}
 }

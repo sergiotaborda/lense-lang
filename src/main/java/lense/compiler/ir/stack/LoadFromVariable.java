@@ -7,4 +7,9 @@ public class LoadFromVariable extends StackInstruction {
 	public LoadFromVariable (int variableIndex){
 		this.variableIndex = variableIndex;
 	}
+	
+	
+	public String toString(){
+		return "LOAD " + variableIndex;
+	}
 }

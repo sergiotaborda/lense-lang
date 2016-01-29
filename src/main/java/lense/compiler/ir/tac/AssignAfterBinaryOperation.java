@@ -1,13 +1,15 @@
 package lense.compiler.ir.tac;
 
+import lense.compiler.ir.Operation;
+
 public class AssignAfterBinaryOperation extends AbstractAssignInstruction {
 
 	
-	private Reference left;
-	private Reference right;
+	private Operand left;
+	private Operand right;
 	private Operation operation;
 
-	public AssignAfterBinaryOperation (Reference target, Reference left, Operation operation, Reference right){
+	public AssignAfterBinaryOperation (Operand target, Operand left, Operation operation, Operand right){
 		super (target);
 		this.left = left;
 		this.right = right;
@@ -19,8 +21,9 @@ public class AssignAfterBinaryOperation extends AbstractAssignInstruction {
 	}
 	
 	@Override
-	public boolean replace(Reference find, Reference replacement) {
-		boolean changed = false;
+	public boolean replace(Operand find, Operand replacement) {
+		
+		boolean changed = super.replace(find, replacement);
 		if (this.left.equals(find)){
 			this.left = replacement;
 			changed = true;
@@ -30,6 +33,18 @@ public class AssignAfterBinaryOperation extends AbstractAssignInstruction {
 			changed = true;
 		}
 		return changed;
+	}
+
+	public Operand getRight() {
+		return right;
+	}
+	
+	public Operand getLeft() {
+		return left;
+	}
+
+	public Operation getOperation() {
+		return operation;
 	}
 
 }

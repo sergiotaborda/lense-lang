@@ -1,4 +1,4 @@
-package lense.compiler.ir.stack;
+package lense.compiler.ir;
 
 public enum Operation {
 
