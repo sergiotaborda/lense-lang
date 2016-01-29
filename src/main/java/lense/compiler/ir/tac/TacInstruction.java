@@ -1,6 +1,7 @@
 package lense.compiler.ir.tac;
 
 import lense.compiler.ir.AbstractInstruction;
+import lense.compiler.ir.stack.StackInstructionList;
 
 public abstract class TacInstruction extends AbstractInstruction{
 
@@ -18,5 +19,6 @@ public abstract class TacInstruction extends AbstractInstruction{
 		this.label = label;
 	}
 
-	public abstract boolean replace(Reference find, Reference replacement);
+	public abstract boolean replace(Operand find, Operand replacement);
+
 }

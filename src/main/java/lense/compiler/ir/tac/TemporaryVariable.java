@@ -1,6 +1,6 @@
 package lense.compiler.ir.tac;
 
-public class TemporaryVariable implements Reference{
+public class TemporaryVariable implements Operand{
 
 	private int index;
 
@@ -10,6 +10,10 @@ public class TemporaryVariable implements Reference{
 	
 	public String toString(){
 		return "t" + index;
+	}
+	
+	public String getName(){
+		return "<" + index;
 	}
 	
 	public boolean equals(Object other){

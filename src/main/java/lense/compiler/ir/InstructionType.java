@@ -19,4 +19,8 @@ public class InstructionType {
 	public int hashCode(){
 		return typeName.hashCode();
 	}
+	
+	public String toString(){
+		return typeName;
+	}
 }

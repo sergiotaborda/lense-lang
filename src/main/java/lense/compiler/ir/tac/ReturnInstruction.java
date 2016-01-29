@@ -1,10 +1,11 @@
 package lense.compiler.ir.tac;
 
+
 public class ReturnInstruction extends TacInstruction {
 
-	private Reference right;
+	private Operand right;
 
-	public ReturnInstruction(Reference right){
+	public ReturnInstruction(Operand right){
 		this.right = right;
 	}
 	
@@ -16,12 +17,16 @@ public class ReturnInstruction extends TacInstruction {
 	}
 	
 	@Override
-	public boolean replace(Reference find, Reference replacement) {
+	public boolean replace(Operand find, Operand replacement) {
 		if (find.equals(right)){
 			this.right = replacement;
 			return true;
 		}
 		return false;
+	}
+
+	public Operand getRight() {
+		return right;
 	}
 
 }

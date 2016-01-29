@@ -5,11 +5,19 @@ import java.util.List;
 
 public class StackInstructionList {
 
-	private List<StackInstructionListMember> list = new ArrayList<>();
+	private List<StackInstruction> list = new ArrayList<>();
 	
-	public StackInstructionListMember add(StackInstruction instruction){
-		StackInstructionListMember member = new StackInstructionListMember( list.size(), instruction);
-		list.add(member);
-		return member;
+	public void add(StackInstruction instruction){
+		list.add(instruction);
+	}
+	
+	public String toString(){
+		StringBuilder builder = new StringBuilder();
+		
+		for(StackInstruction tac : list){
+			builder.append(tac.toString()).append("\n");
+		}
+		
+		return builder.toString();
 	}
 }

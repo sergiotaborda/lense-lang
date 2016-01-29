@@ -2,7 +2,7 @@ package lense.compiler.ir.tac;
 
 import lense.compiler.ir.InstructionType;
 
-public class NumericConstant implements Reference {
+public class NumericConstant implements Operand {
 
 	
 	private InstructionType type;
@@ -28,5 +28,13 @@ public class NumericConstant implements Reference {
 	@Override
 	public boolean isTemporary() {
 		return false;
+	}
+
+	public InstructionType getType() {
+		return type;
+	}
+
+	public Number getValue() {
+		return number;
 	}
 }

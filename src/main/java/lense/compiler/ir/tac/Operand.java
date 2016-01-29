@@ -1,6 +1,6 @@
 package lense.compiler.ir.tac;
 
-public interface Reference {
+public interface Operand {
 
 	boolean isTemporary();
 

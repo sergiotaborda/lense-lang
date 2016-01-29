@@ -1,13 +1,13 @@
 package lense.compiler.ir.java;
 
-import lense.compiler.ir.tac.Reference;
+import lense.compiler.ir.tac.Operand;
 import lense.compiler.ir.tac.TacInstruction;
 
 public class PrepareParameter extends TacInstruction {
 
-	private Reference right;
+	private Operand right;
 
-	public PrepareParameter(Reference right){
+	public PrepareParameter(Operand right){
 		this.right = right;
 	}
 
@@ -17,12 +17,20 @@ public class PrepareParameter extends TacInstruction {
 	}
 	
 	@Override
-	public boolean replace(Reference find, Reference replacement) {
+	public boolean replace(Operand find, Operand replacement) {
 		if (find.equals(right)){
 			this.right = replacement;
 			return true;
 		}
 		return false;
 	}
+
+
+	public Operand getRight() {
+		return right;
+	}
+
+
+
 
 }

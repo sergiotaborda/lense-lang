@@ -8,4 +8,8 @@ public class StoreToVariable extends StackInstruction {
 	public StoreToVariable (int variableIndex){
 		this.variableIndex = variableIndex;
 	}
+	
+	public String toString(){
+		return "STORE " + variableIndex;
+	}
 }

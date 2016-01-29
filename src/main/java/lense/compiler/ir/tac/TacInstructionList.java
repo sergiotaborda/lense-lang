@@ -1,9 +1,10 @@
 package lense.compiler.ir.tac;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
-public class TacInstructionList {
+public class TacInstructionList implements Iterable<TacInstruction> {
 
 	List<TacInstruction> list = new ArrayList<>();
 	
@@ -31,5 +32,10 @@ public class TacInstructionList {
 
 	public void removeAt(int index) {
 		list.remove(index);	
+	}
+
+	@Override
+	public Iterator<TacInstruction> iterator() {
+		return list.iterator();
 	}
 }
