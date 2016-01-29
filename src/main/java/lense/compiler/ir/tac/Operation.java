@@ -12,5 +12,5 @@ public enum Operation {
 	LOGICAL_SHIFT_RIGHT,
 	BITWISE_AND,
 	BITWISE_OR,
-	BITWISE_XOR
+	BITWISE_XOR;
 }

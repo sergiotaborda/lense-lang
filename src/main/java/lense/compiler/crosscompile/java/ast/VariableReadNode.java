@@ -49,6 +49,10 @@ public class VariableReadNode extends ExpressionNode {
 	public void setVariableInfo(VariableInfo variableInfo) {
 		this.variableInfo = variableInfo;
 	}
+	
+	public VariableInfo getVariableInfo(){
+		return variableInfo;
+	}
 
 	public TypeDefinition getTypeDefinition(){
 		return variableInfo.getTypeDefinition();

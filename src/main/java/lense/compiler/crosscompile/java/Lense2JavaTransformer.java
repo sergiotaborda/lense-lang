@@ -27,19 +27,16 @@ import lense.compiler.ast.NativeArrayInstanceCreation;
 import lense.compiler.ast.NativeAssociationInstanceCreation;
 import lense.compiler.ast.NumericValue;
 import lense.compiler.ast.RangeNode;
-import lense.compiler.ast.StaticAccessNode;
 import lense.compiler.ast.TypeParametersListNode;
 import lense.compiler.ast.VoidValue;
 import lense.compiler.crosscompile.java.ast.ArgumentListNode;
 import lense.compiler.crosscompile.java.ast.ArithmeticOperation;
 import lense.compiler.crosscompile.java.ast.BlockNode;
-import lense.compiler.crosscompile.java.ast.ClassBodyNode;
 import lense.compiler.crosscompile.java.ast.ClassInstanceCreation;
 import lense.compiler.crosscompile.java.ast.ComparisonNode;
 import lense.compiler.crosscompile.java.ast.ExpressionNode;
 import lense.compiler.crosscompile.java.ast.ForNode;
 import lense.compiler.crosscompile.java.ast.ImplementedInterfacesNode;
-import lense.compiler.crosscompile.java.ast.MethodInvocationNode;
 import lense.compiler.crosscompile.java.ast.NullValue;
 import lense.compiler.crosscompile.java.ast.PosExpression;
 import lense.compiler.crosscompile.java.ast.TypeNode;
@@ -47,6 +44,7 @@ import lense.compiler.crosscompile.java.ast.VariableDeclarationNode;
 import lense.compiler.crosscompile.java.ast.VariableReadNode;
 import lense.compiler.typesystem.Kind;
 import lense.compiler.typesystem.LenseTypeSystem;
+
 import compiler.parser.IdentifierNode;
 import compiler.syntax.AstNode;
 import compiler.trees.TreeTransverser;
@@ -72,7 +70,9 @@ public class Lense2JavaTransformer implements Function<AstNode, AstNode> {
 			return null;
 		} else if (snode instanceof NumericValue){
 			
-			return new lense.compiler.crosscompile.java.ast.NumericValue(((NumericValue)snode).getValue());
+			lense.compiler.crosscompile.java.ast.NumericValue n = new lense.compiler.crosscompile.java.ast.NumericValue(((NumericValue)snode).getValue());
+			n.setValue(((NumericValue)snode).getValue(), ((NumericValue)snode).getTypeDefinition());
+			return n;
 		} else if (snode instanceof TypeParametersListNode){
 			
 			lense.compiler.crosscompile.java.ast.TypeParametersListNode jnode = new lense.compiler.crosscompile.java.ast.TypeParametersListNode();
@@ -145,7 +145,7 @@ public class Lense2JavaTransformer implements Function<AstNode, AstNode> {
 				jtype.getInterfaces().add(any);
 			} 
 			
-			jtype.setBody((ClassBodyNode) TreeTransverser.transform((AstNode)type.getBody(), this));
+			//jtype.setBody((ClassBodyNode) TreeTransverser.transform((AstNode)type.getBody(), this));
 			jtype.setInterfaces( (ImplementedInterfacesNode) TreeTransverser.transform((AstNode)type.getInterfaces(), this));
 			jtype.setGenerics((lense.compiler.crosscompile.java.ast.TypeParametersListNode) TreeTransverser.transform((AstNode)type.getGenerics(), this));
 			

@@ -58,6 +58,10 @@ public class VariableReadNode extends ExpressionNode {
 		this.variableInfo = variableInfo;
 	}
 
+	public VariableInfo getVariableInfo(){
+		return this.variableInfo;
+	}
+	
 	public TypeDefinition getTypeDefinition(){
 		return variableInfo == null ? null : variableInfo.getTypeDefinition();
 	}
