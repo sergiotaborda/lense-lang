@@ -3,12 +3,7 @@
  */
 package lense.compiler.ast;
 
-import java.util.stream.Collectors;
-
-import lense.compiler.ast.LenseAstNode;
-import lense.compiler.ast.TypedNode;
 import compiler.syntax.AstNode;
-import compiler.typesystem.MethodParameter;
 
 
 /**

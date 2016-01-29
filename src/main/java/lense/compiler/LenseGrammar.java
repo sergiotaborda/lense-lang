@@ -94,11 +94,10 @@ import compiler.typesystem.Variance;
  */
 public class LenseGrammar extends AbstractLenseGrammar{
 
-
 	public LenseGrammar (){
 		super();
 	}
-
+	
 	public Scanner scanner() {
 		return new LenseScanner(this);
 	}

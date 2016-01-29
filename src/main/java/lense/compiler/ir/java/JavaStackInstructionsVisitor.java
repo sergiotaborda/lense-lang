@@ -24,7 +24,7 @@ import compiler.trees.Visitor;
 import compiler.trees.VisitorNext;
 import compiler.typesystem.TypeKind;
 
-public class JavaInstructionsVisitor implements Visitor<AstNode> {
+public class JavaStackInstructionsVisitor implements Visitor<AstNode> {
 
 	StackInstructionList currentList;
 	

@@ -25,6 +25,10 @@ public class ReturnNode extends StatementNode implements TypedNode {
 	public void setValue(ExpressionNode expressionNode) {
 		this.add(expressionNode);
 	}
+	
+	public ExpressionNode getValue(){
+		return this.getChildren().isEmpty() ? null : (ExpressionNode)this.getChildren().get(0);
+	}
 
 	/**
 	 * {@inheritDoc}
@@ -33,7 +37,4 @@ public class ReturnNode extends StatementNode implements TypedNode {
 	public TypeDefinition getTypeDefinition() {
 		return this.getChildren().isEmpty() ? LenseTypeSystem.Void() : ((ExpressionNode)this.getChildren().get(0)).getTypeDefinition();
 	}
-	
-	
-
 }
