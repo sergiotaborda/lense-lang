@@ -54,11 +54,8 @@
     <![endif]-->
 
     <!-- Fav and touch icons -->
-    <!--<link rel="apple-touch-icon-precomposed" sizes="144x144" href="../assets/ico/apple-touch-icon-144-precomposed.png">
-    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="../assets/ico/apple-touch-icon-114-precomposed.png">
-    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="../assets/ico/apple-touch-icon-72-precomposed.png">
-    <link rel="apple-touch-icon-precomposed" href="../assets/ico/apple-touch-icon-57-precomposed.png">-->
-    <link rel="shortcut icon" href="favicon.ico">
+
+    <link rel="shortcut icon" href="icon.png">
   </head>
   <body onload="prettyPrint()">
     <div id="wrap">
@@ -88,19 +85,17 @@
             </li>
 			
             <li class="dropdown">
-              <a href="#" class="dropdown-toggle" data-toggle="dropdown">Content<b class="caret"></b></a>
-              <ul class="dropdown-menu">
-                	<li><a href="concurrency.html">Concurrency</a></li>
-                	<li><a href="sumtypes.html">Sum Types</a></li>
-                	<li><a href="containerLiterals.html">Container Literals</a></li>
-                	<li><a href="documents.html">Documentation</a></li>
-                	<li><a href="objects.html">Objects</a></li>
-                	<li><a href="status.html">Documentation</a></li>
-                	<li><a href="constructors.html">Constructors</a></li>
-                	<li><a href="enhancements.html">Enhancements</a></li>
-                	<li><a href="index.html">Home</a></li>
-                	<li><a href="tour.html">Tour</a></li>
-              </ul>
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown">Details<b class="caret"></b></a>
+				<ul class="dropdown-menu">
+					<li><a href="objects.html">Objects</a></li>
+					<li><a href="constructors.html">Constructors</a></li>
+					<li><a href="containerLiterals.html">Container Literals</a></li>
+					<li><a href="sumtypes.html">Sum Types</a></li>
+					
+					
+					<li class="disabled"><a href="enhancements.html">External Enhancements</a></li>
+					<li class="disabled"><a href="concurrency.html">Concurrency</a></li>
+				</ul>
             </li>
 			<li class="dropdown">
               <a href="#" class="dropdown-toggle" data-toggle="dropdown">More<b class="caret"></b></a>
@@ -115,12 +110,13 @@
     </div>
 	<div class="corner-ribbon top-right sticky shadow"><a href="status.html">Exploration Stage</a></div>
     <div class="container">
-	<p><h1>Objects</h1><p>Lense does not have static members, all things are objects. Instead of static members, Lense has global objects.<br/>A global object is declared like:</p>
-<pre><code class="brush: lense"><br/>public object System {
+	<p><h1>Objects</h1><p>In Lense all things are objects and all variables are references. This means, no primitives and no static members.<br/>The Lense back-end compiler will try to use the native plataform's primitives as much as possible to enhance performance, but this is an otimization. Conceptually primitives do not exist.</p><p>Instead of static members, Lense has global objects.A global object is declared like:</p>
+<pre><code class="brush: lense">public object System {
 
 	
 }
-</code></pre><p>and then imported normally like a type using import</p>
+
+</code></pre><p>and then imported normally like a type using the <code>import</code> statement:</p>
 <pre><code class="brush: lense">import somepackage.System;
 
 public class OtherClass {
@@ -129,8 +125,9 @@ public class OtherClass {
 	     System.exit();
 	}
 }
+
 </code></pre><p>As you can see from this example, calling methods on the object is very much like a static call in other languages, say java or C#.</p><p>When declaring an object Lense will really create a single instance of the given anonymous class in the parent scope. Objects can implement interfaces and inherit from other classes but not from other objects. </p><p>Objects can be nested in other types and other objects. In this case the object will have access to the private members of the surrounding type.<br/>Nested objects calls must be prefixed with the type they are in:</p>
-<pre><code class="brush: lense"><br/>public class OtherClass {
+<pre><code class="brush: lense">public class OtherClass {
 
 	public object SomeObject {
 	     

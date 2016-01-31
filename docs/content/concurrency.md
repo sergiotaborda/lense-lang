@@ -2,7 +2,7 @@ title=Concurrency
 date=2015-12-26
 type=post
 tags=tour, lense
-status=published
+status=draft
 ~~~~~~
 
 # Concurrency
