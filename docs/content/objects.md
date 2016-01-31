@@ -7,18 +7,20 @@ status=published
 
 # Objects
 
-Lense does not have static members, all things are objects. Instead of static members, Lense has global objects.
-A global object is declared like:
+In Lense all things are objects and all variables are references. This means, no primitives and no static members.
+The Lense back-end compiler will try to use the native plataform's primitives as much as possible to enhance performance, but this is an otimization. Conceptually primitives do not exist.
+
+Instead of static members, Lense has global objects.A global object is declared like:
 
 ~~~~brush: lense
-
 public object System {
 
 	
 }
+
 ~~~~
 
-and then imported normally like a type using import
+and then imported normally like a type using the ``import`` statement:
 
 ~~~~brush: lense
 import somepackage.System;
@@ -29,6 +31,7 @@ public class OtherClass {
 	     System.exit();
 	}
 }
+
 ~~~~
 
 As you can see from this example, calling methods on the object is very much like a static call in other languages, say java or C#.
@@ -39,7 +42,6 @@ Objects can be nested in other types and other objects. In this case the object 
 Nested objects calls must be prefixed with the type they are in:
 
 ~~~~brush: lense
-
 public class OtherClass {
 
 	public object SomeObject {

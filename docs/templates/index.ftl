@@ -1,20 +1,16 @@
 <#include "header.ftl">
 	
-	<#include "menu.ftl">
+<#include "menu.ftl">
 
-	<div class="page-header">
-		<h1>Blog</h1>
+	<div class="front-header">
+			<div class="content">
+				<h1>Understandable, powerfull, concise</h1>
+				<h2>Lense is a new, young, open-source language drived by what a modern should embrance</h2>
+			</div>
+			<div class="footer">
+				<a class="status" href="<#if (content.rootpath)??>${content.rootpath}<#else></#if>status.html">Lense is currently in the Exploratory Stage</a>
+			</div>
 	</div>
-	<#list posts as post>
-  		<#if (post.status == "published")>
-  			<a href="${post.uri}"><h1><#escape x as x?xml>${post.title}</#escape></h1></a>
-  			<p>${post.date?string("dd MMMM yyyy")}</p>
-  			<p>${post.body}</p>
-  		</#if>
-  	</#list>
-	
-	<hr />
-	
-	<p>Older posts are available in the <a href="${content.rootpath}${config.archive_file}">archive</a>.</p>
+
 
 <#include "footer.ftl">
