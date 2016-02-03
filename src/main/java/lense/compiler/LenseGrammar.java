@@ -53,7 +53,8 @@ import lense.compiler.ast.NullValue;
 import lense.compiler.ast.NumericValue;
 import lense.compiler.ast.ParametersListNode;
 import lense.compiler.ast.PosExpression;
-import lense.compiler.ast.PosUnaryExpression;
+import lense.compiler.ast.PreBooleanUnaryExpression;
+import lense.compiler.ast.PreExpression;
 import lense.compiler.ast.QualifiedNameNode;
 import lense.compiler.ast.RangeNode;
 import lense.compiler.ast.ReturnNode;
@@ -1342,12 +1343,14 @@ public class LenseGrammar extends AbstractLenseGrammar{
 		getNonTerminal("constantExpression").addSemanticAction( upstream);
 
 		getNonTerminal("postincrementExpression").addSemanticAction( (p, r) -> {
-			PosExpression exp = new PosExpression(ArithmeticOperation.Addition);
+			PosExpression exp = new PosExpression(ArithmeticOperation.Increment);
+			exp.add(ensureExpression(r.get(0).getAstNode().get()));
 			p.setAstNode(exp);		
 		});
 
 		getNonTerminal("postdecrementExpression").addSemanticAction( (p, r) -> {
-			PosExpression exp = new PosExpression(ArithmeticOperation.Subtraction);
+			PosExpression exp = new PosExpression(ArithmeticOperation.Decrement);
+			exp.add(ensureExpression(r.get(0).getAstNode().get()));
 			p.setAstNode(exp);		
 		});
 
@@ -1969,8 +1972,8 @@ public class LenseGrammar extends AbstractLenseGrammar{
 			if (r.size() == 1){
 				p.setAstNode(r.get(0).getAstNode().get());
 			} else {
-				PosExpression  exp = new PosExpression(resolveOperation(r.get(0)));
-				exp.add(r.get(1).getAstNode().get());
+				PreExpression  exp = new PreExpression(resolveOperation(r.get(0)));
+				exp.add(ensureExpression(r.get(1).getAstNode().get()));
 				p.setAstNode(exp);
 			}			
 		});
@@ -1979,7 +1982,7 @@ public class LenseGrammar extends AbstractLenseGrammar{
 			if (r.size() == 1){
 				p.setAstNode(r.get(0).getAstNode().get());
 			} else {
-				PosUnaryExpression exp = new PosUnaryExpression(resolveBooleanOperation(r.get(0)));
+				PreBooleanUnaryExpression exp = new PreBooleanUnaryExpression(resolveBooleanOperation(r.get(0)));
 				exp.add(r.get(1).getAstNode(ExpressionNode.class).get());
 				p.setAstNode(exp);
 			}			

@@ -4,7 +4,14 @@ public class Calculator {
 	public Natural calculateIt (Natural x){
 		
 		val Natural a = 2;
-		val Natural b = 3;
+		
+		val Natural i = a++ * 7 + 8 ;
+		
+		val Natural p = ++a;
+		
+		val Natural q = --a;
+		
+		val Natural b = -3;
 		val Natural c = a + b;
 		
 		val Natural d = c * a + x;

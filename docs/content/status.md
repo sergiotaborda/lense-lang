@@ -1,4 +1,4 @@
-title=Documentation
+title=Status
 date=2015-12-19
 type=post
 tags=tour, lense
@@ -13,22 +13,24 @@ and providing an AST parser for the language itself. Compilation to targets (lik
 
 # Roadmap
 
-Work is focus on stage. In a given stage we focus on reaching the stage goals. This does not mean no work is done in other stages but this work is done 
-to explore some decision consequences or assertain future dificulties and can change once we move to that stage. 
+
+In a given stage we focus on reaching the stage goals. This does not mean no work is done in other stages but this work is done 
+to explore some decision consequences or ascertain future difficulties and can change once we move to that stage. 
 
 1. Exploration Stage
-2. Target : Java Virtual Machine
-3. Target : JavaScript
+2. Java Virtual Machine backend
+3. JavaScript backend
 
 ## Exploration Stage
 
-Decide on the core conecpts, the suporting syntax and related keywords. At this stage the work is mainly de definition of a BNF grammar 
-and testing the parser to obtain the Abstract Syntax Tree (AST) for the language.
+Decide on the core concepts, the supporting syntax and related keywords. At this stage the work is mainly de definition of a BNF grammar 
+and testing the parser to obtain the Abstract Syntax Tree (AST) for the language. Work for this stage also focus on how to assure the core feature can be available in a multi-platform scenario. 
+Also some exploratory work is made on the infrastructure necessary to transform the Lense AST to other intermediary representations and finally to bytecodes.
 
-## Target : Java Virtual Machine
+## Java Virtual Machine backend
 
-At this stage the AST obtained in the previous stage and translate it to a  Java Virtual Machine compatible AST, then transform this AST to bytecode and finally produce a .class file.
+At this stage the AST obtained in the previous stage is translated into to a Java Virtual Machine compatible intermediary representation and then that is transformed to bytecode and a .class file. Once the .class files are compiled, they are packed into a .jar file.
 
-## Target : JavaScript
+## JavaScript backend
 
-At this stage the AST obtained in the previous stage and translate it to a Javascript compatible AST, then transform this AST to javascript code and produce a .js file.
+At this stage the AST obtained in the previous stage is translate into a Javascript compatible AST, then that AST is transform to javascript code and stored in a .js file.
