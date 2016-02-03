@@ -10,7 +10,7 @@ import compiler.typesystem.TypeDefinition;
 /**
  * 
  */
-public class PosUnaryExpression extends ExpressionNode {
+public class PreBooleanUnaryExpression extends ExpressionNode {
 
 	private BooleanOperation operation;
 
@@ -18,7 +18,7 @@ public class PosUnaryExpression extends ExpressionNode {
 	 * Constructor.
 	 * @param resolveBooleanOperation
 	 */
-	public PosUnaryExpression(BooleanOperation operation) {
+	public PreBooleanUnaryExpression(BooleanOperation operation) {
 		this.operation = operation;
 	}
 	

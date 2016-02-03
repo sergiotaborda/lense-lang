@@ -1,263 +1,230 @@
 title=Tour
-date=2015-12-12
+date=2016-02-01
 type=post
 tags=tour, lense
 status=published
 ~~~~~~
 
+# A basic Lense program (Under consideration)
 
-# Hello, world !
+~~~~brush: lense 
+module application (1.0.0) {
 
-This is our version of the quintessential *Hello, world program*.
+	public Void run (){
+		Console.println("Hello, world!");
+	}
+}
+~~~~
 
-~~~~brush: lense
-	public class Hello extends ConsoleApplication {
+Lense supports modules, and there must always exist a module in you application (you application *is* a module).
+A module can be executable if it implements the ``run`` function. 
+
+Each module must have a name and a version. In this case the name is "application" and the version is 1.0.0.
+If you need to access to passed arguments (like in a command line application) you can read them from ``Runtime.Arguments``. This is a read only ``Sequence<String>`` containing the passed arguments.
+If no arguments were passed or the application is running in an environment without access to arguments (like a web browser) the sequence is empty.
+
+# Important concepts
+
+Lense is base in some concepts that are always present.
+
++ 	Lense aims to be a universal language in the sense it can be executed on several target platforms. For these reason some features are only available for some platforms. For example, file system is not available for the JavaScript platform targeting browsers, since browser have no native access to file systems. On the other hand only a web application targeting JavaScript on a browser can call a DOM API and receive events and such.
+For more on target platforms read the [plataforms guide](platforms.html)
+
++	Everything you can place in a variable is an object, and every object is an instance of a class. 
+Even numbers and functions are objects. All classes inherit from the ``Any`` class. 
+
++	Modules, and not classes, are the units of deployment. All code compiled in Lense will produce a Module.
+Modules can be organized in packages. Classes live in packages. Module are compiled depending on the target platform. The same module source code can produce several module archives, one for deployment in each platform. (Under revision)
+
++	Lense is strong typed and supports type inference. Specifying types in code allows the compiler, and other tools, to reason about your intent and is required at definition sites like classes, interfaces and methods but is optional at call site every-when the compiler could infer the type.
+
++	There is no explicit static scope. Hence, there is no ``static`` keyword. All members are objects that belong to objects. However, the ``object`` declaration allows to the definition of singleton objects that exist in a *static-like* context. You refer to these objects by their names as the name are unique. 
 	
-		public run (){
-			Console.print("Hello, world!");
-		}
-	}
-~~~~
++	Identifiers can start with a letter,  followed by any combination of characters and digits.
 
-Prints
+# Reserved words and keywords
 
+Lense, like all languages, reserves some words that cannot be used as identifiers. 
+Some of these reserved works are keywords, e.i. they have special meaning to the compiler.
 
-> Hello, world!
+<table>
+	<tr>
+		<td>abstract</td>
+		<td>as</td>
+		<td>break</td>
+		<td>case</td>
+		<td>catch</td>
+	</tr>
+	<tr>
+		<td>class</td>
+		<td>continue</td>
+		<td>default</td>
+		<td>do</td>
+		<td>else</td>
+	</tr>
+	<tr>
+		<td>export</td>
+		<td>extends</td>
+		<td>finally</td>
+		<td>for</td>
+		<td>if</td>
+	</tr>
+	<tr>
+		<td>import</td>
+		<td>in</td>
+		<td>inv</td>
+		<td>module</td>
+		<td>new</td>
+	</tr>
+	<tr>
+		<td>null</td>
+		<td>out</td>
+		<td>package</td>
+		<td>return</td>
+		<td>super</td>
+	</tr>
+	<tr>
+		<td>switch</td>
+		<td>this</td>
+		<td>throw</td>
+		<td>try</td>
+		<td>val</td>
+	</tr>
+	<tr>
+		<td>var</td>
+		<td>while</td>
+		<td>true</td>
+		<td>false</td>
+		<td></td>
+	</tr>
+</table>
 
-We define a class ``Hello`` than extends the ``ConsoleApplication`` class provided in the SDK. This makes the Hello class a executable entry point.
-The class can have any name. The entry method is run(). The VM will instantiate the class, set the Arguments property according to the platform parameters and execute the run method;
-The method makes use of the print method in the Console object. The Console object is a SDK provided object that allows interaction with the console. Note the method does not declare any parameters or return type.
-The return type is only needed when the compiler could not infer it. In this case the method run is defined in the ConsoleApplication class so the compiler can infer from the base declaration the return is Void.
-There is no "void" reserved word. Void is a type like any other. 
+# Variables and Values
 
-
-The print method simply print the given String literal to the console. You can see a string is declared  enclosing the text in double quotes. String literals preserve line breaks and tabulation
+Creating variables in Lense is very similar to other languages.
 
 ~~~~brush: lense
-
-public class Hello extends ConsoleApplication {
-
-	public run () {
-		Console.print("Hello,
-						world!");
-	}
-}
-
+var String name = "Alice";
 ~~~~
 
-Prints
-
-~~~~console
-Hello,						
- 					world!  
-~~~~
-
-### Escape Sequences
-
-Strings support unicode, and unicode characters can be embedded using the \{ } escape sequence that receives an Hexadecimal value. 
-Also, Strings can be interpolated using he {{ }} escape sequence. Any expression can be use inside the interpolation sequence and its string representation will be printed (by calling the toString() method on the result of the expression).
+Variables always contain references to objects. The variable called *name* contains a reference to a ``String`` object with a value of "Alice".
+The reference contained in a variable can be changed further down the code to another reference, like :
 
 ~~~~brush: lense
-public class Hello extends ConsoleApplication {
-
-	public run () {
-		Decimal pi = 3.1415; 
-		Console.print("Hi!, the mathematical constant \{#03C0} is {{ pi }}  ");
-	}
-}
-
+var name = "Alice";
+name = "Beth";
 ~~~~
 
-Prints
+Lense prefers immutable references, so if you do not use the ``var`` keyword, Lense will assume the ``val`` keyword.
 
-> Hi!, the mathematical constant &pi; is 3.1415
+~~~~brush: lense
+val String name = "Alice";
+~~~~
 
-You can notice that #03C0 denotes an hexadecimal number.
+or 
+
+~~~~brush: lense
+String name = "Alice"; // val is implicit.
+~~~~
+
+Immutable values cannot be changed, so trying to do so is a compilation error.
+
+~~~~brush: lense
+val String name = "Alice";
+name = "Beth"; // Compilation Error 
+~~~~
 
 ## Nullability
 
-
-Null references are not allowed , but the notion of an absent value is very useful.
-
-~~~~brush: lense
-public class Hello extends ConsoleApplication {
-
-	public run (){
-		
-		Console.print("Hi!, the first argument is {{ Arguments.first() }}.");
-	}
-}
-
-~~~~
-
-Prints
-
-
-> Hi!,  the first argument is null.
-
-
-"Arguments" is a read only property of ConsoleAplication that was set with the arguments passed in the console at the momento of running the application.
-With can access the first element of the arguments sequence by invoking the first() method. The first argument in arguments might not be present, the arguments sequence may be empty. 
-So in this case, in other languages, null would be returned and printed. lense does not have null references, but "null" is printed nontheless. How is that ?
-
-
-Well, left look closer to the return of ``first``
+Variables (immutable or not) must be initialized with values. Lense does not allow uninitialized variables to be used. So, this code will fail:
 
 ~~~~brush: lense
-public class Hello extends ConsoleApplication {
-	public run () {
-		val String? argument = Arguments.first();
-		Console.print("Hi!, the first argument is {{ argument }}.");
-	}
-}
+String name;
 
+Console.println(name); // Compilation error. Variable was not initialized.
 ~~~~
 
-The type returned by the ``first`` method is a ``Maybe<String>``. That why there is a ? after ``String``. String is
-the type of elements contained inside the ``Arguments`` sequence. `` Maybe<T>`` is a generic types class that allows for only two subclasses : ``Some<T>`` and ``None``. ``Some<T>`` contains some object of type T, and ``None`` does not contain any value.
-
-If a value is present the class ``Some<T>`` is instantiated with that value, if not, an instance of None is returned. 
-However None has only one instance: the ``none`` object. The ``none`` object itself overrides the ``toString`` method to return the word 'null'. Also 'null' is a reserved word in the language 
-that can used to initialize to an absent value, like: 
+In addition, Lense as no concept of "null reference". References always exist.
+This will also fail:
 
 ~~~~brush: lense
-	var String? name = null; // we don't kown the name yet.
-	name = "The Name"; // now we kown.
+String name = null; // Compilation error. Lense does not recognize the null keyword (even though is a reserved word)
+
+Console.println(name); 
 ~~~~
 
-The usage is very similar to java and C# and others however is mandatory to declare the variable has maybe absent either explicitly declaring it as `` Maybe<T>`` or using the ? suffix abbreviation.
-There is a lot of abbreviations and syntax sugar so the transition from other languages is not that rought. We can explicitly write the same has: 
+However, Lense understands possible absent values if you use a ``Maybe<T>`` type. The ``Maybe<T>`` type is a [monad type](monads.html).
+
 
 ~~~~brush: lense
-	var Maybe<String> name = Absent; // we don't known the name yet.
-	name = new Some("The Name"); // now we known.
+val String? name;   
+
+Console.println(name); // prints "null";
+
+name = "Alice";
+
+Console.println(name); // prints "Alice";
 ~~~~
 
-However if we need to have a non absent value we can use the or method, or equivalently the (|) operator
-
-~~~~brush: lense
-public class Main {
-	public Void main(Array<String> args){
-		String? argument = args.first();
-		String = argument | "world"; // the same as argument.or("world");
-		Console.print("Hi!, the first argument is {{ argument }}.");
-	}
-}
-~~~~
-
-Prints
-
-> Hi!,  the first argument is world.
+The ? sign after the ``String?`` type is a shorthand notation for ``Maybe<String>``. 
 
 
-## Variables and Values
+# Built-in types
+The Lense language has special support for the following types:
 
-In any scope when can define a value
++ Number
++ Binary
++ String
++ Boolean
++ Progression
++ Interval
++ Sequence (like Arrays and Lists)
++ Assignment (like Maps)
++ Tuple
 
-~~~~brush: lense
-	val k = 3;
-	val u: Int;
-	u = 90;
-	u = 80; // error!
-~~~~
+You can initialize an object of any of these special types using a [literal](containerLiterals.html). For example, 'this is a string' is a string literal, and ``true`` is a boolean literal.
 
-Values are immutable and cannot be changed after initialized. All values need to be explicit initialized before they can be read.
-Once again the compiler will infer the type of the value from the initialization expression. If there is no initialization, the declarion of the type is required.
-A value can be made mutable by using the ``var`` annotation instead of ``val``. An mutable value is called a <i>variable</i>.
-
-~~~~brush: lense
-	 var Int n = 1; // inicialize
-     n = 2; // ok, n is a variable.
-~~~~
-
-## Functions and Method
-
-Functions allow for algorithms to be executed before returning a value. 
-Normally this algorithms depend on parameters that the function declares explicitly.
-  
-~~~~brush: lense
-	 doSomething() : Void { 
-	 	Console.print("Doing something");
-	 };
-	 square (Natural x) : Natural { return x*x; }
-~~~~
-
-Functions always return a value. ``Void`` is not a keyword is an actual type. ``Void`` only has one instance denoted ``()`` (the empty tuple). All functions have an implicit return of the instance of ``Void`` at the end. This is correct unless the method return other type. You can explicitly write a return of a instance of ``Void``.
-
-~~~~brush: lense
-	 doSomething() : Void { 
-	 	Console.print("Doing something");
-	 	return; // implicitly return the instance of Void.
-	 };
-	 square (Int x) : Int { return x*x; }
-~~~~
-
-Functions are objects of type Function:
-
-~~~~brush: lense
-	 Function<Int, Int> f = x -> x*x; 
-	 Function<Int, Int> g = x -> x*2;
-	 
-	 Console.println(f(3));  
-	 Console.println(g(3));
-~~~~
-
-Prints
-
-~~~~console
-9						
-6					
-~~~~
-
-When functions are defined in the context of a class we talk about methods. Methods are functions bound to an instance of a class.
-Method can make calls to the ``this`` variable that implictly represent the instance the function is binded to.
-
-### Trasnforming Methdos to Functions (Under Consideration)
-
-Reflectivly methods can be converter to functions if the instance object is passed explicitly 
-
-~~~~brush: lense
-    val Number number = 4;
-
-    val two = number.sqrt();
-
-    // extract the underlying function
-    val Function<Number,Number> f = number::sqrt(); // f has a parameter of type Number representing the bounded value of sqrt.
-
-    val alsoTwo = f(4);
-~~~~
-
-Note the use of the `::` operator to detach members from object instances. 
+Because every variable in Lense refers to an object, that is an instance of a class, you can usually also use constructors to initialize variables. 
+Some of the built-in types have their own constructors. For example, you can use the *Map()* constructor to create a map, using code such as ``new Map()``.
 
 ## Numbers
 
 Numbers are separated in specific algebraic structures that conform to the mathematical rules of the group of elements.
-All numbers implement the ``Number`` class.
+All numbers are descendent types of the ``Number`` class. Operations are defined for each type independently.
+Lense supports Complex and Imaginary numbers. Even thought we are aware the performance of these types may not be optimal, we understand that not supporting them would be a worst decision. 
 
 * Whole - numbers with no decimal part.
-	- Natural - Represent elements from the mathematical **N** set, i.e. positive only whole values that include zero and range from zero to an arbitrary range limited only by available memory. 
-	- Integer - Represent elements from the mathematical **Z** set, i.e. negative and positive whole values.
-		*  Int16 - negative and positive whole values with range from -2<sup>16</sup> to  2<sup>16</sup>-1. 
-		*  Int32 - negative and positive whole values with range from -2<sup>32</sup> to  2<sup>32</sup>-1. 
-		*  Int64 - negative and positive whole values with range from -2<sup>64</sup> to  2<sup>64</sup>-1. 
+	- Natural - Represent elements from the mathematical **&#8469;** set, i.e. positive only whole values that include zero and range from 0 up to maximum value limited only by available memory
+	- Integer - Represent elements from the mathematical **&#8484;** set, i.e. negative and positive whole values.
+		*  Int16 - negative and positive whole values with range from -2<sup>15</sup> to  2<sup>15</sup>-1. 
+		*  Int32 - negative and positive whole values with range from -2<sup>31</sup> to  2<sup>31</sup>-1. 
+		*  Int64 - negative and positive whole values with range from -2<sup>63</sup> to  2<sup>63</sup>-1. 
 		*  BigInt - negative and positive whole values with arbitrary range limited only by available memory
-* Real - Represent elements from the mathematical **R** set.
-	-  Rational - Represent elements from the mathematical **Q** set, i.e. rational numbers defined by a natural numerator and a natural denominator like 2/3 or -5/8. The denominator cannot be zero. 
+* Real - Represent elements from the mathematical **&#8477;** set.
+	-  Rational - Represent elements from the mathematical **&#8474;** set, i.e. rational numbers defined by a natural numerator and a natural denominator like 2/3 or -5/8. The denominator cannot be zero. 
 	-  Decimal - Represent elements that have a fixed precision and so calculations may incur in loss of precision.
 		*  Decimal32 - negative and positive decimal values that follow 32 bits IEEE 3744 conventions
 		*  Decimal64 - negative and positive decimal values that follow 64 bits IEEE 3744 conventions
-		*  BigDecimal - Represents elements in the **R** set including truncated version of irrational numbers.Negative and positive decimal values with arbitrary precision limited only by available memory.
-* Imaginary -Represent elements from the mathematical **I** set. Numbers with pure imaginary parts of the form ``bi`` where ``i`` is the square root of -1.
+		*  BigDecimal - Represents elements in the **&#8477;** set including truncated version of irrational numbers.Negative and positive decimal values with arbitrary precision limited only by available memory.
+* Imaginary -Represent elements from the mathematical **&#120128;** set. Numbers with pure imaginary parts of the form ``bi`` where ``i`` is the square root of -1.
 	- ImaginaryOverReals<T extends Real>; - uses a Real type to store the numeric value
-* Complex - Represent elements from the mathematical **C** set. Complex numbers are of the form ``a + bi`` where ``i`` it the square root of -1.
+* Complex - Represent elements from the mathematical **&#8450;** set. Complex numbers are of the form ``a + bi`` where ``i`` it the square root of -1.
 	- ComplexOverReals<T extends Real>; - Use a Real to type to store a numeric value for the real part and a ImaginaryOverReals<T> for the imaginary part.
 
+Natural is used as an indexer for sequences. It is non-negative and was big as you need. Limits to collections like arrays, lists and maps are only bound by implementation.
+Using a Natural to index sequences removes the necessity to check for negative indexes and as Arrays always have a upper limit and always are constructed by [factory like constructors](constructors.html)
+the implementation for each platform can accommodate different implementations according to maximum length demand.
 
-Whole number literals are always assumed Natural and transformed to other types as needed. This conversion may rise ``OverflowException`` as the Natural type was no max value being limited only by memory available (It's like a BigInt with no sign). Decimal values are always assumed as BigDecimal. BigDecimal constructor only accepts a string representation of the value this is because the BigDecimal representation must be exact.
+For more information on how Natural relates to index of sequences, see how [Arrays](arrays.html) work in Lense.
+For more information on arithmetic operations  more on Lense [numbers](numbers.html).
+
+### Literals 
+
+For ``Whole`` number literals are always assumed Natural and in base ten representation. The natural values are transformed to other types as needed. 
+This conversion may rise ``OverflowException``s as the Natural can exceed the maximum values of other types. For ``Decimal`` values, literals are always assumed to be instance of ``BigDecimal``. ``BigDecimal`` constructor only accepts a string representation of the value as the BigDecimal literal representation must be exact.
 
 ~~~~brush: lense
 	var Natural n = 1; // equivalent to Natural.valueOf("1")
-	var Whole n = 1; // equivalent to Natural.valueOf("1")
 	
 	// literals are always assumed to be Natural and promoted when necessary
 	var Int32 i = 1;  // equivalent to Int32.valueOf(Natural.valueOf("1"));
@@ -265,10 +232,11 @@ Whole number literals are always assumed Natural and transformed to other types 
 	var Int64 k = 1;  // equivalent to Int64.valueOf(Natural.valueOf("1"));
 	var BigInt g = 1;  // equivalent to BigInt.valueOf(Natural.valueOf("1"));
 	
-	// If the target is Integer it's equivalent to having BigInt as target 
+	// If the target type is Whole or Integer, the literal it's equivalent to having BigInt as target 
+	var Whole n = 1; // equivalent to BigInt.valueOf(Natural.valueOf("1"));
 	var Integer all = 1;  // equivalent to BigInt.valueOf(Natural.valueOf("1"));
 	
-	// sufixes can be used to inform the compiler the corret type of the literal
+	// sufixes can be used to inform the compiler the correct type of the literal
 	// for whole numbers only uppercase prefixes are allowed 
 	var Int32 ii = 1T;  // equivalent to Int32.valueOf("1");
 	var Int16 ss = 1S;  // equivalent to Int16.valueOf("1");
@@ -288,8 +256,8 @@ Whole number literals are always assumed Natural and transformed to other types 
 	var Decimal64 d = 2.0; // equivalent to Decimal64.valueOf(BigDecimal.valueOf("2.0"));
 	var BigDecimal m = 1.234567890E100; // equivalent to BigDecimal.valueOf("1.234567890E100");
 
-	// prefixes can also be used to informe the compiler the corret type of the literal
-	// for non whole numbers only lowercase prefixes are allowed 
+	// prefixes can also be used to inform the compiler the correct type of the literal
+	// for non whole numbers only lower-case prefixes are allowed 
 	var Decimal32 fff = 1.6f; // equivalent to Decimal32.valueOf("1.6");
 	var Decimal64 dd = 2.0d; // equivalent to Decimal64.valueOf("2.0");
 	var BigDecimal mm = 1m; // equivalent to BigDecimal.valueOf("1");
@@ -310,29 +278,28 @@ In any representation you can use _ to logically separate digits in the value to
 	var Integer = -1_000_000;
 ~~~~
 
-
 ### Base for Literal Representations 
 
 Numeral literals are assumed to be represented in decimal form (base 10) for all types.
 For naturals it is also possible to use the hexadecimal (base 16) form.
 
-The hexadecimal form begins with a # simbol followed by a valid hexadacimal digit (1, 2, 3, 4, 5, 6, 7, 8, A , B, C, D , E , F).
-You can also use _ to separate digits.
+The hexadecimal form begins with a ``#`` symbol followed by a valid hexadecimal digit: 1, 2, 3, 4, 5, 6, 7, 8, A , B, C, D , E , F.
+You can also use _ to separate digits like in base 10 representation.
 
 ~~~~brush: lense
 	var Natural color = #A3C1_F100; // hexadecimal
 ~~~~
 
+## Bytes and Binaries
 
-## Byte and Binary
+Lense supports the ``Binary`` immutable interface to represent any value that can be understood as a sequence of bits. 
+``BitArray`` is the default, mutable, implementation of ``Binary``. ``BitArray`` supports a variable size of bits.
 
+The literal begins with a ``$`` sign flowed by a sequence of ones and zeros. The ``_`` symbol can be used, as in number literals, to separate digit logically.
 
-Lense includes the ``Binary`` imutable interface to represent any value that can be understanded as a sequence of bits. Each bit is represented as a Boolean value.
-
-``Byte`` is a special class that implements ``Binary`` corresponding to a sequence of 8 bits. 
-``Byte`` is not a number,  does not have an assigned numeric value and there is no automatic promotion from ``Byte`` to any type of ``Number``.
- Also it has no arithemetic operations. It's primarily used for I/O operations.
-However, a ``Byte`` can be transformed explictitly to a ``Natural`` between 0 and 255 or to a Integer between -128 and 127 by means of the ``ToNatural()`` and ``ToInteger()`` functions.
+``Byte`` is a special class that implements ``Binary`` corresponding to a fixed length sequence of 8 bits. It's primarily used for I/O operations. ``Byte`` is not a number, does not have an 
+assigned numeric value and there is no automatic promotion from ``Byte`` to any type of ``Number``. Also it has no arithmetic operations.
+However, a ``Byte`` can be transformed explicitly to a ``Natural`` between 0 and 255 or to a Integer between -128 and 127 by means of the ``ToNatural()`` and ``ToInteger()`` functions.
 
 ~~~~brush: lense
 	var Byte byte = $1111_0000; 
@@ -343,13 +310,14 @@ However, a ``Byte`` can be transformed explictitly to a ``Natural`` between 0 an
 ~~~~
 
 
-``Int16`` , ``Int32`` and ``Int64`` also implement ``Binary`` corresponding to a sequence of 16, 32 and 64 bits respectivly. Because this values have a signed 
-numeric value one of the bits (the left most bit) is reserved to determine the sign. The rest of the bits represent the value if the value is possitive (left most bit is zero), else represent the Two Complement representation of the value.
+``Int16`` , ``Int32`` and ``Int64`` also implement ``Binary`` corresponding to a fixed length sequence of 16, 32 and 64 bits respectively. Because this values have a signed 
+numeric value one of the bits (the left most bit) is reserved to determine the sign. The rest of the bits represent the value if the value is positive (left most bit is zero), 
+else represent the Two Complement representation of the (then negative) value.
 
-``BitArray`` is a mutable implementation of a ``Binary`` with variable bit size. 
+### Literal Representation
 
-Lense offers a literal representation for ``Binary``. Like in the decimal and hexadecimal representations you can use _ to separate digits.  
-All binary literals are assumed to be ``BitArray``s of the given number of bits. It is not possible to have zero bits. 
+Lense offers a shorthand literal representation of a ``Binary`` using **1** to represent ``true`` and **0** to represent ``false``.
+All binary literals are assumed to be instances of ``BitArray``s of the given number of bits. It is not possible to have a zero bits sequence. 
 
 ~~~~brush: lense
 	var Byte byte = $1111_0000; // equivalent to Byte.valueOf(BitArray.valueOf(true,true,true,true,false,false,false,false));
@@ -357,97 +325,333 @@ All binary literals are assumed to be ``BitArray``s of the given number of bits.
 	var BitArray flags = $1111_0000_0101_0110_0010_0001_0101_1001; // equivalent to BitArray.valueOf(true,true,true,true,false,false,false,false,true,false,tru,false,true,true,false,false,false,false,false,false,false,false,true,false,true,false,true,true,false,false,true);
 ~~~~	
 
+*Note the equivalent expressions are conceptual, in practice the compiler uses more suitable constructors for each case.*
 
-# Object Orientation
-## Classes 
 
-A class represents a structural template of an object and acts like a factory and protype at the same time.  
-You can define a class with the ``class`` keyword. 
+## Strings
+
+A string in Lense is a Sequence of Character. Characters are UTF-16 code points. A string literal is just a text enclosed in double quotes.
 
 ~~~~brush: lense
-/**A polar coordinate**/
-public class Polar {
+val String greating = "Hello, world";
+~~~~
 
-	private val Float angle; // imutable values
-	private val Float radius; // imutable values
-	
-	// an initializer , aka constructor
-	public Polar (Float angle, Float radius){
-		this.angle = angle;
-		this.radius = radius;
-	}
-	
-	// some operations
-    public Polar rotate(Float rotation) {
-        return new Polar(this.angle+rotation, this.radius);
-    }
+You can interpolate values inside literal strings using ``{{`` and ``}}`` as delimiters.
 
-    public  Polar scale(Float scale) { 
-       return new Polar(angle, radius*scale);
-	}
+~~~~brush: lense
+val String name = "Alice";
+val String greating = "Hello, {{ name }}";
+~~~~
 
-    public String toString () {
-    	return "({{radius}},{{angle}})";
-    } 
+You can concatenate strings using the ``+`` operator.
 
+~~~~brush: lense
+val String name = "Alice";
+val String greating = "Hello, " + name;
+~~~~
+
+String are mulit-line, so you can simply right
+
+~~~~brush: lense
+val String greating = "Hello, 
+	wold";
+~~~~
+
+The line break , tab and spaces in the second line will be preserved.
+
+If you need to use a Unicode a special character enclosing an hexadecimal natural value with ``\{`` and ``}`` delimiters.
+
+~~~~brush: lense
+val String define pi = "The value of \{#03C0} is the ratio between the circumference and the diameter of a circle"
+~~~~
+
+## Booleans
+
+To represent boolean values, Lense has a type named Boolean. Only two objects have type Boolean: the boolean literals ``true`` and ``false``, which are both compile-time constants.
+Lense is strong types and only allows Boolean values and expressions where a Boolean is expected. For example, the following code will not compile:
+
+~~~~brush: lense
+val String name = "Alice";
+if (name){  // Compilation error. Expected Boolean expression
+	printName(name);
 }
 ~~~~
 
-The values angle and radius are imutable, so the class as a whole is imutable. We can inform the compilr of this fact by adding ``val`` to the class definition.
+
+# Collections
+
+Lense offers a rich API to handle collections. All collections in Lense are [monads](monads.html).
+All collections inherit from the ``Assortment`` class and are read-only and immutable by design. Mutable implementations exist.
+
+## Sequence
+
+Sequences are assortments that let you assign a ``Natural`` index to each element. The elements can be iterated in the order of their indexes.
+Sequences are immutable and read-only. Sequences are fundamental in Lense and not Arrays as in other languages (like Java).
+Lense provides a very familiar syntax for sequences:
 
 ~~~~brush: lense
-/**An imutable polar coordinate**/
-public val class Polar {
+val Sequence<String> cities = ["New York", "London", "Paris"];
 
- ...
+val london = cities[1]; // access by a natural index
+~~~~
+
+### Arrays
+
+In Lense arrays are editable sequences. This means you can chance the values in each position of the sequence but you cannot change the sequence's size.
+Arrays in Lense are fixed in size. To add a new element to the array you need to create a new array. Also keep in mind arrays in Lense are objects of the ``Array<T>`` class and not primitive types like in Java.
+
+~~~~brush: lense
+val Array<String> cities = ["New York", "London", "Paris"];
+
+val london = cities[1]; // access by a natural index
+
+cities[1] = "São Paulo"; // position 1 now refers to "São Paulo" and not to "London" any more.
+~~~~
+
+Because of Lense's [conversion constructors](constructors.html) you can initialize an Array with a Sequence literal.
+
+### Lists
+
+Lists are Sequence that are both editable (like Arrays) and resizeable. This means you can add and remove elements from a list after the list is created.
+
+~~~~brush: lense
+val List<String> cities = ["New York", "London", "Paris"];
+
+cities.remove(1); // removes element at index 1, "London" in this example
+cities.add("São Paulo"); // add a new element at end of the list
+~~~~
+
+### Progression 
+
+Lense supports Progressions. A Progression is a special sequence of elements that has a *start* and an *end* and know how to iterate elements from the start to the end.
+A Progression is normally created from a Progressable. A Progressable defines an ``upTo`` method that returns a progression.
+
+~~~~brush: lense
+val Progression<Natural> range = 1.upTo(9);
+~~~~
+
+This constructs a progression from 1 inclusive to 9 inclusive. Lense also supports an operator called ``..`` that you can use instead of ``upTo``.
+
+~~~~brush: lense
+val Progression<Natural> range = 1..9;
+~~~~
+
+## Association
+
+Associations are like sequences, but instead of attributing an Natural index to each element, you can attribute an object to each element. Lense also provides a familiar literal for Associations.
+
+~~~~brush: lense
+val Association<String, String> personsAndJobs = { "Alice": "CEO", "Bob":"CIO" , "Claude":"CFO" };
+~~~~
+
+Like Sequences, Associations are immutable and read-only.
+
+### Maps 
+
+``Map<K,V>`` is an implementation of ``ResizableAssociation<K,V>`` you can use to manipulate editable and resizeable associations.  In Lense, Map is not an interface but an implementation (similar to an HashMap in Java)
+
+~~~~brush: lense
+val Map<String, String> personsAndJobs = { "Alice": "CEO", "Bob":"CIO" , "Claude":"CFO" };
+
+personsAndJobs.removeKey("Alice"); // removes the key and its value.
+~~~~
+
+## Tuples
+
+Tuples are special collections. The are sequences of objects in the sense each element has an index. The difference is that each element can be of a different type with no relation to the other elements (has in a sequence all elements have to of the same class or inherit from it).
+
+~~~~brush: lense
+val (String, Natural , Boolean) personsAndJobs = ("Alice", 42 , true);
+~~~~
+
+Lense provides the abose short sintax to create tuple's types and values. the compiler will translate that notation to the following notation that you can also use.
+
+~~~~brush: lense
+val Tuple<String, Tuple<Natural , Tuple<Boolean, Nothing>>> personsAndJobs = ("Alice", 42 , true);
+~~~~
+
+If you are interested, you can read [more on container literals](containerLiterals.html). 
+
+# Functions
+
+Functions allow for algorithms to be executed before returning a value. 
+Normally this algorithms depend on parameters that the function declares explicitly.
+  
+~~~~brush: lense
+	 public Void doSomething() { 
+	 	Console.print("Did something");
+	 }
+	 
+	 Natural square (Natural x) { 
+		return x*x; 
+	 }
+~~~~
+
+Functions always return a value. ``Void`` is not a keyword is an actual type. ``Void`` only has one instance denoted ``()`` (the empty tuple). All functions have an implicit return of the instance of ``Void`` at the end. This is correct unless the method return other type. 
+You can explicitly write a return of the instance of ``Void``.
+
+~~~~brush: lense
+	 public Void doSomething()  { 
+	 	Console.print("Did something");
+	 	return; // implicitly return the instance of Void.
+	 };
+~~~~
+
+Functions are objects named *Function*. Really is a type for each number of parameters. So ``Function<R>`` is for a function with no parameters that returns a type ``R``. ``Function<R,T>`` if for a single parameter function.
+``Function<R,T,U>`` is for a function of two parameters, and do on ...
+
+~~~~brush: lense
+	 Function<Int, Int> f = x -> x*x; 
+	 Function<Int, Int, Int> g = (x,y) -> x*y;
+	 
+	 Console.println(f(3));  
+	 Console.println(g(3,2));
+~~~~
+
+Prints
+
+~~~~console
+9					
+6					
+~~~~
+
+When functions are defined in the context of a class we talk about methods. Methods are functions bound to an instance of a class.
+Method can make calls to the ``this`` variable that implicitly represent the instance the function is bonded to.
+
+## Transforming Methods into Functions (Under Consideration)
+
+Using reflection, methods can be converter to functions that can be invoked if the instance object is passed explicitly 
+
+~~~~brush: lense
+	val Integer one = 1;
+
+    val Integer minusOne = one.negative();
+
+    // extract the underlying function
+    val Function<Number,Number> negativeOf = one::negative(); // f has a parameter of type Number representing the bounded value of *negative*.
+
+    val Integer alsoMinusOne = negativeOf(one);
+	val Integer minusTwo = negativeOf(2);
+~~~~
+
+Note the use of the `::` operator to detach members from object instances. 
+You can do the same using the class instead of the instance
+
+~~~~brush: lense
+    // extract the underlying function
+    val Function<Number,Number> negativeOf = Integer::negative(); // f has a parameter of type Number representing the bounded value of *negative*.
+
+    val Integer alsoMinusOne = negativeOf(one);
+	val Integer minusTwo = negativeOf(2);
+~~~~
+
+# Operators
+
+Lense does not support operator overloading but lets you use operators like ``+`` and ``*`` in your own classes. Each operator is defined in a interface.
+For example , for the ``+`` operator is the ``Summable<A,D,S>`` interface. These special interfaces are called *Operator Interfaces* in the documentation.
+
+Note that this interfaces do not define the result or the parameters must be of the same type. They as generic as you can get.
+
+Another family of interfaces define algebraic structures. These structures enforce other rules (like the types all be the same) and provide properties for the underlying type.
+Algebraic structures help model some more abstract algebra concepts like *Magma*, *Group* , *Ring*  or *Field*. 
+
+The different algebraic structures are the reason not all number types have the same operations. Integer, for example, do not have division, and so cannot for a *Field*.
+
+# Control Flow Statements
+
+Lense control flow is pretty much what you would expect and are a costumed to see in other languages.
+
+## if-then-else
+
+The *if-then-else* decision statement is pretty much the same as in Java , C# and other languages.
+
+~~~~brush: lense
+if (condition){
+   // do somthing
+} else if (otherCondition){
+   // do this other thing
+} else {
+   // do something else.
 }
 ~~~~
 
-This will inform the compiler the values in the class are not ment to change and any tentative to do so will rise a compiler error.
+The ``if`` clause demands a Boolean condition to be evaluated. The condition must be of type boolean. Any other type will throw a compilation error.
+You can chain and nest *if-then-else* as much as you like.
 
-### Property Bags 
-A very common use of a class is to model Property Bag objects. Property Bags are sets of  mutable properties. 
+## while-do 
+
+The *while-do* repetition structure is also pretty much the same as in Java , C# and other languages.
 
 ~~~~brush: lense
-/**An Addres as an example of a property bag**/
-public class Address  {
-
-	public var String street;
-	public var String number;
-	public var String city;
-	public var String zipcode;
-	
+while (condition){
+	// repeat this if condition is true
 }
 ~~~~
 
-Bacause those are public properties we can assign values to them, an read those values back, but because variables need to be inicialized before used
-and all properties are of type ``String`` that inicialization cannot be absent. So that code will not compile. We need to write it like this:
+## for-each
 
+A very common task in object oriented programming is iterating over a collection of elements. Lense provides the *for-each* structure to help in this very common task.
 
 ~~~~brush: lense
-/**An Addres as an example of a propertybag**/
-public class Address  {
-
-	public var String? street;
-	public var String? number;
-	public var String? city;
-	public var String? zipcode;
-	
+for (var element in collection){
+	// repeat this code for each element 
 }
 ~~~~
 
-In the case the value can be absent the compiler will inicialize it like this , automaticly:
+You can use *for-each* with any object that implements the ``Iterable`` interface.
+You can use type of the variable instead of var. If you use ``var`` the type will be infered from the collection signature.
 
 ~~~~brush: lense
-/**An Addres as an example of a propertybag**/
-public class Address  {
-
-	public var String? street = null;
-	public var String? number= null;
-	public var String? city= null;
-	public var String? zipcode= null;
-	
+for (String element in collection){
+	// repeat this code for each element 
 }
 ~~~~
 
-Remember ``null`` is a reserved word that represent ``None.none``.
+Lense does not have the traditional increment base *for* like it exist in Java or C#.
+
+~~~~brush: java
+for (int i = 1; i <= 9  ; i++){  // this exists in Java and C#, not in Lense
+	// repeat for each i
+}
+~~~~
+
+Instead you can use a Progression.
+ 
+~~~~brush: lense
+for (var i in 1..9){
+	// repeat for each i
+}
+~~~~
+
+# Exceptions
+
+Lense supports throwing Exceptions. An Exception is a special object. When an Exception is thrown the execution of the code stops and the method returns.
+You can that catch the exception with a *try-catch-finally* statement.
+
+~~~~brush: lense
+try {
+  // do something that can throw an exception
+  throw new ArithmenticException();
+} catch (ArithmenticException e) {
+  // do something is the exception occurred
+} finally {
+  // do something either if the exception occurred or not.
+}
+~~~~
+
+Lense does not support checked exception like Java does. 
+
+# Classes
+
+# Generics
+
+# Modules and visibility
+
+# Parallelism and Concurrency 
+
+# Reflection
+
+# Comments
+
+
+

@@ -7,11 +7,11 @@ import java.util.List;
 public class TacInstructionList implements Iterable<TacInstruction> {
 
 	List<TacInstruction> list = new ArrayList<>();
-	
+
 	public void add(TacInstruction instruction){
 		list.add(instruction);
 	}
-	
+
 	public String toString(){
 		StringBuilder builder = new StringBuilder();
 		
@@ -38,4 +38,6 @@ public class TacInstructionList implements Iterable<TacInstruction> {
 	public Iterator<TacInstruction> iterator() {
 		return list.iterator();
 	}
+
+
 }

@@ -46,7 +46,7 @@ import lense.compiler.ast.MethodInvocationNode;
 import lense.compiler.ast.NumericValue;
 import lense.compiler.ast.ParametersListNode;
 import lense.compiler.ast.PosExpression;
-import lense.compiler.ast.PosUnaryExpression;
+import lense.compiler.ast.PreBooleanUnaryExpression;
 import lense.compiler.ast.QualifiedNameNode;
 import lense.compiler.ast.RangeNode;
 import lense.compiler.ast.ReturnNode;
@@ -404,8 +404,12 @@ public class SemanticVisitor implements Visitor<AstNode> {
 			}
 		} else if (node instanceof PosExpression) {
 			PosExpression p = (PosExpression) node;
-
+			
+			// TODO validate the operator is available for the type
 			// TODO other pos operators and PosUni
+			
+			
+			
 			if (p.getOperation().equals(ArithmeticOperation.Subtraction)) {
 
 				final TypeDefinition type = ((TypedNode) p.getChildren().get(0))
@@ -420,27 +424,29 @@ public class SemanticVisitor implements Visitor<AstNode> {
 									+ type);
 				} 
 
-				// invoke the method
-				MethodInvocationNode method = new MethodInvocationNode( node.getChildren().get(0) , "negative" );
-
-				method.setTypeDefinition(list.get().getReturningType().getUpperbound());
-
-				node.getParent().replace(node, method);
+//				// invoke the method
+//				MethodInvocationNode method = new MethodInvocationNode( node.getChildren().get(0) , "negative" );
+//
+//				method.setTypeDefinition(list.get().getReturningType().getUpperbound());
+//
+//				node.getParent().replace(node, method);
 			} else if (p.getOperation().equals(ArithmeticOperation.Addition)) {
 				// nothing , only remove the pos expression from the node tree
-				node.getParent().replace(node, node.getChildren().get(0));
-			}
+//				/node.getParent().replace(node, node.getChildren().get(0));
+			} 
 
-		}  else if (node instanceof PosUnaryExpression) {
-			PosUnaryExpression p = (PosUnaryExpression) node;
+		}  else if (node instanceof PreBooleanUnaryExpression) {
+			PreBooleanUnaryExpression p = (PreBooleanUnaryExpression) node;
 
 			final TypeDefinition type = ((TypedNode) p.getChildren().get(0)).getTypeDefinition();
 
 			String methodName;
-			if (p.getOperation().equals(BooleanOperation.LogicNegate)) {
-				methodName = "negate";
-			} else if (p.getOperation().equals(BooleanOperation.BitNegate)){
-				methodName = "flipAll";
+			if (p.getOperation().equals(BooleanOperation.BitNegate)){
+				if (LenseTypeSystem.Boolean().equals(type)){
+					methodName = "flipAll";
+				} else {
+					throw new CompilationError(node,"Operator ! can only be applied to Boolean instances.");
+				}
 			} else if (p.getOperation().equals(BooleanOperation.LogicNegate)){
 				if (LenseTypeSystem.Boolean().equals(type)){
 					methodName = "negate";

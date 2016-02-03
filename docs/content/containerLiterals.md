@@ -13,23 +13,24 @@ Lense recognizes literals for ``Sequence``s, ``Association``s and ``Tuple``s. As
 
 In C-familly languages an array is a fundamental type and can be created literally using curly brackets *{* and *}*, but in more mathematical oriented languages such as Fortran an Julia common brackets are used. 
 
-~~~~brush: java
-var int[] array = new int[]{1, 2, 3};
+~~~~brush: java 
+// an example in Java
+int[] array = new int[]{1, 2, 3};
 ~~~~
 
 On a closer look we can understand the C-family languages syntax like Java or C# as not having array literals *per se*, but initializers applied to arrays. So the syntax ``{1 ,2 , 3}`` does not denote an array, but an initializer. Initializers do not have type and they are intrinsically understood by the compiler.
 
-What's happening in that java code is that an array is being constructed with ``new int[]`` and then initialized with the values 1, 2 and 3. The JVM will translate this two operations as a single operation, but conceptually there is a difference.
+What's happening in that java code is that an array is being constructed with ``new int[]`` and then initialized with the values 1, 2 and 3. The JVM will translate this two operations as a single operation, but 
+conceptually there is a difference.
 
 In C# the same concept is used to initialize both arrays and lists 
 
 ~~~~brush: c#
-var int[] array = new int[]{1, 2, 3};
-var List<int> list = new List(){1, 2, 3};
+int[] array = new int[]{1, 2, 3};
+List<int> list = new List(){1, 2, 3};
 ~~~~
 
-In Lense the type of the container is fixed by the syntax and a [conversion constructor](constructors.html#conversion) is used to copy the values to another type if needed. So no constructor is called. A runtime object is created that depends on the underlying VM. The type inside the container is inferred from the declared value types.
-
+In Lense the type of the container is fixed by the syntax and a [conversion constructor](constructors.html#conversion) is used to copy the values to another type if need be. So no constructor is called. A runtime object is created that depends on the underlying platform. The type inside the container is inferred from the declared value types.
 
 Lense uses common brackets to represent ``Sequence`` literals. Keep in mind arrays are not fundamental types in Lense, sequences are.An array is a special (mutable) sub type of sequence.
 
@@ -38,7 +39,7 @@ var Sequence<Natural> sequence = [1, 2, 3];
 var Array<Natural> array = [1, 2, 3];
 ~~~~
 
-The first line creates a sequence of elements 1, 2 and 3. The second line creates an array of the elements 1, 2 and 3 by first creating a sequence and them promoting it to an Array. In practice the compiler is free to optimize these constructions and not really call the conversion constructor on ``Array<T>``.
+The first line creates a sequence of elements 1, 2 and 3. The second line creates an array of the elements 1, 2 and 3 by first creating a sequence and them promoting it to an Array by calling its [conversion constructor](constructors.html#conversion). In practice the compiler is free to optimize these literal constructions and not really call the conversion constructor on ``Array<T>``.
 
 ## Sets 
 
@@ -117,7 +118,7 @@ var Matrix<Natural> matrix = [
 
 The support for matrixes is still under consideration and may not be implemented. 
 
-## Records
+## Records (Under Consideration)
 
 Records are a special object that represents a non typed property bag. Records are not currently implemented.
 A possible syntax would be similar to an association, but using = instead of ":". The difference is that on an association both sides of the ":" can be variables,
@@ -133,7 +134,7 @@ var Record address = {
 
 ~~~~
 
-Records are a fundamental type in Lense and can be used to initialize other types like so
+This syntax takes us full circle to the initializer concept discussed at the beginning. We can now use records to initialize other types like so:
 
 ~~~~brush: lense
 var Address address = new Address {
@@ -148,15 +149,32 @@ var Address address = new Address {
 This a combination of a call to the [primary constructor](constructors.html) and a initialization of each property referred in the record literal. This is not a conversion but syntax sugar for:
 
 ~~~~brush: lense
+var Record tempRecord = {
+	Street = "Baker Street",
+	Number = "221B",
+	City = "London",
+	Country = "England"
+}
+
 var Address address = new Address();
 
-address.Street = "Baker Street",
-address.Number = "221B",
-address.City = "London",
-address.Country = "England"
-
+address.Street = tempRecord.Street;
+address.Number = tempRecord.Number;
+address.City = tempRecord.City;
+address.Country = tempRecord.Country;
 ~~~~
 
-This feature is similar to the initialization syntax in C# even thought in Lense we are using the conjunction of two concepts : constructors and records.
+That is optimized to:
+
+~~~~brush: lense
+var Address address = new Address();
+
+address.Street = "Baker Street";
+address.Number = "221B";
+address.City = "London";
+address.Country = "England";
+~~~~
+
+This feature is similar to the initialization syntax in C# even thought in Lense we would be using the conjunction of two concepts : constructors and record literals.
 
   
