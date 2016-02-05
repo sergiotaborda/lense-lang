@@ -9,9 +9,9 @@ package lense.compiler.ast;
 /**
  * 
  */
-public class NativeArrayInstanceCreation extends ClassInstanceCreation{
+public class LiteralSequenceInstanceCreation extends ClassInstanceCreationNode implements LiteralCreation{
 
-	public NativeArrayInstanceCreation (ArgumentListNode list){
+	public LiteralSequenceInstanceCreation (ArgumentListNode list){
 		TypeNode t = new TypeNode(new QualifiedNameNode("lense.core.collections.Sequence"));
 		setTypeNode(t);
 		setArguments(list);

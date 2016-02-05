@@ -103,11 +103,11 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode>  {
 			} else if (node instanceof TernaryConditionalExpressionNode){	
 				TernaryConditionalExpressionNode t = (TernaryConditionalExpressionNode)node;
 				writer.print("(");
-				TreeTransverser.tranverse(t.getCondition(), new JavaSourceWriterVisitor(writer));
+				TreeTransverser.transverse(t.getCondition(), new JavaSourceWriterVisitor(writer));
 				writer.print(") ? (");
-				TreeTransverser.tranverse(t.getThenExpression(), new JavaSourceWriterVisitor(writer));
+				TreeTransverser.transverse(t.getThenExpression(), new JavaSourceWriterVisitor(writer));
 				writer.print(") : (");
-				TreeTransverser.tranverse(t.getElseExpression(), new JavaSourceWriterVisitor(writer));
+				TreeTransverser.transverse(t.getElseExpression(), new JavaSourceWriterVisitor(writer));
 				writer.print(")");
 				return VisitorNext.Siblings;
 			} else if (node instanceof ClassType){
@@ -153,7 +153,7 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode>  {
 				}
 
 				writer.println("{");
-				TreeTransverser.tranverse(t.getBody(), new JavaSourceWriterVisitor(writer));
+				TreeTransverser.transverse(t.getBody(), new JavaSourceWriterVisitor(writer));
 				writer.println();
 				writer.println("}");
 
@@ -165,11 +165,11 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode>  {
 
 				if (t.getResource() != null){
 					writer.print("(");
-					TreeTransverser.tranverse(t.getResource(), new JavaSourceWriterVisitor(writer));
+					TreeTransverser.transverse(t.getResource(), new JavaSourceWriterVisitor(writer));
 					writer.print(")");
 				}
 
-				TreeTransverser.tranverse(t.getInstructions(), new JavaSourceWriterVisitor(writer));
+				TreeTransverser.transverse(t.getInstructions(), new JavaSourceWriterVisitor(writer));
 
 				if (t.getCatchOptions() != null){
 					for (AstNode a : t.getCatchOptions().getChildren()){
@@ -177,11 +177,11 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode>  {
 
 						writer.print(" catch (");
 
-						TreeTransverser.tranverse(c.getExceptions(), new JavaSourceWriterVisitor(writer));
+						TreeTransverser.transverse(c.getExceptions(), new JavaSourceWriterVisitor(writer));
 
 						writer.println(")");
 
-						TreeTransverser.tranverse(c.getInstructions(), new JavaSourceWriterVisitor(writer));
+						TreeTransverser.transverse(c.getInstructions(), new JavaSourceWriterVisitor(writer));
 
 						writer.println();
 					}
@@ -189,7 +189,7 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode>  {
 
 				if (t.getfinalInstructions() != null){
 					writer.print(" finally ");
-					TreeTransverser.tranverse(t.getfinalInstructions(), new JavaSourceWriterVisitor(writer));
+					TreeTransverser.transverse(t.getfinalInstructions(), new JavaSourceWriterVisitor(writer));
 				
 				}
 
@@ -211,10 +211,10 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode>  {
 				visitBeforeChildren(f.getVariableDeclarationNode());
 				writer.print(" : ");
 
-				TreeTransverser.tranverse(f.getContainer(), new JavaSourceWriterVisitor(writer));
+				TreeTransverser.transverse(f.getContainer(), new JavaSourceWriterVisitor(writer));
 				writer.println(")");
 
-				TreeTransverser.tranverse(f.getStatements(), new JavaSourceWriterVisitor(writer));
+				TreeTransverser.transverse(f.getStatements(), new JavaSourceWriterVisitor(writer));
 
 				return VisitorNext.Siblings;
 			}  else if (node instanceof ForNode ){
@@ -236,7 +236,7 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode>  {
 				//TreeTransverser.tranverse(f.getContainer(), new JavaSourceWriterVisitor(writer));
 				writer.println(")");
 
-				TreeTransverser.tranverse(f.getStatements(), new JavaSourceWriterVisitor(writer));
+				TreeTransverser.transverse(f.getStatements(), new JavaSourceWriterVisitor(writer));
 
 				return VisitorNext.Siblings;
 			} else if (node instanceof WhileNode ){
@@ -245,11 +245,11 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode>  {
 				writer.println();
 				writer.print(" while (");
 				
-				TreeTransverser.tranverse(f.getCondition(), new JavaSourceWriterVisitor(writer));
+				TreeTransverser.transverse(f.getCondition(), new JavaSourceWriterVisitor(writer));
 				
 				writer.println(")");
 
-				TreeTransverser.tranverse(f.getStatements(), new JavaSourceWriterVisitor(writer));
+				TreeTransverser.transverse(f.getStatements(), new JavaSourceWriterVisitor(writer));
 
 				return VisitorNext.Siblings;
 			} else if (node instanceof SwitchNode ){
@@ -257,7 +257,7 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode>  {
 
 				writer.println();
 				writer.print(" switch (");
-				TreeTransverser.tranverse(n.getCandidate(), new JavaSourceWriterVisitor(writer));
+				TreeTransverser.transverse(n.getCandidate(), new JavaSourceWriterVisitor(writer));
 				writer.println(") { ");
 
 				for (AstNode a : n.getOptions().getChildren()){
@@ -266,11 +266,11 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode>  {
 						writer.print(" default");
 					} else {
 						writer.print(" case ");
-						TreeTransverser.tranverse(op.getValue(), new JavaSourceWriterVisitor(writer));
+						TreeTransverser.transverse(op.getValue(), new JavaSourceWriterVisitor(writer));
 						writer.println(":");
 					}
 	
-					TreeTransverser.tranverse(op.getActions(), new JavaSourceWriterVisitor(writer));
+					TreeTransverser.transverse(op.getActions(), new JavaSourceWriterVisitor(writer));
 					writer.println("break;");
 				}
 			
@@ -282,16 +282,16 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode>  {
 
 				if (n.getCondition() != null){
 					writer.print("if (");	
-					TreeTransverser.tranverse(n.getCondition(), new JavaSourceWriterVisitor(writer));	
+					TreeTransverser.transverse(n.getCondition(), new JavaSourceWriterVisitor(writer));	
 					writer.println(")");
 
 				}
 			
-				TreeTransverser.tranverse(n.getTrueBlock(), new JavaSourceWriterVisitor(writer));
+				TreeTransverser.transverse(n.getTrueBlock(), new JavaSourceWriterVisitor(writer));
 
 				if (n.getFalseBlock() != null){
 					writer.print(" else ");
-					TreeTransverser.tranverse(n.getFalseBlock(), new JavaSourceWriterVisitor(writer));
+					TreeTransverser.transverse(n.getFalseBlock(), new JavaSourceWriterVisitor(writer));
 
 				}
 				return VisitorNext.Siblings;
@@ -303,14 +303,14 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode>  {
 				MethodInvocationNode n = (MethodInvocationNode)node;
 
 				if (n.getAccess() != null){
-					TreeTransverser.tranverse(n.getAccess(), new JavaSourceWriterVisitor(writer));
+					TreeTransverser.transverse(n.getAccess(), new JavaSourceWriterVisitor(writer));
 					writer.print(".");
 				}
 				
 				writer.print(n.getCall().getName());
 				writer.print("(");
 				if (n.getCall().getArgumentListNode()!= null){
-					TreeTransverser.tranverse(n.getCall().getArgumentListNode(), new JavaSourceWriterVisitor(writer));
+					TreeTransverser.transverse(n.getCall().getArgumentListNode(), new JavaSourceWriterVisitor(writer));
 				}
 			
 				writer.print(")");
@@ -323,9 +323,9 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode>  {
 			} else if (node instanceof AssignmentNode){
 				AssignmentNode n = (AssignmentNode)node;
 				
-				TreeTransverser.tranverse((AstNode)n.getLeft(), new JavaSourceWriterVisitor(writer));
+				TreeTransverser.transverse((AstNode)n.getLeft(), new JavaSourceWriterVisitor(writer));
 				writer.print(" = ");
-				TreeTransverser.tranverse(n.getRight(), new JavaSourceWriterVisitor(writer));
+				TreeTransverser.transverse(n.getRight(), new JavaSourceWriterVisitor(writer));
 				writer.println(";");
 				
 				return VisitorNext.Siblings;
@@ -339,7 +339,7 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode>  {
 					writer.print(n.getTypeDefinition().getName());
 				}
 				writer.print(" (");
-				TreeTransverser.tranverse(n.getArguments(), new JavaSourceWriterVisitor(writer));
+				TreeTransverser.transverse(n.getArguments(), new JavaSourceWriterVisitor(writer));
 				writer.print(")");
 
 				return VisitorNext.Siblings;
@@ -348,7 +348,7 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode>  {
 				
 				for(AstNode n : node.getChildren()){
 					writer.print(".append(");
-					TreeTransverser.tranverse(n, new JavaSourceWriterVisitor(writer));
+					TreeTransverser.transverse(n, new JavaSourceWriterVisitor(writer));
 					writer.print(")");
 				}
 				
@@ -363,7 +363,7 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode>  {
 					} else {
 						first = false;
 					}
-					TreeTransverser.tranverse(a, new JavaSourceWriterVisitor(writer));
+					TreeTransverser.transverse(a, new JavaSourceWriterVisitor(writer));
 				
 				}
 		
@@ -407,7 +407,7 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode>  {
 				
 				if (t.getInitializer() != null){
 					writer.print(" = ");
-					TreeTransverser.tranverse(t.getInitializer(), new JavaSourceWriterVisitor(writer));
+					TreeTransverser.transverse(t.getInitializer(), new JavaSourceWriterVisitor(writer));
 				}
 
 				if (t.getInfo() !=null){
@@ -465,26 +465,26 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode>  {
 			}  else if (node instanceof ArithmeticNode ){
 				ArithmeticNode n = (ArithmeticNode)node;
 
-				TreeTransverser.tranverse(n.getLeft(), new JavaSourceWriterVisitor(writer));
+				TreeTransverser.transverse(n.getLeft(), new JavaSourceWriterVisitor(writer));
 
 				writer.print(" ");
 				writer.print(n.getOperation().symbol());
 				writer.print(" ");
 
-				TreeTransverser.tranverse(n.getRight(), new JavaSourceWriterVisitor(writer));
+				TreeTransverser.transverse(n.getRight(), new JavaSourceWriterVisitor(writer));
 
 				
 				return VisitorNext.Siblings;
 			} else if (node instanceof BooleanOperatorNode ){
 				BooleanOperatorNode n = (BooleanOperatorNode)node;
 
-				TreeTransverser.tranverse(n.getLeft(), new JavaSourceWriterVisitor(writer));
+				TreeTransverser.transverse(n.getLeft(), new JavaSourceWriterVisitor(writer));
 
 				writer.print(" ");
 				writer.print(n.getOperation().symbol());
 				writer.print(" ");
 
-				TreeTransverser.tranverse(n.getRight(), new JavaSourceWriterVisitor(writer));
+				TreeTransverser.transverse(n.getRight(), new JavaSourceWriterVisitor(writer));
 				
 				
 				return VisitorNext.Siblings;
@@ -493,30 +493,30 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode>  {
 
 				
 				if (n.getOperation() == Operation.EqualTo){
-					TreeTransverser.tranverse(n.getLeft(), new JavaSourceWriterVisitor(writer));
+					TreeTransverser.transverse(n.getLeft(), new JavaSourceWriterVisitor(writer));
 					writer.print(".equals(");
-					TreeTransverser.tranverse(n.getRight(), new JavaSourceWriterVisitor(writer));
+					TreeTransverser.transverse(n.getRight(), new JavaSourceWriterVisitor(writer));
 					writer.print(")");
 				} else if (n.getOperation() == Operation.Different){
 					writer.print("!");
-					TreeTransverser.tranverse(n.getLeft(), new JavaSourceWriterVisitor(writer));
+					TreeTransverser.transverse(n.getLeft(), new JavaSourceWriterVisitor(writer));
 					writer.print(".equals(");
-					TreeTransverser.tranverse(n.getRight(), new JavaSourceWriterVisitor(writer));
+					TreeTransverser.transverse(n.getRight(), new JavaSourceWriterVisitor(writer));
 					writer.print(")");
 				} else if (n.getOperation() == Operation.ReferenceEquals){
-					TreeTransverser.tranverse(n.getLeft(), new JavaSourceWriterVisitor(writer));
+					TreeTransverser.transverse(n.getLeft(), new JavaSourceWriterVisitor(writer));
 					writer.print(" == ");
-					TreeTransverser.tranverse(n.getRight(), new JavaSourceWriterVisitor(writer));
+					TreeTransverser.transverse(n.getRight(), new JavaSourceWriterVisitor(writer));
 				} else if (n.getOperation() == Operation.ReferenceDifferent){
-					TreeTransverser.tranverse(n.getLeft(), new JavaSourceWriterVisitor(writer));
+					TreeTransverser.transverse(n.getLeft(), new JavaSourceWriterVisitor(writer));
 					writer.print(" != ");
-					TreeTransverser.tranverse(n.getRight(), new JavaSourceWriterVisitor(writer));
+					TreeTransverser.transverse(n.getRight(), new JavaSourceWriterVisitor(writer));
 				}else {
-					TreeTransverser.tranverse(n.getLeft(), new JavaSourceWriterVisitor(writer));
+					TreeTransverser.transverse(n.getLeft(), new JavaSourceWriterVisitor(writer));
 					writer.print(" ");
 					writer.print(n.getOperation().symbol());
 					writer.print(" ");
-					TreeTransverser.tranverse(n.getRight(), new JavaSourceWriterVisitor(writer));
+					TreeTransverser.transverse(n.getRight(), new JavaSourceWriterVisitor(writer));
 				}
 					
 				
@@ -532,9 +532,9 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode>  {
 			}else if (node instanceof IndexedAccessNode ){
 				IndexedAccessNode n = (IndexedAccessNode)node;
 				
-				TreeTransverser.tranverse(n.getAccess(), new JavaSourceWriterVisitor(writer));
+				TreeTransverser.transverse(n.getAccess(), new JavaSourceWriterVisitor(writer));
 				writer.print("[");
-				TreeTransverser.tranverse(n.getIndexExpression(), new JavaSourceWriterVisitor(writer));
+				TreeTransverser.transverse(n.getIndexExpression(), new JavaSourceWriterVisitor(writer));
 				writer.print("]");
 			} else if (node instanceof MethodDeclarationNode ){
 			
@@ -559,7 +559,7 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode>  {
 					if (m.getReturnType().getTypeDefinition().getName().equals(LenseTypeSystem.Void().getName())){
 						writer.print("void");
 					} else {
-						TreeTransverser.tranverse(m.getReturnType(), new JavaSourceWriterVisitor(writer));
+						TreeTransverser.transverse(m.getReturnType(), new JavaSourceWriterVisitor(writer));
 					}
 				}
 				
@@ -581,7 +581,7 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode>  {
 							writer.print(", ");
 						}
 
-						TreeTransverser.tranverse(p.getTypeNode(), new JavaSourceWriterVisitor(writer));
+						TreeTransverser.transverse(p.getTypeNode(), new JavaSourceWriterVisitor(writer));
 
 						writer.print(" ");
 						writer.print(p.getName());
@@ -592,7 +592,7 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode>  {
 				}
 
 				writer.print(")");
-				TreeTransverser.tranverse(m.getBlock(), new JavaSourceWriterVisitor(writer));
+				TreeTransverser.transverse(m.getBlock(), new JavaSourceWriterVisitor(writer));
 
 				return VisitorNext.Siblings;
 			} else if (node instanceof ParametersListNode){
@@ -608,7 +608,7 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode>  {
 
 				if (m.getInitializer() != null){
 					writer.print(" = ");
-					TreeTransverser.tranverse(m.getInitializer(), new JavaSourceWriterVisitor(writer));	
+					TreeTransverser.transverse(m.getInitializer(), new JavaSourceWriterVisitor(writer));	
 				}
 				writer.print(";");
 				return VisitorNext.Siblings;

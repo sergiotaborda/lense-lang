@@ -12,7 +12,7 @@ import lense.compiler.ast.SwitchOptions;
 /**
  * 
  */
-public class SwitchNode extends LenseAstNode {
+public class SwitchNode extends StatementNode {
 
 	private ExpressionNode candidate;
 	private SwitchOptions switchOptions;

@@ -7,7 +7,7 @@ import compiler.trees.Visitor;
 import lense.compiler.ast.ArithmeticNode;
 import lense.compiler.ast.AssignmentNode;
 import lense.compiler.ast.BooleanValue;
-import lense.compiler.ast.ClassInstanceCreation;
+import lense.compiler.ast.ClassInstanceCreationNode;
 import lense.compiler.ast.ExpressionNode;
 import lense.compiler.ast.FieldOrPropertyAccessNode;
 import lense.compiler.ast.LiteralExpressionNode;
@@ -72,8 +72,8 @@ public class LiteralsInstanciatorVisitor implements Visitor<AstNode> {
 		if (node instanceof LiteralExpressionNode){
 			AstNode newnode = transformeLiteral((LiteralExpressionNode) node);
 			
-			if (node.getParent().getParent() instanceof ClassInstanceCreation){
-				ClassInstanceCreation c = (ClassInstanceCreation)node.getParent().getParent();
+			if (node.getParent().getParent() instanceof ClassInstanceCreationNode){
+				ClassInstanceCreationNode c = (ClassInstanceCreationNode)node.getParent().getParent();
 				if (c.getTypeDefinition().equals(LenseTypeSystem.String())){
 					return;
 				}
@@ -115,10 +115,10 @@ public class LiteralsInstanciatorVisitor implements Visitor<AstNode> {
 			n.setTypeDefinition(LenseTypeSystem.None());
 			return n;
 		} else if (literal instanceof NumericValue){
-			return new ClassInstanceCreation(literal.getTypeDefinition(), 
-					new ClassInstanceCreation(LenseTypeSystem.String(), new StringValue(literal.getLiteralValue())));
+			return new ClassInstanceCreationNode(literal.getTypeDefinition(), 
+					new ClassInstanceCreationNode(LenseTypeSystem.String(), new StringValue(literal.getLiteralValue())));
 		} else {
-			return new ClassInstanceCreation(literal.getTypeDefinition(), new StringValue(literal.getLiteralValue()));
+			return new ClassInstanceCreationNode(literal.getTypeDefinition(), new StringValue(literal.getLiteralValue()));
 		}
 	}
 

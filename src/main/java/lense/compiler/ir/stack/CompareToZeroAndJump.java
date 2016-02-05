@@ -1,12 +1,12 @@
 package lense.compiler.ir.stack;
 
-import lense.compiler.ir.InstructionType;
+import compiler.typesystem.TypeDefinition;
 
 public class CompareToZeroAndJump extends StackInstruction {
 
 	private ComparisonOperation operation;
 
-	public CompareToZeroAndJump(ComparisonOperation operation, InstructionType type){
+	public CompareToZeroAndJump(ComparisonOperation operation, TypeDefinition type){
 		this.operation = operation;
 	}
 }

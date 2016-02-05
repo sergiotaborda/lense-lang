@@ -83,7 +83,7 @@ public class NameResolutionPhase implements CompilerPhase {
 					}
 				}
 		
-				TreeTransverser.tranverse(ct,new NameResolutionVisitor(ct));
+				TreeTransverser.transverse(ct,new NameResolutionVisitor(ct));
 
 				for(Iterator<Import> it = ct.imports().iterator(); it.hasNext();){
 					Import imp = it.next();

@@ -1,7 +1,8 @@
 package lense.compiler.ir;
 
-import lense.compiler.ir.java.TacInstructionsVisitor;
-
+import lense.compiler.ast.ClassTypeNode;
+import lense.compiler.ast.UnitTypes;
+import lense.compiler.ir.tac.TacInstructionsVisitor;
 import compiler.CompiledUnit;
 import compiler.CompilerBackEnd;
 import compiler.trees.TreeTransverser;
@@ -11,7 +12,10 @@ public class OutToIR implements CompilerBackEnd {
 	@Override
 	public void use(CompiledUnit unit) {
 
-		TreeTransverser.tranverse(unit.getAstRootNode(), new TacInstructionsVisitor());
+		for (ClassTypeNode ct : ((UnitTypes)unit.getAstRootNode()).getTypes()){
+			TreeTransverser.transverse(unit.getAstRootNode(), new TacInstructionsVisitor(ct.getSemanticContext(), ct.getTypeDefinition()));
+		}
+		
 	}
 
 }

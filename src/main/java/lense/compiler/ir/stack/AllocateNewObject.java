@@ -1,13 +1,13 @@
 package lense.compiler.ir.stack;
 
-import lense.compiler.ir.InstructionType;
+import compiler.typesystem.TypeDefinition;
 
 public class AllocateNewObject extends StackInstruction {
 
 	
-	private InstructionType typeToCreate;
+	private TypeDefinition typeToCreate;
 
-	public AllocateNewObject (InstructionType type){
+	public AllocateNewObject (TypeDefinition type){
 		this.typeToCreate = type;
 	}
 }

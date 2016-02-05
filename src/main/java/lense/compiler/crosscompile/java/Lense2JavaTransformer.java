@@ -23,8 +23,8 @@ import lense.compiler.ast.LambdaExpressionNode;
 import lense.compiler.ast.LenseAstNode;
 import lense.compiler.ast.LiteralTupleInstanceCreation;
 import lense.compiler.ast.ModuleNode;
-import lense.compiler.ast.NativeArrayInstanceCreation;
-import lense.compiler.ast.NativeAssociationInstanceCreation;
+import lense.compiler.ast.LiteralSequenceInstanceCreation;
+import lense.compiler.ast.LiteralAssociationInstanceCreation;
 import lense.compiler.ast.NumericValue;
 import lense.compiler.ast.RangeNode;
 import lense.compiler.ast.TypeParametersListNode;
@@ -151,16 +151,16 @@ public class Lense2JavaTransformer implements Function<AstNode, AstNode> {
 			
 			return jtype;
 			
-		} else if (snode instanceof NativeArrayInstanceCreation){
-			NativeArrayInstanceCreation array = ((NativeArrayInstanceCreation) snode);
+		} else if (snode instanceof LiteralSequenceInstanceCreation){
+			LiteralSequenceInstanceCreation array = ((LiteralSequenceInstanceCreation) snode);
 			
 			ClassInstanceCreation ints = new ClassInstanceCreation();
 
 			ints.setArguments( (ArgumentListNode) TreeTransverser.transform(array.getArguments(), this));
 			ints.setTypeNode(new TypeNode("lense.core.collections.JavaNativeImutableSequence"));
 			return ints;
-		}else if (snode instanceof NativeAssociationInstanceCreation){
-			NativeAssociationInstanceCreation array = ((NativeAssociationInstanceCreation) snode);
+		}else if (snode instanceof LiteralAssociationInstanceCreation){
+			LiteralAssociationInstanceCreation array = ((LiteralAssociationInstanceCreation) snode);
 			
 			ClassInstanceCreation ints = new ClassInstanceCreation();
 

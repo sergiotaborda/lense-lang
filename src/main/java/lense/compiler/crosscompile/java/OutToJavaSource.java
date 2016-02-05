@@ -72,7 +72,7 @@ public class OutToJavaSource implements CompilerBackEnd {
 		}
 
 		try(PrintWriter writer = new PrintWriter(new FileWriter(compiled))){
-			TreeTransverser.tranverse(javaRoot, new JavaSourceWriterVisitor(writer));
+			TreeTransverser.transverse(javaRoot, new JavaSourceWriterVisitor(writer));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

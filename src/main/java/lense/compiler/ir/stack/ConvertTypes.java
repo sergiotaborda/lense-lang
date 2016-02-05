@@ -1,14 +1,14 @@
 package lense.compiler.ir.stack;
 
-import lense.compiler.ir.InstructionType;
+import compiler.typesystem.TypeDefinition;
 
 public class ConvertTypes extends StackInstruction {
 
 	
-	private InstructionType original;
-	private InstructionType target;
+	private TypeDefinition original;
+	private TypeDefinition target;
 
-	public ConvertTypes(InstructionType original, InstructionType target ){
+	public ConvertTypes(TypeDefinition original, TypeDefinition target ){
 		this.original = original;
 		this.target = target;
 	}

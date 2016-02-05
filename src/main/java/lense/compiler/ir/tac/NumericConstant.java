@@ -1,14 +1,14 @@
 package lense.compiler.ir.tac;
 
-import lense.compiler.ir.InstructionType;
+import compiler.typesystem.TypeDefinition;
 
 public class NumericConstant implements Operand {
 
 	
-	private InstructionType type;
+	private TypeDefinition type;
 	private Number number;
 
-	public NumericConstant(Number n, InstructionType type ){
+	public NumericConstant(Number n, TypeDefinition type ){
 		this.number = n;
 		this.type = type;
 	}
@@ -30,11 +30,15 @@ public class NumericConstant implements Operand {
 		return false;
 	}
 
-	public InstructionType getType() {
+	public TypeDefinition getType() {
 		return type;
 	}
 
 	public Number getValue() {
 		return number;
+	}
+	@Override
+	public boolean isInstruction() {
+		return false;
 	}
 }

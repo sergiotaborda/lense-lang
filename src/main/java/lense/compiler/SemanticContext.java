@@ -66,15 +66,15 @@ public class SemanticContext {
 
 	/**
 	 * @param name
-	 * @param size
+	 * @param genericParametersCount
 	 * @return
 	 */
-	public TypeDefinition typeForName(String name, int size) {
+	public TypeDefinition typeForName(String name, int genericParametersCount) {
 	
-		Optional<TypeDefinition> type = resolveTypeForName(name, size);
+		Optional<TypeDefinition> type = resolveTypeForName(name, genericParametersCount);
 		
 		if (!type.isPresent()){
-			throw new TypeNotFoundException(name + "'" + size +" is not a recognized type");
+			throw new TypeNotFoundException(name + "'" + genericParametersCount +" is not a recognized type");
 		}
 		
 		return type.get();
