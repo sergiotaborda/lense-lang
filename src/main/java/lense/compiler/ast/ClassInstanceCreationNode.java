@@ -9,26 +9,26 @@ import compiler.typesystem.TypeDefinition;
 /**
  * 
  */
-public class ClassInstanceCreation extends ExpressionNode{
+public class ClassInstanceCreationNode extends ExpressionNode{
 
 	private TypeNode typeNode;
 	private ArgumentListNode argumentList;
 
-	public ClassInstanceCreation (){}
+	public ClassInstanceCreationNode (){}
 	
-	public ClassInstanceCreation (TypeDefinition type, ArgumentListNode list){
+	public ClassInstanceCreationNode (TypeDefinition type, ArgumentListNode list){
 		TypeNode t = new TypeNode(type);
 		setTypeNode(t);
 		setArguments(list);
 	}
 	
-	public ClassInstanceCreation (String typeName, ArgumentListNode list){
+	public ClassInstanceCreationNode (String typeName, ArgumentListNode list){
 		TypeNode t = new TypeNode(new QualifiedNameNode(typeName));
 		setTypeNode(t);
 		setArguments(list);
 	}
 	
-	public ClassInstanceCreation (TypeDefinition type, AstNode ... args){
+	public ClassInstanceCreationNode (TypeDefinition type, AstNode ... args){
 		TypeNode t = new TypeNode(type);
 		setTypeNode(t);
 
@@ -41,7 +41,7 @@ public class ClassInstanceCreation extends ExpressionNode{
 		setArguments(list);
 	}
 	
-	public ClassInstanceCreation (String typeName, AstNode ... args){
+	public ClassInstanceCreationNode (String typeName, AstNode ... args){
 		TypeNode t = new TypeNode(new QualifiedNameNode(typeName));
 		setTypeNode(t);
 
@@ -54,7 +54,7 @@ public class ClassInstanceCreation extends ExpressionNode{
 		setArguments(list);
 	}
 	
-	public ClassInstanceCreation (TypeNode t, AstNode ... args){
+	public ClassInstanceCreationNode (TypeNode t, AstNode ... args){
 		setTypeNode(t);
 
 		ArgumentListNode list = new ArgumentListNode();

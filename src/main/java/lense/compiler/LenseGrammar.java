@@ -21,7 +21,7 @@ import lense.compiler.ast.BreakNode;
 import lense.compiler.ast.CatchOptionNode;
 import lense.compiler.ast.CatchOptionsNode;
 import lense.compiler.ast.ClassBodyNode;
-import lense.compiler.ast.ClassInstanceCreation;
+import lense.compiler.ast.ClassInstanceCreationNode;
 import lense.compiler.ast.ClassTypeNode;
 import lense.compiler.ast.ComparisonNode;
 import lense.compiler.ast.ContinueNode;
@@ -47,8 +47,8 @@ import lense.compiler.ast.ModuleExportNode;
 import lense.compiler.ast.ModuleImportNode;
 import lense.compiler.ast.ModuleMembersNode;
 import lense.compiler.ast.ModuleNode;
-import lense.compiler.ast.NativeArrayInstanceCreation;
-import lense.compiler.ast.NativeAssociationInstanceCreation;
+import lense.compiler.ast.LiteralSequenceInstanceCreation;
+import lense.compiler.ast.LiteralAssociationInstanceCreation;
 import lense.compiler.ast.NullValue;
 import lense.compiler.ast.NumericValue;
 import lense.compiler.ast.ParametersListNode;
@@ -1114,7 +1114,7 @@ public class LenseGrammar extends AbstractLenseGrammar{
 		});
 
 		getNonTerminal("arrayInitializer").addSemanticAction( (p, r) -> {
-			NativeArrayInstanceCreation arrayNode = new NativeArrayInstanceCreation( r.get(1).getAstNode(ArgumentListNode.class).get());
+			LiteralSequenceInstanceCreation arrayNode = new LiteralSequenceInstanceCreation( r.get(1).getAstNode(ArgumentListNode.class).get());
 			p.setAstNode(arrayNode);
 		});
 
@@ -1201,7 +1201,7 @@ public class LenseGrammar extends AbstractLenseGrammar{
 
 
 		getNonTerminal("mapInitializer").addSemanticAction( (p, r) -> {
-			NativeAssociationInstanceCreation mapNode = new NativeAssociationInstanceCreation( r.get(1).getAstNode(ArgumentListNode.class).get());
+			LiteralAssociationInstanceCreation mapNode = new LiteralAssociationInstanceCreation( r.get(1).getAstNode(ArgumentListNode.class).get());
 			p.setAstNode(mapNode);
 		});
 
@@ -1224,7 +1224,7 @@ public class LenseGrammar extends AbstractLenseGrammar{
 
 
 		getNonTerminal("mapInitializerPair").addSemanticAction( (p, r) -> {
-			ClassInstanceCreation pair = new ClassInstanceCreation("lense.core.collections.Pair",r.get(0).getAstNode().get(), r.get(2).getAstNode().get());
+			ClassInstanceCreationNode pair = new ClassInstanceCreationNode("lense.core.collections.Pair",r.get(0).getAstNode().get(), r.get(2).getAstNode().get());
 
 			p.setAstNode(pair);	
 		});
@@ -1492,7 +1492,7 @@ public class LenseGrammar extends AbstractLenseGrammar{
 			} else {
 				DecisionNode node = new DecisionNode();
 
-				node.setCondition(r.get(2).getAstNode(ExpressionNode.class).get());
+				node.setCondition(ensureExpression(r.get(2).getAstNode().get()));
 				node.setTruePath(r.get(4).getAstNode(BlockNode.class).get());
 				node.setFalsePath(r.get(6).getAstNode(BlockNode.class).get());
 
@@ -1523,7 +1523,7 @@ public class LenseGrammar extends AbstractLenseGrammar{
 				DecisionNode node = new DecisionNode();
 
 
-				node.setCondition(r.get(2).getAstNode(ExpressionNode.class).get());
+				node.setCondition(ensureExpression(r.get(2).getAstNode().get()));
 				node.setTruePath(r.get(4).getAstNode(BlockNode.class).get());
 
 				DecisionNode node2 = new DecisionNode();
@@ -1563,7 +1563,7 @@ public class LenseGrammar extends AbstractLenseGrammar{
 			} else {
 				WhileNode node = new WhileNode();
 
-				node.setCondition(r.get(2).getAstNode(ExpressionNode.class).get());
+				node.setCondition(ensureExpression(r.get(2).getAstNode().get()));
 
 				if (r.size() > 4 && r.get(4).getAstNode(BlockNode.class).isPresent()){
 					node.setBlock(r.get(4).getAstNode(BlockNode.class).get());
@@ -1664,13 +1664,22 @@ public class LenseGrammar extends AbstractLenseGrammar{
 				p.setAstNode(r.get(0).getAstNode().get());		
 			} else if (r.size() == 2){
 				SwitchOption node = new SwitchOption(true);
-				node.setActions(r.get(1).getAstNode(BlockNode.class).get());
+				
+				Optional<BlockNode> block = r.get(1).getAstNode(BlockNode.class);
+				if (block.isPresent()){
+					node.setActions(block.get());
+				}
 				p.setAstNode(node);
 			} else {
 				SwitchOption node = new SwitchOption();
 
 				node.setValue(ensureExpression(r.get(2).getAstNode().get()));
-				node.setActions(r.get(4).getAstNode(BlockNode.class).get());
+				
+				Optional<BlockNode> block = r.get(4).getAstNode(BlockNode.class);
+				if (block.isPresent()){
+					node.setActions(block.get());
+				}
+				
 
 				p.setAstNode(node);
 			}
@@ -1894,8 +1903,8 @@ public class LenseGrammar extends AbstractLenseGrammar{
 			} else {
 
 				BooleanOperatorNode exp = new BooleanOperatorNode(resolveBooleanOperation(r.get(1)));
-				exp.add(r.get(0).getAstNode().get());
-				exp.add(r.get(2).getAstNode().get());
+				exp.add(ensureExpression(r.get(0).getAstNode().get()));
+				exp.add(ensureExpression(r.get(2).getAstNode().get()));
 				p.setAstNode(exp);
 			}			
 		};
@@ -1924,7 +1933,7 @@ public class LenseGrammar extends AbstractLenseGrammar{
 			} else {
 				ComparisonNode exp = new ComparisonNode(resolveComparisonOperation(r.get(1)));
 				exp.add(ensureExpression(r.get(0).getAstNode().get()));
-				exp.add(ensureExpression(r.get(1).getAstNode().get()));
+				exp.add(ensureExpression(r.get(2).getAstNode().get()));
 				p.setAstNode(exp);
 			}			
 		});
@@ -2058,7 +2067,7 @@ public class LenseGrammar extends AbstractLenseGrammar{
 			if (r.size() == 1){
 				p.setAstNode(r.get(0).getAstNode().get());
 			} else {
-				ClassInstanceCreation node = new ClassInstanceCreation();
+				ClassInstanceCreationNode node = new ClassInstanceCreationNode();
 
 				AstNode t = r.get(1).getAstNode().get();
 

@@ -11,7 +11,7 @@ import compiler.syntax.AstNode;
 /**
  * 
  */
-public class SwitchOption extends LenseAstNode {
+public class SwitchOption extends StatementNode {
 
 	private ExpressionNode value;
 	private BlockNode actions;

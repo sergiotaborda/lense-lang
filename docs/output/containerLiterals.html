@@ -81,17 +81,21 @@
 				<ul class="dropdown-menu">
 					<li><a href="tour.html">Language Tour</a></li>
 					<li class="disabled"><a href="guide.html">Programmer's Guide</a></li>
+					<li><a href="platforms.html">Target Platforms's Guide</a></li>
 				</ul>
             </li>
 			
             <li class="dropdown">
               <a href="#" class="dropdown-toggle" data-toggle="dropdown">Details<b class="caret"></b></a>
 				<ul class="dropdown-menu">
-					<li><a href="objects.html">Objects</a></li>
+					<li><a href="numbers.html">Numbers</a></li>
+					<li><a href="strings.html">Strings</a></li>
+					<li><a href="objects.html">Classes and Objects</a></li>
 					<li><a href="constructors.html">Constructors</a></li>
+					<li><a href="operators.html">Operators</a></li>
 					<li><a href="containerLiterals.html">Container Literals</a></li>
 					<li><a href="sumtypes.html">Sum Types</a></li>
-					
+					<li><a href="monads.html">Monads</a></li>
 					
 					<li class="disabled"><a href="enhancements.html">External Enhancements</a></li>
 					<li class="disabled"><a href="concurrency.html">Concurrency</a></li>
@@ -101,6 +105,8 @@
               <a href="#" class="dropdown-toggle" data-toggle="dropdown">More<b class="caret"></b></a>
               <ul class="dropdown-menu">
                 <li><a href="https://github.com/sergiotaborda/lense-lang">Source Code</a></li>
+			    <li><a href="https://groups.google.com/forum/#!forum/lense-lang">Discussion Group</a></li>
+				
 				<li><a href="status.html">Roadmap &amp; Status</a></li>
               </ul>
             </li>
@@ -111,14 +117,15 @@
 	<div class="corner-ribbon top-right sticky shadow"><a href="status.html">Exploration Stage</a></div>
     <div class="container">
 	<p><h1>Container Literals</h1><p>Lense recognizes literals for <code>Sequence</code>s, <code>Association</code>s and <code>Tuple</code>s. As a rule, because Lense has type inference it must be possible to infer the type of literal from the syntax, so we need a diferent sintax for each container type. </p><h2>Sequences</h2><p>In C-familly languages an array is a fundamental type and can be created literally using curly brackets <em>{</em> and <em>}</em>, but in more mathematical oriented languages such as Fortran an Julia common brackets are used. </p>
-<pre><code class="brush: java">var int[] array = new int[]{1, 2, 3};
-</code></pre><p>On a closer look we can understand the C-family languages syntax like Java or C# as not having array literals <em>per se</em>, but initializers applied to arrays. So the syntax <code>{1 ,2 , 3}</code> does not denote an array, but an initializer. Initializers do not have type and they are intrinsically understood by the compiler.</p><p>What's happening in that java code is that an array is being constructed with <code>new int[]</code> and then initialized with the values 1, 2 and 3. The JVM will translate this two operations as a single operation, but conceptually there is a difference.</p><p>In C# the same concept is used to initialize both arrays and lists </p>
-<pre><code class="brush: c#">var int[] array = new int[]{1, 2, 3};
-var List&lt;int&gt; list = new List(){1, 2, 3};
-</code></pre><p>In Lense the type of the container is fixed by the syntax and a <a href="constructors.html#conversion">conversion constructor</a> is used to copy the values to another type if needed. So no constructor is called. A runtime object is created that depends on the underlying VM. The type inside the container is inferred from the declared value types.</p><p>Lense uses common brackets to represent <code>Sequence</code> literals. Keep in mind arrays are not fundamental types in Lense, sequences are.An array is a special (mutable) sub type of sequence.</p>
+<pre><code class="brush: java ">// an example in Java
+int[] array = new int[]{1, 2, 3};
+</code></pre><p>On a closer look we can understand the C-family languages syntax like Java or C# as not having array literals <em>per se</em>, but initializers applied to arrays. So the syntax <code>{1 ,2 , 3}</code> does not denote an array, but an initializer. Initializers do not have type and they are intrinsically understood by the compiler.</p><p>What's happening in that java code is that an array is being constructed with <code>new int[]</code> and then initialized with the values 1, 2 and 3. The JVM will translate this two operations as a single operation, but<br/>conceptually there is a difference.</p><p>In C# the same concept is used to initialize both arrays and lists </p>
+<pre><code class="brush: c#">int[] array = new int[]{1, 2, 3};
+List&lt;int&gt; list = new List(){1, 2, 3};
+</code></pre><p>In Lense the type of the container is fixed by the syntax and a <a href="constructors.html#conversion">conversion constructor</a> is used to copy the values to another type if need be. So no constructor is called. A runtime object is created that depends on the underlying platform. The type inside the container is inferred from the declared value types.</p><p>Lense uses common brackets to represent <code>Sequence</code> literals. Keep in mind arrays are not fundamental types in Lense, sequences are.An array is a special (mutable) sub type of sequence.</p>
 <pre><code class="brush: lense">var Sequence&lt;Natural&gt; sequence = [1, 2, 3];
 var Array&lt;Natural&gt; array = [1, 2, 3];
-</code></pre><p>The first line creates a sequence of elements 1, 2 and 3. The second line creates an array of the elements 1, 2 and 3 by first creating a sequence and them promoting it to an Array. In practice the compiler is free to optimize these constructions and not really call the conversion constructor on <code>Array&lt;T&gt;</code>.</p><h2>Sets</h2><p>Currently there is no special syntax for sets. A set can be created by using a literal sequence and a constructor.</p>
+</code></pre><p>The first line creates a sequence of elements 1, 2 and 3. The second line creates an array of the elements 1, 2 and 3 by first creating a sequence and them promoting it to an Array by calling its <a href="constructors.html#conversion">conversion constructor</a>. In practice the compiler is free to optimize these literal constructions and not really call the conversion constructor on <code>Array&lt;T&gt;</code>.</p><h2>Sets</h2><p>Currently there is no special syntax for sets. A set can be created by using a literal sequence and a constructor.</p>
 <pre><code class="brush: lense">var Set&lt;Natural&gt; sequence = new HashSet([1, 2, 2, 3, 4, 3]);
 </code></pre><p>Or, you can use the <code>toSet</code> method in <code>Iterable</code> (super type of <code>Sequence</code>):</p>
 <pre><code class="brush: lense">var Set&lt;Natural&gt; sequence = [1, 2, 2, 3, 4, 3].toSet();
@@ -148,7 +155,7 @@ var Matrix&lt;Natural&gt; matrix = [
  	[4, 5, 6],
  	[5, 6, 7]
 ];
-</code></pre><p>The support for matrixes is still under consideration and may not be implemented. </p><h2>Records</h2><p>Records are a special object that represents a non typed property bag. Records are not currently implemented.<br/>A possible syntax would be similar to an association, but using = instead of ":". The difference is that on an association both sides of the ":" can be variables,<br/>in a record only the right side can be a variable. The left side is interpreted as the name of a property. </p>
+</code></pre><p>The support for matrixes is still under consideration and may not be implemented. </p><h2>Records (Under Consideration)</h2><p>Records are a special object that represents a non typed property bag. Records are not currently implemented.<br/>A possible syntax would be similar to an association, but using = instead of ":". The difference is that on an association both sides of the ":" can be variables,<br/>in a record only the right side can be a variable. The left side is interpreted as the name of a property. </p>
 <pre><code class="brush: lense">var Record address = {
 	Street = &quot;Baker Street&quot;,
 	Number = &quot;221B&quot;,
@@ -156,7 +163,7 @@ var Matrix&lt;Natural&gt; matrix = [
 	Country = &quot;England&quot;
 }
 
-</code></pre><p>Records are a fundamental type in Lense and can be used to initialize other types like so</p>
+</code></pre><p>This syntax takes us full circle to the initializer concept discussed at the beginning. We can now use records to initialize other types like so:</p>
 <pre><code class="brush: lense">var Address address = new Address {
 	Street = &quot;Baker Street&quot;,
 	Number = &quot;221B&quot;,
@@ -165,14 +172,27 @@ var Matrix&lt;Natural&gt; matrix = [
 }
 
 </code></pre><p>This a combination of a call to the <a href="constructors.html">primary constructor</a> and a initialization of each property referred in the record literal. This is not a conversion but syntax sugar for:</p>
+<pre><code class="brush: lense">var Record tempRecord = {
+	Street = &quot;Baker Street&quot;,
+	Number = &quot;221B&quot;,
+	City = &quot;London&quot;,
+	Country = &quot;England&quot;
+}
+
+var Address address = new Address();
+
+address.Street = tempRecord.Street;
+address.Number = tempRecord.Number;
+address.City = tempRecord.City;
+address.Country = tempRecord.Country;
+</code></pre><p>That is optimized to:</p>
 <pre><code class="brush: lense">var Address address = new Address();
 
-address.Street = &quot;Baker Street&quot;,
-address.Number = &quot;221B&quot;,
-address.City = &quot;London&quot;,
-address.Country = &quot;England&quot;
-
-</code></pre><p>This feature is similar to the initialization syntax in C# even thought in Lense we are using the conjunction of two concepts : constructors and records.</p></p>
+address.Street = &quot;Baker Street&quot;;
+address.Number = &quot;221B&quot;;
+address.City = &quot;London&quot;;
+address.Country = &quot;England&quot;;
+</code></pre><p>This feature is similar to the initialization syntax in C# even thought in Lense we would be using the conjunction of two concepts : constructors and record literals.</p></p>
 	
 		</div>
 		<div id="push"></div>
@@ -180,7 +200,7 @@ address.Country = &quot;England&quot;
     
     <div id="footer">
       <div class="container">
-        <p class="muted credit">Lense is an open source project and a comunity diven developement</p>
+        <p class="muted credit">Lense is an open source project and a community driven development</p>
       </div>
     </div>
     

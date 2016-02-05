@@ -141,7 +141,11 @@ public class LenseTypeDefinition implements TypeDefinition {
 	 * @param parameters
 	 */
 	public void addMethod(String name, TypeDefinition returnType, MethodParameter ... parameters) {
-		Method m = new Method(name, new MethodReturn(new FixedTypeVariable(returnType)), parameters);
+		addMethod(name, new MethodReturn(new FixedTypeVariable(returnType)), parameters);
+	}
+	
+	public void addMethod(String name, MethodReturn returnType, MethodParameter ... parameters) {
+		Method m = new Method(name, returnType, parameters);
 		m.setDeclaringType(this);
 		
 		if (!members.isEmpty())

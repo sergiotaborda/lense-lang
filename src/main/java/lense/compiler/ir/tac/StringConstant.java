@@ -30,4 +30,9 @@ public class StringConstant implements Operand {
 	public String getValue() {
 		return text;
 	}
+	
+	@Override
+	public boolean isInstruction() {
+		return false;
+	}
 }

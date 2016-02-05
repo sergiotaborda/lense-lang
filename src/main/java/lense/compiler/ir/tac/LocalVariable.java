@@ -1,13 +1,13 @@
 package lense.compiler.ir.tac;
 
-import lense.compiler.ir.InstructionType;
+import compiler.typesystem.TypeDefinition;
 
 public class LocalVariable implements Operand {
 
 	private String name;
-	private InstructionType type;
+	private TypeDefinition type;
 
-	public LocalVariable (String name, InstructionType type){
+	public LocalVariable (String name, TypeDefinition type){
 		this.name = name;
 		this.type = type;
 	}
@@ -30,6 +30,11 @@ public class LocalVariable implements Operand {
 
 	@Override
 	public boolean isTemporary() {
+		return false;
+	}
+	
+	@Override
+	public boolean isInstruction() {
 		return false;
 	}
 }

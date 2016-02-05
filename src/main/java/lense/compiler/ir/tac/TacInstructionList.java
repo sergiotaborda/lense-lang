@@ -1,12 +1,12 @@
 package lense.compiler.ir.tac;
 
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
+import java.util.LinkedList;
+import java.util.ListIterator;
 
 public class TacInstructionList implements Iterable<TacInstruction> {
 
-	List<TacInstruction> list = new ArrayList<>();
+	LinkedList<TacInstruction> list = new LinkedList<>();
 
 	public void add(TacInstruction instruction){
 		list.add(instruction);
@@ -35,8 +35,17 @@ public class TacInstructionList implements Iterable<TacInstruction> {
 	}
 
 	@Override
-	public Iterator<TacInstruction> iterator() {
-		return list.iterator();
+	public ListIterator<TacInstruction> iterator() {
+		return list.listIterator();
+	}
+
+	public ListIterator<TacInstruction> endIterator() {
+		return list.listIterator(list.size());
+	}
+
+	public void set(int index, TacInstruction instruction) {
+		list.set(index, instruction);
+		
 	}
 
 

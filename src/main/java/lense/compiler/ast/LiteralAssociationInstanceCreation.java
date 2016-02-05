@@ -9,9 +9,9 @@ package lense.compiler.ast;
 /**
  * 
  */
-public class NativeAssociationInstanceCreation extends ClassInstanceCreation{
+public class LiteralAssociationInstanceCreation extends ClassInstanceCreationNode implements LiteralCreation{
 
-	public NativeAssociationInstanceCreation (ArgumentListNode list){
+	public LiteralAssociationInstanceCreation (ArgumentListNode list){
 		TypeNode t = new TypeNode(new QualifiedNameNode("lense.core.collections.Association"));
 		setTypeNode(t);
 		setArguments(list);

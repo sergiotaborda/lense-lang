@@ -178,8 +178,17 @@ public class LenseTypeSystem implements TypeSystem{
 				new GenericDefinition("T", Variance.Invariant, any, nothing)
 		));
 		
+		LenseTypeDefinition sbool = register(new LenseTypeDefinition("lense.core.lang.Boolean", Kind.Class, any));
+		
 		// TODO treat interfaces and traits as attached types
 		LenseTypeDefinition iterable = register(new LenseTypeDefinition("lense.core.lang.Iterable", Kind.Interface, any, new GenericDefinition("T", Variance.Covariant, any,nothing))); 
+		LenseTypeDefinition iterator = register(new LenseTypeDefinition("lense.core.lang.Iterator", Kind.Interface, any, new GenericDefinition("T", Variance.Covariant, any,nothing))); 
+		
+		iterable.addMethod("iterator", iterator); 
+		
+		iterator.addMethod("hasNext", sbool);
+		iterator.addMethod("hasNext", any); 
+		
 		LenseTypeDefinition maybe = register(new LenseTypeDefinition("lense.core.lang.Maybe", Kind.Class, any, new GenericDefinition("T", Variance.Covariant, any,nothing)));  
 
 		maybe.addMethod("map", specify(maybe, any), new MethodParameter(function2)); // TODO return must obey function return
@@ -192,7 +201,7 @@ public class LenseTypeSystem implements TypeSystem{
 		
 		register(new LenseTypeDefinition("lense.core.lang.Some", Kind.Class, maybe));
 
-		LenseTypeDefinition sbool = register(new LenseTypeDefinition("lense.core.lang.Boolean", Kind.Class, any));
+	
 		LenseTypeDefinition character = register(new LenseTypeDefinition("lense.core.lang.Character", Kind.Class, any));
 		register(new LenseTypeDefinition("lense.core.lang.Exception", Kind.Class, any));
 

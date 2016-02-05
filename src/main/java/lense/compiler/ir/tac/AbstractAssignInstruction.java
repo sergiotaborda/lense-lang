@@ -9,7 +9,7 @@ public abstract class AbstractAssignInstruction extends TacInstruction{
 	}
 	
 	public String toString(){
-		return target.toString() + " := ";
+		return super.toString() + target.toString() + " := ";
 	}
 	
 	public Operand getTarget() {

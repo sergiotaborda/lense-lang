@@ -12,7 +12,7 @@ import lense.compiler.Import;
 import lense.compiler.SemanticContext;
 import lense.compiler.ast.ArgumentListNode;
 import lense.compiler.ast.BlockNode;
-import lense.compiler.ast.ClassInstanceCreation;
+import lense.compiler.ast.ClassInstanceCreationNode;
 import lense.compiler.ast.ClassTypeNode;
 import lense.compiler.ast.FieldOrPropertyAccessNode;
 import lense.compiler.ast.FormalParameterNode;
@@ -21,8 +21,8 @@ import lense.compiler.ast.ImplementedInterfacesNode;
 import lense.compiler.ast.LiteralTupleInstanceCreation;
 import lense.compiler.ast.MethodDeclarationNode;
 import lense.compiler.ast.MethodInvocationNode;
-import lense.compiler.ast.NativeArrayInstanceCreation;
-import lense.compiler.ast.NativeAssociationInstanceCreation;
+import lense.compiler.ast.LiteralSequenceInstanceCreation;
+import lense.compiler.ast.LiteralAssociationInstanceCreation;
 import lense.compiler.ast.QualifiedNameNode;
 import lense.compiler.ast.ScopedVariableDefinitionNode;
 import lense.compiler.ast.StaticAccessNode;
@@ -74,31 +74,31 @@ public class NameResolutionVisitor  implements Visitor<AstNode> {
 	 */
 	public VisitorNext visitBeforeChildren(AstNode node) {
 		
-		if (node instanceof NativeArrayInstanceCreation){
-			NativeArrayInstanceCreation array = ((NativeArrayInstanceCreation) node);
+		if (node instanceof LiteralSequenceInstanceCreation){
+			LiteralSequenceInstanceCreation array = ((LiteralSequenceInstanceCreation) node);
 			ArgumentListNode args = array.getArguments();
 			
-			TreeTransverser.tranverse(args, this);
+			TreeTransverser.transverse(args, this);
 			
 			TypedNode type = (TypedNode) args.getChildren().get(0);
 			array.getTypeNode().addParametricType(new GenericTypeParameterNode( new TypeNode(type.getTypeDefinition()), compiler.typesystem.Variance.Invariant));
 			
 			return VisitorNext.Siblings;
 			
-		} else if (node instanceof NativeAssociationInstanceCreation){
-			NativeAssociationInstanceCreation map = ((NativeAssociationInstanceCreation) node);
+		} else if (node instanceof LiteralAssociationInstanceCreation){
+			LiteralAssociationInstanceCreation map = ((LiteralAssociationInstanceCreation) node);
 			ArgumentListNode args = map.getArguments();
 			
-			TypeNode typeNode = ((ClassInstanceCreation)args.getChildren().get(0)).getTypeNode();
+			TypeNode typeNode = ((ClassInstanceCreationNode)args.getChildren().get(0)).getTypeNode();
 			// make all arguments have the same type.
 			for (int i =1 ; i < args.getChildren().size();i++){
-				final ClassInstanceCreation classInstanceCreation = (ClassInstanceCreation)args.getChildren().get(i);
+				final ClassInstanceCreationNode classInstanceCreation = (ClassInstanceCreationNode)args.getChildren().get(i);
 				classInstanceCreation.replace(classInstanceCreation.getTypeNode(), typeNode);
 			}
 			TypeDefinition pairType = semanticContext.resolveTypeForName(typeNode.getName(), 2).get();
 			typeNode.setTypeDefinition(pairType);
 			
-			TreeTransverser.tranverse(args, this);
+			TreeTransverser.transverse(args, this);
 			
 			TypedNode key = (TypedNode) args.getChildren().get(1).getChildren().get(1).getChildren().get(0);
 			TypedNode value = (TypedNode) args.getChildren().get(1).getChildren().get(1).getChildren().get(1);

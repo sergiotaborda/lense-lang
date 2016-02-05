@@ -28,4 +28,9 @@ public class TemporaryVariable implements Operand{
 	public boolean isTemporary() {
 		return true;
 	}
+	
+	@Override
+	public boolean isInstruction() {
+		return false;
+	}
 }

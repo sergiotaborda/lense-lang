@@ -13,7 +13,7 @@ public class ReturnInstruction extends TacInstruction {
 	}
 	
 	public String toString(){
-		return "return " + right.toString();
+		return super.toString() + "return " + right.toString();
 	}
 	
 	@Override

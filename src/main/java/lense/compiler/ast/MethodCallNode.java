@@ -13,7 +13,7 @@ import compiler.syntax.AstNode;
 /**
  * 
  */
-public class MethodCallNode extends LenseAstNode {
+public class MethodCallNode extends StatementNode {
 
 	private String name;
 	private ArgumentListNode arguments;

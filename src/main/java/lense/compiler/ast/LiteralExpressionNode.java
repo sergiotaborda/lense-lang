@@ -9,7 +9,7 @@ import lense.compiler.ast.ExpressionNode;
 /**
  * 
  */
-public abstract class LiteralExpressionNode extends ExpressionNode{
+public abstract class LiteralExpressionNode extends ExpressionNode implements Literal{
 
 	/**
 	 * @return

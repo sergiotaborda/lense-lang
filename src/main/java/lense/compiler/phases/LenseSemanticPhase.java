@@ -37,7 +37,7 @@ public class LenseSemanticPhase implements CompilerPhase {
 		for (ClassTypeNode ct : ((UnitTypes)result.getCompiledUnit().getAstRootNode()).getTypes()){
 			// cannot share semantic context among classes
 			try {
-				TreeTransverser.tranverse(ct,new SemanticVisitor(ct.getSemanticContext()));
+				TreeTransverser.transverse(ct,new SemanticVisitor(ct.getSemanticContext()));
 			} catch (CompilationError e){
 				listener.error(new CompilerMessage(e.getMessage()));
 				return new CompilationResult(e);

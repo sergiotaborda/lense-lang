@@ -1,7 +1,5 @@
-package lense.compiler.ir.java;
+package lense.compiler.ir.tac;
 
-import lense.compiler.ir.tac.Operand;
-import lense.compiler.ir.tac.TacInstruction;
 
 public class PrepareParameter extends TacInstruction {
 
@@ -13,7 +11,7 @@ public class PrepareParameter extends TacInstruction {
 
 	
 	public String toString(){
-		return "prepare param " + right.toString();
+		return super.toString() + "prepare param " + right.toString();
 	}
 	
 	@Override
