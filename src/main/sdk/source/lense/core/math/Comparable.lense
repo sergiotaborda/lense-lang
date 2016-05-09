@@ -1,0 +1,7 @@
+
+import lense.core.math.Int32;
+
+public interface Comparable <in T> {
+
+	public Int32 compareTo (T other);
+}

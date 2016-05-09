@@ -1,7 +1,6 @@
 
-import lense.core.lang.TextRepresentable;
+import lense.core.math.Number;
 
-public class Whole implements TextRepresentable {
-
+public abstract class Whole extends Number implements Comparable<Whole> {
 
 }

@@ -3,13 +3,10 @@
  */
 package lense.compiler.ast;
 
-import compiler.typesystem.GenericTypeParameter;
-import lense.compiler.ast.GenericTypeParameterNode;
-import lense.compiler.ast.QualifiedNameNode;
-import lense.compiler.ast.LenseAstNode;
-import lense.compiler.ast.TypeNode;
-import lense.compiler.ast.TypedNode;
-import compiler.typesystem.TypeDefinition;
+import lense.compiler.type.TypeDefinition;
+import lense.compiler.type.variable.FixedTypeVariable;
+import lense.compiler.type.variable.IntervalTypeVariable;
+import lense.compiler.type.variable.TypeVariable;
 
 /**
  * 
@@ -18,18 +15,29 @@ public class TypeNode extends LenseAstNode implements TypedNode{
 
 
 	private QualifiedNameNode name;
-	private TypeDefinition type;
+	private TypeVariable type;
+	private IntervalTypeVariable typeParameter;
 
+	public TypeNode(TypeVariable  type) {
+		this.name = new QualifiedNameNode(type.getName());
+		this.setTypeVariable(type);
+	}
+	
 	/**
 	 * Constructor.
 	 * @param object
 	 */
-	public TypeNode(TypeDefinition type) {
+	public TypeNode(TypeDefinition  type) {
 		this.name = new QualifiedNameNode(type.getName());
-		this.setTypeDefinition(type);
+		this.setTypeVariable(new FixedTypeVariable(type));
 		
-		for(GenericTypeParameter p : type.getGenericParameters()){
-			this.add(new GenericTypeParameterNode(new TypeNode(p.getLowerBound()), p.getVariance()));
+		for(IntervalTypeVariable p : type.getGenericParameters()){
+			if (p.getLowerBound() == null){
+				this.add(new GenericTypeParameterNode(null, p.getVariance()));
+			} else {
+				this.add(new GenericTypeParameterNode(new TypeNode(p.getLowerBound()), p.getVariance()));
+			}
+			
 		}
 	}
 
@@ -63,17 +71,21 @@ public class TypeNode extends LenseAstNode implements TypedNode{
 	 * {@inheritDoc}
 	 */
 	@Override
-	public TypeDefinition getTypeDefinition() {
+	public TypeVariable getTypeVariable() {
 		return this.type;
 	}
 	
-	public void setTypeDefinition(TypeDefinition type){
+	public void setTypeVariable(TypeVariable type){
 		this.type = type;
 	}
+	public void setTypeVariable(TypeDefinition type){
+		this.type = new FixedTypeVariable(type);
+	}
+	
 	/**
 	 * @return
 	 */
-	public int getGenericParametersCount() {
+	public int getTypeParametersCount() {
 		if (this.getChildren() == null || this.getChildren().isEmpty()){
 			return 0;
 		} else {
@@ -85,6 +97,14 @@ public class TypeNode extends LenseAstNode implements TypedNode{
 	 */
 	public void setName(QualifiedNameNode qualifiedNameNode) {
 		this.name = qualifiedNameNode;
+	}
+
+	public IntervalTypeVariable getTypeParameter() {
+		return this.typeParameter;
+	}
+	
+	public void setTypeParameter(IntervalTypeVariable typeParameter) {
+		this.typeParameter = typeParameter;
 	}
 
 

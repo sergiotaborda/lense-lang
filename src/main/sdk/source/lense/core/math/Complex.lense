@@ -1,0 +1,10 @@
+
+import lense.core.math.Number;
+import lense.core.math.Imaginary;
+import lense.core.math.Real;
+
+public class Complex extends Number {
+
+	var Imaginary img;
+	var Real real;
+}

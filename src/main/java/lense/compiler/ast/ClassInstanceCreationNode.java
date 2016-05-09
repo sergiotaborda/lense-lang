@@ -4,7 +4,8 @@
 package lense.compiler.ast;
 
 import compiler.syntax.AstNode;
-import compiler.typesystem.TypeDefinition;
+import lense.compiler.type.TypeDefinition;
+import lense.compiler.type.variable.TypeVariable;
 
 /**
  * 
@@ -13,10 +14,11 @@ public class ClassInstanceCreationNode extends ExpressionNode{
 
 	private TypeNode typeNode;
 	private ArgumentListNode argumentList;
+	private String name;
 
 	public ClassInstanceCreationNode (){}
 	
-	public ClassInstanceCreationNode (TypeDefinition type, ArgumentListNode list){
+	public ClassInstanceCreationNode (TypeVariable type, ArgumentListNode list){
 		TypeNode t = new TypeNode(type);
 		setTypeNode(t);
 		setArguments(list);
@@ -28,7 +30,7 @@ public class ClassInstanceCreationNode extends ExpressionNode{
 		setArguments(list);
 	}
 	
-	public ClassInstanceCreationNode (TypeDefinition type, AstNode ... args){
+	public ClassInstanceCreationNode (TypeVariable type, AstNode ... args){
 		TypeNode t = new TypeNode(type);
 		setTypeNode(t);
 
@@ -97,8 +99,8 @@ public class ClassInstanceCreationNode extends ExpressionNode{
 	 * Obtains {@link TypeNode}.
 	 * @return the type
 	 */
-	public TypeDefinition getTypeDefinition() {
-		return typeNode.getTypeDefinition();
+	public TypeVariable getTypeVariable() {
+		return typeNode.getTypeVariable();
 	}
 
 	public void replace(AstNode oldNode , AstNode newNode){
@@ -110,6 +112,13 @@ public class ClassInstanceCreationNode extends ExpressionNode{
 			super.replace(this.typeNode, newNode);
 		}
 	}
+
+	public void setConstructorName(String name) {
+		this.name = name;
+	}
 	
+	public String getName(){
+		return name;
+	}
 
 }

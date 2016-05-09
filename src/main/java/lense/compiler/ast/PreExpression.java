@@ -3,9 +3,7 @@
  */
 package lense.compiler.ast;
 
-import lense.compiler.ast.ArithmeticOperation;
-import lense.compiler.ast.ExpressionNode;
-import compiler.typesystem.TypeDefinition;
+import lense.compiler.type.variable.TypeVariable;
 
 /**
  * 
@@ -22,8 +20,8 @@ public class PreExpression extends ExpressionNode{
 		this.operation = op;
 	}
 
-	public TypeDefinition getTypeDefinition(){
-		return ((ExpressionNode)this.getChildren().get(0)).getTypeDefinition();
+	public TypeVariable getTypeVariable(){
+		return ((ExpressionNode)this.getChildren().get(0)).getTypeVariable();
 	}
 	
 	public ArithmeticOperation getOperation(){

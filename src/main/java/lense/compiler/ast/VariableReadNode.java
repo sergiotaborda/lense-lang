@@ -3,9 +3,9 @@
  */
 package lense.compiler.ast;
 
-import lense.compiler.ast.ExpressionNode;
-import compiler.typesystem.TypeDefinition;
-import compiler.typesystem.VariableInfo;
+import lense.compiler.context.VariableInfo;
+import lense.compiler.type.TypeDefinition;
+import lense.compiler.type.variable.TypeVariable;
 
 
 /**
@@ -62,8 +62,15 @@ public class VariableReadNode extends ExpressionNode {
 		return this.variableInfo;
 	}
 	
-	public TypeDefinition getTypeDefinition(){
-		return variableInfo == null ? null : variableInfo.getTypeDefinition();
+	public TypeVariable getTypeVariable(){
+		if (variableInfo == null){
+			return null;
+		}
+		return variableInfo.getTypeVariable();
+	}
+	
+	public void setTypeDefinition(TypeDefinition type) {
+		throw new RuntimeException();
 	}
 
 }

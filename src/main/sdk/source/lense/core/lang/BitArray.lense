@@ -1,0 +1,36 @@
+
+import lense.core.lang.Binary;
+import lense.core.lang.Boolean;
+import lense.core.collections.Array;
+import lense.core.math.Natural;
+import lense.core.lang.Void;
+
+public class BitArray implements Binary {
+
+	private val Array<Boolean> bits;
+
+	constructor (Natural bitCount){
+		this.bits = new Array<Boolean>(bitCount);
+	}
+	
+	public Natural size {
+		get{
+			return bits.size;
+		}
+	}
+	
+	public Binary flipAll() {
+		val BitArray negated = new BitArray(bits);
+		val Natural last = negated.size - 1;
+		for (Natural n in 0..last){
+			negated.flip(n);
+		}
+		return negated;
+	}	
+	
+	public Void flip(Natural index){
+		this.bits[index] = !this.bits[index];
+	}
+		
+
+}

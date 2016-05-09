@@ -1,0 +1,10 @@
+
+import lense.core.math.Integer;
+import lense.core.lang.Binary;
+
+/*
+	Represent an Integer that starts as a In32 integer an grows to a BigInt
+*/
+public native class Int extends Integer {
+
+}

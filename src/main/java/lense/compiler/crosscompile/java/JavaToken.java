@@ -26,6 +26,16 @@ public class JavaToken implements Token {
 		this.symbol = symbol;
 	}
 	
+	
+	public static JavaToken constructor (String text, Symbols symbol){
+		return new JavaToken(text, symbol);
+	}
+	
+	public static JavaToken constructor (int other , long symbol){
+		JavaToken t = constructor("",null);
+		
+		return t;
+	}
 	/**
 	 * {@inheritDoc}
 	 */

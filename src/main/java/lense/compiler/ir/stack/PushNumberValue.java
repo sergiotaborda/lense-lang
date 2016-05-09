@@ -1,6 +1,6 @@
 package lense.compiler.ir.stack;
 
-import compiler.typesystem.TypeDefinition;
+import lense.compiler.type.TypeDefinition;
 
 public class PushNumberValue extends StackInstruction {
 

@@ -1,7 +1,7 @@
 package lense.compiler.ir;
 
 import lense.compiler.ir.tac.Operand;
-import compiler.typesystem.TypeDefinition;
+import lense.compiler.type.TypeDefinition;
 
 public class ReadFieldInstruction implements Operand {
 
@@ -34,4 +34,19 @@ public class ReadFieldInstruction implements Operand {
 	public boolean isInstruction() {
 		return true;
 	}
+
+	public TypeDefinition getOwnerType() {
+		return ownerType;
+	}
+
+	public TypeDefinition getReturnType() {
+		return returnType;
+	}
+
+	@Override
+	public TypeDefinition getOperandType() {
+		return returnType;
+	}
+
+	
 }

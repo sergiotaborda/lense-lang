@@ -37,7 +37,7 @@ public class LenseLookupTable extends AbstractLookupTable {
 	public LenseLookupTable(LenseGrammar g, InputStream stream ) {
 		super(g,1000);
 		
-		loadTable(g,stream);
+		this.loadTable(g,stream);
 		
 	}
 	private void loadTable(LenseGrammar g, 	InputStream stream ) {

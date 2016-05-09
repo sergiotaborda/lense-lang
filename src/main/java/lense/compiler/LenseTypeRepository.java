@@ -12,10 +12,10 @@ import lense.compiler.ast.QualifiedNameNode;
 import lense.compiler.repository.ModuleRepository;
 import lense.compiler.repository.UpdatableTypeRepository;
 import lense.compiler.repository.Version;
-import lense.compiler.typesystem.LenseTypeDefinition;
+import lense.compiler.type.LenseTypeDefinition;
+import lense.compiler.type.TypeDefinition;
 import lense.compiler.typesystem.LenseTypeSystem;
-import compiler.typesystem.TypeDefinition;
-import compiler.typesystem.TypeSearchParameters;
+import lense.compiler.typesystem.TypeSearchParameters;
 
 /**
  * 
@@ -65,8 +65,17 @@ public class LenseTypeRepository implements UpdatableTypeRepository{
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void registerType(TypeDefinition type) {
-		mapping.put(new TypeSearchParameters(type.getName(), type.getGenericParameters().size()), type);
+	public TypeDefinition registerType(TypeDefinition type, int genericParametersCount) {
+		TypeSearchParameters key = new TypeSearchParameters(type.getName(), genericParametersCount);
+		if (!mapping.containsKey(key)){
+			mapping.put(key, type);
+			return type;
+		} else {
+			TypeDefinition original = mapping.get(key);
+			original.updateFrom(type);
+			return original;
+		}
+		
 	}
 	
 	/**

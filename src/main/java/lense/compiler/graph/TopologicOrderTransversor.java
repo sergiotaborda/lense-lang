@@ -1,7 +1,9 @@
 package lense.compiler.graph;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.Set;
 
 import lense.compiler.graph.Graph.Edge;
 import lense.compiler.graph.Graph.Vertex;
@@ -49,10 +51,14 @@ public class TopologicOrderTransversor<E,V> extends AbstractGraphTransversor<E,V
 
 			GraphTranverseListener<V,E> broadcastEvent = this.getListenerSet();
 			
+			Set<Vertex<V,E>> visited = new HashSet<>();
+			
 			int iterations;
 			for (iterations = 0; !q.isEmpty(); iterations++ ){
 				
 				Vertex<V, E> v = q.removeFirst();
+				
+				visited.add(v);
 				
 				broadcastEvent.beginVertex(new VertexTraversalEvent<V, E>(v));
 			
@@ -87,7 +93,11 @@ public class TopologicOrderTransversor<E,V> extends AbstractGraphTransversor<E,V
 			}
 			
 		
-			if (iterations != all.size()){
+			if (iterations < all.size()){
+				Collection<Vertex<V,E>> allset = new LinkedList<>(all);
+				allset.removeAll(visited);
+				throw new IllegalStateException("Graph as a cycle");
+			} else if (iterations > all.size()){
 				throw new IllegalStateException("Graph as a cycle");
 			}
 

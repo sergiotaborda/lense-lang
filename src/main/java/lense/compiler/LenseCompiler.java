@@ -19,29 +19,6 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 
-import lense.compiler.ast.ClassTypeNode;
-import lense.compiler.ast.GenericTypeParameterNode;
-import lense.compiler.ast.ModuleImportNode;
-import lense.compiler.ast.ModuleNode;
-import lense.compiler.ast.QualifiedNameNode;
-import lense.compiler.ast.TypeNode;
-import lense.compiler.ast.UnitTypes;
-import lense.compiler.crosscompile.java.OutToJavaSource;
-import lense.compiler.dependency.DependencyGraph;
-import lense.compiler.dependency.DependencyNode;
-import lense.compiler.dependency.DependencyRelation;
-import lense.compiler.dependency.DependencyRelationship;
-import lense.compiler.graph.EdgeTraversalEvent;
-import lense.compiler.graph.GraphTransversor;
-import lense.compiler.graph.GraphTranverseListener;
-import lense.compiler.graph.TopologicOrderTransversor;
-import lense.compiler.graph.VertexTraversalEvent;
-import lense.compiler.phases.LenseSemanticPhase;
-import lense.compiler.phases.NameResolutionPhase;
-import lense.compiler.repository.MachineRepository;
-import lense.compiler.repository.ModuleRepository;
-import lense.compiler.repository.TypeRepository;
-import lense.compiler.typesystem.LenseTypeDefinition;
 import compiler.AstCompiler;
 import compiler.CompilationResult;
 import compiler.CompilationResultSet;
@@ -53,8 +30,35 @@ import compiler.FolderCompilationUnionSet;
 import compiler.ListCompilationUnitSet;
 import compiler.StringCompilationUnit;
 import compiler.syntax.AstNode;
-import compiler.typesystem.GenericTypeParameter;
-import compiler.typesystem.TypeSearchParameters;
+import lense.compiler.ast.ClassTypeNode;
+import lense.compiler.ast.GenericTypeParameterNode;
+import lense.compiler.ast.ModuleImportNode;
+import lense.compiler.ast.ModuleNode;
+import lense.compiler.ast.QualifiedNameNode;
+import lense.compiler.ast.TypeNode;
+import lense.compiler.ast.UnitTypes;
+import lense.compiler.crosscompile.java.JavaBackEndFactory;
+import lense.compiler.dependency.DependencyGraph;
+import lense.compiler.dependency.DependencyNode;
+import lense.compiler.dependency.DependencyRelation;
+import lense.compiler.dependency.DependencyRelationship;
+import lense.compiler.graph.EdgeTraversalEvent;
+import lense.compiler.graph.GraphTransversor;
+import lense.compiler.graph.GraphTranverseListener;
+import lense.compiler.graph.TopologicOrderTransversor;
+import lense.compiler.graph.VertexTraversalEvent;
+import lense.compiler.phases.CompositePhase;
+import lense.compiler.phases.DesugarPropertiesPhase;
+import lense.compiler.phases.IntermediatyRepresentationPhase;
+import lense.compiler.phases.NameResolutionPhase;
+import lense.compiler.phases.SemanticAnaylisisPhase;
+import lense.compiler.repository.ModuleRepository;
+import lense.compiler.repository.TypeRepository;
+import lense.compiler.type.LenseTypeDefinition;
+import lense.compiler.type.variable.IntervalTypeVariable;
+import lense.compiler.type.variable.RangeTypeVariable;
+import lense.compiler.typesystem.LenseTypeSystem;
+import lense.compiler.typesystem.TypeSearchParameters;
 
 /**
  * 
@@ -84,11 +88,20 @@ public class LenseCompiler {
 		}
 
 	};
-
-	public LenseCompiler (){}
+	private CompilerBackEndFactory backendFactory = new JavaBackEndFactory(); //new  JavaSourceBackEnd(); //JavaBinaryBackEndFactory(); 
+	private TypeRepository globalRepository;
+	
+	public LenseCompiler (TypeRepository globalRepository){
+		// The global, even remote, repository
+		this.globalRepository = globalRepository;
+	}
 
 	public void setCompilerListener(CompilerListener listener){
 		this.listener = listener;
+	}
+	
+	public void setCompilerPlatformBackEnd(CompilerBackEndFactory factory){
+		this.backendFactory = factory;
 	}
 	/**
 	 * @param moduleproject
@@ -96,6 +109,8 @@ public class LenseCompiler {
 	 */
 	public void compileModuleFromDirectory(File moduleproject){
 
+		String nativeLanguage = "java";
+		
 		listener.start();
 		try {
 
@@ -105,12 +120,14 @@ public class LenseCompiler {
 				listener.error(new CompilerMessage("No sources found. No folder " + sources.getAbsolutePath() +" exists"));
 			}
 
-			File modulesOut = new File(moduleproject, "compilation/java/bin");
+			File modulesOut = new File(moduleproject, "compilation/" + nativeLanguage + "/bin");
 			if (!modulesOut.exists()){
 				modulesOut.mkdirs();
 			}
 
-			File target = new File(moduleproject, "compilation/java/target");
+			File nativeSources = new File(moduleproject, "native/" + nativeLanguage);
+			
+			File target = new File(moduleproject, "compilation/" + nativeLanguage + "/target");
 			if (!target.exists()){
 				target.mkdirs();
 			} else {
@@ -125,6 +142,8 @@ public class LenseCompiler {
 				});
 			}
 
+			FileLocations locations = new FileLocations(target, nativeSources);
+			
 			CompilationUnitSet moduleUnit = new FolderCompilationUnionSet(sources , name -> name.equals("module.lense"));
 
 			AstCompiler parser = new AstCompiler(new LenseLanguage());
@@ -138,11 +157,9 @@ public class LenseCompiler {
 
 			ModuleNode module  = (ModuleNode) modulesList.get(0).getAstRootNode().getChildren().get(0);
 
-			// The global, even remote, repository
-			TypeRepository localRepository = new MachineRepository(); // TODO bind to some folder in the OS or URL
-
+	
 			// The repository being mounted
-			ModuleRepository currentModuleRepository = new ModuleRepository(module, localRepository);
+			ModuleRepository currentModuleRepository = new ModuleRepository(module, globalRepository);
 
 
 			for(compiler.syntax.AstNode n : module.getImports().getChildren()){
@@ -167,10 +184,17 @@ public class LenseCompiler {
 			parser.parse(unitSet)
 			.passBy(new NameResolutionPhase(currentModuleRepository, new PathPackageResolver(sources.toPath()), listener))
 			.peek(node -> {
+				
+				String packageName = node.getUnit().getOrigin().substring(sources.getAbsolutePath().length()+1);
+				int pos = packageName.lastIndexOf('\\');
+				
+				packageName = packageName.substring(0, pos).replace('\\', '.');
 				UnitTypes t = (UnitTypes) node.getAstRootNode();
 
+				
 				for(ClassTypeNode type : t.getTypes()){
 
+					type.setName(packageName + '.' + type.getName());
 					foundNames.add(type.getName());
 
 					// the module depends on every type inside
@@ -183,22 +207,22 @@ public class LenseCompiler {
 						dn = new DependencyNode(node, type.getName());
 					}
 
-					List<GenericTypeParameter> typeParameters = new ArrayList<>();
+					List<IntervalTypeVariable> typeParameters = new ArrayList<>();
 
 					if (type.getGenerics() != null){
 
 						for(AstNode n : type.getGenerics().getChildren()){
 							GenericTypeParameterNode gnode = ((GenericTypeParameterNode)n);
 							TypeNode tn = gnode.getTypeNode();
-							typeParameters.add( new lense.compiler.typesystem.FixedGenericTypeParameter(tn.getName(), null, gnode.getVariance()));
+							typeParameters.add( new RangeTypeVariable(tn.getName(), gnode.getVariance(), LenseTypeSystem.Any() ,  LenseTypeSystem.Nothing() ));
 						}
 
 					}
 
-					LenseTypeDefinition ltype = new LenseTypeDefinition(type.getName(), type.getKind(), null,typeParameters.toArray(new compiler.typesystem.GenericTypeParameter[0]));
+					LenseTypeDefinition ltype = new LenseTypeDefinition(type.getName(), type.getKind(), null,typeParameters.toArray(new lense.compiler.type.variable.IntervalTypeVariable[0]));
 
 
-					currentModuleRepository.registerType(ltype);
+					ltype = (LenseTypeDefinition) currentModuleRepository.registerType(ltype, ltype.getGenericParameters().size());
 
 					graph.addEdge(new DependencyRelation(DependencyRelationship.Module), dn, moduleNode);
 
@@ -210,7 +234,6 @@ public class LenseCompiler {
 						DependencyNode imported;
 						if (it.isPresent()){
 							imported = it.get();
-							imported.setUnit(node);
 						}else {
 							imported = new DependencyNode(null, name);
 						}
@@ -222,6 +245,7 @@ public class LenseCompiler {
 						} else {
 							System.out.println(dn.getName() + " referes by name " + imported.getName());
 							// TODO validate it exists
+							//graph.addEdge(new DependencyRelation(DependencyRelationship.Name),  imported, dn);
 						}
 
 						referencedNames.add(imported.getName());
@@ -245,7 +269,13 @@ public class LenseCompiler {
 				throw new CompilationError("Type " + referencedNames.stream().filter(r -> r.length() > 0).findFirst().get() + " was not found");
 			}
 
-			LenseSemanticPhase semantic = new LenseSemanticPhase(listener);
+			SemanticAnaylisisPhase semantic = new SemanticAnaylisisPhase(listener);
+			DesugarPropertiesPhase desugarProperties = new DesugarPropertiesPhase(listener);
+			IntermediatyRepresentationPhase  ir = new IntermediatyRepresentationPhase();
+			
+			// TODO desugar native
+			// TODO remove indexaccessnode from IR
+			CompositePhase corePhase = new CompositePhase().add(semantic).add(desugarProperties).add(ir);
 
 			GraphTransversor<DependencyRelation, DependencyNode> tt = new TopologicOrderTransversor<>();
 			tt.addListener(new GraphTranverseListener<DependencyNode, DependencyRelation>() {
@@ -255,12 +285,12 @@ public class LenseCompiler {
 
 				}
 
-
-
 				@Override
 				public void beginVertex(VertexTraversalEvent<DependencyNode, DependencyRelation> e) {
 					System.out.println("Visiting : " + e.getVertex().getObject().getName());
-					new CompilationResultSet( new CompilationResult(e.getVertex().getObject().getCompiledUnit())).passBy(semantic).sendTo(new OutToJavaSource(target));
+					new CompilationResultSet( new CompilationResult(e.getVertex().getObject().getCompiledUnit()))
+					.passBy(corePhase).sendTo( backendFactory.create(locations));
+					
 					System.out.println("Visited : " + e.getVertex().getObject().getName());
 				}
 				@Override
@@ -296,28 +326,30 @@ public class LenseCompiler {
 			//			});
 
 
-			// produce packages
+			// produce package classes
 			ListCompilationUnitSet all = new ListCompilationUnitSet();
 			for(QualifiedNameNode pack : packages){
 
-
-
 				StringBuilder builder = new StringBuilder("import lense.core.lang.reflection.Package; import lense.core.lang.String;")
-				.append("public class ").append("Package$$Info implements Package { ");
+				.append("public class ").append("Package$$Info implements Package { ")
 
-				builder.append("public String getName(){");
-				builder.append("	return \"").append(pack).append("\" ;");
-				builder.append("}");
-				builder.append("}");
+				.append("public String getName(){")
+				.append("	return \"").append(pack).append("\" ;")
+				.append("}")
+				.append("}");
+				
+				// TODO list types in package
 
 				all.add(new StringCompilationUnit(builder.toString(), sources.toPath().resolve(pack.getName().replace('.', '/')).toString()+ "/Package$$Info.lense")); // TODO specify package
 			}
 
 			parser.parse(all)
 			.passBy(new NameResolutionPhase(currentModuleRepository, new PathPackageResolver(sources.toPath()), listener))
-			.sendTo(new OutToJavaSource(target));
+			.passBy(corePhase)
+			.sendTo(backendFactory.create(locations));
 			
-			// produce module
+			// produce module metadata and class
+			
 			Properties p = new Properties();
 
 			p.put("module.name", module.getName());
@@ -343,7 +375,7 @@ public class LenseCompiler {
 			builder.append("	var LinkedList<Package> all = new LinkedList<Package>(); ");
 			
 			for(i =0; i < packages.size(); i++){ 
-				builder.append("	all.add(Pack").append(i).append(");\n");
+				builder.append("	all.add(new Pack").append(i+1).append("());\n");
 			}
 			
 			builder.append(" 	return all;");
@@ -352,10 +384,12 @@ public class LenseCompiler {
 			all = new ListCompilationUnitSet();
 			all.add(new StringCompilationUnit(builder.toString(), sources.toPath().resolve(module.getName().replace('.', '/')).toString() + "/Module$$Info.lense")); // TODO specify package
 
+			
 			parser.parse(all)
 			.passBy(new NameResolutionPhase(currentModuleRepository, new PathPackageResolver(sources.toPath()), listener))
-			.sendTo(new OutToJavaSource(target));
-
+			.passBy(corePhase)
+			.sendTo(backendFactory.create(locations  ));
+			 
 			// TODO zip it to a jar file and delete all singular files.
 		} catch (Exception e) {
 			e.printStackTrace();

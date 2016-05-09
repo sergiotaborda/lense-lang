@@ -3,8 +3,7 @@
  */
 package lense.compiler.ast;
 
-import lense.compiler.ast.ExpressionNode;
-import compiler.typesystem.TypeDefinition;
+import lense.compiler.type.variable.TypeVariable;
 
 
 /**
@@ -13,17 +12,17 @@ import compiler.typesystem.TypeDefinition;
 public class PromoteNode extends ExpressionNode {
 
 	private ExpressionNode other;
-	private TypeDefinition from;
+	private TypeVariable from;
 
 	/**
 	 * Constructor.
 	 * @param type 
 	 * @param inicializer
 	 */
-	public PromoteNode(ExpressionNode other, TypeDefinition from, TypeDefinition to) {
+	public PromoteNode(ExpressionNode other, TypeVariable from, TypeVariable to) {
 		this.other = other;
 		this.add(other);
-		this.setTypeDefinition(to);
+		this.setTypeVariable(to);
 		this.from = from;
 	}
 

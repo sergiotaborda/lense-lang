@@ -74,3 +74,20 @@ public <T> void colectLeafs(Node<T> node, List<T> leafs){
 	}
 }
 ~~~~
+
+#Limited Sum Types
+
+Some sum types can be limited to just some subclasses. The compiler will proibit to define new subclasses.
+
+~~~~brush: lense 
+public class Node<T> is Brunch<T> | Leaf<T> {
+
+	case class Brunch<T> {
+	  constructor (Node<T> left , Node<T> right) 
+	}
+	
+	case class Leaf <T> { 
+	  constructor (T value)
+	}
+}
+~~~~ 

@@ -1,0 +1,25 @@
+
+public class Fraction {
+ 
+   val Integer numerator;
+   val Integer denominator;
+    
+   public constructor (Integer numerator, Integer denominator); // primary construtor
+   
+   constructor valueOf(Integer numerator, Integer denominator){
+   		// reduce by Common Divisor
+         return new Fraction(numerator, denominator); // calls primary construtor
+   }
+   
+   constructor inverted(Integer numerator, Integer denominator){
+         return Fraction.valueOf(denominator, numerator); // calls previous constructor
+   }
+   
+   public implicit constructor valueOf (Natural numerator){
+        return new Fraction( numerator, 1);  // calls primary constructor
+   }
+   
+   public Fraction multiply(Fraction other) {
+   		return new Fraction.valueOf(this.numerator * other.numerator, this.denominator * other.denominator);
+   }
+}

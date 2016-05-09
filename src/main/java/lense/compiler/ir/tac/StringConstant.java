@@ -1,5 +1,7 @@
 package lense.compiler.ir.tac;
 
+import lense.compiler.type.TypeDefinition;
+import lense.compiler.typesystem.LenseTypeSystem;
 
 public class StringConstant implements Operand {
 
@@ -34,5 +36,10 @@ public class StringConstant implements Operand {
 	@Override
 	public boolean isInstruction() {
 		return false;
+	}
+
+	@Override
+	public TypeDefinition getOperandType() {
+		return LenseTypeSystem.String();
 	}
 }

@@ -1,0 +1,6 @@
+
+
+public interface Powerable <P, R> {
+
+	public R raise (P power);
+}

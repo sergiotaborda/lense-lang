@@ -7,14 +7,13 @@ import java.util.Iterator;
 
 import lense.compiler.CompilationError;
 import lense.compiler.Import;
-import lense.compiler.PackageResolver;
-import lense.compiler.SemanticContext;
 import lense.compiler.ast.ClassTypeNode;
 import lense.compiler.ast.ImportDeclarationsListNode;
 import lense.compiler.ast.SingleImportNode;
 import lense.compiler.ast.UnitTypes;
+import lense.compiler.context.SemanticContext;
 import lense.compiler.repository.UpdatableTypeRepository;
-
+import lense.compiler.typesystem.PackageResolver;
 import compiler.CompilationResult;
 import compiler.CompilerListener;
 import compiler.CompilerMessage;

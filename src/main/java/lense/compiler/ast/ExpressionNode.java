@@ -5,23 +5,21 @@
 package lense.compiler.ast;
 
 
-import lense.compiler.ast.LenseAstNode;
-import lense.compiler.ast.TypedNode;
-import compiler.typesystem.TypeDefinition;
+import lense.compiler.type.variable.TypeVariable;
 
 
 /**
  * 
  */
-public class ExpressionNode extends LenseAstNode implements TypedNode {
+public abstract class ExpressionNode extends LenseAstNode implements TypedNode {
 
-	private TypeDefinition type;
+	private TypeVariable type;
 
-	public TypeDefinition getTypeDefinition() {
+	public TypeVariable getTypeVariable() {
 		return type;
 	}
 
-	public void setTypeDefinition(TypeDefinition type) {
+	public void setTypeVariable(TypeVariable type) {
 		this.type = type;
 	}
 }

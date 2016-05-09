@@ -7,7 +7,9 @@ import lense.compiler.typesystem.LenseTypeSystem;
 import lense.compiler.ast.ExpressionNode;
 import lense.compiler.ast.StatementNode;
 import lense.compiler.ast.TypedNode;
-import compiler.typesystem.TypeDefinition;
+import lense.compiler.type.TypeDefinition;
+import lense.compiler.type.variable.FixedTypeVariable;
+import lense.compiler.type.variable.TypeVariable;
 
 
 /**
@@ -34,7 +36,7 @@ public class ReturnNode extends StatementNode implements TypedNode {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public TypeDefinition getTypeDefinition() {
-		return this.getChildren().isEmpty() ? LenseTypeSystem.Void() : ((ExpressionNode)this.getChildren().get(0)).getTypeDefinition();
+	public TypeVariable getTypeVariable() {
+		return this.getChildren().isEmpty() ? new FixedTypeVariable(LenseTypeSystem.Void()) : ((ExpressionNode)this.getChildren().get(0)).getTypeVariable();
 	}
 }

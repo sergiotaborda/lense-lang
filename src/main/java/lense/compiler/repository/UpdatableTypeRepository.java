@@ -3,7 +3,7 @@
  */
 package lense.compiler.repository;
 
-import compiler.typesystem.TypeDefinition;
+import lense.compiler.type.TypeDefinition;
 
 /**
  * 
@@ -12,7 +12,8 @@ public interface UpdatableTypeRepository extends TypeRepository {
 
 	/**
 	 * @param type
+	 * @param genericParametersCount 
 	 */
-	void registerType(TypeDefinition type);
+	TypeDefinition registerType(TypeDefinition type, int genericParametersCount);
 
 }

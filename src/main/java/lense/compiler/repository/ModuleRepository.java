@@ -10,12 +10,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import compiler.typesystem.TypeDefinition;
-import compiler.typesystem.TypeSearchParameters;
 import lense.compiler.CompilationError;
 import lense.compiler.ast.ModuleNode;
 import lense.compiler.ast.QualifiedNameNode;
 import lense.compiler.ast.VersionNode;
+import lense.compiler.type.TypeDefinition;
+import lense.compiler.typesystem.TypeSearchParameters;
 
 /**
  * 
@@ -169,8 +169,18 @@ public class ModuleRepository implements UpdatableTypeRepository {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void registerType(TypeDefinition type) {
-		types.put(new TypeSearchParameters(type.getName(), type.getGenericParameters().size()), type);
+	public TypeDefinition registerType(TypeDefinition type, int genericParametersCount) {
+		TypeSearchParameters key = new TypeSearchParameters(type.getName(), genericParametersCount);
+		if (!types.containsKey(key)){
+			types.put(key, type);
+			return type;
+		} else {
+			
+			TypeDefinition cached = types.get(key);
+			cached.updateFrom(type);
+			return cached;
+		}
+		
 	}
 
 

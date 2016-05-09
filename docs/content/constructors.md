@@ -315,7 +315,7 @@ Because all whole literals are parser by the compiler as ``Natural``s,  23 is re
 ~~~~brush: lense 
 public class Integer extends Whole {
 
-	implicit constructor Integer(Natural other){
+	implicit constructor (Natural other){
 		return new Integer(other.toString()); // this is not the real code, just and example.
 	}
 }

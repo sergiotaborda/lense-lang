@@ -9,7 +9,7 @@ import lense.compiler.ast.ExpressionNode;
 /**
  * 
  */
-public class NeedTypeCalculationNode extends ExpressionNode {
+public abstract class NeedTypeCalculationNode extends ExpressionNode {
 
 
 }

@@ -1,0 +1,6 @@
+
+
+public interface Summable <D, R> {
+
+	public R reminder (D divisor);
+}

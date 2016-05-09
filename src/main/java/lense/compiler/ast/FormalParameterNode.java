@@ -3,7 +3,7 @@
  */
 package lense.compiler.ast;
 
-import compiler.typesystem.TypeDefinition;
+import lense.compiler.type.variable.TypeVariable;
 
 /**
  * 
@@ -26,8 +26,8 @@ public class FormalParameterNode extends LenseAstNode implements TypedNode {
 	
 	}
 
-	public TypeDefinition getTypeDefinition() {
-		return type == null ? null : type.getTypeDefinition();
+	public TypeVariable getTypeVariable() {
+		return type == null ? null : type.getTypeVariable();
 	}
 
 	public TypeNode getTypeNode() {

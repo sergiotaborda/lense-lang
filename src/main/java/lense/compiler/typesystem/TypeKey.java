@@ -7,18 +7,18 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import compiler.typesystem.GenericTypeParameter;
+import lense.compiler.type.variable.IntervalTypeVariable;
 
 /**
  * 
  */
 public class TypeKey {
 
-	private List<GenericTypeParameter> genericTypeParameters;
+	private List<IntervalTypeVariable> genericTypeParameters;
 	private String name;
 	
 
-	public TypeKey(List<GenericTypeParameter> genericTypeParameters, String name) {
+	public TypeKey(List<IntervalTypeVariable> genericTypeParameters, String name) {
 		super();
 		this.genericTypeParameters = genericTypeParameters == null ? new ArrayList<>(0) : genericTypeParameters;
 		this.name = name;
@@ -31,7 +31,7 @@ public class TypeKey {
 	public String toString(){
 		return name + "'" + genericTypeParameters.size();
 	}
-	public List<GenericTypeParameter> getGenericTypeParameters() {
+	public List<IntervalTypeVariable> getGenericTypeParameters() {
 		return genericTypeParameters;
 	}
 

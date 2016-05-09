@@ -1,18 +1,20 @@
 package lense.compiler.ir;
 
 import lense.compiler.ir.tac.Operand;
-import compiler.typesystem.TypeDefinition;
+import lense.compiler.type.TypeDefinition;
 
 public class WriteFieldInstruction implements Operand {
 
 	private String name;
 	private TypeDefinition ownerType;
 	private boolean isStatic;
+	private TypeDefinition fieldType;
 
-	public WriteFieldInstruction(String name, boolean isStatic, TypeDefinition ownerType) {
+	public WriteFieldInstruction(String name, boolean isStatic, TypeDefinition ownerType, TypeDefinition fieldType) {
 		this.name = name;
 		this.ownerType =ownerType;
 		this.isStatic =  isStatic;
+		this.fieldType = fieldType;
 	}
 	
 	public String toString(){
@@ -31,5 +33,10 @@ public class WriteFieldInstruction implements Operand {
 	@Override
 	public boolean isInstruction() {
 		return true;
+	}
+
+	@Override
+	public TypeDefinition getOperandType() {
+		return fieldType;
 	}
 }

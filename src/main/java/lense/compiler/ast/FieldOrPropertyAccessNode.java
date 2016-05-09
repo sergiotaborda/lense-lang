@@ -4,8 +4,9 @@
 package lense.compiler.ast;
 
 import lense.compiler.ast.NeedTypeCalculationNode;
+import lense.compiler.type.TypeDefinition;
+import lense.compiler.type.variable.TypeVariable;
 import compiler.syntax.AstNode;
-import compiler.typesystem.TypeDefinition;
 
 
 
@@ -14,8 +15,14 @@ import compiler.typesystem.TypeDefinition;
  */
 public class FieldOrPropertyAccessNode extends NeedTypeCalculationNode {
 
+	public enum Kind {
+		PROPERTY,
+		FIELD
+	}
+	
 	private AstNode primary;
 	private String name;
+	private Kind kind;
 
 
 	/**
@@ -24,6 +31,7 @@ public class FieldOrPropertyAccessNode extends NeedTypeCalculationNode {
 	 */
 	public FieldOrPropertyAccessNode(String name) {
 		setName(name);
+		this.kind = Kind.FIELD;
 	}
 
 	/**
@@ -43,8 +51,8 @@ public class FieldOrPropertyAccessNode extends NeedTypeCalculationNode {
 		return name;
 	}
 
-	public void setType(TypeDefinition type){
-		super.setTypeDefinition(type);
+	public void setType(TypeVariable type){
+		super.setTypeVariable(type);
 	}
 	
 	public AstNode getPrimary() {
@@ -53,6 +61,22 @@ public class FieldOrPropertyAccessNode extends NeedTypeCalculationNode {
 	public void setPrimary(AstNode primary) {
 		this.primary = primary;
 		this.add(primary);
+	}
+	
+	public void replace(AstNode node, AstNode newnode){
+		super.replace(node, newnode);
+		
+		if (node.equals(primary)){
+			primary = newnode;
+		}
+	}
+
+	public void setKind(Kind kind) {
+		this.kind = kind;
+	}
+	
+	public Kind getKind() {
+		return this.kind;
 	}
 
 }

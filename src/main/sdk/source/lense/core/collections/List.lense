@@ -1,0 +1,9 @@
+
+import lense.core.lang.Void;
+import lense.core.math.Natural;
+import lense.core.collections.Sequence;
+
+public interface List<T> extends Sequence<T> {
+
+	public native T [Natural index] { get; set;}
+} 

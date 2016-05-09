@@ -1,6 +1,6 @@
 package lense.compiler.ir.tac;
 
-import compiler.typesystem.TypeDefinition;
+import lense.compiler.type.TypeDefinition;
 
 public class LocalVariable implements Operand {
 
@@ -8,6 +8,9 @@ public class LocalVariable implements Operand {
 	private TypeDefinition type;
 
 	public LocalVariable (String name, TypeDefinition type){
+		if (type == null){
+			throw new IllegalArgumentException();
+		}
 		this.name = name;
 		this.type = type;
 	}
@@ -18,6 +21,10 @@ public class LocalVariable implements Operand {
 	
 	public String getName(){
 		return name;
+	}
+	
+	public TypeDefinition getType(){
+		return type;
 	}
 	
 	public boolean equals(Object other){
@@ -36,5 +43,10 @@ public class LocalVariable implements Operand {
 	@Override
 	public boolean isInstruction() {
 		return false;
+	}
+
+	@Override
+	public TypeDefinition getOperandType() {
+		return type;
 	}
 }

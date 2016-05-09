@@ -3,10 +3,8 @@
  */
 package lense.compiler.ast;
 
-import lense.compiler.ast.ExpressionNode;
-import lense.compiler.ast.TypedNode;
 import compiler.syntax.AstNode;
-import compiler.typesystem.TypeDefinition;
+import lense.compiler.type.variable.TypeVariable;
 
 /**
  * 
@@ -53,8 +51,8 @@ public class AssignmentNode extends ExpressionNode {
 		this.operation = operation;
 	}
 	
-	public TypeDefinition getTypeDefinition() {
-		return right.getTypeDefinition();
+	public TypeVariable getTypeVariable() {
+		return right.getTypeVariable();
 	}
 	
 	/**

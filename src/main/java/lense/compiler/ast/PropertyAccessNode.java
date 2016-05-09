@@ -3,9 +3,8 @@
  */
 package lense.compiler.ast;
 
-import lense.compiler.ast.NeedTypeCalculationNode;
 import compiler.syntax.AstNode;
-import compiler.typesystem.TypeDefinition;
+import lense.compiler.type.variable.TypeVariable;
 
 
 
@@ -43,8 +42,8 @@ public class PropertyAccessNode extends NeedTypeCalculationNode {
 		return name;
 	}
 
-	public void setType(TypeDefinition type){
-		super.setTypeDefinition(type);
+	public void setType(TypeVariable type){
+		super.setTypeVariable(type);
 	}
 	
 	public AstNode getPrimary() {

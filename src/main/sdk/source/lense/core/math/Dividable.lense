@@ -1,0 +1,6 @@
+
+
+public interface Dividable <D, Q> {
+
+	public Q divide (D d);
+}

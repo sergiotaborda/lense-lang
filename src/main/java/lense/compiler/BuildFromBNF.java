@@ -4,11 +4,13 @@
 package lense.compiler;
 
 import java.io.File;
+import java.io.PrintWriter;
 
 import compiler.AstCompiler;
 import compiler.FileCompilationUnit;
 import compiler.ListCompilationUnitSet;
 import compiler.bnf.BnfCompiler;
+import compiler.bnf.RuleRef;
 import compiler.bnf.ToJavaBackEnd;
 
 /**
@@ -29,7 +31,18 @@ public class BuildFromBNF {
 		final AstCompiler compiler = new BnfCompiler();
 
 		try {
-			compiler.parse(unitSet).sendTo(new ToJavaBackEnd(javaOut, "lense.compiler.AbstractLenseGrammar"));
+			compiler.parse(unitSet).sendTo(new ToJavaBackEnd(javaOut, "lense.compiler.AbstractLenseGrammar"){
+				
+				@Override
+				protected void writeRule(PrintWriter writer, RuleRef rule) {
+					
+					 if (rule.getName().equals("versionLiteral")){
+							writer.append("VersionLiteral.instance()");
+					} else {
+						super.writeRule(writer, rule);
+					}
+				}
+			});
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

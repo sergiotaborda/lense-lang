@@ -6,7 +6,7 @@ package lense.compiler.ast;
 import lense.compiler.typesystem.LenseTypeSystem;
 import lense.compiler.ast.ConditionalStatement;
 import lense.compiler.ast.ExpressionNode;
-import compiler.typesystem.TypeDefinition;
+import lense.compiler.type.TypeDefinition;
 
 
 /**

@@ -6,7 +6,7 @@ package lense.compiler.ast;
 import lense.compiler.ast.ExpressionNode;
 import lense.compiler.ast.Imutability;
 import lense.compiler.ast.TypedNode;
-import compiler.typesystem.VariableInfo;
+import lense.compiler.context.VariableInfo;
 
 
 /**
@@ -19,6 +19,7 @@ public interface ScopedVariableDefinitionNode extends TypedNode {
 	 */
 	String getName();
 
+	
 	/**
 	 * @return
 	 */

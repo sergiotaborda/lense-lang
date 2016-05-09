@@ -3,8 +3,6 @@
  */
 package lense.compiler.ast;
 
-import lense.compiler.ast.ExpressionNode;
-import lense.compiler.ast.NeedTypeCalculationNode;
 import compiler.syntax.AstNode;
 
 
@@ -44,4 +42,17 @@ public class IndexedAccessNode extends NeedTypeCalculationNode{
 		return access;
 	}
 	
+	@Override
+	public  void replace(AstNode node, AstNode newnode){
+		
+		if (node == access){
+			access = newnode;
+		}
+		
+		if (node == indexExpression){
+			indexExpression = (ExpressionNode) newnode;
+		}
+		
+		super.replace(node, newnode);
+	}
 }

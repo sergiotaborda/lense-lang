@@ -1,0 +1,6 @@
+
+
+public interface Subtractable <S, D> {
+
+	public D subtract (S subtractive);
+}

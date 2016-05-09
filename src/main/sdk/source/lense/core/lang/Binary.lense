@@ -1,0 +1,15 @@
+
+import lense.core.math.Natural;
+
+public interface Binary {
+
+	public Natural size {get;}
+	
+	public Binary negate();
+	
+	public Binary rightShiftBy(Natural n);
+	
+	public Binary leftShiftBy(Natural n);
+	
+	
+}

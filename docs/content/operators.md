@@ -234,7 +234,7 @@ Lense supports the following overridable operators:
 	</tr>
 </table>
 
-A note on Increment and Decrement operators (Under consideration)
+### A note on Increment and Decrement operators (Under consideration)
 
 The infix ``--a`` and ``++b`` operators are transformed to calls into ``decrement`` and ``increment``. For example, this code:
 
