@@ -2,14 +2,14 @@ package lense.compiler.ir.tac;
 
 import java.util.Deque;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedList;
-import java.util.ListIterator;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 
-import lense.compiler.SemanticContext;
+import compiler.syntax.AstNode;
+import compiler.trees.TreeTransverser;
+import compiler.trees.Visitor;
+import compiler.trees.VisitorNext;
 import lense.compiler.ast.ArithmeticNode;
 import lense.compiler.ast.ArithmeticOperation;
 import lense.compiler.ast.AssignmentNode;
@@ -19,12 +19,15 @@ import lense.compiler.ast.BreakNode;
 import lense.compiler.ast.ClassInstanceCreationNode;
 import lense.compiler.ast.ClassTypeNode;
 import lense.compiler.ast.ComparisonNode;
+import lense.compiler.ast.ConstructorDeclarationNode;
 import lense.compiler.ast.ContinueNode;
 import lense.compiler.ast.DecisionNode;
 import lense.compiler.ast.FieldDeclarationNode;
 import lense.compiler.ast.FieldOrPropertyAccessNode;
+import lense.compiler.ast.FieldOrPropertyAccessNode.Kind;
 import lense.compiler.ast.ForEachNode;
 import lense.compiler.ast.FormalParameterNode;
+import lense.compiler.ast.IndexedAccessNode;
 import lense.compiler.ast.LiteralCreation;
 import lense.compiler.ast.MethodDeclarationNode;
 import lense.compiler.ast.MethodInvocationNode;
@@ -32,32 +35,39 @@ import lense.compiler.ast.NumericValue;
 import lense.compiler.ast.PosExpression;
 import lense.compiler.ast.PreExpression;
 import lense.compiler.ast.ReturnNode;
+import lense.compiler.ast.StringValue;
 import lense.compiler.ast.SwitchNode;
 import lense.compiler.ast.SwitchOption;
 import lense.compiler.ast.TypedNode;
 import lense.compiler.ast.VariableDeclarationNode;
 import lense.compiler.ast.VariableReadNode;
 import lense.compiler.ast.WhileNode;
+import lense.compiler.context.SemanticContext;
 import lense.compiler.ir.CallInstruction;
 import lense.compiler.ir.CreateNewInstruction;
 import lense.compiler.ir.Operation;
 import lense.compiler.ir.ReadFieldInstruction;
+import lense.compiler.ir.WriteFieldInstruction;
 import lense.compiler.ir.stack.ArithmeticOperate;
+import lense.compiler.ir.stack.InvokeConstructor;
 import lense.compiler.ir.stack.InvokeVirtual;
 import lense.compiler.ir.stack.LoadFromVariable;
 import lense.compiler.ir.stack.PushNumberValue;
 import lense.compiler.ir.stack.PushStringValue;
+import lense.compiler.ir.stack.ReadFieldFromObject;
 import lense.compiler.ir.stack.StackInstructionList;
+import lense.compiler.ir.stack.StackInstructionListOptimizer;
 import lense.compiler.ir.stack.StackVariableMapping;
 import lense.compiler.ir.stack.StoreToVariable;
-import compiler.syntax.AstNode;
-import compiler.trees.TreeTransverser;
-import compiler.trees.Visitor;
-import compiler.trees.VisitorNext;
-import compiler.typesystem.TypeDefinition;
+import lense.compiler.type.TypeDefinition;
+import lense.compiler.type.variable.TypeVariable;
+import lense.compiler.typesystem.LenseTypeSystem;
 
-public class TacInstructionsVisitor implements Visitor<AstNode> {
+public class TacInstructionsVisitor implements Visitor<AstNode> {	
 
+	
+	private TacInstructionListOptimizer tacOptimizer = new TacInstructionListOptimizer();
+	private StackInstructionListOptimizer stackOptimizer = new StackInstructionListOptimizer();
 	private TacInstructionList currentList;
 	private int nextLabel = 1;
 	private int tempIndex =0;
@@ -69,9 +79,11 @@ public class TacInstructionsVisitor implements Visitor<AstNode> {
 	private final SemanticContext semanticContext;
 	private final TypeDefinition classType;
 
+	private final TypeDefinition BOOLEAN;
 	public TacInstructionsVisitor(SemanticContext sc, TypeDefinition classType){
 		this.semanticContext = sc;
 		this.classType = classType;
+		BOOLEAN = sc.typeForName("lense.core.lang.Boolean", 0);
 	}
 
 
@@ -88,7 +100,7 @@ public class TacInstructionsVisitor implements Visitor<AstNode> {
 
 		if (node instanceof ClassTypeNode) {
 			fields.clear();
-		} else if (node instanceof MethodDeclarationNode){
+		} else if (node instanceof MethodDeclarationNode || node instanceof ConstructorDeclarationNode){
 			TacInstructionList list = new TacInstructionList();
 			tempIndex = 0;
 			node.setProperty("instructionsList", list);
@@ -153,19 +165,19 @@ public class TacInstructionsVisitor implements Visitor<AstNode> {
 			TreeTransverser.transverse(n.getContainer(), this);
 			
 			Operand container = n.getContainer().getProperty("tempVal", Operand.class).get();
-		    TypeDefinition containedType = n.getContainer().getTypeDefinition().getGenericParameters().get(0).getUpperbound();
+		    TypeDefinition containedType = extractType(n.getContainer().getTypeVariable().getGenericParameters().get(0).getUpperbound());
 			
-		    TypeDefinition iterableType = semanticContext.typeForName("lense.core.lang.Iterable", 1);
-		    TypeDefinition iteratorType = semanticContext.typeForName("lense.core.lang.Iterator", 1);;
-		    TypeDefinition booleanType = semanticContext.typeForName("lense.core.lang.Boolean", 0);;
+		    TypeDefinition iterableType = LenseTypeSystem.Iterable();  // semanticContext.typeForName("lense.core.lang.Iterable", 1);
+		    TypeDefinition iteratorType =  LenseTypeSystem.Iterator(); //semanticContext.typeForName("lense.core.lang.Iterator", 1);;
+		    TypeDefinition booleanType =  LenseTypeSystem.Boolean();   //semanticContext.typeForName("lense.core.lang.Boolean", 0);;
 		    
-			Operand it = new TemporaryVariable(tempIndex++);
+			Operand it = new TemporaryVariable(tempIndex++,iteratorType);
 			emit(new PrepareParameter(container));
 			emit(new Assign(it,new CallInstruction("iterator", iterableType, iteratorType)));
 
 			emit(new Nop(startLabel));
 			emit(new PrepareParameter(it));
-			Operand condition = new TemporaryVariable(tempIndex++);
+			Operand condition = new TemporaryVariable(tempIndex++,booleanType);
 			emit(new Assign(condition,new CallInstruction("hasNext", iteratorType, booleanType)));
 		
 			emit(new IfJump(condition, false, 0,endLabel));
@@ -214,7 +226,7 @@ public class TacInstructionsVisitor implements Visitor<AstNode> {
 					TreeTransverser.transverse(option.getValue(), this);
 
 					Operand exp = option.getValue().getProperty("tempVal", Operand.class).get();
-					TemporaryVariable target = new TemporaryVariable(tempIndex++);
+					TemporaryVariable target = new TemporaryVariable(tempIndex++, BOOLEAN);
 					
 					emit(new AssignAfterBinaryOperation(target, value, Operation.IS_EQUAL_TO, exp));
 					emit(new IfJump(target, false, 0,nextSwitchLabel));
@@ -234,17 +246,26 @@ public class TacInstructionsVisitor implements Visitor<AstNode> {
 
 
 
+	private TypeDefinition extractType(TypeVariable type) {
+		return type.getTypeDefinition();
+	}
+
+
 	@Override
 	public void visitAfterChildren(AstNode node) {
 
 		if (node instanceof MethodDeclarationNode){
 			MethodDeclarationNode n = (MethodDeclarationNode)node;
+			String name = ((MethodDeclarationNode)node).getName();
+			
+			TacInstructionList list = n.getTacInstructionsList().get();
 
-			TacInstructionList list = node.getProperty("instructionsList", TacInstructionList.class).get();
+			list = tacOptimizer.optimize(list);
 
-			list = optimize(list);
-
-			System.out.println("METHOD " + ((MethodDeclarationNode)node).getName() + "{");
+			n.setTacInstructionsList(list);
+			
+			
+			System.out.println("METHOD " + name + "{");
 			System.out.print(list.toString());
 			System.out.println("}");
 			System.out.println();
@@ -259,9 +280,18 @@ public class TacInstructionsVisitor implements Visitor<AstNode> {
 				variablesMapping.putIncrement(fp.getName());
 			}
 
-			StackInstructionList stack = ToStack(list,variablesMapping);
+			StackInstructionList stack = toStack(list,variablesMapping);
+			
+			System.out.println("METHOD " + name + "{");
+			System.out.print(stack.toString());
+			System.out.println("}");
+			System.out.println();
+			
+			stack = stackOptimizer.optimize(stack);
+			
+			n.setStackInstructionsList(stack);
 
-			System.out.println("METHOD " + ((MethodDeclarationNode)node).getName() + "{");
+			System.out.println("METHOD " + name + "{");
 			System.out.print(stack.toString());
 			System.out.println("}");
 			System.out.println();
@@ -280,6 +310,8 @@ public class TacInstructionsVisitor implements Visitor<AstNode> {
 
 	}
 
+
+
 	private Optional<Operand> emitNode(AstNode node) {
 		if (node instanceof ContinueNode){
 
@@ -295,7 +327,8 @@ public class TacInstructionsVisitor implements Visitor<AstNode> {
 			Operand left = n.getLeft().getProperty("tempVal", Operand.class).get();
 			Operand right = n.getRight().getProperty("tempVal", Operand.class).get();
 
-			TemporaryVariable target = new TemporaryVariable(tempIndex++);
+			
+			TemporaryVariable target = new TemporaryVariable(tempIndex++, extractType(n.getTypeVariable()));
 
 			emit(new AssignAfterBinaryOperation(target, left, operationFor(n.getOperation()), right));
 
@@ -310,12 +343,12 @@ public class TacInstructionsVisitor implements Visitor<AstNode> {
 			Operation op = logicOperationFor(n.getOperation());
 			
 			if (op == Operation.LOGICAL_SHORT_AND || op == Operation.LOGICAL_SHORT_OR){
-				// TODO decision making
-				TemporaryVariable target = new TemporaryVariable(tempIndex++);
+				// TODO decision making with jumps 
+				TemporaryVariable target = new TemporaryVariable(tempIndex++,extractType(n.getTypeVariable()));
 				emit(new AssignAfterBinaryOperation(target, left, op, right));
 				n.setProperty("tempVal", target);
 			} else {
-				TemporaryVariable target = new TemporaryVariable(tempIndex++);
+				TemporaryVariable target = new TemporaryVariable(tempIndex++,extractType(n.getTypeVariable()));
 				emit(new AssignAfterBinaryOperation(target, left, op, right));
 				n.setProperty("tempVal", target);
 			}
@@ -338,7 +371,7 @@ public class TacInstructionsVisitor implements Visitor<AstNode> {
 			Operand left = n.getLeft().getProperty("tempVal", Operand.class).get();
 			Operand right = n.getRight().getProperty("tempVal", Operand.class).get();
 
-			TemporaryVariable target = new TemporaryVariable(tempIndex++);
+			TemporaryVariable target = new TemporaryVariable(tempIndex++,extractType(n.getTypeVariable()));
 
 			emit(new AssignAfterBinaryOperation(target, left, comparisonFor(n.getOperation()), right));
 
@@ -347,45 +380,64 @@ public class TacInstructionsVisitor implements Visitor<AstNode> {
 		} else if (node instanceof VariableReadNode){
 			VariableReadNode n =(VariableReadNode)node;
 	
-			Operand target = new LocalVariable(n.getName(),n.getTypeDefinition());
-
-			n.setProperty("tempVal", target);
-
+			if (n.getVariableInfo().getDeclaringNode() instanceof FieldDeclarationNode){
+				n.setProperty("tempVal",  new ReadFieldInstruction(n.getName(), false, classType, extractType(n.getTypeVariable())));
+			} else {
+				n.setProperty("tempVal", new LocalVariable(n.getName(),extractType(n.getTypeVariable())));
+			}
 		} else if (node instanceof FieldOrPropertyAccessNode){
 			FieldOrPropertyAccessNode n =(FieldOrPropertyAccessNode)node;
 
 			TypeDefinition ownerType = null;
 			if (n.getPrimary() == null){
 				ownerType = this.classType;
+				emit(new PrepareParameter(new LocalVariable("this", classType)));
 			} else {
-				ownerType = ((TypedNode)n.getPrimary()).getTypeDefinition();
+				ownerType = extractType(((TypedNode)n.getPrimary()).getTypeVariable());
+				Operand access = n.getPrimary().getProperty("tempVal", Operand.class).get();
+				
+				Operand target = new TemporaryVariable(tempIndex++, access.getOperandType());
+				emit(new Assign(target, access));
+				emit(new PrepareParameter(target));
 			}
 			
-			if (node.getParent() instanceof AssignmentNode){
-				Operand field = new ReadFieldInstruction(n.getName(), false, ownerType, n.getTypeDefinition());
-				Operand target = new TemporaryVariable(tempIndex++);
+			if (n.getKind() == Kind.FIELD){
+				if (node.getParent() instanceof AssignmentNode){
+					Operand field = new WriteFieldInstruction(n.getName(), false, ownerType,extractType(n.getTypeVariable()));
+					
+					n.setProperty("tempVal", field);
+				} else {
+					Operand field = new ReadFieldInstruction(n.getName(), false, ownerType,extractType(n.getTypeVariable()));
+					Operand target = new TemporaryVariable(tempIndex++,extractType(n.getTypeVariable()));
+					
+					emit(new Assign(target, field));
+					n.setProperty("tempVal", target);
 				
-				emit(new Assign(target, field));
-				n.setProperty("tempVal", target);
+				}
 			} else {
-				Operand field = new ReadFieldInstruction(n.getName(), false, ownerType, n.getTypeDefinition());
-				Operand target = new TemporaryVariable(tempIndex++);
-				
-				emit(new Assign(target, field));
-				n.setProperty("tempVal", target);
-			
-			}
-			
-			
-	
-	
+				// TODO invoke get
+				String name = n.getName().substring(0, 1).toUpperCase() + n.getName().substring(1);
+				if (node.getParent() instanceof AssignmentNode){
+					
+					Operand target = new CallInstruction("set" + name, ownerType, LenseTypeSystem.Void());
+					n.setProperty("tempVal", target);
 
+				} else {
+					Operand field = new CallInstruction("get" + name, ownerType,extractType(n.getTypeVariable()));
+					Operand target = new TemporaryVariable(tempIndex++,extractType(n.getTypeVariable()));
+					
+					emit(new Assign(target, field));
+					n.setProperty("tempVal", target);
+				
+				}
+			}
+			
 		} else if (node instanceof VariableDeclarationNode){
 			VariableDeclarationNode n =(VariableDeclarationNode)node;
 
 			Operand right = n.getInitializer().getProperty("tempVal", Operand.class).get();
 
-			Operand target = new LocalVariable(n.getInfo().getName(),n.getTypeDefinition());
+			Operand target = new LocalVariable(n.getInfo().getName(),extractType(n.getTypeVariable()));
 
 			emit(new Assign(target, right));
 
@@ -394,12 +446,20 @@ public class TacInstructionsVisitor implements Visitor<AstNode> {
 		}else if (node instanceof NumericValue){
 
 			NumericValue n =(NumericValue)node;
-			Operand target = new TemporaryVariable(tempIndex++);
+			Operand target = new TemporaryVariable(tempIndex++, extractType(n.getTypeVariable()));
 
-			emit(new Assign(target, new NumericConstant(n.getValue(), n.getTypeDefinition())));
+			emit(new Assign(target, new NumericConstant(n.getValue(), extractType(n.getTypeVariable()))));
 
 			n.setProperty("tempVal", target);
-		} else if (node instanceof ReturnNode){
+		} else if (node instanceof StringValue){
+
+			StringValue n =(StringValue)node;
+			Operand target = new TemporaryVariable(tempIndex++, extractType(n.getTypeVariable()));
+
+			emit(new Assign(target, new StringConstant(n.getValue())));
+
+			n.setProperty("tempVal", target);
+		}else if (node instanceof ReturnNode){
 			ReturnNode n =(ReturnNode)node;
 
 			if (n.getValue() == null){
@@ -431,7 +491,7 @@ public class TacInstructionsVisitor implements Visitor<AstNode> {
 				n.setProperty("tempVal", operand);
 
 			} else {
-				Operand target = new TemporaryVariable(tempIndex++);
+				Operand target = new TemporaryVariable(tempIndex++, extractType(n.getTypeVariable()));
 				if (op == Operation.SUBTRACT){
 					op = Operation.SYMETRIC;
 				}
@@ -439,7 +499,32 @@ public class TacInstructionsVisitor implements Visitor<AstNode> {
 
 				n.setProperty("tempVal", target);
 			}
+		} else if (node instanceof IndexedAccessNode){
+			// access[expr]
+			IndexedAccessNode n =(IndexedAccessNode)node;
+			
+			Operand access = n.getAccess().getProperty("tempVal", Operand.class).get();
+			Operand expr = n.getIndexExpression().getProperty("tempVal", Operand.class).get();
+			
+			TypeDefinition ownerType = extractType(((TypedNode)n.getAccess()).getTypeVariable());
+			
+			Operand target = new TemporaryVariable(tempIndex++, access.getOperandType());
+			emit(new Assign(target, access));
+			emit(new PrepareParameter(target));
+			
+			if (!(node.getParent() instanceof AssignmentNode)){
 
+				emit(new PrepareParameter(expr));
+				
+				target = new TemporaryVariable(tempIndex++,extractType(n.getTypeVariable()));
+				emit(new Assign(target,new CallInstruction("get", ownerType,extractType(n.getTypeVariable()))));
+
+				n.setProperty("tempVal", target);
+			} else {
+				n.setProperty("tempVal", new CallInstruction("set", ownerType,extractType(n.getTypeVariable())));
+			}
+			
+			
 		} else if (node instanceof MethodInvocationNode){
 			MethodInvocationNode n =(MethodInvocationNode)node;
 
@@ -448,10 +533,10 @@ public class TacInstructionsVisitor implements Visitor<AstNode> {
 				ownerType = classType;
 				emit(new PrepareParameter(new LocalVariable("this", classType)));
 			} else {
-				ownerType = ((TypedNode)n.getAccess()).getTypeDefinition();
+				ownerType = extractType(((TypedNode)n.getAccess()).getTypeVariable());
 				Operand access = n.getAccess().getProperty("tempVal", Operand.class).get();
 				
-				Operand target = new TemporaryVariable(tempIndex++);
+				Operand target = new TemporaryVariable(tempIndex++, access.getOperandType());
 				emit(new Assign(target, access));
 				emit(new PrepareParameter(target));
 			}
@@ -461,20 +546,23 @@ public class TacInstructionsVisitor implements Visitor<AstNode> {
 				emit(new PrepareParameter(param));
 			}
 
-			Operand target = new TemporaryVariable(tempIndex++);
-			emit(new Assign(target,new CallInstruction(n.getCall().getName(), ownerType,n.getTypeDefinition())));
+			Operand target = new TemporaryVariable(tempIndex++,extractType(n.getTypeVariable()));
+			emit(new Assign(target,new CallInstruction(n.getCall().getName(), ownerType,extractType(n.getTypeVariable()))));
 
 			n.setProperty("tempVal", target);
 		}  else if (node instanceof ClassInstanceCreationNode){
 			ClassInstanceCreationNode n =(ClassInstanceCreationNode)node;
 
-			for( AstNode paramNode : n.getArguments().getChildren()){
-				Operand param = paramNode.getProperty("tempVal", Operand.class).get();
-				emit(new PrepareParameter(param));
+			if ( n.getArguments() != null && n.getArguments().getChildren() != null){
+				for( AstNode paramNode : n.getArguments().getChildren()){
+					Operand param = paramNode.getProperty("tempVal", Operand.class).get();
+					emit(new PrepareParameter(param));
+				}
 			}
+			
 
-			Operand target = new TemporaryVariable(tempIndex++);
-			emit(new Assign(target,new CreateNewInstruction(n.getTypeDefinition(), node instanceof LiteralCreation)));
+			Operand target = new TemporaryVariable(tempIndex++,extractType(n.getTypeVariable()));
+			emit(new Assign(target,new CreateNewInstruction(extractType(n.getTypeVariable()), n.getName(), node instanceof LiteralCreation)));
 
 			n.setProperty("tempVal", target);
 
@@ -530,7 +618,7 @@ public class TacInstructionsVisitor implements Visitor<AstNode> {
 		}
 	}
 
-	private StackInstructionList ToStack(TacInstructionList list,StackVariableMapping  variablesMapping) {
+	private StackInstructionList toStack(TacInstructionList list,StackVariableMapping  variablesMapping) {
 		StackInstructionList stack = new StackInstructionList();
 
 
@@ -542,6 +630,11 @@ public class TacInstructionsVisitor implements Visitor<AstNode> {
 	}
 
 	private void toStack(TacInstruction instruction, StackInstructionList stack, StackVariableMapping  variablesMapping) {
+		
+		if (instruction.isLabeled()){
+			stack.add(new lense.compiler.ir.stack.Label(instruction.getLabel()));
+		}
+		
 		if (instruction instanceof Assign){
 			Assign n = (Assign)instruction;
 
@@ -570,6 +663,16 @@ public class TacInstructionsVisitor implements Visitor<AstNode> {
 			PrepareParameter n = (PrepareParameter)instruction;
 
 			load(n.getRight(), stack, variablesMapping);
+		} else if (instruction instanceof IfJump){
+			IfJump n = (IfJump)instruction;
+
+			load(n.getCondition(), stack, variablesMapping);
+			
+			stack.add(new lense.compiler.ir.stack.IfJumpTo(n.isConditionTrue(), n.getTargetLabel()));
+		}else if (instruction instanceof GoTo){
+			GoTo n = (GoTo)instruction;
+
+			stack.add(new lense.compiler.ir.stack.GoTo(n.getTargetLabel()));
 		}
 	}
 
@@ -590,17 +693,30 @@ public class TacInstructionsVisitor implements Visitor<AstNode> {
 
 			Integer index = variablesMapping.get(c.getName());
 
-			stack.add(new LoadFromVariable(index.intValue()));
+			if (index == null){
+				throw new RuntimeException();
+			}
+			stack.add(new LoadFromVariable(index.intValue(), c.getType()));
 		} else if (ref instanceof TemporaryVariable){
 			TemporaryVariable c = (TemporaryVariable)ref;
 
 			Integer index = variablesMapping.get(c.getName());
 
-			stack.add(new LoadFromVariable(index.intValue()));
+			stack.add(new LoadFromVariable(index.intValue(), c.getType()));
 		} else if (ref instanceof CallInstruction){
 			CallInstruction c = (CallInstruction)ref;
 
-			stack.add(new InvokeVirtual(c.getName()));
+			stack.add(new InvokeVirtual(c.getOwner(), c.getName(), c.getReturnType()));
+		} else if (ref instanceof ReadFieldInstruction){
+			ReadFieldInstruction c = (ReadFieldInstruction)ref;
+
+			stack.add(new ReadFieldFromObject(c.getOwnerType(), c.getName(), c.getReturnType()));
+		} else if (ref instanceof CreateNewInstruction){
+			CreateNewInstruction c = (CreateNewInstruction)ref;
+			
+			stack.add(new InvokeConstructor(c.getType(), c.getName()));
+		} else {
+			throw new RuntimeException("Unrecognized Operand " + ref.getClass() );
 		}
 	}
 
@@ -613,7 +729,7 @@ public class TacInstructionsVisitor implements Visitor<AstNode> {
 				index = variablesMapping.putIncrement(c.getName());
 			}
 
-			stack.add(new StoreToVariable(index.intValue()));
+			stack.add(new StoreToVariable(index.intValue(), c.getType()));
 		} else if (ref instanceof TemporaryVariable){
 			TemporaryVariable c = (TemporaryVariable)ref;
 
@@ -622,153 +738,12 @@ public class TacInstructionsVisitor implements Visitor<AstNode> {
 				index = variablesMapping.putIncrement(c.getName());
 			}
 
-			stack.add(new StoreToVariable(index.intValue()));
+			stack.add(new StoreToVariable(index.intValue(), c.getType()));
 		}
 	}
 
-	private TacInstructionList optimize(TacInstructionList list) {
-		if (list.size() <= 1){
-			return list;
-		}
-		boolean changed = true;
-		while (changed){
-			changed = false;
-
-			changed = optimizeCopyPropagation(list);
-			changed = changed | optimizeRemoveNop(list);
-			changed = changed | optimizeRemoveUnnecessaryGoto(list);
-			// TODO GOTO after return is unncessary
-		}
-
-		return list;
-	}
-
-	private boolean optimizeRemoveUnnecessaryGoto(TacInstructionList list) {
-
-		ListIterator<TacInstruction> it = list.endIterator();
-		Map<Integer, Integer> redirection = new HashMap<>();
-
-		boolean changed = false;
-
-		while (it.hasPrevious()){
-			TacInstruction current = it.previous();
-			if (current instanceof GoTo){ 
-				GoTo c = ((GoTo)current);
-
-				if (redirection.keySet().contains(c.getTargetLabel())){
-					changed = true;
-					c.setTargetLabel(redirection.get(c.getTargetLabel()));
-				}
-
-			} else if (current.isLabeled()){ // current is labeled but is not a GOTO
-				TacInstruction previous = it.previous();
-				if (previous instanceof GoTo){
-					GoTo c= (GoTo)previous;
-					if (c.getTargetLabel() == current.getLabel()){
-						// unnecessary goto
-						changed = true;
-						it.remove();
-
-						if (c.getLabel() > 0){
-							redirection.put(c.getLabel(), current.getLabel());
-						}
-
-
-					} else if (redirection.keySet().contains(c.getTargetLabel())){
-						changed = true;
-						c.setTargetLabel(redirection.get(c.getTargetLabel()));
-					}
-				}
-			}
-		}
-
-		return changed;
-	}
-
-
-	private boolean optimizeRemoveNop(TacInstructionList list) {
-		ListIterator<TacInstruction> it = list.iterator();
-
-
-		Set<TacInstruction> toRemove = new HashSet<> ();
-
-		// passe the first one
-		it.next();
-
-		while (it.hasNext()){
-
-			if (it.hasPrevious()){
-				TacInstruction previous = it.previous();
-				it.next();
-				TacInstruction next = it.next();
-
-				if (previous.isNop()){
-					next.setLabel(previous.getLabel());
-					toRemove.add(previous);
-				}
-			}
-		}
-
-		if (!toRemove.isEmpty()){
-			it = list.iterator();
-			while (it.hasNext()){
-				if(toRemove.contains(it.next())){
-					it.remove();
-				}
-			}
-			return true;
-		} else {
-			return false;
-		}
-	}
-
-
-	private boolean optimizeCopyPropagation(TacInstructionList list) {
-		boolean changed = false;
-		for (int i =0; i < list.size()- 1; i++){
-			TacInstruction instruction = list.get(i);
-			if (instruction instanceof Assign){
-				Assign assign = (Assign)instruction;
-				if (assign.getTarget().isTemporary() && !(assign.getSource().isInstruction())){
-					if (assign.isLabeled()){
-						list.set(i, new Nop(assign.getLabel()));
-					} else {
-						list.removeAt(i);
-					}
-					for (int j =i; j< list.size(); j++){
-						changed = list.get(j).replace(assign.getTarget(), assign.getSource());
-					}
-				}
-
-			} else  if (instruction instanceof AssignAfterBinaryOperation){
-				AssignAfterBinaryOperation assignBinary = (AssignAfterBinaryOperation)instruction;
-
-				if (assignBinary.getTarget().isTemporary()){
-					for (int j =i+1; j< list.size(); j++){
-						TacInstruction next = list.get(j);
-						if (next instanceof Assign){
-							Assign assign = (Assign)next;
-							if (assignBinary.getTarget().equals(assign.getSource())){
-								assignBinary.replace(assignBinary.getTarget(), assign.getTarget());
-								if (next.isLabeled()){
-									list.set(j, new Nop(assign.getLabel()));
-								} else {
-									list.removeAt(j);
-								}
-
-								j--;
-								changed = true;
-								break;
-							}
-						}
-
-					}
-				}
-			}
-		}
-
-		return changed;
-	}
+	
+	
 
 	private void emit(TacInstruction tac) {
 		currentList.add(tac);

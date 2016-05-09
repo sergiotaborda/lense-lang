@@ -4,8 +4,9 @@
 package lense.compiler.ast;
 
 import lense.compiler.ast.NeedTypeCalculationNode;
+import lense.compiler.type.TypeDefinition;
+import lense.compiler.type.variable.TypeVariable;
 import compiler.syntax.AstNode;
-import compiler.typesystem.TypeDefinition;
 
 
 
@@ -43,8 +44,8 @@ public class FieldAccessNode extends NeedTypeCalculationNode {
 		return name;
 	}
 
-	public void setType(TypeDefinition type){
-		super.setTypeDefinition(type);
+	public void setType(TypeVariable type){
+		super.setTypeVariable(type);
 	}
 	
 	public AstNode getPrimary() {

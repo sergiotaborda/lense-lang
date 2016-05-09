@@ -1,0 +1,7 @@
+
+import lense.core.math.Integer;
+import lense.core.lang.Binary;
+
+public native class Int32 extends Integer implements Binary{
+
+}

@@ -1,15 +1,19 @@
 
+import lense.core.math.Int32;
+import lense.core.lang.String;
+import lense.core.math.Natural;
+
 public class teste {
 
- 	var Int field = 1;
+ 	var Int32 field = 1;
  	
  	
 	public Void main(){
 		
-		var Int u = field;
+		var Int32 u = field;
 		
 		
-		var Int h = this.field;
+		var Int32 h = this.field;
 		
 		
 		var String s = this.field.toString();

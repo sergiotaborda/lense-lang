@@ -8,6 +8,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 
+import lense.compiler.FileLocations;
 import lense.compiler.ast.ClassTypeNode;
 import compiler.CompiledUnit;
 import compiler.CompilerBackEnd;
@@ -19,14 +20,14 @@ import compiler.trees.TreeTransverser;
  */
 public class OutToJavaSource implements CompilerBackEnd {
 
-	File out;
+	FileLocations out;
 	
 	/**
 	 * Constructor.
 	 * @param out
 	 * @throws IOException 
 	 */
-	public OutToJavaSource(File out) {
+	public OutToJavaSource(FileLocations out) {
 		this.out = out; 
 	}
 
@@ -37,10 +38,10 @@ public class OutToJavaSource implements CompilerBackEnd {
 	public void use(CompiledUnit unit) {
 		
 
-		AstNode javaRoot = TreeTransverser.transform(unit.getAstRootNode(), new Lense2JavaTransformer());
-		
-		File compiled = out;
-		if (out.isDirectory()){
+		//AstNode javaRoot = TreeTransverser.transform(unit.getAstRootNode(), new Lense2JavaTransformer());
+		File target = out.getTargetFolder();
+		File compiled = target;
+		if (target.isDirectory()){
 			AstNode node = unit.getAstRootNode().getChildren().get(0);
 			
 			if (!(node instanceof ClassTypeNode)){
@@ -53,9 +54,9 @@ public class OutToJavaSource implements CompilerBackEnd {
 			File folder;
 			if (pos >=0){
 				path = path.substring(0, pos);
-				folder = new File(out, path );
+				folder = new File(target, path );
 			} else {
-				folder = out;
+				folder = target;
 			}
 			
 			folder.mkdirs();
@@ -65,14 +66,13 @@ public class OutToJavaSource implements CompilerBackEnd {
 				compiled.createNewFile();
 				
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			
 		}
 
 		try(PrintWriter writer = new PrintWriter(new FileWriter(compiled))){
-			TreeTransverser.transverse(javaRoot, new JavaSourceWriterVisitor(writer));
+			TreeTransverser.transverse(unit.getAstRootNode(), new JavaSourceWriterVisitor(writer));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

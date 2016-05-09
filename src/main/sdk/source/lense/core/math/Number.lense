@@ -1,0 +1,6 @@
+
+import lense.core.lang.TextRepresentable;
+
+public class Number implements TextRepresentable {
+
+}

@@ -1,7 +1,7 @@
 package lense.compiler.ir;
 
 import lense.compiler.ir.tac.Operand;
-import compiler.typesystem.TypeDefinition;
+import lense.compiler.type.TypeDefinition;
 
 public class CallInstruction implements Operand {
 
@@ -19,6 +19,14 @@ public class CallInstruction implements Operand {
 		return " call " + methodName + " in " + ownerType + " returning a " + returnType; 
 	}
 
+	public TypeDefinition getOwner(){
+		return ownerType;
+	}
+	
+	public TypeDefinition getReturnType(){
+		return returnType;
+	}
+	
 	@Override
 	public boolean isTemporary() {
 		return false;
@@ -31,6 +39,11 @@ public class CallInstruction implements Operand {
 	@Override
 	public boolean isInstruction() {
 		return true;
+	}
+
+	@Override
+	public TypeDefinition getOperandType() {
+		return returnType;
 	}
 	
 

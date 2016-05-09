@@ -7,9 +7,8 @@ import java.util.List;
 import java.util.Optional;
 
 import lense.compiler.ast.QualifiedNameNode;
-
-import compiler.typesystem.TypeDefinition;
-import compiler.typesystem.TypeSearchParameters;
+import lense.compiler.type.TypeDefinition;
+import lense.compiler.typesystem.TypeSearchParameters;
 
 /**
  * 

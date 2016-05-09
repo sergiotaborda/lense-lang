@@ -1,0 +1,6 @@
+
+import lense.core.math.Real;
+
+public class Decimal extends Real {
+
+}

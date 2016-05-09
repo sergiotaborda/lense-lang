@@ -3,12 +3,12 @@
  */
 package lense.compiler.ast;
 
-import compiler.typesystem.TypeDefinition;
+import lense.compiler.type.variable.TypeVariable;
 
 /**
  * 
  */
 public interface TypedNode {
 
-	public TypeDefinition getTypeDefinition();
+	public TypeVariable getTypeVariable();
 }

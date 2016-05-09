@@ -3,15 +3,9 @@
  */
 package lense.compiler.ast;
 
-import lense.compiler.ast.ExpressionNode;
-import lense.compiler.ast.Imutability;
-import lense.compiler.ast.ImutabilityNode;
-import lense.compiler.ast.ScopedVariableDefinitionNode;
-import lense.compiler.ast.LenseAstNode;
-import lense.compiler.ast.TypeNode;
 import compiler.syntax.AstNode;
-import compiler.typesystem.TypeDefinition;
-import compiler.typesystem.VariableInfo;
+import lense.compiler.context.VariableInfo;
+import lense.compiler.type.variable.TypeVariable;
 
 /**
  * 
@@ -25,8 +19,8 @@ public class VariableDeclarationNode extends LenseAstNode implements ScopedVaria
 	private VariableInfo info;
 	private ImutabilityNode imutability;
 	
-	public TypeDefinition getTypeDefinition() {
-		return type.getTypeDefinition();
+	public TypeVariable getTypeVariable() {
+		return type.getTypeVariable();
 	}
 
 	public TypeNode getTypeNode() {
@@ -91,7 +85,7 @@ public class VariableDeclarationNode extends LenseAstNode implements ScopedVaria
 		
 		if (this.inicializer == node){
 			ExpressionNode exp = (ExpressionNode) newnode;
-			exp.setTypeDefinition(this.inicializer.getTypeDefinition());
+			exp.setTypeVariable(this.inicializer.getTypeVariable());
 			this.inicializer = exp;
 		}
 	}

@@ -1,6 +1,6 @@
 package lense.compiler.ir.stack;
 
-import compiler.typesystem.TypeDefinition;
+import lense.compiler.type.TypeDefinition;
 
 public class ConvertTypes extends StackInstruction {
 
@@ -12,4 +12,14 @@ public class ConvertTypes extends StackInstruction {
 		this.original = original;
 		this.target = target;
 	}
+
+	public TypeDefinition getOriginal() {
+		return original;
+	}
+
+	public TypeDefinition getTarget() {
+		return target;
+	}
+	
+	
 }

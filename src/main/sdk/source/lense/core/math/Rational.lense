@@ -1,0 +1,11 @@
+
+import lense.core.math.Real;
+import lense.core.math.Integer;
+
+public class Rational extends Real {
+
+	val Integer numerator;
+	val Integer denominator;
+	
+	
+}

@@ -13,6 +13,26 @@ public class IfJump extends TacInstruction{
 		this.conditionValue = conditionValue;
 	}
 	
+	
+	
+	public Operand getCondition() {
+		return condition;
+	}
+
+
+
+	public int getTargetLabel() {
+		return targetLabel;
+	}
+
+
+
+	public boolean isConditionTrue() { 
+		return conditionValue;
+	}
+
+
+
 	@Override
 	public boolean replace(Operand find, Operand replacement) {
 		

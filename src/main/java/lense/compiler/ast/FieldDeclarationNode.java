@@ -3,19 +3,20 @@
  */
 package lense.compiler.ast;
 
-import lense.compiler.ast.AnnotadedSenseAstNode;
+import lense.compiler.ast.AnnotadedLenseAstNode;
 import lense.compiler.ast.ExpressionNode;
 import lense.compiler.ast.Imutability;
 import lense.compiler.ast.ImutabilityNode;
 import lense.compiler.ast.ScopedVariableDefinitionNode;
 import lense.compiler.ast.TypeNode;
-import compiler.typesystem.TypeDefinition;
-import compiler.typesystem.VariableInfo;
+import lense.compiler.context.VariableInfo;
+import lense.compiler.type.TypeDefinition;
+import lense.compiler.type.variable.TypeVariable;
 
 /**
  * 
  */
-public class FieldDeclarationNode extends AnnotadedSenseAstNode implements ScopedVariableDefinitionNode{
+public class FieldDeclarationNode extends AnnotadedLenseAstNode implements ScopedVariableDefinitionNode{
 
 	private TypeNode typeNode;
 	private String name;
@@ -36,8 +37,8 @@ public class FieldDeclarationNode extends AnnotadedSenseAstNode implements Scope
 		return typeNode;
 	}
 	
-	public TypeDefinition getTypeDefinition() {
-		return typeNode.getTypeDefinition();
+	public TypeVariable getTypeVariable() {
+		return typeNode.getTypeVariable();
 	}
 
 	public String getName() {

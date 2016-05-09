@@ -8,7 +8,7 @@ status=published
 # Objects
 
 In Lense all things are objects and all variables are references. This means, no primitives and no static members.
-The Lense back-end compiler will try to use the native plataform's primitives as much as possible to enhance performance, but this is an otimization. Conceptually primitives do not exist.
+The Lense back-end compiler may try to use the native plataform's primitives as much as possible to enhance performance, but this is an otimization. Conceptually primitives do not exist.
 
 Instead of static members, Lense has global objects.A global object is declared like:
 
@@ -34,7 +34,7 @@ public class OtherClass {
 
 ~~~~
 
-As you can see from this example, calling methods on the object is very much like a static call in other languages, say java or C#.
+As you can see from this example, calling methods on the object is very much like a static call in other languages.
 
 When declaring an object Lense will really create a single instance of the given anonymous class in the parent scope. Objects can implement interfaces and inherit from other classes but not from other objects. 
 

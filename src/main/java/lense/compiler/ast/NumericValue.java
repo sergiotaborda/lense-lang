@@ -3,8 +3,8 @@
  */
 package lense.compiler.ast;
 
-import lense.compiler.ast.LiteralExpressionNode;
-import compiler.typesystem.TypeDefinition;
+import lense.compiler.type.TypeDefinition;
+import lense.compiler.type.variable.FixedTypeVariable;
 
 
 /**
@@ -21,7 +21,7 @@ public class NumericValue extends LiteralExpressionNode {
 	 */
 	public void setValue(Number n, TypeDefinition type) {
 		this.number = n;
-		this.setTypeDefinition(type);
+		this.setTypeVariable(new FixedTypeVariable(type));
 	}
 	
 	public String toString(){

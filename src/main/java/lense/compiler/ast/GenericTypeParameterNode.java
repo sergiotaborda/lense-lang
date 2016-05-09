@@ -3,11 +3,8 @@
  */
 package lense.compiler.ast;
 
-import lense.compiler.ast.LenseAstNode;
-import lense.compiler.ast.TypeNode;
-import lense.compiler.ast.TypedNode;
-import compiler.typesystem.TypeDefinition;
-import compiler.typesystem.Variance;
+import lense.compiler.type.variable.TypeVariable;
+import lense.compiler.typesystem.Variance;
 
 
 /**
@@ -37,7 +34,10 @@ public class GenericTypeParameterNode extends LenseAstNode implements TypedNode 
 	 */
 	public GenericTypeParameterNode(TypeNode typeNode, Variance variance) {
 		this.typeNode = typeNode;
-		this.add(typeNode);
+		if (typeNode != null){
+			this.add(typeNode);
+		}
+		
 		this.variance = variance;
 	}
 
@@ -54,8 +54,8 @@ public class GenericTypeParameterNode extends LenseAstNode implements TypedNode 
 	 * {@inheritDoc}
 	 */
 	@Override
-	public TypeDefinition getTypeDefinition() {
-		return typeNode.getTypeDefinition();
+	public TypeVariable getTypeVariable() {
+		return typeNode.getTypeVariable();
 	}
 
 	public Variance getVariance() {

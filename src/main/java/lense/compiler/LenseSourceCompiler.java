@@ -3,7 +3,9 @@
  */
 package lense.compiler;
 
-import lense.compiler.phases.LenseSemanticPhase;
+import lense.compiler.phases.IntermediatyRepresentationPhase;
+import lense.compiler.phases.SemanticAnaylisisPhase;
+import lense.compiler.typesystem.PackageResolver;
 import lense.compiler.phases.NameResolutionPhase;
 import compiler.AstCompiler;
 import compiler.CompilationResultSet;
@@ -33,6 +35,10 @@ public class LenseSourceCompiler extends AstCompiler {
 			}
 			
 		};
-		return super.parse(unitSet).passBy(new NameResolutionPhase(repo, resolver, this.getListener())).passBy(new LenseSemanticPhase(this.getListener()));
+		return super.parse(unitSet)
+				.passBy(new NameResolutionPhase(repo, resolver, this.getListener()))
+				.passBy(new SemanticAnaylisisPhase(this.getListener()))
+				.passBy(new IntermediatyRepresentationPhase())
+				;
 	}
 }

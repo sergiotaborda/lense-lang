@@ -39,6 +39,10 @@ public class DependencyNode {
 	public boolean equals(Object other){
 		return other instanceof DependencyNode && ((DependencyNode)other).name.equals(this.name);
 	}
+	
+	public int hashCode (){
+		return name.hashCode();
+	}
 
 	/**
 	 * @param node
@@ -46,6 +50,7 @@ public class DependencyNode {
 	public void setUnit(CompiledUnit unit) {
 		this.unit= unit;
 	}
+
 
 	
 }

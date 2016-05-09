@@ -1,6 +1,6 @@
 package lense.compiler.ir.tac;
 
-import compiler.typesystem.TypeDefinition;
+import lense.compiler.type.TypeDefinition;
 
 public class NumericConstant implements Operand {
 
@@ -40,5 +40,10 @@ public class NumericConstant implements Operand {
 	@Override
 	public boolean isInstruction() {
 		return false;
+	}
+
+	@Override
+	public TypeDefinition getOperandType() {
+		return type;
 	}
 }

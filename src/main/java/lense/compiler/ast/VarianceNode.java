@@ -3,7 +3,7 @@
  */
 package lense.compiler.ast;
 
-import compiler.typesystem.Variance;
+import lense.compiler.typesystem.Variance;
 
 /**
  * 

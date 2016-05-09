@@ -9,6 +9,6 @@ import lense.compiler.ast.LenseAstNode;
 /**
  * 
  */
-public class StatementNode extends LenseAstNode {
+public abstract class StatementNode extends LenseAstNode {
 
 }

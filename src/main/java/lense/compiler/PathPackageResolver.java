@@ -8,6 +8,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import compiler.CompilationUnit;
+import lense.compiler.typesystem.PackageResolver;
 
 /**
  * 

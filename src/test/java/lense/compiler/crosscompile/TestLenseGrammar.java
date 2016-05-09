@@ -13,18 +13,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-import lense.compiler.Import;
-import lense.compiler.LenseGrammar;
-import lense.compiler.LenseLanguage;
-import lense.compiler.LenseSourceCompiler;
-import lense.compiler.LenseTypeRepository;
-import lense.compiler.PathPackageResolver;
-import lense.compiler.ast.ClassTypeNode;
-import lense.compiler.ast.UnitTypes;
-import lense.compiler.crosscompile.java.OutToJavaSource;
-import lense.compiler.phases.NameResolutionPhase;
-import lense.compiler.typesystem.LenseTypeSystem;
-
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -52,7 +40,19 @@ import compiler.parser.SplitAction;
 import compiler.parser.Terminal;
 import compiler.parser.Text;
 import compiler.syntax.AstNode;
-import compiler.typesystem.TypeDefinition;
+import lense.compiler.FileLocations;
+import lense.compiler.Import;
+import lense.compiler.LenseGrammar;
+import lense.compiler.LenseLanguage;
+import lense.compiler.LenseSourceCompiler;
+import lense.compiler.LenseTypeRepository;
+import lense.compiler.PathPackageResolver;
+import lense.compiler.ast.ClassTypeNode;
+import lense.compiler.ast.UnitTypes;
+import lense.compiler.crosscompile.java.OutToJavaSource;
+import lense.compiler.phases.NameResolutionPhase;
+import lense.compiler.type.TypeDefinition;
+import lense.compiler.typesystem.LenseTypeSystem;
 
 /**
  * 
@@ -178,7 +178,7 @@ public class TestLenseGrammar {
 		unitSet.add(new FileCompilationUnit(file));
 
 		new LenseSourceCompiler().parse(unitSet).sendTo(
-				new OutToJavaSource(out));
+				new OutToJavaSource(new FileLocations(out, null) ));
 
 	}
 
@@ -196,7 +196,7 @@ public class TestLenseGrammar {
 		unitSet.add(new FileCompilationUnit(file));
 
 		new LenseSourceCompiler().parse(unitSet).sendTo(
-				new OutToJavaSource(out));
+				new OutToJavaSource(new FileLocations(out, null) ));
 
 	}
 
@@ -213,7 +213,7 @@ public class TestLenseGrammar {
 		unitSet.add(new FileCompilationUnit(file));
 
 		new LenseSourceCompiler().parse(unitSet).sendTo(
-				new OutToJavaSource(out));
+				new OutToJavaSource(new FileLocations(out, null) ));
 
 	}
 	
@@ -230,7 +230,7 @@ public class TestLenseGrammar {
 		unitSet.add(new FileCompilationUnit(file));
 
 		new LenseSourceCompiler().parse(unitSet).sendTo(
-				new OutToJavaSource(out));
+				new OutToJavaSource(new FileLocations(out, null) ));
 
 	}
 
@@ -277,7 +277,7 @@ public class TestLenseGrammar {
 		unitSet.add(new FileCompilationUnit(file));
 
 		new LenseSourceCompiler().parse(unitSet).sendTo(
-				new OutToJavaSource(out));
+				new OutToJavaSource(new FileLocations(out, null) ));
 
 	}
 
@@ -294,7 +294,7 @@ public class TestLenseGrammar {
 		unitSet.add(new FileCompilationUnit(file));
 
 		new LenseSourceCompiler().parse(unitSet).sendTo(
-				new OutToJavaSource(out));
+				new OutToJavaSource(new FileLocations(out, null) ));
 
 	}
 
@@ -309,7 +309,7 @@ public class TestLenseGrammar {
 		unitSet.add(new FileCompilationUnit(file));
 
 		new LenseSourceCompiler().parse(unitSet).sendTo(
-				new OutToJavaSource(out));
+				new OutToJavaSource(new FileLocations(out, null) ));
 	}
 
 	@Test
@@ -324,7 +324,7 @@ public class TestLenseGrammar {
 		unitSet.add(new FileCompilationUnit(file));
 
 		new LenseSourceCompiler().parse(unitSet).sendTo(
-				new OutToJavaSource(out));
+				new OutToJavaSource(new FileLocations(out, null) ));
 
 	}
 
@@ -378,7 +378,7 @@ public class TestLenseGrammar {
 		unitSet.add(new FileCompilationUnit(file));
 
 		new LenseSourceCompiler().parse(unitSet).sendTo(
-				new OutToJavaSource(out));
+				new OutToJavaSource(new FileLocations(out, null) ));
 
 	}
 
@@ -395,7 +395,7 @@ public class TestLenseGrammar {
 		unitSet.add(new FileCompilationUnit(file));
 
 		new LenseSourceCompiler().parse(unitSet).sendTo(
-				new OutToJavaSource(out));
+				new OutToJavaSource(new FileLocations(out, null) ));
 
 	}
 

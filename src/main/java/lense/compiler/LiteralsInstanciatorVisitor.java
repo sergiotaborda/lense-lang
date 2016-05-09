@@ -17,6 +17,7 @@ import lense.compiler.ast.NumericValue;
 import lense.compiler.ast.ScopedVariableDefinitionNode;
 import lense.compiler.ast.StringConcatenationNode;
 import lense.compiler.ast.StringValue;
+import lense.compiler.type.variable.FixedTypeVariable;
 import lense.compiler.typesystem.LenseTypeSystem;
 import compiler.syntax.AstNode;
 import compiler.trees.VisitorNext;
@@ -74,7 +75,7 @@ public class LiteralsInstanciatorVisitor implements Visitor<AstNode> {
 			
 			if (node.getParent().getParent() instanceof ClassInstanceCreationNode){
 				ClassInstanceCreationNode c = (ClassInstanceCreationNode)node.getParent().getParent();
-				if (c.getTypeDefinition().equals(LenseTypeSystem.String())){
+				if (c.getTypeVariable().equals(LenseTypeSystem.String())){
 					return;
 				}
 			} 
@@ -82,7 +83,7 @@ public class LiteralsInstanciatorVisitor implements Visitor<AstNode> {
 		}
 		else if (node instanceof ArithmeticNode){
 			ArithmeticNode a = (ArithmeticNode) node;
-			if (a.getTypeDefinition().getName().equals("sense.String")){
+			if (a.getTypeVariable().getName().equals("sense.String")){
 				StringConcatenationNode c;
 				if (a.getLeft() instanceof StringConcatenationNode){
 					c = (StringConcatenationNode)a.getLeft();
@@ -112,13 +113,13 @@ public class LiteralsInstanciatorVisitor implements Visitor<AstNode> {
 			//new FieldAccessNode(((BooleanValue)literal).isValue()? "True" : "False");
 		} else if (literal instanceof NullValue){
 			FieldOrPropertyAccessNode n = new FieldOrPropertyAccessNode("None.None");
-			n.setTypeDefinition(LenseTypeSystem.None());
+			n.setTypeVariable(new FixedTypeVariable(LenseTypeSystem.None()));
 			return n;
 		} else if (literal instanceof NumericValue){
-			return new ClassInstanceCreationNode(literal.getTypeDefinition(), 
-					new ClassInstanceCreationNode(LenseTypeSystem.String(), new StringValue(literal.getLiteralValue())));
+			return new ClassInstanceCreationNode(literal.getTypeVariable(), 
+					new ClassInstanceCreationNode(new FixedTypeVariable(LenseTypeSystem.String()), new StringValue(literal.getLiteralValue())));
 		} else {
-			return new ClassInstanceCreationNode(literal.getTypeDefinition(), new StringValue(literal.getLiteralValue()));
+			return new ClassInstanceCreationNode(literal.getTypeVariable(), new StringValue(literal.getLiteralValue()));
 		}
 	}
 

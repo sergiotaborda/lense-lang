@@ -7,20 +7,21 @@ import java.util.ArrayList;
 import java.util.List;
 
 import lense.compiler.Import;
-import lense.compiler.SemanticContext;
-import lense.compiler.typesystem.Kind;
-import lense.compiler.typesystem.LenseTypeDefinition;
-import lense.compiler.ast.AnnotadedSenseAstNode;
+import lense.compiler.Visibility;
+import lense.compiler.ast.AnnotadedLenseAstNode;
 import lense.compiler.ast.ClassBodyNode;
 import lense.compiler.ast.ImplementedInterfacesNode;
 import lense.compiler.ast.TypeNode;
 import lense.compiler.ast.TypeParametersListNode;
+import lense.compiler.context.SemanticContext;
+import lense.compiler.type.Kind;
+import lense.compiler.type.LenseTypeDefinition;
 
 
 /**
  * 
  */
-public class ClassTypeNode extends AnnotadedSenseAstNode {
+public class ClassTypeNode extends AnnotadedLenseAstNode {
 
 	private Kind kind;
 	private String name;
@@ -32,6 +33,10 @@ public class ClassTypeNode extends AnnotadedSenseAstNode {
 	private List<Import> imports = new ArrayList<Import>();
 	private SemanticContext semanticContext;
 	private LenseTypeDefinition myType;
+	
+	private boolean isNative;
+	private boolean isAbstract;
+	private Visibility visibility;
 	
 	public ClassTypeNode (Kind kind){
 		this.kind = kind;
@@ -149,6 +154,48 @@ public class ClassTypeNode extends AnnotadedSenseAstNode {
 		}
 		
 	}
+
+	public boolean isNative() {
+		return isNative;
+	}
+
+	public void setNative(boolean isNative) {
+		this.isNative = isNative;
+	}
+
+	public String getPackageName() {
+		int pos = name.lastIndexOf('.');
+		if (pos >0){
+			return name.substring(0, pos);
+		}
+		return "";
+	}
+	
+	public String getSimpleName() {
+		int pos = name.lastIndexOf('.');
+		if (pos >0){
+			return name.substring(pos+1);
+		}
+		return name;
+	}
+
+	public boolean isAbstract() {
+		return isAbstract;
+	}
+
+	public void setAbstract(boolean isAbstract) {
+		this.isAbstract = isAbstract;
+	}
+
+	public Visibility getVisibility() {
+		return visibility;
+	}
+
+	public void setVisibility(Visibility visibility) {
+		this.visibility = visibility;
+	}
+
+
 
 
 

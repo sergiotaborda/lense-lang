@@ -1,0 +1,6 @@
+
+import lense.core.math.Decimal;
+
+public class Decimal32 extends Decimal {
+
+}

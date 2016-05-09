@@ -3,12 +3,6 @@
  */
 package lense.compiler.ast;
 
-import lense.compiler.typesystem.LenseTypeSystem;
-import lense.compiler.ast.BooleanExpressionNode;
-import lense.compiler.ast.ExpressionNode;
-import compiler.typesystem.TypeDefinition;
-
-
 /**
  * 
  */
@@ -51,9 +45,6 @@ public class ComparisonNode extends BooleanExpressionNode {
 		return operation;
 	}
 	
-	public TypeDefinition getTypeDefinition() {
-		return LenseTypeSystem.Boolean();
-	}
 
 	public ExpressionNode getLeft(){
 		return (ExpressionNode) this.getChildren().get(0);

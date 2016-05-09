@@ -8,7 +8,6 @@ import compiler.syntax.AstNode;
 /**
  * 
  */
-public class LenseAstNode extends AstNode{
-
+public abstract class LenseAstNode extends AstNode{
 
 }

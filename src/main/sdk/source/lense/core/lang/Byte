@@ -1,0 +1,8 @@
+
+
+public native class Byte implements Binary {
+
+	public native Integer toInteger();
+	
+	public native Int32 toNatural();
+}

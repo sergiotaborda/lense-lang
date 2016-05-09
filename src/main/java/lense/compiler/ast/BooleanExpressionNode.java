@@ -5,15 +5,17 @@ package lense.compiler.ast;
 
 import lense.compiler.typesystem.LenseTypeSystem;
 import lense.compiler.ast.ExpressionNode;
-import compiler.typesystem.TypeDefinition;
+import lense.compiler.type.TypeDefinition;
+import lense.compiler.type.variable.FixedTypeVariable;
+import lense.compiler.type.variable.TypeVariable;
 
 /**
  * 
  */
-public class BooleanExpressionNode extends ExpressionNode {
+public abstract class BooleanExpressionNode extends ExpressionNode {
 
-	public TypeDefinition getTypeDefinition() {
-		return LenseTypeSystem.Boolean();
+	public TypeVariable getTypeVariable() {
+		return new FixedTypeVariable(LenseTypeSystem.Boolean());
 	}
 
 }

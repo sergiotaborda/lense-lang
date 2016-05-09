@@ -1,10 +1,10 @@
 
-import lense.core.lang.Natural;
+import lense.core.math.Natural;
 
 public interface Sequence<out T> {
 
 
-	public T get(Natural index);
+	public T [Natural index];
 	
-	public val Natural size;
+	public Natural size {get;}
 } 

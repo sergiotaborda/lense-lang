@@ -1,1 +1,1 @@
-jbake -b
+jbake -b .

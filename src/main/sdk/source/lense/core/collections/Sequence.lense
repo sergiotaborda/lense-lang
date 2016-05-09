@@ -4,7 +4,7 @@ import lense.core.collections.Iterable;
 
 public interface Sequence<out T> extends Iterable<T> {
 
-	public T get(Natural index);
+	public T [Natural index] { get;}
 	
-	public val Natural size;
+	public Natural size { get; }
 } 

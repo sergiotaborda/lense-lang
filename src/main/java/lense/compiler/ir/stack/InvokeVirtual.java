@@ -1,16 +1,15 @@
 package lense.compiler.ir.stack;
 
+import lense.compiler.type.TypeDefinition;
 
 public class InvokeVirtual extends AbstractInvokeInstruction {
 
-	private String name;
-
-	public InvokeVirtual(String name) {
-		this.name = name;
+	public InvokeVirtual (TypeDefinition owner, String name, TypeDefinition returnType){
+		super(owner, name, returnType);
 	}
-	
+
 	public String toString(){
-		return "INVOKE_VIRTUAL " + name;
+		return "INVOKE_VIRTUAL " + this.getName();
 	}
 
 }
