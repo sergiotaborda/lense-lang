@@ -5,6 +5,9 @@ tags=tour, lense
 status=published
 ~~~~~~
 
+This a simple tour of the language. At this stage some feature are no decided upon, so sintax may change and features may be added or removed.
+Features that may change are marked as *Under Consideration*.
+
 # A basic Lense program (Under consideration)
 
 ~~~~brush: lense 
@@ -522,15 +525,74 @@ Lense does not support checked exception like Java does.
 
 # Classes
 
+Lense supports classes and class inheritance to define objects and relations betweeen them. 
+Lense also supports interfaces, object delcarations and traits (under consideration).
+
+All Lense types suport fields, properties , methods and constructors as members. 
+Lense also supports overloading of methods and genric types.
+
+More on types on the [types page](objects.html).
+
 # Generics
 
-# Modules and visibility
+Lense supports reified generics with variance control. 
 
-# Parallelism and Concurrency 
+~~~~brush: lense
+public interface Sequence<out T> { }
 
-# Reflection
+public interface Validator<in T> { }
+
+public interface List<T> { }
+~~~~
+
+Lense support co-variant types (out), contra-variant types (in) and invariant types (default) 
+
+# Modules and visibility (Under Consideration)
+
+Lense supports modules. Every application or library is packaged as a module. A modulue is similar to a jar file in java or a dll in .Net,
+but contains a little more structure.
+
+Modules can import types from other modules and can export they own types to other modules to use.
+
+Visibility modifies like ``private``, ``public`` and ``protected`` have the same semantics an in java or C#, however there is no *default* level like in java. 
+If visibility is not explicit , ``private`` is used. 
+
+A litte diference is that a type being maked as ``public`` adicionaly means that any other module can used it and are exported by default. If you do not want to export a classe use the ``internal`` visibility modifier.
+
+# Parallelism and Concurrency (Under Consideration)
+
+Lense does not support creating an control of threads directly nor support the commom memory model.
+Instead Lense provides an actor based API to handle concurrency and parallelism. Parallelism is also ofered by special APIs lik Parallelism is supported by APIs like ``Iterable.asParallel()``. 
+
+# Reflection (Under Consideration)
+
+Lense offer a reflection API based on the ``Type`` class. 
+
+~~~~brush: lense
+   val Type stringType = typeOf(String);
+   val Type alsoStringType = "some String".getType(); 
+
+   Console.println("String as {{stringType.Methods.size}} methods");
+~~~~
 
 # Comments
 
+Lense supports inline comments with ``//`` and multi-line comments with ``/{`` and ``}/``
 
+~~~~brush: lense
+/{
+    this is a multi-line comment
 
+     /{
+       Multi-line comments can be nested
+     }/
+}/
+public class Client {
+
+     // the following line uses a single line comment to inform the role of the field
+      val Natural name; // the name of the client       
+}
+~~~~
+
+As in other languages comments should be avoid by renaming your types and members with better names, but some times
+you will need them to explain some complex algorithm.
