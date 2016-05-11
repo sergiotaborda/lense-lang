@@ -120,8 +120,8 @@
 <ul>
   <li>Whole - numbers with no decimal part.
   <ul>
-    <li>Natural - Represent elements from the mathematical <strong>&#8469;</strong> set, i.e. positive only whole values that include zero and range from 0 up to maximum value limited only by available memory</li>
-    <li>Integer - Represent elements from the mathematical <strong>&#8484;</strong> set, i.e. negative and positive whole values.
+    <li>Natural - Represents elements from the mathematical <strong>&#8469;</strong> set, i.e. positive only whole values that include zero and range from 0 up to maximum value limited only by available memory</li>
+    <li>Integer - Represents elements from the mathematical <strong>&#8484;</strong> set, i.e. negative and positive whole values.
     <ul>
       <li>Int16 - negative and positive whole values with range from -2<sup>15</sup> to 2<sup>15</sup>-1.</li>
       <li>Int32 - negative and positive whole values with range from -2<sup>31</sup> to 2<sup>31</sup>-1.</li>
@@ -129,25 +129,25 @@
       <li>BigInt - negative and positive whole values with arbitrary range limited only by available memory</li>
     </ul></li>
   </ul></li>
-  <li>Real - Represent elements from the mathematical <strong>&#8477;</strong> set.
+  <li>Real - Represents elements from the mathematical <strong>&#8477;</strong> set.
   <ul>
-    <li>Rational - Represent elements from the mathematical <strong>&#8474;</strong> set, i.e. rational numbers defined by a natural numerator and a natural denominator like 2/3 or -5/8. The denominator cannot be zero.</li>
-    <li>Decimal - Represent elements that have a fixed precision and so calculations may incur in loss of precision.
+    <li>Rational - Represents elements from the mathematical <strong>&#8474;</strong> set, i.e. rational numbers defined by a natural numerator and a natural denominator like 2/3 or -5/8. The denominator cannot be zero.</li>
+    <li>Decimal - Represents elements that have a fixed precision and so calculations may incur in loss of precision.
     <ul>
       <li>Decimal32 - negative and positive decimal values that follow 32 bits IEEE 3744 conventions</li>
       <li>Decimal64 - negative and positive decimal values that follow 64 bits IEEE 3744 conventions</li>
       <li>BigDecimal - Represents elements in the <strong>&#8477;</strong> set including truncated version of irrational numbers.Negative and positive decimal values with arbitrary precision limited only by available memory.</li>
     </ul></li>
   </ul></li>
-  <li>Imaginary -Represent elements from the mathematical <strong>&#120128;</strong> set. Numbers with pure imaginary parts of the form <code>bi</code> where <code>i</code> is the square root of -1.
+  <li>Imaginary - Represents elements from the mathematical <strong>&#120128;</strong> set. Numbers with pure imaginary parts of the form <code>bi</code> where <code>i</code> is the square root of -1.
   <ul>
     <li>ImaginaryOverReals<T extends Real>; - uses a Real type to store the numeric value</li>
   </ul></li>
-  <li>Complex - Represent elements from the mathematical <strong>&#8450;</strong> set. Complex numbers are of the form <code>a + bi</code> where <code>i</code> it the square root of -1.
+  <li>Complex - Represents elements from the mathematical <strong>&#8450;</strong> set. Complex numbers are of the form <code>a + bi</code> where <code>i</code> it the square root of -1.
   <ul>
     <li>ComplexOverReals<T extends Real>; - Use a Real to type to store a numeric value for the real part and a ImaginaryOverReals<T> for the imaginary part.</li>
   </ul></li>
-</ul><p>Natural is used as an indexer for sequences. It is non-negative and was big as you need. Limits to collections like arrays, lists and maps are only bound by implementation.<br/>Using a Natural to index sequences removes the necessity to check for negative indexes and as Arrays always have a upper limit and always are constructed by <a href="constructors.html">factory like constructors</a><br/>the implementation for each platform can accommodate different implementations according to maximum length demand.</p><p>For more information on how Natural relates to index of sequences, see how <a href="arrays.html">Arrays</a> work in Lense.<br/>For more information on arithmetic operations more on Lense <a href="operators.html">operators</a>.</p><h2>Number Literals</h2><p>For <code>Whole</code> number literals are always assumed Natural and in base ten representation. The natural values are transformed to other types as needed.<br/>This conversion may rise an <code>OverflowException</code> as a <code>Natural</code> can exceed the maximum values of other types. For <code>Decimal</code> values, literals are always assumed to be instance of <code>BigDecimal</code>. <code>BigDecimal</code> constructor only accepts a string representation of the value as the BigDecimal literal representation must be exact.</p><p>If you need to define the type of the literal explicitly you can use specific sufixes, upper case letters for whole numbers and lowercase letters to decimal numbers.</p>
+</ul><p>Natural is used as an indexer for sequences. It is non-negative and was big as you need. Limits to collections like arrays, lists and maps are only bound by implementation.<br/>Using a Natural to index sequences removes the necessity to check for negative indexes and as Arrays always have a upper limit and always are constructed by <a href="constructors.html">factory like constructors</a> the implementation for each platform can accommodate different implementations according to maximum length demand.</p><p>For more information on how Natural relates to index of sequences, see how <a href="arrays.html">Arrays</a> work in Lense.<br/>For more information on arithmetic operations more on Lense <a href="operators.html">operators</a>.</p><h2>Number Literals</h2><p>For <code>Whole</code> number literals are always assumed Natural and in base ten representation. The natural values are transformed to other types as needed.<br/>This conversion may rise an <code>OverflowException</code> as a <code>Natural</code> can exceed the maximum values of other types. For <code>Decimal</code> values, literals are always assumed to be instance of <code>BigDecimal</code>. <code>BigDecimal</code> constructor only accepts a string representation of the value as the BigDecimal literal representation must be exact.</p><p>If you need to define the type of the literal explicitly you can use specific sufixes, upper case letters for whole numbers and lowercase letters to decimal numbers.</p>
 <pre><code class="brush: lense">	var Natural n = 1; // equivalent to Natural.valueOf(&quot;1&quot;)
 	
 	// literals are always assumed to be Natural and promoted when necessary
