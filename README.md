@@ -75,5 +75,5 @@ Variables can be easy inserted within a string using a simple sintax.
 
 Lense includes functional support to some extend by means of lambda expressions with convertion to types like Function<A,B> and other Single Abstract Method (SAM) types. Lense also supports the Monad concept.
 
-
+For more information please read the [documentation](http://sergiotaborda.github.io/lense-lang/)
 
