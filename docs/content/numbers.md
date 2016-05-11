@@ -12,26 +12,25 @@ All numbers are descendent types of the ``Number`` class. Operations are defined
 Lense supports Complex and Imaginary numbers. Even thought we are aware the performance of these types may not be optimal, we understand that not supporting them would be a worst decision. 
 
 * Whole - numbers with no decimal part.
-	- Natural - Represent elements from the mathematical **&#8469;** set, i.e. positive only whole values that include zero and range from 0 up to maximum value limited only by available memory
-	- Integer - Represent elements from the mathematical **&#8484;** set, i.e. negative and positive whole values.
+	- Natural - Represents elements from the mathematical **&#8469;** set, i.e. positive only whole values that include zero and range from 0 up to maximum value limited only by available memory
+	- Integer - Represents elements from the mathematical **&#8484;** set, i.e. negative and positive whole values.
 		*  Int16 - negative and positive whole values with range from -2<sup>15</sup> to  2<sup>15</sup>-1. 
 		*  Int32 - negative and positive whole values with range from -2<sup>31</sup> to  2<sup>31</sup>-1. 
 		*  Int64 - negative and positive whole values with range from -2<sup>63</sup> to  2<sup>63</sup>-1. 
 		*  BigInt - negative and positive whole values with arbitrary range limited only by available memory
-* Real - Represent elements from the mathematical **&#8477;** set.
-	-  Rational - Represent elements from the mathematical **&#8474;** set, i.e. rational numbers defined by a natural numerator and a natural denominator like 2/3 or -5/8. The denominator cannot be zero. 
-	-  Decimal - Represent elements that have a fixed precision and so calculations may incur in loss of precision.
+* Real - Represents elements from the mathematical **&#8477;** set.
+	-  Rational - Represents elements from the mathematical **&#8474;** set, i.e. rational numbers defined by a natural numerator and a natural denominator like 2/3 or -5/8. The denominator cannot be zero. 
+	-  Decimal - Represents elements that have a fixed precision and so calculations may incur in loss of precision.
 		*  Decimal32 - negative and positive decimal values that follow 32 bits IEEE 3744 conventions
 		*  Decimal64 - negative and positive decimal values that follow 64 bits IEEE 3744 conventions
 		*  BigDecimal - Represents elements in the **&#8477;** set including truncated version of irrational numbers.Negative and positive decimal values with arbitrary precision limited only by available memory.
-* Imaginary -Represent elements from the mathematical **&#120128;** set. Numbers with pure imaginary parts of the form ``bi`` where ``i`` is the square root of -1.
+* Imaginary - Represents elements from the mathematical **&#120128;** set. Numbers with pure imaginary parts of the form ``bi`` where ``i`` is the square root of -1.
 	- ImaginaryOverReals<T extends Real>; - uses a Real type to store the numeric value
-* Complex - Represent elements from the mathematical **&#8450;** set. Complex numbers are of the form ``a + bi`` where ``i`` it the square root of -1.
+* Complex - Represents elements from the mathematical **&#8450;** set. Complex numbers are of the form ``a + bi`` where ``i`` it the square root of -1.
 	- ComplexOverReals<T extends Real>; - Use a Real to type to store a numeric value for the real part and a ImaginaryOverReals<T> for the imaginary part.
 
 Natural is used as an indexer for sequences. It is non-negative and was big as you need. Limits to collections like arrays, lists and maps are only bound by implementation.
-Using a Natural to index sequences removes the necessity to check for negative indexes and as Arrays always have a upper limit and always are constructed by [factory like constructors](constructors.html)
-the implementation for each platform can accommodate different implementations according to maximum length demand.
+Using a Natural to index sequences removes the necessity to check for negative indexes and as Arrays always have a upper limit and always are constructed by [factory like constructors](constructors.html) the implementation for each platform can accommodate different implementations according to maximum length demand.
 
 For more information on how Natural relates to index of sequences, see how [Arrays](arrays.html) work in Lense.
 For more information on arithmetic operations  more on Lense [operators](operators.html).
