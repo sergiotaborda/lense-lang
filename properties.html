@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8"/>
+    <title>Properties</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <meta name="keywords" content="">
+    <meta name="generator" content="JBake">
+    
+    
+  
+	<script src="js/shCore.js"></script>
+
+	<script src="js/shBrushScala.js"></script>
+	<script src="js/shBrushCSharp.js"></script>
+	<script src="js/shBrushDart.js"></script>
+	<script src="js/shBrushJava.js"></script>
+		
+	<script src="js/shBrushLense.js"></script>
+	<style>
+	 .console {
+	    background : black;
+	    color: white;
+	    width: 500px;
+	 }
+	 p {
+	 	text-align:justified;
+	 }
+	 pre {
+	 	background-color:white !important;
+	 	border:0px !important;
+	 	padding:0px !important;
+	 	overflow: visible !important;
+	 }
+	 pre code {
+	 	padding:2px !important;
+	 	margin : 0px !important;
+	 }
+	</style>
+
+    <!-- Le styles -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/asciidoctor.css" rel="stylesheet">
+    <link href="css/base.css" rel="stylesheet">
+    <link href="css/prettify.css" rel="stylesheet">
+  	<link rel="stylesheet" type="text/css" href="css/shCore.css"  >
+	<link rel="stylesheet" type="text/css" href="css/shThemeLense.css" >
+	
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="js/html5shiv.min.js"></script>
+    <![endif]-->
+
+    <!-- Fav and touch icons -->
+
+    <link rel="shortcut icon" href="icon.png">
+  </head>
+  <body onload="prettyPrint()">
+    <div id="wrap">
+	
+	<!-- Fixed navbar -->
+    <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+      <div class="container">
+        <div class="navbar-header">
+          <a class="navbar-brand" href="index.html">Lense</a>
+        </div>
+        <div class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li class="dropdown">
+				<a href="#" class="dropdown-toggle" data-toggle="dropdown">Get Started<b class="caret"></b></a>
+				<ul class="dropdown-menu">
+					<li class="disabled"><a href="learn.html">Learn Lense</a></li>
+					<li class="disabled"><a href="try.html">Try Lense</a></li>
+					<li><a href="https://github.com/sergiotaborda/lense-lang">Download</a></li>
+				</ul>
+			</li>
+            <li class="dropdown">
+				<a href="#" class="dropdown-toggle" data-toggle="dropdown">Fundamentals<b class="caret"></b></a>
+				<ul class="dropdown-menu">
+					<li><a href="tour.html">Language Tour</a></li>
+					<li class="disabled"><a href="guide.html">Programmer's Guide</a></li>
+					<li><a href="platforms.html">Target Platforms's Guide</a></li>
+				</ul>
+            </li>
+			
+            <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown">Details<b class="caret"></b></a>
+				<ul class="dropdown-menu">
+					<li><a href="numbers.html">Numbers</a></li>
+					<li><a href="strings.html">Strings</a></li>
+					<li><a href="objects.html">Classes and Objects</a></li>
+					<li><a href="constructors.html">Constructors</a></li>
+					<li><a href="operators.html">Operators</a></li>
+					<li><a href="containerLiterals.html">Container Literals</a></li>
+					<li><a href="sumtypes.html">Sum Types</a></li>
+					<li><a href="monads.html">Monads</a></li>
+					
+					<li class="disabled"><a href="enhancements.html">External Enhancements</a></li>
+					<li class="disabled"><a href="concurrency.html">Concurrency</a></li>
+				</ul>
+            </li>
+			<li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown">More<b class="caret"></b></a>
+              <ul class="dropdown-menu">
+                <li><a href="https://github.com/sergiotaborda/lense-lang">Source Code</a></li>
+			    <li><a href="https://groups.google.com/forum/#!forum/lense-lang">Discussion Group</a></li>
+				
+				<li><a href="status.html">Roadmap &amp; Status</a></li>
+              </ul>
+            </li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </div>
+	<div class="corner-ribbon top-right sticky shadow"><a href="status.html">Exploration Stage</a></div>
+    <div class="container">
+	<p><h1>Properties</h1><p>In Lense a type can have fields, methods and properties. Properties are invoked like fields but behave like methods.<br/>Properties have two methods associated it them: the accessor and the modifier. The acessor (the "get method") is the method that is invoked when we need the propertie's value. The modififer (the "set method") is the method that is invoked when we need to set or change the propertie's value. </p>
+<pre><code class="brush: lense"><br/>public class Person {
+
+	public String name {get; set;} = &quot;&quot; // self-backing property initialized with the empty string
+	public String surname { get; set;} = &quot;&quot; // self-backing property initialized with the empty string
+	
+	public String fullname { 
+		get { 
+			// concatenate the names
+			return name + &quot; &quot; + surname; 
+		}
+		set (value){
+			// split the names by a empty space
+			val split = value.split(&quot; &quot;);
+			this.name = split[0];
+			this.surname = split[1];
+		}
+	}
+}
+
+// used like a field
+
+val person = new Person();
+
+person.name = &quot;Robert&quot;; // call modifier to set the value
+person.surname = &quot;Patterson&quot;; // call modifier to set the value
+
+val fullname  = person.fullname; // call accessor to get the value
+
+Console.print(fullname); // prints: Robert Patterson
+</code></pre><p>The <code>value</code> is always of the type of the property and represents the value assigned to the property.</p><h2>Self-backing Properties</h2><p>Properties are really only a pair of methods so its value must be hold somewhere.<br/>The most common use of a property is a self-backing property, i.e. a property that handles the storage of the value automatically in a private field.</p>
+<pre><code class="brush: lense"><br/>public class Person {
+
+	public String name { get; set;} = &quot;&quot;;
+}
+
+</code></pre><p>Because this a very common case you can ommit the accessor and modifier declarations, like so:</p>
+<pre><code class="brush: lense"><br/>public class Person {
+
+	public String name {} = &quot;&quot;;
+}
+
+</code></pre><p>Either syntax will instruct the compiler to define a private, inaccessible, field and to store the value of the property there.</p><h2>Non Inialized Properties</h2><p>You may omit the properie's initialization, however, because Lense as no <code>null</code>, you will need to use an optional type.</p>
+<pre><code class="brush: lense"><br/>public class Person {
+
+	public String? name {}
+}
+
+
+</code></pre><h2>Read-Only and Write-Only Properties</h2><p>By omitting just the modifier, you can make a property read-only. If the property is read only the compiler will not define a private inaccessible field and body is necessary.</p>
+<pre><code class="brush: lense"><br/>public class Person {
+
+	public String name {}
+	public String surname {}
+	
+	public String fullname { // a read only property
+		get { return name + &quot; &quot; + surname; }
+	}
+}
+
+</code></pre><p>Less common is the use of write-only properties, but you can also define a write-only property by omitting the accessor declaration.</p><h2>Different visibility</h2><p>Sometimes you need to have a public accessor but a private modifier, or vice-versa. In that case you can use visibility modifiers to declare diferent visibilities</p><p>~~~~brush: lense</p><p>public class Person {</p>
+<pre><code>public String name { public get; private set;}
+public String surname { get; private set;}
+</code></pre><p>}</p>
+<pre><code><br/>If you omit the modifier near the acessor or modifier declarations the visibility of the property will be used.
+The visibility of the acessor or modifier may not be less restrictive than that of the property. So public get for a private property makes no sense. 
+
+
+# Indexer Properties
+
+Indexer properties an anonymous properties that allow to associate the value of the property with one or more parameters called indexes.
+The most common examples are arrays that use numeric indexes or maps that use key object for indexes.
+
+The rules of normal properties apply to indexer properties , you may need to define an accessor, or a modifier, or both.
+Indexer properties are never self-backing.
+
+Indexers are not limited to one index. In the next example we use an array to implement a matrix using a mathematical trick of calculating the cell
+position in the array. We use the indexer property in the array to read and write values in the array.
+
+</code></pre><p>public class Matrix<T> {</p>
+<pre><code>private Natural rowsCount;
+private Natural columnsCount;
+
+private Array&lt;T&gt; cells = new Array&lt;T&gt;()
+
+public T [Natural row, Natural column] { 
+    get {  
+       return items[calculateCell(row, column)]; 
+    }
+    set (value){
+       items[calculateCell(row, column] = value;
+    }
+}
+
+private Natural calculateCell(Natural row, Natural column){
+    return row * rowsCount + column;
+}   
+</code></pre><p>}</p><p>~~~~</p><p>An indexer as no name, so it is not possible to define two indexers with the exact same number and types of indexes. </p></p>
+	
+		</div>
+		<div id="push"></div>
+    </div>
+    
+    <div id="footer">
+      <div class="container">
+        <p class="muted credit">Lense is an open source project and a community driven development</p>
+      </div>
+    </div>
+    
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="js/jquery-1.11.1.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/prettify.js"></script>
+    <script>
+    	SyntaxHighlighter.config.tagName = 'code';
+		SyntaxHighlighter.defaults.toolbar = false;
+		SyntaxHighlighter.all();
+    
+    </script>
+  </body>
+</html>
