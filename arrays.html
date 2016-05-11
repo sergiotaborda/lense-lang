@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8"/>
+    <title>Arrays</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <meta name="keywords" content="">
+    <meta name="generator" content="JBake">
+    
+    
+  
+	<script src="js/shCore.js"></script>
+
+	<script src="js/shBrushScala.js"></script>
+	<script src="js/shBrushCSharp.js"></script>
+	<script src="js/shBrushDart.js"></script>
+	<script src="js/shBrushJava.js"></script>
+		
+	<script src="js/shBrushLense.js"></script>
+	<style>
+	 .console {
+	    background : black;
+	    color: white;
+	    width: 500px;
+	 }
+	 p {
+	 	text-align:justified;
+	 }
+	 pre {
+	 	background-color:white !important;
+	 	border:0px !important;
+	 	padding:0px !important;
+	 	overflow: visible !important;
+	 }
+	 pre code {
+	 	padding:2px !important;
+	 	margin : 0px !important;
+	 }
+	</style>
+
+    <!-- Le styles -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/asciidoctor.css" rel="stylesheet">
+    <link href="css/base.css" rel="stylesheet">
+    <link href="css/prettify.css" rel="stylesheet">
+  	<link rel="stylesheet" type="text/css" href="css/shCore.css"  >
+	<link rel="stylesheet" type="text/css" href="css/shThemeLense.css" >
+	
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="js/html5shiv.min.js"></script>
+    <![endif]-->
+
+    <!-- Fav and touch icons -->
+
+    <link rel="shortcut icon" href="icon.png">
+  </head>
+  <body onload="prettyPrint()">
+    <div id="wrap">
+	
+	<!-- Fixed navbar -->
+    <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+      <div class="container">
+        <div class="navbar-header">
+          <a class="navbar-brand" href="index.html">Lense</a>
+        </div>
+        <div class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li class="dropdown">
+				<a href="#" class="dropdown-toggle" data-toggle="dropdown">Get Started<b class="caret"></b></a>
+				<ul class="dropdown-menu">
+					<li class="disabled"><a href="learn.html">Learn Lense</a></li>
+					<li class="disabled"><a href="try.html">Try Lense</a></li>
+					<li><a href="https://github.com/sergiotaborda/lense-lang">Download</a></li>
+				</ul>
+			</li>
+            <li class="dropdown">
+				<a href="#" class="dropdown-toggle" data-toggle="dropdown">Fundamentals<b class="caret"></b></a>
+				<ul class="dropdown-menu">
+					<li><a href="tour.html">Language Tour</a></li>
+					<li class="disabled"><a href="guide.html">Programmer's Guide</a></li>
+					<li><a href="platforms.html">Target Platforms's Guide</a></li>
+				</ul>
+            </li>
+			
+            <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown">Details<b class="caret"></b></a>
+				<ul class="dropdown-menu">
+					<li><a href="numbers.html">Numbers</a></li>
+					<li><a href="strings.html">Strings</a></li>
+					<li><a href="objects.html">Classes and Objects</a></li>
+					<li><a href="constructors.html">Constructors</a></li>
+					<li><a href="operators.html">Operators</a></li>
+					<li><a href="containerLiterals.html">Container Literals</a></li>
+					<li><a href="sumtypes.html">Sum Types</a></li>
+					<li><a href="monads.html">Monads</a></li>
+					
+					<li class="disabled"><a href="enhancements.html">External Enhancements</a></li>
+					<li class="disabled"><a href="concurrency.html">Concurrency</a></li>
+				</ul>
+            </li>
+			<li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown">More<b class="caret"></b></a>
+              <ul class="dropdown-menu">
+                <li><a href="https://github.com/sergiotaborda/lense-lang">Source Code</a></li>
+			    <li><a href="https://groups.google.com/forum/#!forum/lense-lang">Discussion Group</a></li>
+				
+				<li><a href="status.html">Roadmap &amp; Status</a></li>
+              </ul>
+            </li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </div>
+	<div class="corner-ribbon top-right sticky shadow"><a href="status.html">Exploration Stage</a></div>
+    <div class="container">
+	<p><h1>Arrays</h1><p>In other languages arrays are normally primitives (non-objects) or at least fundamental types (special types the compiler understands implicitly).<br/>In Lense arrays are simply objects of the <code>Array</code> class that implements the <code>EditableSequence</code> interface that in turn implements the <code>Sequence</code> interface.<br/>Not even sequences are the fundamental types, <code>Iterable</code> is.<br/>This means there is no "new array[]" like sintax. Arrays are created like any other object.</p>
+<pre><code class="brush: lense">	var Array&lt;Boolean&gt; flags = new Array&lt;Boolean&gt;(5);
+
+    var Array&lt;Natural&gt; numbers = new Array&lt;Natural&gt;(5);
+
+    var Array&lt;Racional&gt; fractions = new Array&lt;Racional&gt;(5);
+</code></pre><p>However arrays are a corner stone of several algorthms and specially of interoperability with native code. Lense leverages its <a href="constructors.html">factory like constructors</a> and reified generics to provide the more specific/eficient implementation possible.<br/>This means in reallity the Array type implementation is a native implementation. That native implementation will try to optimize space in memory using the native platform primitives and array types. Obviously this is only possible in some platforms.</p><h1>Indexing</h1><p>In other languages because the array is a fundamental type it has special sintax indexing the array (read/ write data at a specifi array position).<br/>Normally this index is an integer that ranges from positive to negative values, and the VM must validate the index is always positive or zero.<br/>In Lense, all index are Natural. Natural ranges from zero onwards i nthe positive direction, so no index validation is necessary.<br/>Lense also provide a special class member : the indexed property. An indexed proprty is like a common property but instead of a name has index parameters.<br/>Index parameters can be of any tpye, and the Sequence interface leverages this kind of properties with Natural indexer to enable reading and writing from sequences, and specially from arrays.<br/>This means you can still use the <code>array[i]</code> sintax to read from and write to array positions.</p>
+<pre><code class="brush: lense">public Void updateArray(Array&lt;Natural&gt; numbers) {
+    numbers[0] = 1;
+    numbers[1] = 2;
+    numbers[2] = 3;
+    numbers[3] = 2 * numbers[1];
+    numbers[4] = numbers[1] + numbers[2];
+}
+</code></pre><h1>Inicialization</h1><p>Arrays are objects that contain objects and because Lense does not have the concept of <code>null</code> all arrays must be inicialized correctly.<br/>Normally you will use a List that allows you to start with zero elements in que collection and add the elements as you go. When you use Array you need to supply the elements on creation time.<br/>The easiest way to do this is with a literal</p>
+<pre><code class="brush: lense">    var Array&lt;Natural&gt; numbers = [1, 2, 3 , 4 , 5];
+</code></pre><p>If you do not kown the values of the elements before hand but do not want to use a <code>List</code> ( or any <code>ResizableSequence</code> for that matter) you need to initialize the array with default values.</p>
+<pre><code class="brush: lense">    // this code creates an array with 5 elements all equal to zero.
+    var Array&lt;Natural&gt; numbers = new Array&lt;Natural&gt;(5, i -&gt; 0);
+</code></pre><p>The Array constructor receives a lambda expression to inicialize each elements. The <code>i</code> parameter is the position in the array from 0 to the size array exclusivly.<br/>Normally you will use a dummy constantvalue but you can inicialize the array with any function you want. For example, only even numbers:</p>
+<pre><code class="brush: lense">    // this code creates an array with 5 elements corresponding to the first 5 even numbers.
+    var Array&lt;Natural&gt; numbers = new Array&lt;Natural&gt;(5, i -&gt; 2 * i);
+</code></pre><p>Alternativly you can create an array with an optional type. In this case initialization is not necessary, but you need to use a named constructor.</p>
+<pre><code class="brush: lense">    // this code creates an array with 5 elements all equal to None.
+    var Array&lt;Natural?&gt; numbers = new Array&lt;Natural?&gt;.ofNothing(5);
+</code></pre><p>A handy method is the empty constructor that creates an array with no elements at all. </p>
+<pre><code class="brush: lense">    // creates an array of non-optional elements with no elements in it
+    var Array&lt;Natural&gt; numbers = new Array&lt;Natural&gt;.empty(); // equivalent to new Array&lt;Natural&gt;(0, i-&gt; 0);
+
+    // creates an array of optional elements with no elements in it
+    var Array&lt;Natural?&gt; numbers = new Array&lt;Natural?&gt;.empty();  // equivalent to new Array&lt;Natural?&gt;.ofNothing(0);
+</code></pre></p>
+	
+		</div>
+		<div id="push"></div>
+    </div>
+    
+    <div id="footer">
+      <div class="container">
+        <p class="muted credit">Lense is an open source project and a community driven development</p>
+      </div>
+    </div>
+    
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="js/jquery-1.11.1.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/prettify.js"></script>
+    <script>
+    	SyntaxHighlighter.config.tagName = 'code';
+		SyntaxHighlighter.defaults.toolbar = false;
+		SyntaxHighlighter.all();
+    
+    </script>
+  </body>
+</html>
