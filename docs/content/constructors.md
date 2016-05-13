@@ -86,6 +86,7 @@ People often criticize java for being to verbose. The numerator and denominator 
 
 Other languages come up with new flavors of constructors to try to reduce the problems with constructors. However, because constructors are essentially linked with the concept of object instantiation and state validity they cannot be removed from the languages. Some type of constructor must exist.
 
+<a name="primary"></a> 
 ### Primary Constructor
 
 This is special kind of constructors that only initializes properties in the object. It is functionally equivalent to the private constructor in our second example above. Because it can only set properties, languages try to come up with special (shorter) syntax.
@@ -144,6 +145,7 @@ All final value fields (the ones with ``val``) must be initialized by all constr
 There is no repetition of the class name and the keyword clearly states that the instruction is a constructor.
 There is no boilerplate. The types on the parameters are needed since the private fields must not have the same types.
 
+<a name="named"></a> 
 ## Named Constructors
 
 All is fine when the class only needs a constructor. But more time than people would realize an object can be created by different forms. Design can argument this other forms should be handled by factory object and the class it self as only a set of parameters. While this can obviously accomplished is not practical. 
@@ -232,24 +234,31 @@ public class Color {
 
 Notice how the ``new`` keyword is used to call the other constructors. In fact constructors in Lense act as factories and can return any object that could be assigned to the class.
 
+<a name="factory"></a> 
 ## Factory Constructor
 
 Constructors in Lense are real factories and can create and return any instance. This means constructors can control the number of instances being created and choose to create specific sub types. For instances the ``Array`` constructor is :
 
 ~~~~brush: lense 
-public class Array<T> {
+public class Array<T> implement EditableSequence<T> {
 
-        constructor (Natural size){
+        constructor filled(Natural size, T value){
         	if (T is Int32){
-        	    return new Int32Array(size);
+        	    return new Int32Array(size, value);
         	} else if (T is Int64){
-        	    return new Int64Array(size);
+        	    return new Int64Array(size, value);
         	} else if (T is Byte){
-        	    return new ByteArray(size);
+        	    return new ByteArray(size, value);
         	} else {
-        	    return new ObjectArray<T>(size);
+        	    return new ObjectArray<T>(size, value);
         	}
         }
+		
+		constructor ofAbsent<T?>(Natural size){
+        	return new Array.filled<T?>(size, none);
+        }
+		
+		// other methods
 }
 ~~~~
 
@@ -259,13 +268,13 @@ The ``Natural`` constructor is equivalent to:
 public class Natural extends Whole {
 
 	object cache {
-		val values = new Array<Natural>();
+		val values = new Array.absent<Natural>(10);
 	}
 
-    constructor (Natural other){
-       	if (other >= -2 && other < 100){
-       		val cached = cache.values[other].or(other); 
-       		cache[cached] = cached;
+    constructor (Natural value){
+       	if (value >= 0 && value < cache.values.size -1){
+       		val cached = cache.values[value].or(value); 
+       		cache.values[cached] = cached;
        		return cached;
        	}
        	return other;
@@ -299,10 +308,11 @@ public class Natural extends Whole {
 
 ~~~~
 
-It uses and [``object``](objects.html) to hold the cache data. If the String is not valid the constructor throws an exception.
+It uses and [``object``](objects.html#object) to hold the cache data. If the given ``String`` is not valid the constructor throws a ``ParseException``.
 This is valid because a constructors is like a factory, however the compiler will only allow the ``throw`` clause on a named constructor.
  
-## Conversion Constructor
+<a name="conversion"></a> 
+## Implicit Conversion Constructor
 
 A conversion constructor is used to obtain the state of the object from another object of a different type. For instance:
 
@@ -310,13 +320,13 @@ A conversion constructor is used to obtain the state of the object from another 
 Integer k = 23;
 ~~~~
 
-Because all whole literals are parser by the compiler as ``Natural``s,  23 is really a ``Natural``. On the other hand, because ``Natural``s are not ``Integer``s the assignment would not be valid. Before a compilation error is risen, the compiler tries to find an anonymous constructor in the class Integer that is marked as ``implicit`` and has a single parameter of type ``Natural``. 
+Because all whole literals are parser by the compiler as ``Natural``s,  23 is really a ``Natural``. On the other hand, because ``Natural``s are not an ``Integer``s the assignment would not be valid. Before a compilation error is risen, the compiler tries to find an constructor in the class Integer that is marked as ``implicit`` and has a single parameter of type ``Natural``. 
 
 ~~~~brush: lense 
 public class Integer extends Whole {
 
 	implicit constructor (Natural other){
-		return new Integer(other.toString()); // this is not the real code, just and example.
+		return new BigInt(other.toString()); // this is not the real code, just and example.
 	}
 }
 
@@ -328,27 +338,27 @@ If it exists, the compiler changes the assignment to:
 Integer k = new Integer(23);
 ~~~~
 
-The ``implicit`` keyword is necessary because not every anonymous constructor with a single parameter is meant to be a conversion constructor. 
-The ``Array<T>`` class (used above) has a constructor that receives a ``Natural`` to set the array size,but that, without the implicit keyword would mean that:
+The ``implicit`` keyword is necessary because not every constructor with a single parameter is meant to be a conversion constructor. 
+The ``List<T>`` class (used above) has a constructor that receives a ``Natural`` to set the array size,but that, without the implicit keyword would mean that:
 
 ~~~~brush: lense 
-Array<Integer> array = 3;
+List<Integer> list = 3;
 ~~~~
 
 was really 
 
 ~~~~brush: lense 
-Array<Integer> array = new Array<Integer>(3);
+List<Integer> list = new List<Integer>(3);
 ~~~~
 
-The instruction would be trying to assign the number 3 to an array but the compiler would try to promote the value.
+The instruction would be (wrongly) trying to assign the number 3 to the list but the compiler would try to promote the value.
 This would not be a very coherent form to create arrays because can be confused with:
 
 ~~~~brush: lense 
-Array<Integer> array = [3];
+List<Integer> list = [3];
 ~~~~
  
-The programmer may have forgotten to surround the value to be put in the array with brackets.  
+The programmer may have forgotten to surround the value with brackets.  
 
 Also, this other example could be made to be valid code using a conversion constructor:
 
@@ -356,14 +366,14 @@ Also, this other example could be made to be valid code using a conversion const
 Uri address = "http://www.google.com"
 ~~~~
 
-But this form is not recomemded because an implicit constructor, as primary constructors, can not throw exceptions. 
+But this form is not recomemded because implicit constructors, as primary constructors, can not throw exceptions (under consideration). 
 So a parse operation, that possibly could go wrong, is not suited to a conversion constructor. It is recomemded that a constructor based on a string be a named constructor like ``parse(String)``. Named constructors can throw exceptions.
 
 As we can see from the above examples, that the conversion constructor is a simple way to promote values of one class to another but only if it is guaranteed that conversion will never fail.
 
 As a limitation of conversion constructors the process only works if the class on the left side of the assignment accepts the instances of the class on the right side as valid argument. 
 
-## Constructors Enhancement
+## Constructors Enhancement (Under Consideration)
 
 If the original designer of the left side class did not added the conversion constructor for some other class we can add one latter by creating an [enhancement](enhancements.html), like so:
 

@@ -31,7 +31,7 @@ public val class Fraction {
          val Natural? pos = value.indexOf('.');
          if (pos.hasValue){
             val wholePart = new Integer.parse(value.subString(0,pos));
-            val multiplier =  10 ^ (value.length - pos); // 10 to the power of the number of decimal digits
+            val multiplier =  10 ** (value.length - pos); // 10 to the power of the number of decimal digits
             val decimalPart = new Integer.parse(value.subString(pos+1));     
 
             val numerator = wholePart * multiplier + decimalPart;
@@ -147,19 +147,92 @@ public class OtherClass {
 OtherClass.SomeObject.doItInTheObject()
 ~~~~
 
+# Sum Types
+
+In Lense is possible to define an abstract type that can only be implemented by a limited list of other types.
+The classic example is the Node type. Normally we have a Branch node and a Leaf node. Tradicionally we would write:
+
+~~~~brush: lense 
+public abstract class Node <T> {
+
+}
+
+public class Brunch<T> extends Node<T>{
+	constructor (Node<T> left , Node<T> right);
+}
+	
+public class Leaf <T> extends Node<T>{
+	constructor (T value);
+}
+~~~~ 
+
+If we now need to visit a long and complex tree we need to normally do so validation of types. For example, in java would be:
+
+~~~~brush: java
+public <T> void colectLeafs(Node<T> node, List<T> leafs){
+
+	if (node instanceof Branch){
+	     Branch b = (Branch)node);
+	     collectLeafs(b.left, leafs);
+	     collectLeafs(b.right, leafs);
+	} else if (node instanceof Leaf){
+	    leafs.add(((Leaf)node).value);
+	}
+}
+~~~~
+
+We need to make a decision based on the type of the object, then cast it, then capture the properties and use them.
+In Lense we could use a similar construction using the flow-cast mechanism:
+
+~~~~brunch: lense 
+public void colectLeafs<T>(Node<T> node, List<T> leafs){
+
+	if (node is Branch<T>){
+	     collectLeafs(node.left, leafs);
+	     collectLeafs(node.right, leafs);
+	} else if (node is Leaf<T>){
+	    leafs.add(node.value);
+	}
+}
+~~~~
+
+However the compiler would be blind to the fact ``Node`` is a sum type. If we did not had a ``else if`` to test for leafs the compiler 
+would not complain.  If we need the be sure all sub types are covered we can use the ``switch`` statement.
+
+~~~~brush: lense
+public <T> void colectLeafs(Node<T> node, List<T> leafs){
+
+	switch(node) {
+		case Branch (b){
+			collectLeafs(b.left, leafs);
+	      collectLeafs(b.right, leafs);
+		} 
+		case Leaf (leaf){
+			leafs.add(leaf.value);
+		} 
+	}
+}
+~~~~
+
+But for this to work as expect we need to informe the compiler the children types of ``Node`` are limited to ``Brunch`` and ``Leaf``:
+
+~~~~brush: lense 
+public abstract class Node<T> is Brunch<T> | Leaf<T> {
+
+}
+~~~~ 
+
 # Interfaces
 
 Interfaces are constract declarations with no implementation.
-
  
 ~~~~brush: lense
 public interface Validator<in T> {
-
      public ValidatorResult validate( T candidate);
 }
 ~~~~
 
-Interfaces can extend other interfaces an are implemented by classes
+Interfaces can extend other interfaces an are implemented by classes or objects.
 
 ~~~~brush: lense
 public val class MailValidator implements Validator<String> {
