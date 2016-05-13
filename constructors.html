@@ -99,15 +99,17 @@
 				<ul class="dropdown-menu">
 					<li><a href="numbers.html">Numbers</a></li>
 					<li><a href="strings.html">Strings</a></li>
+					<li><a href="strings.html">Arrays</a></li>
+					
+					<li><a href="containerLiterals.html">Container Literals</a></li>
 					<li><a href="objects.html">Classes and Objects</a></li>
 					<li><a href="constructors.html">Constructors</a></li>
-					<li><a href="operators.html">Operators</a></li>
-					<li><a href="containerLiterals.html">Container Literals</a></li>
-					<li><a href="sumtypes.html">Sum Types</a></li>
+					<li><a href="operators.html">Operators</a></li>		
 					<li><a href="monads.html">Monads</a></li>
+					<li><a href="concurrency.html">Concurrency</a></li>
 					
 					<li class="disabled"><a href="enhancements.html">External Enhancements</a></li>
-					<li class="disabled"><a href="concurrency.html">Concurrency</a></li>
+					
 				</ul>
             </li>
 			<li class="dropdown">
@@ -165,7 +167,7 @@ Fraction third = new Fraction(1,3);
 // but now the object is created like 
 
 Fraction third = Fraction.of(1,3);
-</code></pre><p>The validation of parameters is now moved to a method, so exceptions are allowed. The constructor is private so only the class can invoke it, the rest of the world would have to call the <code>of</code> static method.</p><p>The problem with static methods is that they are not inherited so, the static factory method pattern makes sense only for object not intended to be inherited from.<br/>Nevertheless considered a good practice e several API nowadays use this technique to hide the constructor and provide a more fluent instantiation. </p><p>A great thing about this pattern is that it encasuplates the use of <code>new</code> so the class designed can change the parameters of the constructor at will without interfering with the call site.</p><p>People often criticize java for being to verbose. The numerator and denominator names appear 6 times.</p><h2>Types of constructors</h2><p>Other languages come up with new flavors of constructors to try to reduce the problems with constructors. However, because constructors are essentially linked with the concept of object instantiation and state validity they cannot be removed from the languages. Some type of constructor must exist.</p><h3>Primary Constructor</h3><p>This is special kind of constructors that only initializes properties in the object. It is functionally equivalent to the private constructor in our second example above. Because it can only set properties, languages try to come up with special (shorter) syntax.</p><p>In Scala, Ceylon and Kotlin, for instance, the primary constructor parameters are declared immediately after the class name and extra code can be added in the class body without any other special delimiters:</p>
+</code></pre><p>The validation of parameters is now moved to a method, so exceptions are allowed. The constructor is private so only the class can invoke it, the rest of the world would have to call the <code>of</code> static method.</p><p>The problem with static methods is that they are not inherited so, the static factory method pattern makes sense only for object not intended to be inherited from.<br/>Nevertheless considered a good practice e several API nowadays use this technique to hide the constructor and provide a more fluent instantiation. </p><p>A great thing about this pattern is that it encasuplates the use of <code>new</code> so the class designed can change the parameters of the constructor at will without interfering with the call site.</p><p>People often criticize java for being to verbose. The numerator and denominator names appear 6 times.</p><h2>Types of constructors</h2><p>Other languages come up with new flavors of constructors to try to reduce the problems with constructors. However, because constructors are essentially linked with the concept of object instantiation and state validity they cannot be removed from the languages. Some type of constructor must exist.</p><p><a name="primary"></a> </p><h3>Primary Constructor</h3><p>This is special kind of constructors that only initializes properties in the object. It is functionally equivalent to the private constructor in our second example above. Because it can only set properties, languages try to come up with special (shorter) syntax.</p><p>In Scala, Ceylon and Kotlin, for instance, the primary constructor parameters are declared immediately after the class name and extra code can be added in the class body without any other special delimiters:</p>
 <pre><code class="brush: scala">public class Fraction (Integer numerator, Integer denominator) {
     // other code goes where
 }
@@ -189,7 +191,7 @@ Fraction third = Fraction.of(1,3);
 // invoke like 
 
 val Fraction third = new Fraction(1, 3);
-</code></pre><p>A constructor without a body means the parameters should be copied to the fields of the same name.</p><p>All final value fields (the ones with <code>val</code>) must be initialized by all constructors, i.e. the compiler must be able to prove that all <code>val</code> fields have been set by the constructor. If this is not the case a compilation error will be raised.</p><p>There is no repetition of the class name and the keyword clearly states that the instruction is a constructor.<br/>There is no boilerplate. The types on the parameters are needed since the private fields must not have the same types.</p><h2>Named Constructors</h2><p>All is fine when the class only needs a constructor. But more time than people would realize an object can be created by different forms. Design can argument this other forms should be handled by factory object and the class it self as only a set of parameters. While this can obviously accomplished is not practical. </p><p>If we intend to have a <code>Color</code> type that can be created from RGB or HSL values the two algorithms are different and one or both require calculations before we can set the object private fields. On the other hand we need some practical way of distinguishing between them. Here the static method factory come in handy because it provides a name to the construction form. So in java we could write</p>
+</code></pre><p>A constructor without a body means the parameters should be copied to the fields of the same name.</p><p>All final value fields (the ones with <code>val</code>) must be initialized by all constructors, i.e. the compiler must be able to prove that all <code>val</code> fields have been set by the constructor. If this is not the case a compilation error will be raised.</p><p>There is no repetition of the class name and the keyword clearly states that the instruction is a constructor.<br/>There is no boilerplate. The types on the parameters are needed since the private fields must not have the same types.</p><p><a name="named"></a> </p><h2>Named Constructors</h2><p>All is fine when the class only needs a constructor. But more time than people would realize an object can be created by different forms. Design can argument this other forms should be handled by factory object and the class it self as only a set of parameters. While this can obviously accomplished is not practical. </p><p>If we intend to have a <code>Color</code> type that can be created from RGB or HSL values the two algorithms are different and one or both require calculations before we can set the object private fields. On the other hand we need some practical way of distinguishing between them. Here the static method factory come in handy because it provides a name to the construction form. So in java we could write</p>
 <pre><code class="brush: java ">Color a = Color.fromRGB(1.0 , 1.0 , 1.0);
 Color b = Color.fromHSL(60 , 0.5 , 0.5); 
 </code></pre><p>However there is no <code>new</code> keyword being used. Dart provides the same sintax but using <code>new</code>:</p>
@@ -245,32 +247,38 @@ Color b = new Color.fromHSL(60 , 0.5 , 0.5);
     }
 
 }
-</code></pre><p>Notice how the <code>new</code> keyword is used to call the other constructors. In fact constructors in Lense act as factories and can return any object that could be assigned to the class.</p><h2>Factory Constructor</h2><p>Constructors in Lense are real factories and can create and return any instance. This means constructors can control the number of instances being created and choose to create specific sub types. For instances the <code>Array</code> constructor is :</p>
-<pre><code class="brush: lense ">public class Array&lt;T&gt; {
+</code></pre><p>Notice how the <code>new</code> keyword is used to call the other constructors. In fact constructors in Lense act as factories and can return any object that could be assigned to the class.</p><p><a name="factory"></a> </p><h2>Factory Constructor</h2><p>Constructors in Lense are real factories and can create and return any instance. This means constructors can control the number of instances being created and choose to create specific sub types. For instances the <code>Array</code> constructor is :</p>
+<pre><code class="brush: lense ">public class Array&lt;T&gt; implement EditableSequence&lt;T&gt; {
 
-        constructor (Natural size){
+        constructor filled(Natural size, T value){
         	if (T is Int32){
-        	    return new Int32Array(size);
+        	    return new Int32Array(size, value);
         	} else if (T is Int64){
-        	    return new Int64Array(size);
+        	    return new Int64Array(size, value);
         	} else if (T is Byte){
-        	    return new ByteArray(size);
+        	    return new ByteArray(size, value);
         	} else {
-        	    return new ObjectArray&lt;T&gt;(size);
+        	    return new ObjectArray&lt;T&gt;(size, value);
         	}
         }
+		
+		constructor ofAbsent&lt;T?&gt;(Natural size){
+        	return new Array.filled&lt;T?&gt;(size, none);
+        }
+		
+		// other methods
 }
 </code></pre><p>The <code>Natural</code> constructor is equivalent to:</p>
 <pre><code class="brush: lense ">public class Natural extends Whole {
 
 	object cache {
-		val values = new Array&lt;Natural&gt;();
+		val values = new Array.absent&lt;Natural&gt;(10);
 	}
 
-    constructor (Natural other){
-       	if (other &gt;= -2 &amp;&amp; other &lt; 100){
-       		val cached = cache.values[other].or(other); 
-       		cache[cached] = cached;
+    constructor (Natural value){
+       	if (value &gt;= 0 &amp;&amp; value &lt; cache.values.size -1){
+       		val cached = cache.values[value].or(value); 
+       		cache.values[cached] = cached;
        		return cached;
        	}
        	return other;
@@ -302,27 +310,27 @@ Color b = new Color.fromHSL(60 , 0.5 , 0.5);
     }
 }
 
-</code></pre><p>It uses and <a href="objects.html"><code>object</code></a> to hold the cache data. If the String is not valid the constructor throws an exception.<br/>This is valid because a constructors is like a factory, however the compiler will only allow the <code>throw</code> clause on a named constructor.</p><h2>Conversion Constructor</h2><p>A conversion constructor is used to obtain the state of the object from another object of a different type. For instance:</p>
+</code></pre><p>It uses and <a href="objects.html#object"><code>object</code></a> to hold the cache data. If the given <code>String</code> is not valid the constructor throws a <code>ParseException</code>.<br/>This is valid because a constructors is like a factory, however the compiler will only allow the <code>throw</code> clause on a named constructor.</p><p><a name="conversion"></a> </p><h2>Implicit Conversion Constructor</h2><p>A conversion constructor is used to obtain the state of the object from another object of a different type. For instance:</p>
 <pre><code class="brush: lense ">Integer k = 23;
-</code></pre><p>Because all whole literals are parser by the compiler as <code>Natural</code>s, 23 is really a <code>Natural</code>. On the other hand, because <code>Natural</code>s are not <code>Integer</code>s the assignment would not be valid. Before a compilation error is risen, the compiler tries to find an anonymous constructor in the class Integer that is marked as <code>implicit</code> and has a single parameter of type <code>Natural</code>. </p>
+</code></pre><p>Because all whole literals are parser by the compiler as <code>Natural</code>s, 23 is really a <code>Natural</code>. On the other hand, because <code>Natural</code>s are not an <code>Integer</code>s the assignment would not be valid. Before a compilation error is risen, the compiler tries to find an constructor in the class Integer that is marked as <code>implicit</code> and has a single parameter of type <code>Natural</code>. </p>
 <pre><code class="brush: lense ">public class Integer extends Whole {
 
 	implicit constructor (Natural other){
-		return new Integer(other.toString()); // this is not the real code, just and example.
+		return new BigInt(other.toString()); // this is not the real code, just and example.
 	}
 }
 
 </code></pre><p>If it exists, the compiler changes the assignment to:</p>
 <pre><code class="brush: lense ">Integer k = new Integer(23);
-</code></pre><p>The <code>implicit</code> keyword is necessary because not every anonymous constructor with a single parameter is meant to be a conversion constructor.<br/>The <code>Array&lt;T&gt;</code> class (used above) has a constructor that receives a <code>Natural</code> to set the array size,but that, without the implicit keyword would mean that:</p>
-<pre><code class="brush: lense ">Array&lt;Integer&gt; array = 3;
+</code></pre><p>The <code>implicit</code> keyword is necessary because not every constructor with a single parameter is meant to be a conversion constructor.<br/>The <code>List&lt;T&gt;</code> class (used above) has a constructor that receives a <code>Natural</code> to set the array size,but that, without the implicit keyword would mean that:</p>
+<pre><code class="brush: lense ">List&lt;Integer&gt; list = 3;
 </code></pre><p>was really </p>
-<pre><code class="brush: lense ">Array&lt;Integer&gt; array = new Array&lt;Integer&gt;(3);
-</code></pre><p>The instruction would be trying to assign the number 3 to an array but the compiler would try to promote the value.<br/>This would not be a very coherent form to create arrays because can be confused with:</p>
-<pre><code class="brush: lense ">Array&lt;Integer&gt; array = [3];
-</code></pre><p>The programmer may have forgotten to surround the value to be put in the array with brackets. </p><p>Also, this other example could be made to be valid code using a conversion constructor:</p>
+<pre><code class="brush: lense ">List&lt;Integer&gt; list = new List&lt;Integer&gt;(3);
+</code></pre><p>The instruction would be (wrongly) trying to assign the number 3 to the list but the compiler would try to promote the value.<br/>This would not be a very coherent form to create arrays because can be confused with:</p>
+<pre><code class="brush: lense ">List&lt;Integer&gt; list = [3];
+</code></pre><p>The programmer may have forgotten to surround the value with brackets. </p><p>Also, this other example could be made to be valid code using a conversion constructor:</p>
 <pre><code class="brush: lense ">Uri address = &quot;http://www.google.com&quot;
-</code></pre><p>But this form is not recomemded because an implicit constructor, as primary constructors, can not throw exceptions.<br/>So a parse operation, that possibly could go wrong, is not suited to a conversion constructor. It is recomemded that a constructor based on a string be a named constructor like <code>parse(String)</code>. Named constructors can throw exceptions.</p><p>As we can see from the above examples, that the conversion constructor is a simple way to promote values of one class to another but only if it is guaranteed that conversion will never fail.</p><p>As a limitation of conversion constructors the process only works if the class on the left side of the assignment accepts the instances of the class on the right side as valid argument. </p><h2>Constructors Enhancement</h2><p>If the original designer of the left side class did not added the conversion constructor for some other class we can add one latter by creating an <a href="enhancements.html">enhancement</a>, like so:</p>
+</code></pre><p>But this form is not recomemded because implicit constructors, as primary constructors, can not throw exceptions (under consideration).<br/>So a parse operation, that possibly could go wrong, is not suited to a conversion constructor. It is recomemded that a constructor based on a string be a named constructor like <code>parse(String)</code>. Named constructors can throw exceptions.</p><p>As we can see from the above examples, that the conversion constructor is a simple way to promote values of one class to another but only if it is guaranteed that conversion will never fail.</p><p>As a limitation of conversion constructors the process only works if the class on the left side of the assignment accepts the instances of the class on the right side as valid argument. </p><h2>Constructors Enhancement (Under Consideration)</h2><p>If the original designer of the left side class did not added the conversion constructor for some other class we can add one latter by creating an <a href="enhancements.html">enhancement</a>, like so:</p>
 <pre><code class="brush: lense ">public enhancement AddNaturalConvertionConstrutorToString extends String { // enhances String
 
 	public implicit constructor (Natural n){
@@ -339,7 +347,7 @@ Color b = new Color.fromHSL(60 , 0.5 , 0.5);
     
     <div id="footer">
       <div class="container">
-        <p class="muted credit">Lense is an open source project and a community driven development</p>
+        <p class="muted credit">Lense is an open source project and a community driven effort</p>
       </div>
     </div>
     

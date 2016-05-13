@@ -99,15 +99,17 @@
 				<ul class="dropdown-menu">
 					<li><a href="numbers.html">Numbers</a></li>
 					<li><a href="strings.html">Strings</a></li>
+					<li><a href="strings.html">Arrays</a></li>
+					
+					<li><a href="containerLiterals.html">Container Literals</a></li>
 					<li><a href="objects.html">Classes and Objects</a></li>
 					<li><a href="constructors.html">Constructors</a></li>
-					<li><a href="operators.html">Operators</a></li>
-					<li><a href="containerLiterals.html">Container Literals</a></li>
-					<li><a href="sumtypes.html">Sum Types</a></li>
+					<li><a href="operators.html">Operators</a></li>		
 					<li><a href="monads.html">Monads</a></li>
+					<li><a href="concurrency.html">Concurrency</a></li>
 					
 					<li class="disabled"><a href="enhancements.html">External Enhancements</a></li>
-					<li class="disabled"><a href="concurrency.html">Concurrency</a></li>
+					
 				</ul>
             </li>
 			<li class="dropdown">
@@ -149,12 +151,12 @@
 
 val person = new Person();
 
-person.name = &quot;Robert&quot;; // call modifier to set the value
-person.surname = &quot;Patterson&quot;; // call modifier to set the value
+person.name = &quot;John&quot;; // call modifier to set the value
+person.surname = &quot;Doe&quot;; // call modifier to set the value
 
 val fullname  = person.fullname; // call accessor to get the value
 
-Console.print(fullname); // prints: Robert Patterson
+Console.print(fullname); // prints: John Doe
 </code></pre><p>The <code>value</code> is always of the type of the property and represents the value assigned to the property.</p><h2>Self-backing Properties</h2><p>Properties are really only a pair of methods so its value must be hold somewhere.<br/>The most common use of a property is a self-backing property, i.e. a property that handles the storage of the value automatically in a private field.</p>
 <pre><code class="brush: lense"><br/>public class Person {
 
@@ -195,7 +197,7 @@ The visibility of the acessor or modifier may not be less restrictive than that 
 
 # Indexer Properties
 
-Indexer properties an anonymous properties that allow to associate the value of the property with one or more parameters called indexes.
+&lt;a name=&quot;indexed&quot;&gt;Indexer properties&lt;/a&gt; are anonymous properties that allow you to associate a value of the property with one or more values of parameters called indexes.
 The most common examples are arrays that use numeric indexes or maps that use key object for indexes.
 
 The rules of normal properties apply to indexer properties , you may need to define an accessor, or a modifier, or both.
@@ -230,7 +232,7 @@ private Natural calculateCell(Natural row, Natural column){
     
     <div id="footer">
       <div class="container">
-        <p class="muted credit">Lense is an open source project and a community driven development</p>
+        <p class="muted credit">Lense is an open source project and a community driven effort</p>
       </div>
     </div>
     

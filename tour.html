@@ -99,15 +99,17 @@
 				<ul class="dropdown-menu">
 					<li><a href="numbers.html">Numbers</a></li>
 					<li><a href="strings.html">Strings</a></li>
+					<li><a href="strings.html">Arrays</a></li>
+					
+					<li><a href="containerLiterals.html">Container Literals</a></li>
 					<li><a href="objects.html">Classes and Objects</a></li>
 					<li><a href="constructors.html">Constructors</a></li>
-					<li><a href="operators.html">Operators</a></li>
-					<li><a href="containerLiterals.html">Container Literals</a></li>
-					<li><a href="sumtypes.html">Sum Types</a></li>
+					<li><a href="operators.html">Operators</a></li>		
 					<li><a href="monads.html">Monads</a></li>
+					<li><a href="concurrency.html">Concurrency</a></li>
 					
 					<li class="disabled"><a href="enhancements.html">External Enhancements</a></li>
-					<li class="disabled"><a href="concurrency.html">Concurrency</a></li>
+					
 				</ul>
             </li>
 			<li class="dropdown">
@@ -228,7 +230,7 @@ Console.println(name); // prints &quot;Alice&quot;;
   <li>Progression</li>
   <li>Interval</li>
   <li>Sequence (like Arrays and Lists)</li>
-  <li>Assignment (like Maps)</li>
+  <li>Associations (like Maps)</li>
   <li>Tuple</li>
 </ul><p>You can initialize an object of any of these special types using a <a href="containerLiterals.html">literal</a>. For example, 'this is a string' is a string literal, and <code>true</code> is a boolean literal.</p><p>Because every variable in Lense refers to an object, that is an instance of a class, you can usually also use constructors to initialize variables.<br/>Some of the built-in types have their own constructors. For example, you can use the <em>Map()</em> constructor to create a map, using code such as <code>new Map()</code>.</p><h2>Numbers</h2><p>Numbers are separated in specific algebraic structures that conform to the mathematical rules of the group of elements.<br/>All numbers are descendent types of the <code>Number</code> class. Operations are defined for each type independently.<br/>Lense supports Natural, Integer, Real, Complex and Imaginary numbers. A byte is not a number in Lense.</p><p>Natural is used as an indexer for sequences. It is non-negative and has big as you need. Limits for the size of collections like arrays, lists and maps are only bound by their implementation. Using a Natural to index sequences removes the necessity to check for negative indexes and as Arrays always have a upper limit and always are constructed by <a href="constructors.html">factory like constructors</a><br/>the implementation for each platform can accommodate different implementations according to maximum length demand.<br/>For more information on how <code>Natural</code> relates to index of sequences, see how <a href="arrays.html">Arrays</a> work in Lense.</p><p>Arithmetic operations are defined by <a href="operators.html">Operator Interfaces</a> so you can implement you own versions of the common operators.</p><p>For more detail on number visit the dedicated <a href="numbers.html">numbers</a> page</p><h2>Strings</h2><p>A string in Lense is a Sequence of Character. Characters are UTF-16 code points. A string literal is just a text enclosed in double quotes.</p>
 <pre><code class="brush: lense">val String greating = &quot;Hello, world&quot;;
@@ -389,7 +391,7 @@ public class Client {
     
     <div id="footer">
       <div class="container">
-        <p class="muted credit">Lense is an open source project and a community driven development</p>
+        <p class="muted credit">Lense is an open source project and a community driven effort</p>
       </div>
     </div>
     

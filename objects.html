@@ -99,15 +99,17 @@
 				<ul class="dropdown-menu">
 					<li><a href="numbers.html">Numbers</a></li>
 					<li><a href="strings.html">Strings</a></li>
+					<li><a href="strings.html">Arrays</a></li>
+					
+					<li><a href="containerLiterals.html">Container Literals</a></li>
 					<li><a href="objects.html">Classes and Objects</a></li>
 					<li><a href="constructors.html">Constructors</a></li>
-					<li><a href="operators.html">Operators</a></li>
-					<li><a href="containerLiterals.html">Container Literals</a></li>
-					<li><a href="sumtypes.html">Sum Types</a></li>
+					<li><a href="operators.html">Operators</a></li>		
 					<li><a href="monads.html">Monads</a></li>
+					<li><a href="concurrency.html">Concurrency</a></li>
 					
 					<li class="disabled"><a href="enhancements.html">External Enhancements</a></li>
-					<li class="disabled"><a href="concurrency.html">Concurrency</a></li>
+					
 				</ul>
             </li>
 			<li class="dropdown">
@@ -141,7 +143,7 @@
          val Natural? pos = value.indexOf(&#39;.&#39;);
          if (pos.hasValue){
             val wholePart = new Integer.parse(value.subString(0,pos));
-            val multiplier =  10 ^ (value.length - pos); // 10 to the power of the number of decimal digits
+            val multiplier =  10 ** (value.length - pos); // 10 to the power of the number of decimal digits
             val decimalPart = new Integer.parse(value.subString(pos+1));     
 
             val numerator = wholePart * multiplier + decimalPart;
@@ -226,12 +228,61 @@ public class OtherClass {
 // called like 
 
 OtherClass.SomeObject.doItInTheObject()
+</code></pre><h1>Sum Types</h1><p>In Lense is possible to define an abstract type that can only be implemented by a limited list of other types.<br/>The classic example is the Node type. Normally we have a Branch node and a Leaf node. Tradicionally we would write:</p>
+<pre><code class="brush: lense ">public abstract class Node &lt;T&gt; {
+
+}
+
+public class Brunch&lt;T&gt; extends Node&lt;T&gt;{
+	constructor (Node&lt;T&gt; left , Node&lt;T&gt; right);
+}
+	
+public class Leaf &lt;T&gt; extends Node&lt;T&gt;{
+	constructor (T value);
+}
+</code></pre><p>If we now need to visit a long and complex tree we need to normally do so validation of types. For example, in java would be:</p>
+<pre><code class="brush: java">public &lt;T&gt; void colectLeafs(Node&lt;T&gt; node, List&lt;T&gt; leafs){
+
+	if (node instanceof Branch){
+	     Branch b = (Branch)node);
+	     collectLeafs(b.left, leafs);
+	     collectLeafs(b.right, leafs);
+	} else if (node instanceof Leaf){
+	    leafs.add(((Leaf)node).value);
+	}
+}
+</code></pre><p>We need to make a decision based on the type of the object, then cast it, then capture the properties and use them.<br/>In Lense we could use a similar construction using the flow-cast mechanism:</p>
+<pre><code class="brunch: lense ">public void colectLeafs&lt;T&gt;(Node&lt;T&gt; node, List&lt;T&gt; leafs){
+
+	if (node is Branch&lt;T&gt;){
+	     collectLeafs(node.left, leafs);
+	     collectLeafs(node.right, leafs);
+	} else if (node is Leaf&lt;T&gt;){
+	    leafs.add(node.value);
+	}
+}
+</code></pre><p>However the compiler would be blind to the fact <code>Node</code> is a sum type. If we did not had a <code>else if</code> to test for leafs the compiler<br/>would not complain. If we need the be sure all sub types are covered we can use the <code>switch</code> statement.</p>
+<pre><code class="brush: lense">public &lt;T&gt; void colectLeafs(Node&lt;T&gt; node, List&lt;T&gt; leafs){
+
+	switch(node) {
+		case Branch (b){
+			collectLeafs(b.left, leafs);
+	      collectLeafs(b.right, leafs);
+		} 
+		case Leaf (leaf){
+			leafs.add(leaf.value);
+		} 
+	}
+}
+</code></pre><p>But for this to work as expect we need to informe the compiler the children types of <code>Node</code> are limited to <code>Brunch</code> and <code>Leaf</code>:</p>
+<pre><code class="brush: lense ">public abstract class Node&lt;T&gt; is Brunch&lt;T&gt; | Leaf&lt;T&gt; {
+
+}
 </code></pre><h1>Interfaces</h1><p>Interfaces are constract declarations with no implementation.</p>
 <pre><code class="brush: lense">public interface Validator&lt;in T&gt; {
-
      public ValidatorResult validate( T candidate);
 }
-</code></pre><p>Interfaces can extend other interfaces an are implemented by classes</p>
+</code></pre><p>Interfaces can extend other interfaces an are implemented by classes or objects.</p>
 <pre><code class="brush: lense">public val class MailValidator implements Validator&lt;String&gt; {
 
      public ValidatorResult validate( String candidate) {
@@ -252,7 +303,7 @@ OtherClass.SomeObject.doItInTheObject()
     
     <div id="footer">
       <div class="container">
-        <p class="muted credit">Lense is an open source project and a community driven development</p>
+        <p class="muted credit">Lense is an open source project and a community driven effort</p>
       </div>
     </div>
     

@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8"/>
-    <title>Target Platforms</title>
+    <title>Strings</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <meta name="author" content="">
@@ -127,7 +127,29 @@
     </div>
 	<div class="corner-ribbon top-right sticky shadow"><a href="status.html">Exploration Stage</a></div>
     <div class="container">
-	<p><h1>Target Platforms</h1><p>Lense compiles for each target platform in way you an use it directly in that platform.<br/>For this reason some API libraries are only available for a specific platform or a group of platforms.<br/>Only the core Lense module is guaranteed to exist and compile for all platforms.</p><p>For a status on the platform support completion see the <a href="status.html">project status page</a>. </p><h2>Java Virtual Machine</h2><p>Lense can compile to .class files. More specifically to .jar files. Each Lense module corresponds to a .jar file.<br/>This modules are executable directly in a Java Virtual Machine. </p><h2>JavaScript (Embedded in a Browser)</h2><p>Lense can compile to .js files that can be executed inside a browser. Each Lense module corresponds to a .js file.<br/>Possibly in practice would be better to compile to some more hight level script like TypeScript or CoffeScript to better support Object Oriented features.</p><p>Please keep in mind that being able to compile to JavaScript does not mean that's all it is necessary to build a web application. You would still create you application<br/>with your preferred client-side technology (like, Angular, for example) and use Lense where you would use JavaScript.</p><h2>Common Language Runtime (Under consideration)</h2><p>Lense could compile to CRL (the .NET runtime). More specifically to .dll files.<br/>This is a possibility at the moment and care is being taken in the design so feature can be compatible with this runtime, however creating<br/>a backend compiler to CRL will be an effort to pursue in the far future. </p><p>If you are interested in a Lense CRL runtime please, feel free to contribute</p><h2>Android Runtime (Under consideration)</h2><p>Lense could compile to the Android platform. This could be an effort related with compiling to java .class first and then use android's tools to convert from that to .dex files, or<br/>we could compile directly to .dex files without compiling to java. </p><p>If you are interested in a Lense Android runtime please, feel free to contribute</p><h2>Dart Runtime (Under consideration)</h2><p>Lense could compile to the Dart platform. Dart has a higher level language with a concept similar to JavaScript to run in a Dart VM. Dart code can even be translated to javascript so<br/>compiling to Dart can be a way to also compile to javascript.</p><p>If you are interested in a Lense Dart runtime please, feel free to contribute</p></p>
+	<p><h1>Strings</h1><p>A string in Lense is a sequence of characters and implements <code>Sequence&lt;Character&gt;</code>. Characters are UTF-16 code points. A string literal is just a text enclosed in double quotes.</p>
+<pre><code class="brush: lense">	val String greating = &quot;Hello, world&quot;;
+</code></pre><p>String are mulit-line, so you can simply right</p>
+<pre><code class="brush: lense">val String greating = &quot;Hello, 
+	wold&quot;;
+</code></pre><p>The line break , tab and spaces in the second line will be preserved.</p><h2>Special characters</h2><p>If you need to use a Unicode special character, simply enclose its hexadecimal code as a natural within <code>\{</code> and <code>}</code> delimiters.</p>
+<pre><code class="brush: lense">	val String definitionOfPi = &quot;The value of \{#03C0} is the ratio between the circumference and the diameter of a circle&quot;
+</code></pre><p>Strings are <a href="glossary.html#fundamental">fundamental types</a> in Lense and are mapped to the <code>String</code> class in the native platform.</p><h2>Concatenation</h2><p>You can concatenate strings using the <code>+</code> operator.</p>
+<pre><code class="brush: lense">	val String name = &quot;Alice&quot;;
+	val String greating = &quot;Hello, &quot; + name;
+</code></pre><h2>Interpolation</h2><p>You can interpolate values inside literal strings using <code>{{</code> and <code>}}</code> as delimiters.</p>
+<pre><code class="brush: lense">	val String name = &quot;Alice&quot;;
+	val String greating = &quot;Hello, {{ name }}&quot;;
+</code></pre><p>You can interpolate any expression</p>
+<pre><code class="brush: lense">	for (var i in 1..10){
+		Console.println(&quot;The {{ i }}th even number is {{  (i-1) * 2 }}&quot;)
+	}
+</code></pre><h1>Character</h1><p>Character corresponds to a UTF-16 code point. Literals are inclosed in single quotes like <code>&#39;a&#39;</code>.A character is not a number (like in java) but you can use some operations with naturals.</p>
+<pre><code class="brush: lense">	var a = &#39;a&#39;;
+	
+	var b = a++; //  &#39;b&#39; 
+	var c = a + 2; // &#39;c&#39;
+</code></pre></p>
 	
 		</div>
 		<div id="push"></div>
