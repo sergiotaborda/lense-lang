@@ -171,7 +171,6 @@ Console.println(name); // prints "Alice";
 
 The ? sign after the ``String?`` type is a shorthand notation for ``Maybe<String>``. 
 
-
 # Built-in types
 The Lense language has special support for the following types:
 
@@ -182,7 +181,7 @@ The Lense language has special support for the following types:
 + Progression
 + Interval
 + Sequence (like Arrays and Lists)
-+ Assignment (like Maps)
++ Associations (like Maps)
 + Tuple
 
 You can initialize an object of any of these special types using a [literal](containerLiterals.html). For example, 'this is a string' is a string literal, and ``true`` is a boolean literal.

@@ -7,12 +7,12 @@ status=published
 
 #Numbers
 
-Numbers are separated in specific algebraic structures that conform to the mathematical rules of the group of elements.
+Numbers are separated in specific algebraic structures that conform to the mathematical rules of their group of elements.
 All numbers are descendent types of the ``Number`` class. Operations are defined for each type independently.
 Lense supports Complex and Imaginary numbers. Even thought we are aware the performance of these types may not be optimal, we understand that not supporting them would be a worst decision. 
 
 * Whole - numbers with no decimal part.
-	- Natural - Represents elements from the mathematical **&#8469;** set, i.e. positive only whole values that include zero and range from 0 up to maximum value limited only by available memory
+	- Natural - Represents elements from the mathematical **&#8469;** set, i.e. positive only whole values that include zero and range from zero up to maximum value limited only by available memory
 	- Integer - Represents elements from the mathematical **&#8484;** set, i.e. negative and positive whole values.
 		*  Int16 - negative and positive whole values with range from -2<sup>15</sup> to  2<sup>15</sup>-1. 
 		*  Int32 - negative and positive whole values with range from -2<sup>31</sup> to  2<sup>31</sup>-1. 
@@ -21,16 +21,18 @@ Lense supports Complex and Imaginary numbers. Even thought we are aware the perf
 * Real - Represents elements from the mathematical **&#8477;** set.
 	-  Rational - Represents elements from the mathematical **&#8474;** set, i.e. rational numbers defined by a natural numerator and a natural denominator like 2/3 or -5/8. The denominator cannot be zero. 
 	-  Decimal - Represents elements that have a fixed precision and so calculations may incur in loss of precision.
-		*  Decimal32 - negative and positive decimal values that follow 32 bits IEEE 3744 conventions
-		*  Decimal64 - negative and positive decimal values that follow 64 bits IEEE 3744 conventions
-		*  BigDecimal - Represents elements in the **&#8477;** set including truncated version of irrational numbers.Negative and positive decimal values with arbitrary precision limited only by available memory.
-* Imaginary - Represents elements from the mathematical **&#120128;** set. Numbers with pure imaginary parts of the form ``bi`` where ``i`` is the square root of -1.
+		* FixedPrecisionDecimal - Represents Decimal elements with fixed precision:
+			- Decimal32 - negative and positive decimal values that follow 32 bits IEEE 3744 conventions
+			- Decimal64 - negative and positive decimal values that follow 64 bits IEEE 3744 conventions
+		* ArbitraryPrecisionDecimal - Represents Decimal elements with arbitrary precision:
+			- BigDecimal - Represents elements in the **&#8477;** set including truncated version of irrational numbers.Negative and positive decimal values with arbitrary precision limited only by available memory.
+* Imaginary - Represents elements from the mathematical **&#120128;** set. Numbers with pure imaginary parts of the form ``bi`` where ``b`` is a ``Number`` and ``i`` is the square root of -1.
 	- ImaginaryOverReals<T extends Real>; - uses a Real type to store the numeric value
 * Complex - Represents elements from the mathematical **&#8450;** set. Complex numbers are of the form ``a + bi`` where ``i`` it the square root of -1.
 	- ComplexOverReals<T extends Real>; - Use a Real to type to store a numeric value for the real part and a ImaginaryOverReals<T> for the imaginary part.
 
-Natural is used as an indexer for sequences. It is non-negative and was big as you need. Limits to collections like arrays, lists and maps are only bound by implementation.
-Using a Natural to index sequences removes the necessity to check for negative indexes and as Arrays always have a upper limit and always are constructed by [factory like constructors](constructors.html) the implementation for each platform can accommodate different implementations according to maximum length demand.
+Type ``Natural`` is used as an indexer for ``Sequence``s. Limits to collections like arrays, lists and maps are only bound by limit of Natural which in turn is limited only by available memory.
+Using a Natural to index sequences removes the necessity to check for negative indexes and because ``Arrays`` always have a upper limit and always are constructed by [factory like constructors](constructors.html#factory) the implementation for each platform can accommodate different implementations according to maximum length demand.
 
 For more information on how Natural relates to index of sequences, see how [Arrays](arrays.html) work in Lense.
 For more information on arithmetic operations  more on Lense [operators](operators.html).
@@ -38,7 +40,7 @@ For more information on arithmetic operations  more on Lense [operators](operato
 
 ## Number Literals 
 
-For ``Whole`` number literals are always assumed Natural and in base ten representation. The natural values are transformed to other types as needed. 
+For ``Whole`` number literals are always assumed ``Natural`` and in base ten representation. The natural values are transformed to other types as needed. 
 This conversion may rise an ``OverflowException`` as a ``Natural`` can exceed the maximum values of other types. For ``Decimal`` values, literals are always assumed to be instance of ``BigDecimal``. ``BigDecimal`` constructor only accepts a string representation of the value as the BigDecimal literal representation must be exact.
 
 If you need to define the type of the literal explicitly you can use specific sufixes, upper case letters for whole numbers and lowercase letters to decimal numbers.
@@ -102,22 +104,19 @@ In any representation you can use _ to logically separate digits in the value to
 
 ### Other Bases for Literal Representations 
 
-Numeral literals are assumed to be represented in decimal form (base 10) for all types.
-For naturals it is also possible to use the hexadecimal (base 16) form.
+Numeral literals are assumed to be represented in decimal form (base 10) for all types. For naturals it is also possible to use the hexadecimal (base 16) form.
 
-The hexadecimal form begins with a ``#`` symbol followed by a valid hexadecimal digit: 1, 2, 3, 4, 5, 6, 7, 8, A , B, C, D , E , F.
-You can also use _ to separate digits like in base 10 representation.
+The hexadecimal form begins with a ``#`` symbol followed by a valid hexadecimal digit: 1, 2, 3, 4, 5, 6, 7, 8, A , B, C, D , E , F. You can also use _ to separate digits like in base ten representation.
 
 ~~~~brush: lense
-	var Natural color = #A3C1_F100; // hexadecimal
+	var Natural color = #A3_C1; // hexadecimal
 ~~~~
 
 ## Binary and Bytes
 
 Lense supports the ``Binary`` immutable interface to represent any value that can be understood as a sequence of bits. ``Binary`` does not,necessarily, represent a number. ``BitArray`` is the default, mutable, implementation of ``Binary`` present in the SDK API. ``BitArray`` supports a variable size of bits.
 
-``Byte`` is a special class that implements ``Binary`` corresponding to a fixed length sequence of 8 bits. It's primarily used for I/O operations. ``Byte`` is not a number, does not have an assigned numeric value and there is no automatic promotion from ``Byte`` to any type of ``Number``. Also it has no arithmetic operations.
-However, a ``Byte`` can be transformed explicitly to a ``Natural`` between 0 and 255 or to a ``Int32`` between -128 and 127 by means of the ``toNatural()`` and ``toInteger()`` functions.
+``Byte`` is a special class that implements ``Binary`` corresponding to a fixed length sequence of 8 bits. It's primarily used for I/O operations. ``Byte`` is not a number, does not have an assigned numeric value and there is no automatic promotion from ``Byte`` to any type of ``Number``. Also it has no arithmetic operations. However, a ``Byte`` can be transformed explicitly to a ``Natural`` between 0 and 255 or to a ``Int32`` between -128 and 127 by means of the ``toNatural()`` and ``toInteger()`` functions.
 
 ~~~~brush: lense
 	var Byte byte = $1111_0000; 
@@ -127,10 +126,7 @@ However, a ``Byte`` can be transformed explicitly to a ``Natural`` between 0 and
 	var Natural error = byte; // illegal. Byte is not assignable to Natural.
 ~~~~
 
-
-``Int16`` , ``Int32`` and ``Int64`` also implement ``Binary`` corresponding to a fixed length sequence of 16, 32 and 64 bits respectively. Because this values have a signed 
-numeric value one of the bits (the left most bit) is reserved to determine the sign. The rest of the bits represent the value if the value is positive (left most bit is zero), 
-else represent the Two Complement representation of the (then negative) value.
+``Int16`` , ``Int32`` and ``Int64`` also implement ``Binary`` corresponding to a fixed length sequence of 16, 32 and 64 bits respectively. Because this values have a signed numeric value, one of the bits is reserved to determine the sign. The rest of the bits represent the value if the value is positive, else represent the Two Complement representation of the (then negative) value.
 
 ### Literal Representation
 

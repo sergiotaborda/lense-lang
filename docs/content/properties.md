@@ -35,12 +35,12 @@ public class Person {
 
 val person = new Person();
 
-person.name = "Robert"; // call modifier to set the value
-person.surname = "Patterson"; // call modifier to set the value
+person.name = "John"; // call modifier to set the value
+person.surname = "Doe"; // call modifier to set the value
 
 val fullname  = person.fullname; // call accessor to get the value
 
-Console.print(fullname); // prints: Robert Patterson
+Console.print(fullname); // prints: John Doe
 ~~~~
 
 The ``value`` is always of the type of the property and represents the value assigned to the property.
@@ -128,7 +128,7 @@ The visibility of the acessor or modifier may not be less restrictive than that 
 
 # Indexer Properties
 
-Indexer properties an anonymous properties that allow to associate the value of the property with one or more parameters called indexes.
+<a name="indexed">Indexer properties</a> are anonymous properties that allow you to associate a value of the property with one or more values of parameters called indexes.
 The most common examples are arrays that use numeric indexes or maps that use key object for indexes.
 
 The rules of normal properties apply to indexer properties , you may need to define an accessor, or a modifier, or both.
