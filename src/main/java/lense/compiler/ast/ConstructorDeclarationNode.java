@@ -3,15 +3,7 @@
  */
 package lense.compiler.ast;
 
-import java.util.Optional;
-
 import lense.compiler.Visibility;
-import lense.compiler.ast.AnnotadedLenseAstNode;
-import lense.compiler.ast.BlockNode;
-import lense.compiler.ast.ParametersListNode;
-import lense.compiler.ast.TypeNode;
-import lense.compiler.ir.stack.StackInstructionList;
-import lense.compiler.ir.tac.TacInstructionList;
 
 
 
@@ -24,10 +16,9 @@ public class ConstructorDeclarationNode extends InvocableDeclarionNode {
 	private String name;
 	private ParametersListNode parameters = new ParametersListNode();
 	private BlockNode block;
-	private boolean isPrimary;
-	private boolean isImplicit;
-	private Visibility visibility;
-	
+	private boolean isPrimary= false;
+	private boolean isImplicit = false;
+
 	public TypeNode getReturnType() {
 		return returnType;
 	}

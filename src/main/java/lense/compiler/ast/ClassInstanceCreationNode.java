@@ -4,6 +4,7 @@
 package lense.compiler.ast;
 
 import compiler.syntax.AstNode;
+import lense.compiler.type.Constructor;
 import lense.compiler.type.TypeDefinition;
 import lense.compiler.type.variable.TypeVariable;
 
@@ -15,7 +16,8 @@ public class ClassInstanceCreationNode extends ExpressionNode{
 	private TypeNode typeNode;
 	private ArgumentListNode argumentList;
 	private String name;
-
+	private Constructor constructor;
+	
 	public ClassInstanceCreationNode (){}
 	
 	public ClassInstanceCreationNode (TypeVariable type, ArgumentListNode list){
@@ -120,5 +122,15 @@ public class ClassInstanceCreationNode extends ExpressionNode{
 	public String getName(){
 		return name;
 	}
+
+	public Constructor getConstructor() {
+		return constructor;
+	}
+
+	public void setConstructor(Constructor constructor) {
+		this.constructor = constructor;
+	}
+
+
 
 }

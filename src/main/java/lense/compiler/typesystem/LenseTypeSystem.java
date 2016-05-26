@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 import compiler.CompilationError;
 import lense.compiler.ast.Imutability;
 import lense.compiler.type.CallableMember;
+import lense.compiler.type.Constructor;
 import lense.compiler.type.Kind;
 import lense.compiler.type.LenseTypeDefinition;
 import lense.compiler.type.MethodParameter;
@@ -21,11 +22,12 @@ import lense.compiler.type.MethodReturn;
 import lense.compiler.type.MethodSignature;
 import lense.compiler.type.TypeDefinition;
 import lense.compiler.type.UnionType;
+import lense.compiler.type.variable.DeclaringTypeBoundedTypeVariable;
 import lense.compiler.type.variable.FixedTypeVariable;
 import lense.compiler.type.variable.IntervalTypeVariable;
 import lense.compiler.type.variable.RangeTypeVariable;
-import lense.compiler.type.variable.TypeMemberDeclaringTypeVariable;
 import lense.compiler.type.variable.TypeVariable;
+
 /**
  * 
  */
@@ -112,35 +114,35 @@ public class LenseTypeSystem{
 	 * @return
 	 */
 	public static TypeDefinition Float() {
-		return getInstance().getForName("lense.core.lang.Float").get();
+		return getInstance().getForName("lense.core.math.Float").get();
 	}
 
 	/**
 	 * @return
 	 */
 	public static TypeDefinition Imaginary() {
-		return getInstance().getForName("lense.core.lang.Imaginary").get();
+		return getInstance().getForName("lense.core.math.Imaginary").get();
 	}
 
 	/**
 	 * @return
 	 */
 	public static TypeDefinition Short() {
-		return getInstance().getForName("lense.core.lang.Short").get();
+		return getInstance().getForName("lense.core.math.Int16").get();
 	}
 
 	/**
 	 * @return
 	 */
 	public static TypeDefinition Int() {
-		return getInstance().getForName("lense.core.lang.Int").get();
+		return getInstance().getForName("lense.core.math.Int32").get();
 	}
 
 	/**
 	 * @return
 	 */
 	public static TypeDefinition Long() {
-		return getInstance().getForName("lense.core.lang.Long").get();
+		return getInstance().getForName("lense.core.math.Int64").get();
 	}
 	
 	/**
@@ -209,7 +211,7 @@ public class LenseTypeSystem{
 		LenseTypeDefinition maybe = register(new LenseTypeDefinition("lense.core.lang.Maybe", Kind.Class, any, new RangeTypeVariable("T", Variance.Covariant, any,nothing)));  
 
 		maybe.addMethod("map", specify(maybe, any), new MethodParameter(function2)); // TODO return must obey function return
-		maybe.addConstructor(new MethodParameter(any));
+		maybe.addConstructor("",new MethodParameter(any));
 		
 		
 		LenseTypeDefinition none = register(new LenseTypeDefinition("lense.core.lang.None", Kind.Class, specify(maybe, nothing), new IntervalTypeVariable[0]));
@@ -262,21 +264,19 @@ public class LenseTypeSystem{
 
 		tuple.addMethod("get", any, new MethodParameter(natural, "index"));
 
-		sequence.addMethod("get", new MethodReturn( new TypeMemberDeclaringTypeVariable(0)) , new MethodParameter(natural, "index")); 
-		array.addMethod("set", svoid  , new MethodParameter(natural, "index"), new MethodParameter(new TypeMemberDeclaringTypeVariable(0), "value")); 
+		sequence.addMethod("get", new MethodReturn( new DeclaringTypeBoundedTypeVariable(sequence, 0, Variance.Covariant)) , new MethodParameter(natural, "index")); 
+		array.addMethod("set", svoid  , new MethodParameter(natural, "index"), new MethodParameter(new DeclaringTypeBoundedTypeVariable(array,0, Variance.Invariant), "value")); 
 		
 		LenseTypeDefinition integer = register(new LenseTypeDefinition("lense.core.math.Integer", Kind.Class, whole));
-		LenseTypeDefinition sint = register(new LenseTypeDefinition("lense.core.math.Int", Kind.Class, integer));
-		LenseTypeDefinition slong =register(new LenseTypeDefinition("lense.core.math.Long", Kind.Class, integer));
-		LenseTypeDefinition sshort =register(new LenseTypeDefinition("lense.core.math.Short", Kind.Class, integer));
+		LenseTypeDefinition sint = register(new LenseTypeDefinition("lense.core.math.Int32", Kind.Class, integer));
+		LenseTypeDefinition slong =register(new LenseTypeDefinition("lense.core.math.Int64", Kind.Class, integer));
+		LenseTypeDefinition sshort =register(new LenseTypeDefinition("lense.core.math.Int16", Kind.Class, integer));
 		
-		whole.addMethod("toInt", sint);
-		whole.addMethod("toLong", slong);
-		whole.addMethod("toShort", sshort);
-		
-		integer.addMethod("toInt", sint);
-		integer.addMethod("toLong", slong);
-		integer.addMethod("toShort", sshort);
+		sint.addConstructor("valueOf", new MethodParameter(natural));
+		sint.addConstructor("valueOf", new MethodParameter(whole));
+
+		integer.addConstructor("valueOf", new MethodParameter(natural));
+		integer.addConstructor("valueOf", new MethodParameter(whole));
 		
 		natural.addMethod("multiply", natural, new MethodParameter(natural));
 		natural.addMethod("remainder", natural, new MethodParameter(natural));
@@ -297,6 +297,8 @@ public class LenseTypeSystem{
 
 		LenseTypeDefinition string = register(new LenseTypeDefinition("lense.core.lang.String", Kind.Class, specify(sequence, character), new IntervalTypeVariable[0]));
 
+		sint.addConstructor("parse", new MethodParameter(string));
+		
 		string.addMethod("toMaybe", specify(maybe, string));
 		string.addMethod("get", character, new MethodParameter (natural));
 		any.addMethod("toString", string);
@@ -570,7 +572,9 @@ public class LenseTypeSystem{
 		} 
 		
 		if (b instanceof FixedTypeVariable){
-			return ((FixedTypeVariable)b).getTypeDefinition().getConstructorByParameters(new MethodParameter(b)).filter(c -> c.isImplicit()).isPresent();
+			Optional<Constructor> op = ((FixedTypeVariable)b).getTypeDefinition().getConstructorByParameters(new MethodParameter(b));
+			
+			return op.filter(c -> c.isImplicit()).isPresent();
 		}
 		return false;
 	}
@@ -596,7 +600,14 @@ public class LenseTypeSystem{
 	public static boolean isSignatureImplementedBy(MethodSignature signature, CallableMember m) {
 		final List<MethodParameter> memberParameters = m.getParameters();
 		final List<MethodParameter> signatureParameters = signature.getParameters();
-		if (signature.getName().equals(m.getName()) &&  signatureParameters.size() == memberParameters.size()){
+		
+		return signature.getName().equals(m.getName()) && areSignatureParametersImplementedBy(signatureParameters,memberParameters);
+
+	}
+
+	public static boolean areSignatureParametersImplementedBy(List<MethodParameter> signatureParameters, List<MethodParameter> memberParameters) {
+
+		if (signatureParameters.size() == memberParameters.size()){
 			
 			for (int i = 0; i < signatureParameters.size(); i++ ){
 				if (!isAssignableTo(signatureParameters.get(i).getType(), memberParameters.get(i).getType())){
@@ -608,7 +619,7 @@ public class LenseTypeSystem{
 		return false;
 		
 	}
-
+	
 	public boolean isSignatureAssignableTo(MethodSignature from , MethodSignature to){
 		if ( from.getName().equals(to.getName()) && from.getParameters().size() == to.getParameters().size()){
 			

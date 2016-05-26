@@ -6,7 +6,9 @@ package lense.compiler;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.nio.file.FileVisitResult;
+import java.nio.file.FileVisitor;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
@@ -14,10 +16,16 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
+
+import javax.tools.JavaCompiler;
+import javax.tools.JavaFileObject;
+import javax.tools.StandardJavaFileManager;
+import javax.tools.ToolProvider;
 
 import compiler.AstCompiler;
 import compiler.CompilationResult;
@@ -37,7 +45,8 @@ import lense.compiler.ast.ModuleNode;
 import lense.compiler.ast.QualifiedNameNode;
 import lense.compiler.ast.TypeNode;
 import lense.compiler.ast.UnitTypes;
-import lense.compiler.crosscompile.java.JavaBackEndFactory;
+import lense.compiler.crosscompile.java.JavaCompilerBackEndFactory;
+import lense.compiler.crosscompile.java.JavaSourceBackEnd;
 import lense.compiler.dependency.DependencyGraph;
 import lense.compiler.dependency.DependencyNode;
 import lense.compiler.dependency.DependencyRelation;
@@ -50,6 +59,7 @@ import lense.compiler.graph.VertexTraversalEvent;
 import lense.compiler.phases.CompositePhase;
 import lense.compiler.phases.DesugarPropertiesPhase;
 import lense.compiler.phases.IntermediatyRepresentationPhase;
+import lense.compiler.phases.JavalizePhase;
 import lense.compiler.phases.NameResolutionPhase;
 import lense.compiler.phases.SemanticAnaylisisPhase;
 import lense.compiler.repository.ModuleRepository;
@@ -88,7 +98,7 @@ public class LenseCompiler {
 		}
 
 	};
-	private CompilerBackEndFactory backendFactory = new JavaBackEndFactory(); //new  JavaSourceBackEnd(); //JavaBinaryBackEndFactory(); 
+	private CompilerBackEndFactory backendFactory = new  JavaCompilerBackEndFactory(); // JavaBackEndFactory(); //new  JavaSourceBackEnd(); //JavaBinaryBackEndFactory(); 
 	private TypeRepository globalRepository;
 	
 	public LenseCompiler (TypeRepository globalRepository){
@@ -111,6 +121,15 @@ public class LenseCompiler {
 
 		String nativeLanguage = "java";
 		
+		SemanticAnaylisisPhase semantic = new SemanticAnaylisisPhase(listener);
+		DesugarPropertiesPhase desugarProperties = new DesugarPropertiesPhase(listener);
+		IntermediatyRepresentationPhase  ir = new IntermediatyRepresentationPhase();
+		JavalizePhase  jv = new JavalizePhase(listener);
+		
+		// TODO desugar native
+		// TODO remove indexaccessnode from IR
+		CompositePhase corePhase = new CompositePhase().add(semantic).add(desugarProperties).add(jv);//.add(ir);
+
 		listener.start();
 		try {
 
@@ -127,7 +146,10 @@ public class LenseCompiler {
 
 			File nativeSources = new File(moduleproject, "native/" + nativeLanguage);
 			
+			
 			File target = new File(moduleproject, "compilation/" + nativeLanguage + "/target");
+			
+			// delete previous run
 			if (!target.exists()){
 				target.mkdirs();
 			} else {
@@ -144,6 +166,10 @@ public class LenseCompiler {
 
 			FileLocations locations = new FileLocations(target, nativeSources);
 			
+			// first compile java native files
+			compileNative(locations);
+			
+			// compile lense files
 			CompilationUnitSet moduleUnit = new FolderCompilationUnionSet(sources , name -> name.equals("module.lense"));
 
 			AstCompiler parser = new AstCompiler(new LenseLanguage());
@@ -269,13 +295,6 @@ public class LenseCompiler {
 				throw new CompilationError("Type " + referencedNames.stream().filter(r -> r.length() > 0).findFirst().get() + " was not found");
 			}
 
-			SemanticAnaylisisPhase semantic = new SemanticAnaylisisPhase(listener);
-			DesugarPropertiesPhase desugarProperties = new DesugarPropertiesPhase(listener);
-			IntermediatyRepresentationPhase  ir = new IntermediatyRepresentationPhase();
-			
-			// TODO desugar native
-			// TODO remove indexaccessnode from IR
-			CompositePhase corePhase = new CompositePhase().add(semantic).add(desugarProperties).add(ir);
 
 			GraphTransversor<DependencyRelation, DependencyNode> tt = new TopologicOrderTransversor<>();
 			tt.addListener(new GraphTranverseListener<DependencyNode, DependencyRelation>() {
@@ -331,12 +350,11 @@ public class LenseCompiler {
 			for(QualifiedNameNode pack : packages){
 
 				StringBuilder builder = new StringBuilder("import lense.core.lang.reflection.Package; import lense.core.lang.String;")
-				.append("public class ").append("Package$$Info implements Package { ")
-
-				.append("public String getName(){")
-				.append("	return \"").append(pack).append("\" ;")
-				.append("}")
-				.append("}");
+				.append("public class Package$$Info implements Package { \n")
+				.append(" public String getName() {\n")
+				.append("	return \"").append(pack).append("\" ;\n")
+				.append("}\n")
+				.append("}\n");
 				
 				// TODO list types in package
 
@@ -398,6 +416,62 @@ public class LenseCompiler {
 			listener.end();
 		}
 
+	}
+
+	private void compileNative(FileLocations fileLocations) throws IOException {
+		List<File> files = new LinkedList<>();
+
+		final Path rootDir = fileLocations.getNativeFolder().toPath();
+		final Path targetDir = fileLocations.getTargetFolder().toPath();
+
+		Files.walkFileTree(rootDir, new FileVisitor<Path>() {
+
+			@Override
+			public FileVisitResult preVisitDirectory(Path path, BasicFileAttributes atts) throws IOException {
+				return FileVisitResult.CONTINUE;
+			}
+
+			@Override
+			public FileVisitResult visitFile(Path path, BasicFileAttributes mainAtts)
+					throws IOException {
+
+				if (path.toString().endsWith(".java")){
+					files.add(path.toFile());
+				}
+				return FileVisitResult.CONTINUE;
+			}
+
+			@Override
+			public FileVisitResult postVisitDirectory(Path path,
+					IOException exc) throws IOException {
+				return FileVisitResult.CONTINUE;
+			}
+
+			@Override
+			public FileVisitResult visitFileFailed(Path path, IOException exc)
+					throws IOException {
+				exc.printStackTrace();
+
+				return path.equals(rootDir)? FileVisitResult.TERMINATE:FileVisitResult.CONTINUE;
+			}
+		});
+
+		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+		StandardJavaFileManager fileManager = compiler.getStandardFileManager(null, null, null);
+
+		Iterable<? extends JavaFileObject> compilationUnits1 = fileManager.getJavaFileObjectsFromFiles(files);
+		compiler.getTask(new PrintWriter(System.err), fileManager, null, null, null, compilationUnits1).call();
+
+		for (File n : files){
+			String packageFile = n.getAbsolutePath().substring(rootDir.toString().length());
+			int pos = packageFile.indexOf(".java");
+			packageFile = packageFile.substring(0, pos) + ".class";
+			File source = new File(n.getParentFile(), n.getName().substring(0,  n.getName().length() - 5) + ".class");
+			File target = new File(fileLocations.getTargetFolder(),packageFile);
+			
+			Files.move(source.toPath(), target.toPath());
+
+		}
 	}
 
 

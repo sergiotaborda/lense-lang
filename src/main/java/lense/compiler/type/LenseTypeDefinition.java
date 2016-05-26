@@ -6,6 +6,7 @@ package lense.compiler.type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -29,6 +30,7 @@ public class LenseTypeDefinition implements TypeDefinition {
 	private List<TypeDefinition> interfaces = new ArrayList<TypeDefinition>();
 	private List<IntervalTypeVariable> genericParameters;
 	private TypeDefinition superDefinition;
+	private boolean isAbstract;
 
 	public LenseTypeDefinition(String name, TypeKind kind, LenseTypeDefinition superDefinition) {
 		this.name = name;
@@ -152,16 +154,18 @@ public class LenseTypeDefinition implements TypeDefinition {
 	}
 
 	/**
+	 * @param name TODO
 	 * 
 	 */
-	public void addConstructor(MethodParameter... parameters) {
-		Constructor m = new Constructor(Arrays.asList(parameters), false);
+	public Constructor addConstructor(String name, MethodParameter... parameters) {
+		Constructor m = new Constructor(name,Arrays.asList(parameters), false);
 		m.setDeclaringType(this);
 		this.members.add(m);
+		return m;
 	}
 	
 	public void addImplicitConstructor(MethodParameter... parameters) {
-		Constructor m = new Constructor(Arrays.asList(parameters), true);
+		Constructor m = new Constructor("",Arrays.asList(parameters), true);
 		m.setDeclaringType(this);
 		this.members.add(m);
 	}
@@ -182,7 +186,9 @@ public class LenseTypeDefinition implements TypeDefinition {
 	
 	public void addMethod (Method m){
 		
-		
+		if (this.kind == Kind.Interface){
+			m.setAbstract(true);
+		}
 		m.setDeclaringType(this);
 
 		if (!members.isEmpty()) {
@@ -421,18 +427,35 @@ public class LenseTypeDefinition implements TypeDefinition {
 		
 		return Optional.empty();
 	}
+	
+	@Override
+	public Optional<Constructor> getConstructorByPromotableParameters(MethodParameter... parameters) {
+		
+		Iterator<Constructor> iterator = members.stream().filter(m -> m.isConstructor()).map(m -> (Constructor)m).iterator();
+		while(iterator.hasNext()){
+			Constructor constructor = iterator.next();
+			if (constructor.getParameters().size() == parameters.length) {
+				for (int p = 0; p < parameters.length; p++) {
+					MethodParameter mp = parameters[p];
+					if (LenseTypeSystem.getInstance().isPromotableTo(mp.getType(), constructor.getParameters().get(p).getType())) {
+						return Optional.of(constructor);
+					}
+				}
+			}
+		}
+		return Optional.empty();
+	}
+
 
 	@Override
 	public Optional<Constructor> getConstructorByParameters(MethodParameter... parameters) {
 		// find exact local
-		MethodSignature constructorSignature = new MethodSignature("", parameters);
 
-		Optional<Constructor> member = members.stream()
-				.filter(m -> m.isConstructor() && LenseTypeSystem.getInstance()
-						.isSignatureImplementedBy(constructorSignature, (CallableMember) m))
-				.map(m -> (Constructor) m).findAny();
+		List<MethodParameter> list = Arrays.asList(parameters);
+		return members.stream()
+				.filter(m -> m.isConstructor())
+				.map(m -> (Constructor) m).filter(c -> LenseTypeSystem.getInstance().areSignatureParametersImplementedBy(list, c.getParameters())  ).findAny();
 
-		return member;
 	}
 
 	/**
@@ -461,6 +484,23 @@ public class LenseTypeDefinition implements TypeDefinition {
 	public boolean isGeneric() {
 		return !this.genericParameters.isEmpty() && this.genericParameters.stream().anyMatch(p -> !p.getLowerBound().equals(p.getUpperbound()));
 	}
+
+	public boolean hasConstructor() {
+		return members.stream().anyMatch(m -> m.isConstructor());
+	}
+
+	public Stream<Constructor> getConstructors() {
+		return members.stream().filter(m -> m.isConstructor()).map(m -> (Constructor)m);
+	}
+
+	public boolean isAbstract() {
+		return isAbstract;
+	}
+
+	public void setAbstract(boolean isAbstract) {
+		this.isAbstract = isAbstract;
+	}
+
 
 
 

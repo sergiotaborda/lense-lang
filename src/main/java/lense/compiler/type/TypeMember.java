@@ -46,4 +46,5 @@ public interface TypeMember {
 	 */
 	TypeMember changeDeclaringType(TypeDefinition concrete);
 
+
 }

@@ -4,6 +4,7 @@ public class ModifierNode extends InvocableDeclarionNode {
 
 	private boolean implicit;
 	private BlockNode statement;
+	private String valueVariableName;
 
 
 	public ModifierNode(boolean implicit) {
@@ -26,5 +27,13 @@ public class ModifierNode extends InvocableDeclarionNode {
 	
 	public boolean isImplicit(){
 		return implicit;
+	}
+
+	public void setValueVariableName(String name) {
+		this.valueVariableName = name;
+	}
+	
+	public String getValueVariableName(){
+		return valueVariableName;
 	}
 }

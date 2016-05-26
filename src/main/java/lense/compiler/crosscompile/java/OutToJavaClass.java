@@ -60,7 +60,7 @@ import lense.compiler.ir.stack.StackInstructionList;
 import lense.compiler.ir.stack.StoreToVariable;
 import lense.compiler.ir.stack.ThrowException;
 import lense.compiler.ir.stack.WriteFieldToObject;
-
+import lense.compiler.type.Kind;
 /**
  * 
  */
