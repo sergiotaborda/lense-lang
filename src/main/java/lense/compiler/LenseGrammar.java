@@ -193,7 +193,7 @@ public class LenseGrammar extends AbstractLenseGrammar{
 
 	public boolean isDigit(char c) {
 		return isNumberStarter(c) || c == '0' || c == '_' || c == '.' || c == 'e' || c=='E' || c == 'x' 
-				|| c == 'N'	|| c == 'S'	|| c == 'I' || c == 'L' || c == 'D' || c == 'F'  || c == 'M' || c == 'J' ;
+				|| c == 'N'	|| c == 'S'	|| c == 'Z' || c == 'L' || c == 'd' || c == 'f'  || c == 'k' || c == 'm' || c == 'i' ;
 	}
 
 	public boolean isNumberStarter (char c){
@@ -1085,12 +1085,16 @@ public class LenseGrammar extends AbstractLenseGrammar{
 						n.setNative(true);
 					} else if (in.getName().equals("abstract")) {
 						throw new CompilationError(n, "Constructors can not be abstract.");
+					} else if (in.getName().equals("implicit")) {
+						n.setImplicit(true);
 					} else if (in.getName().equals("public")) {
 						n.setVisibility(Visibility.Public);
 					} else if (in.getName().equals("protected")) {
 						n.setVisibility(Visibility.Protected);
 					}else if (in.getName().equals("private")) {
 						n.setVisibility(Visibility.Private);
+					} else {
+						throw new RuntimeException();
 					}
 				}
 
@@ -1103,12 +1107,15 @@ public class LenseGrammar extends AbstractLenseGrammar{
 				n.setParameters(formalParams.get());
 			}
 
-			Optional<BlockNode> block =  r.size() < next + 3 ? r.get(next + 3).getAstNode(BlockNode.class) : Optional.empty();
+	
+			Optional<BlockNode> block =  r.size() > next + 3 ? r.get(next + 3).getAstNode(BlockNode.class) : Optional.empty();
 
 
 			if (block.isPresent()){
 				n.setBlock(block.get());
+				n.setPrimary(false);
 			} else {
+				n.setBlock(null);
 				n.setPrimary(true);
 			}
 			p.setAstNode(n);
@@ -1131,6 +1138,8 @@ public class LenseGrammar extends AbstractLenseGrammar{
 			}else if (r.size() == 3){
 				n.setImplicit(true);
 				n.setName((String)r.get(2).getSemanticAttribute("lexicalValue").get());
+			} else {
+				throw new RuntimeException();
 			}
 			p.setAstNode(n);
 		});
@@ -1139,7 +1148,7 @@ public class LenseGrammar extends AbstractLenseGrammar{
 			if (r.get(0).getAstNode().isPresent()){
 				p.setAstNode(r.get(0).getAstNode().get());
 			} else {
-				p.setAstNode(new BlockNode());
+				//p.setAstNode(null);
 			}
 		});
 
@@ -2477,7 +2486,10 @@ public class LenseGrammar extends AbstractLenseGrammar{
 		getNonTerminal("propertyMember").addSemanticAction( (p, r) -> {
 			if (r.get(0).getLexicalValue().equals("set")){
 				ModifierNode a = new ModifierNode(false);
-				a.setStatements(r.get(2).getAstNode(BlockNode.class).get());
+
+				a.setValueVariableName(r.get(2).getLexicalValue());
+				
+				a.setStatements(r.get(5).getAstNode(BlockNode.class).get());
 				p.setAstNode(a);
 			} else if (r.get(0).getLexicalValue().equals("get")){
 				AccessorNode a = new AccessorNode(false);
@@ -2529,15 +2541,31 @@ public class LenseGrammar extends AbstractLenseGrammar{
 				}
 			} else {
 
-				PropertyDeclarationNode prp = r.get(0).getAstNode(PropertyDeclarationNode.class).get();
+				Optional<AnnotationListNode> annots = r.get(0).getAstNode(AnnotationListNode.class);
 
-				if (r.get(1).getAstNode(ModifierNode.class).isPresent()){
-					prp.setModifier(r.get(1).getAstNode(ModifierNode.class).get());
-					p.setAstNode(prp);
-				} else if (r.get(1).getAstNode(AccessorNode.class).isPresent()){
-					prp.setAcessor(r.get(1).getAstNode(AccessorNode.class).get());
-					p.setAstNode(prp);
+				int nextNodeIndex = 0;
+				if (annots.isPresent()){
+					nextNodeIndex = 1;
+				} 
+				
+				TypeNode typeNode = ensureTypeNode(r.get(nextNodeIndex).getAstNode().get());
+				nextNodeIndex++;
+				
+				nextNodeIndex++;
+				ParametersListNode indexes = r.get(nextNodeIndex).getAstNode(ParametersListNode.class).get();
+				nextNodeIndex++;
+				
+				nextNodeIndex++;
+				IndexerPropertyDeclarationNode prp = new IndexerPropertyDeclarationNode(r.get(nextNodeIndex).getAstNode(PropertyDeclarationNode.class).get());
+				
+				if(annots.isPresent()){
+					prp.setAnnotations(annots.get());
+					applyAnnotations(prp, annots);
 				}
+			
+				prp.setParameters(indexes);
+				prp.setType(typeNode);
+				
 				p.setAstNode(prp);
 
 			}

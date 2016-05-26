@@ -8,6 +8,7 @@ import java.util.List;
 import compiler.syntax.AstNode;
 import compiler.trees.VisitorNext;
 import lense.compiler.CompilationError;
+import lense.compiler.ast.ConstructorDeclarationNode;
 import lense.compiler.ast.FieldDeclarationNode;
 import lense.compiler.ast.FormalParameterNode;
 import lense.compiler.ast.IndexerPropertyDeclarationNode;
@@ -23,7 +24,6 @@ import lense.compiler.type.MethodParameter;
 import lense.compiler.type.MethodReturn;
 import lense.compiler.type.variable.IntervalTypeVariable;
 import lense.compiler.type.variable.TypeMemberDeclaringTypeVariable;
-import lense.compiler.type.variable.FixedTypeVariable;
 
 /**
  * Read the classe members and fills a SenseType object
@@ -66,7 +66,14 @@ public class StructureVisitor extends AbstractLenseVisitor {
 	@Override
 	public void visitAfterChildren(AstNode node) {
 
-		if (node instanceof FieldDeclarationNode){
+		if (node instanceof ConstructorDeclarationNode){
+			ConstructorDeclarationNode f = (ConstructorDeclarationNode)node;
+
+			MethodParameter[] params = asMethodParameters(f.getParameters());
+			
+			currentType.addConstructor(f.getName(), params);
+
+		} else 	if (node instanceof FieldDeclarationNode){
 			FieldDeclarationNode f = (FieldDeclarationNode)node;
 
 			resolveTypeDefinition(f.getTypeNode());
@@ -108,27 +115,9 @@ public class StructureVisitor extends AbstractLenseVisitor {
 				returnTypeVariable = new TypeMemberDeclaringTypeVariable(index);
 			}
 
-			for (AstNode p :  m.getParameters().getChildren()){
-				FormalParameterNode f = (FormalParameterNode)p;
-				resolveTypeDefinition(f.getTypeNode());
-			}
-
+		
 			ParametersListNode parameters = m.getParameters();
-			MethodParameter[] params = (parameters == null) ? new MethodParameter[0] : new MethodParameter[parameters.getChildren().size()];
-
-			for (int i = 0; i < params.length; i++) {
-				FormalParameterNode var = (FormalParameterNode) parameters.getChildren().get(i);
-				if (var.getTypeVariable() == null){
-					
-					int index = resolveCurrentTypeGenericTypeParameterIndex(var.getTypeNode().getTypeParameter().getName());
-					lense.compiler.type.variable.TypeVariable tv = new TypeMemberDeclaringTypeVariable(index);
-					
-					params[i] = new MethodParameter(tv, var.getName());
-				} else {
-					params[i] = new MethodParameter(var.getTypeVariable(), var.getName());
-				}
-				
-			}
+			MethodParameter[] params = asMethodParameters(parameters);
 
 			Method method = new Method(m.getName(), new MethodReturn(returnTypeVariable), params);
 			currentType.addMethod(method);
@@ -183,6 +172,33 @@ public class StructureVisitor extends AbstractLenseVisitor {
 			resolveTypeDefinition((TypeNode)node);
 		}
 
+	}
+
+
+	private MethodParameter[] asMethodParameters(ParametersListNode parameters) {
+		
+		for (AstNode p : parameters.getChildren()){
+			FormalParameterNode f = (FormalParameterNode)p;
+			resolveTypeDefinition(f.getTypeNode());
+		}
+
+		
+		MethodParameter[] params = (parameters == null) ? new MethodParameter[0] : new MethodParameter[parameters.getChildren().size()];
+
+		for (int i = 0; i < params.length; i++) {
+			FormalParameterNode var = (FormalParameterNode) parameters.getChildren().get(i);
+			if (var.getTypeVariable() == null){
+				
+				int index = resolveCurrentTypeGenericTypeParameterIndex(var.getTypeNode().getTypeParameter().getName());
+				lense.compiler.type.variable.TypeVariable tv = new TypeMemberDeclaringTypeVariable(index);
+				
+				params[i] = new MethodParameter(tv, var.getName());
+			} else {
+				params[i] = new MethodParameter(var.getTypeVariable(), var.getName());
+			}
+			
+		}
+		return params;
 	}
 
 

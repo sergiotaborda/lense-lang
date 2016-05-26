@@ -13,14 +13,16 @@ public class Constructor implements CallableMember{
 	private List<MethodParameter> parameters;
 	private TypeDefinition declaringType;
 	private boolean isImplicit;
+	private String name;
 
 	/**
 	 * Constructor.
 	 * @param parameters
 	 */
-	public Constructor(List<MethodParameter> parameters, boolean isImplicit) {
+	public Constructor(String name, List<MethodParameter> parameters, boolean isImplicit) {
 		this.parameters  = parameters;
 		this.isImplicit = isImplicit;
+		this.name = name;
 	}
 
 	
@@ -41,7 +43,7 @@ public class Constructor implements CallableMember{
 	 */
 	@Override
 	public String getName() {
-		return "";
+		return name;
 	}
 
 	/**
@@ -65,7 +67,7 @@ public class Constructor implements CallableMember{
 	 */
 	@Override
 	public TypeMember changeDeclaringType(TypeDefinition concrete) {
-		Constructor c = new Constructor(this.parameters, this.isImplicit);
+		Constructor c = new Constructor(this.name,this.parameters, this.isImplicit);
 		c.declaringType = concrete;
 		return c;
 	}
@@ -107,9 +109,13 @@ public class Constructor implements CallableMember{
 		return false;
 	}
 
-
 	public boolean isImplicit() {
 		return isImplicit;
+	}
+
+
+	public void setName(String name) {
+		this.name = name;
 	}
 
 	

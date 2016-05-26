@@ -24,6 +24,7 @@ import lense.compiler.context.SemanticContext;
 import lense.compiler.context.VariableInfo;
 import lense.compiler.type.variable.FixedTypeVariable;
 import lense.compiler.typesystem.LenseTypeSystem;
+import lense.compiler.ast.IndexedAccessNode;
 
 public class DesugarPropertiesVisitor extends AbstractLenseVisitor{
 
@@ -32,12 +33,12 @@ public class DesugarPropertiesVisitor extends AbstractLenseVisitor{
 	public DesugarPropertiesVisitor (SemanticContext sc){
 		this.semanticContext = sc;
 	}
-	
+
 	@Override
 	protected SemanticContext getSemanticContext() {
 		return semanticContext;
 	}
-	
+
 	@Override
 	public void startVisit() {}
 
@@ -51,17 +52,17 @@ public class DesugarPropertiesVisitor extends AbstractLenseVisitor{
 
 	@Override
 	public void visitAfterChildren(AstNode node) {
-		
+
 		if (node instanceof IndexerPropertyDeclarationNode){
 			IndexerPropertyDeclarationNode n = (IndexerPropertyDeclarationNode)node;
 			AstNode parent = node.getParent();
-			
+
 			parent.remove(node);
-			
+
 			if (n.getAcessor() != null){
 				AccessorNode a = n.getAcessor();
-				
-				
+
+
 				MethodDeclarationNode getter = new MethodDeclarationNode();
 				getter.setName("get");
 				if (n.isNative()){
@@ -73,60 +74,64 @@ public class DesugarPropertiesVisitor extends AbstractLenseVisitor{
 					getter.setBlock(a.getBlock());
 				}
 				getter.setReturnType(n.getType());
-				getter.setVisibility(a.getVisibility());
-				
+				getter.setVisibility(a.getVisibility() == null ? n.getVisibility(): a.getVisibility());
+
 				getter.setParameters(n.getIndexes());
 				parent.add(getter);
 			}
-			
+
 			if (n.getModifier() != null){
 				ModifierNode a = n.getModifier();
-				
-				
+
+
 				MethodDeclarationNode setter = new MethodDeclarationNode();
 				setter.setName("set");
-				
-				String parameterName  = "value";// TODO read from modifier
+
+				String parameterName  = a.getValueVariableName();
 				if (n.isNative()){
+					parameterName = "value";
 					setter.setNative(n.isNative());
 				} else if (n.isAbstract()){
+					parameterName = "value";
 					setter.setAbstract(n.isAbstract());
 				}else {
 					setter.setBlock(a.getBlock());
 				}
-				
+
 				FormalParameterNode valueParameter = new FormalParameterNode();
 				valueParameter.setTypeNode(n.getType());
 				valueParameter.setName(parameterName); 
-				
+
 				ParametersListNode parameters = new ParametersListNode();
-				
+
 				for(AstNode p : n.getIndexes().getChildren()){
 					parameters.add(p);
+					
 				}
 				parameters.add(valueParameter);
-				
+
 				setter.setParameters(parameters);
-				setter.setVisibility(a.getVisibility());
+				setter.setVisibility(a.getVisibility() == null ? n.getVisibility(): a.getVisibility());
+
 				setter.setReturnType(n.getType());
-				
+
 				parent.add(setter);
 			}
-			
+
 		} else if (node instanceof PropertyDeclarationNode){
 			PropertyDeclarationNode n = (PropertyDeclarationNode)node;
-			
+
 			String propertyName = resolvePropertyName(n.getName());
 			String privateFieldName = "_" + n.getName();
-			
+
 			AstNode parent = node.getParent();
-			
+
 			parent.remove(node);
-			
+
 			if (n.getAcessor() != null){
 				AccessorNode a = n.getAcessor();
-				
-				
+
+
 				MethodDeclarationNode getter = new MethodDeclarationNode();
 				getter.setName("get" + propertyName);
 				if (n.isNative()){
@@ -141,7 +146,7 @@ public class DesugarPropertiesVisitor extends AbstractLenseVisitor{
 						block = new BlockNode();
 						ReturnNode rnode = new ReturnNode();
 						block.add(rnode);
-						
+
 						FieldOrPropertyAccessNode field = new FieldOrPropertyAccessNode(privateFieldName);
 						field.setType(n.getType().getTypeVariable());
 						rnode.add(field);
@@ -150,18 +155,18 @@ public class DesugarPropertiesVisitor extends AbstractLenseVisitor{
 				}
 				getter.setReturnType(n.getType());
 				getter.setVisibility(a.getVisibility());
-			
+
 				parent.add(getter);
 			}
-			
+
 			if (n.getModifier() != null){
 				ModifierNode a = n.getModifier();
-				
-				
+
+
 				MethodDeclarationNode setter = new MethodDeclarationNode();
 				setter.setName("set" + propertyName);
-				
-				String parameterName  = "value";// TODO read from modifier
+
+				String parameterName  = a.getValueVariableName();
 				if (n.isNative()){
 					setter.setNative(n.isNative());
 				} else if (n.isAbstract()){
@@ -169,39 +174,38 @@ public class DesugarPropertiesVisitor extends AbstractLenseVisitor{
 				}else {
 					BlockNode block = a.getBlock();
 					if (a.isImplicit()){
-						// TODO validate in semantics that is accessor is implicit modifier also is implicit
 						block = new BlockNode();
 						AssignmentNode assign = new AssignmentNode(Operation.SimpleAssign);
 						FieldOrPropertyAccessNode field = new FieldOrPropertyAccessNode(privateFieldName);
 						field.setType(n.getType().getTypeVariable());
 						assign.setLeft(field);
 						assign.setRight(new VariableReadNode(parameterName, new VariableInfo(parameterName, n.getType().getTypeVariable(), setter, false, false)));
-						
+
 						block.add(assign);
 					} 
 					setter.setBlock(block);
 				}
-				
+
 				FormalParameterNode valueParameter = new FormalParameterNode();
 				valueParameter.setTypeNode(n.getType());
 				valueParameter.setName(parameterName); 
-				
+
 				ParametersListNode parameters = new ParametersListNode();
 				parameters.add(valueParameter);
 				
 				setter.setParameters(parameters);
 				setter.setVisibility(a.getVisibility());
 				setter.setReturnType(new TypeNode(LenseTypeSystem.Void()));
-				
+
 				parent.add(setter);
 			}
 		} else if (node instanceof FieldOrPropertyAccessNode){
 			FieldOrPropertyAccessNode n= (FieldOrPropertyAccessNode)node;
-			
-			
+
+
 			if (n.getKind() == Kind.PROPERTY){
 				String propertyName = resolvePropertyName(n.getName());
-				
+
 				if (n.getParent()  instanceof AssignmentNode && ((AssignmentNode)n.getParent()).getLeft() == node){
 					ExpressionNode value = ((AssignmentNode)n.getParent()).getRight();
 					// is write access
@@ -215,6 +219,24 @@ public class DesugarPropertiesVisitor extends AbstractLenseVisitor{
 					node.getParent().replace(node, invokeGet);
 				}
 			}
+		}else if (node instanceof IndexedAccessNode){
+			IndexedAccessNode n= (IndexedAccessNode)node;
+
+
+
+			if (n.getParent()  instanceof AssignmentNode && ((AssignmentNode)n.getParent()).getLeft() == node){
+				ExpressionNode value = ((AssignmentNode)n.getParent()).getRight();
+				// is write access
+				MethodInvocationNode invokeSet = new MethodInvocationNode(n.getAccess(), "set", value);
+				invokeSet.setTypeVariable(new FixedTypeVariable(LenseTypeSystem.Void()));
+				node.getParent().getParent().replace(n.getParent() , invokeSet);
+			} else {
+				// is read acesss
+				MethodInvocationNode invokeGet = new MethodInvocationNode(n.getAccess(), "get", n.getIndexExpression());
+				invokeGet.setTypeVariable(n.getTypeVariable());
+				node.getParent().replace(node, invokeGet);
+			}
+
 		}
 	}
 

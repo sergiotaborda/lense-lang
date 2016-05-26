@@ -1,7 +1,5 @@
 package lense.compiler.crosscompile.java;
 
-import java.io.File;
-
 import compiler.CompiledUnit;
 import compiler.CompilerBackEnd;
 import lense.compiler.CompilerBackEndFactory;

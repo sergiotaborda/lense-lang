@@ -30,6 +30,8 @@ public interface TypeDefinition {
 
 	public Optional<Constructor> getConstructorByParameters(MethodParameter ... parameters);
 		
+	public Optional<Constructor> getConstructorByPromotableParameters(MethodParameter ... parameters);
+	
 	/**
 	 * @param name
 	 * @return
@@ -63,6 +65,8 @@ public interface TypeDefinition {
 	public boolean isGeneric();
 
 	public Optional<IndexerProperty> getIndexerPropertyByTypeArray(TypeVariable[] type);
+
+
 
 
 }

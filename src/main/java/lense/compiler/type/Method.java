@@ -8,7 +8,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import lense.compiler.type.variable.IntervalTypeVariable;
-import lense.compiler.type.variable.TypeMemberAwareTypeVariable;
 import lense.compiler.type.variable.TypeVariable;
 
 /**
@@ -18,6 +17,7 @@ public class Method implements CallableMember {
 
 	private final String name;
 	private boolean isStatic = false;
+	private boolean isAbstract = false;
 	private TypeDefinition declaringType;
 	private MethodReturn returnParameter;
 	private List<MethodParameter> parameters;
@@ -189,6 +189,15 @@ public class Method implements CallableMember {
 	public boolean isIndexer() {
 		return false;
 	}
+
+	public boolean isAbstract() {
+		return isAbstract;
+	}
+
+	public void setAbstract(boolean isAbstract) {
+		this.isAbstract = isAbstract;
+	}
+
 
 
 

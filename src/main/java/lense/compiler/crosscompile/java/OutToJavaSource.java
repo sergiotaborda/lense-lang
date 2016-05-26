@@ -36,8 +36,11 @@ public class OutToJavaSource implements CompilerBackEnd {
 	 */
 	@Override
 	public void use(CompiledUnit unit) {
-		
+		toSource(unit);
+	}
 
+	public File toSource(CompiledUnit unit) {
+		
 		//AstNode javaRoot = TreeTransverser.transform(unit.getAstRootNode(), new Lense2JavaTransformer());
 		File target = out.getTargetFolder();
 		File compiled = target;
@@ -45,9 +48,14 @@ public class OutToJavaSource implements CompilerBackEnd {
 			AstNode node = unit.getAstRootNode().getChildren().get(0);
 			
 			if (!(node instanceof ClassTypeNode)){
-				return;
+				return null;
 			}
 			ClassTypeNode t = (ClassTypeNode)node;
+			
+			if (t.isNative()){
+				return null;
+			}
+			
 			String path = t.getName().replace('.', '/');
 			int pos = path.lastIndexOf('/');
 			String filename = path.substring(pos+1) + ".java";
@@ -73,8 +81,10 @@ public class OutToJavaSource implements CompilerBackEnd {
 
 		try(PrintWriter writer = new PrintWriter(new FileWriter(compiled))){
 			TreeTransverser.transverse(unit.getAstRootNode(), new JavaSourceWriterVisitor(writer));
+			return compiled;
 		} catch (IOException e) {
 			e.printStackTrace();
+			return null;
 		}
 	}
 
