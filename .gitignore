@@ -1,5 +1,5 @@
-/target/
+target/
 *.class
 *.log
-/src/main/sdk/compilation/
-/src/main/out
+src/main/sdk/compilation/**
+src/main/out/
