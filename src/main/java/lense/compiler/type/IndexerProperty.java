@@ -76,7 +76,14 @@ public class IndexerProperty  implements TypeMember {
 
 	@Override
 	public String getName() {
-		throw new RuntimeException("Indexes have no name");
+		StringBuilder builder = new StringBuilder("[");
+		
+		for (TypeVariable p : params){
+			builder.append(p.getName()).append(",");
+		}
+		builder.deleteCharAt(builder.length()-1);
+		
+		return builder.append("]").toString();
 	}
 
 	@Override
@@ -84,6 +91,20 @@ public class IndexerProperty  implements TypeMember {
 		return true;
 	}
 
+	public void setWritable(boolean canWrite) {
+		this.canWrite = canWrite;
+	}
+
+	public void setReadable(boolean canRead) {
+		this.canRead = canRead;
+	}
+
+	public boolean canRead() {
+		return canRead;
+	}
+	public boolean canWrite() {
+		return canWrite;
+	}
 	
 
 

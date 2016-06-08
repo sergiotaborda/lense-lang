@@ -53,7 +53,7 @@ public class LenseTypeDefinition implements TypeDefinition {
 		this.kind = kind;
 		this.superDefinition = superDefinition;
 		this.genericParameters = new ArrayList<>( Arrays.asList(parameters));
-		
+
 		for (int i =0; i < parameters.length; i++){
 			this.genericParametersMapping.put(parameters[i].getName(), i);
 		}
@@ -66,7 +66,7 @@ public class LenseTypeDefinition implements TypeDefinition {
 			addDifferent(this.members, other.members);
 			addDifferent(this.interfaces,other.interfaces); // TODO reset generics 
 			addDifferent(this.genericParameters, other.genericParameters);
-			
+
 			genericParametersMapping.putAll(other.genericParametersMapping);
 			this.superDefinition = other.superDefinition;
 		}
@@ -178,7 +178,7 @@ public class LenseTypeDefinition implements TypeDefinition {
 	private void addGenericParametersMapping(String genericParameterSymbol, int index) {
 		genericParametersMapping.put(genericParameterSymbol, index);
 	}
-	
+
 	public Optional<Integer> getGenericParameterIndexBySymbol(String typeName) {
 		return Optional.ofNullable(genericParametersMapping.get(typeName));
 	}
@@ -193,12 +193,14 @@ public class LenseTypeDefinition implements TypeDefinition {
 
 	public Constructor addConstructor(boolean implicit, String name, ConstructorParameter... parameters) {
 		Constructor m = new Constructor(name,Arrays.asList(parameters), implicit);
-		m.setDeclaringType(this);
-		this.members.add(m);
+		addConstructor(m);
 		return m;
 	}
 
-
+	public void addConstructor(Constructor m) {
+		m.setDeclaringType(this);
+		this.members.add(m);
+	}
 	/**
 	 * @param name2
 	 * @param typeDefinition
@@ -215,7 +217,7 @@ public class LenseTypeDefinition implements TypeDefinition {
 
 	public void addMethod (Method m){
 
-		if (this.kind == Kind.Interface){
+		if (this.kind == LenseUnitKind.Interface){
 			m.setAbstract(true);
 		}
 		m.setDeclaringType(this);
@@ -247,6 +249,10 @@ public class LenseTypeDefinition implements TypeDefinition {
 
 	}
 
+	public void addProperty(String name, TypeDefinition type , boolean canRead, boolean canWrite) {
+		addProperty(name, new FixedTypeVariable(type), canRead, canWrite);
+	}
+
 	public void addProperty(String name, lense.compiler.type.variable.TypeVariable type , boolean canRead, boolean canWrite) {
 
 		if ( name == null){
@@ -257,14 +263,16 @@ public class LenseTypeDefinition implements TypeDefinition {
 		if (type instanceof TypeMemberAwareTypeVariable){
 			((TypeMemberAwareTypeVariable)type).setDeclaringMember(property);
 		}
+		addProperty(property);
+	}
+
+	public void addProperty(Property property) {
 		// fields are unique by name
 		this.members.remove(property);
 		this.members.add(property);
 	}
 
-	public void addProperty(String name, TypeDefinition type , boolean canRead, boolean canWrite) {
-		addProperty(name, new FixedTypeVariable(type), canRead, canWrite);
-	}
+
 
 	public void addIndexer(lense.compiler.type.variable.TypeVariable type , boolean canRead, boolean canWrite , lense.compiler.type.variable.TypeVariable[] params) {
 
@@ -274,6 +282,11 @@ public class LenseTypeDefinition implements TypeDefinition {
 			((TypeMemberAwareTypeVariable)type).setDeclaringMember(property);
 		}
 
+		addIndexer(property);
+
+	}
+
+	public void addIndexer(IndexerProperty property) {
 		// fields are unique by name
 		this.members.remove(property);
 		this.members.add(property);
@@ -329,7 +342,7 @@ public class LenseTypeDefinition implements TypeDefinition {
 	/**
 	 * @param kind2
 	 */
-	public void setKind(Kind kind) {
+	public void setKind(LenseUnitKind kind) {
 		this.kind = kind;
 	}
 
@@ -498,7 +511,7 @@ public class LenseTypeDefinition implements TypeDefinition {
 	}
 
 	public void addInterface(TypeDefinition other) {
-		if (!other.getKind().equals(Kind.Interface)) {
+		if (!other.getKind().equals(LenseUnitKind.Interface)) {
 			throw new RuntimeException("Type " + other.getName()  +" is not an interface");
 		}
 
@@ -530,6 +543,12 @@ public class LenseTypeDefinition implements TypeDefinition {
 	public void setAbstract(boolean isAbstract) {
 		this.isAbstract = isAbstract;
 	}
+
+
+
+
+
+
 
 
 

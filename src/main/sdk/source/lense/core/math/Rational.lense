@@ -4,9 +4,9 @@ import lense.core.math.Integer;
 
 public native class Rational extends Real {
 
-	private val Integer numerator;
-	private val Integer denominator;
-	
+
+	public native constructor (Integer n , Integer d);
+
 	public Int32 compareTo(Real other){
 		return 0Z;
 	}

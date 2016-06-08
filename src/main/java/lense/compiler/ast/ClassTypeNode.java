@@ -10,7 +10,7 @@ import java.util.Set;
 import lense.compiler.Import;
 import lense.compiler.Visibility;
 import lense.compiler.context.SemanticContext;
-import lense.compiler.type.Kind;
+import lense.compiler.type.LenseUnitKind;
 import lense.compiler.type.LenseTypeDefinition;
 
 
@@ -19,7 +19,7 @@ import lense.compiler.type.LenseTypeDefinition;
  */
 public class ClassTypeNode extends AnnotadedLenseAstNode {
 
-	private Kind kind;
+	private LenseUnitKind kind;
 	private String name;
 	private ClassBodyNode body;
 	private TypeNode superType;
@@ -34,7 +34,7 @@ public class ClassTypeNode extends AnnotadedLenseAstNode {
 	private boolean isAbstract;
 	private Visibility visibility;
 	
-	public ClassTypeNode (Kind kind){
+	public ClassTypeNode (LenseUnitKind kind){
 		this.kind = kind;
 	}
 	
@@ -55,7 +55,7 @@ public class ClassTypeNode extends AnnotadedLenseAstNode {
 	}
 
 	
-	public Kind getKind(){
+	public LenseUnitKind getKind(){
 		return kind;
 	}
 	public String getName() {

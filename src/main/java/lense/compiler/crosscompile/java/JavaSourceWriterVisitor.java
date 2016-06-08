@@ -50,7 +50,7 @@ import lense.compiler.ast.VariableDeclarationNode;
 import lense.compiler.ast.VariableReadNode;
 import lense.compiler.ast.VariableWriteNode;
 import lense.compiler.ast.WhileNode;
-import lense.compiler.type.Kind;
+import lense.compiler.type.LenseUnitKind;
 import lense.compiler.type.TypeDefinition;
 import lense.compiler.type.variable.FixedTypeVariable;
 import lense.compiler.type.variable.IntervalTypeVariable;
@@ -160,7 +160,7 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 
 				writer.print(t.getName().substring(pos + 1));
 
-				if (t.getKind() != Kind.Interface && t.getSuperType() != null && t.getSuperType().getTypeVariable().getName().length() > 0) {
+				if (t.getKind() != LenseUnitKind.Interface && t.getSuperType() != null && t.getSuperType().getTypeVariable().getName().length() > 0) {
 					writer.print(" extends ");
 					writer.print(t.getSuperType().getTypeVariable().getName());
 				}
@@ -168,7 +168,7 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 				;
 
 				if (t.getInterfaces() != null) {
-					if (t.getKind() == Kind.Interface) {
+					if (t.getKind() == LenseUnitKind.Interface) {
 						writer.print(" extends ");
 					} else {
 						writer.print(" implements ");
@@ -611,6 +611,7 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 
 				writer.println("\n");
 
+				writer.println("@lense.core.lang.java.Constructor");
 				writeAnnotations(m);
 
 				// writeVisibility(m.getVisibility());
@@ -726,6 +727,19 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 
 				writer.println("\t");
 
+				if (m.isProperty()){
+					writer.print("@lense.core.lang.java.Property(");
+					if (m.isIndexer()){
+						writer.append(" indexed = true");
+					} else {
+						writer.append(" name = \"").append(m.getPropertyName()).append("\"");
+					}
+					if (m.isSetter()){
+						writer.append(", setter = ");
+						writer.print(m.isSetter());
+					}
+					writer.println(")");
+				}
 				writeVisibility(m.getVisibility());
 
 				// writeAnnotations(m);

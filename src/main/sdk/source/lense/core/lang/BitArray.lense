@@ -13,6 +13,10 @@ public class BitArray implements Binary {
 		return new BitArray(new Array<Boolean>(bitCount, false));
 	}
 	
+	public constructor (Natural bitCount, Boolean seed){
+		return new BitArray(new Array<Boolean>(bitCount, seed));
+	}
+	
 	private constructor (Array<Boolean> bits);
 	
 	public Natural size {
@@ -28,7 +32,7 @@ public class BitArray implements Binary {
 			negated[n] = !negated[n];
 		}
 		
-		return new BitArray(bits);
+		return new BitArray(negated);
 	}	
 	
 	public Void flip(Natural index){

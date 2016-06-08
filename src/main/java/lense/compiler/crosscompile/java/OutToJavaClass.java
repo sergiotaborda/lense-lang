@@ -60,7 +60,7 @@ import lense.compiler.ir.stack.StackInstructionList;
 import lense.compiler.ir.stack.StoreToVariable;
 import lense.compiler.ir.stack.ThrowException;
 import lense.compiler.ir.stack.WriteFieldToObject;
-import lense.compiler.type.Kind;
+import lense.compiler.type.LenseUnitKind;
 /**
  * 
  */
@@ -305,7 +305,7 @@ public class OutToJavaClass implements CompilerBackEnd, Opcodes {
 					flag = INVOKEINTERFACE;
 				}
 				mv.visitMethodInsn(flag, toJavaTypeName(ni.getOwnerType().getName()), ni.getName(), "(I)" + toJavaTypeName(ni.getType().getName()), 
-						ni.getOwnerType().getKind() == Kind.Interface // TODO chelc the owner of the method declaration, not the invocakation target
+						ni.getOwnerType().getKind() == LenseUnitKind.Interface // TODO chelc the owner of the method declaration, not the invocakation target
 				);
 			}else if (si instanceof ArithmeticOperate){
 				

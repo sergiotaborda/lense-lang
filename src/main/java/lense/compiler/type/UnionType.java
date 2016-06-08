@@ -18,7 +18,7 @@ public class UnionType extends LenseTypeDefinition {
 	 * @param name
 	 */
 	public UnionType(TypeVariable left, TypeVariable right) {
-		super(left.toString() + "|" + right.toString(), Kind.Class, null);
+		super(left.toString() + "|" + right.toString(), LenseUnitKind.Class, null);
 		this.left = left;
 		this.right = right;
 	}

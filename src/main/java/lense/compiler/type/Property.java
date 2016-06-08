@@ -79,8 +79,21 @@ public class Property  implements TypeMember{
 		return false;
 	}
 
+	public void setWritable(boolean canWrite) {
+		this.canWrite = canWrite;
+	}
 	
+	public void setReadable(boolean canRead) {
+		this.canRead = canRead;
+	}
 
+	public boolean canRead() {
+		return canRead;
+	}
+	
+	public boolean canWrite() {
+		return canWrite;
+	}
 
 
 }

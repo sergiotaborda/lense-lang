@@ -2,19 +2,34 @@ package lense.core.math;
 
 import java.math.BigDecimal;
 
+import lense.core.lang.java.Constructor;
+import lense.core.lang.java.Native;
+
 public class Rational extends Real{
 
-	@Override
-	protected BigDecimal getNativeBig() {
-		// TODO Auto-generated method stub
-		return null;
+	
+	@Constructor
+	public static Rational constructor(Integer n , Integer d){
+		return new Rational(n,d);
 	}
 	
-	public Int32 compareTo(lense.core.lang.Any other){
-		Real r = (Real)other;
-		return Int32.valueOfNative(this.getNativeBig().compareTo(r.getNativeBig()));
+	public Integer numerator;
+	public Integer denominator;
+	
+	public Rational(Integer n, Integer d) {
+		// TODO reduction
+		numerator = n;
+		denominator = d;
 	}
 
 	
+	@Override @Native
+	protected BigDecimal getNativeBig() {
+		return new BigDecimal(numerator.getNativeBig()).divide(new BigDecimal(denominator.getNativeBig()));
+	}
+	
+	public Int32 compareTo(Real other){
+		return super.compareTo(other);
+	}
 	
 }

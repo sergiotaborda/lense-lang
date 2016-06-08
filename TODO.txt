@@ -1,5 +1,5 @@
 Implement Properties 
-	in interfaces
+	in interfaces DONE
 	do initialization    name {get;set;} = "Hello"
 	do delegation    size {get = list.size}
 Auto-package
@@ -12,7 +12,8 @@ Binary
 	Binary literals resolve as BitArray
 	Byte is a Binary of 8 bits
 Native implementations weaving
-
+	 - native types
+	 - native peers
 Case classes and objects
 	- case classes, 
 	- case objects 
