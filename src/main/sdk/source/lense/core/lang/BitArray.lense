@@ -9,9 +9,11 @@ public class BitArray implements Binary {
 
 	private val Array<Boolean> bits;
 
-	constructor (Natural bitCount){
-		this.bits = new Array<Boolean>(bitCount);
+	public constructor (Natural bitCount){
+		return new BitArray(new Array<Boolean>(bitCount, false));
 	}
+	
+	private constructor (Array<Boolean> bits);
 	
 	public Natural size {
 		get{
@@ -20,17 +22,39 @@ public class BitArray implements Binary {
 	}
 	
 	public Binary flipAll() {
-		val BitArray negated = new BitArray(bits);
-		val Natural last = negated.size - 1;
-		for (Natural n in 0..last){
-			negated.flip(n);
+		val Array<Boolean> negated = new Array<Boolean>(bits);
+
+		for (Natural n in negated.indexes){
+			negated[n] = !negated[n];
 		}
-		return negated;
+		
+		return new BitArray(bits);
 	}	
 	
 	public Void flip(Natural index){
 		this.bits[index] = !this.bits[index];
 	}
+	
+	public Boolean [Natural index] {
+		get {
+			return bits[index];
+		}
+		set(value) {
+			bits[index] = value;
+		}
+	}
+	
+	public BitArray rightShiftBy(Natural n){
+		var Array<Boolean> newArray = new Array<Boolean>(n, false);
+
+		return new BitArray(newArray);
+	}
 		
+		
+	public BitArray leftShiftBy(Natural n){
+		var Array<Boolean> newArray = new Array<Boolean>(n, false);
+
+		return new BitArray(newArray);
+	}
 
 }

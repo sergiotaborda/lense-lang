@@ -1,6 +1,6 @@
 
 import lense.core.math.Number;
 
-public abstract class Real extends Number implements Comparable<Real> {
+public native abstract class Real extends Number implements Comparable<Real> {
 
 }

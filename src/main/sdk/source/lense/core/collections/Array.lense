@@ -3,18 +3,20 @@ import lense.core.lang.Void;
 import lense.core.math.Natural;
 import lense.core.collections.List;
 import lense.core.collections.Sequence;
+import lense.core.collections.EditableSequence;
+import lense.core.collections.Progression;
 
-public native class Array<T> implements List<T> {
+public native class Array<T> implements EditableSequence<T> {
 
 	public native implicit constructor (Sequence<T> other){
 	
 	}
 	
-	public native constructor (Natural size){
+	public native implicit constructor (Array<T> other){
 	
 	}
 	
-	public native  constructor (){
+	public native constructor (Natural size,T seed){
 	
 	}
 	
@@ -22,5 +24,5 @@ public native class Array<T> implements List<T> {
 	
 	public native Natural size { get; }
 
-	
+	public native Progression<Natural> indexes { get; }
 } 

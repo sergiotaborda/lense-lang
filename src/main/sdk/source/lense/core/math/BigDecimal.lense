@@ -1,6 +1,12 @@
 
 import lense.core.math.Decimal;
+import lense.core.math.Int32;
+import lense.core.math.Real;
 
-public class BigDecimal extends Decimal {
+public native class BigDecimal extends Decimal {
 
+	public Int32 compareTo(Real other){
+		return 0;
+	}
+	
 }

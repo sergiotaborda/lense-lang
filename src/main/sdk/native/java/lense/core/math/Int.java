@@ -2,7 +2,7 @@ package lense.core.math;
 
 import java.math.BigInteger;
 
-public class BigInt extends Integer{
+public class Int extends Integer {
 
 	@Override
 	protected BigInteger getNativeBig() {

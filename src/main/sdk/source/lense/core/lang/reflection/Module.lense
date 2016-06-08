@@ -5,7 +5,7 @@ import lense.core.lang.reflection.Package;
 
 public interface Module {
 
-	public Version getVersion();
-	public Sequence<Package> getPackages();
+	public Version version {get;}
+	public Sequence<Package> packages {get;}
 
 }

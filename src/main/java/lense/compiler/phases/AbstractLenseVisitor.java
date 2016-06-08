@@ -36,7 +36,7 @@ public  abstract class AbstractLenseVisitor implements Visitor<AstNode>{
 			TypeDefinition type = semanticContext.typeForName(t.getName(),t.getTypeParametersCount());
 			t.setTypeVariable(new FixedTypeVariable(type));
 
-			if (type.isGeneric() && t.getTypeParametersCount() > 0) {
+			if (!type.getGenericParameters().isEmpty() && t.getTypeParametersCount() > 0) {
 
 				TypeVariable[] genericParametersCapture = new TypeVariable[t.getTypeParametersCount()];
 				int index = 0;

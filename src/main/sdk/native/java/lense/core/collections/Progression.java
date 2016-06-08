@@ -1,5 +1,7 @@
 package lense.core.collections;
 
-public interface Progression {
+import lense.core.lang.Any;
+
+public interface Progression extends Iterable , Any {
 
 }

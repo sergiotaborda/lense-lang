@@ -24,7 +24,7 @@ import lense.compiler.ast.ContinueNode;
 import lense.compiler.ast.DecisionNode;
 import lense.compiler.ast.FieldDeclarationNode;
 import lense.compiler.ast.FieldOrPropertyAccessNode;
-import lense.compiler.ast.FieldOrPropertyAccessNode.Kind;
+import lense.compiler.ast.FieldOrPropertyAccessNode.FieldKind;
 import lense.compiler.ast.ForEachNode;
 import lense.compiler.ast.FormalParameterNode;
 import lense.compiler.ast.IndexedAccessNode;
@@ -401,7 +401,7 @@ public class TacInstructionsVisitor implements Visitor<AstNode> {
 				emit(new PrepareParameter(target));
 			}
 			
-			if (n.getKind() == Kind.FIELD){
+			if (n.getKind() == FieldKind.FIELD){
 				if (node.getParent() instanceof AssignmentNode){
 					Operand field = new WriteFieldInstruction(n.getName(), false, ownerType,extractType(n.getTypeVariable()));
 					

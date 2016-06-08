@@ -184,11 +184,11 @@ public class LenseGrammar extends AbstractLenseGrammar{
 	}
 
 	private boolean matchNatural (String text){
-		return  text.matches("^\\d+[NSILDFMJ]?$") || text.matches("^#([A-Fa-f0-9_]+)$");
+		return  text.matches("^\\d+[NSZLdfkmi]?$") || text.matches("^#([A-Fa-f0-9_]+)$");
 	}
 
 	private boolean matchDecimal (String text){
-		return text.matches("[0-9]+\\.?[0-9]+([eE][-+]?[0-9]+)?[NSILDFMJ]?");
+		return text.matches("[0-9]+\\.?[0-9]+([eE][-+]?[0-9]+)?[NSZLdfkmi]?");
 	}
 
 	public boolean isDigit(char c) {
@@ -706,6 +706,7 @@ public class LenseGrammar extends AbstractLenseGrammar{
 
 				n.setScanPosition(r.get(2).getParserTreeNode().getScanPosition());
 
+				n.setSuperType(new TypeNode(LenseTypeSystem.Any()));
 
 				if (r.get(3).getAstNode().isPresent()){
 					AstNode node = r.get(3).getAstNode().get();
@@ -728,6 +729,8 @@ public class LenseGrammar extends AbstractLenseGrammar{
 					b = r.get(5).getAstNode().get();
 				} 
 
+				
+				
 				if (b instanceof ClassBodyNode){
 					n.setBody((ClassBodyNode)b);
 				}else {
@@ -1122,11 +1125,18 @@ public class LenseGrammar extends AbstractLenseGrammar{
 
 		});
 		getNonTerminal("constructorDeclarator").addSemanticAction( (p, r) -> {
-			ConstructorDeclarationNode n = new ConstructorDeclarationNode();
-
+			
 			if (r.size() == 1){
+				Optional<ConstructorDeclarationNode> n = r.get(0).getAstNode(ConstructorDeclarationNode.class);
 
+				if (n.isPresent()){
+					p.setAstNode(n.get());
+				} else {
+					p.setAstNode(new ConstructorDeclarationNode());
+				}
+				
 			} else if (r.size() == 2){
+				ConstructorDeclarationNode n = new ConstructorDeclarationNode();
 
 				Optional<Object> id = r.get(1).getSemanticAttribute("lexicalValue");
 				if (id.isPresent() && !id.get().equals("constructor")){
@@ -1134,14 +1144,17 @@ public class LenseGrammar extends AbstractLenseGrammar{
 				} else {
 					n.setImplicit(true); 
 				}
-
+				p.setAstNode(n);
 			}else if (r.size() == 3){
+				ConstructorDeclarationNode n = new ConstructorDeclarationNode();
+
 				n.setImplicit(true);
 				n.setName((String)r.get(2).getSemanticAttribute("lexicalValue").get());
+				p.setAstNode(n);
 			} else {
 				throw new RuntimeException();
 			}
-			p.setAstNode(n);
+			
 		});
 
 		getNonTerminal("construtorBlock").addSemanticAction( (p, r) -> {

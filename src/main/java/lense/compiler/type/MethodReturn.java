@@ -22,7 +22,7 @@ public class MethodReturn implements MethodMember {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Method getDeclaringMethod() {
+	public Method getDeclaringMember() {
 		return method;
 	}
 
@@ -30,7 +30,7 @@ public class MethodReturn implements MethodMember {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void setDeclaringMethod(Method method) {
+	public void setDeclaringMember(Method method) {
 		this.method = method;
 		if (type instanceof TypeMemberAwareTypeVariable){
 			((TypeMemberAwareTypeVariable)type).setDeclaringMember(method);

@@ -3,20 +3,14 @@ package lense.core.collections;
 import lense.core.lang.Any;
 import lense.core.math.Natural;
 
-public class LinkedList implements ResizableSequence {
+public class List implements ResizableSequence {
+
+	private java.util.ArrayList list = new java.util.ArrayList ();
 	
-	private java.util.LinkedList<Any> list;
 
-	public static LinkedList constructor (){
-		return new LinkedList();
-	}
-
-	private LinkedList(){
-		list = new java.util.LinkedList <>();
-	}
-
-	public void set(Natural index, Any element) {
-		list.set(index.toPrimitiveInt(), element);
+	public void set(Natural index, Any value) {
+		// TODO Auto-generated method stub
+		
 	}
 
 	@Override
@@ -40,7 +34,7 @@ public class LinkedList implements ResizableSequence {
 	@Override
 	public void add(Any value) {
 		// TODO Auto-generated method stub
-
+		
 	}
 
 	@Override

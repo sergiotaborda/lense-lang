@@ -1,5 +1,9 @@
 package lense.compiler.phases;
 
+import java.io.File;
+import java.util.Map;
+import java.util.Set;
+
 import compiler.CompilationResult;
 import compiler.CompilerListener;
 import compiler.CompilerMessage;
@@ -13,9 +17,11 @@ public class JavalizePhase implements CompilerPhase {
 
 	
 	private CompilerListener listener;
+	private Map<String, File> nativeTypes;
 	
-	public JavalizePhase (CompilerListener listener){
+	public JavalizePhase (CompilerListener listener, Map<String, File> nativeTypes){
 		this.listener = listener;
+		this.nativeTypes = nativeTypes;
 	}
 	
 	@Override
@@ -32,7 +38,7 @@ public class JavalizePhase implements CompilerPhase {
 		for (ClassTypeNode ct : types.getTypes()){
 			// cannot share semantic context among classes
 			try {
-				TreeTransverser.transverse(ct,new JavalizeVisitor(ct.getSemanticContext()));
+				TreeTransverser.transverse(ct,new JavalizeVisitor(ct.getSemanticContext(), this.nativeTypes));
 			} catch (CompilationError e){
 				listener.error(new CompilerMessage(e.getMessage()));
 				return new CompilationResult(e);

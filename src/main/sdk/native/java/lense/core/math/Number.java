@@ -1,5 +1,13 @@
 package lense.core.math;
 
-public class Number {
+import lense.core.lang.String;
+
+public class Number implements lense.core.lang.TextRepresentable{
+
+	@Override
+	public String asString() {
+		return String.valueOfNative("");
+	}
+
 
 }
