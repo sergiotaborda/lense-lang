@@ -10,6 +10,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -434,7 +435,7 @@ public class TestLenseGrammar {
 
 		ClassTypeNode n = t.getTypes().get(0);
 
-		List<Import> imps = n.imports();
+		Collection<Import> imps = n.imports();
 
 		assertNotNull(imps);
 		assertEquals(14, imps.size());
@@ -463,7 +464,7 @@ public class TestLenseGrammar {
 
 		ClassTypeNode n = t.getTypes().get(0);
 
-		List<Import> imps = n.imports();
+		Collection<Import> imps = n.imports();
 
 		assertNotNull(imps);
 		assertEquals(2, imps.size());
