@@ -1,21 +1,35 @@
 package lense.core.math;
 
+import lense.core.collections.NativeProgression;
 import lense.core.collections.Progression;
+import lense.core.lang.java.Constructor;
+import lense.core.lang.java.Native;
 
 public class Natural extends Whole {
 
-	
-	public static Natural valueOfNative(int value){
-		return new Natural();
+	@Constructor
+	public static Natural constructor(){
+		return Natural.valueOfNative(0);
 	}
-	public int toPrimitiveInt() {
-		// TODO Auto-generated method stub
-		return 0;
+	
+	@Native
+	public static Natural valueOfNative(int value){
+		return new Natural(value);
 	}
 
-	public int compareTo(Natural size) {
-		// TODO Auto-generated method stub
-		return 0;
+	private int value;
+	
+	private Natural(int value){
+		this.value = value;
+	}
+	
+	@Native
+	public int toPrimitiveInt() {
+		return value;
+	}
+
+	public int compareTo(Natural other) {
+		return this.value  == other.value ? 0 :(this.value < other.value ? -1 : 1);
 	}
 	
 	public Integer minus (Natural n){
@@ -23,6 +37,6 @@ public class Natural extends Whole {
 	}
 
 	public Progression upTo(Natural other){
-		return null;
+		return new NativeProgression(value, other.value);
 	}
 }

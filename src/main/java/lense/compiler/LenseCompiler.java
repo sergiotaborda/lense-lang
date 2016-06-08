@@ -549,8 +549,12 @@ public class LenseCompiler {
 				int pos = packageFile.indexOf(".java");
 				packageFile = packageFile.substring(0, pos) + ".class";
 				File source = new File(n.getParentFile(), n.getName().substring(0,  n.getName().length() - 5) + ".class");
+				
+				
 				File target = new File(fileLocations.getTargetFolder(),packageFile);
 
+				target.getParentFile().mkdirs();
+				
 				if (!source.exists()){
 					System.err.println("Compiled file with java compiler does not exist");
 				} else {

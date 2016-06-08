@@ -92,7 +92,7 @@ import lense.compiler.ast.VariableWriteNode;
 import lense.compiler.ast.VarianceNode;
 import lense.compiler.ast.VersionNode;
 import lense.compiler.ast.WhileNode;
-import lense.compiler.type.Kind;
+import lense.compiler.type.LenseUnitKind;
 import lense.compiler.type.TypeDefinition;
 import lense.compiler.typesystem.LenseTypeSystem;
 import lense.compiler.typesystem.Variance;
@@ -623,7 +623,7 @@ public class LenseGrammar extends AbstractLenseGrammar{
 				p.setAstNode(r.get(0).getAstNode().get());
 			} else {
 
-				ClassTypeNode n = new ClassTypeNode(Kind.Class);
+				ClassTypeNode n = new ClassTypeNode(LenseUnitKind.Class);
 
 				Optional<AnnotationListNode> annots = r.get(0).getAstNode(AnnotationListNode.class);
 
@@ -693,7 +693,7 @@ public class LenseGrammar extends AbstractLenseGrammar{
 				p.setAstNode(r.get(0).getAstNode().get());
 			} else {
 
-				ClassTypeNode n = new ClassTypeNode(Kind.Interface);
+				ClassTypeNode n = new ClassTypeNode(LenseUnitKind.Interface);
 
 				Optional<AnnotationListNode> annots = r.get(0).getAstNode(AnnotationListNode.class);
 

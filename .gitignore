@@ -1,1 +1,4 @@
 /target/
+*.class
+*.log
+/src/main/sdk/compilation/

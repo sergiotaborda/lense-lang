@@ -58,7 +58,7 @@ public class Method implements CallableMember<Method> {
 	
 	
 	public String toString(){
-		return declaringType.getName() + "." + name + "(" + parameters + ") :" + returnParameter.getType().getName();
+		return  name + "(" + parameters + ") :" + returnParameter.getType().getName();
 	}
 	
 	/**

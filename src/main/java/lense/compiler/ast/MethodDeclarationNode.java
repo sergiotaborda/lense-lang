@@ -13,6 +13,10 @@ public class MethodDeclarationNode extends InvocableDeclarionNode {
 	private ParametersListNode parameters = new ParametersListNode();
 	private BlockNode block;
 
+	private boolean isProperty;
+	private String propertyName;
+	private boolean isIndexer;
+	private boolean isSetter;
 	
 	public TypeNode getReturnType() {
 		return returnType;
@@ -41,6 +45,30 @@ public class MethodDeclarationNode extends InvocableDeclarionNode {
 	public void setBlock(BlockNode block) {
 		this.block = block;
 		this.add(block);
+	}
+	public boolean isProperty() {
+		return isProperty;
+	}
+	public void setProperty(boolean isProperty) {
+		this.isProperty = isProperty;
+	}
+	public String getPropertyName() {
+		return propertyName;
+	}
+	public void setPropertyName(String propertyName) {
+		this.propertyName = propertyName;
+	}
+	public boolean isIndexer() {
+		return isIndexer;
+	}
+	public void setIndexer(boolean isIndexer) {
+		this.isIndexer = isIndexer;
+	}
+	public boolean isSetter() {
+		return isSetter;
+	}
+	public void setSetter(boolean isSetter) {
+		this.isSetter = isSetter;
 	}
 	
 	

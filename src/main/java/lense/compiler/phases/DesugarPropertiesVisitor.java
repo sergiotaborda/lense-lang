@@ -64,7 +64,11 @@ public class DesugarPropertiesVisitor extends AbstractLenseVisitor{
 
 
 				MethodDeclarationNode getter = new MethodDeclarationNode();
+				getter.setSetter(false);
+				getter.setProperty(true);
+				getter.setIndexer(true);
 				getter.setName("get");
+				
 				if (n.isNative()){
 					getter.setNative(n.isNative());
 				} else if (n.isAbstract()){
@@ -85,9 +89,14 @@ public class DesugarPropertiesVisitor extends AbstractLenseVisitor{
 
 
 				MethodDeclarationNode setter = new MethodDeclarationNode();
+				
+				setter.setSetter(true);
+				setter.setProperty(true);
+				setter.setIndexer(true);
 				setter.setName("set");
-
+				
 				String parameterName  = a.getValueVariableName();
+				
 				if (n.isNative()){
 					parameterName = "value";
 					setter.setNative(n.isNative());
@@ -98,6 +107,8 @@ public class DesugarPropertiesVisitor extends AbstractLenseVisitor{
 					setter.setBlock(a.getBlock());
 				}
 
+				
+				
 				FormalParameterNode valueParameter = new FormalParameterNode();
 				valueParameter.setTypeNode(n.getType());
 				valueParameter.setName(parameterName); 
@@ -133,6 +144,11 @@ public class DesugarPropertiesVisitor extends AbstractLenseVisitor{
 
 
 				MethodDeclarationNode getter = new MethodDeclarationNode();
+				getter.setSetter(false);
+				getter.setPropertyName(propertyName);
+				getter.setProperty(true);
+	
+				
 				getter.setName("get" + propertyName);
 				if (n.isNative()){
 					getter.setNative(n.isNative());
@@ -165,7 +181,10 @@ public class DesugarPropertiesVisitor extends AbstractLenseVisitor{
 
 				MethodDeclarationNode setter = new MethodDeclarationNode();
 				setter.setName("set" + propertyName);
-
+				setter.setSetter(false);
+				setter.setPropertyName(propertyName);
+				setter.setProperty(true);
+	
 				String parameterName  = a.getValueVariableName();
 				if (n.isNative()){
 					setter.setNative(n.isNative());

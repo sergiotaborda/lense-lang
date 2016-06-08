@@ -6,6 +6,7 @@ package lense.compiler.phases;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -74,7 +75,7 @@ import lense.compiler.type.Constructor;
 import lense.compiler.type.ConstructorParameter;
 import lense.compiler.type.Field;
 import lense.compiler.type.IndexerProperty;
-import lense.compiler.type.Kind;
+import lense.compiler.type.LenseUnitKind;
 import lense.compiler.type.LenseTypeDefinition;
 import lense.compiler.type.Method;
 import lense.compiler.type.MethodParameter;
@@ -146,7 +147,7 @@ public class SemanticVisitor extends AbstractLenseVisitor {
 
 		if (!currentType.hasConstructor()) {
 			// is no constructor exists, add a default one
-			currentType.addConstructor(null);
+			currentType.addConstructor(new Constructor("constructor", Collections.emptyList(), false));
 		}
 
 		currentType.getConstructors().filter(m -> m.getName() == null)
@@ -211,7 +212,7 @@ public class SemanticVisitor extends AbstractLenseVisitor {
 			}
 
 			// auto-abstract if interface
-			if (semanticContext.currentScope().getCurrentType().getKind() == Kind.Interface) {
+			if (semanticContext.currentScope().getCurrentType().getKind() == LenseUnitKind.Interface) {
 				m.setAbstract(true);
 			}
 		} else if (node instanceof AccessorNode) {
@@ -223,7 +224,7 @@ public class SemanticVisitor extends AbstractLenseVisitor {
 				m.setVisibility(m.getParent().getVisibility());
 			}
 
-			if (semanticContext.currentScope().getCurrentType().getKind() == Kind.Interface) {
+			if (semanticContext.currentScope().getCurrentType().getKind() == LenseUnitKind.Interface) {
 				m.setAbstract(true);
 			}
 
@@ -244,7 +245,7 @@ public class SemanticVisitor extends AbstractLenseVisitor {
 			if (m.getVisibility() == null) {
 				m.setVisibility(m.getParent().getVisibility());
 			}
-			if (semanticContext.currentScope().getCurrentType().getKind() == Kind.Interface) {
+			if (semanticContext.currentScope().getCurrentType().getKind() == LenseUnitKind.Interface) {
 				m.setAbstract(true);
 			}
 			if (m.getParent().isIndexed()) {
@@ -340,7 +341,7 @@ public class SemanticVisitor extends AbstractLenseVisitor {
 					}
 				}
 
-				if (superType.getKind() == Kind.Interface) {
+				if (superType.getKind() == LenseUnitKind.Interface) {
 					throw new CompilationError(node, t.getName() + " cannot extend interface " + superType.getName()
 							+ ". Did you meant to use 'implements' instead of 'extends' ?.");
 				}
@@ -827,7 +828,7 @@ public class SemanticVisitor extends AbstractLenseVisitor {
 			}
 
 			// auto-abstract if interface
-			if (semanticContext.currentScope().getCurrentType().getKind() == Kind.Interface) {
+			if (semanticContext.currentScope().getCurrentType().getKind() == LenseUnitKind.Interface) {
 				p.setAbstract(true);
 
 				if (p.getVisibility() == null) {
@@ -1453,7 +1454,7 @@ public class SemanticVisitor extends AbstractLenseVisitor {
 					if (!m.getParent().isNative() && variable == null) {
 
 						TypeDefinition currentType = semanticContext.currentScope().getCurrentType();
-						if (currentType.getKind() == Kind.Class) {
+						if (currentType.getKind() == LenseUnitKind.Class) {
 							throw new CompilationError(node,
 									"Method " + m.getParent().getName() + " must return a result of " + returnType);
 						}
@@ -1497,7 +1498,7 @@ public class SemanticVisitor extends AbstractLenseVisitor {
 					if (!m.isNative() && variable == null) {
 
 						TypeDefinition currentType = semanticContext.currentScope().getCurrentType();
-						if (currentType.getKind() == Kind.Class) {
+						if (currentType.getKind() == LenseUnitKind.Class) {
 							throw new CompilationError(node,
 									"Method " + m.getName() + " must return a result of " + returnType);
 						}
@@ -1516,7 +1517,7 @@ public class SemanticVisitor extends AbstractLenseVisitor {
 				}
 
 			} else {
-				if (semanticContext.currentScope().getCurrentType().getKind() == Kind.Interface) {
+				if (semanticContext.currentScope().getCurrentType().getKind() == LenseUnitKind.Interface) {
 					m.setVisibility(Visibility.Public);
 					m.setAbstract(true);
 				}
@@ -1534,7 +1535,7 @@ public class SemanticVisitor extends AbstractLenseVisitor {
 				for (AstNode n : t.getInterfaces().getChildren()) {
 					TypeNode tn = (TypeNode) n;
 					TypeDefinition typeVariable = ((FixedTypeVariable) tn.getTypeVariable()).getTypeDefinition();
-					if (typeVariable.getKind() != Kind.Interface) {
+					if (typeVariable.getKind() != LenseUnitKind.Interface) {
 						throw new CompilationError(t.getName() + " cannot implement TypeDefinition "
 								+ typeVariable.getName() + " because " + typeVariable.getName() + " it is a "
 								+ typeVariable.getKind() + " and not an interface");

@@ -30,6 +30,9 @@ public class Constructor implements CallableMember<Constructor>{
 		}
 	}
 
+	public String toString(){
+		return this.name + "(" +  this.parameters.toString() +")";
+	}
 	
 	public List<CallableMemberMember<Constructor>> getParameters(){
 		return parameters;
@@ -123,6 +126,20 @@ public class Constructor implements CallableMember<Constructor>{
 		this.name = name;
 	}
 
+	public int hashCode (){
+		return this.name.hashCode();
+	}
 	
+	public boolean equals(Object other){
+		return other instanceof Constructor && equals((Constructor)other);
+	}
+	
+	public boolean equals(Constructor other){
+		return other.name.equals(this.name) && this.isImplicit == other.isImplicit && this.parameters.size() == other.parameters.size()
+				&& this.parameters.equals(other.parameters);
+	}
 
+	public void setImplicit(boolean isImplicit) {
+		this.isImplicit = isImplicit;
+	}
 }

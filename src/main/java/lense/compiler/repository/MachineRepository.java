@@ -3,6 +3,7 @@
  */
 package lense.compiler.repository;
 
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -18,15 +19,24 @@ import lense.compiler.typesystem.TypeSearchParameters;
  */
 public class MachineRepository implements TypeRepository {
 
-	private static String languageImplicitModule = "lense.core";
-	private static LenseModuleRepository lenseModuleRepository = new LenseModuleRepository();
+    static String languageImplicitModule = "lense.core";
+	private static ModuleRepository lenseModuleRepository;
+	private Path classpath;
+	
+	public MachineRepository (){
+		lenseModuleRepository = new LenseModuleRepository();
+	}
+	
+	public MachineRepository (Path classpath){
+		this.classpath = classpath;
+	}
 	
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public Optional<TypeDefinition> resolveType(TypeSearchParameters filter) {
-		if (filter.getName().startsWith("lense.core")){ 
+		if (filter.getName().startsWith(languageImplicitModule)){ 
 			return  lenseModuleRepository.resolveType(filter);
 		}
 		return  Optional.empty();
@@ -64,7 +74,7 @@ class LenseModuleRepository extends ModuleRepository{
 	 * @param localRepository
 	 */
 	public LenseModuleRepository() {
-		super("lense.lang", new Version(0,0,1));
+		super(MachineRepository.languageImplicitModule, new Version(0,0,1));
 	}
 	
 	public Optional<TypeDefinition> resolveType(TypeSearchParameters filter) {

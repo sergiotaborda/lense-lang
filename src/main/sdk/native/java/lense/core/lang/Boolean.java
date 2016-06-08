@@ -1,5 +1,8 @@
 package lense.core.lang;
 
+import lense.core.lang.java.Constructor;
+import lense.core.lang.java.Native;
+
 public class Boolean implements Any{
 
 	public static Boolean TRUE = new Boolean(true);
@@ -7,10 +10,22 @@ public class Boolean implements Any{
 	
 	private boolean value;
 
+	@Native
+	public static Boolean valueOfNative(boolean value) {
+		return value ? TRUE : FALSE;
+	}
+	
+	@Constructor
+	public static Boolean constructor(){
+		return FALSE;
+	}
+	
+	@Native
 	private Boolean(boolean value){
 		this.value = value;
 	}
 	
+	@Native
 	public boolean toPrimitiveBoolean() {
 		return value;
 	}
@@ -23,5 +38,12 @@ public class Boolean implements Any{
 	public Boolean flipAll(){
 		return this.value ? FALSE : TRUE;
 	}
+
+	@Native
+	public java.lang.String toString(){
+		return java.lang.Boolean.toString(value);
+	}
+
+	
 
 }
