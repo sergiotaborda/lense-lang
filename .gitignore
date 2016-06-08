@@ -2,3 +2,4 @@
 *.class
 *.log
 /src/main/sdk/compilation/
+/src/main/out
