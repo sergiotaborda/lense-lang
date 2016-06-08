@@ -8,7 +8,7 @@ import lense.core.lang.NativeInteraction;
 import lense.core.math.Natural;
 
 @NativeInteraction
-public final class NativeIntRangeArray extends Array {
+final class NativeIntRangeArray extends Array {
 
 	private Any[] array;
 	private Natural size;
@@ -51,6 +51,11 @@ public final class NativeIntRangeArray extends Array {
 	public Iterator getIterator() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public Progression getIndexes() {
+		return new IndexProgression(Natural.valueOfNative(0), this.size);
 	}
 
 

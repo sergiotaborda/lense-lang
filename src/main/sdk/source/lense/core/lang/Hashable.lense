@@ -3,5 +3,5 @@ import lense.core.math.Integer;
 
 public interface Hashable {
 
-    public Integer hashCode();
+    public Integer hashValue {get; }
 }

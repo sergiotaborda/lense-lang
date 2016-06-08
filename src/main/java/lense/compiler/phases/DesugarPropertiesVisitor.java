@@ -1,16 +1,14 @@
 package lense.compiler.phases;
 
-import compiler.syntax.AstNode;
-import compiler.trees.VisitorNext;
 import lense.compiler.ast.AccessorNode;
 import lense.compiler.ast.AssignmentNode;
 import lense.compiler.ast.AssignmentNode.Operation;
 import lense.compiler.ast.BlockNode;
 import lense.compiler.ast.ExpressionNode;
-import lense.compiler.ast.FieldAccessNode;
 import lense.compiler.ast.FieldOrPropertyAccessNode;
-import lense.compiler.ast.FieldOrPropertyAccessNode.Kind;
+import lense.compiler.ast.FieldOrPropertyAccessNode.FieldKind;
 import lense.compiler.ast.FormalParameterNode;
+import lense.compiler.ast.IndexedAccessNode;
 import lense.compiler.ast.IndexerPropertyDeclarationNode;
 import lense.compiler.ast.MethodDeclarationNode;
 import lense.compiler.ast.MethodInvocationNode;
@@ -24,7 +22,9 @@ import lense.compiler.context.SemanticContext;
 import lense.compiler.context.VariableInfo;
 import lense.compiler.type.variable.FixedTypeVariable;
 import lense.compiler.typesystem.LenseTypeSystem;
-import lense.compiler.ast.IndexedAccessNode;
+
+import compiler.syntax.AstNode;
+import compiler.trees.VisitorNext;
 
 public class DesugarPropertiesVisitor extends AbstractLenseVisitor{
 
@@ -113,7 +113,7 @@ public class DesugarPropertiesVisitor extends AbstractLenseVisitor{
 				setter.setParameters(parameters);
 				setter.setVisibility(a.getVisibility() == null ? n.getVisibility(): a.getVisibility());
 
-				setter.setReturnType(n.getType());
+				setter.setReturnType(new TypeNode(LenseTypeSystem.Void()));
 
 				parent.add(setter);
 			}
@@ -179,7 +179,7 @@ public class DesugarPropertiesVisitor extends AbstractLenseVisitor{
 						FieldOrPropertyAccessNode field = new FieldOrPropertyAccessNode(privateFieldName);
 						field.setType(n.getType().getTypeVariable());
 						assign.setLeft(field);
-						assign.setRight(new VariableReadNode(parameterName, new VariableInfo(parameterName, n.getType().getTypeVariable(), setter, false, false)));
+						assign.setRight(new VariableReadNode(parameterName, new VariableInfo(parameterName, n.getType().getTypeVariable(),setter, false, false)));
 
 						block.add(assign);
 					} 
@@ -203,7 +203,7 @@ public class DesugarPropertiesVisitor extends AbstractLenseVisitor{
 			FieldOrPropertyAccessNode n= (FieldOrPropertyAccessNode)node;
 
 
-			if (n.getKind() == Kind.PROPERTY){
+			if (n.getKind() == FieldKind.PROPERTY){
 				String propertyName = resolvePropertyName(n.getName());
 
 				if (n.getParent()  instanceof AssignmentNode && ((AssignmentNode)n.getParent()).getLeft() == node){
@@ -227,7 +227,10 @@ public class DesugarPropertiesVisitor extends AbstractLenseVisitor{
 			if (n.getParent()  instanceof AssignmentNode && ((AssignmentNode)n.getParent()).getLeft() == node){
 				ExpressionNode value = ((AssignmentNode)n.getParent()).getRight();
 				// is write access
-				MethodInvocationNode invokeSet = new MethodInvocationNode(n.getAccess(), "set", value);
+				
+				
+				
+				MethodInvocationNode invokeSet = new MethodInvocationNode(n.getAccess(), "set", n.getIndexExpression(), value);
 				invokeSet.setTypeVariable(new FixedTypeVariable(LenseTypeSystem.Void()));
 				node.getParent().getParent().replace(n.getParent() , invokeSet);
 			} else {

@@ -125,7 +125,7 @@ public class SemanticScope {
 	 * @param name
 	 * @param any
 	 */
-	public VariableInfo defineTypeVariable(String name, TypeVariable type,AstNode declaringNode) {
+	public VariableInfo defineTypeVariable(String name, TypeVariable type, AstNode declaringNode) {
 		if (variables.containsKey(name)){
 			throw new CompilationError("Type varible " + name + " is already defined in this scope.");
 		}

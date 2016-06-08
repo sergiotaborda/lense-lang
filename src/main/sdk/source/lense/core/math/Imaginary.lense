@@ -3,7 +3,6 @@ import lense.core.math.Number;
 import lense.core.math.Real;
 
 
-public abstract class Imaginary extends Number implements Comparable<Imaginary> {
+public native abstract class Imaginary extends Number implements Comparable<Imaginary> {
 
-	val Real magnitude;
 }

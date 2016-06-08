@@ -87,6 +87,9 @@ public class RangeTypeVariable implements IntervalTypeVariable {
 	}
 	
 	public boolean equals(Object other){
+		if (this == other){
+			return true;
+		}
 		if ( other instanceof RangeTypeVariable){
 			RangeTypeVariable r = ((RangeTypeVariable)other);
 			return r.variance.equals(this.variance) && r.getLowerBound().equals(this.lower) && r.getUpperbound().equals(this.upper);

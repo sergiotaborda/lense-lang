@@ -3,16 +3,12 @@
  */
 package lense.compiler.ast;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 import lense.compiler.Import;
 import lense.compiler.Visibility;
-import lense.compiler.ast.AnnotadedLenseAstNode;
-import lense.compiler.ast.ClassBodyNode;
-import lense.compiler.ast.ImplementedInterfacesNode;
-import lense.compiler.ast.TypeNode;
-import lense.compiler.ast.TypeParametersListNode;
 import lense.compiler.context.SemanticContext;
 import lense.compiler.type.Kind;
 import lense.compiler.type.LenseTypeDefinition;
@@ -30,7 +26,7 @@ public class ClassTypeNode extends AnnotadedLenseAstNode {
 	private TypeParametersListNode parametricTypesNode;
 	private ImplementedInterfacesNode interfaces;
 	
-	private List<Import> imports = new ArrayList<Import>();
+	private Set<Import> imports = new LinkedHashSet<Import>();
 	private SemanticContext semanticContext;
 	private LenseTypeDefinition myType;
 	
@@ -46,7 +42,9 @@ public class ClassTypeNode extends AnnotadedLenseAstNode {
 	 * @param import1
 	 */
 	public void addImport(Import imp) {
-		imports.add(imp);
+		if (!imp.getTypeName().toString().equals(this.name)){
+			imports.add(imp);
+		}		
 	}
 	
 	/**
@@ -120,7 +118,7 @@ public class ClassTypeNode extends AnnotadedLenseAstNode {
 	/**
 	 * 
 	 */
-	public List<Import> imports() {
+	public Collection<Import> imports() {
 		return this.imports;
 	}
 

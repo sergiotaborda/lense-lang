@@ -3,26 +3,27 @@
  */
 package lense.compiler.type;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 /**
  * 
  */
-public class MethodSignature {
+public class MethodSignature implements CallableMemberSignature<Method>{
 
 	private final String name;
 	private boolean isStatic = false;
-	private final List<MethodParameter> parameters;
+	private final List<CallableMemberMember<Method>> parameters;
 	
 	public MethodSignature(String name, MethodParameter ... parameters){
 		this.name = name;
 		this.parameters = Arrays.asList(parameters);
 	}
 	
-	public MethodSignature(String name, List<MethodParameter> parameters){
+	public MethodSignature(String name, List<? extends CallableMemberMember<Method>> parameters){
 		this.name = name;
-		this.parameters = parameters;
+		this.parameters = new ArrayList<>(parameters);
 	}
 
 	public String toString() {
@@ -49,7 +50,7 @@ public class MethodSignature {
 	/**
 	 * @return
 	 */
-	public List<MethodParameter> getParameters() {
+	public List<CallableMemberMember<Method>> getParameters() {
 		return parameters;
 	}
 	

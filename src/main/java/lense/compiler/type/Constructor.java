@@ -3,14 +3,15 @@
  */
 package lense.compiler.type;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * 
  */
-public class Constructor implements CallableMember{
+public class Constructor implements CallableMember<Constructor>{
 
-	private List<MethodParameter> parameters;
+	private List<CallableMemberMember<Constructor>> parameters;
 	private TypeDefinition declaringType;
 	private boolean isImplicit;
 	private String name;
@@ -19,14 +20,18 @@ public class Constructor implements CallableMember{
 	 * Constructor.
 	 * @param parameters
 	 */
-	public Constructor(String name, List<MethodParameter> parameters, boolean isImplicit) {
-		this.parameters  = parameters;
+	public Constructor(String name, List<? extends CallableMemberMember<Constructor>> parameters, boolean isImplicit) {
+		this.parameters  = new ArrayList<>(parameters);
 		this.isImplicit = isImplicit;
 		this.name = name;
+		
+		for(CallableMemberMember<Constructor> mp : this.parameters){
+			mp.setDeclaringMember(this);
+		}
 	}
 
 	
-	public List<MethodParameter> getParameters(){
+	public List<CallableMemberMember<Constructor>> getParameters(){
 		return parameters;
 	}
 	

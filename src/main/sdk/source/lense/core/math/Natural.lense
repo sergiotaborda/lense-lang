@@ -1,7 +1,12 @@
 
 import lense.core.math.Whole;
+import lense.core.math.Progressable;
+import lense.core.collections.Progression;
 
-public native class Natural extends Whole{
+public native class Natural extends Whole implements Progressable<Natural>{
 
 
+	public native Integer minus (Natural other);
+	
+	public native Progression<Natural> upTo(Natural other);
 }

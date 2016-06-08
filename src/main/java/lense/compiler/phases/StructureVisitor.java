@@ -3,7 +3,7 @@
  */
 package lense.compiler.phases;
 
-import java.util.List;
+import java.util.Optional;
 
 import compiler.syntax.AstNode;
 import compiler.trees.VisitorNext;
@@ -18,13 +18,14 @@ import lense.compiler.ast.PropertyDeclarationNode;
 import lense.compiler.ast.TypeNode;
 import lense.compiler.context.SemanticContext;
 import lense.compiler.context.VariableInfo;
+import lense.compiler.type.ConstructorParameter;
 import lense.compiler.type.LenseTypeDefinition;
 import lense.compiler.type.Method;
 import lense.compiler.type.MethodParameter;
 import lense.compiler.type.MethodReturn;
 import lense.compiler.type.variable.IntervalTypeVariable;
 import lense.compiler.type.variable.TypeMemberDeclaringTypeVariable;
-
+import lense.compiler.type.variable.TypeVariable;
 /**
  * Read the classe members and fills a SenseType object
  */
@@ -69,9 +70,9 @@ public class StructureVisitor extends AbstractLenseVisitor {
 		if (node instanceof ConstructorDeclarationNode){
 			ConstructorDeclarationNode f = (ConstructorDeclarationNode)node;
 
-			MethodParameter[] params = asMethodParameters(f.getParameters());
+			ConstructorParameter[] params = asConstructorParameters(f.getParameters());
 			
-			currentType.addConstructor(f.getName(), params);
+			currentType.addConstructor(f.isImplicit(), f.getName(), params);
 
 		} else 	if (node instanceof FieldDeclarationNode){
 			FieldDeclarationNode f = (FieldDeclarationNode)node;
@@ -102,17 +103,21 @@ public class StructureVisitor extends AbstractLenseVisitor {
 			//				currentType.addMethod(m.getName(), returnType, parameters);
 			//			}
 
-
-
-
 			IntervalTypeVariable typeParameter = resolveTypeDefinition(m.getReturnType());
 
 			lense.compiler.type.variable.TypeVariable returnTypeVariable;
 			if (typeParameter.getLowerBound().equals(typeParameter.getUpperbound())){
 				returnTypeVariable = typeParameter;
 			} else {
-				int index = resolveCurrentTypeGenericTypeParameterIndex(m.getReturnType().getName());
-				returnTypeVariable = new TypeMemberDeclaringTypeVariable(index);
+				String typeName = m.getReturnType().getName();
+				Optional<Integer> opIndex = currentType.getGenericParameterIndexBySymbol(typeName);
+				
+				
+				if (!opIndex.isPresent()){
+					throw new CompilationError( m.getReturnType(), typeName + " is not a generic type parameter in type " + currentType.getName());
+				}
+
+				returnTypeVariable = new TypeMemberDeclaringTypeVariable(null, opIndex.get());
 			}
 
 		
@@ -128,19 +133,14 @@ public class StructureVisitor extends AbstractLenseVisitor {
 			VariableInfo genericParameter = semanticContext.currentScope().searchVariable(typeName);
 			
 			if (genericParameter != null && genericParameter.isTypeVariable()){
-				List<IntervalTypeVariable> parameters = currentType.getGenericParameters();
-				TypeMemberDeclaringTypeVariable pp= null;
-				for (int i =0; i < parameters.size(); i++){
-					if (parameters.get(i).getName().equals(typeName)){
-						pp = new TypeMemberDeclaringTypeVariable (i);
-						break;
-					}
+
+				Optional<Integer> index =currentType.getGenericParameterIndexBySymbol(typeName);
+				if (!index.isPresent()){
+					throw new CompilationError(node, typeName + " is not a valid type or generic parameter");
 				}
 				
-				if (pp == null){
-					throw new CompilationError(node, "Generic type parameter " + typeName + " is not defined");
-				}
-
+				TypeVariable pp = new TypeMemberDeclaringTypeVariable(null, index.get());
+				
 				if (p.isIndexed()){
 					 lense.compiler.type.variable.TypeVariable[] params = new  lense.compiler.type.variable.TypeVariable[((IndexerPropertyDeclarationNode)p).getIndexes().getChildren().size()];
 					 int i =0;
@@ -174,7 +174,17 @@ public class StructureVisitor extends AbstractLenseVisitor {
 
 	}
 
-
+	private ConstructorParameter[] asConstructorParameters(ParametersListNode parameters) {
+		MethodParameter[] params = asMethodParameters(parameters);
+		ConstructorParameter[] cparams = new ConstructorParameter[params.length];
+		
+		for (int i =0; i < params.length; i++){
+			cparams[i] = new ConstructorParameter(params[i].getType(), params[i].getName());
+		}
+		
+		return cparams;
+	}
+	
 	private MethodParameter[] asMethodParameters(ParametersListNode parameters) {
 		
 		for (AstNode p : parameters.getChildren()){
@@ -189,8 +199,14 @@ public class StructureVisitor extends AbstractLenseVisitor {
 			FormalParameterNode var = (FormalParameterNode) parameters.getChildren().get(i);
 			if (var.getTypeVariable() == null){
 				
-				int index = resolveCurrentTypeGenericTypeParameterIndex(var.getTypeNode().getTypeParameter().getName());
-				lense.compiler.type.variable.TypeVariable tv = new TypeMemberDeclaringTypeVariable(index);
+				String typeName = var.getTypeNode().getTypeParameter().getName();
+				Optional<Integer> opIndex = currentType.getGenericParameterIndexBySymbol(typeName);
+				
+			
+				if (!opIndex.isPresent()){
+					throw new CompilationError(parameters, typeName + " is not a generic type parameter in type " + currentType.getName());
+				}
+				lense.compiler.type.variable.TypeVariable tv = new TypeMemberDeclaringTypeVariable(null, opIndex.get());
 				
 				params[i] = new MethodParameter(tv, var.getName());
 			} else {
@@ -202,18 +218,6 @@ public class StructureVisitor extends AbstractLenseVisitor {
 	}
 
 
-	private int resolveCurrentTypeGenericTypeParameterIndex(String name) {
-		int index = -1;
-		int i = 0;
-		for ( IntervalTypeVariable param : currentType.getGenericParameters()){
-			if (param.getName().equals(name)){
-				index = i;
-				break;
-			}
-			i++;
-		}
-		return index;
-	}
 
 	@Override
 	protected SemanticContext getSemanticContext() {

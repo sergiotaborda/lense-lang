@@ -4,7 +4,6 @@
 package lense.compiler.context;
 
 import compiler.syntax.AstNode;
-import lense.compiler.type.TypeDefinition;
 import lense.compiler.type.variable.TypeVariable;
 
 /**
@@ -27,7 +26,7 @@ public class VariableInfo {
 	 * @param name
 	 * @param type
 	 */
-	public VariableInfo(String name, TypeVariable type,AstNode declaringNode, boolean isTypeVariable, boolean predefined) {
+	public VariableInfo(String name, TypeVariable type, AstNode declaringNode, boolean isTypeVariable, boolean predefined) {
 		this.name = name;
 		this.type = type;
 		this.isTypeVariable= isTypeVariable;

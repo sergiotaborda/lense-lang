@@ -1,6 +1,6 @@
 
 import lense.core.math.Number;
 
-public abstract class Whole extends Number implements Comparable<Whole> {
+public native abstract class Whole extends Number implements Comparable<Whole> {
 
 }

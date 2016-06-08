@@ -2,9 +2,6 @@ Implement Properties
 	in interfaces
 	do initialization    name {get;set;} = "Hello"
 	do delegation    size {get = list.size}
-Validation
-	verify if get is implicit set is also implicit
-    verify if constructor is provided, provide default if not.
 Auto-package
 	accept classes in lense.core.lang automaticly , maybe move numerals to lang but leave whole, integer, etc.. im math
 Generics

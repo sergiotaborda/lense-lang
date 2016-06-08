@@ -3,7 +3,9 @@
  */
 package lense.compiler;
 
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -14,13 +16,19 @@ import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
+import java.util.jar.Attributes;
+import java.util.jar.JarEntry;
+import java.util.jar.JarOutputStream;
+import java.util.jar.Manifest;
 
 import javax.tools.JavaCompiler;
 import javax.tools.JavaFileObject;
@@ -46,7 +54,6 @@ import lense.compiler.ast.QualifiedNameNode;
 import lense.compiler.ast.TypeNode;
 import lense.compiler.ast.UnitTypes;
 import lense.compiler.crosscompile.java.JavaCompilerBackEndFactory;
-import lense.compiler.crosscompile.java.JavaSourceBackEnd;
 import lense.compiler.dependency.DependencyGraph;
 import lense.compiler.dependency.DependencyNode;
 import lense.compiler.dependency.DependencyRelation;
@@ -100,7 +107,7 @@ public class LenseCompiler {
 	};
 	private CompilerBackEndFactory backendFactory = new  JavaCompilerBackEndFactory(); // JavaBackEndFactory(); //new  JavaSourceBackEnd(); //JavaBinaryBackEndFactory(); 
 	private TypeRepository globalRepository;
-	
+
 	public LenseCompiler (TypeRepository globalRepository){
 		// The global, even remote, repository
 		this.globalRepository = globalRepository;
@@ -109,7 +116,7 @@ public class LenseCompiler {
 	public void setCompilerListener(CompilerListener listener){
 		this.listener = listener;
 	}
-	
+
 	public void setCompilerPlatformBackEnd(CompilerBackEndFactory factory){
 		this.backendFactory = factory;
 	}
@@ -120,14 +127,13 @@ public class LenseCompiler {
 	public void compileModuleFromDirectory(File moduleproject){
 
 		String nativeLanguage = "java";
-		
+		Map<String, File> nativeTypes = new HashMap<>();
+
 		SemanticAnaylisisPhase semantic = new SemanticAnaylisisPhase(listener);
 		DesugarPropertiesPhase desugarProperties = new DesugarPropertiesPhase(listener);
 		IntermediatyRepresentationPhase  ir = new IntermediatyRepresentationPhase();
-		JavalizePhase  jv = new JavalizePhase(listener);
-		
-		// TODO desugar native
-		// TODO remove indexaccessnode from IR
+		JavalizePhase  jv = new JavalizePhase(listener,nativeTypes);
+
 		CompositePhase corePhase = new CompositePhase().add(semantic).add(desugarProperties).add(jv);//.add(ir);
 
 		listener.start();
@@ -145,10 +151,11 @@ public class LenseCompiler {
 			}
 
 			File nativeSources = new File(moduleproject, "native/" + nativeLanguage);
-			
-			
+
+
 			File target = new File(moduleproject, "compilation/" + nativeLanguage + "/target");
-			
+
+
 			// delete previous run
 			if (!target.exists()){
 				target.mkdirs();
@@ -165,15 +172,16 @@ public class LenseCompiler {
 			}
 
 			FileLocations locations = new FileLocations(target, nativeSources);
-			
+
 			// first compile java native files
-			compileNative(locations);
-			
+
+			compileNative(locations, nativeTypes);
+
 			// compile lense files
 			CompilationUnitSet moduleUnit = new FolderCompilationUnionSet(sources , name -> name.equals("module.lense"));
 
 			AstCompiler parser = new AstCompiler(new LenseLanguage());
-			
+
 
 			final List<CompiledUnit> modulesList = parser.parse(moduleUnit).sendToList();
 
@@ -183,7 +191,7 @@ public class LenseCompiler {
 
 			ModuleNode module  = (ModuleNode) modulesList.get(0).getAstRootNode().getChildren().get(0);
 
-	
+
 			// The repository being mounted
 			ModuleRepository currentModuleRepository = new ModuleRepository(module, globalRepository);
 
@@ -210,17 +218,17 @@ public class LenseCompiler {
 			parser.parse(unitSet)
 			.passBy(new NameResolutionPhase(currentModuleRepository, new PathPackageResolver(sources.toPath()), listener))
 			.peek(node -> {
-				
-				String packageName = node.getUnit().getOrigin().substring(sources.getAbsolutePath().length()+1);
-				int pos = packageName.lastIndexOf('\\');
-				
-				packageName = packageName.substring(0, pos).replace('\\', '.');
+
+				//String packageName = sources.getAbsoluteFile().toPath().relativize(node.getUnit().getOrigin()).toString();
+				//int pos = packageName.lastIndexOf('\\');
+
+				//packageName = packageName.substring(0, pos).replace('\\', '.');
 				UnitTypes t = (UnitTypes) node.getAstRootNode();
 
-				
+
 				for(ClassTypeNode type : t.getTypes()){
 
-					type.setName(packageName + '.' + type.getName());
+
 					foundNames.add(type.getName());
 
 					// the module depends on every type inside
@@ -245,10 +253,17 @@ public class LenseCompiler {
 
 					}
 
-					LenseTypeDefinition ltype = new LenseTypeDefinition(type.getName(), type.getKind(), null,typeParameters.toArray(new lense.compiler.type.variable.IntervalTypeVariable[0]));
+					LenseTypeDefinition ltype = null;
+
+					try {
+						ltype = (LenseTypeDefinition)type.getSemanticContext().typeForName(type.getName(), type.getGenericParametersCount());
+
+					} catch (TypeNotPresentException e) {
+						ltype = new LenseTypeDefinition(type.getName(), type.getKind(), null,typeParameters.toArray(new lense.compiler.type.variable.IntervalTypeVariable[0]));
+						ltype = (LenseTypeDefinition) currentModuleRepository.registerType(ltype, ltype.getGenericParameters().size());
+					}
 
 
-					ltype = (LenseTypeDefinition) currentModuleRepository.registerType(ltype, ltype.getGenericParameters().size());
 
 					graph.addEdge(new DependencyRelation(DependencyRelationship.Module), dn, moduleNode);
 
@@ -268,6 +283,9 @@ public class LenseCompiler {
 						if (imp.isMemberCalled()){
 							System.out.println(dn.getName() + " strongly depends on " + imported.getName());
 							graph.addEdge(new DependencyRelation(DependencyRelationship.Structural),  imported, dn);
+						} else if (dn.getName().equals(imported.getName())){
+							System.out.println(dn.getName() + " referes by to it self ");
+							continue;
 						} else {
 							System.out.println(dn.getName() + " referes by name " + imported.getName());
 							// TODO validate it exists
@@ -309,7 +327,7 @@ public class LenseCompiler {
 					System.out.println("Visiting : " + e.getVertex().getObject().getName());
 					new CompilationResultSet( new CompilationResult(e.getVertex().getObject().getCompiledUnit()))
 					.passBy(corePhase).sendTo( backendFactory.create(locations));
-					
+
 					System.out.println("Visited : " + e.getVertex().getObject().getName());
 				}
 				@Override
@@ -325,49 +343,25 @@ public class LenseCompiler {
 			});
 			tt.transverse(graph, moduleNode);
 
-			// TODO organize units in dependency order
-
-			// compile souce files and read packages
-			//			compiler.parse(unitSet).peek(new OutToJavaSource(target)).stream().forEach( cr -> {  // TODO add package to type from folder
-			//				if (!cr.isError()){
-			//					UnitTypes unit = (UnitTypes)cr.getCompiledUnit().getAstRootNode();
-			//
-			//					ClassTypeNode type = (ClassTypeNode) unit.getChildren().get(0);
-			//
-			//					QualifiedNameNode qn = new QualifiedNameNode(type.getName());
-			//
-			//					QualifiedNameNode pack = qn.getPrevious();
-			//					if (!pack.getName().startsWith(module.getName())){
-			//						throw new CompilationError("Package '" + pack + "' name in unit '" + type.getName() + "' does not beging with module name '" + module.getName() + "')");
-			//					}
-			//					packages.add(pack);
-			//				}
-			//			});
-
-
 			// produce package classes
 			ListCompilationUnitSet all = new ListCompilationUnitSet();
 			for(QualifiedNameNode pack : packages){
 
-				StringBuilder builder = new StringBuilder("import lense.core.lang.reflection.Package; import lense.core.lang.String;")
-				.append("public class Package$$Info implements Package { \n")
-				.append(" public String getName() {\n")
-				.append("	return \"").append(pack).append("\" ;\n")
-				.append("}\n")
-				.append("}\n");
-				
+				StringBuilder builder = writePackage(pack);
+
 				// TODO list types in package
 
-				all.add(new StringCompilationUnit(builder.toString(), sources.toPath().resolve(pack.getName().replace('.', '/')).toString()+ "/Package$$Info.lense")); // TODO specify package
+				Path path = sources.toPath().resolve(pack.getName().replace('.', File.separatorChar)).resolve("Package$$Info.lense");
+				all.add(new StringCompilationUnit(builder.toString(), path));
 			}
 
 			parser.parse(all)
 			.passBy(new NameResolutionPhase(currentModuleRepository, new PathPackageResolver(sources.toPath()), listener))
 			.passBy(corePhase)
 			.sendTo(backendFactory.create(locations));
-			
+
 			// produce module metadata and class
-			
+
 			Properties p = new Properties();
 
 			p.put("module.name", module.getName());
@@ -376,39 +370,25 @@ public class LenseCompiler {
 			File moduleProperties = new File(target, "module.properties");
 			p.store(new FileOutputStream(moduleProperties), "Lense module definition");
 
-			StringBuilder builder = new StringBuilder("import lense.core.lang.reflection.Module; import lense.core.lang.Version; import lense.core.collections.Sequence; import lense.core.collections.LinkedList; import lense.core.lang.reflection.Package; ");
-			
-			int i=1;
-			for(QualifiedNameNode pack : packages){ 
-				builder.append(" import ").append(pack).append(".Package$$Info as Pack").append(i).append(";\n");
-				i++;
-			}
-			
-			builder.append("public class ").append("Module$$Info implements Module { ");
-
-			builder.append("public Version getVersion(){");
-			builder.append("	return new Version(\"").append(module.getVersion()).append("\");");
-			builder.append("}");
-			builder.append("public Sequence<Package> getPackages(){");
-			builder.append("	var LinkedList<Package> all = new LinkedList<Package>(); ");
-			
-			for(i =0; i < packages.size(); i++){ 
-				builder.append("	all.add(new Pack").append(i+1).append("());\n");
-			}
-			
-			builder.append(" 	return all;");
-			builder.append("}");
-			builder.append("}");
+			StringBuilder builder = writeModule(module, packages);
 			all = new ListCompilationUnitSet();
-			all.add(new StringCompilationUnit(builder.toString(), sources.toPath().resolve(module.getName().replace('.', '/')).toString() + "/Module$$Info.lense")); // TODO specify package
+			all.add(new StringCompilationUnit(builder.toString(), sources.toPath().resolve(module.getName().replace('.', File.separatorChar)).resolve("Module$$Info.lense"))); // TODO specify package
 
-			
+
 			parser.parse(all)
 			.passBy(new NameResolutionPhase(currentModuleRepository, new PathPackageResolver(sources.toPath()), listener))
 			.passBy(corePhase)
 			.sendTo(backendFactory.create(locations  ));
-			 
-			// TODO zip it to a jar file and delete all singular files.
+
+			File modules = new File(moduleproject, "compilation/modules");
+
+			if (!modules.exists()){
+				modules.mkdirs();
+			}
+
+			File file = new File (modules, module.getName() + ".jar");
+			createJar(p,locations.getTargetFolder(), file);
+
 		} catch (Exception e) {
 			e.printStackTrace();
 			listener.error(new CompilerMessage(e.getMessage()));
@@ -418,12 +398,114 @@ public class LenseCompiler {
 
 	}
 
-	private void compileNative(FileLocations fileLocations) throws IOException {
+	private void createJar(Properties properties, File source, File output) throws IOException {
+		Manifest manifest = new Manifest();
+		manifest.getMainAttributes().put(Attributes.Name.MANIFEST_VERSION, "1.0");
+		JarOutputStream target = new JarOutputStream(new FileOutputStream(output), manifest);
+		
+		String name = source.getPath().replace("\\", "/") + "/";
+		for (File nestedFile: source.listFiles()){
+			add(name, nestedFile, target);
+		}
+		target.close();
+	}
+
+	private void add(String base, File source, JarOutputStream target) throws IOException
+	{
+		BufferedInputStream in = null;
+		try
+		{
+			String name = source.getPath().replace("\\", "/").replaceAll(base, "");
+			if (source.isDirectory())
+			{
+				
+				if (!name.isEmpty())
+				{
+					if (!name.endsWith("/")){
+						name += "/";
+					}
+
+					JarEntry entry = new JarEntry(name);
+					entry.setTime(source.lastModified());
+					target.putNextEntry(entry);
+					target.closeEntry();
+				}
+				for (File nestedFile: source.listFiles()){
+					add(base, nestedFile, target);
+				}
+				return;
+			} else if (! (source.getName().endsWith(".class") || source.getName().endsWith(".properties"))){
+				return;
+			}
+
+			JarEntry entry = new JarEntry(name);
+			entry.setTime(source.lastModified());
+			target.putNextEntry(entry);
+			in = new BufferedInputStream(new FileInputStream(source));
+
+			
+			byte[] buffer = new byte[1024];	
+			while (true)
+			{
+				int count = in.read(buffer);
+				if (count == -1){
+					break;
+				}
+				target.write(buffer, 0, count);
+			}
+			target.closeEntry();
+		}
+		finally
+		{
+			if (in != null)
+				in.close();
+		}
+	}
+
+	private StringBuilder writeModule(ModuleNode module,
+			Set<QualifiedNameNode> packages) {
+		StringBuilder builder = new StringBuilder("import lense.core.lang.reflection.Module; import lense.core.lang.Version; import lense.core.collections.Sequence; import lense.core.collections.LinkedList; import lense.core.lang.reflection.Package; ");
+
+		int i=1;
+		for(QualifiedNameNode pack : packages){ 
+			builder.append(" import ").append(pack).append(".Package$$Info as Pack").append(i).append(";\n");
+			i++;
+		}
+
+		builder.append("public class ").append("Module$$Info implements Module { ");
+
+		builder.append("public Version getVersion(){");
+		builder.append("	return new Version(\"").append(module.getVersion()).append("\");");
+		builder.append("}");
+		builder.append("public Sequence<Package> getPackages(){");
+		builder.append("	var LinkedList<Package> all = new LinkedList<Package>(); ");
+
+		for(i =0; i < packages.size(); i++){ 
+			builder.append("	all.add(new Pack").append(i+1).append("());\n");
+		}
+
+		builder.append(" 	return all;");
+		builder.append("}");
+		builder.append("}");
+		return builder;
+	}
+
+	private StringBuilder writePackage(QualifiedNameNode pack) {
+		StringBuilder builder = new StringBuilder("import lense.core.lang.reflection.Package; import lense.core.lang.String;")
+				.append("public class Package$$Info implements Package { \n")
+				.append(" public constructor ();")
+				.append(" public String getName() {\n")
+				.append("	return \"").append(pack).append("\" ;\n")
+				.append("}\n")
+				.append("}\n");
+		return builder;
+	}
+
+	private void compileNative(FileLocations fileLocations, Map<String, File> nativeTypes) throws IOException {
 		List<File> files = new LinkedList<>();
 
 		final Path rootDir = fileLocations.getNativeFolder().toPath();
-		final Path targetDir = fileLocations.getTargetFolder().toPath();
-
+		
 		Files.walkFileTree(rootDir, new FileVisitor<Path>() {
 
 			@Override
@@ -460,18 +542,27 @@ public class LenseCompiler {
 		StandardJavaFileManager fileManager = compiler.getStandardFileManager(null, null, null);
 
 		Iterable<? extends JavaFileObject> compilationUnits1 = fileManager.getJavaFileObjectsFromFiles(files);
-		compiler.getTask(new PrintWriter(System.err), fileManager, null, null, null, compilationUnits1).call();
+		if (compiler.getTask(new PrintWriter(System.err), fileManager, null, null, null, compilationUnits1).call()){
 
-		for (File n : files){
-			String packageFile = n.getAbsolutePath().substring(rootDir.toString().length());
-			int pos = packageFile.indexOf(".java");
-			packageFile = packageFile.substring(0, pos) + ".class";
-			File source = new File(n.getParentFile(), n.getName().substring(0,  n.getName().length() - 5) + ".class");
-			File target = new File(fileLocations.getTargetFolder(),packageFile);
-			
-			Files.move(source.toPath(), target.toPath());
+			for (File n : files){
+				String packageFile = n.getAbsolutePath().substring(rootDir.toString().length());
+				int pos = packageFile.indexOf(".java");
+				packageFile = packageFile.substring(0, pos) + ".class";
+				File source = new File(n.getParentFile(), n.getName().substring(0,  n.getName().length() - 5) + ".class");
+				File target = new File(fileLocations.getTargetFolder(),packageFile);
 
+				if (!source.exists()){
+					System.err.println("Compiled file with java compiler does not exist");
+				} else {
+					Files.move(source.toPath(), target.toPath());
+					nativeTypes.put(packageFile.substring(1).replace(File.separatorChar, '.').replaceAll(".class",""), target);
+				}
+
+			}
+		} else {
+			System.err.println("Cannot compile source with java compiler");
 		}
+
 	}
 
 

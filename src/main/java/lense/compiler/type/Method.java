@@ -13,14 +13,14 @@ import lense.compiler.type.variable.TypeVariable;
 /**
  * 
  */
-public class Method implements CallableMember {
+public class Method implements CallableMember<Method> {
 
 	private final String name;
 	private boolean isStatic = false;
 	private boolean isAbstract = false;
 	private TypeDefinition declaringType;
 	private MethodReturn returnParameter;
-	private List<MethodParameter> parameters;
+	private List<CallableMemberMember<Method>> parameters;
 	
 	private List<IntervalTypeVariable> methodFreeGenericTypes = new ArrayList<>();
 	
@@ -32,15 +32,15 @@ public class Method implements CallableMember {
 		this(name, returnParameter, Arrays.asList(parameters));
 	}
 	
-	public Method(String name, MethodReturn returnParameter, List<MethodParameter>  parameters){
+	public Method(String name, MethodReturn returnParameter, List<? extends CallableMemberMember<Method>>  parameters){
 		this.name = name;
 		
 		this.returnParameter = returnParameter;
-		this.returnParameter.setDeclaringMethod(this);
+		this.returnParameter.setDeclaringMember(this);
 		
 		this.parameters = new ArrayList<>(parameters);
-		for(MethodParameter mp : this.parameters){
-			mp.setDeclaringMethod(this);
+		for(CallableMemberMember<Method> mp : this.parameters){
+			mp.setDeclaringMember(this);
 		}
 	}
 	
@@ -58,7 +58,7 @@ public class Method implements CallableMember {
 	
 	
 	public String toString(){
-		return declaringType.getName() + "." + name + "(" + parameters + ") :" + returnParameter;
+		return declaringType.getName() + "." + name + "(" + parameters + ") :" + returnParameter.getType().getName();
 	}
 	
 	/**
@@ -97,7 +97,7 @@ public class Method implements CallableMember {
 	/**
 	 * @return
 	 */
-	public List<MethodParameter> getParameters() {
+	public List<CallableMemberMember<Method>> getParameters() {
 		return parameters;
 	}
 
@@ -105,7 +105,7 @@ public class Method implements CallableMember {
 	 * @param methodFreeBoxedTypeParameter
 	 */
 	public void setReturn(MethodReturn param) {
-		param.setDeclaringMethod(this);
+		param.setDeclaringMember(this);
 		this.returnParameter = param;
 	}
 

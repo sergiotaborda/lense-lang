@@ -1,7 +1,18 @@
 
 import lense.core.math.Integer;
 import lense.core.lang.Binary;
+import lense.core.math.Natural;
 
 public native class Int32 extends Integer implements Binary{
 
+	public native implicit constructor valueOf (Natural n);
+
+
+	public native Int32 flipAll();
+	
+	public Natural size {get { return 32;}}
+
+	public native Int32 rightShiftBy(Natural n);
+	
+	public native Int32 leftShiftBy(Natural n);
 }

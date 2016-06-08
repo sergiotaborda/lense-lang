@@ -7,4 +7,5 @@ public interface Sequence extends Iterable {
 
 	public Any get(Natural index);
 	public Natural getSize();
+	public Progression getIndexes();
 }

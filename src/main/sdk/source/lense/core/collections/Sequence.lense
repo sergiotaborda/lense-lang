@@ -7,4 +7,6 @@ public interface Sequence<out T> extends Iterable<T> {
 	public T [Natural index] { get;}
 	
 	public Natural size { get; }
+	
+	public Progression<Natural> indexes { get; }
 } 

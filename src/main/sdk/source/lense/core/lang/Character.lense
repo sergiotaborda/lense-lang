@@ -1,2 +1,2 @@
 
-public class Character {} 
+public native class Character {} 

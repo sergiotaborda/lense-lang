@@ -3,8 +3,6 @@
  */
 package lense.compiler.type.variable;
 
-import java.util.List;
-
 import lense.compiler.type.TypeDefinition;
 import lense.compiler.type.TypeMember;
 import lense.compiler.typesystem.Variance;
@@ -12,16 +10,12 @@ import lense.compiler.typesystem.Variance;
 /**
  * The type follows a type in the declaring type
  */
-public class TypeMemberDeclaringTypeVariable implements TypeMemberAwareTypeVariable {
+public class TypeMemberDeclaringTypeVariable extends CalculatedTypeVariable implements TypeMemberAwareTypeVariable {
 
 	
 	private TypeMember member;
 	private int parameterIndex;
 
-	public TypeMemberDeclaringTypeVariable (int index){
-		this.parameterIndex = index;
-	}
-	
 	public TypeMemberDeclaringTypeVariable (TypeMember member, int index){
 		this.parameterIndex = index;
 		this.member = member;
@@ -39,25 +33,12 @@ public class TypeMemberDeclaringTypeVariable implements TypeMemberAwareTypeVaria
 		return original().getName();
 	}
 
-
-	private IntervalTypeVariable original() {
+	@Override
+	protected IntervalTypeVariable original() {
+		if (parameterIndex > member.getDeclaringType().getGenericParameters().size() - 1){
+			throw new IndexOutOfBoundsException("Memebr " + member.getDeclaringType() + " as no generic type index " +  parameterIndex);
+		}
 		return member.getDeclaringType().getGenericParameters().get(parameterIndex);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public TypeVariable getUpperbound() {
-		return original().getUpperbound();
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public TypeVariable getLowerBound() {
-		return original().getLowerBound();
 	}
 
 	@Override
@@ -74,30 +55,7 @@ public class TypeMemberDeclaringTypeVariable implements TypeMemberAwareTypeVaria
 
 	@Override
 	public IntervalTypeVariable changeBaseType(TypeDefinition concrete) {
-		return new TypeMemberDeclaringTypeVariable(parameterIndex);
-	}
-
-
-	@Override
-	public IntervalTypeVariable toIntervalTypeVariable() {
-		 return this;
-	}
-
-
-	@Override
-	public List<IntervalTypeVariable> getGenericParameters() {
-		return original().getGenericParameters();
-	}
-
-
-	@Override
-	public TypeDefinition getTypeDefinition() {
-		return original().getTypeDefinition();
-	}
-
-	@Override
-	public boolean isSingleType() {
-		return this.original().isSingleType();
+		return new TypeMemberDeclaringTypeVariable(this.member, parameterIndex);
 	}
 
 

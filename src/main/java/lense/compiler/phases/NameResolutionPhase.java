@@ -66,10 +66,11 @@ public class NameResolutionPhase implements CompilerPhase {
 			for (ClassTypeNode ct :  t.getTypes()){
 				// cannot share semantic context among classes
 
-				String packagePath = packageResolver.resolveUnitPackageName(ct.getScanPosition().getCompilationUnit());
+				String packageName = packageResolver.resolveUnitPackageName(ct.getScanPosition().getCompilationUnit());
 						
+				ct.setName(packageName + '.' + ct.getName());
 				
-				SemanticContext ctx = new SemanticContext(typeRepository, packagePath); 
+				SemanticContext ctx = new SemanticContext(typeRepository, packageName); 
 				
 				ct.setSemanticContext(ctx);
 				

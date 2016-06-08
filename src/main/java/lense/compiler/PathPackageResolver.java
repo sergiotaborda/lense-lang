@@ -30,12 +30,12 @@ public class PathPackageResolver implements PackageResolver {
 	 */
 	@Override
 	public String resolveUnitPackageName(CompilationUnit compilationUnit) {
-		Path packagePath = sourcePath.relativize(Paths.get(compilationUnit.getOrigin())).getParent();
+		Path packagePath = sourcePath.relativize(compilationUnit.getOrigin()).getParent();
 		
 		if (packagePath== null){
 			return "";
 		}
-		String relative = sourcePath.relativize(Paths.get(compilationUnit.getOrigin())).getParent().toString();
+		String relative = sourcePath.relativize(compilationUnit.getOrigin()).getParent().toString();
 		
 		
 		return relative.replace(File.separatorChar, '.');

@@ -2,10 +2,12 @@
 import lense.core.math.Real;
 import lense.core.math.Integer;
 
-public class Rational extends Real {
+public native class Rational extends Real {
 
-	val Integer numerator;
-	val Integer denominator;
+	private val Integer numerator;
+	private val Integer denominator;
 	
-	
+	public Int32 compareTo(Real other){
+		return 0Z;
+	}
 }

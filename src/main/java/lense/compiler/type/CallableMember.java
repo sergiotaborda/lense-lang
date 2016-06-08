@@ -9,12 +9,11 @@ import java.util.List;
 /**
  * 
  */
-public interface CallableMember extends TypeMember {
+public interface CallableMember<C extends CallableMember> extends TypeMember {
 
 	public TypeDefinition getDeclaringType();
 
-	//public int getModifiers();
-	public List<MethodParameter> getParameters();
+	public List<CallableMemberMember<C>> getParameters();
 	
 	public boolean isSynthetic();
 }

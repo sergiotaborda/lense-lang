@@ -95,7 +95,7 @@ public class MethodParameter implements MethodMember {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Method getDeclaringMethod() {
+	public Method getDeclaringMember() {
 		return declaringMethod;
 	}
 
@@ -103,7 +103,7 @@ public class MethodParameter implements MethodMember {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void setDeclaringMethod(Method method) {
+	public void setDeclaringMember(Method method) {
 		this.declaringMethod = method;
 		if (type instanceof TypeMemberAwareTypeVariable){
 			((TypeMemberAwareTypeVariable)type).setDeclaringMember(method);

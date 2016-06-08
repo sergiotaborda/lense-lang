@@ -3,6 +3,6 @@ import lense.core.lang.String;
 
 public interface Package {
 
-       public String getName();
+    public String name {get;}
 
 }

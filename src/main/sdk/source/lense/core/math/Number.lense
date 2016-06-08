@@ -1,6 +1,11 @@
 
 import lense.core.lang.TextRepresentable;
+import lense.core.lang.String;
 
-public class Number implements TextRepresentable {
+public native class Number implements TextRepresentable{
 
+
+	public native String asString();
+	
+	
 }

@@ -11,12 +11,15 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import compiler.CompilationError;
 import lense.compiler.ast.Imutability;
 import lense.compiler.type.CallableMember;
+import lense.compiler.type.CallableMemberMember;
+import lense.compiler.type.CallableMemberSignature;
 import lense.compiler.type.Constructor;
+import lense.compiler.type.ConstructorParameter;
 import lense.compiler.type.Kind;
 import lense.compiler.type.LenseTypeDefinition;
+import lense.compiler.type.Method;
 import lense.compiler.type.MethodParameter;
 import lense.compiler.type.MethodReturn;
 import lense.compiler.type.MethodSignature;
@@ -27,6 +30,7 @@ import lense.compiler.type.variable.FixedTypeVariable;
 import lense.compiler.type.variable.IntervalTypeVariable;
 import lense.compiler.type.variable.RangeTypeVariable;
 import lense.compiler.type.variable.TypeVariable;
+import compiler.CompilationError;
 
 /**
  * 
@@ -68,11 +72,11 @@ public class LenseTypeSystem{
 	}
 
 	public static TypeDefinition Iterable() {
-		return getInstance().getForName("lense.core.lang.Iterable",1).get();
+		return getInstance().getForName("lense.core.collections.Iterable",1).get();
 	}
 	
 	public static TypeDefinition Iterator() {
-		return getInstance().getForName("lense.core.lang.Iterator",1).get();
+		return getInstance().getForName("lense.core.collections.Iterator",1).get();
 	}
 	
 	/**
@@ -200,8 +204,8 @@ public class LenseTypeSystem{
 		
 		
 		// TODO treat interfaces and traits as attached types
-		LenseTypeDefinition iterable = register(new LenseTypeDefinition("lense.core.lang.Iterable", Kind.Interface, any, new RangeTypeVariable("T", Variance.Covariant, any,nothing))); 
-		LenseTypeDefinition iterator = register(new LenseTypeDefinition("lense.core.lang.Iterator", Kind.Interface, any, new RangeTypeVariable("T", Variance.Covariant, any,nothing))); 
+		LenseTypeDefinition iterable = register(new LenseTypeDefinition("lense.core.collections.Iterable", Kind.Interface, any, new RangeTypeVariable("T", Variance.Covariant, any,nothing))); 
+		LenseTypeDefinition iterator = register(new LenseTypeDefinition("lense.core.collections.Iterator", Kind.Interface, any, new RangeTypeVariable("T", Variance.Covariant, any,nothing))); 
 		
 		iterable.addMethod("iterator", iterator); 
 		
@@ -211,7 +215,7 @@ public class LenseTypeSystem{
 		LenseTypeDefinition maybe = register(new LenseTypeDefinition("lense.core.lang.Maybe", Kind.Class, any, new RangeTypeVariable("T", Variance.Covariant, any,nothing)));  
 
 		maybe.addMethod("map", specify(maybe, any), new MethodParameter(function2)); // TODO return must obey function return
-		maybe.addConstructor("",new MethodParameter(any));
+		maybe.addConstructor("",new ConstructorParameter(any));
 		
 		
 		LenseTypeDefinition none = register(new LenseTypeDefinition("lense.core.lang.None", Kind.Class, specify(maybe, nothing), new IntervalTypeVariable[0]));
@@ -272,11 +276,11 @@ public class LenseTypeSystem{
 		LenseTypeDefinition slong =register(new LenseTypeDefinition("lense.core.math.Int64", Kind.Class, integer));
 		LenseTypeDefinition sshort =register(new LenseTypeDefinition("lense.core.math.Int16", Kind.Class, integer));
 		
-		sint.addConstructor("valueOf", new MethodParameter(natural));
-		sint.addConstructor("valueOf", new MethodParameter(whole));
+		sint.addConstructor(true , "valueOf", new ConstructorParameter(natural));
+		sint.addConstructor(true, "valueOf", new ConstructorParameter(whole));
 
-		integer.addConstructor("valueOf", new MethodParameter(natural));
-		integer.addConstructor("valueOf", new MethodParameter(whole));
+		integer.addConstructor("valueOf", new ConstructorParameter(natural));
+		integer.addConstructor("valueOf", new ConstructorParameter(whole));
 		
 		natural.addMethod("multiply", natural, new MethodParameter(natural));
 		natural.addMethod("remainder", natural, new MethodParameter(natural));
@@ -297,7 +301,7 @@ public class LenseTypeSystem{
 
 		LenseTypeDefinition string = register(new LenseTypeDefinition("lense.core.lang.String", Kind.Class, specify(sequence, character), new IntervalTypeVariable[0]));
 
-		sint.addConstructor("parse", new MethodParameter(string));
+		sint.addConstructor("parse", new ConstructorParameter(string));
 		
 		string.addMethod("toMaybe", specify(maybe, string));
 		string.addMethod("get", character, new MethodParameter (natural));
@@ -572,7 +576,7 @@ public class LenseTypeSystem{
 		} 
 		
 		if (b instanceof FixedTypeVariable){
-			Optional<Constructor> op = ((FixedTypeVariable)b).getTypeDefinition().getConstructorByParameters(new MethodParameter(b));
+			Optional<Constructor> op = b.getTypeDefinition().getConstructorByParameters(new ConstructorParameter(a));
 			
 			return op.filter(c -> c.isImplicit()).isPresent();
 		}
@@ -597,15 +601,15 @@ public class LenseTypeSystem{
 	 * @param m
 	 * @return
 	 */
-	public static boolean isSignatureImplementedBy(MethodSignature signature, CallableMember m) {
-		final List<MethodParameter> memberParameters = m.getParameters();
-		final List<MethodParameter> signatureParameters = signature.getParameters();
+	public <M extends CallableMember<M>> boolean isSignatureImplementedBy(CallableMemberSignature<M> signature, CallableMember<M> m) {
+		final List<CallableMemberMember<M>> memberParameters = m.getParameters();
+		final List<CallableMemberMember<M>> signatureParameters = signature.getParameters();
 		
 		return signature.getName().equals(m.getName()) && areSignatureParametersImplementedBy(signatureParameters,memberParameters);
 
 	}
 
-	public static boolean areSignatureParametersImplementedBy(List<MethodParameter> signatureParameters, List<MethodParameter> memberParameters) {
+	public <M extends CallableMember<M>> boolean areSignatureParametersImplementedBy(List<CallableMemberMember<M>> signatureParameters, List<CallableMemberMember<M>> memberParameters) {
 
 		if (signatureParameters.size() == memberParameters.size()){
 			
@@ -680,6 +684,11 @@ public class LenseTypeSystem{
 			
 			
 		}).distinct().collect(Collectors.toSet());
+	}
+
+	public boolean isMethodImplementedBy(Method reference, Method candidate) {
+
+		return reference.getName().equals(candidate.getName()) && areSignatureParametersImplementedBy(reference.getParameters(), candidate.getParameters());
 	}
 
 

@@ -28,9 +28,9 @@ public interface TypeDefinition {
 
 	public List<IntervalTypeVariable> getGenericParameters();
 
-	public Optional<Constructor> getConstructorByParameters(MethodParameter ... parameters);
+	public Optional<Constructor> getConstructorByParameters(ConstructorParameter ... parameters);
 		
-	public Optional<Constructor> getConstructorByPromotableParameters(MethodParameter ... parameters);
+	public Optional<Constructor> getConstructorByPromotableParameters(ConstructorParameter ... parameters);
 	
 	/**
 	 * @param name

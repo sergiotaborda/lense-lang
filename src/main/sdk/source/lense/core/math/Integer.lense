@@ -3,5 +3,6 @@ import lense.core.math.Whole;
 
 public native class Integer extends Whole{
 
-	
+
+
 }
