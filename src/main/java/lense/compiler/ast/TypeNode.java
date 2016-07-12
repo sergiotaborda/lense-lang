@@ -19,7 +19,7 @@ public class TypeNode extends LenseAstNode implements TypedNode{
 	private IntervalTypeVariable typeParameter;
 
 	public TypeNode(TypeVariable  type) {
-		this.name = new QualifiedNameNode(type.getName());
+		this.name = new QualifiedNameNode(type.getTypeDefinition().getName());
 		this.setTypeVariable(type);
 	}
 	

@@ -9,6 +9,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
+import lense.compiler.ast.ClassTypeNode;
 import lense.compiler.repository.UpdatableTypeRepository;
 import lense.compiler.type.TypeDefinition;
 import lense.compiler.type.TypeNotFoundException;
@@ -26,10 +27,12 @@ public class SemanticContext {
 	
 	private UpdatableTypeRepository resolver;
 	private String currentpackage;
+	private ClassTypeNode parentClassTypeNode;
 	
-	public SemanticContext(UpdatableTypeRepository resolver, String currentpackage){
+	public SemanticContext(UpdatableTypeRepository resolver, String currentpackage, ClassTypeNode ct){
 		this.resolver = resolver;
 		this.currentpackage= currentpackage;
+		this.parentClassTypeNode = ct;
 		
 		imports.add(currentpackage);
 	}
@@ -76,7 +79,7 @@ public class SemanticContext {
 		if (scope != null){
 			VariableInfo varThis = scope.searchVariable("this");
 			
-			if (varThis != null && varThis.getTypeVariable().getName().equals(name)){
+			if (varThis != null && varThis.getTypeVariable().getSymbol().map(s -> s.equals(name)).orElse(false)){
 				return ((FixedTypeVariable)varThis.getTypeVariable()).getTypeDefinition();
 			}
 			
@@ -125,6 +128,16 @@ public class SemanticContext {
 						return type;
 					}
 				}
+				for (lense.compiler.Import imp : parentClassTypeNode.imports()){
+					if (imp.getMatchAlias().equals(name)){
+						Optional<TypeDefinition> type = typeForQualifiedName(imp.getTypeName().toString(), genericParametersCount);
+						if (type.isPresent()){
+							return type;
+						}
+					}
+					
+				}
+				
 				
 				return typeForQualifiedName(name,genericParametersCount );
 			}

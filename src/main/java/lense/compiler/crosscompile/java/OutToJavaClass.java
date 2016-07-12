@@ -170,7 +170,7 @@ public class OutToJavaClass implements CompilerBackEnd, Opcodes {
 						FieldDeclarationNode n = (FieldDeclarationNode)child;
 						int flags = n.getImutabilityValue() == Imutability.Imutable ? ACC_FINAL : 0;
 						flags &= ACC_PRIVATE;
-						fv = cw.visitField(flags, n.getName(), toJavaTypeName(n.getTypeVariable().getName()), toJavaTypeName(n.getTypeVariable().getName())/*Signature*/, null);
+						fv = cw.visitField(flags, n.getName(), toJavaTypeName(n.getTypeVariable().getTypeDefinition().getName()), toJavaTypeName(n.getTypeVariable().getTypeDefinition().getName())/*Signature*/, null);
 						fv.visitEnd();
 					} else if (child instanceof MethodDeclarationNode){
 						MethodDeclarationNode n = (MethodDeclarationNode)child;

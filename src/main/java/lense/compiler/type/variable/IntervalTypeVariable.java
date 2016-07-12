@@ -24,12 +24,6 @@ public interface IntervalTypeVariable extends TypeVariable{
 	 */
 	Variance getVariance();
 
-	/**
-	 * The generic type parameter name, like T or S.
-	 * @return
-	 */
-	String getName();
-
 
 
 

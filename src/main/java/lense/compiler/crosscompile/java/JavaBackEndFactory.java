@@ -1,9 +1,12 @@
 package lense.compiler.crosscompile.java;
 
+import java.io.File;
+
 import compiler.CompiledUnit;
 import compiler.CompilerBackEnd;
 import lense.compiler.CompilerBackEndFactory;
 import lense.compiler.FileLocations;
+import lense.compiler.repository.ModuleRepository;
 
 public class JavaBackEndFactory implements CompilerBackEndFactory {
 
@@ -30,4 +33,12 @@ public class JavaBackEndFactory implements CompilerBackEndFactory {
 		}
 		
 	}
+
+
+	@Override
+	public void setClasspath(File base) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

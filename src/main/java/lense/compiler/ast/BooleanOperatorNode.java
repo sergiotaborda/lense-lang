@@ -48,6 +48,12 @@ public class BooleanOperatorNode extends BooleanExpressionNode {
 		this.operation = operation;
 	}
 	
+	public BooleanOperatorNode(BooleanOperation operation, ExpressionNode left, ExpressionNode right) {
+		this.operation = operation;
+		this.add(left);
+		this.add(right);
+	}
+	
 	public ExpressionNode getLeft(){
 		return (ExpressionNode) this.getChildren().get(0);
 	}

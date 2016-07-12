@@ -78,7 +78,7 @@ class LenseModuleRepository extends ModuleRepository{
 	}
 	
 	public Optional<TypeDefinition> resolveType(TypeSearchParameters filter) {
-		return LenseTypeSystem.getInstance().getForName(filter.getName(), filter.getGenericParametersCount()).map(m -> (TypeDefinition)m);
+		return LenseTypeSystem.getInstance().getForName(filter.getName(), filter.getGenericParametersCount().orElse(0)).map(m -> (TypeDefinition)m);
 	}
 	
 }

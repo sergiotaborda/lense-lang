@@ -4,6 +4,7 @@
 package lense.compiler.type.variable;
 
 import java.util.List;
+import java.util.Optional;
 
 import lense.compiler.type.TypeDefinition;
 
@@ -12,7 +13,11 @@ import lense.compiler.type.TypeDefinition;
  */
 public interface TypeVariable {
 
-	public String getName();
+	/**
+	 * The generic type parameter name, like T or S.
+	 * @return
+	 */
+	public Optional<String> getSymbol();
 
 	public IntervalTypeVariable toIntervalTypeVariable();
 

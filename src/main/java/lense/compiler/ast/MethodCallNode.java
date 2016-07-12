@@ -19,22 +19,22 @@ public class MethodCallNode extends StatementNode {
 	private ArgumentListNode arguments;
 
 	
-	public MethodCallNode (){}
+	public MethodCallNode (String name){
+		if (name == null){
+			throw new IllegalArgumentException();
+		}
+		this.name = name;
+	}
 	/**
 	 * Constructor.
 	 * @param name2
 	 * @param arguments2
 	 */
 	public MethodCallNode(String name, ArgumentListNode arguments) {
-		this.name = name;
+		this(name);
 		setArgumentListNode(arguments);
 	}
-	/**
-	 * @param string
-	 */
-	public void setName(String name) {
-		this.name = name;
-	}
+
 
 	/**
 	 * @param argumentListNode

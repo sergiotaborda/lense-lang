@@ -3,7 +3,9 @@ package lense.compiler.asm;
 import org.objectweb.asm.MethodVisitor;
 
 import lense.compiler.type.Method;
+import lense.compiler.type.MethodReturn;
 import lense.compiler.type.Property;
+import lense.compiler.type.variable.DeclaringTypeBoundedTypeVariable;
 
 import static org.objectweb.asm.Opcodes.*;
 
@@ -17,6 +19,8 @@ public class MethodAnnotVisitor extends MethodVisitor{
 	private boolean isIndexed;
 	private boolean isSetter;
 	private String propertyName;
+	private String returnSignature;
+	private String paramsSignature;
 
 	public MethodAnnotVisitor(ByteCodeReader byteCodeReader, Method method) {
 		super(ASM5);
@@ -29,7 +33,7 @@ public class MethodAnnotVisitor extends MethodVisitor{
 			method = null;
 		} else if (desc.equals("Llense/core/lang/java/Property;")){
 			isProperty = true;
-		}
+		} 
 		return new MAnnotationVisitor();
 
 	}
@@ -38,6 +42,12 @@ public class MethodAnnotVisitor extends MethodVisitor{
 
 		if (method!= null){
 			if (isProperty){
+				if (returnSignature != null && returnSignature.length() > 0){
+					if (!method.getReturningType().getTypeDefinition().getName().equals(returnSignature)){
+						method.setReturn(new MethodReturn(new DeclaringTypeBoundedTypeVariable(method.getDeclaringType(), 0, returnSignature, lense.compiler.typesystem.Variance.Covariant)));
+					}
+					
+				}
 				byteCodeReader.addPropertyPart(method,isIndexed,propertyName, isSetter);
 			} else {
 				byteCodeReader.addMethod(method);
@@ -46,6 +56,7 @@ public class MethodAnnotVisitor extends MethodVisitor{
 	}
 
 	private class MAnnotationVisitor extends AnnotationVisitor {
+
 
 		public MAnnotationVisitor() {
 			super(ASM5);
@@ -58,7 +69,12 @@ public class MethodAnnotVisitor extends MethodVisitor{
 				propertyName = ((String)value);
 			} else if (name.equals("setter")){
 				isSetter = ((Boolean)value).booleanValue();
+			} else if (name.equals("returnSignature")){
+				returnSignature = ((String)value);
+			} else if (name.equals("paramsSignature")){
+				paramsSignature = ((String)value);
 			}
+
 		}
 
 	}

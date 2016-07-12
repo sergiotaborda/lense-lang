@@ -31,6 +31,10 @@ public class Property  implements TypeMember{
 		this.canWrite =canWrite;
 	}
 
+	public String toString(){
+		return name + "(property)";
+	}
+	
 	public TypeVariable getReturningType() {
 		return type;
 	}

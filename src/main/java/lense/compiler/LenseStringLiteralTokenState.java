@@ -102,8 +102,12 @@ public class LenseStringLiteralTokenState extends StringLiteralTokenState {
 					builder.delete(0, builder.length());
 				}
 				
-				// send + operator
-				tokensQueue.accept(grammar.maybeMatch(pos, "+").get());
+				// send . operator
+				tokensQueue.accept(grammar.maybeMatch(pos, ".").get());
+				
+				// send plus method 
+				tokensQueue.accept(grammar.maybeMatch(pos, "plus").get());
+				
 				
 				// send ( operator
 				tokensQueue.accept(grammar.maybeMatch(pos, "(").get());
@@ -125,17 +129,17 @@ public class LenseStringLiteralTokenState extends StringLiteralTokenState {
 				// send ) operator
 				tokensQueue.accept(grammar.maybeMatch(pos, ")").get());
 				
-				// send . operator
-				tokensQueue.accept(grammar.maybeMatch(pos, ".").get());
-				
-				// send toString 
-				tokensQueue.accept(grammar.maybeMatch(pos, "toString").get());
-				
-				// send ( operator 
-				tokensQueue.accept(grammar.maybeMatch(pos, "(").get());
-				
-				// send ) operator 
-				tokensQueue.accept(grammar.maybeMatch(pos, ")").get());
+//				// send . operator
+//				tokensQueue.accept(grammar.maybeMatch(pos, ".").get());
+//				
+//				// send toString 
+//				tokensQueue.accept(grammar.maybeMatch(pos, "toString").get());
+//				
+//				// send ( operator 
+//				tokensQueue.accept(grammar.maybeMatch(pos, "(").get());
+//				
+//				// send ) operator 
+//				tokensQueue.accept(grammar.maybeMatch(pos, ")").get());
 				
 				// send + operator
 				tokensQueue.accept(grammar.maybeMatch(pos, "+").get());

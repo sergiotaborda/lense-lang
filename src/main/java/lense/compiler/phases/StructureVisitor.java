@@ -199,12 +199,11 @@ public class StructureVisitor extends AbstractLenseVisitor {
 			FormalParameterNode var = (FormalParameterNode) parameters.getChildren().get(i);
 			if (var.getTypeVariable() == null){
 				
-				String typeName = var.getTypeNode().getTypeParameter().getName();
-				Optional<Integer> opIndex = currentType.getGenericParameterIndexBySymbol(typeName);
+				Optional<Integer> opIndex = var.getTypeNode().getTypeParameter().getSymbol().flatMap(s -> currentType.getGenericParameterIndexBySymbol(s));
 				
 			
 				if (!opIndex.isPresent()){
-					throw new CompilationError(parameters, typeName + " is not a generic type parameter in type " + currentType.getName());
+					throw new CompilationError(parameters, var.getTypeNode().getTypeParameter().getSymbol() + " is not a generic type parameter in type " + currentType.getName());
 				}
 				lense.compiler.type.variable.TypeVariable tv = new TypeMemberDeclaringTypeVariable(null, opIndex.get());
 				

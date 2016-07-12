@@ -30,7 +30,7 @@ public class ClassInstanceCreationNode extends ExpressionNode{
 		setTypeNode(t);
 		setArguments(list);
 	}
-	
+
 	public ClassInstanceCreationNode (TypeVariable type, AstNode ... args){
 		TypeNode t = new TypeNode(type);
 		setTypeNode(t);
@@ -128,6 +128,7 @@ public class ClassInstanceCreationNode extends ExpressionNode{
 
 	public void setConstructor(Constructor constructor) {
 		this.constructor = constructor;
+		this.setConstructorName(constructor.getName());
 	}
 
 

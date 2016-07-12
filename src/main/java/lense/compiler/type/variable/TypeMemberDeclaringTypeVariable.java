@@ -3,6 +3,8 @@
  */
 package lense.compiler.type.variable;
 
+import java.util.Optional;
+
 import lense.compiler.type.TypeDefinition;
 import lense.compiler.type.TypeMember;
 import lense.compiler.typesystem.Variance;
@@ -25,12 +27,12 @@ public class TypeMemberDeclaringTypeVariable extends CalculatedTypeVariable impl
 	 * {@inheritDoc}
 	 */
 	@Override
-	public String getName() {
-		 return original().getName();
+	public Optional<String> getSymbol() {
+		 return original().getSymbol();
 	}
 	
 	public String toString(){
-		return original().getName();
+		return original().getSymbol().orElse(original().getTypeDefinition().getName());
 	}
 
 	@Override

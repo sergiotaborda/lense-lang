@@ -14,6 +14,7 @@ import lense.compiler.ast.LiteralExpressionNode;
 import lense.compiler.ast.MethodInvocationNode;
 import lense.compiler.ast.NullValue;
 import lense.compiler.ast.NumericValue;
+import lense.compiler.ast.ObjectReadNode;
 import lense.compiler.ast.ScopedVariableDefinitionNode;
 import lense.compiler.ast.StringConcatenationNode;
 import lense.compiler.ast.StringValue;
@@ -57,33 +58,34 @@ public class LiteralsInstanciatorVisitor implements Visitor<AstNode> {
 	@Override
 	public void visitAfterChildren(AstNode node) {
 		
-		if (node instanceof AssignmentNode){
-			AssignmentNode n = (AssignmentNode) node;
-			if (n.getRight() instanceof LiteralExpressionNode){
-				n.setRight(transformeLiteral((LiteralExpressionNode)n.getRight()));
-			}
-		} else if (node instanceof ScopedVariableDefinitionNode){
-			ScopedVariableDefinitionNode v = (ScopedVariableDefinitionNode)node;
-			
-			if (v.getInitializer() instanceof LiteralExpressionNode){
-				v.setInitializer(transformeLiteral((LiteralExpressionNode)v.getInitializer()));
-			}
-			
-		} 
-		if (node instanceof LiteralExpressionNode){
-			AstNode newnode = transformeLiteral((LiteralExpressionNode) node);
-			
-			if (node.getParent().getParent() instanceof ClassInstanceCreationNode){
-				ClassInstanceCreationNode c = (ClassInstanceCreationNode)node.getParent().getParent();
-				if (c.getTypeVariable().equals(LenseTypeSystem.String())){
-					return;
-				}
-			} 
-			node.getParent().replace(node, newnode);
-		}
-		else if (node instanceof ArithmeticNode){
+//		if (node instanceof AssignmentNode){
+//			AssignmentNode n = (AssignmentNode) node;
+//			if (n.getRight() instanceof LiteralExpressionNode){
+//				n.setRight(transformeLiteral((LiteralExpressionNode)n.getRight()));
+//			}
+//		} else if (node instanceof ScopedVariableDefinitionNode){
+//			ScopedVariableDefinitionNode v = (ScopedVariableDefinitionNode)node;
+//			
+//			if (v.getInitializer() instanceof LiteralExpressionNode){
+//				v.setInitializer(transformeLiteral((LiteralExpressionNode)v.getInitializer()));
+//			}
+//			
+//		} 
+//		if (node instanceof LiteralExpressionNode){
+//			AstNode newnode = transformeLiteral((LiteralExpressionNode) node);
+//			
+//			if (node.getParent().getParent() instanceof ClassInstanceCreationNode){
+//				ClassInstanceCreationNode c = (ClassInstanceCreationNode)node.getParent().getParent();
+//				if (c.getTypeVariable().equals(LenseTypeSystem.String())){
+//					return;
+//				}
+//			} 
+//			node.getParent().replace(node, newnode);
+//		}
+//		else 
+			if (node instanceof ArithmeticNode){
 			ArithmeticNode a = (ArithmeticNode) node;
-			if (a.getTypeVariable().getName().equals("sense.String")){
+			if (a.getTypeVariable().getTypeDefinition().getName().equals(LenseTypeSystem.String().getName())){
 				StringConcatenationNode c;
 				if (a.getLeft() instanceof StringConcatenationNode){
 					c = (StringConcatenationNode)a.getLeft();
@@ -97,13 +99,14 @@ public class LiteralsInstanciatorVisitor implements Visitor<AstNode> {
 				a.getParent().replace(a, c);		
 				
 			}
-		}else if (node instanceof MethodInvocationNode){
-			MethodInvocationNode m = (MethodInvocationNode) node;
-			if (m.getAccess() instanceof NumericValue){
-				AstNode newnode = transformeLiteral((LiteralExpressionNode) m.getAccess());
-				m.replace(m.getAccess(), newnode);
-			}
 		}
+//			else if (node instanceof MethodInvocationNode){
+//			MethodInvocationNode m = (MethodInvocationNode) node;
+//			if (m.getAccess() instanceof NumericValue){
+//				AstNode newnode = transformeLiteral((LiteralExpressionNode) m.getAccess());
+//				m.replace(m.getAccess(), newnode);
+//			}
+//		}
 	}
 
 	private ExpressionNode transformeLiteral(LiteralExpressionNode literal) {
@@ -112,7 +115,7 @@ public class LiteralsInstanciatorVisitor implements Visitor<AstNode> {
 			return literal;
 			//new FieldAccessNode(((BooleanValue)literal).isValue()? "True" : "False");
 		} else if (literal instanceof NullValue){
-			FieldOrPropertyAccessNode n = new FieldOrPropertyAccessNode("None.None");
+			ObjectReadNode n = new ObjectReadNode(LenseTypeSystem.None(), "None");
 			n.setTypeVariable(new FixedTypeVariable(LenseTypeSystem.None()));
 			return n;
 		} else if (literal instanceof NumericValue){

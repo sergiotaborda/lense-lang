@@ -21,6 +21,11 @@ public class PreBooleanUnaryExpression extends ExpressionNode {
 		this.operation = operation;
 	}
 	
+	public PreBooleanUnaryExpression(BooleanOperation operation, ExpressionNode expression) {
+		this.operation = operation;
+		this.add(expression);
+	}
+	
 	public TypeVariable getTypeVariable(){
 		return ((ExpressionNode)this.getChildren().get(0)).getTypeVariable();
 	}

@@ -1,7 +1,0 @@
-
-import lense.core.math.Integer;
-
-public interface Hashable {
-
-    public Integer hashValue {get; }
-}

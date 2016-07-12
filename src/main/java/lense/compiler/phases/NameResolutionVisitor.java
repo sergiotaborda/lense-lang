@@ -4,6 +4,8 @@
 package lense.compiler.phases;
 
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -20,6 +22,7 @@ import lense.compiler.ast.ClassTypeNode;
 import lense.compiler.ast.ConstructorDeclarationNode;
 import lense.compiler.ast.FieldDeclarationNode;
 import lense.compiler.ast.FieldOrPropertyAccessNode;
+import lense.compiler.ast.FieldOrPropertyAccessNode.FieldKind;
 import lense.compiler.ast.FormalParameterNode;
 import lense.compiler.ast.GenericTypeParameterNode;
 import lense.compiler.ast.ImplementedInterfacesNode;
@@ -40,6 +43,7 @@ import lense.compiler.ast.VariableReadNode;
 import lense.compiler.context.SemanticContext;
 import lense.compiler.context.VariableInfo;
 import lense.compiler.type.LenseTypeDefinition;
+import lense.compiler.type.Property;
 import lense.compiler.type.TypeDefinition;
 import lense.compiler.type.variable.FixedTypeVariable;
 import lense.compiler.type.variable.TypeVariable;
@@ -55,6 +59,8 @@ public class NameResolutionVisitor implements Visitor<AstNode> {
 	final SemanticContext semanticContext;
 	final Set<String> genericNames = new HashSet<String>();
 
+	final List<FieldOrPropertyAccessNode> possibleSelfAccess = new LinkedList<>();
+	
 	public NameResolutionVisitor(ClassTypeNode ct) {
 		this.ct = ct;
 		this.semanticContext = ct.getSemanticContext();
@@ -75,6 +81,9 @@ public class NameResolutionVisitor implements Visitor<AstNode> {
 	@Override
 	public void endVisit() {
 
+		if(!possibleSelfAccess.isEmpty()){
+			
+		}
 	}
 
 	/**
@@ -324,18 +333,19 @@ public class NameResolutionVisitor implements Visitor<AstNode> {
 			if (!match.isPresent()) {
 				VariableInfo varSelf = semanticContext.currentScope().searchVariable("this");
 
-				if (!varSelf.getTypeVariable().getName().equals(name)) {
+				if (!varSelf.getTypeVariable().getSymbol().map(s  -> s.equals(name)).orElse(false)) {
 					// throw new CompilationError(child, "Type " + name + " was
 					// not imported");
 				}
 
 			}
 
-			StaticAccessNode sn = new StaticAccessNode(new TypeNode(original.getFirst()));
-
+			
 			qn = original.getNext();
 
 			if (qn != null) {
+				StaticAccessNode sn = new StaticAccessNode(new TypeNode(original.getFirst()));
+
 				FieldOrPropertyAccessNode fieldAccess = new FieldOrPropertyAccessNode(qn.getFirst().getName());
 				fieldAccess.setPrimary(sn);
 				fieldAccess.setScanPosition(child.getScanPosition());
@@ -350,6 +360,10 @@ public class NameResolutionVisitor implements Visitor<AstNode> {
 				}
 
 				TypeVariable type = fieldAccess.getTypeVariable();
+				
+				if (type == null){
+					
+				}
 				VariableInfo varSelf = semanticContext.currentScope().searchVariable("this");
 
 				if (!type.equals(varSelf.getTypeVariable())) {
@@ -359,6 +373,27 @@ public class NameResolutionVisitor implements Visitor<AstNode> {
 						match.get().setMemberCalled(true);
 					}
 				}
+				
+				original.getParent().replace(original, fieldAccess);
+			} else {
+				FieldOrPropertyAccessNode selfPropertyAccess = new FieldOrPropertyAccessNode(original.getFirst().toString());
+				selfPropertyAccess.setKind(FieldKind.PROPERTY);
+				
+				TypeDefinition selfType = semanticContext.currentScope().searchVariable("this").getTypeVariable().getTypeDefinition();
+				Optional<Property> property = selfType.getPropertyByName(selfPropertyAccess.getName());
+				
+				if (!property.isPresent() && selfType.getSuperDefinition() != null){
+					property = selfType.getSuperDefinition().getPropertyByName(selfPropertyAccess.getName());
+				}
+				
+				if (property.isPresent()){
+					selfPropertyAccess.setType(property.get().getReturningType());
+				} else {
+					this.possibleSelfAccess.add(selfPropertyAccess);
+				}
+			
+
+				original.getParent().replace(original, selfPropertyAccess);
 			}
 
 			return VisitorNext.Children;
@@ -428,7 +463,7 @@ public class NameResolutionVisitor implements Visitor<AstNode> {
 
 	private Optional<Import> matchImports(ClassTypeNode ct, TypeVariable type) {
 		for (Import i : ct.imports()) {
-			if (i.getTypeName().toString().equals(type.getName())) {
+			if (type.getSymbol().map( s -> s.equals(i.getTypeName().toString())).orElse(Boolean.FALSE)) {
 				i.setUsed(true);
 				return Optional.of(i);
 			}

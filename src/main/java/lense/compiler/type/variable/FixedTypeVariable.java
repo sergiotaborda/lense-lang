@@ -4,6 +4,7 @@
 package lense.compiler.type.variable;
 
 import java.util.List;
+import java.util.Optional;
 
 import lense.compiler.type.TypeDefinition;
 import lense.compiler.typesystem.Variance;
@@ -26,8 +27,8 @@ public class FixedTypeVariable implements TypeVariable {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public String getName() {
-		return type.getName();
+	public Optional<String> getSymbol() {
+		return Optional.empty();
 	}
 	
 	public String toString(){
@@ -47,7 +48,7 @@ public class FixedTypeVariable implements TypeVariable {
 
 	@Override
 	public IntervalTypeVariable toIntervalTypeVariable() {
-		return new RangeTypeVariable(type.getName(), Variance.Invariant, type,type);
+		return new RangeTypeVariable(this.getSymbol(), Variance.Invariant, type,type);
 	}
 
 	@Override

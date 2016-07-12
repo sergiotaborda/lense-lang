@@ -1,0 +1,8 @@
+
+import lense.core.lang.Void;
+
+public abstract native class Application {
+
+	public abstract Void onStart();
+	
+}

@@ -1,6 +1,6 @@
 module helloworld (0.1.0) {
 
-	import lense.lang 0.0.1; 
+	import lense.core 0.1.0; 
 	
 	export helloword.*;
 }

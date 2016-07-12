@@ -10,10 +10,12 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import lense.compiler.Visibility;
 import lense.compiler.ast.Imutability;
 import lense.compiler.type.variable.FixedTypeVariable;
 import lense.compiler.type.variable.IntervalTypeVariable;
@@ -34,7 +36,9 @@ public class LenseTypeDefinition implements TypeDefinition {
 	private Map<String , Integer> genericParametersMapping = new HashMap<>();
 	private TypeDefinition superDefinition;
 	private boolean isAbstract;
-
+	private boolean isNative;
+	private Visibility visibility;
+	
 	public LenseTypeDefinition(String name, TypeKind kind, LenseTypeDefinition superDefinition) {
 		this.name = name;
 		this.kind = kind;
@@ -55,7 +59,7 @@ public class LenseTypeDefinition implements TypeDefinition {
 		this.genericParameters = new ArrayList<>( Arrays.asList(parameters));
 
 		for (int i =0; i < parameters.length; i++){
-			this.genericParametersMapping.put(parameters[i].getName(), i);
+			this.genericParametersMapping.put(parameters[i].getSymbol().orElse("_"), i);
 		}
 	}
 
@@ -92,12 +96,7 @@ public class LenseTypeDefinition implements TypeDefinition {
 
 		StringBuilder builder = new StringBuilder(name).append("<");
 		for (IntervalTypeVariable p : genericParameters) {
-			if (p.getUpperbound() == null) {
-				builder.append(p.getName()).append(",");
-			} else {
-				builder.append(p.getUpperbound().toString()).append(",");
-			}
-
+			builder.append(p.getSymbol().orElse(p.getTypeDefinition().getName())).append(",");
 		}
 		builder.delete(builder.length() - 1, builder.length());
 
@@ -511,15 +510,23 @@ public class LenseTypeDefinition implements TypeDefinition {
 	}
 
 	public void addInterface(TypeDefinition other) {
-		if (!other.getKind().equals(LenseUnitKind.Interface)) {
-			throw new RuntimeException("Type " + other.getName()  +" is not an interface");
+//		if (!other.getKind().equals(LenseUnitKind.Interface)) {
+//			throw new RuntimeException("Type " + other.getName()  +" is not an interface");
+//		}
+
+		for(Iterator<TypeDefinition> it = interfaces.iterator(); it.hasNext(); ){
+			
+			if (it.next().getName().equals(other.getName())){
+				it.remove();
+				break;
+			}
 		}
 
 		interfaces.add(other);
 	}
 
 	@Override
-	public Collection<TypeDefinition> getInterfaces() {
+	public List<TypeDefinition> getInterfaces() {
 		return interfaces;
 	}
 
@@ -542,6 +549,31 @@ public class LenseTypeDefinition implements TypeDefinition {
 
 	public void setAbstract(boolean isAbstract) {
 		this.isAbstract = isAbstract;
+	}
+
+	public boolean isNative() {
+		return isNative;
+	}
+	
+	public void setNative(boolean isNative) {
+		this.isNative = isNative;
+	}
+
+	public Visibility getVisibility() {
+		return visibility;
+	}
+
+	public void setVisibility(Visibility visibility) {
+		this.visibility = visibility;
+	}
+
+	public String getGenericParameterSymbolByIndex(int index) {
+		for(Entry<String, Integer> pair : genericParametersMapping.entrySet()){
+			if (pair.getValue().intValue() == index){
+				return pair.getKey();
+			}
+		}
+		return null;
 	}
 
 

@@ -1,0 +1,7 @@
+
+import lense.core.lang.Void;
+
+public interface Runnable{ 
+
+	public Void run();
+}

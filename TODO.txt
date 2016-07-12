@@ -1,18 +1,45 @@
 Implement Properties 
 	in interfaces DONE
 	do initialization    name {get;set;} = "Hello"
-	do delegation    size {get = list.size}
+	do delegation    size {get = list.size}   or size => list.size
 Auto-package
-	accept classes in lense.core.lang automaticly , maybe move numerals to lang but leave whole, integer, etc.. im math
+	accept classes in lense.core automatically 
 Generics
 	Capture generics locally (when calling constructors and methods with free generics)
 	Pass capture to methods and constructors
 	T extends X , T super X
+Operators
+	?.
+	? : (ternary) DONE 
+	+ , - , *  ==> these will throw OverflowException  <=> AddExact, SubtractExact, MultiplyExact.
+	/ always return elements of |Q , |R or |C    N/N , Z/Z , N/Z, Z/N , Q,Q -> Q , Q/R, R/Q, R/R -> R, x/C or C/x = C
+	>> , << (Binary)
+	& , | , ^
+	** (Exponenciable) pow()
+	+= ,*= (ok, auto  a += n <==> a = a + n and  a *= n <==> a = a * n
+    -=, /= (only for some kinds  nat a = 2 , a -= 1 (ok); a-= 1(ok) ; a-= 1 (error);
+	++ , -- (Ordinal) successor() and predecessor()
+	&+, &- , &*, &/ ==> these will wrap around silently (java default)
+	?+, ?- , ?*, ?/ ==> these will return Maybe<T> with None value when overload appends
+	- (negate) closed for all except natural. Natural.negate():Integer
+	
+	In32.max.sucessor = In32.max;
+	In32.max + 1 := Int32.max.plus((Integer)1) -> OverflowException(). this does AddExact
+	In32.max &+ 1 := Int32.max.wrapPlus(1) == Int32.min                Int32.wrapPlus(Int32):Int32
+	In32.max ?+ 1 := In32.max.checkPlus(1) == none              Int32.checkPlus(Int32):Maybe<Int32>
+	In32? result = 2 ?+ In32.max ?+ 2   ==>  new Some(2).map( a -> a.checkPlus(Int32.max)).map(b -> b.checkPlus(2) )
+	
+	Super Numbers , BigInt and Natural do not throw exception nor warp or overflow. They increase as needed
+	
+	BigInt max = Int32.max; // same as BigInt max = BigInt.valueOf(Int32.max)
+	BigInt next = max + 1; // BigInt next = max.plus(BigInt.valueOf(Natural(1)))
+	BigInt aftermax = In64.valueof(Int32.max) + 1  // BigInt.valueOf( In64.valueOf(Int32.max).plus(Natural(1)))
+	Assert.AreEqual(aftermax, next);
 Binary 
 	Binary literals resolve as BitArray
 	Byte is a Binary of 8 bits
 Native implementations weaving
-	 - native types
+	 - native types (DONE) 
 	 - native peers
 Case classes and objects
 	- case classes, 
@@ -20,7 +47,7 @@ Case classes and objects
 	- limited sum types with is  Boolean is true, false;
 Revisit ordering of elements in class body.
 	- it should not matter
-Revisit Fields not initialized 
+Revisit Fields  not initialized 
 Operatores and Operacional Interfaces	
 	- operator for racional division 
 	- handle comparable operators with Comparable<T>

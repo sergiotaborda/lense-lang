@@ -1,0 +1,11 @@
+
+import lense.core.lang.Boolean;
+import lense.core.lang.Any;
+import lense.core.math.Integer;
+
+
+public interface EqualityComparable {
+
+    public Boolean equals(Any other);
+    public Integer hashValue {get; }
+}

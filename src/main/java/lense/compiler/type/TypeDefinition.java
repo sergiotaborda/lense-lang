@@ -58,13 +58,16 @@ public interface TypeDefinition {
 	
 	public Optional<Method> getMethodByPromotableSignature(MethodSignature signature);
 
-	public Collection<TypeDefinition> getInterfaces();
+	public List<TypeDefinition> getInterfaces();
 
 	public void updateFrom(TypeDefinition type);
 
 	public boolean isGeneric();
 
 	public Optional<IndexerProperty> getIndexerPropertyByTypeArray(TypeVariable[] type);
+
+	public boolean isAbstract();
+
 
 
 

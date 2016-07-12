@@ -67,5 +67,15 @@ public class DecisionNode extends StatementNode implements ConditionalStatement 
 		return falseBlock;
 	}
 	
-	
+	public void replace(AstNode node, AstNode newnode){
+		super.replace(node, newnode);
+		
+		if (this.condition == node){
+			this.condition = (ExpressionNode) newnode;
+		} else if (this.trueBlock == node){
+			this.trueBlock = (BlockNode) newnode;
+		} else if (this.falseBlock == node){
+			this.falseBlock =  newnode;
+		}
+	}
 }

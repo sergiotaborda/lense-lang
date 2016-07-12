@@ -2,6 +2,8 @@ package lense.core.lang;
 
 import lense.core.lang.java.Constructor;
 import lense.core.lang.java.Native;
+import lense.core.math.Int32;
+import lense.core.math.Integer;
 
 public class Boolean implements Any{
 
@@ -44,6 +46,26 @@ public class Boolean implements Any{
 		return java.lang.Boolean.toString(value);
 	}
 
+	@Override
+	public Boolean equalsTo(Any other) {
+		return Boolean.valueOfNative(other instanceof Boolean && ((Boolean)other).value == this.value);
+	}
+
+	@Override
+	public Integer hashValue() {
+		return value ? Int32.valueOfNative(1) :Int32.valueOfNative(0);
+	}
+
+	public Boolean and(Boolean other) {
+		return this.value && other.value ? TRUE : FALSE;
+	}
+
+	public Boolean or(Boolean other) {
+		return this.value || other.value ? TRUE : FALSE;
+	}
 	
+	public Boolean xor(Boolean other) {
+		return this.value ^ other.value ? TRUE : FALSE;
+	}
 
 }

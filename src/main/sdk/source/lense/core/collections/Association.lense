@@ -1,0 +1,8 @@
+
+import lense.core.collections.KeyValuePair;
+import lense.core.collections.Assortement;
+
+public interface Association<K,V> extends Assortement<KeyValuePair<K,V>> {
+
+
+}

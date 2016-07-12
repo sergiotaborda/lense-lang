@@ -79,7 +79,7 @@ public class IndexerProperty  implements TypeMember {
 		StringBuilder builder = new StringBuilder("[");
 		
 		for (TypeVariable p : params){
-			builder.append(p.getName()).append(",");
+			builder.append(p.getTypeDefinition().getName()).append(",");
 		}
 		builder.deleteCharAt(builder.length()-1);
 		

@@ -1,0 +1,8 @@
+
+import lense.core.lang.Maybe;
+import lense.core.lang.Nothing;
+
+public object None extends Maybe<Nothing>{
+
+	
+}

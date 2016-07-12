@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import compiler.syntax.AstNode;
@@ -25,6 +26,7 @@ import lense.compiler.type.Property;
 import lense.compiler.type.TypeDefinition;
 import lense.compiler.type.variable.FixedTypeVariable;
 import lense.compiler.type.variable.TypeVariable;
+import lense.compiler.typesystem.LenseTypeSystem;
 
 public class JavalizeVisitor implements Visitor<AstNode>{
 
@@ -78,16 +80,19 @@ public class JavalizeVisitor implements Visitor<AstNode>{
 					List<Method> nativeMethods = nativeType.getMembers().stream().filter( c -> c.isMethod()).map(c -> (Method)c).collect(Collectors.toList());
 					
 					
-					if (nativeConstrutors.isEmpty() && type.getKind() == LenseUnitKind.Class){
-						throw new lense.compiler.CompilationError(node, "No constructor implemented");
+					if (nativeConstrutors.isEmpty() && type.getKind() == LenseUnitKind.Class && !type.isAbstract()){
+						throw new lense.compiler.CompilationError(node, "No native constructor implemented");
 					}
 					
-					for(Constructor c : construtors){
-						
-						if (!isContainedIn(c,nativeConstrutors)){
-							throw new lense.compiler.CompilationError(node, "Native implementation does not contain constructor " + c.getName() + "(" + c.getParameters() +")");
+					if (!type.isAbstract()){
+						for(Constructor c : construtors){
+							
+							if (!isContainedIn(c,nativeConstrutors)){
+								throw new lense.compiler.CompilationError(node, "Native implementation does not contain constructor " + c.getName() + "(" + c.getParameters() +")");
+							}
 						}
 					}
+					
 					
 					for(Method c : methods){
 						if (!isContainedIn(c,nativeMethods)){
@@ -128,7 +133,7 @@ public class JavalizeVisitor implements Visitor<AstNode>{
 			}
 			
 			
-			
+
 		} else if (node instanceof ArithmeticNode){
 			ArithmeticNode n = (ArithmeticNode)node;
 			
@@ -137,8 +142,8 @@ public class JavalizeVisitor implements Visitor<AstNode>{
 		} else if (node instanceof MethodInvocationNode){
 			MethodInvocationNode m = (MethodInvocationNode)node;
 			
-			
-			if (!((lense.compiler.ast.TypedNode)m.getAccess()).getTypeVariable().getGenericParameters().isEmpty() ){
+
+			if (m.getAccess() != null && !((lense.compiler.ast.TypedNode)m.getAccess()).getTypeVariable().getGenericParameters().isEmpty() ){
 				
 				if ( m.getTypeVariable() instanceof FixedTypeVariable){
 					return ;
@@ -156,12 +161,12 @@ public class JavalizeVisitor implements Visitor<AstNode>{
 
 	private boolean isContainedIn(IndexerProperty c, List<IndexerProperty> nativeIndexers) {
 		for (IndexerProperty n : nativeIndexers){
-			if (n.getReturningType().getName().equals(c.getReturningType().getName()) && c.getIndexes().length == n.getIndexes().length ){
+			if (n.getReturningType().getTypeDefinition().getName().equals(c.getReturningType().getTypeDefinition().getName()) && c.getIndexes().length == n.getIndexes().length ){
 				for ( int i =0 ; i < c.getIndexes().length; i++){
 					TypeVariable a = c.getIndexes()[i];
 					TypeVariable b = n.getIndexes()[i];
 					
-					if (!a.getName().equals(b.getName())){
+					if (!a.getTypeDefinition().getName().equals(b.getTypeDefinition().getName())){
 						return false;
 					}
 				}
@@ -170,10 +175,18 @@ public class JavalizeVisitor implements Visitor<AstNode>{
 		}
 		return false;
 	}
+	
+	private <T> boolean optionalEquals(Optional<T> a , Optional<T> b ){
+		if (a.isPresent() && b.isPresent()){
+			return a.get().equals(b.get());
+		} else {
+			return false;
+		}
+	}
 
 	private boolean isContainedIn(Property c, List<Property> nativeProperties) {
 		for (Property n : nativeProperties){
-			if (n.getName().equals(c.getName()) && n.getReturningType().getName().equals(c.getReturningType().getName())){
+			if (n.getName().equals(c.getName()) && n.getReturningType().getSymbol().equals(c.getReturningType().getSymbol())){
 				return true;
 			}
 		}
@@ -188,7 +201,7 @@ public class JavalizeVisitor implements Visitor<AstNode>{
 					CallableMemberMember<T> a = c.getParameters().get(i);
 					CallableMemberMember<T> b = n.getParameters().get(i);
 					
-					if (!a.getType().getName().equals(b.getType().getName())){
+					if (!(LenseTypeSystem.getInstance().areNomallyEquals(a.getType().getTypeDefinition(),b.getType().getTypeDefinition())  || LenseTypeSystem.getInstance().isPromotableTo( b.getType(), a.getType()))){
 						return false;
 					}
 				}

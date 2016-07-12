@@ -1,2 +1,14 @@
+/**
+  Determines if the object has an identity. 
+  ``Identifiable`` objects can be compared for identity equality with the ``===`` operator.
+  
+  a === b if, and only if, a and b refer to the same object. 
+**/
+public interface Identifiable{
 
-public class Identifiable{} 
+	/**
+		Base for the === operator
+	**/
+	public Boolean referenceEquals(Any obj);
+
+} 
