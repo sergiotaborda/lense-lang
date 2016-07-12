@@ -2,24 +2,29 @@ package lense.compiler.crosscompile.java;
 
 import java.io.File;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 import javax.tools.JavaCompiler;
 import javax.tools.JavaFileObject;
 import javax.tools.StandardJavaFileManager;
+import javax.tools.StandardLocation;
 import javax.tools.ToolProvider;
 
 import compiler.CompiledUnit;
 import compiler.CompilerBackEnd;
 import lense.compiler.CompilerBackEndFactory;
 import lense.compiler.FileLocations;
+import lense.compiler.repository.ModuleRepository;
 
 public class JavaCompilerBackEndFactory implements CompilerBackEndFactory {
 
 	
 	JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 	StandardJavaFileManager fileManager = compiler.getStandardFileManager(null, null, null);
+	private File base;
 
 	public JavaCompilerBackEndFactory (){
 		
@@ -38,6 +43,8 @@ public class JavaCompilerBackEndFactory implements CompilerBackEndFactory {
 		public JavaCompilerBackEnd(FileLocations fileLocations) {
 			this.fileLocations= fileLocations;
 			this.source = new OutToJavaSource(fileLocations);
+			
+			
 		}
 
 		@Override
@@ -52,7 +59,17 @@ public class JavaCompilerBackEndFactory implements CompilerBackEndFactory {
 			try{
 
 				Iterable<? extends JavaFileObject> compilationUnits1 = fileManager.getJavaFileObjectsFromFiles(Collections.singletonList(file));
-				compiler.getTask(new PrintWriter(System.err), fileManager, null, Arrays.asList("-classpath", fileLocations.getTargetFolder().getAbsolutePath()), null, compilationUnits1).call();
+				
+				List<File> classPath = new ArrayList<>(2);
+				if (base != null){
+					for (File jar : base.listFiles(f -> f.getName().endsWith(".jar"))){
+						classPath.add(jar);
+					}
+				}
+				classPath.add(fileLocations.getTargetFolder());
+				fileManager.setLocation(StandardLocation.CLASS_PATH, classPath);
+			
+				compiler.getTask(new PrintWriter(System.err), fileManager, null, null /*Arrays.asList("-verbose")*/, null, compilationUnits1).call();
 
 				//file.delete();
 			} catch (Exception e){
@@ -60,6 +77,11 @@ public class JavaCompilerBackEndFactory implements CompilerBackEndFactory {
 			}
 		}
 
+	}
+
+	@Override
+	public void setClasspath(File base) {
+		this.base = base;
 	}
 
 }

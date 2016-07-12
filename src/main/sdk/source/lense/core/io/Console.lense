@@ -1,0 +1,9 @@
+
+import lense.core.lang.Void;
+import lense.core.lang.TextRepresentable;
+
+public native class Console {
+
+	public native Void print(TextRepresentable s);
+	public native Void println(TextRepresentable s);
+}

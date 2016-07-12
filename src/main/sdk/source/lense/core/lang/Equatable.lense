@@ -1,8 +1,0 @@
-
-import lense.core.lang.Boolean;
-import lense.core.lang.Any;
-
-public interface Equatable {
-
-    public Boolean equals(Any other);
-}

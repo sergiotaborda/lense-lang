@@ -1,9 +1,61 @@
-import lense.io.Console;
+import lense.core.io.Console;
+import lense.core.lang.Void;
+import lense.core.lang.Boolean;
+import lense.core.math.Natural;
+import lense.core.math.Integer;
+import lense.core.system.ConsoleApplication;
+import lense.core.lang.Any;
+import lense.core.math.Int16;
+import lense.core.collections.Sequence;
 
-public class Main {
+public class Main extends ConsoleApplication {
 
-  	public Void main() {
-  	     Console.println("Hello World");
+	public constructor();
+	
+	
+	public Boolean equalsTo(Any other){
+		return false;
+	}
+	
+	public Integer hashValue(){
+		return 0;
+	}
+	
+	
+  	public Void onStart() {
+  		 var Console c = console; // TODO resolution of inherited properties
+  	 
+  	  	//c.println("array is {{ [1 , 2, 3, 4, 5]  }}"); // TODO inline literals
+  	 
+  		var Sequence<Natural> array = [1 , 2, -3, 4, 5];
+  	
+  		c.println("position 2 is {{ array[2] }}");
+  		
+  		//var Int16 i = 32766S;
+  		//var Int16 j = 1S;
+  		
+  		//var Int16 x = i + j; // will throw exception
+  	
+  	    
+  	    //c.println(x);
+  	     
+  
+  	    // c.println("{{x}} plus {{j}} is {{ x + j }}");
+  	     
+  	     for(Natural y in 1..10){
+  	     
+  	     	c.println(y);
+  	     	
+  	     	if ( y == 4){
+  	     		c.println("Hello Four");
+  	     	} else if (y > 4){
+  	     		c.println("Bigger than Four");
+  	     	}  // TODO if-else-else-if
+  	     
+  	        if ( y < 4) {
+  	     		c.println("Less than Four");
+  	     	}
+  	     }
   	}
 
 }

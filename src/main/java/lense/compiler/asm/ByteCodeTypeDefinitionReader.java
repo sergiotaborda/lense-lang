@@ -3,6 +3,7 @@ package lense.compiler.asm;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 
 import org.objectweb.asm.ClassReader;
 
@@ -13,10 +14,14 @@ public class ByteCodeTypeDefinitionReader {
 	
 	public ByteCodeTypeDefinitionReader(){}
 	
-	public TypeDefinition readNative(File classFile) throws IOException {
+	public TypeDefinition readNative(File classFile) throws IOException {	
+		return readNative(new FileInputStream(classFile));
+	}
+	
+	public TypeDefinition readNative(InputStream input) throws IOException {
 		
 		ByteCodeReader cp = new ByteCodeReader();
-		ClassReader cr = new ClassReader(new FileInputStream(classFile));
+		ClassReader cr = new ClassReader(input);
 		cr.accept(cp, 0);
 		
 

@@ -1,10 +1,14 @@
 package lense.core.collections;
 
 import lense.core.lang.Any;
+import lense.core.lang.Boolean;
 import lense.core.lang.java.Constructor;
 import lense.core.lang.java.Property;
+import lense.core.lang.java.Signature;
+import lense.core.math.Integer;
 import lense.core.math.Natural;
 
+@Signature("[+T<lense.core.lang.Any]::lense.core.collections.ResizableSequence<T>")
 public class List implements ResizableSequence {
 
 	private java.util.ArrayList<Any> list;
@@ -68,6 +72,31 @@ public class List implements ResizableSequence {
 	@Override
 	public Progression getIndexes() {
 		return new NativeProgression(0, list.size() -1);
+	}
+
+	@Override
+	public Boolean getEmpty() {
+		return Boolean.valueOfNative(list.isEmpty());
+	}
+
+	@Override
+	public Boolean contains(Any other) {
+		return Boolean.valueOfNative(list.contains(other));
+	}
+
+	@Override
+	public Boolean containsAll(Assortment other) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public Boolean equalsTo(Any other) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public Integer hashValue() {
+		throw new UnsupportedOperationException();
 	}
 
 }

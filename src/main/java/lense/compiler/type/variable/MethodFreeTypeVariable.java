@@ -3,6 +3,8 @@
  */
 package lense.compiler.type.variable;
 
+import java.util.Optional;
+
 import lense.compiler.type.Method;
 import lense.compiler.type.MethodSignature;
 import lense.compiler.type.TypeDefinition;
@@ -26,8 +28,8 @@ public class MethodFreeTypeVariable extends CalculatedTypeVariable implements Ty
 	 * {@inheritDoc}
 	 */
 	@Override
-	public String getName() {
-		return original().getName();
+	public Optional<String> getSymbol() {
+		return original().getSymbol();
 	}
 	
 	protected IntervalTypeVariable original(){

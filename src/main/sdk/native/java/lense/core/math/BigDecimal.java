@@ -1,5 +1,7 @@
 package lense.core.math;
 
+import lense.core.lang.Any;
+import lense.core.lang.Boolean;
 import lense.core.lang.java.Constructor;
 import lense.core.lang.java.Native;
 
@@ -25,4 +27,18 @@ public class BigDecimal extends Decimal {
 		return super.compareTo(other);
 	}
 
+	
+	@Override
+	public Boolean equalsTo(Any other) {
+		return Boolean.valueOfNative(other instanceof Int64 && ((BigDecimal)other).value.compareTo(this.value) == 0);
+	}
+
+	@Override
+	public Integer hashValue() {
+		return Int32.valueOfNative(this.value.hashCode());
+	}
+	@Override
+	public final int hashCode() {
+		return value.hashCode();
+	}
 }

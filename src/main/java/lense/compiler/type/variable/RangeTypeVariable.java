@@ -4,6 +4,7 @@
 package lense.compiler.type.variable;
 
 import java.util.List;
+import java.util.Optional;
 
 import lense.compiler.type.TypeDefinition;
 import lense.compiler.typesystem.Variance;
@@ -14,20 +15,32 @@ import lense.compiler.typesystem.Variance;
 public class RangeTypeVariable implements IntervalTypeVariable {
 
 	
-	private String name;
+	private Optional<String> symbol;
 	private Variance variance;
 	private TypeVariable lower;
 	private TypeVariable upper;
 	
-	public RangeTypeVariable (String name,Variance variance, TypeDefinition upper, TypeDefinition lower ){
-		this(name, variance, new FixedTypeVariable(upper), new FixedTypeVariable(lower));
+	public RangeTypeVariable (String symbol,Variance variance, TypeDefinition upper, TypeDefinition lower ){
+		this(Optional.of(symbol), variance, new FixedTypeVariable(upper), new FixedTypeVariable(lower));
 	}
 	
-	public RangeTypeVariable (String name,Variance variance, TypeVariable upper, TypeVariable lower ){
-		this.name = name;
+	public RangeTypeVariable (Optional<String> symbol,Variance variance, TypeDefinition upper, TypeDefinition lower ){
+		this(symbol, variance, new FixedTypeVariable(upper), new FixedTypeVariable(lower));
+	}
+	
+	public RangeTypeVariable (String symbol,Variance variance, TypeVariable upper, TypeVariable lower ){
+		this(Optional.of(symbol), variance, upper, lower);
+	}
+	
+	public RangeTypeVariable (Optional<String> symbol,Variance variance, TypeVariable upper, TypeVariable lower ){
+		this.symbol = symbol;
 		this.variance = variance;
 		this.upper = upper;
 		this.lower = lower;
+	}
+	
+	public String toString(){
+		return lower + " < " + upper; 
 	}
 	
 	/**
@@ -58,8 +71,8 @@ public class RangeTypeVariable implements IntervalTypeVariable {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public String getName() {
-		return name;
+	public Optional<String> getSymbol() {
+		return symbol;
 	}
 
 	/**

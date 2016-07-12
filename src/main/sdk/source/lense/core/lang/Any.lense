@@ -1,2 +1,9 @@
 
-public native class Any {} 
+import lense.core.math.Integer;
+import lense.core.lang.Boolean;
+
+public native class Any {
+
+	public native Boolean equalsTo(Any other);
+	public native Integer hashValue ();
+} 

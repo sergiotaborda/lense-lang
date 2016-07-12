@@ -2,6 +2,8 @@ package lense.core.lang;
 
 import lense.core.lang.java.Constructor;
 import lense.core.lang.java.Native;
+import lense.core.math.Int32;
+import lense.core.math.Integer;
 import lense.core.math.Natural;
 
 public final class Character implements Any{
@@ -20,5 +22,20 @@ public final class Character implements Any{
 	
 	private Character(char code){
 		this.code = code;
+	}
+	
+	
+	public char toPrimitiveChar(){
+		return code;
+	}
+	
+	@Override
+	public Boolean equalsTo(Any other) {
+		return Boolean.valueOfNative(other instanceof Character && ((Character)other).code == this.code);
+	}
+
+	@Override
+	public Integer hashValue() {
+		return Int32.valueOfNative(code);
 	}
 }

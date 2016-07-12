@@ -2,9 +2,11 @@
 import lense.core.collections.Sequence;
 import lense.core.lang.Version;
 import lense.core.lang.reflection.Package;
+import lense.core.lang.String;
 
 public interface Module {
 
+	public String name {get;}
 	public Version version {get;}
 	public Sequence<Package> packages {get;}
 

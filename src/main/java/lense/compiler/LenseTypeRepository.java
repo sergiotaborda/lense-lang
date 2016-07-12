@@ -39,7 +39,7 @@ public class LenseTypeRepository implements UpdatableTypeRepository{
 		
 		final LenseTypeSystem instance = LenseTypeSystem.getInstance();
 		
-		Optional<LenseTypeDefinition> result = instance.getForName(name, filter.getGenericParametersCount());
+		Optional<LenseTypeDefinition> result = instance.getForName(name, filter.getGenericParametersCount().orElse(0));
 
 		if (result.isPresent()){
 			mapping.put(filter, result.get());
@@ -50,7 +50,7 @@ public class LenseTypeRepository implements UpdatableTypeRepository{
 			name = name.substring(pos+1);
 		}
 		for(String packageName : instance.packageNames()){
-			result = instance.getForName(packageName + "." + name, filter.getGenericParametersCount());
+			result = instance.getForName(packageName + "." + name, filter.getGenericParametersCount().orElse(0));
 
 			if (result.isPresent()){
 				mapping.put(filter, result.get());

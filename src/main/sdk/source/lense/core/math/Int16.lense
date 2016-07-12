@@ -13,4 +13,6 @@ public native class Int16 extends Integer implements Binary{
 	public native Int16 rightShiftBy(Natural n);
 	
 	public native Int16 leftShiftBy(Natural n);
+	
+	
 }

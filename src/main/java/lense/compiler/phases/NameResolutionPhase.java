@@ -70,7 +70,7 @@ public class NameResolutionPhase implements CompilerPhase {
 						
 				ct.setName(packageName + '.' + ct.getName());
 				
-				SemanticContext ctx = new SemanticContext(typeRepository, packageName); 
+				SemanticContext ctx = new SemanticContext(typeRepository, packageName, ct); 
 				
 				ct.setSemanticContext(ctx);
 				

@@ -38,7 +38,7 @@ public class ConstructorParameter implements CallableMemberMember<Constructor> {
 	}
 	
 	public String toString(){
-		return type.getName() + ":" + type.toString();
+		return type.getTypeDefinition().getName()+ ":" + type.toString();
 	}
 	
 	/**

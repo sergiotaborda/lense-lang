@@ -3,6 +3,8 @@
  */
 package lense.compiler.type.variable;
 
+import java.util.Optional;
+
 import lense.compiler.type.TypeDefinition;
 import lense.compiler.typesystem.Variance;
 
@@ -15,11 +17,13 @@ public class DeclaringTypeBoundedTypeVariable extends CalculatedTypeVariable  {
 	private TypeDefinition declaringType;
 	private Variance positionVariance;
 	private int parameterIndex;
+	private String symbol;
 
-	public DeclaringTypeBoundedTypeVariable (TypeDefinition declaringType, int parameterIndex, Variance positionVariance){
+	public DeclaringTypeBoundedTypeVariable (TypeDefinition declaringType, int parameterIndex, String symbol, Variance positionVariance){
 		this.positionVariance = positionVariance;
 		this.declaringType = declaringType;
 		this.parameterIndex= parameterIndex;
+		this.symbol = symbol;
 	}
 	
 	protected IntervalTypeVariable original(){
@@ -30,6 +34,10 @@ public class DeclaringTypeBoundedTypeVariable extends CalculatedTypeVariable  {
 		return getLowerBound().toString() + "<:" + getUpperbound().toString();
 	}
 
+	public Optional<String> getSymbol(){
+		return Optional.of(symbol);
+	}
+	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -40,8 +48,13 @@ public class DeclaringTypeBoundedTypeVariable extends CalculatedTypeVariable  {
 
 	@Override
 	public IntervalTypeVariable changeBaseType(TypeDefinition concrete) {
-		return new DeclaringTypeBoundedTypeVariable(concrete, parameterIndex, positionVariance);
+		return new DeclaringTypeBoundedTypeVariable(concrete, parameterIndex, symbol, positionVariance);
 	}
+
+	public int getIndex() {
+		return parameterIndex;
+	}
+
 
 	
 

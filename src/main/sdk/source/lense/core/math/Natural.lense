@@ -7,6 +7,7 @@ public native class Natural extends Whole implements Progressable<Natural>{
 
 
 	public native Integer minus (Natural other);
+	public native Natural plus (Natural other);
 	
 	public native Progression<Natural> upTo(Natural other);
 }

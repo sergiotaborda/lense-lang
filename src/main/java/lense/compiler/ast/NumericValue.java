@@ -3,8 +3,10 @@
  */
 package lense.compiler.ast;
 
+import lense.compiler.type.LenseTypeDefinition;
 import lense.compiler.type.TypeDefinition;
 import lense.compiler.type.variable.FixedTypeVariable;
+import lense.compiler.typesystem.LenseTypeSystem;
 
 
 /**
@@ -15,6 +17,12 @@ public class NumericValue extends LiteralExpressionNode {
 	private Number number;
 
 	public NumericValue (){};
+	
+	public static  NumericValue zero (){
+		NumericValue nv = new NumericValue();
+		nv.setValue(0, LenseTypeSystem.Natural());
+		return nv;
+	};
 	
 	/**
 	 * @param n

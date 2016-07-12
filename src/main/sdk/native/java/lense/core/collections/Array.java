@@ -1,16 +1,34 @@
 package lense.core.collections;
 
+import java.util.function.Function;
+
 import lense.core.lang.Any;
 import lense.core.lang.java.Constructor;
+import lense.core.lang.java.Native;
 import lense.core.lang.java.Property;
+import lense.core.lang.java.Signature;
 import lense.core.math.Natural;
 
+
+@Signature("[=T<lense.core.lang.Any]::lense.core.collections.EditableSequence<T>")
 public abstract class Array implements EditableSequence{
 
 	@Constructor
 	public static Array constructor (Natural size, Any seed){
 		// TODO verify natural range
 		return new NativeObjectArray(size, seed);
+	}
+	
+	@Native
+	public static  Array fromAnyArray (Any ... nativearray){
+		// TODO verify natural range
+		return new NativeObjectArray(nativearray);
+	}
+	
+	@Native
+	public static <T> Array fromNative (T[] nativearray, Function<T, Any> transform){
+		// TODO verify natural range
+		return new NativeObjectArray(nativearray, transform);
 	}
 	
 //	public static Array constructor (Natural size, Function<Natural , Any> init){

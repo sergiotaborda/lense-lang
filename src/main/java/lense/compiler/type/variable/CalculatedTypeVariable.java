@@ -1,6 +1,7 @@
 package lense.compiler.type.variable;
 
 import java.util.List;
+import java.util.Optional;
 
 import lense.compiler.type.TypeDefinition;
 import lense.compiler.typesystem.Variance;
@@ -28,8 +29,8 @@ public abstract class CalculatedTypeVariable implements IntervalTypeVariable{
 	 * {@inheritDoc}
 	 */
 	@Override
-	public String getName() {
-		return original().getName();
+	public Optional<String> getSymbol() {
+		return original().getSymbol();
 	}
 
 	@Override
