@@ -17,7 +17,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import  lense.compiler.ast.LiteralAssociationInstanceCreation;
 import compiler.parser.IdentifierNode;
 import compiler.syntax.AstNode;
 import compiler.trees.TreeTransverser;
@@ -39,6 +38,7 @@ import lense.compiler.ast.ClassTypeNode;
 import lense.compiler.ast.ConditionalStatement;
 import lense.compiler.ast.ConstructorDeclarationNode;
 import lense.compiler.ast.ExpressionNode;
+import lense.compiler.ast.PreExpression;
 import lense.compiler.ast.FieldDeclarationNode;
 import lense.compiler.ast.FieldOrPropertyAccessNode;
 import lense.compiler.ast.FieldOrPropertyAccessNode.FieldKind;
@@ -52,7 +52,6 @@ import lense.compiler.ast.IntervalNode;
 import lense.compiler.ast.LambdaExpressionNode;
 import lense.compiler.ast.LenseAstNode;
 import lense.compiler.ast.LiteralExpressionNode;
-import lense.compiler.ast.LiteralSequenceInstanceCreation;
 import lense.compiler.ast.LiteralTupleInstanceCreation;
 import lense.compiler.ast.MethodDeclarationNode;
 import lense.compiler.ast.MethodInvocationNode;
@@ -94,6 +93,7 @@ import lense.compiler.type.variable.FixedTypeVariable;
 import lense.compiler.type.variable.IntervalTypeVariable;
 import lense.compiler.type.variable.TypeVariable;
 import lense.compiler.typesystem.LenseTypeSystem;
+import lense.compiler.ast.LiteralSequenceInstanceCreation ;
 
 public class SemanticVisitor extends AbstractLenseVisitor {
 
@@ -156,11 +156,11 @@ public class SemanticVisitor extends AbstractLenseVisitor {
 		}
 
 		currentType.getConstructors().filter(m -> m.getName() == null)
-				.sorted((a, b) -> a.getParameters().size() - b.getParameters().size()).forEach(c -> {
+		.sorted((a, b) -> a.getParameters().size() - b.getParameters().size()).forEach(c -> {
 
-					c.setName("constructor");
+			c.setName("constructor");
 
-				});
+		});
 
 		if (!currentType.isAbstract()) {
 			LinkedList<TypeDefinition> superTypes = new LinkedList<>(currentType.getInterfaces());
@@ -263,8 +263,8 @@ public class SemanticVisitor extends AbstractLenseVisitor {
 			}
 
 			semanticContext.currentScope()
-					.defineVariable(m.getValueVariableName(), m.getParent().getType().getTypeVariable(), node)
-					.setInitialized(true);
+			.defineVariable(m.getValueVariableName(), m.getParent().getType().getTypeVariable(), node)
+			.setInitialized(true);
 
 		} else if (node instanceof ClassTypeNode) {
 			ClassTypeNode t = (ClassTypeNode) node;
@@ -285,10 +285,10 @@ public class SemanticVisitor extends AbstractLenseVisitor {
 			}
 
 			myType.setKind(t.getKind());
-			
+
 			// Default
 			myType.setVisibility(Visibility.Private);
-			
+
 			for (AstNode n : t.getAnnotations().getChildren()){
 				AnnotationNode a = (AnnotationNode)n;
 				if (a.getName().equals("abstract")){
@@ -365,7 +365,7 @@ public class SemanticVisitor extends AbstractLenseVisitor {
 
 				if (superType.getKind() == LenseUnitKind.Interface) {
 					throw new CompilationError(node, t.getName() + " cannot extend interface " + superType.getName()
-							+ ". Did you meant to use 'implements' instead of 'extends' ?.");
+					+ ". Did you meant to use 'implements' instead of 'extends' ?.");
 				}
 
 				superTypeNode.setTypeVariable(new FixedTypeVariable(superType));
@@ -387,10 +387,10 @@ public class SemanticVisitor extends AbstractLenseVisitor {
 			currentType = myType;
 
 			semanticContext.currentScope().defineVariable("this", new FixedTypeVariable(myType), node)
-					.setInitialized(true);
+			.setInitialized(true);
 
 			semanticContext.currentScope().defineVariable("super", new FixedTypeVariable(superType), node)
-					.setInitialized(true);
+			.setInitialized(true);
 
 			if (t.getInterfaces() != null) {
 				for (AstNode n : t.getInterfaces().getChildren()) {
@@ -415,7 +415,7 @@ public class SemanticVisitor extends AbstractLenseVisitor {
 
 		} else if (node instanceof ForEachNode) {
 			semanticContext.beginScope("for");
-			
+
 			ForEachNode n = (ForEachNode) node;
 
 			semanticContext.currentScope().defineVariable(n.getVariableDeclarationNode().getName(),
@@ -460,7 +460,7 @@ public class SemanticVisitor extends AbstractLenseVisitor {
 				TypeVariable td = d.getTypeVariable();
 				if (td == null) {
 					td = parameters.get(index); // TODO Type inference to
-												// nameresolution
+					// nameresolution
 					d.setTypeNode(new TypeNode(td));
 				}
 
@@ -473,7 +473,7 @@ public class SemanticVisitor extends AbstractLenseVisitor {
 	}
 
 	private void generifyInterfaceType(LenseTypeDefinition parentType, List<VariableInfo> genericTypes,TypeNode tn) {
-	
+
 		TypeDefinition rawInterfaceType = semanticContext.typeForName(tn.getName(), tn.getTypeParametersCount());
 		TypeDefinition interfaceType = rawInterfaceType;
 		if (!rawInterfaceType.getGenericParameters().isEmpty()) {
@@ -504,12 +504,12 @@ public class SemanticVisitor extends AbstractLenseVisitor {
 
 			interfaceType = LenseTypeSystem.specify(rawInterfaceType, parameters);
 			tn.setTypeVariable(new FixedTypeVariable(interfaceType));
-			
+
 			if (parentType != null){
 				parentType.addInterface(interfaceType);
 				semanticContext.registerType(parentType, genericTypes.size());
 			}
-			
+
 		} else {
 			tn.setTypeVariable(new FixedTypeVariable(interfaceType));
 			parentType.addInterface(interfaceType);
@@ -546,17 +546,52 @@ public class SemanticVisitor extends AbstractLenseVisitor {
 			TypeNode t = (TypeNode) node;
 			resolveTypeDefinition(t);
 
-//		} else if (node instanceof LiteralSequenceInstanceCreation){
-//			LiteralSequenceInstanceCreation literal = (LiteralSequenceInstanceCreation)node;
-//			
-//			for(AstNode n : literal.getArguments().getChildren()){
-//				TypedNode t = (TypedNode)n;
-//				
-//			}
-//			//literal.setTypeVariable(type);
-//			
-//		} else if (node instanceof LiteralAssociationInstanceCreation){
-//				
+		} else if (node instanceof LiteralSequenceInstanceCreation){
+			LiteralSequenceInstanceCreation literal = (LiteralSequenceInstanceCreation)node;
+			TypeDefinition maxType = ((TypedNode)literal.getArguments().getChildren().get(0)).getTypeVariable().getTypeDefinition();
+			maxType = semanticContext.resolveTypeForName(maxType.getName(), maxType.getGenericParameters().size()).get();
+
+			for( int i =1; i <literal.getArguments().getChildren().size(); i++){
+				AstNode n = literal.getArguments().getChildren().get(i);
+				TypedNode t = (TypedNode)n;
+				TypeDefinition type =  t.getTypeVariable().getTypeDefinition();
+				type = semanticContext.resolveTypeForName(type.getName(), type.getGenericParameters().size()).get();
+				if (!type.equals(maxType)){
+					if (LenseTypeSystem.getInstance().isPromotableTo(maxType, type)){
+						maxType = type;
+					} else if (!LenseTypeSystem.getInstance().isPromotableTo(type, maxType)){
+						// TODO incompatible types in the same array
+						throw new CompilationError(node, "Heterogeneous Sequence");
+					}
+				}
+			}
+
+			ListIterator<AstNode> lstIterator = literal.getArguments().getChildren().listIterator();
+
+			FixedTypeVariable maxTypeDef = new FixedTypeVariable(maxType);
+			while(lstIterator.hasNext()){
+				AstNode n = lstIterator.next();
+				TypeDefinition type = ((TypedNode)n).getTypeVariable().getTypeDefinition();
+				if (!type.equals(maxType)){
+					if (LenseTypeSystem.getInstance().isPromotableTo(type, maxType)){
+
+						Optional<Constructor> op = maxType.getConstructorByParameters(new ConstructorParameter(type));
+
+
+						final ClassInstanceCreationNode c = new ClassInstanceCreationNode( maxTypeDef,  n);
+						c.setConstructor(op.get());
+
+						lstIterator.set(c);
+
+
+					} 
+				}
+			}
+
+			literal.setTypeVariable(new FixedTypeVariable(LenseTypeSystem.specify(LenseTypeSystem.Sequence(), maxType)));
+
+			//		} else if (node instanceof LiteralAssociationInstanceCreation){
+			//				
 		} else if (node instanceof LiteralTupleInstanceCreation) {
 			LiteralTupleInstanceCreation tuple = ((LiteralTupleInstanceCreation) node);
 			TypedNode value = (TypedNode) tuple.getChildren().get(1).getChildren().get(0);
@@ -649,7 +684,7 @@ public class SemanticVisitor extends AbstractLenseVisitor {
 
 			if (left.equals(right)) {
 				n.setTypeVariable(left);
-				
+
 				if (left.getTypeDefinition().equals(LenseTypeSystem.String())){
 					StringConcatenationNode c;
 					if (n.getLeft() instanceof StringConcatenationNode){
@@ -659,7 +694,7 @@ public class SemanticVisitor extends AbstractLenseVisitor {
 						c= new StringConcatenationNode();
 						c.add(n.getLeft());
 						c.add(n.getRight());
-						
+
 					}
 					c.setTypeVariable(left);
 					n.getParent().replace(n, c);
@@ -671,7 +706,7 @@ public class SemanticVisitor extends AbstractLenseVisitor {
 				if (type.equals(LenseTypeSystem.String())){
 
 					MethodInvocationNode convert = new MethodInvocationNode(n.getRight(),"asString");
-					
+
 					StringConcatenationNode concat = new StringConcatenationNode();
 					concat.add(n.getLeft());
 					concat.add(convert);
@@ -694,10 +729,10 @@ public class SemanticVisitor extends AbstractLenseVisitor {
 						} else {
 							// Promote
 							Optional<Constructor> op = left.getTypeDefinition().getConstructorByParameters(new ConstructorParameter(right));
-							
+
 							final ClassInstanceCreationNode c = new ClassInstanceCreationNode( left,  n.getRight());
 							c.setConstructor(op.get());
-							
+
 							n.replace(n.getRight(), c);
 						}
 					}
@@ -711,6 +746,7 @@ public class SemanticVisitor extends AbstractLenseVisitor {
 			} else {
 				throw new RuntimeException("Cannot determine Arithmetic value type");
 			}
+
 		} else if (node instanceof PosExpression) {
 			PosExpression p = (PosExpression) node;
 
@@ -735,6 +771,39 @@ public class SemanticVisitor extends AbstractLenseVisitor {
 				throw new CompilationError(node, "Unrecognized operator");
 			}
 
+		} else if (node instanceof PreExpression) {
+			PreExpression p = (PreExpression) node;
+
+			final TypeDefinition type = ((TypedNode) p.getChildren().get(0)).getTypeVariable().getTypeDefinition();
+
+			if (p.getOperation().equals(ArithmeticOperation.Subtraction)) { /* -a */
+				String methodName = "symmetric";
+				Optional<Method> list = type.getMethodsByName(methodName).stream()
+						.filter(md -> md.getParameters().size() == 0).findAny();
+
+				if (!list.isPresent()) {
+					throw new CompilationError(node,
+							"The method " + methodName + "() is undefined for TypeDefinition " + type);
+				}
+
+				// replace by a method invocation
+				MethodInvocationNode method = new MethodInvocationNode(node.getChildren().get(0), methodName);
+
+				method.setTypeVariable(list.get().getReturningType());
+
+				node.getParent().replace(node, method);
+			} else if (p.getOperation().equals(ArithmeticOperation.Addition)){ /* +a */
+				// +a is a no-op. replace the node by its content
+				node.getParent().replace(node, node.getChildren().get(0));
+			} else {
+				throw new CompilationError(node,
+						"There is no unary " + p.getOperation().equivalentMethod() + " operation.");
+			}
+		} else if (node instanceof LiteralExpressionNode) {
+			LiteralExpressionNode n = (LiteralExpressionNode)node;
+
+			n.setTypeVariable(new FixedTypeVariable(semanticContext.resolveTypeForName(n.getTypeVariable().getTypeDefinition().getName(), 0).get()));
+
 		} else if (node instanceof PreBooleanUnaryExpression) {
 			PreBooleanUnaryExpression p = (PreBooleanUnaryExpression) node;
 
@@ -742,7 +811,7 @@ public class SemanticVisitor extends AbstractLenseVisitor {
 
 			String methodName;
 			if (p.getOperation().equals(BooleanOperation.BitNegate)) { /* ~a */
-				// TODO verify operator interface
+				// TODO verify operator interface Binary
 				if (LenseTypeSystem.Boolean().equals(type)) {
 					methodName = "flipAll";
 				} else {
@@ -769,7 +838,7 @@ public class SemanticVisitor extends AbstractLenseVisitor {
 			}
 
 			// replace by a method invocation
-			MethodInvocationNode method = new MethodInvocationNode(node.getChildren().get(0), "negate");
+			MethodInvocationNode method = new MethodInvocationNode(node.getChildren().get(0), methodName);
 
 			method.setTypeVariable(list.get().getReturningType());
 
@@ -789,7 +858,7 @@ public class SemanticVisitor extends AbstractLenseVisitor {
 					// TODO change to promote node, promotion is implicit
 					// constructor based
 					Optional<Constructor> op = left.getTypeDefinition().getConstructorByParameters(new ConstructorParameter(right));
-					
+
 					final ClassInstanceCreationNode m = new ClassInstanceCreationNode( left, n.getRight());
 					m.setConstructor(op.get());
 					n.replace((AstNode) n.getRight(), m);
@@ -854,7 +923,7 @@ public class SemanticVisitor extends AbstractLenseVisitor {
 			TypeVariable type = variableDeclaration.getTypeVariable();
 
 			VariableInfo info = semanticContext.currentScope().searchVariable(variableDeclaration.getName());
-			
+
 			if (info == null){
 				try {
 					info = semanticContext.currentScope().defineVariable(variableDeclaration.getName(), type, node);
@@ -880,10 +949,10 @@ public class SemanticVisitor extends AbstractLenseVisitor {
 					if (LenseTypeSystem.getInstance().isPromotableTo(right, type)) {
 						// TODO use promote node
 						Optional<Constructor> op = type.getTypeDefinition().getConstructorByParameters(new ConstructorParameter(right));
-						
+
 						final ClassInstanceCreationNode m = new ClassInstanceCreationNode( type, variableDeclaration.getInitializer());
 						m.setConstructor(op.get());
-						
+
 						variableDeclaration.setInitializer(m);
 
 					} else {
@@ -955,7 +1024,7 @@ public class SemanticVisitor extends AbstractLenseVisitor {
 				if (p.isIndexed()) {
 
 					lense.compiler.type.variable.TypeVariable[] params = new lense.compiler.type.variable.TypeVariable[((IndexerPropertyDeclarationNode) p)
-							.getIndexes().getChildren().size()];
+					                                                                                                   .getIndexes().getChildren().size()];
 					int i = 0;
 					for (AstNode n : ((IndexerPropertyDeclarationNode) p).getIndexes().getChildren()) {
 						FormalParameterNode var = (FormalParameterNode) n;
@@ -976,7 +1045,7 @@ public class SemanticVisitor extends AbstractLenseVisitor {
 				p.getType().setTypeVariable(type.get());
 				if (p.isIndexed()) {
 					lense.compiler.type.variable.TypeVariable[] params = new lense.compiler.type.variable.TypeVariable[((IndexerPropertyDeclarationNode) p)
-							.getIndexes().getChildren().size()];
+					                                                                                                   .getIndexes().getChildren().size()];
 					int i = 0;
 					for (AstNode n : ((IndexerPropertyDeclarationNode) p).getIndexes().getChildren()) {
 						FormalParameterNode var = (FormalParameterNode) n;
@@ -1050,7 +1119,7 @@ public class SemanticVisitor extends AbstractLenseVisitor {
 
 				}
 			}
-			
+
 			TypeVariable type = m.getIndexExpression().getTypeVariable();
 
 			Optional<IndexerProperty> indexer = methodOwnerType.getIndexerPropertyByTypeArray(new TypeVariable[] { type });
@@ -1239,8 +1308,8 @@ public class SemanticVisitor extends AbstractLenseVisitor {
 
 						MethodInvocationNode transform = new MethodInvocationNode(m.getPrimary(), "map",
 								new ClassInstanceCreationNode(new FixedTypeVariable(mappingFunction)) // TODO
-						// lambda
-						);
+								// lambda
+								);
 
 						m.getParent().replace(m, transform); // this operation
 						// will
@@ -1364,7 +1433,7 @@ public class SemanticVisitor extends AbstractLenseVisitor {
 							methodOwnerType = field.getReturningType();
 						}
 					}
-					
+
 					if (def.getKind() == LenseUnitKind.Object){
 						ObjectReadNode vnode = new ObjectReadNode(def,(qn).getName());
 
@@ -1379,9 +1448,9 @@ public class SemanticVisitor extends AbstractLenseVisitor {
 					VariableInfo variableInfo = semanticContext.currentScope().searchVariable(varName);
 
 					if (variableInfo == null) {
-						
+
 						Optional<TypeDefinition> obj = semanticContext.resolveTypeForName(varName, 0);
-						
+
 						if (obj.isPresent() && obj.get().getKind() == LenseUnitKind.Object){
 							ObjectReadNode vnode = new ObjectReadNode(obj.get(), varName);
 
@@ -1389,10 +1458,10 @@ public class SemanticVisitor extends AbstractLenseVisitor {
 
 							methodOwnerType = vnode.getTypeVariable();
 						}
-						
+
 						// try a super property
 						Optional<Property> property = semanticContext.currentScope().getCurrentType().getSuperDefinition().getPropertyByName(varName);
-						
+
 						if (!property.isPresent()){
 							throw new CompilationError(
 									((QualifiedNameNode) access).getName() + " is not a valid field, property or object");
@@ -1400,13 +1469,13 @@ public class SemanticVisitor extends AbstractLenseVisitor {
 							FieldOrPropertyAccessNode p = new FieldOrPropertyAccessNode(varName);
 							p.setKind(FieldKind.PROPERTY);
 							p.setType(property.get().getReturningType());
-							
+
 							access.getParent().replace(access, p);
 
 							methodOwnerType = p.getTypeVariable();
 						}
-						
-				
+
+
 					} else {
 						VariableReadNode vnode = new VariableReadNode(varName, variableInfo);
 
@@ -1415,7 +1484,7 @@ public class SemanticVisitor extends AbstractLenseVisitor {
 						methodOwnerType = variableInfo.getTypeVariable();
 					}
 
-					
+
 
 				}
 			} else if (access instanceof VariableReadNode) {
@@ -1515,7 +1584,7 @@ public class SemanticVisitor extends AbstractLenseVisitor {
 			}
 
 		} else if (node instanceof ClassInstanceCreationNode) {
-		
+
 			if (node instanceof lense.compiler.ast.LiteralCreation){
 				return;
 			}
@@ -1624,25 +1693,25 @@ public class SemanticVisitor extends AbstractLenseVisitor {
 									+ returnType + " in the return of method " + m.getName());
 						} else {
 							// TODO promote
-							 ReturnNode rn= null;
+							ReturnNode rn= null;
 							for( AstNode r : m.getBlock().getChildren()){
 								if (r instanceof ReturnNode){
 									rn = (ReturnNode) r;
 									break;
 								}
 							}
-							
+
 							if (rn == null){
 								throw new CompilationError(node, variable.getTypeVariable() + " no return found");
 							}
 							Optional<Constructor> op = returnType.getTypeDefinition().getConstructorByParameters(new ConstructorParameter(variable.getTypeVariable()));
-							
+
 							final ClassInstanceCreationNode c = new ClassInstanceCreationNode( returnType,  rn.getChildren().get(0));
 							c.setConstructor(op.get());
-							
+
 							ReturnNode nr = new ReturnNode();
 							nr.add(c);
-							
+
 							m.getBlock().replace(rn, nr);
 						}
 
@@ -1719,7 +1788,7 @@ public class SemanticVisitor extends AbstractLenseVisitor {
 			TypeVariable exceptionType = ((CatchOptionNode) node).getExceptions().getTypeVariable();
 			if (!LenseTypeSystem.isAssignableTo(exceptionType, new FixedTypeVariable(LenseTypeSystem.Exception()))) {
 				throw new CompilationError("No exception of TypeDefinition " + exceptionType.getSymbol()
-						+ " can be thrown; an exception TypeDefinition must be a subclass of Exception");
+				+ " can be thrown; an exception TypeDefinition must be a subclass of Exception");
 			}
 
 		} else if (node instanceof SwitchOption) {

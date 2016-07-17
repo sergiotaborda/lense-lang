@@ -32,7 +32,7 @@ public class FixedTypeVariable implements TypeVariable {
 	}
 	
 	public String toString(){
-		return type.getName();
+		return type.toString();
 	}
 	
 	public TypeDefinition getTypeDefinition(){

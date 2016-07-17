@@ -2,9 +2,7 @@ package lense.core.math;
 
 import java.math.BigInteger;
 
-import lense.core.lang.Any;
 import lense.core.lang.java.Constructor;
-import lense.core.lang.java.Native;
 
 public abstract class Integer extends Whole implements Comparable{
 
@@ -27,37 +25,61 @@ public abstract class Integer extends Whole implements Comparable{
 		}
 	}
 
-	public Comparison compareTo(Any other){
+	public abstract Integer symmetric();
 
-		int comp = this.getNativeBig().compareTo(((Whole)other).getNativeBig());
-		if (comp > 0){
-			return Greater.constructor();
-		} else if (comp < 0){
-			return Smaller.constructor();
-		} else{
-			return Equal.constructor();
+	public static final Integer ZERO = Integer.valueOfNative(0);
+	public static final Integer ONE =  Integer.valueOfNative(1);
+
+	public abstract Integer plus (Integer other);
+	public abstract Integer multiply(Integer predecessor);
+	
+
+	public abstract Integer minus(Integer other);
+	
+	public final Whole minus(Whole other) {
+		return this.minus(other.asInteger());
+	}
+	
+	public static Integer valueOfNative(int n) {
+		return new ScalableInt32(n);
+	}
+	
+	public static Integer valueOfNative(long n) {
+		return new ScalableInt64(n);
+	}
+	
+	public static Integer valueOfNative(String n) {
+		return valueOf(new BigInteger(n));
+	}
+	
+	public static Integer valueOf(BigInteger n) {
+
+		if (n.bitLength() < 32){
+			return new ScalableInt32(n.intValue());
+		} else if (n.bitLength() < 64){
+			return new ScalableInt64(n.intValue());
 		}
+		return new BigInt(n);
+	}
+	
 
+	public final boolean isLessThen(Integer other) {
+		return 	 compareTo(other) < 0;
+	}
+	
+	@Override
+	public Whole plus(Whole other) {
+		return this.plus(other.asInteger());
 	}
 
-	@Native
-	protected abstract BigInteger getNativeBig();
-
-	public boolean equals(Object other){
-		return  other instanceof Any && this.equalsTo((Any)other).toPrimitiveBoolean();
+	@Override
+	public Whole multiply(Whole other) {
+		return this.multiply(other.asInteger());
 	}
 
-	public abstract  int hashCode ();
-
-	public abstract Integer plus(Integer n);
-
-	public abstract Integer minus(Integer n);
-
-	public abstract Integer multiply(Integer n);
-
-	public Rational divide(Integer other){
-		return Rational.constructor(this, other);
+	@Override
+	protected Integer asInteger() {
+		return this;
 	}
-
 
 }

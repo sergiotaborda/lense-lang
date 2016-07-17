@@ -187,27 +187,27 @@ public class LenseTypeSystem{
 	}
 
 	private LenseTypeSystem (){
-		LenseTypeDefinition nothing = register(new LenseTypeDefinition("lense.core.lang.Nothing", LenseUnitKind.Class, null));
+		LenseTypeDefinition nothing = register(new FundamentalLenseTypeDefinition("lense.core.lang.Nothing", LenseUnitKind.Class, null));
 
-		LenseTypeDefinition any = register(new LenseTypeDefinition("lense.core.lang.Any", LenseUnitKind.Class, null));
+		LenseTypeDefinition any = register(new FundamentalLenseTypeDefinition("lense.core.lang.Any", LenseUnitKind.Class, null));
 	    register(new LenseTypeDefinition("lense.core.lang.Exception", LenseUnitKind.Class, any));
 	    
 //	    SenseTypeDefinition function1 = register(new SenseTypeDefinition("lense.core.lang.Function", Kind.Class, any,
 //				new RangeTypeVariable("R", Variance.Invariant, any, nothing)
 //		));
 //	    
-		LenseTypeDefinition function2 = register(new LenseTypeDefinition("lense.core.lang.Function", LenseUnitKind.Interface, any,
+		LenseTypeDefinition function2 = register(new FundamentalLenseTypeDefinition("lense.core.lang.Function", LenseUnitKind.Interface, any,
 				new RangeTypeVariable("R", Variance.Invariant, any, nothing),
 				new RangeTypeVariable("T", Variance.Invariant, any, nothing)
 		));
 		
-		LenseTypeDefinition function3 = register(new LenseTypeDefinition("lense.core.lang.Function", LenseUnitKind.Interface, any,
+		LenseTypeDefinition function3 = register(new FundamentalLenseTypeDefinition("lense.core.lang.Function", LenseUnitKind.Interface, any,
 				new RangeTypeVariable("R", Variance.Invariant, any, nothing),
 				new RangeTypeVariable("T", Variance.Invariant, any, nothing),
 				new RangeTypeVariable("T", Variance.Invariant, any, nothing)
 		));
 		
-		LenseTypeDefinition sbool = register(new LenseTypeDefinition("lense.core.lang.Boolean", LenseUnitKind.Class, any));
+		LenseTypeDefinition sbool = register(new FundamentalLenseTypeDefinition("lense.core.lang.Boolean", LenseUnitKind.Class, any));
 		
 		sbool.addMethod("negate", sbool);
 		
@@ -215,37 +215,37 @@ public class LenseTypeSystem{
 		
 		
 		// TODO treat interfaces and traits as attached types
-		LenseTypeDefinition iterable = register(new LenseTypeDefinition("lense.core.collections.Iterable", LenseUnitKind.Interface, any, new RangeTypeVariable("T", Variance.Covariant, any,nothing))); 
-		LenseTypeDefinition iterator = register(new LenseTypeDefinition("lense.core.collections.Iterator", LenseUnitKind.Interface, any, new RangeTypeVariable("T", Variance.Covariant, any,nothing))); 
+		LenseTypeDefinition iterable = register(new FundamentalLenseTypeDefinition("lense.core.collections.Iterable", LenseUnitKind.Interface, any, new RangeTypeVariable("T", Variance.Covariant, any,nothing))); 
+		LenseTypeDefinition iterator = register(new FundamentalLenseTypeDefinition("lense.core.collections.Iterator", LenseUnitKind.Interface, any, new RangeTypeVariable("T", Variance.Covariant, any,nothing))); 
 		
 		iterable.addMethod("iterator", iterator); 
 		
 		iterator.addMethod("hasNext", sbool);
 		iterator.addMethod("hasNext", any); 
 		
-		LenseTypeDefinition maybe = register(new LenseTypeDefinition("lense.core.lang.Maybe", LenseUnitKind.Class, any, new RangeTypeVariable("T", Variance.Covariant, any,nothing)));  
+		LenseTypeDefinition maybe = register(new FundamentalLenseTypeDefinition("lense.core.lang.Maybe", LenseUnitKind.Class, any, new RangeTypeVariable("T", Variance.Covariant, any,nothing)));  
 
 		maybe.addMethod("map", specify(maybe, any), new MethodParameter(function2)); // TODO return must obey function return
 		maybe.addConstructor("",new ConstructorParameter(any));
 		
 		
-		LenseTypeDefinition none = register(new LenseTypeDefinition("lense.core.lang.None", LenseUnitKind.Class, specify(maybe, nothing), new IntervalTypeVariable[0]));
+		LenseTypeDefinition none = register(new FundamentalLenseTypeDefinition("lense.core.lang.None", LenseUnitKind.Class, specify(maybe, nothing), new IntervalTypeVariable[0]));
 		
 		none.addField("None", new FixedTypeVariable(none), Imutability.Imutable); // TODO this a Fake static field 
 		
 		register(new LenseTypeDefinition("lense.core.lang.Some", LenseUnitKind.Class, maybe));
 
 	
-		LenseTypeDefinition character = register(new LenseTypeDefinition("lense.core.lang.Character", LenseUnitKind.Class, any));
+		LenseTypeDefinition character = register(new FundamentalLenseTypeDefinition("lense.core.lang.Character", LenseUnitKind.Class, any));
 		register(new LenseTypeDefinition("lense.core.lang.Exception", LenseUnitKind.Class, any));
 
 		register(new LenseTypeDefinition("lense.core.collections.Progression", LenseUnitKind.Class, iterable));
-		LenseTypeDefinition sequence = register(new LenseTypeDefinition("lense.core.collections.Sequence", LenseUnitKind.Interface, iterable));
-		LenseTypeDefinition array = register(new LenseTypeDefinition("lense.core.collections.Array", LenseUnitKind.Class, sequence));
+		LenseTypeDefinition sequence = register(new FundamentalLenseTypeDefinition("lense.core.collections.Sequence", LenseUnitKind.Interface, iterable));
+		LenseTypeDefinition array = register(new FundamentalLenseTypeDefinition("lense.core.collections.Array", LenseUnitKind.Class, sequence));
 		
 	
 		RangeTypeVariable self = new RangeTypeVariable("T", Variance.Covariant, any,nothing);
-		LenseTypeDefinition tuple =  register(new LenseTypeDefinition("lense.core.collections.Tuple", LenseUnitKind.Class,any,
+		LenseTypeDefinition tuple =  register(new FundamentalLenseTypeDefinition("lense.core.collections.Tuple", LenseUnitKind.Class,any,
 				new RangeTypeVariable("V", Variance.ContraVariant, any,nothing), 
 				self
 		));
@@ -254,7 +254,7 @@ public class LenseTypeSystem{
 		tuple.addMethod("tail", any); // TODO any -> T
 		tuple.addMethod("head", any); // TODO any -> V
 		
-		LenseTypeDefinition svoid = register(new LenseTypeDefinition("lense.core.lang.Void", LenseUnitKind.Class, specify(tuple, nothing, nothing), new IntervalTypeVariable[0]));
+		LenseTypeDefinition svoid = register(new FundamentalLenseTypeDefinition("lense.core.lang.Void", LenseUnitKind.Class, specify(tuple, nothing, nothing), new IntervalTypeVariable[0]));
 
 		
 //		register(new LenseTypeDefinition("lense.core.collections.Association", LenseUnitKind.Class,any,
@@ -262,7 +262,7 @@ public class LenseTypeSystem{
 //				new RangeTypeVariable("V", Variance.Covariant, any,nothing)
 //		));
 		
-		LenseTypeDefinition keyValue = register(new LenseTypeDefinition("lense.core.collections.KeyValuePair", LenseUnitKind.Interface,any,
+		LenseTypeDefinition keyValue = register(new FundamentalLenseTypeDefinition("lense.core.collections.KeyValuePair", LenseUnitKind.Interface,any,
 				new RangeTypeVariable("K", Variance.ContraVariant, any,nothing), 
 				new RangeTypeVariable("V", Variance.Covariant, any,nothing)
 		));
@@ -273,21 +273,21 @@ public class LenseTypeSystem{
 		);
 		
 		
-		LenseTypeDefinition binary = register(new LenseTypeDefinition("lense.core.lang.Binary", LenseUnitKind.Interface, any));
+		LenseTypeDefinition binary = register(new FundamentalLenseTypeDefinition("lense.core.lang.Binary", LenseUnitKind.Interface, any));
 		
-		LenseTypeDefinition number = register(new LenseTypeDefinition("lense.core.math.Number", LenseUnitKind.Class, any));
-		LenseTypeDefinition whole = register(new LenseTypeDefinition("lense.core.math.Whole", LenseUnitKind.Class, number));
-		LenseTypeDefinition natural =register(new LenseTypeDefinition("lense.core.math.Natural", LenseUnitKind.Class, whole));
+		LenseTypeDefinition number = register(new FundamentalLenseTypeDefinition("lense.core.math.Number", LenseUnitKind.Class, any));
+		LenseTypeDefinition whole = register(new FundamentalLenseTypeDefinition("lense.core.math.Whole", LenseUnitKind.Class, number));
+		LenseTypeDefinition natural =register(new FundamentalLenseTypeDefinition("lense.core.math.Natural", LenseUnitKind.Class, whole));
 
 		tuple.addMethod("get", any, new MethodParameter(natural, "index"));
 
 		sequence.addMethod("get", new MethodReturn( new DeclaringTypeBoundedTypeVariable(sequence, 0, "T", Variance.Covariant)) , new MethodParameter(natural, "index")); 
 		array.addMethod("set", svoid  , new MethodParameter(natural, "index"), new MethodParameter(new DeclaringTypeBoundedTypeVariable(array,0,"T",Variance.Invariant), "value")); 
 		
-		LenseTypeDefinition integer = register(new LenseTypeDefinition("lense.core.math.Integer", LenseUnitKind.Class, whole));
-		LenseTypeDefinition sint = register(new LenseTypeDefinition("lense.core.math.Int32", LenseUnitKind.Class, integer));
-		LenseTypeDefinition slong =register(new LenseTypeDefinition("lense.core.math.Int64", LenseUnitKind.Class, integer));
-		LenseTypeDefinition sshort =register(new LenseTypeDefinition("lense.core.math.Int16", LenseUnitKind.Class, integer));
+		LenseTypeDefinition integer = register(new FundamentalLenseTypeDefinition("lense.core.math.Integer", LenseUnitKind.Class, whole));
+		LenseTypeDefinition sint = register(new FundamentalLenseTypeDefinition("lense.core.math.Int32", LenseUnitKind.Class, integer));
+		LenseTypeDefinition slong =register(new FundamentalLenseTypeDefinition("lense.core.math.Int64", LenseUnitKind.Class, integer));
+		LenseTypeDefinition sshort =register(new FundamentalLenseTypeDefinition("lense.core.math.Int16", LenseUnitKind.Class, integer));
 		
 		sint.addConstructor(true , "valueOf", new ConstructorParameter(natural));
 		sint.addConstructor(true, "valueOf", new ConstructorParameter(whole));
@@ -308,13 +308,14 @@ public class LenseTypeSystem{
 		integer.addMethod("remainder", integer, new MethodParameter(integer));
 		integer.addMethod("plus", integer, new MethodParameter(integer));
 		
-		natural.addMethod("negative", sint); // TODO could overflow
+		natural.addMethod("negative", integer); // TODO could overflow
+		//natural.addMethod("symmetric", integer); // TODO could overflow
 		
 		sequence.addProperty("size", natural, true, false);
 
 		LenseTypeDefinition textRepresentable = register(new LenseTypeDefinition("lense.core.lang.TextRepresentable", LenseUnitKind.Interface, any, new IntervalTypeVariable[0]));
 		
-		LenseTypeDefinition string = register(new LenseTypeDefinition("lense.core.lang.String", LenseUnitKind.Class, any, new IntervalTypeVariable[0]));
+		LenseTypeDefinition string = register(new FundamentalLenseTypeDefinition("lense.core.lang.String", LenseUnitKind.Class, any, new IntervalTypeVariable[0]));
 		string.addInterface(specify(sequence, character));
 		string.addInterface(textRepresentable);
 		
@@ -328,11 +329,11 @@ public class LenseTypeSystem{
 		
 		//any.addMethod("toString", string);
 
-		LenseTypeDefinition real = register(new LenseTypeDefinition("lense.core.lang.Real", LenseUnitKind.Class, number));
+		LenseTypeDefinition real = register(new FundamentalLenseTypeDefinition("lense.core.lang.Real", LenseUnitKind.Class, number));
 		
-		LenseTypeDefinition decimal = register(new LenseTypeDefinition("lense.core.math.Decimal", LenseUnitKind.Class, real));
-		LenseTypeDefinition sdouble = register(new LenseTypeDefinition("lense.core.math.Double", LenseUnitKind.Class, decimal));
-		LenseTypeDefinition sfloat = register(new LenseTypeDefinition("lense.core.math.Float", LenseUnitKind.Class, decimal));
+		LenseTypeDefinition decimal = register(new FundamentalLenseTypeDefinition("lense.core.math.Decimal", LenseUnitKind.Class, real));
+		LenseTypeDefinition sdouble = register(new FundamentalLenseTypeDefinition("lense.core.math.Double", LenseUnitKind.Class, decimal));
+		LenseTypeDefinition sfloat = register(new FundamentalLenseTypeDefinition("lense.core.math.Float", LenseUnitKind.Class, decimal));
 
 		whole.addMethod("toDouble", sdouble);
 		whole.addMethod("toFloat", sfloat);
@@ -342,10 +343,10 @@ public class LenseTypeSystem{
 		real.addMethod("toFloat", sfloat);
 		real.addMethod("toDecimal", decimal);
 		
-		LenseTypeDefinition img = register(new LenseTypeDefinition("lense.core.math.Imaginary", LenseUnitKind.Class, number));
-		LenseTypeDefinition complex = register(new LenseTypeDefinition("lense.core.math.Complex", LenseUnitKind.Class, number));
+		LenseTypeDefinition img = register(new FundamentalLenseTypeDefinition("lense.core.math.Imaginary", LenseUnitKind.Class, number));
+		LenseTypeDefinition complex = register(new FundamentalLenseTypeDefinition("lense.core.math.Complex", LenseUnitKind.Class, number));
 		
-		LenseTypeDefinition interval = register(new LenseTypeDefinition("lense.core.math.Interval", LenseUnitKind.Class, any, new RangeTypeVariable("T", Variance.Invariant, any, nothing))); // TODO use Comparable
+		LenseTypeDefinition interval = register(new FundamentalLenseTypeDefinition("lense.core.math.Interval", LenseUnitKind.Class, any, new RangeTypeVariable("T", Variance.Invariant, any, nothing))); // TODO use Comparable
 		
 		interval.addMethod("contains", sbool, new MethodParameter(any));
 		
@@ -354,23 +355,23 @@ public class LenseTypeSystem{
 		
 
 		
-		LenseTypeDefinition math = register(new LenseTypeDefinition("lense.core.math.Math", LenseUnitKind.Class, any));
+		LenseTypeDefinition math = register(new FundamentalLenseTypeDefinition("lense.core.math.Math", LenseUnitKind.Class, any));
 		
 		math.addMethod("sin", sdouble, new MethodParameter(sdouble));
 		
 //		LenseTypeDefinition console = register(new LenseTypeDefinition("lense.core.io.Console", LenseUnitKind.Object, any));
 //		console.addMethod("println", svoid, new MethodParameter(string));
 //		
-		LenseTypeDefinition version = register(new LenseTypeDefinition("lense.core.lang.Version", LenseUnitKind.Class, any));
+		LenseTypeDefinition version = register(new FundamentalLenseTypeDefinition("lense.core.lang.Version", LenseUnitKind.Class, any));
 
-		LenseTypeDefinition packagetype = register(new LenseTypeDefinition("lense.core.lang.reflection.Package", LenseUnitKind.Interface, any));
+		LenseTypeDefinition packagetype = register(new FundamentalLenseTypeDefinition("lense.core.lang.reflection.Package", LenseUnitKind.Interface, any));
 
 		
 		LenseTypeDefinition module = register(new LenseTypeDefinition("lense.core.lang.reflection.Module", LenseUnitKind.Interface, any));
 		module.addMethod("getVersion",version);
 		module.addMethod("getPackages",specify(sequence, packagetype));
 		
-		LenseTypeDefinition list = register(new LenseTypeDefinition("lense.core.lang.List", LenseUnitKind.Interface, sequence));
+		LenseTypeDefinition list = register(new FundamentalLenseTypeDefinition("lense.core.lang.List", LenseUnitKind.Interface, sequence));
 		list.addMethod("add",svoid, new MethodParameter(any));
 
 	}
@@ -590,7 +591,7 @@ public class LenseTypeSystem{
 			return false;
 		}
 		
-		if (a == b || a.equals(b)){
+		if (a == b ){
 			return true;
 		} else if (isAssignableTo(a, b)){
 			return true;
@@ -717,6 +718,14 @@ public class LenseTypeSystem{
 
 	public boolean areNomallyEquals(TypeDefinition a, TypeDefinition b) {
 		return a.getName().equals(b.getName());
+	}
+
+	public static boolean isNumber(TypeDefinition maxType) {
+		return maxType.getName().startsWith("lense.core.math") && ( 
+				maxType.getName().endsWith("Natural") 
+				|| maxType.getName().endsWith("Integer")
+				|| maxType.getName().endsWith("Decimal") 
+	); 
 	}
 
 

@@ -27,7 +27,7 @@ public class Main extends ConsoleApplication {
   	 
   	  	//c.println("array is {{ [1 , 2, 3, 4, 5]  }}"); // TODO inline literals
   	 
-  		var Sequence<Natural> array = [1 , 2, -3, 4, 5];
+  		var Sequence<Integer> array = [1 , 2, -3, 4, 5];
   	
   		c.println("position 2 is {{ array[2] }}");
   		
