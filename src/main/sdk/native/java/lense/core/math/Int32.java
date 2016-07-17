@@ -2,12 +2,9 @@ package lense.core.math;
 
 import java.math.BigInteger;
 
-import lense.core.lang.Any;
 import lense.core.lang.Binary;
-import lense.core.lang.Boolean;
 import lense.core.lang.java.Constructor;
 import lense.core.lang.java.Native;
-import lense.core.lang.java.Property;
 
 public class Int32 extends Integer implements Binary {
 
@@ -32,38 +29,112 @@ public class Int32 extends Integer implements Binary {
 		return new Int32(java.lang.Integer.parseInt(s));
 	}
 
-	private int value;  
+   int value;
 
-	private Int32(int value){
-		this.value = value;
+	public Int32(int n) {
+		this.value = n;
+	}
+	
+	@Override
+	public Integer plus(Integer other) {
+		if (other instanceof Int32){
+			return plus(((Int32)other).value);
+		} else if (other instanceof ScalableInt32){
+			return plus(((ScalableInt32)other).value);
+		} else {
+			return promoteNext().plus(other);
+		}
+	}
+	
+	public Integer plus(int value){
+		try {
+			return new Int32(Math.addExact(this.value , value));
+		} catch (ClassCastException e ){
+			return promoteNext().plus(new Int32(value));
+		}
+	}
+	@Override
+	public Integer minus(Integer other) {
+		try {
+			return new Int32(Math.subtractExact(this.value , ((Int32)other).value));
+		} catch (ClassCastException e ){
+			return promoteNext().plus(other);
+		}
+	}
+	
+	@Override
+	public Integer multiply(Integer other) {
+		try {
+			return new Int32(Math.multiplyExact(this.value , ((Int32)other).value));
+		} catch (ClassCastException e ){
+			return promoteNext().plus(other);
+		}
+	}
+	
+	protected final Integer  promoteNext(){
+		return new ScalableInt64(value);
 	}
 
 	@Override
-	public String toString() {
-		return java.lang.Integer.toString(value);
-	}
-	
-	public Int32 minus(Int32 other) {
-		return new Int32(Math.subtractExact(this.value , other.value));
-	}
-	
-	public Int32 plus (Int32 other){
-		return new Int32(Math.addExact(this.value , other.value));
-	}
-
-	public Int32 multiply (Int32 other){
-		return new Int32(Math.multiplyExact(this.value , other.value));
-	}
-	
-	public Rational divide (Int32 n){
-		return Rational.constructor(this, n);
-	}
-	
-	@Override @Native
-	protected BigInteger getNativeBig() {
+	protected BigInteger asBigInteger() {
 		return BigInteger.valueOf(value);
 	}
+
+	public int compareTo(Integer other ){
+		if (other instanceof Int32){
+			return  java.lang.Integer.compare(this.value, ((Int32)other).value);
+		} else {
+			return asBigInteger().compareTo(other.asBigInteger());
+		}
+	}
+
+	public final int hashCode(){
+		return value;
+	}
 	
+	public final String toString(){
+		return java.lang.Integer.toString(value); 
+	}
+
+	@Override
+	public final Integer successor() {
+		if (value == java.lang.Integer.MAX_VALUE){
+			throw new ArithmeticException();
+		}
+		return valueOfNative(value + 1);
+	}
+
+	@Override
+	public boolean isZero() {
+		return value == 0;
+	}
+
+	@Override
+	public boolean isOne() {
+		return value == 1;
+	}
+
+	@Override
+	public final Integer predecessor() {
+		if (value == java.lang.Integer.MIN_VALUE){
+			throw new ArithmeticException();
+		}
+		return valueOfNative(value - 1);
+	}
+
+	@Override
+	public Natural abs() {
+		if (this.value < 0){
+			return Natural.valueOfNative(-this.value);
+		} else {
+			return Natural.valueOfNative(this.value);
+		}
+	}
+
+	@Override
+	public final Natural getSize() {
+		return Natural.valueOfNative(32);
+	}
 
 	@Override
 	public Binary flipAll() {
@@ -72,85 +143,21 @@ public class Int32 extends Integer implements Binary {
 
 	@Override
 	public Binary rightShiftBy(Natural n) {
-		return new Int32( value >> n.toPrimitiveInt());
+		return new Int32(value << n.modulus(32));
 	}
 
 	@Override
 	public Binary leftShiftBy(Natural n) {
-		return new Int32( value << n.toPrimitiveInt());
-	}
-
-	@Override @Property(name="size")
-	public Natural getSize() {
-		return Natural.valueOfNative(32);
-	}
-	
-	@Override
-	public Boolean equalsTo(Any other) {
-		return Boolean.valueOfNative(other instanceof Int32 && ((Int32)other).value == this.value);
+		return new Int32(value >> n.modulus(32));
 	}
 
 	@Override
-	public Integer hashValue() {
-		return this;
+	public Integer symmetric() {
+		return new Int32(-value);
 	}
 
-	@Override
-	public int hashCode() {
-		return value;
-	}
 
-	@Override
-	public Integer plus(Integer n) {
-		if (n instanceof Int32){
-			return this.minus((Int32)n);
-		} else {
-			return BigInt.valueOf(this.getNativeBig().subtract(n.getNativeBig()));
-		}
-	}
 
-	@Override
-	public Integer minus(Integer n) {
-		if (n instanceof Int32){
-			return this.minus((Int32)n);
-		} else {
-			return BigInt.valueOf(this.getNativeBig().subtract(n.getNativeBig()));
-		}
-	}
 
-	@Override
-	public Integer multiply(Integer n) {
-		if (n instanceof Int32){
-			return this.multiply((Int32)n);
-		} else {
-			return BigInt.valueOf(this.getNativeBig().multiply(n.getNativeBig()));
-		}
-	}
 
-	@Override
-	public Whole plus(Whole n) {
-		if (n instanceof Int32){
-			return this.plus((Int32)n);
-		} else  {
-			return BigInt.valueOf(this.getNativeBig()).plus(n);
-		} 
-	}
-
-	@Override
-	public Whole minus(Whole n) {
-		if (n instanceof Int32){
-			return this.minus((Int32)n);
-		} else {
-			return BigInt.valueOf(this.getNativeBig()).minus(n);
-		} 
-	}
-
-	@Override
-	public Whole multiply(Whole n) {
-		if (n instanceof Int32){
-			return this.multiply((Int32)n);
-		} else {
-			return BigInt.valueOf(this.getNativeBig()).multiply(n);
-		}
-	}
 }

@@ -79,6 +79,8 @@ public class ClassInstanceCreationNode extends ExpressionNode{
 	public TypeNode getTypeNode(){
 		return typeNode;
 	}
+	
+
 
 	/**
 	 * @param argumentListNode
@@ -103,6 +105,12 @@ public class ClassInstanceCreationNode extends ExpressionNode{
 	public TypeVariable getTypeVariable() {
 		return typeNode.getTypeVariable();
 	}
+	
+	public void setTypeVariable(TypeVariable type) {
+		 super.setTypeVariable(type);
+		 typeNode.setTypeVariable(type);
+	}
+
 
 	public void replace(AstNode oldNode , AstNode newNode){
 		

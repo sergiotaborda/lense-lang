@@ -20,7 +20,7 @@ public class Rational extends Real{
 	public BigInteger denominator;
 	
 	private Rational(Integer n, Integer d) {
-		this(n.getNativeBig(),  d.getNativeBig());
+		this(n.asBigInteger(),  d.asBigInteger());
 	}
 
 	Rational(BigInteger n, BigInteger d) {

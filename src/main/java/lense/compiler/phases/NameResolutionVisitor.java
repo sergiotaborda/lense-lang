@@ -142,8 +142,12 @@ public class NameResolutionVisitor implements Visitor<AstNode> {
 			TreeTransverser.transverse(args, this);
 
 			TypedNode type = (TypedNode) args.getChildren().get(0);
-			array.getTypeNode().addParametricType(new GenericTypeParameterNode(new TypeNode(type.getTypeVariable()),
-					lense.compiler.typesystem.Variance.Invariant));
+			array.getTypeNode().addParametricType(
+					new GenericTypeParameterNode(
+							new TypeNode(type.getTypeVariable()),
+							lense.compiler.typesystem.Variance.Covariant
+				    )
+			);
 
 			return VisitorNext.Siblings;
 
