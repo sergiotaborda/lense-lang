@@ -28,6 +28,17 @@
 	<script src="js/shBrushJava.js"></script>
 		
 	<script src="js/shBrushLense.js"></script>
+
+
+    <!-- Le styles -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/asciidoctor.css" rel="stylesheet">
+    <link href="css/base.css" rel="stylesheet">
+    <link href="css/prettify.css" rel="stylesheet">
+  	<link rel="stylesheet" type="text/css" href="css/shCore.css"  >
+	<link rel="stylesheet" type="text/css" href="css/shThemeLense.css" >
+	<link rel="stylesheet" type="text/css" href="css/shThemeDefault.css" >
+	
 	<style>
 	 .console {
 	    background : black;
@@ -47,15 +58,11 @@
 	 	padding:2px !important;
 	 	margin : 0px !important;
 	 }
+	 
+	.syntaxhighlighter table .container:before {
+		display: none !important;
+	}
 	</style>
-
-    <!-- Le styles -->
-    <link href="css/bootstrap.min.css" rel="stylesheet">
-    <link href="css/asciidoctor.css" rel="stylesheet">
-    <link href="css/base.css" rel="stylesheet">
-    <link href="css/prettify.css" rel="stylesheet">
-  	<link rel="stylesheet" type="text/css" href="css/shCore.css"  >
-	<link rel="stylesheet" type="text/css" href="css/shThemeLense.css" >
 	
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
@@ -88,27 +95,33 @@
             <li class="dropdown">
 				<a href="#" class="dropdown-toggle" data-toggle="dropdown">Fundamentals<b class="caret"></b></a>
 				<ul class="dropdown-menu">
-					<li><a href="tour.html">Language Tour</a></li>
+					<li><a href="tour/tour.html">Language Tour</a></li>
 					<li class="disabled"><a href="guide.html">Programmer's Guide</a></li>
 					<li><a href="platforms.html">Target Platforms's Guide</a></li>
+						<li><a href="glossary.html">Glossary</a></li>
 				</ul>
             </li>
 			
             <li class="dropdown">
               <a href="#" class="dropdown-toggle" data-toggle="dropdown">Details<b class="caret"></b></a>
 				<ul class="dropdown-menu">
+					<li><a href="nullability.html">Nullability</a></li>
 					<li><a href="numbers.html">Numbers</a></li>
 					<li><a href="strings.html">Strings</a></li>
-					<li><a href="strings.html">Arrays</a></li>
+					<li><a href="arrays.html">Arrays</a></li>
 					
 					<li><a href="containerLiterals.html">Container Literals</a></li>
 					<li><a href="objects.html">Classes and Objects</a></li>
 					<li><a href="constructors.html">Constructors</a></li>
-					<li><a href="operators.html">Operators</a></li>		
+					<li><a href="properties.html">Properties</a></li>
+				
+					<li><a href="operators.html">Operators</a></li>	
+				
 					<li><a href="monads.html">Monads</a></li>
 					<li><a href="concurrency.html">Concurrency</a></li>
+					<li><a href="erasure.html">Type Erasure</a></li>
 					
-					<li class="disabled"><a href="enhancements.html">External Enhancements</a></li>
+					<li><a href="enhancements.html">External Enhancements</a></li>
 					
 				</ul>
             </li>
@@ -128,7 +141,8 @@
 	<div class="corner-ribbon top-right sticky shadow"><a href="status.html">Exploration Stage</a></div>
     <div class="container">
 	<p><h1>Constructors</h1><p>In an Object Oriented language there is the innate need to instantiate objects. The instantiation occurs in two phases. First the memory needed to hold the object information is allocated and pointed at by a reference. Then this memory space is filled with initialization information. Only after these two phases are complete the object really exists and can be used by other objects.</p><p>The allocation phase can be manual like in C , Python and Swift or automatic like in C# or Java. Lense opts for an automatic allocation.</p><p>The initialization part is more delicate because the object must always exist in a valid state.<br/>For simple objects whose state is simply a bunch of properties that are initialized with default values, this process is straightforward. However when calculations or other computations are needed this presents a problem.</p><p>So there needs to be a contract between the machinery responsible for allocating and initializing the object and the object class. Some functions must be runned by this machinery in order to guarantee the object is in a valid state before it can be release in the wild.</p><p>This special function invoked by the machinery is called <em>Constructor</em>. Thus, the constructor is often an initialization method and it does not really constructs the object. Because the object already exists when the constructor is called (created in the previous phase of the instantiation process) the constructor has access to it to ensure the properties in the object are correctly set to valid values, however it should not call any polymorphic methods on the object.</p><p>As an example, in Java, we would write something like:</p>
-<pre><code class="brush: java">public class Fraction {
+<pre><code class="brush: java">// java
+public class Fraction {
 
 	private int numerator;
 	private int denominator;
@@ -146,7 +160,8 @@
 
 Fraction third = new Fraction(1,3);
 </code></pre><p>Pay attention the constructor is vary similar to a method but as no return type and its name is the same as the class.</p><p>Inside the constructor, the <code>this</code> keyword refers to the already allocated object. So, at this point, the object already exists and it is of the class <code>Fraction</code>.The constructor has no means to return an object of another class because the constructor has no return.</p><p>The constructor , being a special kind of method can throw exceptions , however it is considered bad practice to do so[needs references].</p><p>Constructors are usefully to guarantee the object state is correctly initialized but have some limitations, so in practice you would prefer to use a static factory method , like so:</p>
-<pre><code class="brush: java">public class Fraction {
+<pre><code class="brush: java">// java
+public class Fraction {
 
 	private int numerator;
 	private int denominator;
@@ -168,11 +183,13 @@ Fraction third = new Fraction(1,3);
 
 Fraction third = Fraction.of(1,3);
 </code></pre><p>The validation of parameters is now moved to a method, so exceptions are allowed. The constructor is private so only the class can invoke it, the rest of the world would have to call the <code>of</code> static method.</p><p>The problem with static methods is that they are not inherited so, the static factory method pattern makes sense only for object not intended to be inherited from.<br/>Nevertheless considered a good practice e several API nowadays use this technique to hide the constructor and provide a more fluent instantiation. </p><p>A great thing about this pattern is that it encasuplates the use of <code>new</code> so the class designed can change the parameters of the constructor at will without interfering with the call site.</p><p>People often criticize java for being to verbose. The numerator and denominator names appear 6 times.</p><h2>Types of constructors</h2><p>Other languages come up with new flavors of constructors to try to reduce the problems with constructors. However, because constructors are essentially linked with the concept of object instantiation and state validity they cannot be removed from the languages. Some type of constructor must exist.</p><p><a name="primary"></a> </p><h3>Primary Constructor</h3><p>This is special kind of constructors that only initializes properties in the object. It is functionally equivalent to the private constructor in our second example above. Because it can only set properties, languages try to come up with special (shorter) syntax.</p><p>In Scala, Ceylon and Kotlin, for instance, the primary constructor parameters are declared immediately after the class name and extra code can be added in the class body without any other special delimiters:</p>
-<pre><code class="brush: scala">public class Fraction (Integer numerator, Integer denominator) {
+<pre><code class="brush: scala">// scala, kotlin, ceylon
+class Fraction (Integer numerator, Integer denominator) {
     // other code goes where
 }
 </code></pre><p>This constructors immediately inform the compiler there must be a <em>numerator</em> and a <em>denominator</em> field in the class and the values of the parameters should be directly assign to those fields. This really reduces the boilerplate but leaves the validation of state problem orphan. </p><p>Scala resolves this by means of companion objects that have methods that act like a static factory methods calling the constructor only after validating the parameters are correct. Other special constructors are possible (called auxiliary constructors) but they action is limited. In scala constructors are pretty much meant only for field initialization, other computations are made in methods on objects.</p><p>In languages with primary constructors implemented like this trade one boilerplate for asymmetry: instead of having a delimited boilerplate inside a method like syntax, they provide a shorter syntax for the primary constructor making the other constructors syntax <em>ad hoc</em> and not symmetric, even to allow code in the class body and require the programmer to conform to special rules for execution of code inside the class body and inside the auxiliary constructors. They remove the boilerplate of having a constructors that sets the fields but have no dedicated place for "advanced" construction code and the class structure. If simple property bags in what you need this strategy really pays off, but it shows some cracks for more complex types that need to isolate construction a little better.</p><p>Dart goes another way.</p>
-<pre><code class="brush : dart">class Fraction  {
+<pre><code class="brush : dart">// dart
+class Fraction  {
 	Integer numerator;
 	Integer denominator;
 
@@ -190,15 +207,18 @@ Fraction third = Fraction.of(1,3);
 
 // invoke like 
 
-val Fraction third = new Fraction(1, 3);
+val third : Fraction = new Fraction(1, 3);
 </code></pre><p>A constructor without a body means the parameters should be copied to the fields of the same name.</p><p>All final value fields (the ones with <code>val</code>) must be initialized by all constructors, i.e. the compiler must be able to prove that all <code>val</code> fields have been set by the constructor. If this is not the case a compilation error will be raised.</p><p>There is no repetition of the class name and the keyword clearly states that the instruction is a constructor.<br/>There is no boilerplate. The types on the parameters are needed since the private fields must not have the same types.</p><p><a name="named"></a> </p><h2>Named Constructors</h2><p>All is fine when the class only needs a constructor. But more time than people would realize an object can be created by different forms. Design can argument this other forms should be handled by factory object and the class it self as only a set of parameters. While this can obviously accomplished is not practical. </p><p>If we intend to have a <code>Color</code> type that can be created from RGB or HSL values the two algorithms are different and one or both require calculations before we can set the object private fields. On the other hand we need some practical way of distinguishing between them. Here the static method factory come in handy because it provides a name to the construction form. So in java we could write</p>
-<pre><code class="brush: java ">Color a = Color.fromRGB(1.0 , 1.0 , 1.0);
+<pre><code class="brush: java ">// java
+Color a = Color.fromRGB(1.0 , 1.0 , 1.0);
 Color b = Color.fromHSL(60 , 0.5 , 0.5); 
 </code></pre><p>However there is no <code>new</code> keyword being used. Dart provides the same sintax but using <code>new</code>:</p>
-<pre><code class="brush: dart ">Color a = new Color.fromRGB(1.0 , 1.0 , 1.0);
+<pre><code class="brush: dart ">// dart
+Color a = new Color.fromRGB(1.0 , 1.0 , 1.0);
 Color b = new Color.fromHSL(60 , 0.5 , 0.5); 
 </code></pre><p>In Dart you can provide named constructors like</p>
-<pre><code class="brush: dart "> class Color {
+<pre><code class="brush: dart ">// dart
+ class Color {
 
     Color.fromRGB(red, greee, blue){
          // code goes here  
@@ -222,8 +242,8 @@ Color b = new Color.fromHSL(60 , 0.5 , 0.5);
 
 }
 </code></pre><p>and invoke them in the same way </p>
-<pre><code class="brush: lense ">Color a = new Color.fromRGB(1.0 , 1.0 , 1.0);
-Color b = new Color.fromHSL(60 , 0.5 , 0.5); 
+<pre><code class="brush: lense ">val a = new Color.fromRGB(1.0 , 1.0 , 1.0);
+val b = new Color.fromHSL(60 , 0.5 , 0.5); 
 </code></pre><p>Note the similarity with the anonymous constructor invocation.</p><p>The named constructors must, at some point, directly or indirectly, invoke the primary constructor. So the final code should be something like</p>
 <pre><code class="brush: lense ">public class Color {
 
@@ -311,7 +331,7 @@ Color b = new Color.fromHSL(60 , 0.5 , 0.5);
 }
 
 </code></pre><p>It uses and <a href="objects.html#object"><code>object</code></a> to hold the cache data. If the given <code>String</code> is not valid the constructor throws a <code>ParseException</code>.<br/>This is valid because a constructors is like a factory, however the compiler will only allow the <code>throw</code> clause on a named constructor.</p><p><a name="conversion"></a> </p><h2>Implicit Conversion Constructor</h2><p>A conversion constructor is used to obtain the state of the object from another object of a different type. For instance:</p>
-<pre><code class="brush: lense ">Integer k = 23;
+<pre><code class="brush: lense ">val k : Integer = 23;
 </code></pre><p>Because all whole literals are parser by the compiler as <code>Natural</code>s, 23 is really a <code>Natural</code>. On the other hand, because <code>Natural</code>s are not an <code>Integer</code>s the assignment would not be valid. Before a compilation error is risen, the compiler tries to find an constructor in the class Integer that is marked as <code>implicit</code> and has a single parameter of type <code>Natural</code>. </p>
 <pre><code class="brush: lense ">public class Integer extends Whole {
 
@@ -321,16 +341,21 @@ Color b = new Color.fromHSL(60 , 0.5 , 0.5);
 }
 
 </code></pre><p>If it exists, the compiler changes the assignment to:</p>
-<pre><code class="brush: lense ">Integer k = new Integer(23);
+<pre><code class="brush: lense ">val k : Integer = new Integer(23);
 </code></pre><p>The <code>implicit</code> keyword is necessary because not every constructor with a single parameter is meant to be a conversion constructor.<br/>The <code>List&lt;T&gt;</code> class (used above) has a constructor that receives a <code>Natural</code> to set the array size,but that, without the implicit keyword would mean that:</p>
-<pre><code class="brush: lense ">List&lt;Integer&gt; list = 3;
+<pre><code class="brush: lense ">val list : List&lt;Integer&gt; = 3;
 </code></pre><p>was really </p>
-<pre><code class="brush: lense ">List&lt;Integer&gt; list = new List&lt;Integer&gt;(3);
+<pre><code class="brush: lense ">val list : List&lt;Integer&gt; = new List&lt;Integer&gt;(3);
 </code></pre><p>The instruction would be (wrongly) trying to assign the number 3 to the list but the compiler would try to promote the value.<br/>This would not be a very coherent form to create arrays because can be confused with:</p>
-<pre><code class="brush: lense ">List&lt;Integer&gt; list = [3];
-</code></pre><p>The programmer may have forgotten to surround the value with brackets. </p><p>Also, this other example could be made to be valid code using a conversion constructor:</p>
-<pre><code class="brush: lense ">Uri address = &quot;http://www.google.com&quot;
-</code></pre><p>But this form is not recomemded because implicit constructors, as primary constructors, can not throw exceptions (under consideration).<br/>So a parse operation, that possibly could go wrong, is not suited to a conversion constructor. It is recomemded that a constructor based on a string be a named constructor like <code>parse(String)</code>. Named constructors can throw exceptions.</p><p>As we can see from the above examples, that the conversion constructor is a simple way to promote values of one class to another but only if it is guaranteed that conversion will never fail.</p><p>As a limitation of conversion constructors the process only works if the class on the left side of the assignment accepts the instances of the class on the right side as valid argument. </p><h2>Constructors Enhancement (Under Consideration)</h2><p>If the original designer of the left side class did not added the conversion constructor for some other class we can add one latter by creating an <a href="enhancements.html">enhancement</a>, like so:</p>
+<pre><code class="brush: lense ">val list : List&lt;Integer&gt; = [3];
+</code></pre><p>The programmer may have forgotten to surround the value with brackets. </p><p>Also, this other example could be made to be valid code using an implicit conversion constructor:</p>
+<pre><code class="brush: lense ">val address : Uri = &quot;http://www.google.com&quot; 
+
+// equivalent to 
+
+val address : Uri = new Uri(&quot;http://www.google.com&quot;);
+
+</code></pre><p>Implicit constructors, like primary constructors, are not recomended for object creation that can throw exceptions (under consideration).<br/>For a parsing operation, or other, that possibly could go wrong, is not suited to a conversion constructor. It is recomemded that a constructor based on a string be a named constructor like <code>parse(String)</code>. Named constructors can throw exceptions.</p><p>As we can see from the above examples, that the conversion constructor is a simple way to promote values of one class to another but only if it is guaranteed that conversion will never fail.</p><p>As a limitation of conversion constructors the process only works if the class on the left side of the assignment accepts the instances of the class on the right side as valid argument. </p><h2>Constructors Enhancement (Under Consideration)</h2><p>If the original designer of the left side class did not added the conversion constructor for some other class we can add one latter by creating an <a href="enhancements.html">enhancement</a>, like so:</p>
 <pre><code class="brush: lense ">public enhancement AddNaturalConvertionConstrutorToString extends String { // enhances String
 
 	public implicit constructor (Natural n){
@@ -338,7 +363,7 @@ Color b = new Color.fromHSL(60 , 0.5 , 0.5);
 	}
 }
 </code></pre><p>With this enchamenent in scope we can write:</p>
-<pre><code class="brush: lense ">String s = 8; // not supported without the enhancement
+<pre><code class="brush: lense ">val  s : String = 8; // not supported without the enhancement
 </code></pre><p>This is very powerful feature of <a href="enhancements.html">enhancements</a> and can easly be abused, so please design enhancements with care. </p></p>
 	
 		</div>

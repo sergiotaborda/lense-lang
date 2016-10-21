@@ -28,6 +28,17 @@
 	<script src="js/shBrushJava.js"></script>
 		
 	<script src="js/shBrushLense.js"></script>
+
+
+    <!-- Le styles -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/asciidoctor.css" rel="stylesheet">
+    <link href="css/base.css" rel="stylesheet">
+    <link href="css/prettify.css" rel="stylesheet">
+  	<link rel="stylesheet" type="text/css" href="css/shCore.css"  >
+	<link rel="stylesheet" type="text/css" href="css/shThemeLense.css" >
+	<link rel="stylesheet" type="text/css" href="css/shThemeDefault.css" >
+	
 	<style>
 	 .console {
 	    background : black;
@@ -47,15 +58,11 @@
 	 	padding:2px !important;
 	 	margin : 0px !important;
 	 }
+	 
+	.syntaxhighlighter table .container:before {
+		display: none !important;
+	}
 	</style>
-
-    <!-- Le styles -->
-    <link href="css/bootstrap.min.css" rel="stylesheet">
-    <link href="css/asciidoctor.css" rel="stylesheet">
-    <link href="css/base.css" rel="stylesheet">
-    <link href="css/prettify.css" rel="stylesheet">
-  	<link rel="stylesheet" type="text/css" href="css/shCore.css"  >
-	<link rel="stylesheet" type="text/css" href="css/shThemeLense.css" >
 	
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
@@ -88,27 +95,33 @@
             <li class="dropdown">
 				<a href="#" class="dropdown-toggle" data-toggle="dropdown">Fundamentals<b class="caret"></b></a>
 				<ul class="dropdown-menu">
-					<li><a href="tour.html">Language Tour</a></li>
+					<li><a href="tour/tour.html">Language Tour</a></li>
 					<li class="disabled"><a href="guide.html">Programmer's Guide</a></li>
 					<li><a href="platforms.html">Target Platforms's Guide</a></li>
+						<li><a href="glossary.html">Glossary</a></li>
 				</ul>
             </li>
 			
             <li class="dropdown">
               <a href="#" class="dropdown-toggle" data-toggle="dropdown">Details<b class="caret"></b></a>
 				<ul class="dropdown-menu">
+					<li><a href="nullability.html">Nullability</a></li>
 					<li><a href="numbers.html">Numbers</a></li>
 					<li><a href="strings.html">Strings</a></li>
-					<li><a href="strings.html">Arrays</a></li>
+					<li><a href="arrays.html">Arrays</a></li>
 					
 					<li><a href="containerLiterals.html">Container Literals</a></li>
 					<li><a href="objects.html">Classes and Objects</a></li>
 					<li><a href="constructors.html">Constructors</a></li>
-					<li><a href="operators.html">Operators</a></li>		
+					<li><a href="properties.html">Properties</a></li>
+				
+					<li><a href="operators.html">Operators</a></li>	
+				
 					<li><a href="monads.html">Monads</a></li>
 					<li><a href="concurrency.html">Concurrency</a></li>
+					<li><a href="erasure.html">Type Erasure</a></li>
 					
-					<li class="disabled"><a href="enhancements.html">External Enhancements</a></li>
+					<li><a href="enhancements.html">External Enhancements</a></li>
 					
 				</ul>
             </li>
@@ -127,104 +140,156 @@
     </div>
 	<div class="corner-ribbon top-right sticky shadow"><a href="status.html">Exploration Stage</a></div>
     <div class="container">
-	<p><h1>Properties</h1><p>In Lense a type can have fields, methods and properties. Properties are invoked like fields but behave like methods.<br/>Properties have two methods associated it them: the accessor and the modifier. The acessor (the "get method") is the method that is invoked when we need the propertie's value. The modififer (the "set method") is the method that is invoked when we need to set or change the propertie's value. </p>
-<pre><code class="brush: lense"><br/>public class Person {
+	<p><h1>Properties</h1><p>In other languages you can have fields (class attributes) and methods. Some languages , like C# and Scala introduce the concept of properties.<br/>Properties are invoked like fields but behave like methods. All properties have two associated methods called Acessor and Modifier. The acessor is the methods called to obtain (get) the value<br/>of the property. The Modifier is the methods called to change (set) the value of the property. In the background, properties are commonly a polimorfic way to access a field.<br/>In java, for example, properties are not a language construct and developers are required to follow some idioms and rules (Java Beans) to define properties in a ways other developers and API will understand.</p><p>From the degin point of view, fields represent state and properties represent the access to that state with the added value of intercepting the state read and write operations and eventually calculating the state on the fly from other properties. Because of this, fields are not supposed to be public has this will break polimorfic access and the client code will have knowledge of how the object stores its state. On the other hand, properties never need to be private because if they are they are not polimorfic any more an the class is only controling acess to it self. </p><p>So Lense does only have one construct named Property. However, Lense properties behave like fields if the are private, and like normal properties if the are not private hence having the best of both world in a single construct. Adicionally remember Lense requires all fields and properties to be initialized to a non <em>null</em> value.</p><p>~~~~brush: lense<br/>public class Person {</p>
+<pre><code>public var name : String { get; set;}   = &quot;&quot;; // self-backing property initialized with the empty string
+public var surname : String  { get; set;}  = &quot;&quot;; // self-backing property initialized with the empty string
+</code></pre><p>}</p><p>// used like a field</p><p>val person = new Person();</p><p>person.name = "John"; // call modifier to set the value<br/>person.surname = "Doe"; // call modifier to set the value</p><p>val fullname = person.fullname; // call accessor to get the value</p><p>Console.print(fullname); // prints: John Doe<br/>~~~~</p><p>The compiler will produce backing fields for non-public properties and will produce acessor and modifier methods that read and write from/to that field.</p><p>Note that properties are preceded with var or val. Properties with val are read-only and can only define an acessor (get) method.<br/>Properties wih var are read-write and can define both acessor and modifier. By this rule we can them simplify the declarations like this:</p>
+<pre><code class="brush: lense">public class Person {
 
-	public String name {get; set;} = &quot;&quot; // self-backing property initialized with the empty string
-	public String surname { get; set;} = &quot;&quot; // self-backing property initialized with the empty string
+	public var name : String  = &quot;&quot;; // self-backing property initialized with the empty string
+	public var surname : String  = &quot;&quot;; // self-backing property initialized with the empty string
 	
-	public String fullname { 
-		get { 
-			// concatenate the names
-			return name + &quot; &quot; + surname; 
-		}
-		set (value){
-			// split the names by a empty space
-			val split = value.split(&quot; &quot;);
-			this.name = split[0];
-			this.surname = split[1];
-		}
-	}
 }
 
-// used like a field
+Now the properties look like fields. Remember that the compiler will produce polimorphic properties because you defined them as public.
 
-val person = new Person();
+## Adding Beahvior
 
-person.name = &quot;John&quot;; // call modifier to set the value
-person.surname = &quot;Doe&quot;; // call modifier to set the value
+Properties can be calculated and/or calculate state. When you need this funcionallity you simply declare the body of the acessor and modifier. 
+Remember that if you do not declare one of them the correspondig operation (read , or write) will not be available.
 
-val fullname  = person.fullname; // call accessor to get the value
+</code></pre><p>public class Person {</p>
+<pre><code>public var name : String = &quot;&quot;;
+public var surname : String = &quot;&quot;;
+public var birthdayay : Date?;
 
-Console.print(fullname); // prints: John Doe
-</code></pre><p>The <code>value</code> is always of the type of the property and represents the value assigned to the property.</p><h2>Self-backing Properties</h2><p>Properties are really only a pair of methods so its value must be hold somewhere.<br/>The most common use of a property is a self-backing property, i.e. a property that handles the storage of the value automatically in a private field.</p>
-<pre><code class="brush: lense"><br/>public class Person {
-
-	public String name { get; set;} = &quot;&quot;;
+// read-write property
+public fullname : String {  // backing-fields will not be produced when the acessor and/or the modifier are explicitly defined.
+    get { 
+       // concatenate the names
+       return name + &quot; &quot; + surname; 
+    }
+    set (value){
+       // split the names by a empty space
+       val split = value.split(&quot; &quot;);
+       this.name = split[0];
+       this.surname = split[1];
+    }
 }
 
-</code></pre><p>Because this a very common case you can ommit the accessor and modifier declarations, like so:</p>
-<pre><code class="brush: lense"><br/>public class Person {
-
-	public String name {} = &quot;&quot;;
+// read-only
+public ageToday : Natural? { // the acessor wil not be defined because is not declared
+    get{
+       return this.birthdayay.map ( date -&gt; (Date.today - date).days); 
+    }
 }
-
-</code></pre><p>Either syntax will instruct the compiler to define a private, inaccessible, field and to store the value of the property there.</p><h2>Non Inialized Properties</h2><p>You may omit the properie's initialization, however, because Lense as no <code>null</code>, you will need to use an optional type.</p>
-<pre><code class="brush: lense"><br/>public class Person {
-
-	public String? name {}
+</code></pre><p>}<br/>~~~~</p><h2>Non Inialized Properties</h2><p>You may not omit the properie's initialization because Lense as no <code>null</code>. If we do not kown the value or do not want to initialized it you will need to use an optional type.</p>
+<pre><code class="brush: lense">public class Person {
+    ... 
+	public var birthdayay : Date?;
 }
+</code></pre><p>Lense will still initialize this propery (because there are no nulls), but because its an optional type , the value to use is a constant (the object none). So the above code is equivalent to:</p>
+<pre><code class="brush: lense">public class Person {
 
+	public var birthdayay : Date? = none;
+}
+</code></pre><h2>Read-Only and Write-Only Properties</h2><p>By omitting just the modifier, you can make a property read-only. By omitting just the accessor, you can make a property write-only.<br/>If the property is read only, or write only. the compiler will not define a private backing-field and an explicit method body is necessary.</p>
+<pre><code class="brush: lense">public class Person {
 
-</code></pre><h2>Read-Only and Write-Only Properties</h2><p>By omitting just the modifier, you can make a property read-only. If the property is read only the compiler will not define a private inaccessible field and body is necessary.</p>
-<pre><code class="brush: lense"><br/>public class Person {
-
-	public String name {}
-	public String surname {}
+	public name : String{}
+	public surname : String{}
 	
-	public String fullname { // a read only property
+	public  fullname : String { // a read only property
 		get { return name + &quot; &quot; + surname; }
 	}
 }
+</code></pre><p>The use of write-only properties is less commom, in practice, but possible. In that case you will need some other place to store the value.</p>
+<pre><code class="brush: lense">public class Write {
 
-</code></pre><p>Less common is the use of write-only properties, but you can also define a write-only property by omitting the accessor declaration.</p><h2>Different visibility</h2><p>Sometimes you need to have a public accessor but a private modifier, or vice-versa. In that case you can use visibility modifiers to declare diferent visibilities</p><p>~~~~brush: lense</p><p>public class Person {</p>
-<pre><code>public String name { public get; private set;}
-public String surname { get; private set;}
-</code></pre><p>}</p>
-<pre><code><br/>If you omit the modifier near the acessor or modifier declarations the visibility of the property will be used.
-The visibility of the acessor or modifier may not be less restrictive than that of the property. So public get for a private property makes no sense. 
+	private var field : String?
 
+	public  fullname : String{ // a write only property
+		set(value) { 
+			this.field = name + &quot; &quot; + surname; 
+		}
+	}
+}
+</code></pre><p>Please note the syntax for a private fields is the same for a public property only the visibility modifier is different.</p><h2>Properties Constructor</h2><p>If the properties are mandatory in the constructor you can use a special constructor syntax</p>
+<pre><code class="brush: lense">public class Fraction {
 
-# Indexer Properties
+	constructor ( public val numerator, public val denominator);
+	
+	public val Value : Rational {
+		get {
+			return this.numerator / this.denominator;
+		}
+	}
+}
+</code></pre><p>This will create two readonly properties named "numerator" and "denominator" with a backing-field that is initialized in the constructor.<br/>You can only use this syntax in the primary constructor (the one with no body).</p><h2>Different visibility</h2><p>Sometimes you need to have a public accessor but a private modifier, or vice-versa. In that case you can use visibility modifiers to declare diferent visibilities</p>
+<pre><code class="brush: lense">public class Person {
 
-&lt;a name=&quot;indexed&quot;&gt;Indexer properties&lt;/a&gt; are anonymous properties that allow you to associate a value of the property with one or more values of parameters called indexes.
-The most common examples are arrays that use numeric indexes or maps that use key object for indexes.
+	public name : String{ public get; private set;}
+	public surname : String { get; private set;}
+}
+</code></pre><p>If you omit the modifier near the acessor or modifier declarations the visibility of the property will be used.<br/>The visibility of the acessor or modifier may not be less restrictive than that of the property. So public get for a private property makes no sense. </p><h2>Intercepting And Acces to the Backing-Field</h2><p>Sometimes you need to intercept the call to the acessor or the modifier but we would like the code to also write the result to the backing-field;<br/>This is very uncomon, so the example is a little contrived. The point is that can be done, if you need to.</p>
+<pre><code class="brush: lense">public class Doubler {
+	
+	contructor (private val log: Logger);
 
-The rules of normal properties apply to indexer properties , you may need to define an accessor, or a modifier, or both.
-Indexer properties are never self-backing.
+	public someValue : Natural {
+		get {
+			log.trace(&quot;returning {{ someValue }}&quot;);
+			return 
+		}
+		set (value) {
+			val doubleValue = value *2;
+			log.trace(&quot;storing {{value}} as  {{ doubleValue }}&quot;);
+			someValue = doubleValue;
+		}
+	}
+}
+val log = ... // obtain it somehow
 
-Indexers are not limited to one index. In the next example we use an array to implement a matrix using a mathematical trick of calculating the cell
-position in the array. We use the indexer property in the array to read and write values in the array.
+val d = new Doubler(log); 
 
-</code></pre><p>public class Matrix<T> {</p>
-<pre><code>private Natural rowsCount;
-private Natural columnsCount;
+d.someValue = 5; // will log &quot;storing 5 as 10&quot;
+val x = d.someValue; // will log &quot;returning 10&quot;
+</code></pre><p>You can use the property's name inside the accessor or the modifier to read the value before returning it and in the case of the modifier also to set a different value that the one given.</p><h1>Indexer Properties</h1><p><a name="indexed">Indexer properties</a> are anonymous properties that allow you to associate a value of the property with one or more values of parameters called indexes.<br/>The most common examples are arrays that use numeric indexes or maps that use key object for indexes.</p><p>The rules of normal properties apply to indexer properties , you need to define an accessor, or a modifier, or both.<br/>Indexer properties are never self-backing.</p><p>Indexers are not limited to one index. In the next example we use an array to implement a matrix using a mathematical trick of calculating the cell<br/>position in the array. We use the indexer property in the array to read and write values in the array.</p>
+<pre><code class="brush: lense">public class Matrix&lt;T&gt; {
 
-private Array&lt;T&gt; cells = new Array&lt;T&gt;()
-
-public T [Natural row, Natural column] { 
-    get {  
-       return items[calculateCell(row, column)]; 
-    }
-    set (value){
-       items[calculateCell(row, column] = value;
-    }
+	private cells : Array&lt;T&gt;;
+	private rowsCount : Natural;
+	private columnsCount: Natural;
+	
+	contructor (private rowsCount : Natural, private columnsCount: Natural, private seed : T){
+		this.rowsCount = rowsCount;
+		this.columnsCount = columnsCount;
+		
+		this.cells = new Array.filled&lt;T&gt;(rowsCount * columnsCount, seed);
+	}
+    
+	public [Natural row, Natural column] : T { 
+		get {  
+			return items[calculateCell(row, column)]; 
+		}
+		set (value){
+		   items[calculateCell(row, column] = value;
+		}
+	}
+	
+	private calculateCell(Natural row, Natural column) : Natural{
+		return row * rowsCount + column;
+	}	
 }
 
-private Natural calculateCell(Natural row, Natural column){
-    return row * rowsCount + column;
-}   
-</code></pre><p>}</p><p>~~~~</p><p>An indexer as no name, so it is not possible to define two indexers with the exact same number and types of indexes. </p></p>
+// use it like 
+
+val matrix : Matrix&lt;Integer, Integer&gt;  = new Matrix&lt;Integer,Integer&gt;(3,3, 0);
+
+matrix[1,2 ] = 4;
+
+val four = matrix [1,2];
+</code></pre><p>An indexer as no name, so it is not possible to overload it with the exact same number, and types, of indexes. </p></p>
 	
 		</div>
 		<div id="push"></div>

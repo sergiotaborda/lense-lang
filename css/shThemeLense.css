@@ -19,104 +19,104 @@
   font-family: 'Courier New', Courier, 'Lucida Sans Typewriter', 'Lucida Typewriter', monospace !important;;
   font-size:10pt !important;;
 }
-.syntaxhighlighter .line.alt1 {
+.syntaxhighlighter.lense .line.alt1 {
   background-color: white !important;
 }
-.syntaxhighlighter .line.alt2 {
+.syntaxhighlighter.lense .line.alt2 {
   background-color: white !important;
 }
-.syntaxhighlighter .line.highlighted.alt1, .syntaxhighlighter .line.highlighted.alt2 {
+.syntaxhighlighter.lense .line.highlighted.alt1, .syntaxhighlighter.lense .line.highlighted.alt2 {
   background-color: #e0e0e0 !important;
 }
-.syntaxhighlighter .line.highlighted.number {
+.syntaxhighlighter.lense .line.highlighted.number {
   color: black !important;
 }
-.syntaxhighlighter table caption {
+.syntaxhighlighter.lense table caption {
   color: black !important;
 }
-.syntaxhighlighter .gutter {
+.syntaxhighlighter.lense .gutter {
   color: #afafaf !important;
 }
-.syntaxhighlighter .gutter .line {
+.syntaxhighlighter.lense .gutter .line {
   border-right: 3px solid #6ce26c !important;
 }
-.syntaxhighlighter .gutter .line.highlighted {
+.syntaxhighlighter.lense .gutter .line.highlighted {
   background-color: #6ce26c !important;
   color: white !important;
 }
-.syntaxhighlighter.printing .line .content {
+.syntaxhighlighter.lense.printing .line .content {
   border: none !important;
 }
-.syntaxhighlighter.collapsed {
+.syntaxhighlighter.lense.collapsed {
   overflow: visible !important;
 }
-.syntaxhighlighter.collapsed .toolbar {
+.syntaxhighlighter.lense.collapsed .toolbar {
   color: blue !important;
   background: white !important;
   border: 1px solid #6ce26c !important;
 }
-.syntaxhighlighter.collapsed .toolbar a {
+.syntaxhighlighter.lense.collapsed .toolbar a {
   color: blue !important;
 }
-.syntaxhighlighter.collapsed .toolbar a:hover {
+.syntaxhighlighter.lense.collapsed .toolbar a:hover {
   color: red !important;
 }
-.syntaxhighlighter .toolbar {
+.syntaxhighlighter.lense .toolbar {
   color: white !important;
   background: #6ce26c !important;
   border: none !important;
 }
-.syntaxhighlighter .toolbar a {
+.syntaxhighlighter.lense .toolbar a {
   color: white !important;
 }
-.syntaxhighlighter .toolbar a:hover {
+.syntaxhighlighter.lense .toolbar a:hover {
   color: black !important;
 }
-.syntaxhighlighter .plain, .syntaxhighlighter .plain a {
+.syntaxhighlighter.lense .plain, .syntaxhighlighter.lense .plain a {
   color: black !important;
 }
-.syntaxhighlighter .comments, .syntaxhighlighter .comments a {
+.syntaxhighlighter.lense .comments, .syntaxhighlighter.lense .comments a {
   color: #008200 !important;
 }
 
-.syntaxhighlighter .preprocessor {
+.syntaxhighlighter.lense .preprocessor {
   color: #008200 !important;
 }
 
-.syntaxhighlighter .string, .syntaxhighlighter .string a {
+.syntaxhighlighter.lense .string, .syntaxhighlighter.lense .string a {
   color: blue !important;
 }
-.syntaxhighlighter .keyword {
+.syntaxhighlighter.lense .keyword {
   color: #4A86E8  !important;
 }
 
-.syntaxhighlighter .variable {
+.syntaxhighlighter.lense .variable {
   color: #aa7700 !important;
 }
-.syntaxhighlighter .value {
+.syntaxhighlighter.lense .value {
   color: #FF000C !important;
 }
-.syntaxhighlighter .functions {
+.syntaxhighlighter.lense .functions {
   color: #ff1493 !important;
 }
-.syntaxhighlighter .constants {
+.syntaxhighlighter.lense .constants {
   color: #0066cc !important;
 }
-.syntaxhighlighter .script {
+.syntaxhighlighter.lense .script {
   font-weight: bold !important;
   color: #006699 !important;
   background-color: none !important;
 }
-.syntaxhighlighter .color1, .syntaxhighlighter .color1 a {
+.syntaxhighlighter.lense .color1, .syntaxhighlighter.lense .color1 a {
   color: gray !important;
 }
-.syntaxhighlighter .color2, .syntaxhighlighter .color2 a {
+.syntaxhighlighter.lense .color2, .syntaxhighlighter.lense .color2 a {
   color: #ff1493 !important;
 }
-.syntaxhighlighter .color3, .syntaxhighlighter .color3 a {
+.syntaxhighlighter.lense .color3, .syntaxhighlighter.lense .color3 a {
   color: red !important;
 }
 
-.syntaxhighlighter .keyword {
+.syntaxhighlighter.lense .keyword {
   font-weight: bold !important;
 }
