@@ -28,6 +28,17 @@
 	<script src="js/shBrushJava.js"></script>
 		
 	<script src="js/shBrushLense.js"></script>
+
+
+    <!-- Le styles -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/asciidoctor.css" rel="stylesheet">
+    <link href="css/base.css" rel="stylesheet">
+    <link href="css/prettify.css" rel="stylesheet">
+  	<link rel="stylesheet" type="text/css" href="css/shCore.css"  >
+	<link rel="stylesheet" type="text/css" href="css/shThemeLense.css" >
+	<link rel="stylesheet" type="text/css" href="css/shThemeDefault.css" >
+	
 	<style>
 	 .console {
 	    background : black;
@@ -47,15 +58,11 @@
 	 	padding:2px !important;
 	 	margin : 0px !important;
 	 }
+	 
+	.syntaxhighlighter table .container:before {
+		display: none !important;
+	}
 	</style>
-
-    <!-- Le styles -->
-    <link href="css/bootstrap.min.css" rel="stylesheet">
-    <link href="css/asciidoctor.css" rel="stylesheet">
-    <link href="css/base.css" rel="stylesheet">
-    <link href="css/prettify.css" rel="stylesheet">
-  	<link rel="stylesheet" type="text/css" href="css/shCore.css"  >
-	<link rel="stylesheet" type="text/css" href="css/shThemeLense.css" >
 	
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
@@ -88,27 +95,33 @@
             <li class="dropdown">
 				<a href="#" class="dropdown-toggle" data-toggle="dropdown">Fundamentals<b class="caret"></b></a>
 				<ul class="dropdown-menu">
-					<li><a href="tour.html">Language Tour</a></li>
+					<li><a href="tour/tour.html">Language Tour</a></li>
 					<li class="disabled"><a href="guide.html">Programmer's Guide</a></li>
 					<li><a href="platforms.html">Target Platforms's Guide</a></li>
+						<li><a href="glossary.html">Glossary</a></li>
 				</ul>
             </li>
 			
             <li class="dropdown">
               <a href="#" class="dropdown-toggle" data-toggle="dropdown">Details<b class="caret"></b></a>
 				<ul class="dropdown-menu">
+					<li><a href="nullability.html">Nullability</a></li>
 					<li><a href="numbers.html">Numbers</a></li>
 					<li><a href="strings.html">Strings</a></li>
-					<li><a href="strings.html">Arrays</a></li>
+					<li><a href="arrays.html">Arrays</a></li>
 					
 					<li><a href="containerLiterals.html">Container Literals</a></li>
 					<li><a href="objects.html">Classes and Objects</a></li>
 					<li><a href="constructors.html">Constructors</a></li>
-					<li><a href="operators.html">Operators</a></li>		
+					<li><a href="properties.html">Properties</a></li>
+				
+					<li><a href="operators.html">Operators</a></li>	
+				
 					<li><a href="monads.html">Monads</a></li>
 					<li><a href="concurrency.html">Concurrency</a></li>
+					<li><a href="erasure.html">Type Erasure</a></li>
 					
-					<li class="disabled"><a href="enhancements.html">External Enhancements</a></li>
+					<li><a href="enhancements.html">External Enhancements</a></li>
 					
 				</ul>
             </li>
@@ -127,19 +140,19 @@
     </div>
 	<div class="corner-ribbon top-right sticky shadow"><a href="status.html">Exploration Stage</a></div>
     <div class="container">
-	<p><h1>Strings</h1><p>A string in Lense is a sequence of characters and implements <code>Sequence&lt;Character&gt;</code>. Characters are UTF-16 code points. A string literal is just a text enclosed in double quotes.</p>
-<pre><code class="brush: lense">	val String greating = &quot;Hello, world&quot;;
+	<p><h1>Strings</h1><p>A string in Lense is a sequence of characters and implements <code>Sequence&lt;Character&gt;</code>. Characters are UTF-16 code points.<br/>Strings are <a href="glossary.html#fundamental">fundamental types</a> in Lense so they are specially supported by the language.</p><h2>String Literals</h2><p>A string literal is just a text enclosed in double quotes.</p>
+<pre><code class="brush: lense">	val  greating : String = &quot;Hello, world&quot;;
 </code></pre><p>String are mulit-line, so you can simply right</p>
-<pre><code class="brush: lense">val String greating = &quot;Hello, 
+<pre><code class="brush: lense">val greating : String = &quot;Hello, 
 	wold&quot;;
 </code></pre><p>The line break , tab and spaces in the second line will be preserved.</p><h2>Special characters</h2><p>If you need to use a Unicode special character, simply enclose its hexadecimal code as a natural within <code>\{</code> and <code>}</code> delimiters.</p>
-<pre><code class="brush: lense">	val String definitionOfPi = &quot;The value of \{#03C0} is the ratio between the circumference and the diameter of a circle&quot;
-</code></pre><p>Strings are <a href="glossary.html#fundamental">fundamental types</a> in Lense and are mapped to the <code>String</code> class in the native platform.</p><h2>Concatenation</h2><p>You can concatenate strings using the <code>+</code> operator.</p>
-<pre><code class="brush: lense">	val String name = &quot;Alice&quot;;
-	val String greating = &quot;Hello, &quot; + name;
+<pre><code class="brush: lense">	val definitionOfPi = &quot;The value of \{#03C0} is the ratio between the circumference and the diameter of a circle&quot;
+</code></pre><h2>Concatenation</h2><p>You can concatenate strings using the <code>+</code> operator.</p>
+<pre><code class="brush: lense">	val name : String = &quot;Alice&quot;;
+	val greating : String = &quot;Hello, &quot; + name;
 </code></pre><h2>Interpolation</h2><p>You can interpolate values inside literal strings using <code>{{</code> and <code>}}</code> as delimiters.</p>
-<pre><code class="brush: lense">	val String name = &quot;Alice&quot;;
-	val String greating = &quot;Hello, {{ name }}&quot;;
+<pre><code class="brush: lense">	val name : String = &quot;Alice&quot;;
+	val greating : String = &quot;Hello, {{ name }}&quot;;
 </code></pre><p>You can interpolate any expression</p>
 <pre><code class="brush: lense">	for (var i in 1..10){
 		Console.println(&quot;The {{ i }}th even number is {{  (i-1) * 2 }}&quot;)

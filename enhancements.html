@@ -28,6 +28,17 @@
 	<script src="js/shBrushJava.js"></script>
 		
 	<script src="js/shBrushLense.js"></script>
+
+
+    <!-- Le styles -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/asciidoctor.css" rel="stylesheet">
+    <link href="css/base.css" rel="stylesheet">
+    <link href="css/prettify.css" rel="stylesheet">
+  	<link rel="stylesheet" type="text/css" href="css/shCore.css"  >
+	<link rel="stylesheet" type="text/css" href="css/shThemeLense.css" >
+	<link rel="stylesheet" type="text/css" href="css/shThemeDefault.css" >
+	
 	<style>
 	 .console {
 	    background : black;
@@ -47,15 +58,11 @@
 	 	padding:2px !important;
 	 	margin : 0px !important;
 	 }
+	 
+	.syntaxhighlighter table .container:before {
+		display: none !important;
+	}
 	</style>
-
-    <!-- Le styles -->
-    <link href="css/bootstrap.min.css" rel="stylesheet">
-    <link href="css/asciidoctor.css" rel="stylesheet">
-    <link href="css/base.css" rel="stylesheet">
-    <link href="css/prettify.css" rel="stylesheet">
-  	<link rel="stylesheet" type="text/css" href="css/shCore.css"  >
-	<link rel="stylesheet" type="text/css" href="css/shThemeLense.css" >
 	
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
@@ -88,27 +95,33 @@
             <li class="dropdown">
 				<a href="#" class="dropdown-toggle" data-toggle="dropdown">Fundamentals<b class="caret"></b></a>
 				<ul class="dropdown-menu">
-					<li><a href="tour.html">Language Tour</a></li>
+					<li><a href="tour/tour.html">Language Tour</a></li>
 					<li class="disabled"><a href="guide.html">Programmer's Guide</a></li>
 					<li><a href="platforms.html">Target Platforms's Guide</a></li>
+						<li><a href="glossary.html">Glossary</a></li>
 				</ul>
             </li>
 			
             <li class="dropdown">
               <a href="#" class="dropdown-toggle" data-toggle="dropdown">Details<b class="caret"></b></a>
 				<ul class="dropdown-menu">
+					<li><a href="nullability.html">Nullability</a></li>
 					<li><a href="numbers.html">Numbers</a></li>
 					<li><a href="strings.html">Strings</a></li>
-					<li><a href="strings.html">Arrays</a></li>
+					<li><a href="arrays.html">Arrays</a></li>
 					
 					<li><a href="containerLiterals.html">Container Literals</a></li>
 					<li><a href="objects.html">Classes and Objects</a></li>
 					<li><a href="constructors.html">Constructors</a></li>
-					<li><a href="operators.html">Operators</a></li>		
+					<li><a href="properties.html">Properties</a></li>
+				
+					<li><a href="operators.html">Operators</a></li>	
+				
 					<li><a href="monads.html">Monads</a></li>
 					<li><a href="concurrency.html">Concurrency</a></li>
+					<li><a href="erasure.html">Type Erasure</a></li>
 					
-					<li class="disabled"><a href="enhancements.html">External Enhancements</a></li>
+					<li><a href="enhancements.html">External Enhancements</a></li>
 					
 				</ul>
             </li>
@@ -128,9 +141,42 @@
 	<div class="corner-ribbon top-right sticky shadow"><a href="status.html">Exploration Stage</a></div>
     <div class="container">
 	<p><h1>Enhancements</h1><p>Normally we extend a class by means of inheritance. Inheritance may not be a good solution in some cases.<br/>Sometimes we need to extends the funcionally of a class without adding to the inheritance tree, e.g. when the class we are trying to extend is final.<br/>The standard pattern to do this is via a Decorator. A decorator holds a value of the original class and adds methods to it.<br/>Both class can share the same interface but normally that does not happen. </p><p>Decorator is a solution for the problem and can be implemented in any object oriented language, however is not very practical.</p><p>Other languages like C# and Gosu, enable the use of Extention Methods. Extention Methods are static methods declared<br/>in a special way so they can be called as normal methods (after a dot). Being static methods this methods can also be<br/>called normally using the static method calling syntax. </p>
-<pre><code class="brush:csharp">var domain = &#39;some@e.mail.com&quot;.GetDomain(); // GetDomain is not a standard method of type String
-Assert.AreEquals(&quot;e.mail.com&quot;, domain);
-</code></pre><p>Lense does not have static elements, so an extention method must be declared on an object and we apply the methods of that<br/>object to the original instance of the class we want to enhance. </p><p>When enhancing a given type we are in fact enhancing all subtypes aswell so polimorfism is at work. More generaly we<br/>can enhance types that conform to some generic rules and thus generics support is needed for enhancement.</p><p>The difference between enhancements and extention methods is that we can add more that just normal methods. We can also<br/>add constructors. </p><p>The difference between enhancements and traits it that traits are a inheritance base mechanism where when doing the mixin a new type is created<br/>while enhacements do not create a new type. They operate like static calls.</p><p>When compiling to he underlying platform the lense compiler does not really create an object so the methods can be called, the compiler is<br/>free to optmize the calls using static semantics if they are possible in he platform. </p><p>Enhancement implementations can only access public members of the enhanced type.</p><p>Interfaces cannot be fullfiled by adding enhancement methods.</p></p>
+<pre><code class="brush:csharp">String greating = &#39;ho&quot;.Repeat(4); // Repeat is not a standard method of type String
+assert(&quot;hohohoho&quot; == greating);
+</code></pre><p>Lense does not have static elements, so extention method must be declared on an object and we apply the methods of that<br/>object to the original instance of the class we want to enhance. </p>
+<pre><code class="brush:lense">public enhancement RepeatableString extends String {
+
+	public Repeat(count : Natural): String {
+		var result = &quot;&quot;;
+		for ( val i in 1..count){
+			result+= this; // this referes to the enhanced object
+		}
+		return result;
+	}
+}
+
+</code></pre><p>When enhancing a given type we are in fact enhancing all subtypes as well so polimorfism is at work. More generaly we<br/>can enhance types that conform to some generic rules and thus generics support is needed for enhancement.</p>
+<pre><code class="brush:lense">public enhancement MeasureableInterval extends Interval&lt;Natural&gt; {
+
+	public Length : Natural? {
+		get {
+		   return this.start.zip ( this.end , (start, end) -&gt;  end - start);
+		}
+	}
+}
+
+// normally intervals have no length because they are not iterable
+
+val stringInterval = |[ &#39;a&#39; , &#39;z&#39; ]|;
+val length = stringInterval.length; // will fail at compile time
+
+// but we can have a lenght if we have a closed interval of Naturals
+
+val naturalInterval = |[ 4 , 10 ]|;
+val length = naturalInterval.length; // ok, because we have an enhancement.
+
+assert( 6 == length);
+</code></pre><p>The difference between enhancements and extention methods is that we can add more that just normal methods. We can also<br/>add constructors and calculated properties. The only restriction is that no state can be added.</p><p>The difference between enhancements and traits it that traits are an inheritance base mechanism where we mix the code of the original type with that of the trait</p><p>When compiling to he underlying platform the lense compiler does not really create an object so the methods can be called, the compiler is<br/>free to optmize the calls using static semantics if they are possible in the platform. </p><p>Enhancement implementations can only access public members of the enhanced type.</p><p>Interfaces cannot be fullfiled by adding enhancement methods.</p></p>
 	
 		</div>
 		<div id="push"></div>

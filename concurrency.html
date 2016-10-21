@@ -28,6 +28,17 @@
 	<script src="js/shBrushJava.js"></script>
 		
 	<script src="js/shBrushLense.js"></script>
+
+
+    <!-- Le styles -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/asciidoctor.css" rel="stylesheet">
+    <link href="css/base.css" rel="stylesheet">
+    <link href="css/prettify.css" rel="stylesheet">
+  	<link rel="stylesheet" type="text/css" href="css/shCore.css"  >
+	<link rel="stylesheet" type="text/css" href="css/shThemeLense.css" >
+	<link rel="stylesheet" type="text/css" href="css/shThemeDefault.css" >
+	
 	<style>
 	 .console {
 	    background : black;
@@ -47,15 +58,11 @@
 	 	padding:2px !important;
 	 	margin : 0px !important;
 	 }
+	 
+	.syntaxhighlighter table .container:before {
+		display: none !important;
+	}
 	</style>
-
-    <!-- Le styles -->
-    <link href="css/bootstrap.min.css" rel="stylesheet">
-    <link href="css/asciidoctor.css" rel="stylesheet">
-    <link href="css/base.css" rel="stylesheet">
-    <link href="css/prettify.css" rel="stylesheet">
-  	<link rel="stylesheet" type="text/css" href="css/shCore.css"  >
-	<link rel="stylesheet" type="text/css" href="css/shThemeLense.css" >
 	
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
@@ -88,27 +95,33 @@
             <li class="dropdown">
 				<a href="#" class="dropdown-toggle" data-toggle="dropdown">Fundamentals<b class="caret"></b></a>
 				<ul class="dropdown-menu">
-					<li><a href="tour.html">Language Tour</a></li>
+					<li><a href="tour/tour.html">Language Tour</a></li>
 					<li class="disabled"><a href="guide.html">Programmer's Guide</a></li>
 					<li><a href="platforms.html">Target Platforms's Guide</a></li>
+						<li><a href="glossary.html">Glossary</a></li>
 				</ul>
             </li>
 			
             <li class="dropdown">
               <a href="#" class="dropdown-toggle" data-toggle="dropdown">Details<b class="caret"></b></a>
 				<ul class="dropdown-menu">
+					<li><a href="nullability.html">Nullability</a></li>
 					<li><a href="numbers.html">Numbers</a></li>
 					<li><a href="strings.html">Strings</a></li>
-					<li><a href="strings.html">Arrays</a></li>
+					<li><a href="arrays.html">Arrays</a></li>
 					
 					<li><a href="containerLiterals.html">Container Literals</a></li>
 					<li><a href="objects.html">Classes and Objects</a></li>
 					<li><a href="constructors.html">Constructors</a></li>
-					<li><a href="operators.html">Operators</a></li>		
+					<li><a href="properties.html">Properties</a></li>
+				
+					<li><a href="operators.html">Operators</a></li>	
+				
 					<li><a href="monads.html">Monads</a></li>
 					<li><a href="concurrency.html">Concurrency</a></li>
+					<li><a href="erasure.html">Type Erasure</a></li>
 					
-					<li class="disabled"><a href="enhancements.html">External Enhancements</a></li>
+					<li><a href="enhancements.html">External Enhancements</a></li>
 					
 				</ul>
             </li>
@@ -130,10 +143,10 @@
 	<p><h1>Parallelism and Concurrency</h1><p>Lense chooses not to force any specific memory model or thread model because there is no guarantee it would be available in all platforms.<br/>Instead if defines types and libraries that can be used to take advantege of the platform parallelism, if any exists.<br/>So, concurrency is enabled, not by language constructs, but by means of specific APIs that hide the details of parallelism and concurrency.</p><h2>Promises and Deference</h2><p>A <code>Promise</code> is a monad that can hold functions to be executed once a value is calculated. The promise does not define if the calculation is executed in another thread or not, but conceptually is better to work as if it where. The thread that executes the value also executes the passed functions. A promise holds a function for when the value is calculated sucessufly and a function for when the promise can not be calculated, i.e. the calculation ends in an exception.</p>
 <pre><code class="brush: lense">public interface Promise&lt;T&gt; {
 
-	Promise&lt;T&gt; then (Action&lt;T&gt; onSuccess);
-	Promise&lt;Nothing&gt; catch (Action&lt;Exception&gt; onError)
+	public then ( onSuccess: Action&lt;T&gt;) : Promise&lt;T&gt; ;
+	public catch ( onError: Action&lt;Exception&gt;) : Promise&lt;Nothing&gt;
 	
-	Promise&lt;R&gt; map (Function&lt;R,T&gt; transformation);
+	public map &lt;R&gt;( transformation: Function&lt;R,T&gt;): Promise&lt;R&gt; ;
 }   
 </code></pre><p>A <code>Deferred</code> is a <code>Promise</code> factory that holds a private relation to the created <code>Promise</code>.<code>Deferred</code> objects also do not define the concurrency model. They are simply a factory that holds control of the internal state of the promise. Is the <code>Deferred</code> object that receives the value after the calculation is executed and triggers the <code>then</code> function, or triggers the <code>catch</code> function after an exception is detected. The calculation itself is handled by a third object. </p><p>A simple example that do not uses concurrency could be something like this:</p>
 <pre><code class="brush: lense">public object Calculator{
@@ -141,12 +154,12 @@
     // calculates the n-th element in the fibonacci sequence
     // 0	1	2	3	4	5	6	7 ...
     // 0	1	1	2	3	5	8	13 ...
-	public Promise&lt;Natural&gt; fibonacci(Natural n) {
-	         Deferred&lt;Natural&gt; deferred = new Deferred.empty();
+	public fibonacci( n: Natural)  {
+	        val deferred  = new Deferred.empty();
 	         
 	         try {
 	         
-	         		Natural fibonacci = calculateRecursively (n);
+	         		val fibonacci = calculateRecursively (n);
 	         		deferred.sucess(fibonacci);
 	         	} catch (Exception e){
 	         		deferred.error(e);
@@ -155,7 +168,7 @@
 	         return deferred.promisse(); 
 	}
 	
-	private Natural calculateRecursively (Natural n){
+	private  calculateRecursively ( n:  Natural){
 		if (n &lt;= 1){
 			return n;
 		} else if (n &gt; 1000){
@@ -171,17 +184,17 @@
 </code></pre><p>This implementation does not use concurrency but the client code calling the <code>fibonacci</code> function has no way of knowing this, so it has to assume the code is calculated concurrently. Later, the implementation can evolve to a concurrent of even distributed version without consequences to the calling code.</p><h2>Executors</h2><p>An <code>Executor</code> is an object that can create another thread of execution to run a given function.<br/>The calling code will continue to run after the executor is called, enabling concurrency.</p><p>There are two principal executors in the standard API: the <code>TimedExecutor</code> and the <code>DeferredExecutor</code>. The <code>TimedExecutor</code> enables code to be run after some time as elapsed. <code>DefferedExecutor</code> allows the code to run immediately (in another thread). </p>
 <pre><code class="brush: lense ">public object TimedExecutor {
 
-	Promise&lt;T&gt; runAfter&lt;T&gt;(Duration duration, Function&lt;T&gt; calculation);
-	Promise&lt;T&gt; runAt&lt;T&gt;(TimePoint timePoint, Function&lt;T&gt; calculation);
-	Void runEvery(Duration duration, Runnable runnable); 
+	public runAfter&lt;T&gt;( duration : Duration, calculation : Function&lt;T&gt; ) : Promise&lt;T&gt; ;
+	public runAt&lt;T&gt;( timePoint : TimePoint, calculation : Function&lt;T&gt; ): Promise&lt;T&gt; ;
+	public runEvery( duration : Duration, Runnable runnable) : Void; 
 }
 
 public object DeferredExecutor {
 
-	Promise&lt;T&gt; run&lt;T&gt;(Function&lt;T&gt; calculation);
+	public run&lt;T&gt;(calculation : Function&lt;T&gt; ) : Promise&lt;T&gt;;
 }
 </code></pre><p><code>Executor</code>s return promises that can then be combined (they are monads) to produce a result. This is equivalent to a wait/notify/join mechanism without all the fuss and without having to be specific about a thread model.</p><p>The <code>TimedExecutor</code> and <code>DeferredExecutor</code> are implemented in java using the Java Executor API. In javascript are implemented using <code>window.setTimeout</code>.<br/><code>Deferred</code> objects are used internally to create and control <code>Promises</code>. </p><h2>Actors (Under Consideration)</h2><p><code>Actor</code>s enable a message based communication between different threads that can be, even, distributed in one or more machines. The Actor model is similar to Java Messaging Service in Java or Web Workers in javascript, in the sense messages are exchanged back and forward but is different as to the endpoints envolved. However the technology that enables the actor to send and receive the messages depends on the <code>ActorEnvironment</code> used. The environment determines how the messages are handled and several different implementations are possible. The actors exist in the scope of a specific environment. For example, in a javascript an environment based on <em>websockets</em> would be a natural choice. But is as not be a raw websocket implementation an other APIs like <em>Stomp</em> can be used. A possible code would be:</p>
-<pre><code class="brush: lense ">ActorEnvironment env = new StompActorEnvironment(&quot;http://server.side.address.com&quot;);
+<pre><code class="brush: lense ">val env : ActorEnvironment = new StompActorEnvironment(&quot;http://server.side.address.com&quot;);
 
 // register the actor with a name
 
@@ -223,7 +236,7 @@ public class PrintActor extends Actor {
 
 }
 </code></pre><p>This code will create and register two actors. One calculates the fibonacci sequence; the second, prints the calculated value.<br/>Actors communicate thought messages. Each actor has access to the environment is registered with and can use it to send messages to other actors. </p><p>The communication is normally asynconous whenever the <code>sendTo</code> method is called. Actors allow for more complex concurrent scenarios and patterns like Producer-Consumer. </p><h2>Passing data between actors</h2><p>All data passed between actors is not shared, we do not want a shared memory model. This means the objects passed and payload need to be serializable. If the objects are serializable, we can always serialize the object and desialize it to obtain a copy. This also is a requirement if we need to transfer the object to another machine (depending on the ActorEnvironment).</p><p>For in memory enviroments the envoriment can opt for not serializing the object if it is imutable hence not consuming serialization resources.<br/>If objects are imuable there is no risk in sharing them as the original creator cannot change them. </p><p>So the <code>sendTo</code> method takes a <code>Serializable</code> as its message payload:</p>
-<pre><code class="brush: lense ">public Void sendTo(String actorId, Serializable message)
+<pre><code class="brush: lense ">public  sendTo( actorId : String,  message: Serializable) : Void
 </code></pre></p>
 	
 		</div>

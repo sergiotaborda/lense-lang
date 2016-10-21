@@ -28,6 +28,17 @@
 	<script src="js/shBrushJava.js"></script>
 		
 	<script src="js/shBrushLense.js"></script>
+
+
+    <!-- Le styles -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/asciidoctor.css" rel="stylesheet">
+    <link href="css/base.css" rel="stylesheet">
+    <link href="css/prettify.css" rel="stylesheet">
+  	<link rel="stylesheet" type="text/css" href="css/shCore.css"  >
+	<link rel="stylesheet" type="text/css" href="css/shThemeLense.css" >
+	<link rel="stylesheet" type="text/css" href="css/shThemeDefault.css" >
+	
 	<style>
 	 .console {
 	    background : black;
@@ -47,15 +58,11 @@
 	 	padding:2px !important;
 	 	margin : 0px !important;
 	 }
+	 
+	.syntaxhighlighter table .container:before {
+		display: none !important;
+	}
 	</style>
-
-    <!-- Le styles -->
-    <link href="css/bootstrap.min.css" rel="stylesheet">
-    <link href="css/asciidoctor.css" rel="stylesheet">
-    <link href="css/base.css" rel="stylesheet">
-    <link href="css/prettify.css" rel="stylesheet">
-  	<link rel="stylesheet" type="text/css" href="css/shCore.css"  >
-	<link rel="stylesheet" type="text/css" href="css/shThemeLense.css" >
 	
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
@@ -88,27 +95,33 @@
             <li class="dropdown">
 				<a href="#" class="dropdown-toggle" data-toggle="dropdown">Fundamentals<b class="caret"></b></a>
 				<ul class="dropdown-menu">
-					<li><a href="tour.html">Language Tour</a></li>
+					<li><a href="tour/tour.html">Language Tour</a></li>
 					<li class="disabled"><a href="guide.html">Programmer's Guide</a></li>
 					<li><a href="platforms.html">Target Platforms's Guide</a></li>
+						<li><a href="glossary.html">Glossary</a></li>
 				</ul>
             </li>
 			
             <li class="dropdown">
               <a href="#" class="dropdown-toggle" data-toggle="dropdown">Details<b class="caret"></b></a>
 				<ul class="dropdown-menu">
+					<li><a href="nullability.html">Nullability</a></li>
 					<li><a href="numbers.html">Numbers</a></li>
 					<li><a href="strings.html">Strings</a></li>
-					<li><a href="strings.html">Arrays</a></li>
+					<li><a href="arrays.html">Arrays</a></li>
 					
 					<li><a href="containerLiterals.html">Container Literals</a></li>
 					<li><a href="objects.html">Classes and Objects</a></li>
 					<li><a href="constructors.html">Constructors</a></li>
-					<li><a href="operators.html">Operators</a></li>		
+					<li><a href="properties.html">Properties</a></li>
+				
+					<li><a href="operators.html">Operators</a></li>	
+				
 					<li><a href="monads.html">Monads</a></li>
 					<li><a href="concurrency.html">Concurrency</a></li>
+					<li><a href="erasure.html">Type Erasure</a></li>
 					
-					<li class="disabled"><a href="enhancements.html">External Enhancements</a></li>
+					<li><a href="enhancements.html">External Enhancements</a></li>
 					
 				</ul>
             </li>
@@ -164,69 +177,70 @@
   <ul>
     <li>ComplexOverReals<T extends Real>; - Use a Real to type to store a numeric value for the real part and a ImaginaryOverReals<T> for the imaginary part.</li>
   </ul></li>
-</ul><p>Type <code>Natural</code> is used as an indexer for <code>Sequence</code>s. Limits to collections like arrays, lists and maps are only bound by limit of Natural which in turn is limited only by available memory.<br/>Using a Natural to index sequences removes the necessity to check for negative indexes and because <code>Arrays</code> always have a upper limit and always are constructed by <a href="constructors.html#factory">factory like constructors</a> the implementation for each platform can accommodate different implementations according to maximum length demand.</p><p>For more information on how Natural relates to index of sequences, see how <a href="arrays.html">Arrays</a> work in Lense.<br/>For more information on arithmetic operations more on Lense <a href="operators.html">operators</a>.</p><h2>Number Literals</h2><p>For <code>Whole</code> number literals are always assumed <code>Natural</code> and in base ten representation. The natural values are transformed to other types as needed.<br/>This conversion may rise an <code>OverflowException</code> as a <code>Natural</code> can exceed the maximum values of other types. For <code>Decimal</code> values, literals are always assumed to be instance of <code>BigDecimal</code>. <code>BigDecimal</code> constructor only accepts a string representation of the value as the BigDecimal literal representation must be exact.</p><p>If you need to define the type of the literal explicitly you can use specific sufixes, upper case letters for whole numbers and lowercase letters to decimal numbers.</p>
+</ul><p>Type <code>Natural</code> is used as an indexer for <code>Sequence</code>s. Limits to collections like arrays, lists and maps are only bound by the limit of Natural which in turn is limited only by available memory.<br/>Using a Natural to index sequences removes the necessity to check for negative indexes and because <code>Arrays</code> always have a upper limit and always are constructed by <a href="constructors.html#factory">factory like constructors</a> the implementation for each platform can accommodate different implementations according to maximum length demand.</p><p>For more information on how Natural relates to index of sequences, see how <a href="arrays.html">Arrays</a> work in Lense.<br/>For more information on arithmetic operations more on Lense <a href="operators.html">operators</a>.</p><h2>Number Literals</h2><p>Literals with no decimal part are always assumed <code>Natural</code> and in base ten representation. The natural values are transformed to other types as needed.<br/>This conversion may rise an <code>OverflowException</code> becasue a <code>Natural</code> can exceed the maximum values of other types. For example, atribuiting a natural to a Int32.<br/>For literals with a decimal part , they are always assumed <code>Rational</code>. This is because irrational numbers cannot , in general, be represented literally.</p><p>If you need to define the type of the literal explicitly you can use specific sufixes, upper case letters for whole numbers and lowercase letters to decimal numbers.</p>
 <pre><code class="brush: lense">	var Natural n = 1; // equivalent to Natural.valueOf(&quot;1&quot;)
 	
 	// literals are always assumed to be Natural and promoted when necessary
-	var Int32 i = 1;  // equivalent to Int32.valueOf(Natural.valueOf(&quot;1&quot;));
-	var Int16 s = 1;  // equivalent to Int16.valueOf(Natural.valueOf(&quot;1&quot;));
-	var Int64 k = 1;  // equivalent to Int64.valueOf(Natural.valueOf(&quot;1&quot;));
-	var BigInt g = 1;  // equivalent to BigInt.valueOf(Natural.valueOf(&quot;1&quot;));
+	var i : Int32 = 1;  // equivalent to Int32.valueOf(Natural.valueOf(&quot;1&quot;));
+	var s : Int16 = 1;  // equivalent to Int16.valueOf(Natural.valueOf(&quot;1&quot;));
+	var k : Int64 = 1;  // equivalent to Int64.valueOf(Natural.valueOf(&quot;1&quot;));
+	var g : BigInt = 1;  // equivalent to BigInt.valueOf(Natural.valueOf(&quot;1&quot;));
 	
 	// If the target type is Whole or Integer, the literal it&#39;s equivalent to having BigInt as target 
-	var Whole n = 1; // equivalent to BigInt.valueOf(Natural.valueOf(&quot;1&quot;));
-	var Integer all = 1;  // equivalent to BigInt.valueOf(Natural.valueOf(&quot;1&quot;));
+	var w : Whole = 1; // equivalent to BigInt.valueOf(Natural.valueOf(&quot;1&quot;));
+	var u : Integer = 1;  // equivalent to BigInt.valueOf(Natural.valueOf(&quot;1&quot;));
 	
 	// sufixes can be used to inform the compiler the correct type of the literal
 	// for whole numbers only uppercase prefixes are allowed 
-	var Int32 ii = 1Z;  // equivalent to Int32.valueOf(&quot;1&quot;);
-	var Int16 ss = 1S;  // equivalent to Int16.valueOf(&quot;1&quot;);
-	var Int64 kk = 1L;  // equivalent to Int64.valueOf(&quot;1&quot;);
-	var BigInt gg = 1G;  // equivalent to BigInt.valueOf(&quot;1&quot;);
+	var ii : Int32 = 1Z;  // equivalent to Int32.valueOf(&quot;1&quot;);
+	var ss : Int16 = 1S;  // equivalent to Int16.valueOf(&quot;1&quot;);
+	var kk : Int64 = 1L;  // equivalent to Int64.valueOf(&quot;1&quot;);
+	var gg : BigInt = 1G;  // equivalent to BigInt.valueOf(&quot;1&quot;);
 	
 	// Rationals are defined by the division of two whole positive values. 
-	var Rational r = 2/3; // equivalent to Natural.valueOf(&quot;2&quot;).divide(Natural.valueOf(&quot;3&quot;))
-	var Rational q = -5/8; // equivalent to Natural.valueOf(&quot;5&quot;).negate().divide(Natural.valueOf(&quot;8&quot;));
-	var Rational q = -x/y; // equivalent to Natural.valueOf(x).negate().divide(Natural.valueOf(y));
+	var r : Rational = 2/3; // equivalent to Natural.valueOf(&quot;2&quot;).divide(Natural.valueOf(&quot;3&quot;))
+	var q : Rational = -5/8; // equivalent to Natural.valueOf(&quot;5&quot;).negate().divide(Natural.valueOf(&quot;8&quot;));
+	var q : Rational = -x/y; // equivalent to Natural.valueOf(x).negate().divide(Natural.valueOf(y));
 	
-	// In this case 1 is a Natural being promoted to a Decimal32.
-	var Decimal32 f = 1; // equivalent to Decimal32.valueOf(Natural.valueOf(&quot;1&quot;));
+	// In this case the value is a Natural being promoted to a Decimal32.
+	var f : Decimal32 = 1; // equivalent to Decimal32.valueOf(Natural.valueOf(&quot;1&quot;));
 	
-	// decimal values are always assumed to be BigDecimals
-	var Decimal32 ff = 1.6; // equivalent to Decimal32.valueOf(BigDecimal.valueOf(&quot;1.6&quot;));
-	var Decimal64 d = 2.0; // equivalent to Decimal64.valueOf(BigDecimal.valueOf(&quot;2.0&quot;));
-	var BigDecimal m = 1.234567890E100; // equivalent to BigDecimal.valueOf(&quot;1.234567890E100&quot;);
+	// decimal values are always assumed to be Rational
+	var rr : Rational = 1.4 //  equivalent to Rational.valueOf(&quot;1.4&quot;);
+	var ff : Decimal32 = 1.6; // equivalent to Decimal32.valueOf(Rational.valueOf(&quot;1.6&quot;));
+	var d  : Decimal64 = 2.0; // equivalent to Decimal64.valueOf(Rational.valueOf(&quot;2.0&quot;));
+	var m  : BigDecimal = 1.234567890E100; // equivalent to BigDecimal.valueOf(Rational.valueOf(&quot;2.0&quot;));
 
 	// prefixes can also be used to inform the compiler the correct type of the literal
 	// for non whole numbers only lower-case prefixes are allowed 
-	var Decimal32 fff = 1.6f; // equivalent to Decimal32.valueOf(&quot;1.6&quot;);
-	var Decimal64 dd = 2.0d; // equivalent to Decimal64.valueOf(&quot;2.0&quot;);
-	var BigDecimal mm = 1m; // equivalent to BigDecimal.valueOf(&quot;1&quot;);
+	var fff : Decimal32 = 1.6f; // equivalent to Decimal32.valueOf(&quot;1.6&quot;);
+	var dd : Decimal64 = 2.0d; // equivalent to Decimal64.valueOf(&quot;2.0&quot;);
+	var mm : BigDecimal = 1m; // equivalent to BigDecimal.valueOf(&quot;1&quot;);
 	
 	
-	var Imaginary a = 2i; // equivalent to Imaginary.valueOf(Natural.valueOf(&quot;2&quot;));
-	var Imaginary b = 2.5i; // equivalent to Imaginary.valueOf(BigDecimal.valueOf(&quot;2.5&quot;));
+	var a : Imaginary = 2i; // equivalent to Imaginary.valueOf(Natural.valueOf(&quot;2&quot;));
+	var b : Imaginary = 2.5i; // equivalent to Imaginary.valueOf(Rational.valueOf(&quot;2.5&quot;));
 	
-	var Imaginary error = 2; // does not compile because a Natural can not be converted to an Imaginary number
+	var error : Imaginary = 2; // does not compile because a Natural can not be converted to an Imaginary number
 
-	var Complex = 5 + 2i; // equivalent to Natural.valueOf(&quot;5&quot;).plus(Imaginary.valueOf(Natural.valueOf(&quot;2&quot;)))
-	var Complex = 3.9 + 0.2i; // equivalent to BigDecimal.valueOf(&quot;3.9&quot;).plus(Imaginary.valueOf(BigDecimal.valueOf(&quot;0.2&quot;))
+	var c: Complex = 5 + 2i; // equivalent to Natural.valueOf(&quot;5&quot;).plus(Imaginary.valueOf(Natural.valueOf(&quot;2&quot;)))
+	var d: Complex = 3.9 + 0.2i; // equivalent to Rational.valueOf(&quot;3.9&quot;).plus(Imaginary.valueOf(Rational.valueOf(&quot;0.2&quot;))
 </code></pre><p>In any representation you can use _ to logically separate digits in the value to help readability.</p>
-<pre><code class="brush: lense">	var Integer -1000000;
+<pre><code class="brush: lense">	var x : Integer -1000000;
 	// or
-	var Integer = -1_000_000;
+	var x : Integer = -1_000_000;
 </code></pre><h3>Other Bases for Literal Representations</h3><p>Numeral literals are assumed to be represented in decimal form (base 10) for all types. For naturals it is also possible to use the hexadecimal (base 16) form.</p><p>The hexadecimal form begins with a <code>#</code> symbol followed by a valid hexadecimal digit: 1, 2, 3, 4, 5, 6, 7, 8, A , B, C, D , E , F. You can also use _ to separate digits like in base ten representation.</p>
-<pre><code class="brush: lense">	var Natural color = #A3_C1; // hexadecimal
-</code></pre><h2>Binary and Bytes</h2><p>Lense supports the <code>Binary</code> immutable interface to represent any value that can be understood as a sequence of bits. <code>Binary</code> does not,necessarily, represent a number. <code>BitArray</code> is the default, mutable, implementation of <code>Binary</code> present in the SDK API. <code>BitArray</code> supports a variable size of bits.</p><p><code>Byte</code> is a special class that implements <code>Binary</code> corresponding to a fixed length sequence of 8 bits. It's primarily used for I/O operations. <code>Byte</code> is not a number, does not have an assigned numeric value and there is no automatic promotion from <code>Byte</code> to any type of <code>Number</code>. Also it has no arithmetic operations. However, a <code>Byte</code> can be transformed explicitly to a <code>Natural</code> between 0 and 255 or to a <code>Int32</code> between -128 and 127 by means of the <code>toNatural()</code> and <code>toInteger()</code> functions.</p>
-<pre><code class="brush: lense">	var Byte byte = $1111_0000; 
-	var Natural n = byte.toNatural(); // equivalent to 240;
-	var Int32 i = byte.toInteger(); // equivalent to -16
+<pre><code class="brush: lense">	var  color : Natural = #FF_EE_00; // hexadecimal
+</code></pre><h2>Binary and Bytes</h2><p>Lense supports the <code>Binary</code> immutable interface to represent any value that can be understood as a sequence of bits. <code>Binary</code> does not,necessarily, represent a number.<br/>Two default implementations of Binary exist : <code>BitArray</code>is a size imutable implementation , while is <code>BitList</code> a size mutable implementation.<br/><code>BitList</code> supports a variable size of bits. <code>BitArray</code> supports a fixed length of bits.</p><p><code>Byte</code> is a special class that also implements <code>Binary</code> corresponding to a fixed length sequence of 8 bits. It's primarily intented for use in I/O operations. <code>Byte</code> is not a number, does not have an assigned numeric value and there is no automatic promotion from <code>Byte</code> to any type of <code>Number</code>. Also it has no arithmetic operations. However, a <code>Byte</code> can be transformed explicitly to a <code>Natural</code> between 0 and 255 or to a <code>Int32</code> between -128 and 127 by means of the <code>toNatural()</code> and <code>toInteger()</code> functions.</p>
+<pre><code class="brush: lense">	var  byte : Byte = $1111_0000; 
+	var  n : Natural = byte.toNatural(); // equivalent to 240;
+	var  i : Int32 = byte.toInteger(); // equivalent to -16
 	
-	var Natural error = byte; // illegal. Byte is not assignable to Natural.
-</code></pre><p><code>Int16</code> , <code>Int32</code> and <code>Int64</code> also implement <code>Binary</code> corresponding to a fixed length sequence of 16, 32 and 64 bits respectively. Because this values have a signed numeric value, one of the bits is reserved to determine the sign. The rest of the bits represent the value if the value is positive, else represent the Two Complement representation of the (then negative) value.</p><h3>Literal Representation</h3><p>The literal begins with a <code>$</code> sign flowed by a sequence of ones (to represent <code>true</code>) and zeros (to represent <code>false</code>). The <code>_</code> symbol can be used, as in number literals, to separate digit logically.</p><p>All binary literals are assumed to be instances of <code>BitArray</code>s of the given number of bits. It is not possible to have a zero bits sequence. </p>
-<pre><code class="brush: lense">	var Byte byte = $1111_0000; // equivalent to Byte.valueOf(BitArray.valueOf(true,true,true,true,false,false,false,false));
-	var Int16 short = $1111_0000_1111_0000; // equivalent to Int16.valueOf(BitArray.valueOf(true,true,true,true,false,false,false,false,true,true,true,true,false,false,false,false));
-	var BitArray flags = $1111_0000_0101_0110_0010_0001_0101_1001; // equivalent to BitArray.valueOf(true,true,true,true,false,false,false,false,true,false,tru,false,true,true,false,false,false,false,false,false,false,false,true,false,true,false,true,true,false,false,true);
+	var error : Natural = byte; // illegal. Byte is not assignable to Natural.
+</code></pre><p><code>Int16</code> , <code>Int32</code> and <code>Int64</code> also implement <code>Binary</code> corresponding to a fixed length sequence of 16, 32 and 64 bits respectively. Because this values have a signed numeric value, one of the bits is reserved to determine the sign. The rest of the bits represent the value if the value is positive, else represent the Two Complement representation of the (then negative) value.</p><h3>Binary Literal Representation</h3><p>The literal of binary begins with a <code>$</code> sign flowed by a sequence of ones (to represent <code>true</code>) and zeros (to represent <code>false</code>). The <code>_</code> symbol can be used, as in number literals, to separate digits logically.</p><p>All binary literals are assumed to be instances of <code>BitArray</code> with the given number of bits. It is not possible to have literal for a zero bits sequence. </p>
+<pre><code class="brush: lense">	var  byte : Byte= $1111_0000; // equivalent to Byte.valueOf(BitArray.valueOf(true,true,true,true,false,false,false,false));
+	var  short : Int16 = $1111_0000_1111_0000; // equivalent to Int16.valueOf(BitArray.valueOf(true,true,true,true,false,false,false,false,true,true,true,true,false,false,false,false));
+	var  flags : BitArray = $1111_0000_0101_0110_0010_0001_0101_1001; // equivalent to BitArray.valueOf(true,true,true,true,false,false,false,false,true,false,true,false,true,true,false,false,false,false,false,false,false,false,true,false,true,false,true,true,false,false,true);
 </code></pre><p><em>Note the equivalent expressions are conceptual, in practice the compiler uses more suitable constructors for each case.</em></p></p>
 	
 		</div>

@@ -28,6 +28,17 @@
 	<script src="js/shBrushJava.js"></script>
 		
 	<script src="js/shBrushLense.js"></script>
+
+
+    <!-- Le styles -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/asciidoctor.css" rel="stylesheet">
+    <link href="css/base.css" rel="stylesheet">
+    <link href="css/prettify.css" rel="stylesheet">
+  	<link rel="stylesheet" type="text/css" href="css/shCore.css"  >
+	<link rel="stylesheet" type="text/css" href="css/shThemeLense.css" >
+	<link rel="stylesheet" type="text/css" href="css/shThemeDefault.css" >
+	
 	<style>
 	 .console {
 	    background : black;
@@ -47,15 +58,11 @@
 	 	padding:2px !important;
 	 	margin : 0px !important;
 	 }
+	 
+	.syntaxhighlighter table .container:before {
+		display: none !important;
+	}
 	</style>
-
-    <!-- Le styles -->
-    <link href="css/bootstrap.min.css" rel="stylesheet">
-    <link href="css/asciidoctor.css" rel="stylesheet">
-    <link href="css/base.css" rel="stylesheet">
-    <link href="css/prettify.css" rel="stylesheet">
-  	<link rel="stylesheet" type="text/css" href="css/shCore.css"  >
-	<link rel="stylesheet" type="text/css" href="css/shThemeLense.css" >
 	
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
@@ -88,27 +95,33 @@
             <li class="dropdown">
 				<a href="#" class="dropdown-toggle" data-toggle="dropdown">Fundamentals<b class="caret"></b></a>
 				<ul class="dropdown-menu">
-					<li><a href="tour.html">Language Tour</a></li>
+					<li><a href="tour/tour.html">Language Tour</a></li>
 					<li class="disabled"><a href="guide.html">Programmer's Guide</a></li>
 					<li><a href="platforms.html">Target Platforms's Guide</a></li>
+						<li><a href="glossary.html">Glossary</a></li>
 				</ul>
             </li>
 			
             <li class="dropdown">
               <a href="#" class="dropdown-toggle" data-toggle="dropdown">Details<b class="caret"></b></a>
 				<ul class="dropdown-menu">
+					<li><a href="nullability.html">Nullability</a></li>
 					<li><a href="numbers.html">Numbers</a></li>
 					<li><a href="strings.html">Strings</a></li>
-					<li><a href="strings.html">Arrays</a></li>
+					<li><a href="arrays.html">Arrays</a></li>
 					
 					<li><a href="containerLiterals.html">Container Literals</a></li>
 					<li><a href="objects.html">Classes and Objects</a></li>
 					<li><a href="constructors.html">Constructors</a></li>
-					<li><a href="operators.html">Operators</a></li>		
+					<li><a href="properties.html">Properties</a></li>
+				
+					<li><a href="operators.html">Operators</a></li>	
+				
 					<li><a href="monads.html">Monads</a></li>
 					<li><a href="concurrency.html">Concurrency</a></li>
+					<li><a href="erasure.html">Type Erasure</a></li>
 					
-					<li class="disabled"><a href="enhancements.html">External Enhancements</a></li>
+					<li><a href="enhancements.html">External Enhancements</a></li>
 					
 				</ul>
             </li>
@@ -130,17 +143,17 @@
 	<p><p>Lense does not have primitives (values that are not objects) and thus all values are objets , all objects decend from some class and all variables are references.<br/>The Lense back-end compiler may try to use the native plataform's primitives as much as possible to enhance performance, but this is an otimization. Conceptually primitives do not exist.<br/>All being objetcs also means no static members exist.</p><h1>Classes</h1><p>Classes are the main tool to define your own objects.<br/>A class to represent fraction objects could be implemented like so:</p>
 <pre><code class="brush: lense">public val class Fraction {
     
-    val Integer numerator;
-    val Integer denominator;
+    val numerator : Integer;
+    val denominator : Integer;
 
-    private constructor (Integer numerator, Integer denominator);
+    private constructor ( numerator: Integer,  denominator: Integer);
 
-    constructor valueOf (Decimal value){
+    constructor valueOf ( value: Decimal){
         return new Fraction(value.toString());
     }
 
-    constructor valueOf (String value){
-         val Natural? pos = value.indexOf(&#39;.&#39;);
+    constructor valueOf (value : String){
+         val pos : Natural? = value.indexOf(&#39;.&#39;);
          if (pos.hasValue){
             val wholePart = new Integer.parse(value.subString(0,pos));
             val multiplier =  10 ** (value.length - pos); // 10 to the power of the number of decimal digits
@@ -155,35 +168,35 @@
          }
     }
 
-    public Fraction multiply (Fraction other ){
+    public multiply ( other : Fraction) : Fraction{
           return new Fraction ( this.numerator * other.numerator, this.denominator * other.denominator);
     }
 
-    public Fraction invert (){
+    public invert () : Fraction{
         return new Fraction (this.denominator, this.numerator);
     }
 
-    public Integer Numerator { get { return numerator; } } 
+    public Numerator : Integer { get { return numerator; } } 
 
-    public Integer Denominator { get { return denominator; } } 
+    public Denominator : Integer { get { return denominator; } } 
 
 }
 </code></pre><p>Classes in Lense support fields, properties, indeers, methods and constructors as you would expect.<br/>Lense also support imutability declaration for classes with <code>val class</code>.<br/>Any type or member can also have generic type parameters.</p>
 <pre><code class="brush: lense">public class Matrix&lt;T&gt; { 
 
-    val Array&lt;T&gt; backingArray = new Array&lt;T&gt;();
+    val backingArray : Array&lt;T&gt; = new Array&lt;T&gt;();
 
-    val Natural rowsCount;
-    val Natural colsCount;
+    val rowsCount : Natural;
+    val colsCount : Natural;
 
-    constructor Matrix(Natural rowsCount, Natural colsCount){
+    constructor Matrix( rowsCount : Natural, colsCount : Natural){
         this.rowsCount = rowsCount;
         this.colsCount = colsCount;
 
         backingArray = new Array&lt;T&gt;(rowsCount * colsCount);
     }
 
-    public T [Natural row, Natural column] {
+    public  [row : Natural, column: Natural] : T {
         get {
             return backingArray[row * ]
         }        
@@ -196,7 +209,7 @@
 </code></pre><h1>Objects</h1><p>Instead of static members, Lense has object delcarations. An object declaration instructs the compiler to<br/>create a singleton object the exists in the package space.</p>
 <pre><code class="brush: lense">public object Console {
 
-	public Void println(String text){
+	public println(String text) {
          // implementation goes here ... 
     }
 
@@ -207,7 +220,7 @@
 
 public class OtherClass {
 
-	public void doIt() {
+	public doIt() {
 	     Console.println(&quot;Hello, world&quot;);
 	}
 }
@@ -220,7 +233,7 @@ public class OtherClass {
 	      public Void doItInTheObject {} 
 	}
    
-	public Void doItInTheOtherClass() {
+	public doItInTheOtherClass() {
 	
 	}
 }
@@ -234,14 +247,15 @@ OtherClass.SomeObject.doItInTheObject()
 }
 
 public class Brunch&lt;T&gt; extends Node&lt;T&gt;{
-	constructor (Node&lt;T&gt; left , Node&lt;T&gt; right);
+	constructor (left : Node&lt;T&gt;  , right: Node&lt;T&gt; );
 }
 	
 public class Leaf &lt;T&gt; extends Node&lt;T&gt;{
-	constructor (T value);
+	constructor (value : T );
 }
 </code></pre><p>If we now need to visit a long and complex tree we need to normally do so validation of types. For example, in java would be:</p>
-<pre><code class="brush: java">public &lt;T&gt; void colectLeafs(Node&lt;T&gt; node, List&lt;T&gt; leafs){
+<pre><code class="brush: java">// java
+public &lt;T&gt; void colectLeafs(Node&lt;T&gt; node, List&lt;T&gt; leafs){
 
 	if (node instanceof Branch){
 	     Branch b = (Branch)node);
@@ -267,7 +281,7 @@ public class Leaf &lt;T&gt; extends Node&lt;T&gt;{
 	switch(node) {
 		case Branch (b){
 			collectLeafs(b.left, leafs);
-	      collectLeafs(b.right, leafs);
+	        collectLeafs(b.right, leafs);
 		} 
 		case Leaf (leaf){
 			leafs.add(leaf.value);
@@ -280,16 +294,16 @@ public class Leaf &lt;T&gt; extends Node&lt;T&gt;{
 }
 </code></pre><h1>Interfaces</h1><p>Interfaces are constract declarations with no implementation.</p>
 <pre><code class="brush: lense">public interface Validator&lt;in T&gt; {
-     public ValidatorResult validate( T candidate);
+     public validate( T candidate) : ValidatorResult;
 }
 </code></pre><p>Interfaces can extend other interfaces an are implemented by classes or objects.</p>
 <pre><code class="brush: lense">public val class MailValidator implements Validator&lt;String&gt; {
 
-     public ValidatorResult validate( String candidate) {
-            var result = new ValidatorResult ();
+     public validate( String candidate) : ValidatorResult{
+            val result = new ValidatorResult ();
 
             if (!candidate.indexOf(&#39;@&#39;).isPresent){
-                   result.addReason(&quot;Invalid email&quot;);
+                result.addReason(&quot;Invalid email&quot;);
             }
 
             return result;

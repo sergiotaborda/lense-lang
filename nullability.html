@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8"/>
-    <title>Glossary</title>
+    <title>Nullability</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <meta name="author" content="">
@@ -140,12 +140,30 @@
     </div>
 	<div class="corner-ribbon top-right sticky shadow"><a href="status.html">Exploration Stage</a></div>
     <div class="container">
-	<p><h1>Glossary</h1>
-<ul>
-  <li><p><a name="erasure">Erasure</a> : Process by which adcional type information is removed and a simpler type is placed in the compiled form. This can refer to removing parametric type (gneerics) information from types and methods, or convert a Lense type to a <a href="#primitiveType">primitive type</a>;</p></li>
-  <li><p><a name="fundamentalType">Fundamental Type</a> : A type that is recognized and/or handled specilly by the compiler or the language. Lense fundamental types are numbers , strings, booleans , sequences , progressions , intervals and the maybe type. Language literals only exist for fundamental types.</p></li>
-  <li><p><a name="primitiveType">Primitive Type</a> : A type that represents a value that is direclty handled in the machine stack and/or has native support in the machine. Is common for numbers, booleans and arrays to be primitive types. Primitive types are often also fundamental types and the compiler and/or the language handle them specilly. Lense language does not have primitive types but the compiler is free to optimize the code to use them in the compiled form. For example, to use primitive boolean instead of <code>lense.core.lang.Boolean</code>.</p></li>
-</ul></p>
+	<p><h1>Nullability</h1><p>Lense does not allow variable to hold <strong>null</strong>. <strong>null</strong> is used in other languages to indicate the variable has not set. However when trying to dereference the object in the variable (i.e. use the dot operator) an exception is raized. It is easy to overlook the variable may contain null.</p><p>Lense take a more object oriente aproach. Every variable refers to an existing object. No <strong>null</strong>s are allowed, hence, no nulls exist.</p><p>However the concept of an absent value is very usefull. Some data that is not yet calculated or the user as yet to inform. So Lense support the concept of an absent value using the tradiconal Maybe monad.</p>
+<pre><code class="brush: lense ">val h : Srring = &quot;Hello&quot;; 
+val w : Srring? = none; 
+</code></pre><p>The first line created a variable of type <code>String</code> with value <em>"Hello"</em>. The second line create a possible absent value of a <code>String</code> type and initializes it to <em>none</em>.<br/>Please note that <em>none</em> is an object so the variable really refers to an object. No nulls are allowed.</p><p>String? is a shorthand notation for <a href="monads.html">Maybe<String></a> and <em>none</em> is the object of type None.</p><h1>Interoperatibility</h1><p>On Lense world no *null*s exist, but in the underlying platform , like java or .net, they may exist. Any method can return or aceppt null. We can not now if the value returned can be null or not.<br/>Let us take an example in java</p>
+<pre><code class="brush: java ">string[] names = resolveNames();
+List&lt;Address&gt; addresses = resolveAddressesFor(names);
+</code></pre><p>Has we have no way of knowing if the methods will return null this would be mapped to Lense as:</p>
+<pre><code class="brush: lense ">var names : Array&lt;String&gt;? = resolveNames();
+var addresses : List&lt;Address&gt;? = resolveAddressesFor(names);
+</code></pre><p>At this point we can test if the collections exist, but how about the elements ? Have we certain no nulls exist inside the array or the list ?<br/>This problem is more general and exists everywhere the objets are boxed in other objects. We then have to be sure and write:</p>
+<pre><code class="brush: lense ">var names : Array&lt;String?&gt;? = resolveNames();
+var addresses : List&lt;Address?&gt;? = resolveAddressesFor(names);
+var box : Box&lt;Element?&gt;? = resolveBoxedElements();
+</code></pre><p>This may prove cumbersome in code that tries to use native APIs.</p><h2>Rules of None</h2><p>For interop code , i.e. everytime the compiler identifies a native method is being called it let's you apply automatic filters according to the type you write. If no type is defined, the full optional type is used.</p>
+<pre><code class="brush: lense ">var names  = resolveNames();  // same as names : Array&lt;String?&gt;? = resolveNames()
+var names : Array&lt;String&gt;? = resolveNames();  // same as  names = new Maybe.of(resolveNames()).map( a -&gt; a.Compact());
+var names : Array&lt;String&gt; = resolveNames();  // same as names = new Maybe.of(resolveNames()).map( a -&gt; a.Compact()).or(new Array.empty&lt;string&gt;())
+var names : Array&lt;String?&gt; = resolveNames();  // same as names = new Maybe.of(resolveNames()).or(new Array.empty&lt;string&gt;())
+</code></pre><p><code>Maybe.of()</code> will understand <em>null</em> as equivalent to <em>node</em> and wrap the array in a possible absent type. The <code>Compact</code> method will remove <em>null</em> and *none*s from the array.<br/>In case the array may not be absent an default empty array is used. These rules applies to all <code>Iterable</code>s.</p><p>For other boxed types that are not <code>Iterable</code>s the options are limited. We have to raise a compilation error for the cases the compiler cannot sort.</p>
+<pre><code class="brush: lense ">var box  = resolveBoxedElements();  // same as box : Box&lt;Element?&gt;? = resolveBoxedElements()
+var box : Box&lt;String&gt;? = resolveNames();  // compilation error , cannot verify String is not null.
+var box : Box&lt;String&gt; = resolveNames();  // compilation , cannot verify String is not null.
+var box : Box&lt;String?&gt; = resolveNames();  // same as box = new Maybe.of(resolveNames()).value; 
+</code></pre><p><code>Maybe.value</code> is a valid method call in Lense that will raise an <code>ValueAbsentException</code> if no value is present. </p><p>In Java 8, and above, types can be annotated with <code>@NotNull</code> or <code>@Nullable</code>. These type annotations can made it possible to the compiler to determine if its possible to the value to be absent or not.<br/>When the compiler can determine it is safe the more restrict types will be allowed and no compilation errors would be raised. However, at this point in time, most APIs do not use these annotations.</p><p>Even them, the problem will persist for interop with other platforms.</p></p>
 	
 		</div>
 		<div id="push"></div>

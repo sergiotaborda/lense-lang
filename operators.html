@@ -28,6 +28,17 @@
 	<script src="js/shBrushJava.js"></script>
 		
 	<script src="js/shBrushLense.js"></script>
+
+
+    <!-- Le styles -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/asciidoctor.css" rel="stylesheet">
+    <link href="css/base.css" rel="stylesheet">
+    <link href="css/prettify.css" rel="stylesheet">
+  	<link rel="stylesheet" type="text/css" href="css/shCore.css"  >
+	<link rel="stylesheet" type="text/css" href="css/shThemeLense.css" >
+	<link rel="stylesheet" type="text/css" href="css/shThemeDefault.css" >
+	
 	<style>
 	 .console {
 	    background : black;
@@ -47,15 +58,11 @@
 	 	padding:2px !important;
 	 	margin : 0px !important;
 	 }
+	 
+	.syntaxhighlighter table .container:before {
+		display: none !important;
+	}
 	</style>
-
-    <!-- Le styles -->
-    <link href="css/bootstrap.min.css" rel="stylesheet">
-    <link href="css/asciidoctor.css" rel="stylesheet">
-    <link href="css/base.css" rel="stylesheet">
-    <link href="css/prettify.css" rel="stylesheet">
-  	<link rel="stylesheet" type="text/css" href="css/shCore.css"  >
-	<link rel="stylesheet" type="text/css" href="css/shThemeLense.css" >
 	
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
@@ -88,27 +95,33 @@
             <li class="dropdown">
 				<a href="#" class="dropdown-toggle" data-toggle="dropdown">Fundamentals<b class="caret"></b></a>
 				<ul class="dropdown-menu">
-					<li><a href="tour.html">Language Tour</a></li>
+					<li><a href="tour/tour.html">Language Tour</a></li>
 					<li class="disabled"><a href="guide.html">Programmer's Guide</a></li>
 					<li><a href="platforms.html">Target Platforms's Guide</a></li>
+						<li><a href="glossary.html">Glossary</a></li>
 				</ul>
             </li>
 			
             <li class="dropdown">
               <a href="#" class="dropdown-toggle" data-toggle="dropdown">Details<b class="caret"></b></a>
 				<ul class="dropdown-menu">
+					<li><a href="nullability.html">Nullability</a></li>
 					<li><a href="numbers.html">Numbers</a></li>
 					<li><a href="strings.html">Strings</a></li>
-					<li><a href="strings.html">Arrays</a></li>
+					<li><a href="arrays.html">Arrays</a></li>
 					
 					<li><a href="containerLiterals.html">Container Literals</a></li>
 					<li><a href="objects.html">Classes and Objects</a></li>
 					<li><a href="constructors.html">Constructors</a></li>
-					<li><a href="operators.html">Operators</a></li>		
+					<li><a href="properties.html">Properties</a></li>
+				
+					<li><a href="operators.html">Operators</a></li>	
+				
 					<li><a href="monads.html">Monads</a></li>
 					<li><a href="concurrency.html">Concurrency</a></li>
+					<li><a href="erasure.html">Type Erasure</a></li>
 					
-					<li class="disabled"><a href="enhancements.html">External Enhancements</a></li>
+					<li><a href="enhancements.html">External Enhancements</a></li>
 					
 				</ul>
             </li>
@@ -242,14 +255,14 @@
 		<td> -a </td>
 		<td> a.symetric() </td>
 		<td> Symmetric<T> </td>
-		<td> Returns the symmetric value. The Symmetric value of *x* is the same that can be calculated by *0 - x*</td>
+		<td> Returns the symmetric value. The Symmetric value of *x* is equivalent to that calculated by *0 - x*</td>
 	</tr>
 	<tr>
 		<td> ~ (infix) </td>
 		<td> ~a </td>
-		<td> a.negate() </td>
+		<td> a.flipAll() </td>
 		<td> Binary<T> </td>
-		<td> Returns a values equivalent to the original with bits reversed</td>
+		<td> Returns a values equivalent to the original with bits reversed (fliped)</td>
 	</tr>
 	<tr>
 		<td> ++ (infix) </td>
@@ -343,18 +356,18 @@
 		<td> Returns a value equivalent to the original with bits moved to the left *b* times. The operand values are not changed in any way.  </td>
 	</tr>
 </table><h3>A note on Increment and Decrement operators (Under consideration)</h3><p>The infix <code>--a</code> and <code>++b</code> operators are transformed to calls into <code>decrement</code> and <code>increment</code>. For example, this code:</p>
-<pre><code class="brush:lense ">Integer a = 3;
-Integer b = ++a;
+<pre><code class="brush:lense ">val a : Integer= 3;
+val b : Integer = ++a;
 </code></pre><p>At the end of this code, both <em>a</em> and <em>b</em> are 4.<br/>Is equivalent to</p>
-<pre><code class="brush:lense ">Integer a = 3;
+<pre><code class="brush:lense ">var  a : Integer = 3;
 a = a.increment();
-Integer b = a;
+val b :Integer = a;
 </code></pre><p>As you can see the value in the variable is incremented implicitly as you would expect, however a new object is created and the reference is redirected to this new object. </p><p>The suffix operators <code>a--</code> and <code>a++</code> are also transformed to calls into <code>decrement</code> and <code>increment</code> but in another sequence. For example,</p>
-<pre><code class="brush:lense ">Integer a = 3;
-Integer b = a++;
+<pre><code class="brush:lense ">val a : Integer= 3;
+val b : Integer = a++;
 </code></pre><p>At the end of this code, <em>b</em> is 3 and <em>a</em> is 4.<br/>is translated internally to</p>
-<pre><code class="brush:lense ">Integer a = 3;
-Integer b = a;
+<pre><code class="brush:lense ">var a : Integer = 3;
+val b : Integer = a;
 a = a.increment();
 </code></pre></p>
 	
