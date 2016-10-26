@@ -152,15 +152,13 @@
 <pre><code class="brush: lense">public object Calculator{
 
     // calculates the n-th element in the fibonacci sequence
-    // 0	1	2	3	4	5	6	7 ...
-    // 0	1	1	2	3	5	8	13 ...
+    // n: 0	1	2	3	4	5	6	7 ...
+    // f: 0	1	1	2	3	5	8	13 ...
 	public fibonacci( n: Natural)  {
 	        val deferred  = new Deferred.empty();
 	         
-	         try {
-	         
-	         		val fibonacci = calculateRecursively (n);
-	         		deferred.sucess(fibonacci);
+	         try {      
+	         		deferred.sucess(calculateRecursively (n));
 	         	} catch (Exception e){
 	         		deferred.error(e);
 	         	}
@@ -181,7 +179,7 @@
 	
 }
 
-</code></pre><p>This implementation does not use concurrency but the client code calling the <code>fibonacci</code> function has no way of knowing this, so it has to assume the code is calculated concurrently. Later, the implementation can evolve to a concurrent of even distributed version without consequences to the calling code.</p><h2>Executors</h2><p>An <code>Executor</code> is an object that can create another thread of execution to run a given function.<br/>The calling code will continue to run after the executor is called, enabling concurrency.</p><p>There are two principal executors in the standard API: the <code>TimedExecutor</code> and the <code>DeferredExecutor</code>. The <code>TimedExecutor</code> enables code to be run after some time as elapsed. <code>DefferedExecutor</code> allows the code to run immediately (in another thread). </p>
+</code></pre><p>This implementation does not use concurrency but the client code calling the <code>fibonacci</code> function has no way of knowing this, so it has to assume the code is calculated concurrently. Later, the implementation can evolve to a concurrent one, or even a distributed version without consequences to the calling code.</p><h2>Executors</h2><p>An <code>Executor</code> is an object that can create another thread of execution to run a given function.<br/>The calling code will continue to run after the executor is called, enabling concurrency.</p><p>There are two principal executors in the standard API: the <code>TimedExecutor</code> and the <code>DeferredExecutor</code>. The <code>TimedExecutor</code> enables code to be run after some time as elapsed. <code>DefferedExecutor</code> allows the code to run immediately (in another thread). </p>
 <pre><code class="brush: lense ">public object TimedExecutor {
 
 	public runAfter&lt;T&gt;( duration : Duration, calculation : Function&lt;T&gt; ) : Promise&lt;T&gt; ;
@@ -206,16 +204,16 @@ env.sendTo(&quot;myActor&quot; , 4);
 </code></pre><p>The actor it self is a class or object that extends <code>Actor</code>.</p>
 <pre><code class="brush: lense ">public class MyActor extends Actor {
 
-       public Void onMesssage(Message msg){
+       public onMesssage( msg: Message) {
        
              val n = msg.payload as Natural;
              
-             if (n is Some&lt;Natural&gt;){
-               Natural f =  calculateRecursively(n);
+             if (exists n){
+               Natural fibonacci =  calculateRecursively(n);
                
-               this.Environment.sendTo(&quot;printActor&quot;, Deferred.withValue(f).promise);
+               this.Environment.sendTo(&quot;printActor&quot;, fibonacci); 
              } else {
-               this.Environment.sendTo(&quot;printActor&quot;, Deferred.withError(&quot;No value given.&quot;).promise);
+               this.Environment.sendTo(&quot;printActor&quot;, new Exception(&quot;No value given.&quot;));
              
              }
        }
@@ -224,18 +222,17 @@ env.sendTo(&quot;myActor&quot; , 4);
 
 public class PrintActor extends Actor {
 
-       public Void onMesssage(Message msg){
-       
-             val n = msg.payload as Promise&lt;Natural&gt;;
-             
-             if (n is Some&lt;Promise&lt;Natural&gt;&gt;){
-             	 n.then( value =&gt; Console.println(&quot;The result is {{ value }}&quot;));
-             	 n.error( e =&gt; Console.println(&quot;The result could not be calculated because {{ e.message }}&quot;));
-             }
+       public onMesssage(msg: Message) {
+
+			if (msg.payload is Exception){
+				Console.println(&quot;The result could not be calculated because {{ msg.payload.message }}&quot;);
+			} else {
+				Console.println(&quot;The result is {{ msg.payload }}&quot;);
+			}
        }
 
 }
-</code></pre><p>This code will create and register two actors. One calculates the fibonacci sequence; the second, prints the calculated value.<br/>Actors communicate thought messages. Each actor has access to the environment is registered with and can use it to send messages to other actors. </p><p>The communication is normally asynconous whenever the <code>sendTo</code> method is called. Actors allow for more complex concurrent scenarios and patterns like Producer-Consumer. </p><h2>Passing data between actors</h2><p>All data passed between actors is not shared, we do not want a shared memory model. This means the objects passed and payload need to be serializable. If the objects are serializable, we can always serialize the object and desialize it to obtain a copy. This also is a requirement if we need to transfer the object to another machine (depending on the ActorEnvironment).</p><p>For in memory enviroments the envoriment can opt for not serializing the object if it is imutable hence not consuming serialization resources.<br/>If objects are imuable there is no risk in sharing them as the original creator cannot change them. </p><p>So the <code>sendTo</code> method takes a <code>Serializable</code> as its message payload:</p>
+</code></pre><p>This code will create and register two actors. The first calculates the fibonacci sequence; the second, prints the calculated value.<br/>Actors communicate thought messages. Each actor has access to the environment is registered with and can use it to send messages to other actors.<br/>Actors names are only significant in a given environment.</p><p>The communication is normally asynconous whenever the <code>sendTo</code> method is called. The sent message e delivered to the actor's message queue. The message is removed from the queue and<br/>delivered to the <code>onMessage</code> method. </p><h2>Passing the correct data between actors</h2><p>All data passed between actors is not shared, we do not want a shared memory model. This means the objects passed as payloads need to be serializable. If the objects are serializable, we can always serialize the object and deserialize it again to obtain a safe copy. This also is a requirement if we need to transfer the object to another machine (depending on the ActorEnvironment implementation).</p><p>For in memory envoriments the envoriment can opt for not serializing the object for performance reasons. This is only possible if the object is imutable.<br/>If objects are imuable there is no risk in sharing them because they cannot be changed in the first place. </p><p>For these reasons the <code>sendTo</code> method takes a <code>Serializable</code> as its message payload:</p>
 <pre><code class="brush: lense ">public  sendTo( actorId : String,  message: Serializable) : Void
 </code></pre></p>
 	
