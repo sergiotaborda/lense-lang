@@ -2,7 +2,6 @@
 import lense.core.lang.Maybe;
 import lense.core.lang.Nothing;
 
-public object None extends Maybe<Nothing>{
+public native object None extends Maybe<Nothing>{
 
-	
 }

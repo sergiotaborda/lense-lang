@@ -2,7 +2,7 @@
 
 import lense.core.lang.None;
 
-public native abstract class Maybe<out T> /*TODO is Some<T> | None */{
+public native abstract class Maybe<out T> /{ TODO is Some<T> | None }/{
 
 	public constructor none(){
 		return None;

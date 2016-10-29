@@ -6,5 +6,5 @@ import lense.core.lang.Boolean;
 public interface Countable {
 
 	public Natural getSize();
-	public Boolean getEmpty();
+	public boolean isEmpty();
 }

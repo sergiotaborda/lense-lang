@@ -5,22 +5,24 @@ package lense.compiler.crosscompile.java;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import compiler.parser.IdentifierNode;
 import compiler.syntax.AstNode;
 import compiler.trees.TreeTransverser;
 import compiler.trees.Visitor;
 import compiler.trees.VisitorNext;
-import lense.compiler.LiteralsInstanciatorVisitor;
-import lense.compiler.Visibility;
-import lense.compiler.ast.AnnotationNode;
+import lense.compiler.ast.ArgumentListItemNode;
 import lense.compiler.ast.ArgumentListNode;
 import lense.compiler.ast.ArithmeticNode;
 import lense.compiler.ast.AssignmentNode;
 import lense.compiler.ast.BlockNode;
 import lense.compiler.ast.BooleanOperatorNode;
+import lense.compiler.ast.BooleanOperatorNode.BooleanOperation;
 import lense.compiler.ast.BooleanValue;
 import lense.compiler.ast.CastNode;
 import lense.compiler.ast.CatchOptionNode;
@@ -37,6 +39,9 @@ import lense.compiler.ast.FieldOrPropertyAccessNode;
 import lense.compiler.ast.FieldOrPropertyAccessNode.FieldKind;
 import lense.compiler.ast.ForEachNode;
 import lense.compiler.ast.FormalParameterNode;
+import lense.compiler.ast.InstanceOfNode;
+import lense.compiler.ast.LiteralAssociationInstanceCreation;
+import lense.compiler.ast.LiteralTupleInstanceCreation;
 import lense.compiler.ast.MethodDeclarationNode;
 import lense.compiler.ast.MethodInvocationNode;
 import lense.compiler.ast.NullValue;
@@ -58,6 +63,7 @@ import lense.compiler.ast.VariableDeclarationNode;
 import lense.compiler.ast.VariableReadNode;
 import lense.compiler.ast.VariableWriteNode;
 import lense.compiler.ast.WhileNode;
+import lense.compiler.phases.PropertyNamesSpecification;
 import lense.compiler.type.LenseTypeDefinition;
 import lense.compiler.type.LenseUnitKind;
 import lense.compiler.type.TypeDefinition;
@@ -66,6 +72,10 @@ import lense.compiler.type.variable.DeclaringTypeBoundedTypeVariable;
 import lense.compiler.type.variable.FixedTypeVariable;
 import lense.compiler.type.variable.IntervalTypeVariable;
 import lense.compiler.type.variable.TypeVariable;
+import lense.compiler.typesystem.Imutability;
+import lense.compiler.typesystem.LenseTypeSystem;
+import lense.compiler.typesystem.Visibility;
+
 /**
  * 
  */
@@ -98,6 +108,14 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 		writer.flush();
 	}
 
+	private static Set<String> reservedWords = new HashSet<>(Arrays.asList("byte", "int", "long", "short", "double", "void", "float"));
+	
+	private static String sanitize(String identifier){
+		if (reservedWords.contains(identifier)){
+			return "$" + identifier;
+		}
+		return identifier;
+	}
 	/**
 	 * {@inheritDoc}
 	 */
@@ -110,15 +128,88 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 				writer.append("lense.core.lang.String.valueOfNative(").append("\"")
 				.append(((StringValue) node).getValue()).append("\")");
 			} else if (node instanceof BooleanValue) {
-				writer.print(((BooleanValue) node).isValue() ? "lense.core.lang.Boolean.TRUE" : "lense.core.lang.Boolean.FALSE");
+				
+				if (node instanceof JavaPrimitiveBooleanValue){
+					writer.print(((BooleanValue) node).getLiteralValue());
+				} else {
+					writer.print(((BooleanValue) node).isValue() ? "lense.core.lang.Boolean.TRUE" : "lense.core.lang.Boolean.FALSE");
+				}
+				
+			} else if (node instanceof JavaBooleanOperationsNode){
+				JavaBooleanOperationsNode n = (JavaBooleanOperationsNode)node;
+				
+				if (n.getOperation() == BooleanOperation.LogicNegate){
+					writer.print("!");
+					TreeTransverser.transverse(n.getChildren().get(0), this);
+				} else {
+					throw new UnsupportedOperationException();
+				}
+				return VisitorNext.Siblings;
+			} else if (node instanceof JavaPrimitiveBooleanUnbox){
+			
+
+					writer.print("(");
+					TreeTransverser.transverse(node.getChildren().get(0), this);
+					writer.print(").toPrimitiveBoolean()");
+					
+				return VisitorNext.Siblings;
+			} else if (node instanceof JavaPrimitiveBooleanBox){
+
+				writer.print("lense.core.lang.Boolean.valueOfNative(");
+				TreeTransverser.transverse(node.getChildren().get(0), this);
+				writer.print(")");
+				
+				return VisitorNext.Siblings;
+			} else if (node instanceof BoxingPointNode){
+				TypeVariable typeVariable = ((BoxingPointNode)node).getTypeVariable();
+				if (typeVariable != null){
+					writer.print("/* BOXING POINT to " +  typeVariable.getTypeDefinition().getName()+ "*/");
+				} else {
+					writer.print("/* BOXING POINT to ? */");
+				}
+				
+				TreeTransverser.transverse(node.getChildren().get(0), this);
+				return VisitorNext.Siblings;
+			
 			} else if (node instanceof IdentifierNode) {
-				writer.print(((IdentifierNode) node).getId());
+				String identifier = ((IdentifierNode) node).getId();
+				writer.print(sanitize(identifier));
 			} else if (node instanceof QualifiedNameNode) {
 				writer.print(((QualifiedNameNode) node).getName());
 			} else if (node instanceof NumericValue) {
 				NumericValue n = (NumericValue) node;
-				writer.append(n.getTypeVariable().getTypeDefinition().getName())
-				.append(".valueOfNative(").append(n.toString()).append(")");
+				String name = n.getTypeVariable().getTypeDefinition().getName();
+				if (name.equals("lense.core.lang.Binary")){
+					writer.append("lense.core.lang.BitArray.constructor(lense.core.collections.Array.booleanArrayfromNativeNumberString(\"").append(node.toString()).append("\"))");
+				} else if (name.equals("lense.core.math.Rational")){
+					// TODO test bounds (number could be to big , should use string
+					int pos = n.getLiteralValue().indexOf('.');
+					if (pos >=0){
+						String intPart = n.getLiteralValue().substring(0, pos);
+						String decPart = n.getLiteralValue().substring(pos+1);
+						
+						int decPos = decPart.length();
+						StringBuilder builder = new StringBuilder("1");
+						for(int i = 0 ; i < decPos; i++){
+							builder.append("0");
+						}
+						if(intPart.equals("0")){
+							intPart = "";
+						}
+						writer.append(n.getTypeVariable().getTypeDefinition().getName())
+						.append(".valueOfNative(").append(intPart).append(decPart).append(',').append(builder).append(")");
+						
+					} else {
+						writer.append(n.getTypeVariable().getTypeDefinition().getName())
+						.append(".valueOfNative(").append(n.toString()).append(")");
+					}
+				} else {
+					// TODO test bounds (number could be to big , should use string
+				
+					writer.append(n.getTypeVariable().getTypeDefinition().getName())
+					.append(".valueOfNative(").append(n.toString()).append(")");
+				}
+				
 			} else if (node instanceof lense.compiler.ast.LiteralSequenceInstanceCreation){
 				writer.append("lense.core.collections.Array.fromAnyArray(");
 				
@@ -132,10 +223,34 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 	
 				writer.append(")");
 				return VisitorNext.Siblings;
-			} else if (node instanceof lense.compiler.ast.LiteralTupleInstanceCreation){
-				throw new UnsupportedOperationException();
+			} else if (node instanceof LiteralTupleInstanceCreation){
+				LiteralTupleInstanceCreation tuple = (LiteralTupleInstanceCreation)node;
+				
+				writer.append("lense.core.collections.Tuple.valueOf(");
+				
+				Iterator<AstNode> it = tuple.getArguments().getChildren().iterator();
+				while (it.hasNext()){
+					TreeTransverser.transverse(it.next(), this);
+					if (it.hasNext()){
+						writer.print(",");
+					}
+				}
+				writer.append(")");
+				return VisitorNext.Siblings;
 			} else if (node instanceof lense.compiler.ast.LiteralAssociationInstanceCreation){
-				throw new UnsupportedOperationException();
+				LiteralAssociationInstanceCreation tuple = (LiteralAssociationInstanceCreation)node;
+				
+				writer.append("lense.core.collections.Dictionary.fromKeyValueArray(");
+				
+				Iterator<AstNode> it = tuple.getArguments().getChildren().iterator();
+				while (it.hasNext()){
+					TreeTransverser.transverse(it.next(), this);
+					if (it.hasNext()){
+						writer.print(",");
+					}
+				}
+				writer.append(")");
+				return VisitorNext.Siblings;
 			} else if (node instanceof TernaryConditionalExpressionNode) {
 				TernaryConditionalExpressionNode t = (TernaryConditionalExpressionNode) node;
 				writer.print("(");
@@ -230,11 +345,20 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 
 
 				if (t.getAnnotations() != null) {
-					for (AstNode n : t.getAnnotations().getChildren()) {
-						AnnotationNode anot = (AnnotationNode) n;
-						writer.print(anot.getName());
-						writer.print(" ");
-					}
+					// TODO 
+
+//					for (AstNode n : t.getAnnotations().getChildren()) {
+//						AnnotationNode anot = (AnnotationNode) n;
+//						writer.print(anot.getName());
+//						writer.print(" ");
+//					}
+				}
+				
+				writeVisibility(t.getVisibility());
+				writer.append(" ");
+				
+				if (t.isAbstract()){
+					writer.print(" abstract ");
 				}
 
 				switch (t.getKind()) {
@@ -254,9 +378,13 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 				String name = t.getName().substring(pos + 1);
 				writer.print(name);
 
-				if (t.getKind() != LenseUnitKind.Interface && t.getSuperType() != null && t.getSuperType().getTypeVariable().getTypeDefinition().getName().length() > 0) {
+				if (t.getKind() != LenseUnitKind.Interface) {
 					writer.print(" extends ");
-					writer.print(t.getSuperType().getTypeVariable().getTypeDefinition().getName());
+					if (t.getSuperType() != null && t.getSuperType().getTypeVariable().getTypeDefinition().getName().length() > 0){
+						writer.print(t.getSuperType().getTypeVariable().getTypeDefinition().getName());
+					} else {
+						writer.print("lense.core.lang.java.Base");
+					}
 				}
 
 				;
@@ -354,7 +482,7 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 				writer.append("\nlense.core.collections.Iterator $it = ((lense.core.collections.Iterable)");
 				TreeTransverser.transverse(f.getContainer(), this);
 				writer.append(").getIterator();\n");
-				writer.append("while ( $it.hasNext().toPrimitiveBoolean()) {\n");
+				writer.append("while ( $it.hasNext()) {\n");
 
 				TreeTransverser.transverse(f.getVariableDeclarationNode(), this);
 
@@ -442,7 +570,7 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 				if (n.getCondition() != null) {
 					writer.print("if (");
 					TreeTransverser.transverse(n.getCondition(), this);
-					writer.println(".toPrimitiveBoolean())");
+					writer.println(")");
 
 				}
 
@@ -479,12 +607,20 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 				return VisitorNext.Siblings;
 			} else if (node instanceof CastNode){
 				CastNode n = (CastNode)node;
+				
+				if (n.getType().getName().equals(LenseTypeSystem.Any().getName())){
 
-				writer.append("((").append(n.getType().getName()).append(")");
+					TreeTransverser.transverse(n.getInner(), this);
 
-				TreeTransverser.transverse(n.getInner(), this);
+				} else {
+					writer.append("((").append(n.getType().getName()).append(")");
 
-				writer.append(")");
+					TreeTransverser.transverse(n.getInner(), this);
+
+					writer.append(")");
+				}
+
+				
 
 				return VisitorNext.Siblings;
 			} else if (node instanceof AssignmentNode) {
@@ -493,7 +629,10 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 				TreeTransverser.transverse((AstNode) n.getLeft(), this);
 				writer.print(" = ");
 				TreeTransverser.transverse(n.getRight(), this);
-				writer.println(";");
+				
+				if (n.getParent() instanceof BlockNode){
+					writer.println(";");
+				}
 
 				return VisitorNext.Siblings;
 			} else if (node instanceof ClassInstanceCreationNode) {
@@ -542,12 +681,13 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 
 				boolean first = true;
 				for (AstNode a : n.getChildren()) {
+					ArgumentListItemNode item = (ArgumentListItemNode)a;
 					if (!first) {
 						writer.print(",");
 					} else {
 						first = false;
 					}
-					TreeTransverser.transverse(a, this);
+					TreeTransverser.transverse(item.getFirstChild(), this);
 
 				}
 
@@ -578,7 +718,7 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 					writer.print(t.getTypeVariable().getTypeDefinition().getName());
 				}
 				writer.print(" ");
-				writer.print(t.getName());
+				writer.print(sanitize(t.getName()));
 
 				if (t.getInitializer() != null) {
 					writer.print(" = ");
@@ -600,12 +740,13 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 				return VisitorNext.Siblings;
 			} else if (node instanceof VariableWriteNode) {
 				VariableWriteNode t = (VariableWriteNode) node;
-				writer.print(t.getName());
+				writer.print(sanitize(t.getName()));
 
 				return VisitorNext.Siblings;
 			} else if (node instanceof VariableReadNode) {
 				VariableReadNode t = (VariableReadNode) node;
-				writer.print(t.getName());
+				writer.print(sanitize(t.getName()));
+
 			} else if (node instanceof BlockNode) {
 				writer.println("{");
 
@@ -699,7 +840,8 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 				}
 
 
-				writer.print(n.getName());
+				writer.print(sanitize(n.getName()));
+
 
 			} else if (node instanceof FieldOrPropertyAccessNode) {
 				FieldOrPropertyAccessNode n = (FieldOrPropertyAccessNode) node;
@@ -712,11 +854,11 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 				if (n.getKind() == FieldKind.FIELD){
 
 
-					writer.print(n.getName());
+					writer.print(sanitize(n.getName()));
 				} else {
 
 
-					writer.print(n.getName());
+					writer.print(sanitize(n.getName()));
 
 					String propertyName = n.getName().substring(0,1).toUpperCase() + n.getName().substring(1);
 					writer.append(".get")
@@ -734,9 +876,8 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 				writer.println("\n");
 
 				writer.println("@lense.core.lang.java.Constructor");
-				writeAnnotations(m);
-
-				// writeVisibility(m.getVisibility());
+			
+				writeVisibility(m.getVisibility());
 
 				writer.print(" static ");
 
@@ -746,7 +887,7 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 				if (m.getName() == null) {
 					writer.print("constructor");
 				} else {
-					writer.print(m.getName());
+					writer.print(sanitize(m.getName()));
 				}
 
 				writer.print("(");
@@ -765,7 +906,7 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 						TreeTransverser.transverse(p.getTypeNode(), this);
 
 						writer.print(" ");
-						writer.print(p.getName());
+						writer.print(sanitize(p.getName()));
 
 					}
 				}
@@ -788,8 +929,8 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 						while (it.hasNext()){
 							AstNode n = it.next();
 							FormalParameterNode p = (FormalParameterNode) n;
-
-							writer.append(p.getName());
+	
+							writer.append(sanitize(p.getName()));
 							if (it.hasNext()){
 								writer.append(", ");
 							}
@@ -832,7 +973,19 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 							AstNode n = it.next();
 							FormalParameterNode p = (FormalParameterNode) n;
 
-							writer.append("this.").append(p.getName()).append(" = ").append(p.getName()).append(";").println();
+							if (p.getVisibility() != Visibility.Undefined ){
+								if (p.getImutabilityValue() == Imutability.Imutable){
+									// set the field directly
+									writer.append("this._").append(p.getName()).append(" = ").append(p.getName()).append(";").println();
+								} else {
+									writer.append("set" + PropertyNamesSpecification.resolvePropertyName(p.getName()))
+									.append("(").append(p.getName()).append(")");
+								}
+								
+							} else {
+								writer.append("this.").append(p.getName()).append(" = ").append(p.getName()).append(";").println();
+							}
+							
 
 						}
 					}
@@ -959,6 +1112,19 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 				return VisitorNext.Siblings;
 			} else if (node instanceof ParametersListNode) {
 				return VisitorNext.Siblings;
+			} else if (node instanceof InstanceOfNode) {
+				InstanceOfNode n = (InstanceOfNode)node;
+				
+				writer.append("(");
+				
+				TreeTransverser.transverse(n.getExpression(), this);
+				writer.append(" instanceof ");
+				
+				TreeTransverser.transverse(n.getTypeNode(), this);
+				
+				writer.append(")");
+			
+				return VisitorNext.Siblings;
 			} else if (node instanceof FieldDeclarationNode) {
 				FieldDeclarationNode m = (FieldDeclarationNode) node;
 
@@ -967,12 +1133,15 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 				// TODO write annotations
 				writeVisibility(Visibility.Private);
 
+				if (m.getImutability().getImutability() == Imutability.Imutable){
+					writer.print("final ");
+				}
 				writeType(m.getTypeNode());
 
 				writer.print(" ");
 				writer.print(m.getName());
 
-				if (m.getInitializer() != null) {
+				if (!m.getInitializedOnConstructor() && m.getInitializer() != null) {
 					writer.print(" = ");
 					TreeTransverser.transverse(m.getInitializer(), this);
 				}
@@ -1011,15 +1180,6 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 		}
 	}
 
-	private void writeAnnotations(ConstructorDeclarationNode m) {
-		if (m.getAnnotations() != null) {
-			for (AstNode n : m.getAnnotations().getChildren()) {
-				AnnotationNode anot = (AnnotationNode) n;
-				writer.print(anot.getName());
-				writer.print(" ");
-			}
-		}
-	}
 
 	private void writeVisibility(Visibility visibility) {
 		if (visibility == null) {
@@ -1042,6 +1202,9 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 	private void writeType(TypeNode t) {
 		if (t.getName().equals("lense.core.lang.Void")) {
 			writer.print("void");
+			
+		} else if (t.getName().equals("boolean")){
+			writer.print("boolean");
 		} else {
 			final TypeVariable type = t.getTypeVariable();
 			if (type == null) {

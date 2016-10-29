@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import lense.compiler.ast.ClassTypeNode;
@@ -167,7 +168,7 @@ public class SemanticContext {
 	public TypeDefinition registerType(TypeDefinition type, int genericParametersCount) {
 		return resolver.registerType(type, genericParametersCount);
 	}
-
+	
 	/**
 	 * @param name
 	 * @return
@@ -175,6 +176,13 @@ public class SemanticContext {
 	public Optional<TypeDefinition> resolvePackageForName(String name) {
 		return Optional.empty();
 	}
+
+	public Map<Integer ,TypeDefinition> typeAllForName(String name) {
+		return resolver.resolveTypesMap(name);
+		
+	}
+
+
 
 
 

@@ -3,10 +3,12 @@
  */
 package lense.compiler.ast;
 
+import lense.compiler.phases.ScopeDelimiter;
+
 /**
  * 
  */
-public class MethodDeclarationNode extends InvocableDeclarionNode {
+public class MethodDeclarationNode extends InvocableDeclarionNode implements ScopeDelimiter{
 
 	private TypeNode returnType;
 	private String name;
@@ -69,6 +71,10 @@ public class MethodDeclarationNode extends InvocableDeclarionNode {
 	}
 	public void setSetter(boolean isSetter) {
 		this.isSetter = isSetter;
+	}
+	@Override
+	public String getScopeName() {
+		return name;
 	}
 	
 	

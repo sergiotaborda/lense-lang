@@ -12,7 +12,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import compiler.CompilationError;
-import lense.compiler.ast.Imutability;
 import lense.compiler.type.CallableMember;
 import lense.compiler.type.CallableMemberMember;
 import lense.compiler.type.CallableMemberSignature;
@@ -51,6 +50,10 @@ public class LenseTypeSystem{
 		return getInstance().getForName("lense.core.lang.Nothing").get();
 	}
 
+	public static TypeDefinition Binary() {
+		return getInstance().getForName("lense.core.lang.Binary").get();
+	}
+	
 	public static TypeDefinition None(){
 		return getInstance().getForName("lense.core.lang.None").get();
 	}
@@ -90,6 +93,9 @@ public class LenseTypeSystem{
 		return getInstance().getForName("lense.core.collections.KeyValuePair", 2).get();
 	}
 	
+	public static TypeDefinition Association() {
+		return getInstance().getForName("lense.core.collections.Association", 2).get();
+	}
 	
 
 	public static TypeDefinition Exception() {
@@ -105,10 +111,6 @@ public class LenseTypeSystem{
 		return getInstance().getForName("lense.core.lang.String").get();
 	}
 
-	private static TypeDefinition TextRepresentable() {
-		return getInstance().getForName("lense.core.lang.TextRepresentable").get();
-	}
-
 	public static TypeDefinition Natural() {
 		return getInstance().getForName("lense.core.math.Natural").get();
 	}
@@ -117,8 +119,12 @@ public class LenseTypeSystem{
 		return getInstance().getForName("lense.core.math.Decimal").get();
 	}
 
-	public static TypeDefinition Double() {
-		return getInstance().getForName("lense.core.math.Double").get();
+	public static TypeDefinition Rational() {
+		return getInstance().getForName("lense.core.math.Rational").get();
+	}
+	
+	public static TypeDefinition Decimal64() {
+		return getInstance().getForName("lense.core.math.Decimal64").get();
 	}
 	
 	public static TypeDefinition Interval() {
@@ -128,8 +134,8 @@ public class LenseTypeSystem{
 	/**
 	 * @return
 	 */
-	public static TypeDefinition Float() {
-		return getInstance().getForName("lense.core.math.Float").get();
+	public static TypeDefinition Decimal32() {
+		return getInstance().getForName("lense.core.math.Decimal32").get();
 	}
 
 	/**
@@ -207,6 +213,8 @@ public class LenseTypeSystem{
 				new RangeTypeVariable("T", Variance.Invariant, any, nothing)
 		));
 		
+		register(new FundamentalLenseTypeDefinition("lense.core.lang.Binary", LenseUnitKind.Interface, any));
+
 		LenseTypeDefinition sbool = register(new FundamentalLenseTypeDefinition("lense.core.lang.Boolean", LenseUnitKind.Class, any));
 		
 		sbool.addMethod("negate", sbool);
@@ -257,10 +265,7 @@ public class LenseTypeSystem{
 		LenseTypeDefinition svoid = register(new FundamentalLenseTypeDefinition("lense.core.lang.Void", LenseUnitKind.Class, specify(tuple, nothing, nothing), new IntervalTypeVariable[0]));
 
 		
-//		register(new LenseTypeDefinition("lense.core.collections.Association", LenseUnitKind.Class,any,
-//				new RangeTypeVariable("K", Variance.ContraVariant, any,nothing), 
-//				new RangeTypeVariable("V", Variance.Covariant, any,nothing)
-//		));
+	
 		
 		LenseTypeDefinition keyValue = register(new FundamentalLenseTypeDefinition("lense.core.collections.KeyValuePair", LenseUnitKind.Interface,any,
 				new RangeTypeVariable("K", Variance.ContraVariant, any,nothing), 
@@ -272,6 +277,10 @@ public class LenseTypeSystem{
 				new ConstructorParameter(new DeclaringTypeBoundedTypeVariable(keyValue,1,"v", Variance.Invariant))
 		);
 		
+		register(new LenseTypeDefinition("lense.core.collections.Association", LenseUnitKind.Class, specify(sequence,keyValue ) ,
+				new RangeTypeVariable("K", Variance.ContraVariant, any,nothing), 
+				new RangeTypeVariable("V", Variance.Covariant, any,nothing)
+		));
 		
 		LenseTypeDefinition binary = register(new FundamentalLenseTypeDefinition("lense.core.lang.Binary", LenseUnitKind.Interface, any));
 		
@@ -313,18 +322,16 @@ public class LenseTypeSystem{
 		
 		sequence.addProperty("size", natural, true, false);
 
-		LenseTypeDefinition textRepresentable = register(new LenseTypeDefinition("lense.core.lang.TextRepresentable", LenseUnitKind.Interface, any, new IntervalTypeVariable[0]));
-		
+	
 		LenseTypeDefinition string = register(new FundamentalLenseTypeDefinition("lense.core.lang.String", LenseUnitKind.Class, any, new IntervalTypeVariable[0]));
 		string.addInterface(specify(sequence, character));
-		string.addInterface(textRepresentable);
-		
+	
 		sint.addConstructor("parse", new ConstructorParameter(string));
 		
 		string.addMethod("toMaybe", specify(maybe, string));
 		string.addMethod("get", character, new MethodParameter (natural));
 		string.addMethod("plus", string, new MethodParameter (string));
-		string.addMethod("plus", string, new MethodParameter (textRepresentable));
+		string.addMethod("plus", string, new MethodParameter (any));
 		
 		
 		//any.addMethod("toString", string);
@@ -332,17 +339,11 @@ public class LenseTypeSystem{
 		LenseTypeDefinition real = register(new FundamentalLenseTypeDefinition("lense.core.lang.Real", LenseUnitKind.Class, number));
 		
 		LenseTypeDefinition decimal = register(new FundamentalLenseTypeDefinition("lense.core.math.Decimal", LenseUnitKind.Class, real));
-		LenseTypeDefinition sdouble = register(new FundamentalLenseTypeDefinition("lense.core.math.Double", LenseUnitKind.Class, decimal));
-		LenseTypeDefinition sfloat = register(new FundamentalLenseTypeDefinition("lense.core.math.Float", LenseUnitKind.Class, decimal));
+		register(new FundamentalLenseTypeDefinition("lense.core.math.Decimal64", LenseUnitKind.Class, decimal));
+		register(new FundamentalLenseTypeDefinition("lense.core.math.Decimal32", LenseUnitKind.Class, decimal));
 
-		whole.addMethod("toDouble", sdouble);
-		whole.addMethod("toFloat", sfloat);
-		whole.addMethod("toDecimal", decimal);
-		whole.addMethod("toReal", real);
-		real.addMethod("toDouble", sdouble);
-		real.addMethod("toFloat", sfloat);
-		real.addMethod("toDecimal", decimal);
-		
+		register(new FundamentalLenseTypeDefinition("lense.core.math.Rational", LenseUnitKind.Class, real));
+
 		LenseTypeDefinition img = register(new FundamentalLenseTypeDefinition("lense.core.math.Imaginary", LenseUnitKind.Class, number));
 		LenseTypeDefinition complex = register(new FundamentalLenseTypeDefinition("lense.core.math.Complex", LenseUnitKind.Class, number));
 		
@@ -355,10 +356,7 @@ public class LenseTypeSystem{
 		
 
 		
-		LenseTypeDefinition math = register(new FundamentalLenseTypeDefinition("lense.core.math.Math", LenseUnitKind.Class, any));
-		
-		math.addMethod("sin", sdouble, new MethodParameter(sdouble));
-		
+
 //		LenseTypeDefinition console = register(new LenseTypeDefinition("lense.core.io.Console", LenseUnitKind.Object, any));
 //		console.addMethod("println", svoid, new MethodParameter(string));
 //		
@@ -595,8 +593,8 @@ public class LenseTypeSystem{
 			return true;
 		} else if (isAssignableTo(a, b)){
 			return true;
-		} else if ( a.getTypeDefinition().equals(LenseTypeSystem.String()) && b.getTypeDefinition().equals(LenseTypeSystem.TextRepresentable())){
-			return true;
+//		} else if ( a.getTypeDefinition().equals(LenseTypeSystem.String()) && b.getTypeDefinition().equals(LenseTypeSystem.TextRepresentable())){
+//			return true;
 		} 
 		
 		if (b instanceof FixedTypeVariable){
@@ -727,6 +725,32 @@ public class LenseTypeSystem{
 				|| maxType.getName().endsWith("Decimal") 
 	); 
 	}
+
+	public boolean isTuple(TypeVariable type, int count) {
+		return isTuple(type.getTypeDefinition(), count);
+	}
+
+	public boolean isTuple(TypeDefinition type, int count) {
+		return type.getName().equals("lense.core.collections.Tuple") && countTupleParameters(type) == count;
+	}
+	
+	private int countTupleParameters(TypeDefinition tuple){
+		 TypeDefinition head = tuple.getGenericParameters().get(0).getTypeDefinition();
+		 if (head.equals(LenseTypeSystem.Nothing())){
+			 return 0;
+		 }
+		 TypeDefinition tail = tuple.getGenericParameters().get(1).getTypeDefinition();
+		 int count = 1;
+		 while (!tail.equals(LenseTypeSystem.Nothing())){
+			 count++;
+			 tail = tail.getGenericParameters().get(1).getTypeDefinition();
+		 }
+		 return count;
+	}
+
+
+
+
 
 
 

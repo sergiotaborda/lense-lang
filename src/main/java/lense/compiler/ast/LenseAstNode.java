@@ -10,4 +10,5 @@ import compiler.syntax.AstNode;
  */
 public abstract class LenseAstNode extends AstNode{
 
+
 }

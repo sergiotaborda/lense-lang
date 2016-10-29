@@ -3,13 +3,13 @@
  */
 package lense.compiler.ast;
 
-import lense.compiler.ast.ExpressionNode;
 import compiler.syntax.AstNode;
+import lense.compiler.phases.ScopeDelimiter;
 
 /**
  * 
  */
-public class LambdaExpressionNode extends ExpressionNode {
+public class LambdaExpressionNode extends ExpressionNode implements ScopeDelimiter{
 
 	private static int nextId = 1;
 	private int lambdaId =0;
@@ -52,4 +52,11 @@ public class LambdaExpressionNode extends ExpressionNode {
 	public void setLambdaId(int lambdaId) {
 		this.lambdaId = lambdaId;
 	}
+
+	@Override
+	public String getScopeName() {
+		return "lambda$" + lambdaId;
+	}
+
+	
 }

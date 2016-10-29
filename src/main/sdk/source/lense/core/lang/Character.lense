@@ -3,5 +3,5 @@ import lense.core.math.Natural;
 
 public native class Character {
 
-	public native constructor (Natural code);
+	public native constructor ( code: Natural);
 } 

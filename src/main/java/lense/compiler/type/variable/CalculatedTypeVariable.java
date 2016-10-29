@@ -61,6 +61,10 @@ public abstract class CalculatedTypeVariable implements IntervalTypeVariable{
 			return original().getLowerBound();
 		}
 	}
-
+	
+	@Override
+	public boolean isFixed() {
+		return false;
+	}
 
 }

@@ -3,12 +3,13 @@ import lense.core.lang.Void;
 import lense.core.io.Console;
 import lense.core.collections.Sequence;
 import lense.core.lang.String;
+import lense.core.system.Application;
 
 public abstract native class ConsoleApplication extends Application {
 
 
-	public abstract Void onStart();
+	public abstract function  onStart() : Void;
 	
-	public native Sequence<String> arguments {get;}
-	public native Console console {get;} 
+	public native arguments : Sequence<String> {get;} 
+	public native console : Console {get;} 
 }

@@ -14,6 +14,11 @@ public class VariableWriteNode extends ExpressionNode {
 	private String name;
 	private VariableInfo variableInfo;
 	
+	
+	public VariableWriteNode(VariableReadNode node) {
+		this.name = node.getName();
+		this.variableInfo = node.getVariableInfo();
+	}
 	/**
 	 * Constructor.
 	 * @param id
@@ -22,7 +27,10 @@ public class VariableWriteNode extends ExpressionNode {
 		this.name = name;
 	}
 	
-
+	public VariableWriteNode(String name, VariableInfo info) {
+		this.name = name;
+		this.variableInfo = info;
+	}
 	/**
 	 * @param object
 	 */

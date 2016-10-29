@@ -5,5 +5,5 @@ import lense.core.collections.Sequence;
 
 public interface EditableSequence<T> extends Sequence<T> {
 
-	public T [Natural index] { get; set;}
+	public  [ index: Natural] : T { get; set;}
 } 

@@ -14,7 +14,7 @@ class IteratorsAdapter implements Iterator<Any> {
 
 	@Override
 	public boolean hasNext() {
-		return iterable.hasNext().toPrimitiveBoolean();
+		return iterable.hasNext();
 	}
 
 	@Override

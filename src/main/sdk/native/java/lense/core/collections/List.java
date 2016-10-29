@@ -9,7 +9,7 @@ import lense.core.math.Integer;
 import lense.core.math.Natural;
 
 @Signature("[+T<lense.core.lang.Any]::lense.core.collections.ResizableSequence<T>")
-public class List implements ResizableSequence {
+public class List extends AbstractAssortment implements ResizableSequence {
 
 	private java.util.ArrayList<Any> list;
 
@@ -32,7 +32,7 @@ public class List implements ResizableSequence {
 
 		List array = new List(seq.getSize());
 		Iterator iterator = seq.getIterator();
-		while (iterator.hasNext().toPrimitiveBoolean()) {
+		while (iterator.hasNext()) {
 			array.add(iterator.next());
 		}
 		return array;
@@ -75,22 +75,22 @@ public class List implements ResizableSequence {
 	}
 
 	@Override
-	public Boolean getEmpty() {
-		return Boolean.valueOfNative(list.isEmpty());
+	public boolean isEmpty() {
+		return list.isEmpty();
 	}
 
 	@Override
-	public Boolean contains(Any other) {
-		return Boolean.valueOfNative(list.contains(other));
+	public boolean contains(Any other) {
+		return list.contains(other);
 	}
 
 	@Override
-	public Boolean containsAll(Assortment other) {
+	public boolean containsAll(Assortment other) {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public Boolean equalsTo(Any other) {
+	public boolean equalsTo(Any other) {
 		throw new UnsupportedOperationException();
 	}
 

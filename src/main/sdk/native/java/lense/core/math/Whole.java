@@ -3,7 +3,6 @@ package lense.core.math;
 import java.math.BigInteger;
 
 import lense.core.lang.Any;
-import lense.core.lang.Boolean;
 import lense.core.lang.java.Constructor;
 
 public abstract class Whole extends Number implements Comparable{
@@ -17,17 +16,21 @@ public abstract class Whole extends Number implements Comparable{
 	public abstract Whole minus (Whole other);
 	public abstract Whole multiply(Whole other);
 	
+	public Rational divide(Whole other){
+		return Rational.constructor(this.asInteger(), other.asInteger());
+	}
+	
 	public abstract Whole successor();
-
+	public abstract Whole predecessor();
+	
 	public abstract boolean isZero();
-
 	public abstract boolean isOne();
 
-	public abstract Whole predecessor();
+
 
 	@Override
-	public Boolean equalsTo(Any other) {
-		return Boolean.valueOfNative(other instanceof Whole && ((Whole)other).asBigInteger().compareTo(this.asBigInteger()) == 0);
+	public boolean equalsTo(Any other) {
+		return other instanceof Whole && ((Whole)other).asBigInteger().compareTo(this.asBigInteger()) == 0;
 	}
 
 
@@ -43,22 +46,28 @@ public abstract class Whole extends Number implements Comparable{
 		}
 	}
 
-	@Override
-	public Integer hashValue() {
-		return BigInt.valueOf(asBigInteger());
-	}
-	
 	protected abstract BigInteger asBigInteger();
 	
 	public abstract Natural abs();
 	
 	protected abstract Integer asInteger();
+
 	
-	public final boolean equals(Object other){
-		return other instanceof Whole && this.compareTo((Whole)other) ==0;
+	protected final int compareTo(Whole other){
+		return this.asBigInteger().compareTo(other.asBigInteger());
 	}
 	
-	public final int compareTo(Whole other){
-		return this.asBigInteger().compareTo(other.asBigInteger());
+	public Complex plus(Imaginary n ){
+		return new Complex(Real.valueOf(this), n.value);
+	}
+	
+	public Complex minus(Imaginary n){
+		return new Complex(Real.valueOf(this), n.value.symetric());
+	}
+	public Imaginary multiply(Imaginary n){
+		return Imaginary.valueOf(Real.valueOf(this).multiply(n.value));
+	}
+	public Imaginary divide(Imaginary n){
+		return Imaginary.valueOf(Real.valueOf(this).divide(n.value));
 	}
 }

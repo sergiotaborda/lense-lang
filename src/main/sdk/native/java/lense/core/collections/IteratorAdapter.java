@@ -1,7 +1,6 @@
 package lense.core.collections;
 
 import lense.core.lang.Any;
-import lense.core.lang.Boolean;
 
 public class IteratorAdapter implements Iterator{
 
@@ -13,8 +12,8 @@ public class IteratorAdapter implements Iterator{
 	}
 	
 	@Override
-	public Boolean hasNext() {
-		return Boolean.valueOfNative(original.hasNext());
+	public boolean hasNext() {
+		return original.hasNext();
 	}
 
 	@Override

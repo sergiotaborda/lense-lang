@@ -3,7 +3,6 @@ package lense.core.collections;
 import java.math.BigInteger;
 
 import lense.core.lang.Any;
-import lense.core.lang.Boolean;
 import lense.core.math.Natural;
 
 public class BigIterator implements Iterator {
@@ -21,8 +20,8 @@ public class BigIterator implements Iterator {
 	}
 
 	@Override
-	public Boolean hasNext() {
-		return  Boolean.valueOfNative(current == null || current.add(this.nativeBigIntegerProgression.step).compareTo(this.nativeBigIntegerProgression.end) <= 0);
+	public boolean hasNext() {
+		return  current == null || current.add(this.nativeBigIntegerProgression.step).compareTo(this.nativeBigIntegerProgression.end) <= 0;
 	}
 
 	@Override

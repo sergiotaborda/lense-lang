@@ -57,6 +57,11 @@ public class GenericTypeParameterNode extends LenseAstNode implements TypedNode 
 	public TypeVariable getTypeVariable() {
 		return typeNode.getTypeVariable();
 	}
+	
+	@Override
+	public void setTypeVariable(TypeVariable typeVariable) {
+		typeNode.setTypeVariable(typeVariable);
+	}
 
 	public Variance getVariance() {
 		return variance;

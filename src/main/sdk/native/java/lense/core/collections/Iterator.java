@@ -5,6 +5,6 @@ import lense.core.lang.java.Signature;
 @Signature("[+T<lense.core.lang.Any]::")
 public interface Iterator {
 
-	public lense.core.lang.Boolean hasNext();
+	public boolean hasNext();
 	public lense.core.lang.Any next();
 }

@@ -17,12 +17,20 @@ public class TypeNode extends LenseAstNode implements TypedNode{
 	private QualifiedNameNode name;
 	private TypeVariable type;
 	private IntervalTypeVariable typeParameter;
-
+	private boolean needsInference = false;
+	
+	protected TypeNode(boolean needsInference) {
+		this.needsInference = needsInference;
+	}
+	
 	public TypeNode(TypeVariable  type) {
 		this.name = new QualifiedNameNode(type.getTypeDefinition().getName());
 		this.setTypeVariable(type);
 	}
 	
+	public boolean needsInference(){
+		return this.needsInference;
+	}
 	/**
 	 * Constructor.
 	 * @param object

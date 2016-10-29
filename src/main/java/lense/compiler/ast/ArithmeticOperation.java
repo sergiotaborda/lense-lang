@@ -14,8 +14,8 @@ public enum ArithmeticOperation {
 		RightShift("rightShift", ">>"),
 		SignedRightShift("signedRightShift",">>>"),
 		LeftShift("leftShift","<<"),
-		Increment("increment","++"),
-		Decrement("decrement","--");
+		Increment("successor","++"),
+		Decrement("predecessor","--");
 		
 		private String equivalentMethod;
 		private String symbol;

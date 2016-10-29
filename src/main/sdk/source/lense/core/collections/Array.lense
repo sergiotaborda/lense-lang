@@ -8,13 +8,13 @@ import lense.core.collections.Progression;
 
 public native class Array<T> implements EditableSequence<T> {
 
-	public native implicit constructor (Sequence<T> other);
+	public native implicit constructor (other: Sequence<T> );
 	
-	public native constructor (Natural size,T seed);
+	public native constructor ( size: Natural , seed: T);
 	
-	public native T [Natural index] { get; set;}
+	public native [index: Natural] : T { get; set;}
 	
-	public native Natural size { get; }
+	public native size : Natural { get; }
 
-	public native Progression<Natural> indexes { get; }
+	public native indexes : Progression<Natural> { get; }
 } 

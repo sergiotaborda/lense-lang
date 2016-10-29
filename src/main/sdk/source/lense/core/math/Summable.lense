@@ -2,5 +2,5 @@
 
 public interface Summable <A, S> {
 
-	public S plus (A aditive);
+	public function plus (aditive : A): S;
 }

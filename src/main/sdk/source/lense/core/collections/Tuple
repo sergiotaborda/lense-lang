@@ -1,19 +1,19 @@
 
 public val class Tuple <out H , out T /*extends Tuple*/> implements Iterable<Any>{
 
-	private val H head;
-	private val Maybe<T> tail = None;
+	private val head : H;
+	private val tail : Maybe<T> = None;
 	
-	constructor (H head, T tail){
+	constructor (head: H, tail: T){
 		this.head = head;
 		this.tail = tail;
 	}
 	
-	constructor (H head){
+	constructor (head: H){
 		this.head = head;
 	}
 
-	public Any get(Natural index){
+	public [ index: Natural]: Any{
 		if (index == 0){
 			return head;
 		} else if (tail.isPresent) {
@@ -23,11 +23,11 @@ public val class Tuple <out H , out T /*extends Tuple*/> implements Iterable<Any
 		}
 	}
 	
-	public H head(){
+	public function head(): H{
 		return head;
 	}
 	
-	public T tail(){
+	public function tail(): T{
 		return tail;
 	}
 	

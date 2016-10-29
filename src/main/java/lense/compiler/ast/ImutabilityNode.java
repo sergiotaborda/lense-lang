@@ -3,7 +3,7 @@
  */
 package lense.compiler.ast;
 
-import lense.compiler.ast.Imutability;
+import lense.compiler.typesystem.Imutability;
 import lense.compiler.ast.LenseAstNode;
 
 

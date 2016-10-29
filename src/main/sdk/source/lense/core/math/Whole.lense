@@ -3,4 +3,13 @@ import lense.core.math.Number;
 
 public native abstract class Whole extends Number implements Comparable<Whole> {
 
+		public native function plus( n : Imaginary) : Complex;
+		public native function minus( n : Imaginary) : Complex;
+		public native function multiply( n : Imaginary) : Imaginary;
+		public native function divide( n : Imaginary) : Imaginary;
+		
+		public native function plus( n : Whole) : Whole;
+		public native function minus( n : Whole) : Whole;
+		public native function multiply( n : Whole) : Whole;
+		public native function divide( n : Whole) : Rational;
 }

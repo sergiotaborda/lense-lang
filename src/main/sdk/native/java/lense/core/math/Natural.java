@@ -2,10 +2,12 @@ package lense.core.math;
 
 import java.math.BigInteger;
 
+import lense.core.collections.NativeNaturalProgression;
+import lense.core.collections.Progression;
 import lense.core.lang.java.Constructor;
 import lense.core.lang.java.Native;
 
-public abstract class Natural extends Whole {
+public abstract class Natural extends Whole  {
 
 	public static final Natural ONE = Natural.valueOfNative(1);
 	public static final Natural ZERO = Natural.valueOfNative(0);
@@ -30,6 +32,7 @@ public abstract class Natural extends Whole {
 		}
 		return new UNat(value);
 	}
+	
 	public static Natural valueOf(String n) {
 		return valueOf(new BigInteger(n));
 	}
@@ -44,15 +47,14 @@ public abstract class Natural extends Whole {
 		return new NatBig(n);
 	}
 
-
-	@Override
-	public abstract String toString();
-
+	public Progression upTo(Natural other){
+		return new NativeNaturalProgression(this, other);
+	}
 
 	@Native
 	public abstract int toPrimitiveInt();
 
-	abstract int modulus(int n);
+	public abstract int modulus(int n);
 
 	public abstract Natural plus (Natural other);
 
@@ -64,21 +66,29 @@ public abstract class Natural extends Whole {
 	public final Integer minus(Natural other) {
 		return this.asInteger().minus(other.asInteger());
 	}
-
+	
+	public final Integer symmetric() {
+		return asInteger().symmetric();
+	}
+	
 	public final boolean isLessThen(Natural other) {
-		return 	 compareTo(other) < 0;
+		return  compareTo(other) < 0;
+	}
+	
+	public final boolean isLessOrEqualTo(Natural other) {
+		return  compareTo(other) <= 0;
 	}
 
 	public abstract Natural successor();
-
+	public abstract Natural predecessor();
 
 	public abstract boolean isZero();
 
 	public abstract boolean isOne();
 
-	public abstract Natural predecessor();
+	
 
-	public abstract Natural multiply(Natural predecessor);
+	public abstract Natural multiply(Natural other);
 
 	@Override
 	public Whole plus(Whole other) {
@@ -96,6 +106,10 @@ public abstract class Natural extends Whole {
 		} else {
 			return this.asInteger().multiply(other.asInteger());
 		}
+	}
+	
+	public Integer multiply(Integer other) {
+		return this.asInteger().multiply(other.asInteger());
 	}
 
 	@Override

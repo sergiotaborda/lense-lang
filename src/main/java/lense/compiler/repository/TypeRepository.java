@@ -4,6 +4,7 @@
 package lense.compiler.repository;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import lense.compiler.ast.QualifiedNameNode;
@@ -20,6 +21,7 @@ public interface TypeRepository {
 	 * @return
 	 */
 	Optional<TypeDefinition> resolveType(TypeSearchParameters filter);
+
 
 	/**
 	 * @param qualifiedNameNode

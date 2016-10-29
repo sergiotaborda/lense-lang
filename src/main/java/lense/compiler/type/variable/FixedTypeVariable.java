@@ -42,7 +42,7 @@ public class FixedTypeVariable implements TypeVariable {
 	/**
 	 * @return
 	 */
-	public boolean isConcrete(){
+	public boolean isFixed(){
 		return true;
 	}
 

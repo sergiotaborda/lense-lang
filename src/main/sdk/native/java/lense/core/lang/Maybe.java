@@ -1,23 +1,15 @@
 package lense.core.lang;
 
+import lense.core.lang.java.Base;
 import lense.core.lang.java.Constructor;
-import lense.core.math.Int32;
-import lense.core.math.Integer;
 
-public class Maybe implements Any{
+public abstract class Maybe extends Base implements Any{
 
 	@Constructor
 	public static Maybe none(){
-		return new Maybe(); // TODO
+		return  None.Null; // TODO
 	}
 	
-	@Override
-	public Boolean equalsTo(Any other) {
-		return Boolean.valueOfNative(false);
-	}
-
-	@Override
-	public Integer hashValue() {
-		return Int32.valueOfNative(0);
-	}
+	public abstract boolean isPresent();
+	public abstract boolean isAbsent();
 }

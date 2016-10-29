@@ -6,6 +6,6 @@ import lense.core.math.Integer;
 
 public interface EqualityComparable {
 
-    public Boolean equals(Any other);
-    public Integer hashValue {get; }
+    public function equals( other : Any) : Boolean;
+    public hashValue : Integer {get; } 
 }

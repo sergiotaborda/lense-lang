@@ -28,12 +28,12 @@ public class NatBig extends Natural{
 		return value;
 	}
 
-	public int hashCode(){
-		return value.hashCode();
+	public final Integer hashValue(){
+		return Int32.valueOfNative(value.hashCode());
 	}
 	
-	public String toString(){
-		return value.toString(); 
+	public lense.core.lang.String asString(){
+		return lense.core.lang.String.valueOfNative(value.toString()); 
 	}
 
 	@Override
@@ -71,9 +71,8 @@ public class NatBig extends Natural{
 	}
 
 	@Override
-	int modulus(int n) {
+	public int modulus(int n) {
 		return this.value.remainder(BigInteger.valueOf(n)).intValueExact();
 	}
-
 
 }

@@ -5,13 +5,13 @@ package lense.compiler.ast;
 
 import lense.compiler.ast.AnnotadedLenseAstNode;
 import lense.compiler.ast.ExpressionNode;
-import lense.compiler.ast.Imutability;
 import lense.compiler.ast.ImutabilityNode;
 import lense.compiler.ast.ScopedVariableDefinitionNode;
 import lense.compiler.ast.TypeNode;
 import lense.compiler.context.VariableInfo;
 import lense.compiler.type.TypeDefinition;
 import lense.compiler.type.variable.TypeVariable;
+import lense.compiler.typesystem.Imutability;
 
 /**
  * 
@@ -23,8 +23,17 @@ public class FieldDeclarationNode extends AnnotadedLenseAstNode implements Scope
 	private ExpressionNode inicializer;
 	private VariableInfo info;
 	private ImutabilityNode imutability;
+	private VisibilityNode visibilityNode;
+	private boolean initializedOnConstructor;
 
+	public FieldDeclarationNode (){}
 	
+	public FieldDeclarationNode (String name, TypeNode typeNode, ExpressionNode inicializer){
+		this.name = name;
+		this.imutability = new ImutabilityNode(Imutability.Mutable);
+		this.typeNode = typeNode;
+		this.inicializer = inicializer;
+	}
 	/**
 	 * @param typeNode
 	 */
@@ -39,6 +48,11 @@ public class FieldDeclarationNode extends AnnotadedLenseAstNode implements Scope
 	
 	public TypeVariable getTypeVariable() {
 		return typeNode.getTypeVariable();
+	}
+	
+	@Override
+	public void setTypeVariable(TypeVariable typeVariable) {
+		typeNode.setTypeVariable(typeVariable);
 	}
 
 	public String getName() {
@@ -95,5 +109,22 @@ public class FieldDeclarationNode extends AnnotadedLenseAstNode implements Scope
 	public Imutability getImutabilityValue() {
 		return this.imutability == null ? Imutability.Mutable : imutability.getImutability();
 	}
+
+	public void setVisibility(VisibilityNode visibilityNode) {
+		this.visibilityNode = visibilityNode;
+	}
+
+	public VisibilityNode getVisibility() {
+		return visibilityNode;
+	}
+
+	public void setInitializedOnConstructor(boolean initializedOnConstructor) {
+		this.initializedOnConstructor = initializedOnConstructor;
+	}
+	
+	public boolean getInitializedOnConstructor() {
+		return this.initializedOnConstructor;
+	}
+	
 	
 }

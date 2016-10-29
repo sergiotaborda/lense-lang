@@ -5,6 +5,7 @@ import lense.core.collections.Iterator;
 import lense.core.collections.NativeProgression;
 import lense.core.collections.Progression;
 import lense.core.collections.Sequence;
+import lense.core.lang.java.Base;
 import lense.core.lang.java.Constructor;
 import lense.core.lang.java.Native;
 import lense.core.lang.java.Signature;
@@ -13,11 +14,13 @@ import lense.core.math.Integer;
 import lense.core.math.Natural;
 
 @Signature("::lense.core.collections.Sequence<lense.core.lang.Character>")
-public class String implements Sequence, TextRepresentable {
+public class String extends Base implements Sequence {
+
+	public static final String EMPTY = new String("");
 
 	@Constructor
 	public static String constructor(){
-		return new String("");
+		return EMPTY;
 	}
 	
 	@Native
@@ -58,40 +61,32 @@ public class String implements Sequence, TextRepresentable {
 		return this;
 	}
 	
-	@Native
+	@Override
 	public java.lang.String toString() {
 		return str;
 	}
-	
-	public boolean equals(Object other){
-		return other instanceof Any && equalsTo((Any)other).toPrimitiveBoolean();
-	}
-	
-	public int hashCode(){
-		return str.hashCode();
-	}
 
 	@Override
-	public Boolean contains(Any other) {
+	public boolean contains(Any other) {
 		if (other instanceof Character){
-			return Boolean.valueOfNative(str.indexOf(((Character)other).toPrimitiveChar()) >= 0);
+			return str.indexOf(((Character)other).toPrimitiveChar()) >= 0;
 		}
-		return Boolean.FALSE;
+		return false;
 	}
 
 	@Override
-	public Boolean containsAll(Assortment other) {
+	public boolean containsAll(Assortment other) {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public Boolean getEmpty() {
-		return Boolean.valueOfNative(str.isEmpty());
+	public boolean isEmpty() {
+		return str.isEmpty();
 	}
 
 	@Override
-	public Boolean equalsTo(Any other) {
-		return Boolean.valueOfNative(other instanceof String && ((String)other).str.equals(this.str));
+	public boolean equalsTo(Any other) {
+		return other instanceof String && ((String)other).str.equals(this.str);
 	}
 
 	@Override
@@ -100,10 +95,23 @@ public class String implements Sequence, TextRepresentable {
 	}
 
 	public String plus(String other){
+		return new String(this.str + other.str);
+	}
+	
+	@Native
+	public String plus(java.lang.String other){
 		return new String(this.str + other);
 	}
 	
-	public String plus(TextRepresentable other){
+	public String plus(Any other){
+		if (other == null){
+			throw new IllegalArgumentException("argument cannot be null");
+		}
+		if (other.asString() == null){
+			throw new IllegalArgumentException("asString cannot be null");
+		}
 		return new String(this.str + other.asString().str);
 	}
+
+
 }

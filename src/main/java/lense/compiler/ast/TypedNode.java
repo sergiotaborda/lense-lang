@@ -11,4 +11,6 @@ import lense.compiler.type.variable.TypeVariable;
 public interface TypedNode {
 
 	public TypeVariable getTypeVariable();
+
+	public void setTypeVariable(TypeVariable typeVariable);
 }

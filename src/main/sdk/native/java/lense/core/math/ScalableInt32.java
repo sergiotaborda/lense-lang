@@ -6,7 +6,7 @@ public class ScalableInt32 extends ScalableInteger {
 
    int value;
 
-	public ScalableInt32(int n) {
+	private ScalableInt32(int n) {
 		this.value = n;
 	}
 
@@ -41,14 +41,14 @@ public class ScalableInt32 extends ScalableInteger {
 		try {
 			return new ScalableInt32(Math.multiplyExact(this.value , ((ScalableInt32)other).value));
 		} catch (ClassCastException e ){
-			return promoteNext().plus(other);
+			return promoteNext().multiply(other);
 		}catch (ArithmeticException e ){
-			return promoteNext().plus(other);
+			return promoteNext().multiply(other);
 		}
 	}
 	
 	protected final Integer  promoteNext(){
-		return new ScalableInt64(value);
+		return ScalableInt64.valueOf(value);
 	}
 
 	@Override
@@ -65,11 +65,11 @@ public class ScalableInt32 extends ScalableInteger {
 	}
 
 	public final int hashCode(){
-		return value;
+		return this.value;
 	}
 	
-	public final String toString(){
-		return java.lang.Integer.toString(value); 
+	public final lense.core.lang.String asString(){
+		return lense.core.lang.String.valueOfNative(java.lang.Integer.toString(value)); 
 	}
 
 	@Override
@@ -112,7 +112,10 @@ public class ScalableInt32 extends ScalableInteger {
 		return new ScalableInt32(-value);
 	}
 
-
+	@Override
+	public Integer signum() {
+		return new Int32( value == 0 ? 0 : (value < 0 ? -1 : 1));
+	}
 
 
 

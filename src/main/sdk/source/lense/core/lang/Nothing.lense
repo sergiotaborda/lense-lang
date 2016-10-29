@@ -1,5 +1,5 @@
 
-/*TODO remove this file. This is a non-denotable type*/
+//TODO remove this file. This is a non-denotable type 
 public class Nothing {
 
 }

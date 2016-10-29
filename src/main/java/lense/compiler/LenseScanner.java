@@ -24,7 +24,7 @@ public class LenseScanner extends Scanner {
 	public LenseScanner(Grammar grammar) {
 		super(grammar);
 	}
-
+	
 	/**
 	 * @param tokenState
 	 * @return
@@ -46,7 +46,14 @@ public class LenseScanner extends Scanner {
 	 * @return
 	 */
 	public ParseState getNumberLiteralTokenState(TokenState tokenState) {
-		return new LenseNumberLiteralTokenState(tokenState);
+		if (tokenState.getBuilder().charAt(0) == '#'){
+			return new LenseHexadecimalNumberLiteralTokenState(tokenState);
+		} else if (tokenState.getBuilder().charAt(0) == '$'){
+			return new LenseBinaryLiteralTokenState(tokenState);
+		} else {
+			return new LenseNumberLiteralTokenState(tokenState);
+		}
+		
 	}
 	
 	public Optional<ParseState> matchToken(Token token, TokenState state) {

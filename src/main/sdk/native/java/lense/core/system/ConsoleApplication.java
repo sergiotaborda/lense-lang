@@ -26,8 +26,8 @@ public abstract class ConsoleApplication extends Application {
 		return Console.constructor();
 	}
 	
-	public lense.core.lang.Boolean equalsTo(Any other){
-		return lense.core.lang.Boolean.FALSE;
+	public boolean equalsTo(Any other){
+		return this == other;
 	}
 	
 	public lense.core.math.Integer hashValue(){

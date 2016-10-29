@@ -62,6 +62,10 @@ public class VariableInfo {
 	public TypeVariable getTypeVariable() {
 		return type;
 	}
+	
+	public void setTypeVariable(TypeVariable type) {
+		this.type = type;
+	}
 
 	/**
 	 * Obtains {@link String}.

@@ -73,28 +73,28 @@ final class NativeObjectArray extends Array {
 	}
 
 	@Override
-	public Boolean contains(Any other) {
+	public boolean contains(Any other) {
 		for(Any a : array){
-			if (!a.equals(other)){ // TODO use lense equals function
-				return Boolean.FALSE;
+			if (a.equalsTo(other)){ // TODO use lense equals function
+				return true;
 			}
 		}
-		return Boolean.TRUE;
+		return false;
 	}
 
 	@Override
-	public Boolean containsAll(Assortment other) {
+	public boolean containsAll(Assortment other) {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public Boolean getEmpty() {
-		return Boolean.valueOfNative(array.length == 0);
+	public boolean isEmpty() {
+		return array.length == 0;
 	}
 
 	@Override
-	public Boolean equalsTo(Any other) {
-		return Boolean.valueOfNative(other instanceof NativeProgression && ((NativeObjectArray)other).array == this.array);
+	public boolean equalsTo(Any other) {
+		return other instanceof NativeObjectArray && Arrays.equals(((NativeObjectArray)other).array , this.array);
 	}
 
 	@Override

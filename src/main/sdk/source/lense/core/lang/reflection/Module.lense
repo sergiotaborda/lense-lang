@@ -6,8 +6,8 @@ import lense.core.lang.String;
 
 public interface Module {
 
-	public String name {get;}
-	public Version version {get;}
-	public Sequence<Package> packages {get;}
+	public  name  :String {get;}
+	public  version : Version {get;}
+	public  packages : Sequence<Package> {get;}
 
 }

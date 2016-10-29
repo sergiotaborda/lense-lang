@@ -3,14 +3,12 @@
  */
 package lense.compiler.ast;
 
-import lense.compiler.Visibility;
-
-
+import lense.compiler.phases.ScopeDelimiter;
 
 /**
  * 
  */
-public class ConstructorDeclarationNode extends InvocableDeclarionNode {
+public class ConstructorDeclarationNode extends InvocableDeclarionNode implements ScopeDelimiter{
 
 	private TypeNode returnType;
 	private String name;
@@ -60,14 +58,16 @@ public class ConstructorDeclarationNode extends InvocableDeclarionNode {
 		this.isImplicit = isImplicit;
 	}
 
-
-	public String getScopeIdentifer() {
+	@Override
+	public String getScopeName() {
 		if (name == null){
 			return "<CONSTRUCTOR>" + this.getParameters().getChildren().size();
 		} else {
 			return name + this.getParameters().getChildren().size();
 		}
 	}
+	
+
 	
 	
 }

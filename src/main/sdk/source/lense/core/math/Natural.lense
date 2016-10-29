@@ -6,9 +6,12 @@ import lense.core.collections.Progression;
 public native class Natural extends Whole implements Progressable<Natural>{
 
 
-	public native Integer minus (Natural other);
-	public native Natural plus (Natural other);
-	
-	public native Progression<Natural> upTo(Natural other);
-	public native Integer symmetric();
+	public native function minus ( other: Natural)  : Integer;
+	public native function plus ( other: Natural) : Natural;
+	public native function multiply ( other: Natural) : Natural;
+		
+	public native function multiply ( other: Integer) : Integer;
+			
+	public native function upTo( other: Natural) : Progression<Natural>;
+	public native function symmetric(): Integer;
 }

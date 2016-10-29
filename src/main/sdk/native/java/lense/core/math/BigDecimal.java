@@ -9,13 +9,13 @@ public class BigDecimal extends Decimal {
 
 	@Constructor
 	public static BigDecimal constructor (){
-		return new BigDecimal();
+		return new BigDecimal(java.math.BigDecimal.ZERO);
 	}
 	
-	private java.math.BigDecimal value = java.math.BigDecimal.ZERO;
+	private final java.math.BigDecimal value;
 	
-	private BigDecimal(){
-		
+	BigDecimal(java.math.BigDecimal value){
+		this.value = value;
 	}
 	
 	@Override @Native
@@ -29,16 +29,57 @@ public class BigDecimal extends Decimal {
 
 	
 	@Override
-	public Boolean equalsTo(Any other) {
-		return Boolean.valueOfNative(other instanceof Int64 && ((BigDecimal)other).value.compareTo(this.value) == 0);
+	public boolean equalsTo(Any other) {
+		return other instanceof Int64 && ((BigDecimal)other).value.compareTo(this.value) == 0;
 	}
 
 	@Override
 	public Integer hashValue() {
 		return Int32.valueOfNative(this.value.hashCode());
 	}
+	
 	@Override
-	public final int hashCode() {
-		return value.hashCode();
+	public Real plus(Real other) {
+		return new BigDecimal(this.value.add(other.getNativeBig()));
+	}
+
+	@Override
+	public Real minus(Real other) {
+		return new BigDecimal(this.value.subtract(other.getNativeBig()));
+	}
+
+	@Override
+	public Real multiply(Real other) {
+		return new BigDecimal(this.value.multiply(other.getNativeBig()));
+	}
+
+	@Override
+	public Real divide(Real other) {
+		return new BigDecimal(this.value.divide(other.getNativeBig()));
+	}
+
+	@Override
+	public boolean isZero() {
+		return this.value.signum() == 0;
+	}
+
+	@Override
+	public boolean isOne() {
+		return this.value.equals(java.math.BigDecimal.ONE);
+	}
+
+	@Override
+	protected Real promoteNext() {
+		return this;
+	}
+
+	@Override
+	public Real symetric() {
+		return new BigDecimal(this.value.negate());
+	}
+
+	@Override
+	public Integer signum() {
+		return new Int32(this.value.signum());
 	}
 }

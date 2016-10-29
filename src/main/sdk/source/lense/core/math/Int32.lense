@@ -5,14 +5,14 @@ import lense.core.math.Natural;
 
 public native class Int32 extends Integer implements Binary{
 
-	public native implicit constructor valueOf (Natural n);
+	public native implicit constructor valueOf ( n: Natural);
+	public native implicit constructor valueOf ( n: Binary);
 
-
-	public native Int32 flipAll();
+	public native function flipAll() : Int32;
 	
-	public Natural size {get { return 32;}}
+	public  size : Natural {get { return 32;}}
 
-	public native Int32 rightShiftBy(Natural n);
+	public native function rightShiftBy( n:Natural) : Int32;
 	
-	public native Int32 leftShiftBy(Natural n);
+	public native function leftShiftBy( n:Natural) : Int32;
 }
