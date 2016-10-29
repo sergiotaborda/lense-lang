@@ -4,6 +4,7 @@ import lense.core.math.Integer;
 
 public interface Any {
 
-	public Boolean equalsTo(Any other);
+	public boolean equalsTo(Any other);
 	public Integer hashValue ();
+	public String asString();
 }

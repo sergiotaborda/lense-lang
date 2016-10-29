@@ -1,6 +1,5 @@
 package lense.core.math;
 
-import java.math.BigDecimal;
 
 import lense.core.lang.Any;
 import lense.core.lang.Boolean;
@@ -11,18 +10,33 @@ public class Decimal64 extends Decimal{
 
 	@Constructor
 	public static Decimal64 constructor (){
-		return new Decimal64();
+		return new Decimal64(0d);
 	}
 	
-	private double value = 0f;
 	
-	private Decimal64(){
-		
+	@Constructor(isImplicit= true)
+	public static Decimal64 valueOf(Real other){
+		if (other instanceof Decimal64){
+			return (Decimal64)other;
+		} else {
+			return new Decimal64(other.getNativeBig().doubleValue());
+		}
+	}
+	
+	@Constructor(isImplicit= true)
+	public static Decimal64 valueOf(Whole other){
+		return new Decimal64(other.asBigInteger().doubleValue());
+	}
+	
+	private double value;
+	
+	Decimal64(double value){
+		this.value = value;
 	}
 	
 	@Override @Native
-	protected BigDecimal getNativeBig() {
-		return new BigDecimal(value);
+	protected java.math.BigDecimal getNativeBig() {
+		return new java.math.BigDecimal(value);
 	}
 	
 	public Int32 compareTo(Real other){
@@ -31,17 +45,74 @@ public class Decimal64 extends Decimal{
 	
 	
 	@Override
-	public Boolean equalsTo(Any other) {
-		return Boolean.valueOfNative(other instanceof Decimal64 && Double.compare(((Decimal64)other).value ,this.value) == 0);
+	public boolean equalsTo(Any other) {
+		return other instanceof Decimal64 && Double.compare(((Decimal64)other).value ,this.value) == 0;
 	}
 
 	@Override
 	public Integer hashValue() {
-		return Int32.valueOfNative(hashCode());
+		return Int32.valueOfNative(Double.hashCode(value));
 	}
 	
 	@Override
-	public final int hashCode() {
-		return Double.hashCode(value);
+	public boolean isZero() {
+		return Double.compare(this.value, 0) == 0;
+	}
+
+	@Override
+	public boolean isOne() {
+		return Double.compare(this.value, 1) == 0;
+	}
+
+	@Override
+	public Real plus(Real other) {
+		if (other instanceof Decimal64){
+			return new Decimal64(this.value + ((Decimal64)other).value);
+		} else {
+			return promoteNext().plus(other);
+		}
+	}
+
+
+	@Override
+	public Real minus(Real other) {
+		if (other instanceof Decimal64){
+			return new Decimal64(this.value - ((Decimal64)other).value);
+		} else {
+			return promoteNext().minus(other);
+		}
+	}
+
+	@Override
+	public Real multiply(Real other) {
+		if (other instanceof Decimal64){
+			return new Decimal64(this.value * ((Decimal64)other).value);
+		} else {
+			return promoteNext().multiply(other);
+		}
+	}
+	
+	@Override
+	protected Real promoteNext() {
+		return new BigDecimal(this.getNativeBig());
+	}
+
+	@Override
+	public Real divide(Real other) {
+		if (other instanceof Decimal64){
+			return new Decimal64(this.value / ((Decimal64)other).value);
+		} else {
+			return promoteNext().divide(other);
+		}
+	}
+
+	@Override
+	public Real symetric() {
+		return new Decimal64(-this.value);
+	}
+
+	@Override
+	public Integer signum() {
+		return new Int32((int)Math.signum(this.value));
 	}
 }

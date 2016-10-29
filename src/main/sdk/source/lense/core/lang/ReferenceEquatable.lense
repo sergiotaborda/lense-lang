@@ -3,9 +3,9 @@ import lense.core.lang.Boolean;
 
 public interface ReferenceEquatable {
 
-	/*
-	* Bind method for === operator
-	* The !== operator is also translated in terms of this method.
-	*/
- 	public Boolean referenceEquals(ReferenceEquatable x, ReferenceEquatable y);
+	/{
+	 	Bind method for === operator
+	 	The !== operator is also translated in terms of this method.
+	}/
+ 	public function referenceEquals( x : ReferenceEquatable,  y:  ReferenceEquatable) : Boolean;
 }

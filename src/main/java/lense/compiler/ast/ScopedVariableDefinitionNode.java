@@ -3,10 +3,8 @@
  */
 package lense.compiler.ast;
 
-import lense.compiler.ast.ExpressionNode;
-import lense.compiler.ast.Imutability;
-import lense.compiler.ast.TypedNode;
 import lense.compiler.context.VariableInfo;
+import lense.compiler.typesystem.Imutability;
 
 
 /**

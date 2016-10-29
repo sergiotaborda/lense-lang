@@ -29,5 +29,6 @@ public interface TypeVariable {
     TypeVariable changeBaseType(TypeDefinition concrete);
 
 	public boolean isSingleType();
+	public boolean isFixed();
     
 }

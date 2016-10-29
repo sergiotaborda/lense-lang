@@ -2,9 +2,9 @@ package lense.compiler.ast;
 
 import java.util.Optional;
 
-import lense.compiler.Visibility;
 import lense.compiler.ir.stack.StackInstructionList;
 import lense.compiler.ir.tac.TacInstructionList;
+import lense.compiler.typesystem.Visibility;
 
 public abstract class InvocableDeclarionNode extends AnnotadedLenseAstNode{
 

@@ -2,5 +2,5 @@
 
 public interface Dividable <D, Q> {
 
-	public Q divide (D d);
+	public function divide ( d: D) : Q;
 }

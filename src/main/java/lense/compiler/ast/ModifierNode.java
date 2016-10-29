@@ -1,10 +1,12 @@
 package lense.compiler.ast;
 
-public class ModifierNode extends InvocableDeclarionNode {
+import lense.compiler.phases.ScopeDelimiter;
+
+public class ModifierNode extends InvocableDeclarionNode implements ScopeDelimiter{
 
 	private boolean implicit;
 	private BlockNode statement;
-	private String valueVariableName;
+	private String valueVariableName = "value";
 
 
 	public ModifierNode(boolean implicit) {
@@ -35,5 +37,10 @@ public class ModifierNode extends InvocableDeclarionNode {
 	
 	public String getValueVariableName(){
 		return valueVariableName;
+	}
+
+	@Override
+	public String getScopeName() {
+		return "set";
 	}
 }

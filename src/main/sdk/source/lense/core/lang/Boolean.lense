@@ -1,7 +1,7 @@
 
-public native class Boolean /* is true , false*/ {
+public native class Boolean /{ is true , false }/ {
 
-	public native Boolean negate();
+	public native function negate() : Boolean;
 	
-	public native Boolean flipAll();
+	public native function flipAll() : Boolean;
 } 

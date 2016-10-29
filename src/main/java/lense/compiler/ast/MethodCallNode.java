@@ -3,8 +3,6 @@
  */
 package lense.compiler.ast;
 
-import lense.compiler.ast.ArgumentListNode;
-import lense.compiler.ast.LenseAstNode;
 import compiler.syntax.AstNode;
 
 

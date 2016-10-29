@@ -1,38 +1,45 @@
 package lense.compiler.phases;
 
+import java.util.List;
+
+import compiler.syntax.AstNode;
+import compiler.trees.VisitorNext;
+import lense.compiler.CompilationError;
 import lense.compiler.ast.AccessorNode;
+import lense.compiler.ast.ArgumentListItemNode;
 import lense.compiler.ast.AssignmentNode;
 import lense.compiler.ast.AssignmentNode.Operation;
 import lense.compiler.ast.BlockNode;
-import lense.compiler.ast.BooleanOperatorNode;
 import lense.compiler.ast.BooleanOperatorNode.BooleanOperation;
+import lense.compiler.ast.ClassInstanceCreationNode;
 import lense.compiler.ast.ComparisonNode;
 import lense.compiler.ast.ExpressionNode;
+import lense.compiler.ast.FieldDeclarationNode;
 import lense.compiler.ast.FieldOrPropertyAccessNode;
 import lense.compiler.ast.FieldOrPropertyAccessNode.FieldKind;
 import lense.compiler.ast.FormalParameterNode;
+import lense.compiler.ast.ImutabilityNode;
 import lense.compiler.ast.IndexedAccessNode;
 import lense.compiler.ast.IndexerPropertyDeclarationNode;
 import lense.compiler.ast.MethodDeclarationNode;
 import lense.compiler.ast.MethodInvocationNode;
 import lense.compiler.ast.ModifierNode;
-import lense.compiler.ast.NumericValue;
 import lense.compiler.ast.ObjectReadNode;
-import lense.compiler.ast.PreBooleanUnaryExpression;
 import lense.compiler.ast.ParametersListNode;
+import lense.compiler.ast.PreBooleanUnaryExpression;
 import lense.compiler.ast.PropertyDeclarationNode;
 import lense.compiler.ast.ReturnNode;
 import lense.compiler.ast.TypeNode;
 import lense.compiler.ast.VariableReadNode;
 import lense.compiler.context.SemanticContext;
 import lense.compiler.context.VariableInfo;
-import lense.compiler.type.LenseTypeDefinition;
+import lense.compiler.type.CallableMemberMember;
+import lense.compiler.type.Method;
+import lense.compiler.type.MethodParameter;
 import lense.compiler.type.variable.FixedTypeVariable;
+import lense.compiler.type.variable.TypeVariable;
+import lense.compiler.typesystem.Imutability;
 import lense.compiler.typesystem.LenseTypeSystem;
-
-import compiler.syntax.AstNode;
-import compiler.trees.TreeTransverser;
-import compiler.trees.VisitorNext;
 
 public class DesugarPropertiesVisitor extends AbstractLenseVisitor{
 
@@ -138,31 +145,54 @@ public class DesugarPropertiesVisitor extends AbstractLenseVisitor{
 			}
 
 		} else if (node instanceof PropertyDeclarationNode){
-			PropertyDeclarationNode n = (PropertyDeclarationNode)node;
+			PropertyDeclarationNode prp = (PropertyDeclarationNode)node;
 
-			String propertyName = resolvePropertyName(n.getName());
-			String privateFieldName = "_" + n.getName();
+			String propertyName = PropertyNamesSpecification.resolvePropertyName(prp.getName());
+			String privateFieldName = PropertyNamesSpecification.resolvePropertyInnerName(prp.getName());
 
 			AstNode parent = node.getParent();
 
 			parent.remove(node);
+			
+			
+			if (!prp.isAbstract()){
+				FieldDeclarationNode privateField = new FieldDeclarationNode(privateFieldName, prp.getType(), new ClassInstanceCreationNode(prp.getType())); 
+				privateField.setTypeNode(prp.getType());
 
-			if (n.getAcessor() != null){
-				AccessorNode a = n.getAcessor();
+				
+				if (prp.getInicializedOnConstructor()){
+					privateField.setImutability(new ImutabilityNode(Imutability.Imutable));
+					privateField.setInitializedOnConstructor(true);
+				} else {
+					if (prp.getInitializer() != null){
+						privateField.setInitializer(prp.getInitializer());
+					}
+				}
+			
+				parent.add(privateField);
+			}
+			
+			
+			TypeVariable typeVariable = prp.getType().getTypeVariable();
+			if (typeVariable == null){
+				typeVariable = prp.getType().getTypeParameter();
+			}
+			if (prp.getAcessor() != null){
+				AccessorNode a = prp.getAcessor();
 
 
 				MethodDeclarationNode getter = new MethodDeclarationNode();
 				getter.setSetter(false);
-				getter.setPropertyName(n.getName());
+				getter.setPropertyName(prp.getName());
 				getter.setProperty(true);
 	
 				
 				getter.setName("get" + propertyName);
-				if (n.isNative()){
-					getter.setNative(n.isNative());
-				} else if (n.isAbstract()){
+				if (prp.isNative()){
+					getter.setNative(prp.isNative());
+				} else if (prp.isAbstract()){
 					// TODO ensure is abstract if type is not class
-					getter.setAbstract(n.isAbstract());
+					getter.setAbstract(prp.isAbstract());
 				}else {
 					BlockNode block = a.getBlock();
 					if (a.isImplicit()){
@@ -172,41 +202,42 @@ public class DesugarPropertiesVisitor extends AbstractLenseVisitor{
 						block.add(rnode);
 
 						FieldOrPropertyAccessNode field = new FieldOrPropertyAccessNode(privateFieldName);
-						field.setType(n.getType().getTypeVariable());
+						field.setType(typeVariable);
 						rnode.add(field);
 					} 
 					getter.setBlock(block);
 				}
-				getter.setReturnType(n.getType());
+				getter.setReturnType(prp.getType());
 				getter.setVisibility(a.getVisibility());
 
 				parent.add(getter);
 			}
 
-			if (n.getModifier() != null){
-				ModifierNode a = n.getModifier();
+			if (prp.getModifier() != null){
+				ModifierNode a = prp.getModifier();
 
 
 				MethodDeclarationNode setter = new MethodDeclarationNode();
 				setter.setName("set" + propertyName);
 				setter.setSetter(false);
-				setter.setPropertyName(n.getName());
+				setter.setPropertyName(prp.getName());
 				setter.setProperty(true);
 	
 				String parameterName  = a.getValueVariableName();
-				if (n.isNative()){
-					setter.setNative(n.isNative());
-				} else if (n.isAbstract()){
-					setter.setAbstract(n.isAbstract());
+		
+				if (prp.isNative()){
+					setter.setNative(prp.isNative());
+				} else if (prp.isAbstract()){
+					setter.setAbstract(prp.isAbstract());
 				}else {
 					BlockNode block = a.getBlock();
 					if (a.isImplicit()){
 						block = new BlockNode();
 						AssignmentNode assign = new AssignmentNode(Operation.SimpleAssign);
 						FieldOrPropertyAccessNode field = new FieldOrPropertyAccessNode(privateFieldName);
-						field.setType(n.getType().getTypeVariable());
+						field.setType(typeVariable);
 						assign.setLeft(field);
-						assign.setRight(new VariableReadNode(parameterName, new VariableInfo(parameterName, n.getType().getTypeVariable(),setter, false, false)));
+						assign.setRight(new VariableReadNode(parameterName, new VariableInfo(parameterName, typeVariable,setter, false, false)));
 
 						block.add(assign);
 					} 
@@ -214,7 +245,7 @@ public class DesugarPropertiesVisitor extends AbstractLenseVisitor{
 				}
 
 				FormalParameterNode valueParameter = new FormalParameterNode();
-				valueParameter.setTypeNode(n.getType());
+				valueParameter.setTypeNode(prp.getType());
 				valueParameter.setName(parameterName); 
 
 				ParametersListNode parameters = new ParametersListNode();
@@ -224,32 +255,36 @@ public class DesugarPropertiesVisitor extends AbstractLenseVisitor{
 				setter.setVisibility(a.getVisibility());
 				setter.setReturnType(new TypeNode(LenseTypeSystem.Void()));
 
+			
+				
 				parent.add(setter);
 			}
 		} else if (node instanceof FieldOrPropertyAccessNode){
-			FieldOrPropertyAccessNode n= (FieldOrPropertyAccessNode)node;
-
+			FieldOrPropertyAccessNode n = (FieldOrPropertyAccessNode)node;
 
 			if (n.getKind() == FieldKind.PROPERTY){
-				String propertyName = resolvePropertyName(n.getName());
+				String propertyName = PropertyNamesSpecification.resolvePropertyName(n.getName());
 
 				if (n.getParent()  instanceof AssignmentNode && ((AssignmentNode)n.getParent()).getLeft() == node){
 					ExpressionNode value = ((AssignmentNode)n.getParent()).getRight();
 					// is write access
 					MethodInvocationNode invokeSet = new MethodInvocationNode(n.getPrimary(), "set" + propertyName, value);
 					invokeSet.setTypeVariable(new FixedTypeVariable(LenseTypeSystem.Void()));
-					node.getParent().getParent().replace(n.getParent() , invokeSet);
+					n.getParent().getParent().replace(n.getParent() , invokeSet);
+					
+					ArgumentListItemNode arg = (ArgumentListItemNode)invokeSet.getCall().getArgumentListNode().getFirst();
+					arg.setExpectedType(n.getTypeVariable());
+
+					
 				} else {
 					// is read acesss
 					MethodInvocationNode invokeGet = new MethodInvocationNode(n.getPrimary(), "get" + propertyName);
 					invokeGet.setTypeVariable(n.getTypeVariable());
-					node.getParent().replace(node, invokeGet);
+					n.getParent().replace(node, invokeGet);
 				}
 			}
 		}else if (node instanceof IndexedAccessNode){
 			IndexedAccessNode n= (IndexedAccessNode)node;
-
-
 
 			if (n.getParent()  instanceof AssignmentNode && ((AssignmentNode)n.getParent()).getLeft() == node){
 				ExpressionNode value = ((AssignmentNode)n.getParent()).getRight();
@@ -260,11 +295,25 @@ public class DesugarPropertiesVisitor extends AbstractLenseVisitor{
 				MethodInvocationNode invokeSet = new MethodInvocationNode(n.getAccess(), "set", n.getIndexExpression(), value);
 				invokeSet.setTypeVariable(new FixedTypeVariable(LenseTypeSystem.Void()));
 				node.getParent().getParent().replace(n.getParent() , invokeSet);
+				
+				// TODO read from intended parameters
+				ArgumentListItemNode arg = (ArgumentListItemNode)invokeSet.getCall().getArgumentListNode().getFirst();
+				arg.setExpectedType(n.getIndexExpression().getTypeVariable());
+				
+				arg = (ArgumentListItemNode)invokeSet.getCall().getArgumentListNode().getChildren().get(1);
+				arg.setExpectedType(value.getTypeVariable());
+				
 			} else {
 				// is read acesss
 				MethodInvocationNode invokeGet = new MethodInvocationNode(n.getAccess(), "get", n.getIndexExpression());
 				invokeGet.setTypeVariable(n.getTypeVariable());
 				node.getParent().replace(node, invokeGet);
+				
+				
+				// TODO read from intended parameters
+				ArgumentListItemNode arg = (ArgumentListItemNode)invokeGet.getCall().getArgumentListNode().getFirst();
+				arg.setExpectedType(n.getIndexExpression().getTypeVariable());
+				
 			}
 
 		} else if (node instanceof ComparisonNode) {
@@ -320,13 +369,29 @@ public class DesugarPropertiesVisitor extends AbstractLenseVisitor{
 				
 
 			}
-		}
+		} 
+//		else if (node instanceof BooleanOperatorNode) {
+//			BooleanOperatorNode n = (BooleanOperatorNode) node;
+//			// convert to compareTo or equals call
+//
+//			if (n.getOperation() == BooleanOperation.LogicShortAnd) {
+//				MethodInvocationNode and = new MethodInvocationNode(n.getLeft(), "and", n.getRight());
+//				and.setTypeVariable(n.getTypeVariable());
+//				node.getParent().replace(node, and);
+//			} else if (n.getOperation() == BooleanOperation.LogicShortOr) {
+//				MethodInvocationNode or = new MethodInvocationNode(n.getLeft(), "and", n.getRight());
+//				or.setTypeVariable(n.getTypeVariable());
+//				node.getParent().replace(node, or);
+//				
+//			} else {
+//				throw new RuntimeException("Not implemented yet");
+//			} 
+//		
+//		}
 		
 	}
 
-	private String resolvePropertyName(String name) {
-		return name.substring(0, 1).toUpperCase() + name.substring(1);
-	}
+
 
 
 

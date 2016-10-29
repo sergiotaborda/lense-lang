@@ -16,7 +16,8 @@ public class ComparisonNode extends BooleanExpressionNode {
 		EqualTo ("=="), 
 		Different ("!="),
 		ReferenceEquals ("==="),
-		ReferenceDifferent ("!==");
+		ReferenceDifferent ("!=="), 
+		InstanceOf("is");
 		private String symbol;
 
 		Operation(String symbol){

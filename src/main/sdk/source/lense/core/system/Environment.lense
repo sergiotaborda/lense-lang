@@ -8,7 +8,7 @@ import lense.core.lang.String;
 
 public interface Environment { // TODO abstract class
 
-	public Association<String,String> properties {get;}
-	public Nothing exit(Int32 exitCode);
-	public Void addShutdownHook(Runnable hook);
+	public properties : Association<String,String> {get;}
+	public function  exit(exitCode: Int32): Nothing;
+	public function addShutdownHook( hook : Runnable) : Void;
 }

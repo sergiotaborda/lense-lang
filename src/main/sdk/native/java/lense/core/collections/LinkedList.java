@@ -1,7 +1,6 @@
 package lense.core.collections;
 
 import lense.core.lang.Any;
-import lense.core.lang.Boolean;
 import lense.core.lang.java.Constructor;
 import lense.core.lang.java.Property;
 import lense.core.lang.java.Signature;
@@ -9,7 +8,7 @@ import lense.core.math.Integer;
 import lense.core.math.Natural;
 
 @Signature("[+T<lense.core.lang.Any]::lense.core.collections.ResizableSequence<T>")
-public class LinkedList implements ResizableSequence {
+public class LinkedList extends AbstractAssortment implements ResizableSequence {
 	
 	private java.util.LinkedList<Any> list;
 
@@ -19,7 +18,7 @@ public class LinkedList implements ResizableSequence {
 		
 		LinkedList array = new LinkedList();
 		Iterator iterator = seq.getIterator();
-		while(iterator.hasNext().toPrimitiveBoolean()){
+		while(iterator.hasNext()){
 			array.add(iterator.next());
 		}
 		return array;
@@ -70,23 +69,23 @@ public class LinkedList implements ResizableSequence {
 	}
 
 	@Override
-	public Boolean contains(Any other) {
-		return Boolean.valueOfNative(list.contains(other));
+	public boolean contains(Any other) {
+		return list.contains(other);
 	}
 
 	@Override
-	public Boolean containsAll(Assortment other) {
+	public boolean containsAll(Assortment other) {
 		throw new UnsupportedOperationException();
 		
 	}
 
 	@Override
-	public Boolean getEmpty() {
-		return Boolean.valueOfNative(list.isEmpty());
+	public boolean isEmpty() {
+		return list.isEmpty();
 	}
 
 	@Override
-	public Boolean equalsTo(Any other) {
+	public boolean equalsTo(Any other) {
 		throw new UnsupportedOperationException();
 	}
 

@@ -1,11 +1,12 @@
 package lense.core.lang;
 
+import lense.core.lang.java.Base;
 import lense.core.lang.java.Constructor;
 import lense.core.lang.java.Native;
 import lense.core.math.Int32;
 import lense.core.math.Integer;
 
-public class Boolean implements Any{
+public class Boolean extends Base implements Any{
 
 	public static Boolean TRUE = new Boolean(true);
 	public static Boolean FALSE = new Boolean(false);
@@ -13,7 +14,7 @@ public class Boolean implements Any{
 	private boolean value;
 
 	@Native
-	public static Boolean valueOfNative(boolean value) {
+	public final static Boolean valueOfNative(boolean value) {
 		return value ? TRUE : FALSE;
 	}
 	
@@ -41,14 +42,14 @@ public class Boolean implements Any{
 		return this.value ? FALSE : TRUE;
 	}
 
-	@Native
-	public java.lang.String toString(){
-		return java.lang.Boolean.toString(value);
-	}
-
 	@Override
-	public Boolean equalsTo(Any other) {
-		return Boolean.valueOfNative(other instanceof Boolean && ((Boolean)other).value == this.value);
+	public String asString() {
+		return String.valueOfNative(java.lang.Boolean.toString(value));
+	}
+	
+	@Override
+	public boolean equalsTo(Any other) {
+		return other instanceof Boolean && ((Boolean)other).value == this.value;
 	}
 
 	@Override
@@ -67,5 +68,7 @@ public class Boolean implements Any{
 	public Boolean xor(Boolean other) {
 		return this.value ^ other.value ? TRUE : FALSE;
 	}
+
+
 
 }

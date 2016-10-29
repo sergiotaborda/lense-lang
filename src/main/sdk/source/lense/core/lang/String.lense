@@ -1,16 +1,14 @@
 
 import lense.core.lang.Character;
 import lense.core.collections.Sequence;
-import lense.core.lang.TextRepresentable;
+import lense.core.lang.Any;
 
-public native class String implements Sequence<Character>, TextRepresentable {
+public native class String implements Sequence<Character> {
 
 
-	public String asString(){
-		return this;
-	} 
+	public native function asString() : String;
 	
 	
-	public native String plus(String other);
-	public native String plus(TextRepresentable other);
+	public native function plus( other : String): String;
+	public native function plus( other : Any) : String;
 } 

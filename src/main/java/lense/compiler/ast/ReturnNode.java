@@ -3,13 +3,9 @@
  */
 package lense.compiler.ast;
 
-import lense.compiler.typesystem.LenseTypeSystem;
-import lense.compiler.ast.ExpressionNode;
-import lense.compiler.ast.StatementNode;
-import lense.compiler.ast.TypedNode;
-import lense.compiler.type.TypeDefinition;
 import lense.compiler.type.variable.FixedTypeVariable;
 import lense.compiler.type.variable.TypeVariable;
+import lense.compiler.typesystem.LenseTypeSystem;
 
 
 /**
@@ -17,10 +13,13 @@ import lense.compiler.type.variable.TypeVariable;
  */
 public class ReturnNode extends StatementNode implements TypedNode {
 
+	private TypeVariable expectedType;
 	
 	public ReturnNode(){
 		
 	}
+	
+	
 	/**
 	 * @param expressionNode
 	 */
@@ -37,6 +36,21 @@ public class ReturnNode extends StatementNode implements TypedNode {
 	 */
 	@Override
 	public TypeVariable getTypeVariable() {
-		return this.getChildren().isEmpty() ? new FixedTypeVariable(LenseTypeSystem.Void()) : ((ExpressionNode)this.getChildren().get(0)).getTypeVariable();
+		return this.getChildren().isEmpty() ? new FixedTypeVariable(LenseTypeSystem.Void()) : getValue().getTypeVariable();
+	}
+	
+	@Override
+	public void setTypeVariable(TypeVariable typeVariable) {
+		getValue().setTypeVariable(typeVariable);
+	}
+
+
+	public TypeVariable getExpectedType() {
+		return expectedType;
+	}
+
+
+	public void setExpectedType(TypeVariable returnType) {
+		this.expectedType = returnType;
 	}
 }

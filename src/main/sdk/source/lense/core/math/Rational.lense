@@ -4,10 +4,6 @@ import lense.core.math.Integer;
 
 public native class Rational extends Real {
 
+	public native constructor ( n : Integer , d  :Integer);
 
-	public native constructor (Integer n , Integer d);
-
-	public Int32 compareTo(Real other){
-		return 0Z;
-	}
 }

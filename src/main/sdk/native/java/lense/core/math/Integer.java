@@ -32,7 +32,6 @@ public abstract class Integer extends Whole implements Comparable{
 
 	public abstract Integer plus (Integer other);
 	public abstract Integer multiply(Integer predecessor);
-	
 
 	public abstract Integer minus(Integer other);
 	
@@ -40,12 +39,16 @@ public abstract class Integer extends Whole implements Comparable{
 		return this.minus(other.asInteger());
 	}
 	
+	public Rational divide(Integer other){
+		return super.divide(other);
+	}
+	
 	public static Integer valueOfNative(int n) {
-		return new ScalableInt32(n);
+		return ScalableInt32.valueOf(n);
 	}
 	
 	public static Integer valueOfNative(long n) {
-		return new ScalableInt64(n);
+		return ScalableInt64.valueOf(n);
 	}
 	
 	public static Integer valueOfNative(String n) {
@@ -54,10 +57,10 @@ public abstract class Integer extends Whole implements Comparable{
 	
 	public static Integer valueOf(BigInteger n) {
 
-		if (n.bitLength() < 32){
-			return new ScalableInt32(n.intValue());
-		} else if (n.bitLength() < 64){
-			return new ScalableInt64(n.intValue());
+		if (n.bitLength() <= 32){
+			return ScalableInt32.valueOf(n.intValue());
+		} else if (n.bitLength() <= 64){
+			return ScalableInt64.valueOf(n.longValue());
 		}
 		return new BigInt(n);
 	}
@@ -76,10 +79,21 @@ public abstract class Integer extends Whole implements Comparable{
 	public Whole multiply(Whole other) {
 		return this.multiply(other.asInteger());
 	}
-
+	
 	@Override
 	protected Integer asInteger() {
 		return this;
 	}
+	
+	public final Integer hashValue(){
+		return this;
+	}
 
+	public abstract Integer successor();
+	public abstract Integer predecessor();
+
+	
+	public abstract Integer signum();
+
+	
 }

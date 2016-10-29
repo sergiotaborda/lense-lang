@@ -4,10 +4,13 @@ import java.math.BigInteger;
 
 import lense.core.lang.Any;
 import lense.core.lang.Boolean;
+import lense.core.lang.java.Base;
+import lense.core.lang.java.Native;
 import lense.core.math.Int32;
 import lense.core.math.Integer;
 
-public class NativeBigIntegerProgression implements Progression{
+@Native
+public class NativeBigIntegerProgression extends Base implements Progression{
 
 	private BigInteger start;
 	BigInteger end;
@@ -25,8 +28,8 @@ public class NativeBigIntegerProgression implements Progression{
 	}
 
 	@Override
-	public Boolean equalsTo(Any other) {
-		return Boolean.valueOfNative(other instanceof NativeBigIntegerProgression && ((NativeBigIntegerProgression)other).start.compareTo(this.start) == 0 && ((NativeBigIntegerProgression)other).end.compareTo(this.end) == 0);
+	public boolean equalsTo(Any other) {
+		return other instanceof NativeBigIntegerProgression && ((NativeBigIntegerProgression)other).start.compareTo(this.start) == 0 && ((NativeBigIntegerProgression)other).end.compareTo(this.end) == 0;
 	}
 
 	@Override

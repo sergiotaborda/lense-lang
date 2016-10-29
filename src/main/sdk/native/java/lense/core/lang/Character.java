@@ -1,12 +1,13 @@
 package lense.core.lang;
 
+import lense.core.lang.java.Base;
 import lense.core.lang.java.Constructor;
 import lense.core.lang.java.Native;
 import lense.core.math.Int32;
 import lense.core.math.Integer;
 import lense.core.math.Natural;
 
-public final class Character implements Any{
+public final class Character extends Base implements Any{
 
 	@Constructor
 	public static Character constructor (Natural code){
@@ -30,12 +31,17 @@ public final class Character implements Any{
 	}
 	
 	@Override
-	public Boolean equalsTo(Any other) {
-		return Boolean.valueOfNative(other instanceof Character && ((Character)other).code == this.code);
+	public boolean equalsTo(Any other) {
+		return other instanceof Character && ((Character)other).code == this.code;
 	}
 
 	@Override
 	public Integer hashValue() {
 		return Int32.valueOfNative(code);
+	}
+
+	@Override
+	public String asString() {
+		return String.valueOfNative(java.lang.Character.toString(code));
 	}
 }

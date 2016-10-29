@@ -14,4 +14,7 @@ public interface Binary {
 	
 	// >> operator
 	public Binary leftShiftBy(Natural n);
+	
+	public boolean getBitAt(Natural index);
+	
 }

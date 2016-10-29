@@ -69,8 +69,7 @@ public class VariableReadNode extends ExpressionNode {
 		return variableInfo.getTypeVariable();
 	}
 	
-	public void setTypeDefinition(TypeDefinition type) {
-		throw new RuntimeException();
+	public void setTypeVariable(TypeVariable type) {
+		variableInfo.setTypeVariable(type);
 	}
-
 }

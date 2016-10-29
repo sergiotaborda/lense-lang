@@ -7,55 +7,167 @@ import lense.core.system.ConsoleApplication;
 import lense.core.lang.Any;
 import lense.core.math.Int16;
 import lense.core.collections.Sequence;
+import lense.core.collections.Tuple;
+import lense.core.lang.String;
+import lense.core.lang.Binary;
+import lense.core.math.Int32;
+import lense.core.lang.Byte;
+import lense.core.math.Imaginary;
+import lense.core.math.Complex;
+import lense.core.math.Real;
+import lense.core.math.Decimal64;
 
 public class Main extends ConsoleApplication {
 
 	public constructor();
 	
+	public parameter : Integer {get; set;} = 99;
 	
-	public Boolean equalsTo(Any other){
-		return false;
-	}
-	
-	public Integer hashValue(){
-		return 0;
-	}
-	
-	
-  	public Void onStart() {
-  		 var Console c = console; // TODO resolution of inherited properties
-  	 
-  	  	//c.println("array is {{ [1 , 2, 3, 4, 5]  }}"); // TODO inline literals
-  	 
-  		var Sequence<Integer> array = [1 , 2, -3, 4, 5];
+
+  	public function onStart() : Void{
   	
-  		c.println("position 2 is {{ array[2] }}");
-  		
-  		//var Int16 i = 32766S;
-  		//var Int16 j = 1S;
-  		
-  		//var Int16 x = i + j; // will throw exception
   	
-  	    
-  	    //c.println(x);
-  	     
+  		
+  	 	console.println("Begin");
+  	 
   
-  	    // c.println("{{x}} plus {{j}} is {{ x + j }}");
+  	 	var im : Imaginary = 2i; 
+  	 	
+  	 	var cx : Complex = 3 + 4i;
+  	 
+  	    var r : Real = cx.abs();
+  	 
+  	 	console.println("Complex is : {{ cx }} with magnitude :{{ r }} "); 
+  	 
+  	 	var bx : Complex = 4 +2i;
+  	   
+  	 
+  		 
+  	   console.println("Other Complex is : {{ bx }} ");
+  	 
+  	   console.println("Product is : {{ bx * cx }}");
+  	 
+  	    var decimal : Decimal64 = 0.5; //TODO 1) implicit constructors , 2) decimal literals are always rational
+  	 	   
+  	 	var dc : Complex = 0.5 + 4i;
+  	 	
+  	 	console.println("Complex is : {{ dc }} "); 
+  
+  	 	   
+  	 	var n : Natural = #EFA2;
+  	 	
+  	 	var p : Integer = parameter;
+  	 	
+  	 	console.println("parameter p is 99 : {{ p }}");
+  	 	 
+  	 	parameter = 48;
+  	 	
+  	 	console.println("parameter is : {{ parameter }}");
+  	 	 	
+  	 	var binary : Binary = $1011_1011_0010; 
+  	 	
+  	 	var byte : Byte = $1011_0010; 
+  	   
+  	    console.println("byte is {{ byte }}");
+  	   
+  	   	byte = binary; // will ignore higher bits
+  	   
+  	    console.println("byte is {{ byte }}");
+  	    
+  	  	var number : Int32 = binary;
+  	  	 
+  		var  array : Sequence<Integer>= [1 , 2, -3, 4, 5];
+  	
+  		console.println("sequence is {{ array }}");
+  		 
+  		console.println("position 2 has value {{ array[2] }}");
+  		
+  		console.println("array is {{ [1 , 2, 3, 4, 5]  }}"); 
+  	 	 
+  		console.println("position 2 is {{ array[2] }}");
+  	
+  	  	var map : Association<Natural, String> = { 1 : "a", 2 : "b", 3 : "c" };
+  	 
+  	  	console.println("Map is : {{ map }}");
+  	   
+  		var  i : Integer = 23;
+  		var  j : Integer = ++i;
+  		
+  		console.println("Pre increment of 23 is {{j}} = 24 with value at {{i}} = 24");
+  		
+  		i= 23;
+  		j = i++;
+  			
+  		console.println("Pos increment of 23 is {{j}} = 23 with value at {{i}} = 24");
+  		
+  		var  tuple : (String, Natural) = ("Hello", 6);
+  		
+  		console.println(tuple[0]);
+  		console.println(tuple[1]);
+  		
+  		var  tuple3 : (String, Natural,String)= ("Hello", 6, "ha!");
+  		
+  		console.println(tuple3[0]);
+  		console.println(tuple3[1]);
+  	    console.println(tuple3[2]);
+  	    
+  	    var tuple1 : (String) = ("Hello single expression to tuple");
+  		
+  		console.println(tuple1[0]);
+
+    	var  tuple0 : String = ("Hello single expression");
+  		
+  		console.println(tuple0);
+  
+  		var x : Integer = 8;
+  	     console.println("{{x}} plus {{j}} is {{ x + j }}");
+
+  	   
+  	    for(val y in 1..10){
   	     
-  	     for(Natural y in 1..10){
-  	     
-  	     	c.println(y);
+  	     	console.println(y);
   	     	
   	     	if ( y == 4){
-  	     		c.println("Hello Four");
+  	     		console.println("Hello Four");
   	     	} else if (y > 4){
-  	     		c.println("Bigger than Four");
-  	     	}  // TODO if-else-else-if
-  	     
-  	        if ( y < 4) {
-  	     		c.println("Less than Four");
+  	     		console.println("Bigger than Four");
+  	     	}  else if (y < 4){
+  	     		console.println("Less than Four");
   	     	}
+  	        
   	     }
+  	     
+  	     var k : Integer = 4;
+  	
+  		console.println("k is {{ k }}");
+  	
+  	     var u : Integer = k;
+  	     while (u != 0){
+  	     		console.println("K is {{ k }}");
+  	     		console.println("U is {{ u }}");
+  	     		u = apply(console , --u, --u);
+  	     }
+  	     
+  	     u= k;
+  	     while (u != 0){
+  	     		console.println("K is {{ k }}");
+  	     		console.println("U is {{ u }}");
+  	     		u = apply(console , u--, u--);
+  	     }
+  	     
+  	     console.println(getlength([1,2]));
+  	    
+  	}
+
+  	
+  	public function getlength ( seq : Sequence<Natural>) : Natural {
+  		return seq.size;
+  	}
+  	
+  	public function apply (c : Console , k : Integer, o : Integer) : Integer {
+  		console.println("Arg 1  is {{ k }}");
+  		console.println("Arg 2  is {{ o }}");
+  		return o;
   	}
 
 }

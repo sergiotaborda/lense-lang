@@ -6,11 +6,11 @@ public class ScalableInt64 extends ScalableInteger {
 
    long value;
 
-	public ScalableInt64(long n) {
+	private ScalableInt64(long n) {
 		this.value = n;
 	}
 
-	public static ScalableInt64 valueOf(int n){
+	public static ScalableInt64 valueOf(long n){
 		return new ScalableInt64(n);
 	}
 	
@@ -42,7 +42,7 @@ public class ScalableInt64 extends ScalableInteger {
 		try {
 			return new ScalableInt64(Math.subtractExact(this.value , other));
 		}catch (ArithmeticException e ){
-			return promoteNext().plus(new ScalableInt64(other));
+			return promoteNext().minus(new ScalableInt64(other));
 		}
 	}
 	
@@ -67,9 +67,9 @@ public class ScalableInt64 extends ScalableInteger {
 		try {
 			return new ScalableInt64(Math.multiplyExact(this.value , ((ScalableInt64)other).value));
 		} catch (ClassCastException e ){
-			return promoteNext().plus(other);
+			return promoteNext().multiply(other);
 		}catch (ArithmeticException e ){
-			return promoteNext().plus(other);
+			return promoteNext().multiply(other);
 		}
 	}
 	
@@ -90,15 +90,15 @@ public class ScalableInt64 extends ScalableInteger {
 			return asBigInteger().compareTo(other.asBigInteger());
 		}
 	}
-
+	
 	public final int hashCode(){
-		return Long.hashCode(value);
+		return Long.hashCode(this.value);
 	}
 	
-	public final String toString(){
-		return java.lang.Long.toString(value); 
+	public final lense.core.lang.String asString(){
+		return lense.core.lang.String.valueOfNative(java.lang.Long.toString(value)); 
 	}
-
+	
 	@Override
 	public final Integer successor() {
 		if (value == java.lang.Integer.MAX_VALUE){
@@ -139,6 +139,9 @@ public class ScalableInt64 extends ScalableInteger {
 		return new ScalableInt64(-value);
 	}
 
-
+	@Override
+	public Integer signum() {
+		return new Int32( value == 0 ? 0 : (value < 0 ? -1 : 1));
+	}
 
 }

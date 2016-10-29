@@ -59,6 +59,7 @@ import lense.compiler.ast.QualifiedNameNode;
 import lense.compiler.ast.TypeNode;
 import lense.compiler.ast.UnitTypes;
 import lense.compiler.crosscompile.java.JavaCompilerBackEndFactory;
+import lense.compiler.crosscompile.java.JavalizePhase;
 import lense.compiler.dependency.DependencyGraph;
 import lense.compiler.dependency.DependencyNode;
 import lense.compiler.dependency.DependencyRelation;
@@ -69,9 +70,9 @@ import lense.compiler.graph.GraphTranverseListener;
 import lense.compiler.graph.TopologicOrderTransversor;
 import lense.compiler.graph.VertexTraversalEvent;
 import lense.compiler.phases.CompositePhase;
+import lense.compiler.phases.ConstructorDesugarPhase;
 import lense.compiler.phases.DesugarPropertiesPhase;
 import lense.compiler.phases.IntermediatyRepresentationPhase;
-import lense.compiler.phases.JavalizePhase;
 import lense.compiler.phases.NameResolutionPhase;
 import lense.compiler.phases.SemanticAnaylisisPhase;
 import lense.compiler.repository.ClasspathRepository;
@@ -139,6 +140,7 @@ public class LenseCompiler {
 		String nativeLanguage = "java";
 		Map<String, File> nativeTypes = new HashMap<>();
 
+		ConstructorDesugarPhase constructorDesugar = new ConstructorDesugarPhase(listener);
 		SemanticAnaylisisPhase semantic = new SemanticAnaylisisPhase(listener);
 		DesugarPropertiesPhase desugarProperties = new DesugarPropertiesPhase(listener);
 		IntermediatyRepresentationPhase  ir = new IntermediatyRepresentationPhase();
@@ -233,8 +235,12 @@ public class LenseCompiler {
 
 			Set<String> applications = new HashSet<>();
 
+			CompositePhase prePhase = new CompositePhase()
+					.add(constructorDesugar)
+					.add(new NameResolutionPhase(currentModuleRepository, new PathPackageResolver(sources.toPath()), listener));
+			
 			parser.parse(unitSet)
-			.passBy(new NameResolutionPhase(currentModuleRepository, new PathPackageResolver(sources.toPath()), listener))
+			.passBy(prePhase)
 			.peek(node -> {
 
 				//String packageName = sources.getAbsoluteFile().toPath().relativize(node.getUnit().getOrigin()).toString();
@@ -562,15 +568,15 @@ public class LenseCompiler {
 
 		builder.append("public class ").append("Module$$Info implements Module {\n");
 
-		builder.append("public String getName(){\n");
+		builder.append("public function getName() : String{\n");
 		builder.append("	return \"").append(module.getName()).append("\";\n");
 		builder.append("}\n");
 		
-		builder.append("public Version getVersion(){\n");
+		builder.append("public function getVersion(): Version{\n");
 		builder.append("	return new Version(\"").append(module.getVersion()).append("\");\n");
 		builder.append("}");
-		builder.append("public Sequence<Package> getPackages(){\n");
-		builder.append("	var LinkedList<Package> all = new LinkedList<Package>();\n ");
+		builder.append("public function getPackages() : Sequence<Package> {\n");
+		builder.append("	var  all : LinkedList<Package>= new LinkedList<Package>();\n ");
 
 		for(i =0; i < packages.size(); i++){ 
 			builder.append("	all.add(new Pack").append(i+1).append("());\n");
@@ -578,10 +584,10 @@ public class LenseCompiler {
 
 		builder.append(" 	return all;");
 		builder.append("}\n")
-		.append(" public Boolean equalsTo(Any other) {\n")
+		.append(" public function equalsTo( other : Any) : Boolean {\n")
 		.append("	return false;\n")
 		.append("}\n")
-		.append(" public Integer hashValue() {\n")
+		.append(" public function hashValue() : Integer {\n")
 		.append("	return getName().hashValue();\n")
 		.append("}\n");
 		builder.append("}");
@@ -592,13 +598,13 @@ public class LenseCompiler {
 		StringBuilder builder = new StringBuilder("import lense.core.lang.reflection.Package; import lense.core.lang.Any; import lense.core.lang.String; import lense.core.lang.Boolean; import lense.core.math.Integer;")
 				.append("public class Package$$Info implements Package { \n")
 				.append(" public constructor ();")
-				.append(" public String getName() {\n")
+				.append(" public function getName() : String {\n")
 				.append("	return \"").append(pack).append("\" ;\n")
 				.append("}\n")
-				.append(" public Boolean equalsTo(Any other) {\n")
+				.append(" public function equalsTo( other: Any) : Boolean {\n")
 				.append("	return false;\n")
 				.append("}\n")
-				.append(" public Integer hashValue() {\n")
+				.append(" public function hashValue() : Integer {\n")
 				.append("	return getName().hashValue();\n")
 				.append("}\n")
 				.append("}\n");

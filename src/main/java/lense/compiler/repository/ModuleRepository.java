@@ -76,6 +76,12 @@ public class ModuleRepository implements UpdatableTypeRepository {
 	public String getName() {
 		return moduleName;
 	}
+	
+	@Override
+	public Map<Integer, TypeDefinition> resolveTypesMap(String name) {
+		return types.get(name);
+	}
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -201,8 +207,13 @@ public class ModuleRepository implements UpdatableTypeRepository {
 
 			TypeDefinition cached = map == null ? null : map.get(genericParametersCount);
 
-			cached.updateFrom(type);
-			return cached;
+			if (cached != null){
+				cached.updateFrom(type);
+				return cached;
+			} else {
+				throw new RuntimeException();
+			}
+			
 		}
 
 	}

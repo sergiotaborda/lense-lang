@@ -3,13 +3,20 @@ package lense.core.math;
 import java.math.BigInteger;
 
 import lense.core.lang.Binary;
+import lense.core.lang.Boolean;
 import lense.core.lang.java.Constructor;
 import lense.core.lang.java.Native;
+import lense.core.lang.java.Property;
 
 public class Int64 extends Integer implements Binary{
 
 	@Constructor
 	public static Int64 constructor (){
+		return new Int64(0);
+	}
+	
+	@Constructor(isImplicit = true)
+	public static Int64 valueOf (Binary binary){
 		return new Int64(0);
 	}
 	
@@ -109,12 +116,13 @@ public class Int64 extends Integer implements Binary{
 		}
 	}
 
+
 	public final int hashCode(){
 		return Long.hashCode(value);
 	}
 	
-	public final String toString(){
-		return java.lang.Long.toString(value); 
+	public lense.core.lang.String asString(){
+		return lense.core.lang.String.valueOfNative(java.lang.Long.toString(value)); 
 	}
 
 	@Override
@@ -153,27 +161,46 @@ public class Int64 extends Integer implements Binary{
 	}
 
 	@Override
+	@Property(name="size")
 	public final Natural getSize() {
 		return Natural.valueOfNative(64);
 	}
 
 	@Override
-	public Binary flipAll() {
+	public Int64 flipAll() {
 		return new Int64(~value);
 	}
 
 	@Override
-	public Binary rightShiftBy(Natural n) {
+	public Int64 rightShiftBy(Natural n) {
 		return new Int64(value << n.modulus(64));
 	}
 
 	@Override
-	public Binary leftShiftBy(Natural n) {
+	public Int64 leftShiftBy(Natural n) {
 		return new Int64(value >> n.modulus(64));
 	}
 
 	@Override
 	public Integer symmetric() {
 		return new Int64(-value);
+	}
+	
+	public boolean isOdd(){
+		return (value & 1) != 0;
+	}
+	
+	public boolean isEven(){
+		return (value & 1) == 0;
+	}
+
+	@Override
+	public boolean getBitAt(Natural index) {
+		return rightShiftBy(index).isOdd();
+	}
+	
+	@Override
+	public Integer signum() {
+		return new Int32( value == 0 ? 0 : (value < 0 ? -1 : 1));
 	}
 }

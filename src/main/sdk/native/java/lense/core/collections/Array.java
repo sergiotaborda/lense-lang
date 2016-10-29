@@ -1,5 +1,6 @@
 package lense.core.collections;
 
+import java.math.BigInteger;
 import java.util.function.Function;
 
 import lense.core.lang.Any;
@@ -11,7 +12,7 @@ import lense.core.math.Natural;
 
 
 @Signature("[=T<lense.core.lang.Any]::lense.core.collections.EditableSequence<T>")
-public abstract class Array implements EditableSequence{
+public abstract class Array extends AbstractAssortment implements EditableSequence{
 
 	@Constructor
 	public static Array constructor (Natural size, Any seed){
@@ -23,6 +24,18 @@ public abstract class Array implements EditableSequence{
 	public static  Array fromAnyArray (Any ... nativearray){
 		// TODO verify natural range
 		return new NativeObjectArray(nativearray);
+	}
+	
+	@Native
+	public static Array booleanArrayfromNativeNumberString (String value){
+		BigInteger big = new BigInteger(value);
+		
+		boolean[] array = new boolean[big.bitLength()];
+		for(int i = 0; i < big.bitLength();i++){
+			array[i] = big.testBit(i);
+		}
+
+		return new NativeBooleanArray(array);
 	}
 	
 	@Native
@@ -42,7 +55,7 @@ public abstract class Array implements EditableSequence{
 		NativeObjectArray array = new NativeObjectArray(seq.getSize());
 		Iterator iterator = seq.getIterator();
 		int i=0;
-		while(iterator.hasNext().toPrimitiveBoolean()){
+		while(iterator.hasNext()){
 			array.setPrimitive(i++, iterator.next());
 		}
 		return array;

@@ -2,10 +2,17 @@ package lense.core.math;
 
 import java.math.BigInteger;
 
+import lense.core.lang.java.Constructor;
+
 public class BigInt extends Integer {
 
     private BigInteger value;
 
+    @Constructor
+    public static BigInt constructor(){
+    	return new BigInt(BigInteger.ZERO);
+    }
+    
 	BigInt(BigInteger n) {
 		this.value = n;
 	}
@@ -55,8 +62,8 @@ public class BigInt extends Integer {
 		return new NatBig(this.value.abs());
 	}
 	
-	public String toString(){
-		return value.toString();
+	public lense.core.lang.String asString(){
+		return lense.core.lang.String.valueOfNative(value.toString());
 	}
 
 	@Override
@@ -68,6 +75,15 @@ public class BigInt extends Integer {
 	public int hashCode() {
 		return value.hashCode();
 	}
+
+	@Override
+	public Integer signum() {
+		return new Int32(value.signum());
+	}
+
+
+
+	
 
 
 

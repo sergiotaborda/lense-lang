@@ -54,6 +54,9 @@ public class ByteCodeReader extends ClassVisitor {
 		if (desc.equals("Llense/core/lang/java/Signature;")){
 			return new SignatureAnnotationVisitor();
 		}
+		if (desc.equals("Llense/core/lang/java/Native;")){
+			return new NativeAnnotationVisitor();
+		}
 		return null;
 
 	}
@@ -106,9 +109,12 @@ public class ByteCodeReader extends ClassVisitor {
 				int a =1;
 				while (a < pos){
 					int s = a;
-					if (desc.charAt(s) == 'L'){
+					char type = desc.charAt(s);
+					if (type == 'L'){
 						a = desc.indexOf(';',s) + 1;
 						params.add(new ConstructorParameter( typeForName(desc.substring(s, a))));
+					} else if (type == 'Z'){
+						params.add(new ConstructorParameter( typeForName(LenseTypeSystem.Boolean().toString())));
 					} else {
 						return null;
 					}
@@ -126,9 +132,12 @@ public class ByteCodeReader extends ClassVisitor {
 				int a =1;
 				while (a < pos){
 					int s = a;
-					if (desc.charAt(s) == 'L'){
+					char type = desc.charAt(s);
+					if ( type == 'L'){
 						a = desc.indexOf(';',s) + 1;
 						params.add(new MethodParameter( typeForName(desc.substring(s, a))));
+					} else if (type == 'Z'){
+						params.add(new MethodParameter( typeForName(LenseTypeSystem.Boolean().toString())));
 					} else {
 						return null;
 					}
@@ -204,6 +213,19 @@ public class ByteCodeReader extends ClassVisitor {
 
 	}
 
+	private class NativeAnnotationVisitor extends AnnotationVisitor {
+
+		public NativeAnnotationVisitor() {
+			super(ASM5);
+		}
+		
+		public void visit(String name, Object value) {
+
+			if ("overridable".equals(name)){
+				def.setNative(!((Boolean)value).booleanValue());
+			}
+		}
+	}
 	private class SignatureAnnotationVisitor extends AnnotationVisitor {
 
 		public SignatureAnnotationVisitor() {

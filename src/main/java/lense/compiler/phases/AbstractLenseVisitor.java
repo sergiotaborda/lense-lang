@@ -19,6 +19,11 @@ public  abstract class AbstractLenseVisitor implements Visitor<AstNode>{
 
 
 	protected IntervalTypeVariable resolveTypeDefinition(TypeNode t) {
+		
+		if (t.getTypeParameter() != null){
+			return t.getTypeParameter();
+		}
+		
 		try {
 			SemanticContext semanticContext = this.getSemanticContext();
 
@@ -36,7 +41,7 @@ public  abstract class AbstractLenseVisitor implements Visitor<AstNode>{
 			TypeDefinition type = semanticContext.typeForName(t.getName(),t.getTypeParametersCount());
 			t.setTypeVariable(new FixedTypeVariable(type));
 
-			if (!type.getGenericParameters().isEmpty() && t.getTypeParametersCount() > 0) {
+			if ( t.getTypeParametersCount() > 0) {
 
 				TypeVariable[] genericParametersCapture = new TypeVariable[t.getTypeParametersCount()];
 				int index = 0;
@@ -62,6 +67,7 @@ public  abstract class AbstractLenseVisitor implements Visitor<AstNode>{
 			}
 
 			t.setTypeParameter(  new FixedTypeVariable( type).toIntervalTypeVariable());
+			
 			return t.getTypeParameter();
 		} catch (lense.compiler.type.TypeNotFoundException e) {
 			throw new CompilationError(t, e.getMessage());

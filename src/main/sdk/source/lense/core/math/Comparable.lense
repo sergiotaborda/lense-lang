@@ -3,5 +3,5 @@ import lense.core.math.Comparison;
 
 public interface Comparable <in T> {
 
-	public Comparison compareTo (T other);
+	public function compareTo (other : T) : Comparison;
 }

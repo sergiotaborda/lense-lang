@@ -8,8 +8,8 @@ import lense.core.system.Environment;
 public native object Runtime {
 
 
-	public Association<String,String> properties {get;}
-	public Clock clock {get;}
-	public Environment? environment {get;}
+	public properties : Association<String,String> {get;}
+	public clock : Clock {get;}
+	public environment : Environment? {get;}
 	
 }

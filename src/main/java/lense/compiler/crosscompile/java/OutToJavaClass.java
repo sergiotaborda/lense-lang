@@ -22,12 +22,10 @@ import compiler.CompiledUnit;
 import compiler.CompilerBackEnd;
 import compiler.syntax.AstNode;
 import lense.compiler.FileLocations;
-import lense.compiler.Visibility;
 import lense.compiler.ast.ClassTypeNode;
 import lense.compiler.ast.ConstructorDeclarationNode;
 import lense.compiler.ast.FieldDeclarationNode;
 import lense.compiler.ast.FormalParameterNode;
-import lense.compiler.ast.Imutability;
 import lense.compiler.ast.MethodDeclarationNode;
 import lense.compiler.ast.ParametersListNode;
 import lense.compiler.ir.stack.AbstractInvokeInstruction;
@@ -61,6 +59,8 @@ import lense.compiler.ir.stack.StoreToVariable;
 import lense.compiler.ir.stack.ThrowException;
 import lense.compiler.ir.stack.WriteFieldToObject;
 import lense.compiler.type.LenseUnitKind;
+import lense.compiler.typesystem.Imutability;
+import lense.compiler.typesystem.Visibility;
 /**
  * 
  */

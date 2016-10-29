@@ -17,7 +17,7 @@ public class Import {
 	private boolean container;
 	private String alias;
 	
-	private Import (QualifiedNameNode name, String alias, boolean container){
+	public Import (QualifiedNameNode name, String alias, boolean container){
 		this.name = name;
 		this.container= container;
 		this.alias = alias;

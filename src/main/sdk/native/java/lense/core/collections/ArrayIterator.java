@@ -1,7 +1,6 @@
 package lense.core.collections;
 
 import lense.core.lang.Any;
-import lense.core.lang.Boolean;
 import lense.core.lang.IllegalIndexException;
 
 public class ArrayIterator implements Iterator {
@@ -14,8 +13,8 @@ public class ArrayIterator implements Iterator {
 	}
 	
 	@Override
-	public Boolean hasNext() {
-		return Boolean.valueOfNative(index < array.length - 1);
+	public boolean hasNext() {
+		return index < array.length - 1;
 	}
 
 	@Override

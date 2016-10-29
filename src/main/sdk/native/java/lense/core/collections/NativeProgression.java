@@ -4,11 +4,12 @@ import java.util.stream.IntStream;
 
 import lense.core.lang.Any;
 import lense.core.lang.Boolean;
+import lense.core.lang.java.Base;
 import lense.core.math.Int32;
 import lense.core.math.Integer;
 import lense.core.math.Natural;
 
-public class NativeProgression implements Progression{
+public class NativeProgression extends Base implements Progression{
 
 	private int start;
 	private int end;
@@ -24,8 +25,8 @@ public class NativeProgression implements Progression{
 	}
 
 	@Override
-	public Boolean equalsTo(Any other) {
-		return Boolean.valueOfNative(other instanceof NativeProgression && ((NativeProgression)other).start == this.start && ((NativeProgression)other).end == this.end);
+	public boolean equalsTo(Any other) {
+		return other instanceof NativeProgression && ((NativeProgression)other).start == this.start && ((NativeProgression)other).end == this.end;
 	}
 
 	@Override

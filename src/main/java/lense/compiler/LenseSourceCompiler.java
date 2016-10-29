@@ -3,10 +3,10 @@
  */
 package lense.compiler;
 
+import lense.compiler.crosscompile.java.JavalizePhase;
 import lense.compiler.phases.CompositePhase;
 import lense.compiler.phases.DesugarPropertiesPhase;
 import lense.compiler.phases.IntermediatyRepresentationPhase;
-import lense.compiler.phases.JavalizePhase;
 import lense.compiler.phases.SemanticAnaylisisPhase;
 import lense.compiler.typesystem.PackageResolver;
 import lense.compiler.phases.NameResolutionPhase;

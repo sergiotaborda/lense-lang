@@ -4,14 +4,14 @@ import lense.core.lang.String;
 
 public class Version {
 
-    public val Natural major;
-    public val Natural minor;
-    public val Natural revision;
+    public val major : Natural;
+    public val minor : Natural;
+    public val revision : Natural;
 
-	public constructor (String str){
+	public constructor ( str : String){
 		// TODO 
 		return new Version(0,0,0);
 	}
 	
-	public constructor (Natural major, Natural minor, Natural revision);
+	public constructor ( major: Natural,  minor : Natural, revision : Natural);
 } 

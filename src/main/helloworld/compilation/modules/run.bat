@@ -1,0 +1,1 @@
+java -cp "helloworld.jar;libs/*" helloworld.start.Bootstrap

@@ -1,12 +1,23 @@
 package lense.compiler.ast;
 
-public class PropertyDeclarationNode extends InvocableDeclarionNode {
+import lense.compiler.phases.ScopeDelimiter;
+
+public class PropertyDeclarationNode extends InvocableDeclarionNode implements ScopeDelimiter{
 
 	private AccessorNode acessor;
 	private ModifierNode modifier;
 	private String name;
 	private TypeNode type;
 	private AnnotationListNode annotationListNode;
+	private ExpressionNode initializer;
+	private boolean inicializedOnConstructor;
+	
+	public PropertyDeclarationNode(){}
+	
+	public PropertyDeclarationNode(String name, TypeNode type){
+		this.name = name;
+		this.type = type;
+	}
 	
 	public boolean isIndexed(){
 		return false;
@@ -30,6 +41,15 @@ public class PropertyDeclarationNode extends InvocableDeclarionNode {
 		type = typeNode;
 		this.add(type);
 		
+	}
+	
+	public void setInitializer(ExpressionNode exp) {
+		initializer = exp;
+		this.add(exp);
+	}
+	
+	public ExpressionNode getInitializer (){
+		return initializer;
 	}
 
 	public void setAnnotations(AnnotationListNode annotationListNode) {
@@ -57,5 +77,20 @@ public class PropertyDeclarationNode extends InvocableDeclarionNode {
 	public String getName () {
 		return name;
 	}
+
+	public void setInicializedOnConstructor(boolean inicializedOnConstructor) {
+		this.inicializedOnConstructor = inicializedOnConstructor;
+	}
+	
+	public boolean getInicializedOnConstructor(){
+		return inicializedOnConstructor;
+	}
+
+	@Override
+	public String getScopeName() {
+		return name;
+	}
+
+
 
 }

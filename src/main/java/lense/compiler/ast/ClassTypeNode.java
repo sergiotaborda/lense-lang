@@ -8,16 +8,17 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import lense.compiler.Import;
-import lense.compiler.Visibility;
 import lense.compiler.context.SemanticContext;
+import lense.compiler.phases.ScopeDelimiter;
 import lense.compiler.type.LenseUnitKind;
+import lense.compiler.typesystem.Visibility;
 import lense.compiler.type.LenseTypeDefinition;
 
 
 /**
  * 
  */
-public class ClassTypeNode extends AnnotadedLenseAstNode {
+public class ClassTypeNode extends AnnotadedLenseAstNode implements ScopeDelimiter{
 
 	private LenseUnitKind kind;
 	private String name;
@@ -191,6 +192,11 @@ public class ClassTypeNode extends AnnotadedLenseAstNode {
 
 	public void setVisibility(Visibility visibility) {
 		this.visibility = visibility;
+	}
+
+	@Override
+	public String getScopeName() {
+		return "#top";
 	}
 
 

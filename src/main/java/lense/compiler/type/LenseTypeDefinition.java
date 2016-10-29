@@ -15,13 +15,13 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import lense.compiler.Visibility;
-import lense.compiler.ast.Imutability;
 import lense.compiler.type.variable.FixedTypeVariable;
 import lense.compiler.type.variable.IntervalTypeVariable;
 import lense.compiler.type.variable.TypeMemberAwareTypeVariable;
 import lense.compiler.type.variable.TypeVariable;
+import lense.compiler.typesystem.Imutability;
 import lense.compiler.typesystem.LenseTypeSystem;
+import lense.compiler.typesystem.Visibility;
 
 /**
  * 

@@ -1,6 +1,8 @@
 package lense.compiler.ast;
 
-public class AccessorNode extends InvocableDeclarionNode {
+import lense.compiler.phases.ScopeDelimiter;
+
+public class AccessorNode extends InvocableDeclarionNode implements ScopeDelimiter{
 
 	private boolean implicit;
 	private BlockNode statements;
@@ -26,6 +28,12 @@ public class AccessorNode extends InvocableDeclarionNode {
 	
 	public boolean isImplicit(){
 		return implicit;
+	}
+
+
+	@Override
+	public String getScopeName() {
+		return "get";
 	}
 	
 }

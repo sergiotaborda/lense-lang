@@ -7,6 +7,8 @@ import lense.compiler.ast.BlockNode;
 import lense.compiler.ast.ExpressionNode;
 import lense.compiler.ast.StatementNode;
 import lense.compiler.ast.VariableDeclarationNode;
+import lense.compiler.context.SemanticScope;
+import lense.compiler.phases.ScopeDelimiter;
 import compiler.syntax.AstNode;
 
 
@@ -14,7 +16,7 @@ import compiler.syntax.AstNode;
 /**
  * 
  */
-public class ForEachNode extends StatementNode {
+public class ForEachNode extends StatementNode implements ScopeDelimiter{
 
 	private VariableDeclarationNode variableDeclarationNode;
 	private ExpressionNode container;
@@ -80,4 +82,10 @@ public class ForEachNode extends StatementNode {
 			this.container = (ExpressionNode) newnode;
 		}
 	}
+
+	@Override
+	public String getScopeName() {
+		return "for";
+	}
+
 }

@@ -3,6 +3,7 @@
  */
 package lense.compiler.phases;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -11,21 +12,20 @@ import java.util.Set;
 
 import compiler.syntax.AstNode;
 import compiler.trees.TreeTransverser;
-import compiler.trees.Visitor;
 import compiler.trees.VisitorNext;
 import lense.compiler.CompilationError;
 import lense.compiler.Import;
 import lense.compiler.ast.ArgumentListNode;
-import lense.compiler.ast.BlockNode;
 import lense.compiler.ast.ClassInstanceCreationNode;
 import lense.compiler.ast.ClassTypeNode;
-import lense.compiler.ast.ConstructorDeclarationNode;
 import lense.compiler.ast.FieldDeclarationNode;
 import lense.compiler.ast.FieldOrPropertyAccessNode;
 import lense.compiler.ast.FieldOrPropertyAccessNode.FieldKind;
+import lense.compiler.ast.ForEachNode;
 import lense.compiler.ast.FormalParameterNode;
 import lense.compiler.ast.GenericTypeParameterNode;
 import lense.compiler.ast.ImplementedInterfacesNode;
+import lense.compiler.ast.InstanceOfNode;
 import lense.compiler.ast.LiteralAssociationInstanceCreation;
 import lense.compiler.ast.LiteralSequenceInstanceCreation;
 import lense.compiler.ast.LiteralTupleInstanceCreation;
@@ -33,16 +33,15 @@ import lense.compiler.ast.MethodDeclarationNode;
 import lense.compiler.ast.MethodInvocationNode;
 import lense.compiler.ast.NumericValue;
 import lense.compiler.ast.PropertyDeclarationNode;
-import lense.compiler.ast.ForEachNode;
 import lense.compiler.ast.QualifiedNameNode;
 import lense.compiler.ast.ScopedVariableDefinitionNode;
 import lense.compiler.ast.StaticAccessNode;
 import lense.compiler.ast.TypeNode;
 import lense.compiler.ast.TypedNode;
 import lense.compiler.ast.VariableReadNode;
-import lense.compiler.context.SemanticContext;
 import lense.compiler.context.VariableInfo;
 import lense.compiler.type.LenseTypeDefinition;
+import lense.compiler.type.LenseUnitKind;
 import lense.compiler.type.Property;
 import lense.compiler.type.TypeDefinition;
 import lense.compiler.type.variable.FixedTypeVariable;
@@ -53,63 +52,45 @@ import lense.compiler.typesystem.LenseTypeSystem;
  * Distinguishes names of variables and types. Also pre-sets the variable to its
  * scope
  */
-public class NameResolutionVisitor implements Visitor<AstNode> {
+public class NameResolutionVisitor extends AbstractScopedVisitor {
 
 	final ClassTypeNode ct;
-	final SemanticContext semanticContext;
 	final Set<String> genericNames = new HashSet<String>();
 
 	final List<FieldOrPropertyAccessNode> possibleSelfAccess = new LinkedList<>();
-	
+
 	public NameResolutionVisitor(ClassTypeNode ct) {
+		super(ct.getSemanticContext());
 		this.ct = ct;
-		this.semanticContext = ct.getSemanticContext();
-
 	}
+
+
 
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
-	public void startVisit() {
-
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void endVisit() {
-
-		if(!possibleSelfAccess.isEmpty()){
-			
-		}
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public VisitorNext visitBeforeChildren(AstNode node) {
+	public VisitorNext doVisitBeforeChildren(AstNode node) {
 
 		if (node instanceof ClassTypeNode) {
 			ClassTypeNode n = (ClassTypeNode) node;
-			this.semanticContext.beginScope("top");
+		
+			//n.setName(this.getSemanticContext().getCurrentPackageName() + "." + n.getName());
 
 			String name = n.getName();
-			Optional<TypeDefinition> type = semanticContext.resolveTypeForName(name, n.getGenericParametersCount());
+			Optional<TypeDefinition> type = this.getSemanticContext().resolveTypeForName(name, n.getGenericParametersCount());
 
 			if (!type.isPresent()) {
 				LenseTypeDefinition defType = new LenseTypeDefinition(name, n.getKind(), null);
-				type = Optional.of(semanticContext.registerType(defType, n.getGenericParametersCount()));
+				type = Optional.of(this.getSemanticContext().registerType(defType, n.getGenericParametersCount()));
 			}
 
 			LenseTypeDefinition currentType = (LenseTypeDefinition)type.get();
-			
+
 			if (n.getGenerics() != null) {
 
 				for (AstNode a : n.getGenerics().getChildren()) {
 					GenericTypeParameterNode g = (GenericTypeParameterNode)a;
-					
+
 					TypeNode tn = g.getTypeNode();
 					FixedTypeVariable typeVar = new FixedTypeVariable(LenseTypeSystem.Any());
 
@@ -117,8 +98,41 @@ public class NameResolutionVisitor implements Visitor<AstNode> {
 				}
 
 			}
-			
-			this.semanticContext.currentScope().defineVariable("this", new FixedTypeVariable(currentType), node);
+
+			this.getSemanticContext().currentScope().defineVariable("this", new FixedTypeVariable(currentType), node);
+
+			if (n.getSuperType() != null){
+
+
+				Optional<Import> match = matchImports(ct, n.getSuperType().getName());
+
+				if (!match.isPresent()) {
+					handleTypemMissing(n.getSuperType().getName(),n, n.getSuperType());
+
+					type = this.getSemanticContext().resolveTypeForName( n.getSuperType().getName(),n.getSuperType().getTypeParametersCount());
+
+					if (!type.isPresent()) {
+						throw new CompilationError(node,
+								"Type " + n.getSuperType().getName() + " was not imported in " + n.getName());
+					}
+
+					this.getSemanticContext().currentScope().defineVariable("super", new FixedTypeVariable((LenseTypeDefinition)type.get()), node);
+				} else {
+					String typeName = match.get().getTypeName().toString();
+
+					type = this.getSemanticContext().resolveTypeForName( typeName,n.getSuperType().getTypeParametersCount());
+
+					if (!type.isPresent()) {
+						LenseTypeDefinition defType = new LenseTypeDefinition( match.get().getTypeName().toString(),LenseUnitKind.Class , null);
+						type = Optional.of(this.getSemanticContext().registerType(defType, n.getSuperType().getTypeParametersCount()));
+					}
+
+
+					this.getSemanticContext().currentScope().defineVariable("super", new FixedTypeVariable((LenseTypeDefinition)type.get()), node);
+				}
+
+
+			}
 
 		} else if (node instanceof NumericValue){
 			NumericValue n = (NumericValue)node;
@@ -129,10 +143,17 @@ public class NameResolutionVisitor implements Visitor<AstNode> {
 				if (match.isPresent()) {
 					match.get().setMemberCalled(true);
 					return VisitorNext.Siblings;
+				} else {
+					ct.imports().add(new Import( 
+							new QualifiedNameNode( 
+									n.getTypeVariable().getTypeDefinition().getName()) , 
+							n.getTypeVariable().getTypeDefinition().getSimpleName(), false
+							));
+
+					matchImports(ct, n.getTypeVariable().getTypeDefinition().getSimpleName()).get().setMemberCalled(true);
+
 				}
-				// TODO auto import literal types
-				//				throw new CompilationError(node,
-				//						"Type " + n.getTypeVariable().getName() + " was not imported in " + ct.getName());
+
 			} 
 
 		} else if (node instanceof LiteralSequenceInstanceCreation) {
@@ -141,13 +162,13 @@ public class NameResolutionVisitor implements Visitor<AstNode> {
 
 			TreeTransverser.transverse(args, this);
 
-			TypedNode type = (TypedNode) args.getChildren().get(0);
+			TypedNode type = (TypedNode) args.getFirst().getFirstChild();
 			array.getTypeNode().addParametricType(
 					new GenericTypeParameterNode(
 							new TypeNode(type.getTypeVariable()),
 							lense.compiler.typesystem.Variance.Covariant
-				    )
-			);
+							)
+					);
 
 			return VisitorNext.Siblings;
 
@@ -155,20 +176,23 @@ public class NameResolutionVisitor implements Visitor<AstNode> {
 			LiteralAssociationInstanceCreation map = ((LiteralAssociationInstanceCreation) node);
 			ArgumentListNode args = map.getArguments();
 
-			TypeNode typeNode = ((ClassInstanceCreationNode) args.getChildren().get(0)).getTypeNode();
+			TypeNode typeNode = ((ClassInstanceCreationNode) args.getFirstChild().getFirstChild()).getTypeNode();
 			// make all arguments have the same type.
 			for (int i = 1; i < args.getChildren().size(); i++) {
 				final ClassInstanceCreationNode classInstanceCreation = (ClassInstanceCreationNode) args.getChildren()
-						.get(i);
+						.get(i).getFirstChild();
 				classInstanceCreation.replace(classInstanceCreation.getTypeNode(), typeNode);
 			}
-			TypeDefinition pairType = semanticContext.resolveTypeForName(typeNode.getName(), 2).get();
+			TypeDefinition pairType = this.getSemanticContext().resolveTypeForName(typeNode.getName(), 2).get();
 			typeNode.setTypeVariable(new FixedTypeVariable(pairType));
 
 			TreeTransverser.transverse(args, this);
 
-			TypedNode key = (TypedNode) args.getChildren().get(1).getChildren().get(1).getChildren().get(0);
-			TypedNode value = (TypedNode) args.getChildren().get(1).getChildren().get(1).getChildren().get(1);
+			ClassInstanceCreationNode instance = (ClassInstanceCreationNode) args.getChildren().get(0).getFirstChild();
+
+			TypedNode key = (TypedNode) instance.getArguments().getChildren().get(0).getFirstChild();
+			TypedNode value = (TypedNode) instance.getArguments().getChildren().get(1).getFirstChild();
+
 			map.getTypeNode().addParametricType(new GenericTypeParameterNode(new TypeNode(key.getTypeVariable()),
 					lense.compiler.typesystem.Variance.Invariant));
 			map.getTypeNode().addParametricType(new GenericTypeParameterNode(new TypeNode(value.getTypeVariable()),
@@ -181,24 +205,7 @@ public class NameResolutionVisitor implements Visitor<AstNode> {
 					key.getTypeVariable(), value.getTypeVariable())));
 
 			return VisitorNext.Siblings;
-		} else if (node instanceof MethodDeclarationNode) {
-			semanticContext.beginScope(((MethodDeclarationNode) node).getName());
-		} else if (node instanceof ConstructorDeclarationNode) {
-			ConstructorDeclarationNode c = (ConstructorDeclarationNode) node;
-			semanticContext.beginScope(c.getScopeIdentifer());
-		} else if (node instanceof PropertyDeclarationNode){
-			PropertyDeclarationNode n = (PropertyDeclarationNode)node;
-			semanticContext.beginScope(n.getName());
-		} else if (node instanceof ClassTypeNode) {
-			ClassTypeNode t = (ClassTypeNode) node;
-
-			t.setName(semanticContext.getCurrentPackageName() + "." + t.getName());
-
-			semanticContext.beginScope(t.getName());
-
-		} else if (node instanceof BlockNode) {
-			semanticContext.beginScope("block");
-		} else if (node instanceof FieldDeclarationNode) {
+		}  else if (node instanceof FieldDeclarationNode) {
 			FieldDeclarationNode fieldDeclarationNode = (FieldDeclarationNode) node;
 
 			Optional<Import> match = matchImports(ct, fieldDeclarationNode.getTypeNode().getName());
@@ -210,10 +217,15 @@ public class NameResolutionVisitor implements Visitor<AstNode> {
 				return VisitorNext.Siblings;
 			}
 
-			throw new CompilationError(node,
-					"Type " + fieldDeclarationNode.getTypeNode().getName() + " was not imported in " + ct.getName());
+			handleTypemMissing(ct.getName(), node, fieldDeclarationNode.getTypeNode());
+
 		} else if (node instanceof TypeNode) {
 			TypeNode typeNode = (TypeNode) node;
+
+			if (typeNode.needsInference()){
+				return VisitorNext.Siblings;
+			}
+
 			if (typeNode.getTypeVariable() != null) {
 				return VisitorNext.Siblings;
 			}
@@ -239,7 +251,7 @@ public class NameResolutionVisitor implements Visitor<AstNode> {
 			for (Import i : ct.imports()) {
 				if (i.isContainer()) {
 
-					Optional<TypeDefinition> libraryType = semanticContext.resolveTypeForName(
+					Optional<TypeDefinition> libraryType = this.getSemanticContext().resolveTypeForName(
 							i.getTypeName().getName() + "." + typeNode.getName(), typeNode.getTypeParametersCount());
 
 					if (libraryType.isPresent()) {
@@ -254,7 +266,7 @@ public class NameResolutionVisitor implements Visitor<AstNode> {
 			}
 
 			// match implicit imports
-			Optional<TypeDefinition> libraryType = semanticContext.resolveTypeForName(typeNode.getName(),
+			Optional<TypeDefinition> libraryType = this.getSemanticContext().resolveTypeForName(typeNode.getName(),
 					typeNode.getTypeParametersCount());
 
 			if (libraryType.isPresent()) {
@@ -273,7 +285,9 @@ public class NameResolutionVisitor implements Visitor<AstNode> {
 					genericNames.add(typeNode.getName());
 					return VisitorNext.Siblings;
 				}
-				throw new CompilationError(node, "Type " + typeNode.getName() + " was not imported in " + ct.getName());
+
+				this.handleTypemMissing(ct.getName(), node, typeNode);
+
 			}
 
 		} else if (node instanceof MethodInvocationNode) {
@@ -294,21 +308,73 @@ public class NameResolutionVisitor implements Visitor<AstNode> {
 			}
 
 			return VisitorNext.Children;
-		} 
+		} else if (node instanceof InstanceOfNode){
+			InstanceOfNode n = (InstanceOfNode)node;
+			TypeNode typeNode = (TypeNode) n.getChildren().get(1);
+
+			Optional<Import> match = matchImports(ct, typeNode.getName());
+
+			if (match.isPresent()){
+				typeNode.setName(match.get().getTypeName());
+			}
+		}
 
 		return VisitorNext.Children;
+	}
+
+	private void handleTypemMissing(String name, AstNode node, TypeNode typeNode) {
+
+		if (typeNode.getName().equals(name)){
+			Optional<TypeDefinition> libraryType = this.getSemanticContext().resolveTypeForName(name,typeNode.getTypeParametersCount());
+			if (libraryType.isPresent()) {
+				typeNode.setName(new QualifiedNameNode(libraryType.get().getName()));
+				final Import implicitType = Import.singleType(new QualifiedNameNode(name),typeNode.getName());
+				implicitType.setUsed(true);
+				ct.addImport(implicitType);
+				return;
+			}
+		} 
+
+		if (LenseTypeSystem.Any().getName().equals(name)){
+			final Import implicitType = Import.singleType(new QualifiedNameNode(name),typeNode.getName());
+			implicitType.setUsed(true);
+			ct.addImport(implicitType);
+			return;
+		}
+
+
+		List<String> paths = Arrays.asList("lense.core.collections","lense.core.math","lense.core.lang");
+
+		for(String path : paths) {
+
+			String fullType = path + "." + typeNode.getName();
+
+			Optional<TypeDefinition> libraryType = this.getSemanticContext().resolveTypeForName(fullType,typeNode.getTypeParametersCount());
+
+			if (libraryType.isPresent()) {
+				typeNode.setName(new QualifiedNameNode(libraryType.get().getName()));
+				final Import implicitType = Import.singleType(new QualifiedNameNode(fullType),typeNode.getName());
+				implicitType.setUsed(true);
+				ct.addImport(implicitType);
+				return;
+			}
+		}
+
+
+		throw new CompilationError(node,
+				"Type " + typeNode.getName() + " was not imported in " + name);
 	}
 
 	private VisitorNext resolveName(ClassTypeNode ct, AstNode parent, AstNode child, QualifiedNameNode original) {
 
 		QualifiedNameNode qn = original;
 		// Optional<TypeDefinition> maybeType =
-		// semanticContext.resolveTypeForName(qn.getName(), 0);
+		// this.getSemanticContext().resolveTypeForName(qn.getName(), 0);
 		//
 		// while(!maybeType.isPresent()){
 		// qn = qn.getPrevious();
 		// if (qn != null){
-		// maybeType = semanticContext.resolveTypeForName(qn.getName(), 0);
+		// maybeType = this.getSemanticContext().resolveTypeForName(qn.getName(), 0);
 		// } else {
 		// break;
 		// }
@@ -328,14 +394,14 @@ public class NameResolutionVisitor implements Visitor<AstNode> {
 
 		String name = original.getFirst().getName();
 
-		VariableInfo varInfo = semanticContext.currentScope().searchVariable(name);
+		VariableInfo varInfo = this.getSemanticContext().currentScope().searchVariable(name);
 
 		if (varInfo == null) {
 			// references a type
 
 			match = matchImports(ct, name);
 			if (!match.isPresent()) {
-				VariableInfo varSelf = semanticContext.currentScope().searchVariable("this");
+				VariableInfo varSelf = this.getSemanticContext().currentScope().searchVariable("this");
 
 				if (!varSelf.getTypeVariable().getSymbol().map(s  -> s.equals(name)).orElse(false)) {
 					// throw new CompilationError(child, "Type " + name + " was
@@ -344,7 +410,7 @@ public class NameResolutionVisitor implements Visitor<AstNode> {
 
 			}
 
-			
+
 			qn = original.getNext();
 
 			if (qn != null) {
@@ -364,11 +430,11 @@ public class NameResolutionVisitor implements Visitor<AstNode> {
 				}
 
 				TypeVariable type = fieldAccess.getTypeVariable();
-				
+
 				if (type == null){
-					
+
 				}
-				VariableInfo varSelf = semanticContext.currentScope().searchVariable("this");
+				VariableInfo varSelf = this.getSemanticContext().currentScope().searchVariable("this");
 
 				if (!type.equals(varSelf.getTypeVariable())) {
 					match = matchImports(ct, type);
@@ -377,25 +443,25 @@ public class NameResolutionVisitor implements Visitor<AstNode> {
 						match.get().setMemberCalled(true);
 					}
 				}
-				
+
 				original.getParent().replace(original, fieldAccess);
 			} else {
 				FieldOrPropertyAccessNode selfPropertyAccess = new FieldOrPropertyAccessNode(original.getFirst().toString());
 				selfPropertyAccess.setKind(FieldKind.PROPERTY);
-				
-				TypeDefinition selfType = semanticContext.currentScope().searchVariable("this").getTypeVariable().getTypeDefinition();
+
+				TypeDefinition selfType = this.getSemanticContext().currentScope().searchVariable("this").getTypeVariable().getTypeDefinition();
 				Optional<Property> property = selfType.getPropertyByName(selfPropertyAccess.getName());
-				
+
 				if (!property.isPresent() && selfType.getSuperDefinition() != null){
 					property = selfType.getSuperDefinition().getPropertyByName(selfPropertyAccess.getName());
 				}
-				
+
 				if (property.isPresent()){
 					selfPropertyAccess.setType(property.get().getReturningType());
 				} else {
 					this.possibleSelfAccess.add(selfPropertyAccess);
 				}
-			
+
 
 				original.getParent().replace(original, selfPropertyAccess);
 			}
@@ -410,7 +476,7 @@ public class NameResolutionVisitor implements Visitor<AstNode> {
 
 			if (qn == null) {
 				TypeVariable type = vn.getTypeVariable();
-				VariableInfo varSelf = semanticContext.currentScope().searchVariable("this");
+				VariableInfo varSelf = this.getSemanticContext().currentScope().searchVariable("this");
 
 				if (!type.equals(varSelf.getTypeVariable())) {
 					match = matchImports(ct, type);
@@ -434,7 +500,7 @@ public class NameResolutionVisitor implements Visitor<AstNode> {
 				}
 
 				TypeVariable type = fieldAccess.getTypeVariable();
-				VariableInfo varSelf = semanticContext.currentScope().searchVariable("this");
+				VariableInfo varSelf = this.getSemanticContext().currentScope().searchVariable("this");
 
 				if (!type.equals(varSelf.getTypeVariable())) {
 					match = matchImports(ct, type);
@@ -451,6 +517,11 @@ public class NameResolutionVisitor implements Visitor<AstNode> {
 	}
 
 	private Optional<Import> matchImports(ClassTypeNode ct, String nameAlias) {
+
+		if (ct.getSimpleName().equals(nameAlias)){
+			return Optional.of(new Import(new QualifiedNameNode(ct.getName()), nameAlias, false));
+		}
+
 		for (Import i : ct.imports()) {
 			if (i.getMatchAlias().equals(nameAlias)) {
 				i.setUsed(true);
@@ -480,13 +551,13 @@ public class NameResolutionVisitor implements Visitor<AstNode> {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void visitAfterChildren(AstNode node) {
+	public void doVisitAfterChildren(AstNode node) {
 
 		if (node instanceof ImplementedInterfacesNode){
-			
+
 			for(AstNode a : node.getChildren()){
 				TypeNode t = (TypeNode)a;
-				
+
 				Optional<Import> match = matchImports(ct, t.getName());
 
 				if (match.isPresent()) {
@@ -494,20 +565,19 @@ public class NameResolutionVisitor implements Visitor<AstNode> {
 				}
 			}
 		} else if (node instanceof ForEachNode){
-		
+
 			ct.addImport(Import.singleType(new QualifiedNameNode("lense.core.collections.Iterable"), "Iterable"));
-			
+
 			Optional<Import> match = matchImports(ct, "lense.core.collections.Iterable");
 
 			if (match.isPresent()) {
 				match.get().setMemberCalled(true);
 			}
-			
+
 		} else if (node instanceof MethodDeclarationNode) {
 			MethodDeclarationNode m = (MethodDeclarationNode)node;
-			semanticContext.endScope();
-			
-			if (m.getBlock() != null && !genericNames.contains(m.getReturnType().getName()) && !semanticContext.currentScope().getCurrentType().getName().endsWith(m.getReturnType().getName())){
+		
+			if (m.getBlock() != null && !genericNames.contains(m.getReturnType().getName()) && !this.getSemanticContext().currentScope().getCurrentType().getName().endsWith(m.getReturnType().getName())){
 				Optional<Import> match = matchImports(ct, m.getReturnType().getName());
 
 				if (match.isPresent()) {
@@ -517,16 +587,15 @@ public class NameResolutionVisitor implements Visitor<AstNode> {
 					return;
 				}
 
-				throw new CompilationError(node,
-						"Type " + m.getReturnType().getName() + " was not imported in " + ct.getName());
+				this.handleTypemMissing(ct.getName(), node, m.getReturnType());
+
 			}
 
 		}else if (node instanceof PropertyDeclarationNode){
 			PropertyDeclarationNode n = (PropertyDeclarationNode)node;
-			semanticContext.endScope();
 			
 			String name = n.getType().getName();
-			if ((n.getAcessor() != null || n.getModifier() != null) && !genericNames.contains(name) && !semanticContext.currentScope().getCurrentType().getName().endsWith(name)){
+			if ((n.getAcessor() != null || n.getModifier() != null) && !genericNames.contains(name) && !this.getSemanticContext().currentScope().getCurrentType().getName().endsWith(name)){
 				Optional<Import> match = matchImports(ct, name);
 
 				if (match.isPresent()) {
@@ -535,29 +604,24 @@ public class NameResolutionVisitor implements Visitor<AstNode> {
 					n.getType().setName(match.get().getTypeName());
 					return;
 				}
+				this.handleTypemMissing(ct.getName(), node, n.getType());
 
-				throw new CompilationError(node,
-						"Type " + name + " was not imported in " + ct.getName());
 			}
-
-		} else if (node instanceof ClassTypeNode) {
-			semanticContext.endScope();
-		} else if (node instanceof BlockNode) {
-			semanticContext.endScope();
-		} else if (node instanceof ConstructorDeclarationNode) {
-
 		} else if (node instanceof ScopedVariableDefinitionNode) {
 			ScopedVariableDefinitionNode variableDeclaration = (ScopedVariableDefinitionNode) node;
 
 			TypeNode typeNode = variableDeclaration.getTypeNode();
-			Optional<TypeDefinition> type = semanticContext.resolveTypeForName(typeNode.getName(),
+			if (typeNode.needsInference()){
+				return;
+			}
+			Optional<TypeDefinition> type = this.getSemanticContext().resolveTypeForName(typeNode.getName(),
 					typeNode.getTypeParametersCount());
 
 			if (!type.isPresent()) {
 				LenseTypeDefinition defType = new LenseTypeDefinition(typeNode.getName(), null, null);
-				type = Optional.of(semanticContext.registerType(defType, typeNode.getTypeParametersCount()));
+				type = Optional.of(this.getSemanticContext().registerType(defType, typeNode.getTypeParametersCount()));
 			}
-			VariableInfo info = semanticContext.currentScope().defineVariable(variableDeclaration.getName(),
+			VariableInfo info = this.getSemanticContext().currentScope().defineVariable(variableDeclaration.getName(),
 					new FixedTypeVariable(type.get()), node);
 
 			variableDeclaration.setInfo(info);
@@ -568,20 +632,21 @@ public class NameResolutionVisitor implements Visitor<AstNode> {
 			TypeNode typeNode = variableDeclaration.getTypeNode();
 			if (typeNode != null) {
 				LenseTypeDefinition type = new LenseTypeDefinition(typeNode.getName(), null, null);
-				semanticContext.currentScope().defineVariable(variableDeclaration.getName(),
+				this.getSemanticContext().currentScope().defineVariable(variableDeclaration.getName(),
 						new FixedTypeVariable(type), node);
 			}
 
 		} else if (node instanceof LiteralTupleInstanceCreation) {
 			LiteralTupleInstanceCreation tuple = ((LiteralTupleInstanceCreation) node);
-			TypedNode value = (TypedNode) tuple.getChildren().get(1).getChildren().get(0);
+			AstNode t = tuple.getChildren().get(1).getFirstChild();
+			TypedNode value = (TypedNode) t.getChildren().get(0);
 
 			TypeNode typeNode = new TypeNode(new QualifiedNameNode("lense.core.collections.Tuple"));
 			typeNode.addParametricType(new GenericTypeParameterNode(new TypeNode(value.getTypeVariable())));
 
 			TypedNode nextTuple;
-			if (tuple.getChildren().get(1).getChildren().size() == 2) {
-				nextTuple = (TypedNode) tuple.getChildren().get(1).getChildren().get(1);
+			if (tuple.getChildren().get(1).getFirstChild().getChildren().size() == 2) {
+				nextTuple = (TypedNode) t.getChildren().get(1);
 				typeNode.addParametricType(
 						new GenericTypeParameterNode(new TypeNode(new QualifiedNameNode("lense.core.lang.Any"))));
 

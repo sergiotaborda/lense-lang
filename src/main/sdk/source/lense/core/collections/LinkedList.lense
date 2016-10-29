@@ -7,7 +7,7 @@ import lense.core.collections.ResizableSequence;
 
 public native class LinkedList<T> implements ResizableSequence<T> {
 
-	public native implicit constructor (Sequence<T> other){
+	public native implicit constructor (other: Sequence<T> ){
 	
 	}
 	
@@ -15,7 +15,9 @@ public native class LinkedList<T> implements ResizableSequence<T> {
 	
 	}
 
-	public native T [Natural index] { get; set;}
+	public native function add(value: T ) : Void;
 	
-	public native Void add(T value);
+	public native [ index: Natural] : T { get; set;}
+	
+
 }

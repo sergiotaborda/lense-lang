@@ -92,14 +92,14 @@ public final class UNat extends ScalableNatural{
 		}
 	}
 
-	public int hashCode(){
-		return Long.hashCode(value);
+	public final Integer hashValue(){
+		return Int32.valueOfNative(Long.hashCode(this.value));
 	}
 	
-	public String toString(){
-		return Long.toUnsignedString(value);
+	public final lense.core.lang.String asString(){
+		return lense.core.lang.String.valueOfNative(java.lang.Long.toUnsignedString(value)); 
 	}
-
+	
 	@Override
 	public boolean isZero() {
 		return value == 0L;
@@ -121,7 +121,7 @@ public final class UNat extends ScalableNatural{
 	@Override
 	protected Integer asInteger() {
 		if (value < Long.MAX_VALUE && value > 0){
-			return new ScalableInt64(value);
+			return ScalableInt64.valueOf(value);
 		} 
 		return new BigInt(new BigInteger(this.toString()));
 	}
@@ -131,13 +131,15 @@ public final class UNat extends ScalableNatural{
 		if (Long.compareUnsigned(this.value, java.lang.Integer.MAX_VALUE) <= 0){
 			return (int)this.value;
 		}
-		throw new ArithmeticException("TO big for an int");
+		throw new ArithmeticException("To big for an int");
 	}
 
 	@Override
-	int modulus(int n) {
+	public int modulus(int n) {
 		return (int)(this.value % n);
 	}
+
+	
 
 
 }

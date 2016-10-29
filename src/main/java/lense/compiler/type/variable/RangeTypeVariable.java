@@ -124,4 +124,9 @@ public class RangeTypeVariable implements IntervalTypeVariable {
 		 return this.upper.equals(this.lower);
 	}
 
+	@Override
+	public boolean isFixed() {
+		return false;
+	}
+
 }

@@ -94,6 +94,11 @@ public class LenseTypeRepository implements UpdatableTypeRepository{
 		throw new UnsupportedOperationException("Not implememented yet");
 	}
 
+	@Override
+	public Map<Integer, TypeDefinition> resolveTypesMap(String name) {
+		throw new UnsupportedOperationException("Not implememented yet");
+	}
+
 
 
 }

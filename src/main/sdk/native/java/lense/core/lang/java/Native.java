@@ -7,4 +7,6 @@ import java.lang.annotation.RetentionPolicy;
 @Native
 public @interface Native {
 
+	boolean overridable() default false;
+
 }

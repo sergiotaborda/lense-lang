@@ -1,6 +1,7 @@
 package lense.core.lang;
 
 import lense.core.lang.java.Constructor;
+import lense.core.math.Integer;
 
 public class Some extends Maybe{
 
@@ -13,5 +14,35 @@ public class Some extends Maybe{
 	
 	private Some(Any value){
 		this.value =value;
+	}
+
+	@Override
+	public boolean equalsTo(Any other) {
+		return other instanceof Some && equalsTo((Some)other);
+	}
+	
+	public boolean equalsTo(Some other) {
+		return this.value.equalsTo(other.value);
+	}
+
+	@Override
+	public Integer hashValue() {
+		return value.hashValue();
+	}
+
+	@Override
+	public String asString() {
+		return value.asString();
+	}
+
+
+	@Override
+	public boolean isPresent() {
+		return true;
+	}
+
+	@Override
+	public boolean isAbsent() {
+		return false;
 	}
 }

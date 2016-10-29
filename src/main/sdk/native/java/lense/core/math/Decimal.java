@@ -9,5 +9,5 @@ public abstract class Decimal extends Real {
 		return Decimal32.constructor();
 	}
 	
-
+	protected abstract Real promoteNext();
 }
