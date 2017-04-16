@@ -11,7 +11,7 @@ import compiler.syntax.AstNode;
 /**
  * 
  */
-public class LiteralTupleInstanceCreation extends ClassInstanceCreationNode implements LiteralCreation{
+public class LiteralTupleInstanceCreation extends NewInstanceCreationNode implements LiteralCreation{
 
 	public LiteralTupleInstanceCreation (AstNode value, AstNode nextTuple){
 		TypeNode t = new TypeNode(new QualifiedNameNode("lense.core.collections.Tuple"));

@@ -1,30 +1,40 @@
-
-Tuples (BNF)
+Indexes
+	allow more than one parameter (DONE)
+Tuples (BNF) and void
 	() === void
+	call methods on void
 Implement Properties 
-	in interfaces DONE
+	in interfaces (DONE)
 	validate all non nullable properties are inicialized
 	do delegation    size {get = list.size}   or size => list.size
 
 Types
 	inference and optional types
-
+	infere optional : Void for methods (DONE)
 Reflection
+	Type<T> class
 	typeof operator
-	is operator
+	is operator (DONE)
 	after testing for type auto cast variable (create a new scope to shadow previous variable)
+		inside && (DONE)
+		inside || 
+		inside IF (DONE)
+		inside While
 Imports
 	detected non existing imports -> depends on finding by name, ignoring parametric types
+	use naming to find types. discard parametric type count
 R/R (Compiler)
 	revise reduce-reduce conflicts
 Constructors 
 	-rethink the static stategy
 	- delegation
 	- inicialization
+	- auto- declare properties and fields  (DONE)
 Auto-package
 	accept classes in lense.core automatically 
 	accept classes in the same module automatically
 Generics
+ 	Add generic signatures to constructors
 	Capture generics locally (when calling constructors and methods with free generics)
 	Pass capture to methods and constructors
 	T extends X , T super X
@@ -43,15 +53,16 @@ Operators
 	?+, ?- , ?*, ?/ ==> these will return Maybe<T> with None value when overload appends
 	- (symmetric) closed for all except natural. Natural.symmetric():Integer (DONE)
 	
-	i++ and i-- this operators imply in tree rewrite of on node by a collection of nodes
+	i++ and i-- this operators imply in tree rewrite of on node by a collection of nodes. are statements, not expressions. 
+	equivalent to a = a.sucessor() and a = a.predecessor();
 
-	In32.max.sucessor = In32.max;
+	In32.max.sucessor = In32.max; (warp)
 	In32.max + 1 := Int32.max.plus((Integer)1) -> OverflowException(). this does AddExact
 	In32.max &+ 1 := Int32.max.wrapPlus(1) == Int32.min                Int32.wrapPlus(Int32):Int32
 	In32.max ?+ 1 := In32.max.checkPlus(1) == none              Int32.checkPlus(Int32):Maybe<Int32>
 	In32? result = 2 ?+ In32.max ?+ 2   ==>  new Some(2).map( a -> a.checkPlus(Int32.max)).map(b -> b.checkPlus(2) )
 	
-	Super Numbers , BigInt and Natural do not throw exception nor warp or overflow. They increase as needed
+	Super Numbers , BigInt and Natural do not throw exception, nor warp, or overflow. They increase as needed (default) (DONE)
 	
 	BigInt max = Int32.max; // same as BigInt max = BigInt.valueOf(Int32.max)
 	BigInt next = max + 1; // BigInt next = max.plus(BigInt.valueOf(Natural(1)))
@@ -61,7 +72,7 @@ Operators
 Native implementations weaving
 	 - native types (DONE) 
 	 - native peers
-	 - native import ?
+	 - native import like :  import native (js) jquery;
 	 - native = call to subjacent plataform api
 Case classes and objects
     - Object (DONE)
@@ -69,12 +80,15 @@ Case classes and objects
     - Annotation
 	- case classes, 
 	- case objects 
+	- data classes 
+	- value classes
 	- sum types like   Boolean is true | false;
 Revisit ordering of elements in class body.
 	- it should not matter
 Revisit Fields  not initialized 
-Operatores and Operacional Interfaces	
-	- operator for racional division 
+Operators and Operacional Interfaces	
+	- operator for rational division /
+	- operator for integer division \ , consistent with % operator D = d.q + r where q = D \ d and r = D % d;
 	- handle comparable operators with Comparable<T>
 Allow module to have any name
 	-place module.lense in source root folder
@@ -106,14 +120,15 @@ Ad elvis operator since transparent maybe is no good ?:
     
 Literals
 	- Progression : 1...3 => 1.upTo(3)
-	- Interval :  1..3 |  1... | ...3 |  1<..3 |  1..<3 | 1<..<3 => Interval.from(1).inclusive().to(3).inclusive() , etc...  
-	- all numeric literals are natural numbers DONE
+	- Interval :  |[ , )| operators (DONE)
+	- all whole numeric literals are natural numbers (DONE)
+	- all fractional numeric literals are rational numbers (DONE)
 	- imaginary unit is 'i' and 2i means  Rational("2") * Complex.I; (DONE)
 	 
 	 
 	 intervals literal
 	 sequence literals [1,2,3,4]  DONE
-	 map literals { "a": 1, "b": 2 , "c" : 3} 
+	 map literals { "a": 1, "b": 2 , "c" : 3} (DONE)
      Builders like Window { Size = Size { 20, 40} }} equivalente to new : xml alternative + parser
 	 Property bag as single loadable/parsable file (JSON style) 
 
@@ -134,7 +149,7 @@ Static reading
 		Alternativly "Console" is the name of an object. In this case if "console" exists in package lang.io there will be a class named "IO$Package" and
 		static field of type Console on it so "Console.println" would be IO$Package.Console.println" 
 Generics
-	Generate GenericSignatures DONE
+	Generate GenericSignatures (DONE)
 	Need GenericType lock to the classe type or method generic defenition
 	
 	Diferenciate ReferenceType and TypeVar 

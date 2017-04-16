@@ -8,11 +8,11 @@ public native class Int64 extends Integer implements Binary{
 	public native implicit constructor valueOf ( n: Natural);
 	public native implicit constructor valueOf ( n: Binary);
 	
-	public native function flipAll() : Int64;
+	public native flipAll() : Int64;
 	
 	public  size : Natural {get { return 64;}}
 
-	public native function rightShiftBy( n:Natural) : Int64;
+	public native rightShiftBy( n:Natural) : Int64;
 	
-	public native function leftShiftBy( n:Natural) : Int64;
+	public native leftShiftBy( n:Natural) : Int64;
 }

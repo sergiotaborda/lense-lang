@@ -23,11 +23,11 @@ public val class Tuple <out H , out T /*extends Tuple*/> implements Iterable<Any
 		}
 	}
 	
-	public function head(): H{
+	public head(): H{
 		return head;
 	}
 	
-	public function tail(): T{
+	public tail(): T{
 		return tail;
 	}
 	

@@ -2,5 +2,5 @@
 
 public interface Subtractable <S, D> {
 
-	public function subtract (subtractive: S) : D;
+	public subtract (subtractive: S) : D;
 }

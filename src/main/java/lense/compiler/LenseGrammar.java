@@ -32,7 +32,7 @@ import lense.compiler.ast.BreakNode;
 import lense.compiler.ast.CatchOptionNode;
 import lense.compiler.ast.CatchOptionsNode;
 import lense.compiler.ast.ClassBodyNode;
-import lense.compiler.ast.ClassInstanceCreationNode;
+import lense.compiler.ast.NewInstanceCreationNode;
 import lense.compiler.ast.ClassTypeNode;
 import lense.compiler.ast.ComparisonNode;
 import lense.compiler.ast.ComparisonNode.Operation;
@@ -52,9 +52,9 @@ import lense.compiler.ast.ImportTypesListNode;
 import lense.compiler.ast.ImutabilityNode;
 import lense.compiler.ast.IndexedAccessNode;
 import lense.compiler.ast.IndexerPropertyDeclarationNode;
+import lense.compiler.ast.InferableTypeNode;
 import lense.compiler.ast.InstanceOfNode;
-import lense.compiler.ast.IntervalNode;
-import lense.compiler.ast.IntervalOperation;
+import lense.compiler.ast.LiteralIntervalNode;
 import lense.compiler.ast.InvocableDeclarionNode;
 import lense.compiler.ast.LambdaExpressionNode;
 import lense.compiler.ast.LiteralAssociationInstanceCreation;
@@ -68,7 +68,7 @@ import lense.compiler.ast.ModuleExportNode;
 import lense.compiler.ast.ModuleImportNode;
 import lense.compiler.ast.ModuleMembersNode;
 import lense.compiler.ast.ModuleNode;
-import lense.compiler.ast.NullValue;
+import lense.compiler.ast.NoneValue;
 import lense.compiler.ast.NumericValue;
 import lense.compiler.ast.ParametersListNode;
 import lense.compiler.ast.PosExpression;
@@ -96,8 +96,11 @@ import lense.compiler.ast.VarianceNode;
 import lense.compiler.ast.VersionNode;
 import lense.compiler.ast.VisibilityNode;
 import lense.compiler.ast.WhileNode;
+import lense.compiler.type.Constructor;
+import lense.compiler.type.ConstructorParameter;
 import lense.compiler.type.LenseUnitKind;
 import lense.compiler.type.TypeDefinition;
+import lense.compiler.type.variable.FixedTypeVariable;
 import lense.compiler.typesystem.Imutability;
 import lense.compiler.typesystem.LenseTypeSystem;
 import lense.compiler.typesystem.Variance;
@@ -644,11 +647,11 @@ public class LenseGrammar extends AbstractLenseGrammar {
 
 				if (generics.isPresent()) {
 					n.setGenerics(generics.get());
-					
+
 				}
-				
+
 				nextNodeIndex++;
-				
+
 				// extends
 				Optional<TypeNode> ext = r.get(nextNodeIndex).getAstNode(TypeNode.class);
 
@@ -666,9 +669,9 @@ public class LenseGrammar extends AbstractLenseGrammar {
 				}
 
 				nextNodeIndex = readModifiers(r, modifiers, ImplementedInterfacesNode.class);
-				
+
 				if (nextNodeIndex >0){
-					
+
 					// implement
 					Optional<ImplementedInterfacesNode> implement = r.get(nextNodeIndex)
 							.getAstNode(ImplementedInterfacesNode.class);
@@ -678,7 +681,7 @@ public class LenseGrammar extends AbstractLenseGrammar {
 						nextNodeIndex++;
 					}
 				}
-			
+
 
 				AstNode b = r.get(r.size() - 1).getAstNode().get();
 
@@ -720,7 +723,7 @@ public class LenseGrammar extends AbstractLenseGrammar {
 				n.setNative(false);
 				n.setVisibility(modifiers.getVisibility().getVisibility(Visibility.Private));
 
-				
+
 				n.setSuperType(new TypeNode(LenseTypeSystem.Any()));
 
 				Optional<TypeParametersListNode> generics = r.get(++nextNodeIndex).getAstNode(TypeParametersListNode.class);
@@ -730,10 +733,10 @@ public class LenseGrammar extends AbstractLenseGrammar {
 					nextNodeIndex++;
 				}
 
-				
+
 				if (nextNodeIndex < r.size()) {
 					// implement
-					
+
 					Optional<ImplementedInterfacesNode> implement = r.get(nextNodeIndex)
 							.getAstNode(ImplementedInterfacesNode.class);
 
@@ -742,7 +745,7 @@ public class LenseGrammar extends AbstractLenseGrammar {
 						nextNodeIndex++;
 					}
 				}
-			
+
 
 				AstNode b = r.get(r.size() - 1).getAstNode().get();
 
@@ -766,7 +769,7 @@ public class LenseGrammar extends AbstractLenseGrammar {
 			} else {
 
 				ClassTypeNode n = new ClassTypeNode(LenseUnitKind.Object);
-				
+
 				Modifiers modifiers = new Modifiers();
 
 				int nextNodeIndex = readModifiers(r, modifiers, QualifiedNameNode.class);
@@ -783,7 +786,7 @@ public class LenseGrammar extends AbstractLenseGrammar {
 				n.setAbstract(modifiers.getImplementationModifier().isAbstract());
 				n.setNative(modifiers.getImplementationModifier().isNative());
 				n.setVisibility(modifiers.getVisibility().getVisibility(Visibility.Private));
-				
+
 				Optional<TypeParametersListNode> generics = r.get(++nextNodeIndex).getAstNode(TypeParametersListNode.class);
 
 				if (generics.isPresent()) {
@@ -810,7 +813,7 @@ public class LenseGrammar extends AbstractLenseGrammar {
 				nextNodeIndex++ ;
 
 				if (nextNodeIndex< r.size()){
-					
+
 					// implement
 					Optional<ImplementedInterfacesNode> implement = r.get(nextNodeIndex)
 							.getAstNode(ImplementedInterfacesNode.class);
@@ -820,7 +823,7 @@ public class LenseGrammar extends AbstractLenseGrammar {
 						nextNodeIndex++;
 					}
 				}
-				
+
 
 				AstNode b = r.get(r.size() - 1).getAstNode().get();
 
@@ -833,7 +836,7 @@ public class LenseGrammar extends AbstractLenseGrammar {
 				}
 
 
-				
+
 				p.setAstNode(n);
 			}
 
@@ -1023,7 +1026,7 @@ public class LenseGrammar extends AbstractLenseGrammar {
 						n.setInitializer((ExpressionNode) u);
 					}
 				}
-				
+
 
 
 
@@ -1033,6 +1036,17 @@ public class LenseGrammar extends AbstractLenseGrammar {
 		});
 
 		getNonTerminal("type").addSemanticAction((p, r) -> {
+			if (r.size() == 2) {
+				TypeNode maybe = new TypeNode("lense.core.lang.Maybe");
+				maybe.addParametricType(new GenericTypeParameterNode((TypeNode)	r.get(0).getAstNode().get() ));
+			
+				p.setAstNode(maybe);
+			} else  {
+				p.setAstNode(r.get(0).getAstNode().get());
+			}
+		});
+		
+		getNonTerminal("nonNullType").addSemanticAction((p, r) -> {
 
 			if (r.size() == 3) {
 
@@ -1175,19 +1189,19 @@ public class LenseGrammar extends AbstractLenseGrammar {
 
 		});
 
-		
+
 		getNonTerminal("implementationModifiers").addSemanticAction((p, r) -> {
 			if (r.size() == 1){
 				p.setAstNode(r.get(0).getAstNode().get());
 			} else {
 				ImplementationModifierNode node = r.get(0).getAstNode(ImplementationModifierNode.class).get();
 				ImplementationModifierNode other = r.get(1).getAstNode(ImplementationModifierNode.class).get();
-				
+
 				p.setAstNode(node.and(other));
 			}
-			
+
 		});
-		
+
 		getNonTerminal("implementationModifier").addSemanticAction((p, r) -> {
 			final Optional<Object> semanticAttribute = r.get(0).getSemanticAttribute("lexicalValue");
 			ImplementationModifierNode node = new ImplementationModifierNode();
@@ -1344,20 +1358,39 @@ public class LenseGrammar extends AbstractLenseGrammar {
 		getNonTerminal("methodDeclaration").addSemanticAction((p, r) -> {
 
 			if (r.size() == 1) {
-				p.setSemanticAttribute("node", r.get(0).getSemanticAttribute("node").get());
+				p.setAstNode( r.get(0).getAstNode().get());
 			} else {
-				MethodDeclarationNode n = (MethodDeclarationNode) r.get(0).getSemanticAttribute("node").get();
+				MethodDeclarationNode n = (MethodDeclarationNode) r.get(0).getAstNode().get();
 
+				int bodyStartPosition = 1;
 				if (":".equals(r.get(1).getLexicalValue())) {
 					TypeNode type = r.get(2).getAstNode(TypeNode.class).get();
 
 					n.setReturnType(type);
+					bodyStartPosition= 3;
 				} else {
-					throw new CompilationError(r.get(0).getAstNode().get(), "Return type is required");
+					n.setReturnType(new InferableTypeNode());
+
+					//throw new CompilationError(r.get(0).getAstNode().get(), "Return type is required");
 				}
 
-				if (!";".equals(r.get(r.size() - 1).getLexicalValue())) {
-					n.setBlock((BlockNode) r.get(r.size() - 1).getSemanticAttribute("node").get());
+				String separator = r.get(bodyStartPosition).getLexicalValue();
+
+				if (separator == null ){
+					n.setBlock((BlockNode) r.get(bodyStartPosition).getAstNode().get());
+				} else if ("{".equals(separator)){
+					n.setBlock((BlockNode) r.get(bodyStartPosition + 1).getAstNode().get());
+				} else if (";".equals(separator)){
+					//no-op
+				} else if ("=>".equals(separator)){
+					ExpressionNode exp = ensureExpression(r.get(bodyStartPosition + 1).getAstNode().get());
+					BlockNode block = new BlockNode();
+					ReturnNode rNode = new ReturnNode();
+					block.add(rNode);
+					rNode.setValue(exp);
+					n.setBlock(block );
+				} else  {
+					throw new CompilationError(r.get(0).getAstNode().get(), "Invalid syntax");
 				}
 
 				p.setAstNode(n);
@@ -1497,8 +1530,18 @@ public class LenseGrammar extends AbstractLenseGrammar {
 		});
 
 		getNonTerminal("mapInitializerPair").addSemanticAction((p, r) -> {
-			ClassInstanceCreationNode pair = new ClassInstanceCreationNode(LenseTypeSystem.KeyValuePair().getName(),
-					r.get(0).getAstNode().get(), r.get(2).getAstNode().get());
+			
+			Optional<Constructor> op = LenseTypeSystem.KeyValuePair().getConstructorByParameters(
+					new ConstructorParameter(LenseTypeSystem.Any()),
+					new ConstructorParameter(LenseTypeSystem.Any())
+			);
+
+			NewInstanceCreationNode pair = NewInstanceCreationNode.of(
+						new FixedTypeVariable(LenseTypeSystem.KeyValuePair()),
+						op.get(),
+						r.get(0).getAstNode().get(), 
+						r.get(2).getAstNode().get()
+					);
 
 			p.setAstNode(pair);
 		});
@@ -1519,11 +1562,11 @@ public class LenseGrammar extends AbstractLenseGrammar {
 				applyAnnotations(n, annots);
 			}
 
-			n.setName((String) r.get(2).getSemanticAttribute("lexicalValue").get());
+			n.setName((String) r.get(1).getSemanticAttribute("lexicalValue").get());
 
-			int typeIndex = 5;
-			if (r.get(4).getSemanticAttribute("node").isPresent()) {
-				AstNode list = (AstNode) r.get(4).getSemanticAttribute("node").get();
+			int typeIndex = 4;
+			if (r.get(3).getAstNode().isPresent()) {
+				AstNode list = r.get(3).getAstNode().get();
 
 				if (list instanceof ParametersListNode) {
 					n.setParameters((ParametersListNode) list);
@@ -1532,7 +1575,7 @@ public class LenseGrammar extends AbstractLenseGrammar {
 					ln.add(list);
 					n.setParameters(ln);
 				}
-				typeIndex = 6;
+				typeIndex = 5;
 			}
 
 			if (":".equals(r.get(typeIndex).getLexicalValue())) {
@@ -2003,8 +2046,11 @@ public class LenseGrammar extends AbstractLenseGrammar {
 
 				n.setName(r.get(index++).getAstNode(IdentifierNode.class).get().getId());
 
-				if (":".equals(r.get(index++).getLexicalValue())) {
+				String separator = r.get(index++).getLexicalValue();
+				if (":".equals(separator)) {
 					n.setTypeNode(ensureTypeNode(r.get(index++).getAstNode().get()));
+				} else {
+					n.setTypeNode( new InferableTypeNode());
 				}
 
 				if (r.size() > index + 1) {
@@ -2014,7 +2060,7 @@ public class LenseGrammar extends AbstractLenseGrammar {
 
 				}
 
-				p.setSemanticAttribute("node", n);
+				p.setAstNode( n);
 			}
 
 		});
@@ -2239,7 +2285,7 @@ public class LenseGrammar extends AbstractLenseGrammar {
 					exp.add(ensureExpression(r.get(2).getAstNode().get()));
 					p.setAstNode(exp);
 				}
-				
+
 			}
 		});
 
@@ -2269,36 +2315,67 @@ public class LenseGrammar extends AbstractLenseGrammar {
 			}
 		});
 
+		getNonTerminal("intervalStart").addSemanticAction((p, r) -> {
+			LiteralIntervalNode exp = new LiteralIntervalNode();
+			exp.setStartClosed("|[".equals(r.get(0).getLexicalValue()));
+			
+			p.setAstNode(exp);
+		});
+		getNonTerminal("intervalEnd").addSemanticAction((p, r) -> {
+			LiteralIntervalNode exp = new LiteralIntervalNode();
+			exp.setEndClosed("|[".equals(r.get(0).getLexicalValue()));
+			
+			p.setAstNode(exp);
+		});
 		getNonTerminal("rangeExpression").addSemanticAction((p, r) -> {
 			if (r.size() == 1) {
 				p.setAstNode(r.get(0).getAstNode().get());
-			} else if (r.size() == 2) {
-				if ("*..".equals(r.get(0).getLexicalValue())) {
-					IntervalNode exp = new IntervalNode();
-					exp.setIntervalOperation(resolveIntervalOperation(r.get(1).getLexicalValue()));
-					exp.add(ensureExpression(r.get(2).getAstNode().get()));
-					p.setAstNode(exp);
+			} else 	if ("..".equals(r.get(1).getLexicalValue())) {
+				RangeNode exp = new RangeNode();
+				exp.add(ensureExpression(r.get(0).getAstNode().get()));
+				exp.add(ensureExpression(r.get(2).getAstNode().get()));
+				p.setAstNode(exp);
+			} else {
+				boolean startInf = "*".equals(r.get(1).getLexicalValue());
+				boolean endInf = "*".equals(r.get(3).getLexicalValue());
+	
+				if (startInf && endInf ) {
+					// should not be possible in current sintax
+					throw new CompilationError("Universal intervals are not allowed");
+				} else if (startInf){
+					LiteralIntervalNode interval = r.get(4).getAstNode(LiteralIntervalNode.class).get();
+					
+					interval.setStartInf(true);
+
+					interval.add(ensureExpression(r.get(3).getAstNode().get()));
+					p.setAstNode(interval);
+				} else if (endInf){
+					LiteralIntervalNode interval = r.get(0).getAstNode(LiteralIntervalNode.class).get();
+					
+					interval.setEndInf(true);
+
+					interval.add(ensureExpression(r.get(3).getAstNode().get()));
+					p.setAstNode(interval);
 				} else {
-					IntervalNode exp = new IntervalNode();
-					exp.add(ensureExpression(r.get(1).getAstNode().get()));
-					exp.setIntervalOperation(resolveIntervalOperation(r.get(2).getLexicalValue()));
-					p.setAstNode(exp);
+					LiteralIntervalNode s = r.get(0).getAstNode(LiteralIntervalNode.class).get();
+					LiteralIntervalNode e = r.get(4).getAstNode(LiteralIntervalNode.class).get();
+					
+					LiteralIntervalNode interval = new LiteralIntervalNode();
+					
+					interval.setStartClosed(s.isStartClosed());
+					interval.setEndClosed(e.isEndClosed());
+					
+					interval.add(ensureExpression(r.get(1).getAstNode().get()));
+					interval.add(ensureExpression(r.get(3).getAstNode().get()));
+					
+					p.setAstNode(interval);
 				}
 
-			} else {
-				if ("..".equals(r.get(1).getLexicalValue())) {
-					RangeNode exp = new RangeNode();
-					exp.add(ensureExpression(r.get(0).getAstNode().get()));
-					exp.add(ensureExpression(r.get(2).getAstNode().get()));
-					p.setAstNode(exp);
-				} else {
-					IntervalNode exp = new IntervalNode();
-					exp.setIntervalOperation(resolveIntervalOperation(r.get(1).getLexicalValue()));
-					exp.add(ensureExpression(r.get(0).getAstNode().get()));
-					exp.add(ensureExpression(r.get(2).getAstNode().get()));
-					p.setAstNode(exp);
-				}
+
+
+				
 			}
+
 		});
 
 		getNonTerminal("unaryExpression").addSemanticAction((p, r) -> {
@@ -2392,7 +2469,7 @@ public class LenseGrammar extends AbstractLenseGrammar {
 			if (r.size() == 1) {
 				p.setAstNode(r.get(0).getAstNode().get());
 			} else {
-				ClassInstanceCreationNode node = new ClassInstanceCreationNode();
+				NewInstanceCreationNode node = new NewInstanceCreationNode();
 
 				AstNode t = r.get(1).getAstNode().get();
 
@@ -2459,7 +2536,7 @@ public class LenseGrammar extends AbstractLenseGrammar {
 					node.setCall(r.get(0).getAstNode(MethodCallNode.class).get());
 					// implicit self access
 				} else {
-					
+
 					if (r.get(1).getLexicalValue().equals(".")){
 						// with primary
 						node.setAccess(r.get(0).getAstNode().get());
@@ -2477,58 +2554,58 @@ public class LenseGrammar extends AbstractLenseGrammar {
 						} else {
 							node.setCall(new MethodCallNode(r.get(0).getLexicalValue(),new ArgumentListNode()));
 						}
-						
+
 					}
 
 					// TODO different r.size 4 name ( args ) , 6= primary . name
 					// (args)
-//
-//					int index = 0;
-//					if (r.size() == 6) {
-//						node.setAccess(r.get(index).getAstNode().get());
-//						index = 2;
-//					}
-//
-//					MethodCallNode call = null;
-//
-//					Optional<QualifiedNameNode> qname = r.get(index).getAstNode(QualifiedNameNode.class);
-//
-//					if (qname.isPresent()) {
-//						QualifiedNameNode name = r.get(index).getAstNode(QualifiedNameNode.class).get();
-//
-//						if (name.getName().contains(".")) {
-//
-//							int pos = name.getName().lastIndexOf('.');
-//							call = new MethodCallNode(name.getName().substring(pos + 1));
-//
-//							node.setAccess(new QualifiedNameNode(name.getName().substring(0, pos)));
-//						} else {
-//							call = new MethodCallNode(name.getName());
-//						}
-//					} else {
-//						if (".".equals(r.get(1).getLexicalValue())) {
-//							call = new MethodCallNode(r.get(2).getLexicalValue());
-//						} else {
-//							call = new MethodCallNode(r.get(index).getLexicalValue());
-//						}
-//
-//					}
-//
-//					index += 2;
-//
-//					if (r.get(index).getAstNode().isPresent()
-//							&& r.get(index).getAstNode().get() instanceof ArgumentListNode) {
-//						call.setArgumentListNode(r.get(index).getAstNode(ArgumentListNode.class).get());
-//					} else {
-//						ArgumentListNode list = new ArgumentListNode();
-//
-//						if (r.get(index).getAstNode().isPresent()) {
-//							list.add(r.get(index).getAstNode().get());
-//						}
-//						call.setArgumentListNode(list);
-//					}
-//
-//					node.setCall(call);
+					//
+					//					int index = 0;
+					//					if (r.size() == 6) {
+					//						node.setAccess(r.get(index).getAstNode().get());
+					//						index = 2;
+					//					}
+					//
+					//					MethodCallNode call = null;
+					//
+					//					Optional<QualifiedNameNode> qname = r.get(index).getAstNode(QualifiedNameNode.class);
+					//
+					//					if (qname.isPresent()) {
+					//						QualifiedNameNode name = r.get(index).getAstNode(QualifiedNameNode.class).get();
+					//
+					//						if (name.getName().contains(".")) {
+					//
+					//							int pos = name.getName().lastIndexOf('.');
+					//							call = new MethodCallNode(name.getName().substring(pos + 1));
+					//
+					//							node.setAccess(new QualifiedNameNode(name.getName().substring(0, pos)));
+					//						} else {
+					//							call = new MethodCallNode(name.getName());
+					//						}
+					//					} else {
+					//						if (".".equals(r.get(1).getLexicalValue())) {
+					//							call = new MethodCallNode(r.get(2).getLexicalValue());
+					//						} else {
+					//							call = new MethodCallNode(r.get(index).getLexicalValue());
+					//						}
+					//
+					//					}
+					//
+					//					index += 2;
+					//
+					//					if (r.get(index).getAstNode().isPresent()
+					//							&& r.get(index).getAstNode().get() instanceof ArgumentListNode) {
+					//						call.setArgumentListNode(r.get(index).getAstNode(ArgumentListNode.class).get());
+					//					} else {
+					//						ArgumentListNode list = new ArgumentListNode();
+					//
+					//						if (r.get(index).getAstNode().isPresent()) {
+					//							list.add(r.get(index).getAstNode().get());
+					//						}
+					//						call.setArgumentListNode(list);
+					//					}
+					//
+					//					node.setCall(call);
 				}
 				p.setAstNode(node);
 			}
@@ -2551,11 +2628,11 @@ public class LenseGrammar extends AbstractLenseGrammar {
 							(String) r.get(0).getSemanticAttribute("lexicalValue").get());
 					p.setAstNode(node);
 				}
-				
+
 			} else {
 				FieldOrPropertyAccessNode node = new FieldOrPropertyAccessNode(
 						(String) r.get(2).getSemanticAttribute("lexicalValue").get());
-				
+
 				AstNode primary;
 				if (r.get(0).getSemanticAttribute("lexicalValue").map( s -> "this".equals(s)).orElse(false)) {
 					primary = new VariableReadNode("this");
@@ -2564,8 +2641,8 @@ public class LenseGrammar extends AbstractLenseGrammar {
 				} else {
 					primary = r.get(0).getAstNode().get();
 				}
-				
-			
+
+
 				node.setPrimary(primary);
 
 				p.setAstNode(node);
@@ -2578,9 +2655,9 @@ public class LenseGrammar extends AbstractLenseGrammar {
 				p.setAstNode(r.get(0).getAstNode().get());
 			} else {
 				IndexedAccessNode node = new IndexedAccessNode();
-				// TODO receives Qualified name. Shouble field access
+
 				node.setAccess(ensureExpression(r.get(0).getAstNode().get()));
-				node.setIndexExpression(ensureExpression(r.get(2).getAstNode().get()));
+				node.setArguments(r.get(2).getAstNode(ArgumentListNode.class).get());
 
 				p.setAstNode(node);
 			}
@@ -2651,7 +2728,13 @@ public class LenseGrammar extends AbstractLenseGrammar {
 
 		getNonTerminal("nullLiteral").addSemanticAction((p, r) -> {
 
-			NullValue n = new NullValue();
+			throw new CompilationError("null is not allowed. Did you mean 'none' ?");
+
+		});
+		
+		getNonTerminal("noneLiteral").addSemanticAction((p, r) -> {
+
+			NoneValue n = new NoneValue();
 
 			p.setAstNode(n);
 
@@ -2659,19 +2742,19 @@ public class LenseGrammar extends AbstractLenseGrammar {
 
 		getNonTerminal("superDeclaration").addSemanticAction((p, r) -> {
 			if (r.get(1).getSemanticAttribute("lexicalValue").isPresent()) {
-				
+
 				Optional<TypeNode> type = r.get(1).getAstNode(TypeNode.class);
 				if (type.isPresent()){
 					p.setAstNode(type.get());
 				} else {
-					
+
 					QualifiedNameNode n = new QualifiedNameNode();
 
 					n.append((String) r.get(1).getSemanticAttribute("lexicalValue").get());
 
 					p.setAstNode(n);
 				}
-				
+
 			} else {
 				p.setAstNode(r.get(1).getAstNode().get());
 			}
@@ -2933,7 +3016,7 @@ public class LenseGrammar extends AbstractLenseGrammar {
 		prp.setName(identifier);
 		prp.setType(typeNode);
 
-		Optional<ExpressionNode> exp = r.get(r.size() - 1).getAstNode(ExpressionNode.class);
+		Optional<ExpressionNode> exp = r.get(r.size() - 2).getAstNode(ExpressionNode.class);
 
 		if (exp.isPresent()) {
 
@@ -3157,12 +3240,12 @@ public class LenseGrammar extends AbstractLenseGrammar {
 	private ComparisonNode.Operation resolveComparisonOperation(Symbol symbol) {
 
 		String op = symbol.getLexicalValue();
-		
+
 		if (op == null){
 			op = (String) ((Symbol) symbol.getParserTreeNode().getChildren().get(0))
-				.getSemanticAttribute("lexicalValue").get();
+					.getSemanticAttribute("lexicalValue").get();
 		}
-		
+
 		switch (op) {
 		case ">":
 			return ComparisonNode.Operation.GreaterThan;
@@ -3187,24 +3270,7 @@ public class LenseGrammar extends AbstractLenseGrammar {
 		}
 	}
 
-	public static IntervalOperation resolveIntervalOperation(String symbol) {
-		switch (symbol) {
-		case "...":
-			return IntervalOperation.FromAToB;
-		case "..<":
-			return IntervalOperation.FromAToBExluded;
-		case ">..":
-			return IntervalOperation.FromAExludedToB;
-		case "*..":
-			return IntervalOperation.FromInfToB;
-		case "..*":
-			return IntervalOperation.FromAToInf;
-		case ">..<":
-			return IntervalOperation.FromAExcludedToBExluded;
-		default:
-			throw new CompilationError(symbol + "is not a recognized interval operator");
-		}
-	}
+
 
 	public static ArithmeticOperation resolveOperation(Symbol symbol) {
 		String op;

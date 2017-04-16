@@ -7,5 +7,5 @@ public interface ReferenceEquatable {
 	 	Bind method for === operator
 	 	The !== operator is also translated in terms of this method.
 	}/
- 	public function referenceEquals( x : ReferenceEquatable,  y:  ReferenceEquatable) : Boolean;
+ 	public referenceEquals( x : ReferenceEquatable,  y:  ReferenceEquatable) : Boolean;
 }

@@ -11,7 +11,7 @@ import lense.compiler.typesystem.LenseTypeSystem;
 /**
  * 
  */
-public class NullValue extends LiteralExpressionNode {
+public class NoneValue extends LiteralExpressionNode {
 
 	public TypeVariable getTypeVariable() {
 		return new FixedTypeVariable( LenseTypeSystem.None());

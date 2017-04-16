@@ -4,6 +4,6 @@ import lense.core.lang.Any;
 
 public native class Console {
 
-	public native function print( s: Any): Void;
-	public native function println( s: Any): Void;
+	public native print( s: Any): Void;
+	public native println( s: Any): Void;
 }

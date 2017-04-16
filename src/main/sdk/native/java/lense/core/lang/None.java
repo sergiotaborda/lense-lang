@@ -5,11 +5,11 @@ import lense.core.math.Integer;
 
 public class None extends Maybe {
 
-	public static final None Null = new None();
+	public static final None NONE = new None();
 
 	@Constructor
 	public static None constructor(){
-		return Null;
+		return NONE;
 	}
 	
 	@Override
@@ -24,7 +24,7 @@ public class None extends Maybe {
 
 	@Override
 	public String asString() {
-		return String.valueOfNative("null");
+		return String.valueOfNative("none");
 	}
 
 	@Override

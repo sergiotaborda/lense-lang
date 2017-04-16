@@ -16,30 +16,59 @@ import lense.core.math.Imaginary;
 import lense.core.math.Complex;
 import lense.core.math.Real;
 import lense.core.math.Decimal64;
+import lense.core.math.Rational;
+import lense.core.math.Interval;
+import helloworld.start.Matrix;
 
 public class Main extends ConsoleApplication {
 
 	public constructor();
 	
-	public parameter : Integer {get; set;} = 99;
+	public parameter : Integer {} = 99;
 	
 
-  	public function onStart() : Void{
+  	public onStart()  {
   	
-  	
-  		
   	 	console.println("Begin");
-  	 
-  
-  	 	var im : Imaginary = 2i; 
   	 	
-  	 	var cx : Complex = 3 + 4i;
+  	 	var dto = new Dto();
+  	 	
+  	 	console.println("name is " + dto.name);
+  	 	console.println("age is " + dto.age);
+  	 		
+  	 	dto.name = "dto";
+  	 	dto.age = 51;
+  	 	
+  	 	var address = dto.address;
+  	 	
+  	 	console.println("name is " + dto.name);
+  	 	console.println("age is " + dto.age);
+  	 	
+  		val matrix  = new Matrix<Natural>(3,3, 0);
+  	
+  		matrix[2,2] = 4;
   	 
-  	    var r : Real = cx.abs();
+  	    val center = matrix[2,2];
+  		
+  		console.println(center);
+  	 
+  		var interval : Interval<Natural> = |[ 2, 19 )|;
+		var interval2 : Interval<Integer> = |[ -2, 19 )|; // TODO better promotions
+
+		console.println(interval2);
+
+		var a  = interval2.start;
+		var b  = interval2.end;
+		 
+  	 	var im  = 2i; 
+  	 	
+  	 	var cx = 3 + 4i;
+  	 
+  	    var r = cx.abs();
   	 
   	 	console.println("Complex is : {{ cx }} with magnitude :{{ r }} "); 
   	 
-  	 	var bx : Complex = 4 +2i;
+  	 	var bx  = 4 +2i;
   	   
   	 
   		 
@@ -47,16 +76,29 @@ public class Main extends ConsoleApplication {
   	 
   	   console.println("Product is : {{ bx * cx }}");
   	 
-  	    var decimal : Decimal64 = 0.5; //TODO 1) implicit constructors , 2) decimal literals are always rational
+  	 	var rational : Any = 0.5;
+  	 	
+  	 	console.println("");
+  	 	
+  	 	if (rational is Rational){
+  	 		console.println("Decimal literals are rational");
+  	 		var dec : Decimal64 = rational;  
+  	 		console.println("dec is {{ dec }}");
+  	 	} else {
+  	 		console.println("Decimal literals are NOT rational");
+  	 	}
+  	 	 
+  	    var decimal : Decimal64 = 0.5;  
   	 	   
-  	 	var dc : Complex = 0.5 + 4i;
+  	 	
+  	 	var dc = 0.5 + 4i;
   	 	
   	 	console.println("Complex is : {{ dc }} "); 
   
   	 	   
-  	 	var n : Natural = #EFA2;
+  	 	var n = #EFA2;
   	 	
-  	 	var p : Integer = parameter;
+  	 	var p : Integer = parameter; // TODO properly read this value. currenlty is zero
   	 	
   	 	console.println("parameter p is 99 : {{ p }}");
   	 	 
@@ -64,9 +106,9 @@ public class Main extends ConsoleApplication {
   	 	
   	 	console.println("parameter is : {{ parameter }}");
   	 	 	
-  	 	var binary : Binary = $1011_1011_0010; 
+  	 	var binary = $1011_1011_0010; 
   	 	
-  	 	var byte : Byte = $1011_0010; 
+  	 	var byte : Byte = $1011_0110; 
   	   
   	    console.println("byte is {{ byte }}");
   	   
@@ -76,21 +118,20 @@ public class Main extends ConsoleApplication {
   	    
   	  	var number : Int32 = binary;
   	  	 
-  		var  array : Sequence<Integer>= [1 , 2, -3, 4, 5];
+  		var  array = [1 , 2, -3, 4, 5];
   	
   		console.println("sequence is {{ array }}");
   		 
   		console.println("position 2 has value {{ array[2] }}");
   		
-  		console.println("array is {{ [1 , 2, 3, 4, 5]  }}"); 
+  		console.println("literal array is {{ [1 , 2, 3, 4, 5]  }}"); 
   	 	 
-  		console.println("position 2 is {{ array[2] }}");
   	
-  	  	var map : Association<Natural, String> = { 1 : "a", 2 : "b", 3 : "c" };
+  	  	var map = { 1 : "a", 2 : "b", 3 : "c" };
   	 
   	  	console.println("Map is : {{ map }}");
   	   
-  		var  i : Integer = 23;
+  		var  i  = 23;
   		var  j : Integer = ++i;
   		
   		console.println("Pre increment of 23 is {{j}} = 24 with value at {{i}} = 24");
@@ -100,12 +141,12 @@ public class Main extends ConsoleApplication {
   			
   		console.println("Pos increment of 23 is {{j}} = 23 with value at {{i}} = 24");
   		
-  		var  tuple : (String, Natural) = ("Hello", 6);
+  		var  tuple = ("Hello", 6);
   		
   		console.println(tuple[0]);
   		console.println(tuple[1]);
   		
-  		var  tuple3 : (String, Natural,String)= ("Hello", 6, "ha!");
+  		var  tuple3 = ("Hello", 6, "ha!");
   		
   		console.println(tuple3[0]);
   		console.println(tuple3[1]);
@@ -119,10 +160,10 @@ public class Main extends ConsoleApplication {
   		
   		console.println(tuple0);
   
-  		var x : Integer = 8;
+  		var x  = 8;
+  		
   	     console.println("{{x}} plus {{j}} is {{ x + j }}");
 
-  	   
   	    for(val y in 1..10){
   	     
   	     	console.println(y);
@@ -137,7 +178,7 @@ public class Main extends ConsoleApplication {
   	        
   	     }
   	     
-  	     var k : Integer = 4;
+  	     var k  = 4;
   	
   		console.println("k is {{ k }}");
   	
@@ -159,15 +200,16 @@ public class Main extends ConsoleApplication {
   	    
   	}
 
+
+  	public getlength ( seq : Sequence<Natural>) => seq.size; 
   	
-  	public function getlength ( seq : Sequence<Natural>) : Natural {
-  		return seq.size;
-  	}
+  	public apply (c : Console , k : Integer, o : Integer)  {
   	
-  	public function apply (c : Console , k : Integer, o : Integer) : Integer {
   		console.println("Arg 1  is {{ k }}");
   		console.println("Arg 2  is {{ o }}");
+  		
   		return o;
   	}
+
 
 }

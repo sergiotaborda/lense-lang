@@ -82,7 +82,7 @@ public class Dictionary implements Association {
 	public Maybe get(Any key) {
 		Any value = map.get(key);
 		if (value == null){
-			return None.none();
+			return None.NONE;
 		} else {
 			return Some.constructor(value);
 		}

@@ -1,0 +1,6 @@
+
+
+public interface Category<T> {
+	
+		public contains ( obj : T) : Boolean;
+}

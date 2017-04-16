@@ -3,5 +3,5 @@ import lense.core.lang.Void;
 
 public interface Runnable{ 
 
-	public function run() : Void;
+	public run() : Void;
 }

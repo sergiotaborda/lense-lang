@@ -3,6 +3,6 @@ import lense.core.time.Instant;
 
 public interface Clock {
 	
-	public function instant (): Instant ;
+	public instant (): Instant ;
 	
 }

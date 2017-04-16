@@ -7,6 +7,6 @@ public class PropertyNamesSpecification {
 	}
 	
 	public static String resolvePropertyInnerName (String propertyName){
-		return "_" + propertyName;
+		return propertyName;
 	}
 }

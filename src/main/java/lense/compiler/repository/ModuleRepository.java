@@ -79,7 +79,21 @@ public class ModuleRepository implements UpdatableTypeRepository {
 	
 	@Override
 	public Map<Integer, TypeDefinition> resolveTypesMap(String name) {
-		return types.get(name);
+		Map<Integer, TypeDefinition> map = types.get(name);
+		
+		if (map == null){
+			
+			if (localRepository != null){
+				Optional<TypeDefinition> type = localRepository.resolveType(new TypeSearchParameters(name));
+				
+				if (type.isPresent()){
+					return Collections.singletonMap(type.get().getGenericParameters().size(), type.get());
+				}
+				return Collections.emptyMap();
+			}
+		}
+		
+		return map;
 	}
 
 	/**

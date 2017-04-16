@@ -3,7 +3,6 @@ package lense.core.math;
 import java.math.BigDecimal;
 
 import lense.core.lang.Any;
-import lense.core.lang.Boolean;
 import lense.core.lang.java.Constructor;
 import lense.core.lang.java.Native;
 
@@ -33,7 +32,11 @@ public class Decimal32 extends Decimal{
 	private Decimal32(float value){
 		this.value = value;
 	}
-
+	
+	public lense.core.lang.String asString(){
+		return lense.core.lang.String.valueOfNative(Float.toString(value));
+	}
+	
 	@Override @Native
 	protected BigDecimal getNativeBig() {
 		return new BigDecimal(value);

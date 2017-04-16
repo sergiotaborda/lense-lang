@@ -7,13 +7,13 @@ public interface Binary {
 	public  size : Natural {get;} // TODO change to bitsCount
 	
 	// ~operator
-	public function flipAll() : Binary; // TODO change to return Self
+	public flipAll() : Binary; // TODO change to return Self
 	
 	// << operator
-	public function rightShiftBy( n : Natural) : Binary;
+	public rightShiftBy( n : Natural) : Binary;
 	
 	// >> operator
-	public function leftShiftBy( n: Natural) : Binary;
+	public leftShiftBy( n: Natural) : Binary;
 	
-	public function getBitAt( index: Natural) : Boolean;
+	public getBitAt( index: Natural) : Boolean;
 }

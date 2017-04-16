@@ -4,15 +4,15 @@ import lense.core.math.Number;
 public native abstract class Real extends Number implements Comparable<Real> {
 
 
-	public native function plus (other: Real): Real;
-	public native function minus (other: Real): Real;
-	public native function multiply (other: Real): Real;
-	public native function divide (other: Real): Real;
+	public native plus (other: Real): Real;
+	public native minus (other: Real): Real;
+	public native multiply (other: Real): Real;
+	public native divide (other: Real): Real;
 	
-	public native function plus (other: Imaginary): Complex;
-	public native function minus (other: Imaginary): Complex;
-	public native function multiply (other: Imaginary): Imaginary;
-	public native function divide (other: Imaginary): Imaginary;
+	public native plus (other: Imaginary): Complex;
+	public native minus (other: Imaginary): Complex;
+	public native multiply (other: Imaginary): Imaginary;
+	public native divide (other: Imaginary): Imaginary;
 	
 	
 }

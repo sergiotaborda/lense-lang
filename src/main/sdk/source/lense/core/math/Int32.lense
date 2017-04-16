@@ -8,11 +8,11 @@ public native class Int32 extends Integer implements Binary{
 	public native implicit constructor valueOf ( n: Natural);
 	public native implicit constructor valueOf ( n: Binary);
 
-	public native function flipAll() : Int32;
+	public native flipAll() : Int32;
 	
 	public  size : Natural {get { return 32;}}
 
-	public native function rightShiftBy( n:Natural) : Int32;
+	public native rightShiftBy( n:Natural) : Int32;
 	
-	public native function leftShiftBy( n:Natural) : Int32;
+	public native leftShiftBy( n:Natural) : Int32;
 }

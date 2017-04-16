@@ -2,5 +2,5 @@
 
 public interface Multiplyable <F, P> {
 
-	public function multiply (factor : F) : P;
+	public multiply (factor : F) : P;
 }

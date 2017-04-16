@@ -9,6 +9,6 @@ public interface Identifiable{
 	/{
 		Base for the === operator
 	}/
-	public function referenceEquals( obj : Any): Boolean;
+	public referenceEquals( obj : Any): Boolean;
 
 } 

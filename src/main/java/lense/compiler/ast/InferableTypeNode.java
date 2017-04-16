@@ -6,4 +6,10 @@ public class InferableTypeNode extends TypeNode {
 		super(true);
 	}
 
+	/**
+	 * @return
+	 */
+	public String getName() {
+		return null;
+	}
 }

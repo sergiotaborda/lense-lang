@@ -16,7 +16,7 @@ import compiler.trees.VisitorNext;
 import lense.compiler.CompilationError;
 import lense.compiler.Import;
 import lense.compiler.ast.ArgumentListNode;
-import lense.compiler.ast.ClassInstanceCreationNode;
+import lense.compiler.ast.NewInstanceCreationNode;
 import lense.compiler.ast.ClassTypeNode;
 import lense.compiler.ast.FieldDeclarationNode;
 import lense.compiler.ast.FieldOrPropertyAccessNode;
@@ -26,6 +26,7 @@ import lense.compiler.ast.FormalParameterNode;
 import lense.compiler.ast.GenericTypeParameterNode;
 import lense.compiler.ast.ImplementedInterfacesNode;
 import lense.compiler.ast.InstanceOfNode;
+import lense.compiler.ast.LiteralIntervalNode;
 import lense.compiler.ast.LiteralAssociationInstanceCreation;
 import lense.compiler.ast.LiteralSequenceInstanceCreation;
 import lense.compiler.ast.LiteralTupleInstanceCreation;
@@ -107,7 +108,7 @@ public class NameResolutionVisitor extends AbstractScopedVisitor {
 				Optional<Import> match = matchImports(ct, n.getSuperType().getName());
 
 				if (!match.isPresent()) {
-					handleTypemMissing(n.getSuperType().getName(),n, n.getSuperType());
+					handleTypeMissing(n.getSuperType().getName(),n, n.getSuperType());
 
 					type = this.getSemanticContext().resolveTypeForName( n.getSuperType().getName(),n.getSuperType().getTypeParametersCount());
 
@@ -176,10 +177,10 @@ public class NameResolutionVisitor extends AbstractScopedVisitor {
 			LiteralAssociationInstanceCreation map = ((LiteralAssociationInstanceCreation) node);
 			ArgumentListNode args = map.getArguments();
 
-			TypeNode typeNode = ((ClassInstanceCreationNode) args.getFirstChild().getFirstChild()).getTypeNode();
+			TypeNode typeNode = ((NewInstanceCreationNode) args.getFirstChild().getFirstChild()).getTypeNode();
 			// make all arguments have the same type.
 			for (int i = 1; i < args.getChildren().size(); i++) {
-				final ClassInstanceCreationNode classInstanceCreation = (ClassInstanceCreationNode) args.getChildren()
+				final NewInstanceCreationNode classInstanceCreation = (NewInstanceCreationNode) args.getChildren()
 						.get(i).getFirstChild();
 				classInstanceCreation.replace(classInstanceCreation.getTypeNode(), typeNode);
 			}
@@ -188,7 +189,7 @@ public class NameResolutionVisitor extends AbstractScopedVisitor {
 
 			TreeTransverser.transverse(args, this);
 
-			ClassInstanceCreationNode instance = (ClassInstanceCreationNode) args.getChildren().get(0).getFirstChild();
+			NewInstanceCreationNode instance = (NewInstanceCreationNode) args.getChildren().get(0).getFirstChild();
 
 			TypedNode key = (TypedNode) instance.getArguments().getChildren().get(0).getFirstChild();
 			TypedNode value = (TypedNode) instance.getArguments().getChildren().get(1).getFirstChild();
@@ -217,7 +218,7 @@ public class NameResolutionVisitor extends AbstractScopedVisitor {
 				return VisitorNext.Siblings;
 			}
 
-			handleTypemMissing(ct.getName(), node, fieldDeclarationNode.getTypeNode());
+			handleTypeMissing(ct.getName(), node, fieldDeclarationNode.getTypeNode());
 
 		} else if (node instanceof TypeNode) {
 			TypeNode typeNode = (TypeNode) node;
@@ -286,7 +287,7 @@ public class NameResolutionVisitor extends AbstractScopedVisitor {
 					return VisitorNext.Siblings;
 				}
 
-				this.handleTypemMissing(ct.getName(), node, typeNode);
+				this.handleTypeMissing(ct.getName(), node, typeNode);
 
 			}
 
@@ -308,6 +309,7 @@ public class NameResolutionVisitor extends AbstractScopedVisitor {
 			}
 
 			return VisitorNext.Children;
+
 		} else if (node instanceof InstanceOfNode){
 			InstanceOfNode n = (InstanceOfNode)node;
 			TypeNode typeNode = (TypeNode) n.getChildren().get(1);
@@ -322,7 +324,7 @@ public class NameResolutionVisitor extends AbstractScopedVisitor {
 		return VisitorNext.Children;
 	}
 
-	private void handleTypemMissing(String name, AstNode node, TypeNode typeNode) {
+	private void handleTypeMissing(String name, AstNode node, TypeNode typeNode) {
 
 		if (typeNode.getName().equals(name)){
 			Optional<TypeDefinition> libraryType = this.getSemanticContext().resolveTypeForName(name,typeNode.getTypeParametersCount());
@@ -577,7 +579,7 @@ public class NameResolutionVisitor extends AbstractScopedVisitor {
 		} else if (node instanceof MethodDeclarationNode) {
 			MethodDeclarationNode m = (MethodDeclarationNode)node;
 		
-			if (m.getBlock() != null && !genericNames.contains(m.getReturnType().getName()) && !this.getSemanticContext().currentScope().getCurrentType().getName().endsWith(m.getReturnType().getName())){
+			if (m.getReturnType().getName() != null && m.getBlock() != null && !genericNames.contains(m.getReturnType().getName()) && !this.getSemanticContext().currentScope().getCurrentType().getName().endsWith(m.getReturnType().getName())){
 				Optional<Import> match = matchImports(ct, m.getReturnType().getName());
 
 				if (match.isPresent()) {
@@ -587,7 +589,7 @@ public class NameResolutionVisitor extends AbstractScopedVisitor {
 					return;
 				}
 
-				this.handleTypemMissing(ct.getName(), node, m.getReturnType());
+				this.handleTypeMissing(ct.getName(), node, m.getReturnType());
 
 			}
 
@@ -604,9 +606,10 @@ public class NameResolutionVisitor extends AbstractScopedVisitor {
 					n.getType().setName(match.get().getTypeName());
 					return;
 				}
-				this.handleTypemMissing(ct.getName(), node, n.getType());
+				this.handleTypeMissing(ct.getName(), node, n.getType());
 
 			}
+
 		} else if (node instanceof ScopedVariableDefinitionNode) {
 			ScopedVariableDefinitionNode variableDeclaration = (ScopedVariableDefinitionNode) node;
 
@@ -656,6 +659,27 @@ public class NameResolutionVisitor extends AbstractScopedVisitor {
 			}
 
 			tuple.replace(tuple.getTypeNode(), typeNode);
+		} else if (node instanceof LiteralIntervalNode) {
+		
+		
+			Optional<Import> match = matchImports(ct, "lense.core.math.Interval");
+
+			if (match.isPresent()) {
+				match.get().setMemberCalled(true);
+			}
+			
+			
+		} else if (node instanceof NewInstanceCreationNode) {
+			NewInstanceCreationNode constructorCallNode = (NewInstanceCreationNode) node;
+
+		
+			Optional<Import> match = matchImports(ct, constructorCallNode.getTypeNode().getName());
+
+			if (match.isPresent()) {
+				match.get().setMemberCalled(true);
+			}
+		
+
 		}
 
 	}

@@ -2,5 +2,5 @@
 
 public interface Summable <D, R> {
 
-	public function reminder (divisor: D): R;
+	public reminder (divisor: D): R;
 }

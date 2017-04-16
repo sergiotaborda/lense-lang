@@ -30,7 +30,14 @@ public class FormalParameterNode extends LenseAstNode implements TypedNode {
 	}
 
 	public TypeVariable getTypeVariable() {
-		return type == null ? null : type.getTypeVariable();
+		if (type == null){
+			return null;
+		}
+		if ( type.getTypeVariable() == null){
+			return type.getTypeParameter();
+		} else {
+			return  type.getTypeVariable();
+		}
 	}
 	
 	@Override
