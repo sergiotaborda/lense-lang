@@ -34,6 +34,10 @@ public class Decimal64 extends Decimal{
 		this.value = value;
 	}
 	
+	public lense.core.lang.String asString(){
+		return lense.core.lang.String.valueOfNative(Double.toString(value));
+	}
+	
 	@Override @Native
 	protected java.math.BigDecimal getNativeBig() {
 		return new java.math.BigDecimal(value);

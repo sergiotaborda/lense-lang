@@ -16,9 +16,22 @@ public class MethodInvocationNode extends NeedTypeCalculationNode {
 	private MethodCallNode call;
 	private AstNode access;
 	
+	private boolean propertyDerivedMethod;
+	private boolean indexDerivedMethod;
+	
 	public MethodInvocationNode (){}
 	
-	public MethodInvocationNode (AstNode access ,String name, AstNode ... arguments){
+//	public MethodInvocationNode (AstNode access ,String name, AstNode ... arguments){
+//		setCall(new MethodCallNode(name, new ArgumentListNode(arguments)));
+//		setAccess(access);
+//	}
+	
+	public MethodInvocationNode (AstNode access ,String name, ArgumentListItemNode singleArgument){
+		setCall(new MethodCallNode(name, new ArgumentListNode(singleArgument)));
+		setAccess(access);
+	}
+	
+	public MethodInvocationNode (AstNode access ,String name, ArgumentListNode ... arguments){
 		setCall(new MethodCallNode(name, new ArgumentListNode(arguments)));
 		setAccess(access);
 	}
@@ -60,6 +73,25 @@ public class MethodInvocationNode extends NeedTypeCalculationNode {
 		
 		if (this.access == node){
 			this.access = newnode;
+		}
+	}
+
+	public boolean isPropertyDerivedMethod() {
+		return propertyDerivedMethod;
+	}
+
+	public void setPropertyDerivedMethod(boolean propertyDerivedMethod) {
+		this.propertyDerivedMethod = propertyDerivedMethod;
+	}
+
+	public boolean isIndexDerivedMethod() {
+		return indexDerivedMethod;
+	}
+
+	public void setIndexDerivedMethod(boolean indexDerivedMethod) {
+		this.indexDerivedMethod = indexDerivedMethod;
+		if (indexDerivedMethod){
+			this.propertyDerivedMethod = true;
 		}
 	}
 	

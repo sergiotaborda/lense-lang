@@ -2,5 +2,5 @@
 
 public interface Powerable <P, R> {
 
-	public function raise (power : P): R;
+	public raise (power : P): R;
 }

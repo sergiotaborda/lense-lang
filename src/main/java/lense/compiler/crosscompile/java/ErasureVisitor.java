@@ -3,18 +3,13 @@ package lense.compiler.crosscompile.java;
 import compiler.syntax.AstNode;
 import compiler.trees.Visitor;
 import compiler.trees.VisitorNext;
-import lense.compiler.ast.ArgumentListNode;
-import lense.compiler.ast.AssignmentNode;
-import lense.compiler.ast.BooleanOperatorNode;
+import lense.compiler.ast.ArgumentListItemNode;
 import lense.compiler.ast.BooleanOperatorNode.BooleanOperation;
 import lense.compiler.ast.BooleanValue;
-import lense.compiler.ast.ConstructorDeclarationNode;
 import lense.compiler.ast.ExpressionNode;
-import lense.compiler.ast.GenericTypeParameterNode;
-import lense.compiler.ast.MethodDeclarationNode;
 import lense.compiler.ast.MethodInvocationNode;
-import lense.compiler.ast.ParametersListNode;
 import lense.compiler.ast.ReturnNode;
+import lense.compiler.ast.StringValue;
 import lense.compiler.ast.TypedNode;
 import lense.compiler.type.variable.FixedTypeVariable;
 import lense.compiler.type.variable.TypeVariable;
@@ -25,29 +20,14 @@ public class ErasureVisitor implements Visitor<AstNode> {
 	static FixedTypeVariable primitiveBooleanType = new FixedTypeVariable(new JavaPrimitiveTypeDefinition("boolean"));
 
 	@Override
-	public void startVisit() {
-		// TODO Auto-generated method stub
-
-	}
+	public void startVisit() {}
 
 	@Override
-	public void endVisit() {
-		// TODO Auto-generated method stub
-
-	}
+	public void endVisit() {}
 
 	@Override
 	public VisitorNext visitBeforeChildren(AstNode node) {
-		//
-		//		if (node instanceof BooleanValue){
-		//			if ((node.getParent() instanceof ArgumentListNode) || node.getParent() instanceof ParametersListNode){
-		//				return VisitorNext.Siblings;
-		//			} else {
-		//				node.getParent().replace(node, new JavaPrimitiveBooleanValue(((BooleanValue)node).isValue()));
-		//			}
-		//		} else if (node instanceof GenericTypeParameterNode){
-		//			return VisitorNext.Siblings;
-		//		} else 
+
 		if (node instanceof ReturnNode){
 			ReturnNode r = (ReturnNode)node;
 
@@ -95,20 +75,30 @@ public class ErasureVisitor implements Visitor<AstNode> {
 			if (a.getTypeVariable().equals(val.getTypeVariable())){
 				a.getParent().replace(a, val);
 			} else {
-				if (a.isboxingDirectionOut()){
+				if (a.isBoxingDirectionOut()){
+					// OUT BOXING
 					if ( a.getTypeVariable().getTypeDefinition().getKind() == JavaTypeKind.Primitive){
 
 						if (val instanceof BooleanValue){
+							// constant
+							if(a.getReferenceNode() instanceof ArgumentListItemNode){
+								ArgumentListItemNode ref = (ArgumentListItemNode)a.getReferenceNode();
+								if (ref.isGeneric()){
+									a.getParent().replace(a, new JavaPrimitiveBooleanBox(val));
+									return;
+								}
+							} 
+							
 							a.getParent().replace(a, new JavaPrimitiveBooleanValue(((BooleanValue)val).isValue()));
 						} else if (!val.getTypeVariable().isFixed()){
 
 							a.getParent().replace(a, new JavaPrimitiveBooleanUnbox(val));
-						} 
+						}
 
-					}
+					} // TODO StringConcatenationNode, StringValue
 
 				} else {
-
+					// IN BOXING
 					if (val instanceof BooleanValue){
 						a.getParent().replace(a, val);
 					} else if (val.getTypeVariable().getTypeDefinition().getKind() == JavaTypeKind.Primitive){

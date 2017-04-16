@@ -9,24 +9,27 @@ import lense.compiler.type.variable.TypeVariable;
 
 public class BoxingPointNode extends ExpressionNode {
 
+	public enum BoxingDirection {
+		BOXING_IN,
+		BOXING_OUT,
+	}
 	
-	
-	private boolean boxingDirectionOut;
+	private BoxingDirection boxingDirection;
 	private AstNode referenceNode;
 	private Function<AstNode, TypeVariable> read;
 
-	public BoxingPointNode(ExpressionNode expression, AstNode referenceNode, boolean boxingDirectionOut){
+	public BoxingPointNode(ExpressionNode expression, AstNode referenceNode, BoxingDirection boxingDirection){
 		this.add(expression);
 		this.referenceNode = referenceNode;
-		this.boxingDirectionOut = boxingDirectionOut;
+		this.boxingDirection = boxingDirection;
 		this.read = (tn -> ((TypedNode)tn).getTypeVariable());
 	}
 	
-	public BoxingPointNode(ExpressionNode expression, AstNode referenceNode, Function<AstNode, TypeVariable> read, boolean boxingDirectionOut){
+	public BoxingPointNode(ExpressionNode expression, AstNode referenceNode, Function<AstNode, TypeVariable> read, BoxingDirection boxingDirection){
 		this.add(expression);
 		this.referenceNode = referenceNode;
 		this.read = read;
-		this.boxingDirectionOut = boxingDirectionOut;
+		this.boxingDirection = boxingDirection;
 	}
 
 	public TypeVariable getTypeVariable() {
@@ -38,8 +41,8 @@ public class BoxingPointNode extends ExpressionNode {
 		return (ExpressionNode)this.getChildren().get(0);
 	}
 
-	public boolean isboxingDirectionOut() {
-		return boxingDirectionOut;
+	public boolean isBoxingDirectionOut() {
+		return boxingDirection == BoxingDirection.BOXING_OUT;
 	}
 
 	public AstNode getReferenceNode() {

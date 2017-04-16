@@ -7,12 +7,12 @@ import compiler.trees.Visitor;
 import lense.compiler.ast.ArithmeticNode;
 import lense.compiler.ast.AssignmentNode;
 import lense.compiler.ast.BooleanValue;
-import lense.compiler.ast.ClassInstanceCreationNode;
+import lense.compiler.ast.NewInstanceCreationNode;
 import lense.compiler.ast.ExpressionNode;
 import lense.compiler.ast.FieldOrPropertyAccessNode;
 import lense.compiler.ast.LiteralExpressionNode;
 import lense.compiler.ast.MethodInvocationNode;
-import lense.compiler.ast.NullValue;
+import lense.compiler.ast.NoneValue;
 import lense.compiler.ast.NumericValue;
 import lense.compiler.ast.ObjectReadNode;
 import lense.compiler.ast.ScopedVariableDefinitionNode;
@@ -109,22 +109,21 @@ public class LiteralsInstanciatorVisitor implements Visitor<AstNode> {
 //		}
 	}
 
-	private ExpressionNode transformeLiteral(LiteralExpressionNode literal) {
-	
-		if (literal instanceof BooleanValue){
-			return literal;
-			//new FieldAccessNode(((BooleanValue)literal).isValue()? "True" : "False");
-		} else if (literal instanceof NullValue){
-			ObjectReadNode n = new ObjectReadNode(LenseTypeSystem.None(), "None");
-			n.setTypeVariable(new FixedTypeVariable(LenseTypeSystem.None()));
-			return n;
-		} else if (literal instanceof NumericValue){
-			return new ClassInstanceCreationNode(literal.getTypeVariable(), 
-					new ClassInstanceCreationNode(new FixedTypeVariable(LenseTypeSystem.String()), new StringValue(literal.getLiteralValue())));
-		} else {
-			return new ClassInstanceCreationNode(literal.getTypeVariable(), new StringValue(literal.getLiteralValue()));
-		}
-	}
+//	private ExpressionNode transformeLiteral(LiteralExpressionNode literal) {
+//	
+//		if (literal instanceof BooleanValue){
+//			return literal;
+//			//new FieldAccessNode(((BooleanValue)literal).isValue()? "True" : "False");
+//		} else if (literal instanceof NoneValue){
+//			ObjectReadNode n = new ObjectReadNode(LenseTypeSystem.None(), "None");
+//			n.setTypeVariable(new FixedTypeVariable(LenseTypeSystem.None()));
+//			return n;
+//		} else if (literal instanceof NumericValue){
+//			return NewInstanceCreationNode.of(literal.getTypeVariable(), NewInstanceCreationNode.of(new FixedTypeVariable(LenseTypeSystem.String()), new StringValue(literal.getLiteralValue())));
+//		} else {
+//			return NewInstanceCreationNode.of(literal.getTypeVariable(), new StringValue(literal.getLiteralValue()));
+//		}
+//	}
 
 
 

@@ -8,10 +8,10 @@ public native class Integer extends Whole{
 
 		public native implicit constructor valueOf( n :Natural);
 		
-		public native function plus( n : Integer) : Integer;
-		public native function minus( n : Integer) : Integer;
-		public native function multiply( n : Integer) : Integer;
-		public native function divide( n : Integer) : Rational;
+		public native plus( n : Integer) : Integer;
+		public native minus( n : Integer) : Integer;
+		public native multiply( n : Integer) : Integer;
+		public native divide( n : Integer) : Rational;
 		
-		public native function symmetric() : Integer;
+		public native symmetric() : Integer;
 }

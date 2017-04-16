@@ -57,6 +57,10 @@ public class LenseTypeSystem{
 	public static TypeDefinition None(){
 		return getInstance().getForName("lense.core.lang.None").get();
 	}
+	
+	public static TypeDefinition Some() {
+		return getInstance().getForName("lense.core.lang.Some").get();
+	}
 
 	public static TypeDefinition Maybe(){
 		return getInstance().getForName("lense.core.lang.Maybe", 1).get();
@@ -580,6 +584,7 @@ public class LenseTypeSystem{
 		return isPromotableTo(new FixedTypeVariable(a), new FixedTypeVariable(b));
 	}
 	/**
+	 * Indicates if the type at right position promotable to type at the left postision 
 	 * @param left
 	 * @param right
 	 * @return
@@ -747,6 +752,8 @@ public class LenseTypeSystem{
 		 }
 		 return count;
 	}
+
+
 
 
 

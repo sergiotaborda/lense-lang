@@ -1,15 +1,17 @@
 package lense.compiler.asm;
 
-import org.objectweb.asm.MethodVisitor;
-
-import lense.compiler.type.Method;
-import lense.compiler.type.MethodReturn;
-import lense.compiler.type.Property;
-import lense.compiler.type.variable.DeclaringTypeBoundedTypeVariable;
-
-import static org.objectweb.asm.Opcodes.*;
+import static org.objectweb.asm.Opcodes.ASM5;
 
 import org.objectweb.asm.AnnotationVisitor;
+import org.objectweb.asm.MethodVisitor;
+
+import lense.compiler.type.LenseTypeDefinition;
+import lense.compiler.type.Method;
+import lense.compiler.type.MethodReturn;
+import lense.compiler.type.TypeDefinition;
+import lense.compiler.type.variable.DeclaringTypeBoundedTypeVariable;
+import lense.compiler.type.variable.FixedTypeVariable;
+import lense.compiler.typesystem.LenseTypeSystem;
 
 public class MethodAnnotVisitor extends MethodVisitor{
 
@@ -43,8 +45,16 @@ public class MethodAnnotVisitor extends MethodVisitor{
 		if (method!= null){
 			if (isProperty){
 				if (returnSignature != null && returnSignature.length() > 0){
-					if (!method.getReturningType().getTypeDefinition().getName().equals(returnSignature)){
-						method.setReturn(new MethodReturn(new DeclaringTypeBoundedTypeVariable(method.getDeclaringType(), 0, returnSignature, lense.compiler.typesystem.Variance.Covariant)));
+					TypeDefinition typeDefinition = method.getReturningType().getTypeDefinition();
+					if (!typeDefinition.getName().equals(returnSignature)){
+						
+						if (typeDefinition.getGenericParameters().isEmpty()){
+							method.setReturn(new MethodReturn(new DeclaringTypeBoundedTypeVariable(method.getDeclaringType(), 0, returnSignature, lense.compiler.typesystem.Variance.Covariant)));
+						} else {
+							DeclaringTypeBoundedTypeVariable t = new DeclaringTypeBoundedTypeVariable(method.getDeclaringType(), 0, returnSignature, lense.compiler.typesystem.Variance.Covariant);
+							LenseTypeDefinition m = LenseTypeSystem.specify(typeDefinition, t);
+							method.setReturn(new MethodReturn(new FixedTypeVariable(m)));
+						}
 					}
 					
 				}

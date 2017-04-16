@@ -1,8 +1,10 @@
 package lense.core.lang;
 
 import lense.core.lang.java.Constructor;
+import lense.core.lang.java.Signature;
 import lense.core.math.Integer;
 
+@Signature("[=T<lense.core.lang.Any]::")
 public class Some extends Maybe{
 
 	private Any value;

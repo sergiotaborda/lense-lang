@@ -1,0 +1,14 @@
+
+import lense.core.collections.Array;
+import lense.core.lang.Maybe; // auto-import
+import lense.core.lang.String; // auto-import
+import lense.core.math.Integer; // auto-import
+import helloworld.start.Matrix;
+
+public class Dto {
+
+  	public name : String? {}
+  	public age : Integer {} = 2;
+  	public address : String? {}
+  	public matrix : Matrix<String>? {}
+}

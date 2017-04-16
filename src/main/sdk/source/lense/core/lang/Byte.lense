@@ -7,9 +7,9 @@ public native class Byte implements Binary {
 
 	public native implicit constructor valueOf ( n: Binary);
 
-	public native function toInteger() : Integer;
+	public native toInteger() : Integer;
 	
-	public native function toNatural() : Natural;
+	public native toNatural() : Natural;
 	
-	public native function flipAll() : Byte; // Covariante overload
+	public native flipAll() : Byte; // Covariante overload
 }

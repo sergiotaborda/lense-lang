@@ -8,7 +8,7 @@ import lense.core.system.Application;
 public abstract native class ConsoleApplication extends Application {
 
 
-	public abstract function  onStart() : Void;
+	public abstract  onStart() : Void;
 	
 	public native arguments : Sequence<String> {get;} 
 	public native console : Console {get;} 

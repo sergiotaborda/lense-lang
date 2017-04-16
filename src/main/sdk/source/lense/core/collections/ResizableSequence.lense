@@ -5,6 +5,6 @@ import lense.core.collections.Sequence;
 
 public interface ResizableSequence<T> extends EditableSequence<T> {
 
-	public function add(element: T): Void;
-	public function remove(element: T): Void;
+	public add(element: T): Void;
+	public remove(element: T): Void;
 } 

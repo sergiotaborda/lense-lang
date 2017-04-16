@@ -56,7 +56,7 @@ public class EmptyAssociation implements Association {
 
 	@Override
 	public Maybe get(Any key) {
-		return None.none();
+		return None.NONE;
 	}
 
 

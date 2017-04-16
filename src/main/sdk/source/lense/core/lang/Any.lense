@@ -4,6 +4,7 @@ import lense.core.lang.Boolean;
 
 public native class Any {
 
-	public native function equalsTo( other: Any) : Boolean;
-	public native function hashValue () : Integer;
+	public native equalsTo( other: Any) : Boolean;
+	public native hashValue () : Integer;
+	public native asString () : String;
 } 

@@ -14,6 +14,7 @@ import lense.compiler.TypeAlreadyDefinedException;
 import lense.compiler.ast.BooleanOperatorNode;
 import lense.compiler.ast.BooleanOperatorNode.BooleanOperation;
 import lense.compiler.ast.ConstructorDeclarationNode;
+import lense.compiler.ast.DecisionNode;
 import lense.compiler.ast.FieldDeclarationNode;
 import lense.compiler.ast.FieldOrPropertyAccessNode;
 import lense.compiler.ast.FormalParameterNode;
@@ -23,7 +24,9 @@ import lense.compiler.ast.InstanceOfNode;
 import lense.compiler.ast.MethodDeclarationNode;
 import lense.compiler.ast.ParametersListNode;
 import lense.compiler.ast.PropertyDeclarationNode;
+import lense.compiler.ast.ReturnNode;
 import lense.compiler.ast.TypeNode;
+import lense.compiler.ast.VariableDeclarationNode;
 import lense.compiler.ast.VariableReadNode;
 import lense.compiler.context.SemanticContext;
 import lense.compiler.context.VariableInfo;
@@ -37,6 +40,7 @@ import lense.compiler.type.variable.FixedTypeVariable;
 import lense.compiler.type.variable.IntervalTypeVariable;
 import lense.compiler.type.variable.TypeMemberDeclaringTypeVariable;
 import lense.compiler.type.variable.TypeVariable;
+import lense.compiler.typesystem.LenseTypeSystem;
 /**
  * Read the classe members and fills a SenseType object
  */
@@ -64,7 +68,15 @@ public class StructureVisitor extends AbstractScopedVisitor {
 			} catch (TypeAlreadyDefinedException e) {
 
 			}
-		} else if (node instanceof InstanceOfNode) {
+		}  else if (node instanceof VariableDeclarationNode) {
+			VariableDeclarationNode var = ((VariableDeclarationNode) node);
+
+			try {
+				this.getSemanticContext().currentScope().defineVariable(var.getName(), var.getTypeVariable(), node);
+			} catch (TypeAlreadyDefinedException e) {
+
+			}
+		}else if (node instanceof InstanceOfNode) {
 			InstanceOfNode n = (InstanceOfNode)node;
 
 			TypeNode typeNode = n.getTypeNode();
@@ -105,9 +117,8 @@ public class StructureVisitor extends AbstractScopedVisitor {
 					TreeTransverser.transverse(b.getChildren().get(1), new AutoCastVisitor(this.getSemanticContext(), name,typeNode.getTypeVariable() ));
 				}
 			}
-
-
 		}
+		
 		parent = parent.getParent();
 
 		while (parent instanceof BooleanOperatorNode){
@@ -117,6 +128,14 @@ public class StructureVisitor extends AbstractScopedVisitor {
 				TreeTransverser.transverse(b.getChildren().get(1), new AutoCastVisitor(this.getSemanticContext(),name,typeNode.getTypeVariable() ));
 			}
 			parent = parent.getParent();
+		}
+		// IF 
+		parent = node.getParent();
+		if (parent instanceof DecisionNode){
+			DecisionNode b = (DecisionNode)parent ;
+
+			TreeTransverser.transverse(b.getTrueBlock(), new AutoCastVisitor(this.getSemanticContext(), name,typeNode.getTypeVariable() ));
+		
 		}
 	}
 
@@ -128,8 +147,8 @@ public class StructureVisitor extends AbstractScopedVisitor {
 		if (node instanceof TypeNode) {
 			TypeNode t = (TypeNode)node;
 			if (t.needsInference()){
-				t = inferType(t);
-				node.getParent().replace(node, t);
+				//t = inferType(t);
+				//node.getParent().replace(node, t);
 			} else {
 				resolveTypeDefinition((TypeNode)node);
 			}
@@ -147,28 +166,25 @@ public class StructureVisitor extends AbstractScopedVisitor {
 			resolveTypeDefinition(f.getTypeNode());
 
 			currentType.addField(f.getName(), f.getTypeNode().getTypeVariable(), f.getImutabilityValue());
-
+	
 		} else if (node instanceof MethodDeclarationNode) {
 			MethodDeclarationNode m = (MethodDeclarationNode)node;
 
-			//			TypeDefinition returnType = resolveFromTypeNode(m.getReturnType());
-			//
-			//			// TODO Return Type and Param types can be generic
-			//			if (m.getParameters() == null || m.getParameters().getChildren().isEmpty()){
-			//
-			//				currentType.addMethod(m.getName(),returnType);
-			//			} else {
-			//				MethodParameter[] parameters  = new MethodParameter[m.getParameters().getChildren().size()];
-			//
-			//				int i = 0;
-			//				for ( AstNode p : m.getParameters().getChildren()){
-			//					FormalParameterNode v = (FormalParameterNode)p;
-			//
-			//					parameters[i++] = new MethodParameter(resolveFromTypeNode(v.getTypeNode()), v.getName() );
-			//				}
-			//
-			//				currentType.addMethod(m.getName(), returnType, parameters);
-			//			}
+			if (m.getReturnType().needsInference()){
+				Optional<ReturnNode> op = m.findChild(ReturnNode.class);
+				
+				if (op.isPresent()){
+					
+					ReturnNode r = op.get();
+					
+					TreeTransverser.transverse( node, new SemanticVisitor(this.getSemanticContext()));;
+					
+					m.replace(m.getReturnType(), new TypeNode(r.getTypeVariable()));
+				} else {
+					// void 
+					m.replace(m.getReturnType(),new TypeNode(LenseTypeSystem.Void()));
+				}
+			}
 
 			IntervalTypeVariable typeParameter = resolveTypeDefinition(m.getReturnType());
 
@@ -193,6 +209,7 @@ public class StructureVisitor extends AbstractScopedVisitor {
 
 			Method method = new Method(m.getName(), new MethodReturn(returnTypeVariable), params);
 			currentType.addMethod(method);
+			
 		} else if (node instanceof PropertyDeclarationNode){
 			PropertyDeclarationNode p = (PropertyDeclarationNode)node;
 

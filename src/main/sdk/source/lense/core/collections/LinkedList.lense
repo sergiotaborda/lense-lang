@@ -15,7 +15,7 @@ public native class LinkedList<T> implements ResizableSequence<T> {
 	
 	}
 
-	public native function add(value: T ) : Void;
+	public native add(value: T ) : Void;
 	
 	public native [ index: Natural] : T { get; set;}
 	

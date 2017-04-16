@@ -1,17 +1,15 @@
 package lense.compiler.phases;
 
-import java.util.List;
-
 import compiler.syntax.AstNode;
 import compiler.trees.VisitorNext;
 import lense.compiler.CompilationError;
 import lense.compiler.ast.AccessorNode;
 import lense.compiler.ast.ArgumentListItemNode;
+import lense.compiler.ast.ArgumentListNode;
 import lense.compiler.ast.AssignmentNode;
 import lense.compiler.ast.AssignmentNode.Operation;
 import lense.compiler.ast.BlockNode;
 import lense.compiler.ast.BooleanOperatorNode.BooleanOperation;
-import lense.compiler.ast.ClassInstanceCreationNode;
 import lense.compiler.ast.ComparisonNode;
 import lense.compiler.ast.ExpressionNode;
 import lense.compiler.ast.FieldDeclarationNode;
@@ -24,17 +22,17 @@ import lense.compiler.ast.IndexerPropertyDeclarationNode;
 import lense.compiler.ast.MethodDeclarationNode;
 import lense.compiler.ast.MethodInvocationNode;
 import lense.compiler.ast.ModifierNode;
+import lense.compiler.ast.NewInstanceCreationNode;
 import lense.compiler.ast.ObjectReadNode;
 import lense.compiler.ast.ParametersListNode;
 import lense.compiler.ast.PreBooleanUnaryExpression;
 import lense.compiler.ast.PropertyDeclarationNode;
 import lense.compiler.ast.ReturnNode;
 import lense.compiler.ast.TypeNode;
+import lense.compiler.ast.TypedNode;
 import lense.compiler.ast.VariableReadNode;
 import lense.compiler.context.SemanticContext;
 import lense.compiler.context.VariableInfo;
-import lense.compiler.type.CallableMemberMember;
-import lense.compiler.type.Method;
 import lense.compiler.type.MethodParameter;
 import lense.compiler.type.variable.FixedTypeVariable;
 import lense.compiler.type.variable.TypeVariable;
@@ -154,13 +152,25 @@ public class DesugarPropertiesVisitor extends AbstractLenseVisitor{
 
 			parent.remove(node);
 			
+			if (!prp.isAbstract() && !prp.isNative() && prp.getModifier() != null && prp.getInitializer() == null && !prp.isInicializedOnConstructor()){
+				if (!prp.getType().getTypeVariable().getTypeDefinition().getName().equals(LenseTypeSystem.Maybe().getName())){
+					throw new CompilationError(prp, "Property " +  prp.getName() + " is not initialized. Initialize it or consider making it optional");
+				}
+				
+				prp.setInitializer(new ObjectReadNode(LenseTypeSystem.None(), "NONE"));
+		
+			}
 			
 			if (!prp.isAbstract()){
-				FieldDeclarationNode privateField = new FieldDeclarationNode(privateFieldName, prp.getType(), new ClassInstanceCreationNode(prp.getType())); 
+				FieldDeclarationNode privateField = new FieldDeclarationNode(
+						privateFieldName, 
+						prp.getType(), 
+						NewInstanceCreationNode.of(prp.getType())
+				); 
 				privateField.setTypeNode(prp.getType());
 
 				
-				if (prp.getInicializedOnConstructor()){
+				if (prp.isInicializedOnConstructor()){
 					privateField.setImutability(new ImutabilityNode(Imutability.Imutable));
 					privateField.setInitializedOnConstructor(true);
 				} else {
@@ -267,18 +277,21 @@ public class DesugarPropertiesVisitor extends AbstractLenseVisitor{
 
 				if (n.getParent()  instanceof AssignmentNode && ((AssignmentNode)n.getParent()).getLeft() == node){
 					ExpressionNode value = ((AssignmentNode)n.getParent()).getRight();
+					
+					ArgumentListItemNode arg = new ArgumentListItemNode(0, value);
+					arg.setExpectedType(value.getTypeVariable());
+				
+					
 					// is write access
-					MethodInvocationNode invokeSet = new MethodInvocationNode(n.getPrimary(), "set" + propertyName, value);
+					MethodInvocationNode invokeSet = new MethodInvocationNode(n.getPrimary(), "set" + propertyName, arg);
+					invokeSet.setPropertyDerivedMethod(true);
 					invokeSet.setTypeVariable(new FixedTypeVariable(LenseTypeSystem.Void()));
 					n.getParent().getParent().replace(n.getParent() , invokeSet);
-					
-					ArgumentListItemNode arg = (ArgumentListItemNode)invokeSet.getCall().getArgumentListNode().getFirst();
-					arg.setExpectedType(n.getTypeVariable());
-
 					
 				} else {
 					// is read acesss
 					MethodInvocationNode invokeGet = new MethodInvocationNode(n.getPrimary(), "get" + propertyName);
+					invokeGet.setPropertyDerivedMethod(true);
 					invokeGet.setTypeVariable(n.getTypeVariable());
 					n.getParent().replace(node, invokeGet);
 				}
@@ -286,46 +299,52 @@ public class DesugarPropertiesVisitor extends AbstractLenseVisitor{
 		}else if (node instanceof IndexedAccessNode){
 			IndexedAccessNode n= (IndexedAccessNode)node;
 
+			ArgumentListNode list = new ArgumentListNode();
+			for ( AstNode a : n.getArguments().getChildren()){
+				ArgumentListItemNode arg = (ArgumentListItemNode)a;
+				list.add(arg);
+			}
+			
 			if (n.getParent()  instanceof AssignmentNode && ((AssignmentNode)n.getParent()).getLeft() == node){
 				ExpressionNode value = ((AssignmentNode)n.getParent()).getRight();
 				// is write access
 				
+			
+				ArgumentListItemNode arg = new ArgumentListItemNode(n.getArguments().getChildren().size() + 1, value);
+				arg.setExpectedType(((TypedNode)value).getTypeVariable());
+				list.add(arg);
 				
-				
-				MethodInvocationNode invokeSet = new MethodInvocationNode(n.getAccess(), "set", n.getIndexExpression(), value);
+				MethodInvocationNode invokeSet = new MethodInvocationNode(n.getAccess(), "set",list);
+				invokeSet.setIndexDerivedMethod(true);
 				invokeSet.setTypeVariable(new FixedTypeVariable(LenseTypeSystem.Void()));
 				node.getParent().getParent().replace(n.getParent() , invokeSet);
-				
-				// TODO read from intended parameters
-				ArgumentListItemNode arg = (ArgumentListItemNode)invokeSet.getCall().getArgumentListNode().getFirst();
-				arg.setExpectedType(n.getIndexExpression().getTypeVariable());
-				
-				arg = (ArgumentListItemNode)invokeSet.getCall().getArgumentListNode().getChildren().get(1);
-				arg.setExpectedType(value.getTypeVariable());
-				
+
 			} else {
-				// is read acesss
-				MethodInvocationNode invokeGet = new MethodInvocationNode(n.getAccess(), "get", n.getIndexExpression());
+				// is read access
+				MethodInvocationNode invokeGet = new MethodInvocationNode(n.getAccess(), "get", list);
+				invokeGet.setIndexDerivedMethod(true);
 				invokeGet.setTypeVariable(n.getTypeVariable());
 				node.getParent().replace(node, invokeGet);
-				
-				
-				// TODO read from intended parameters
-				ArgumentListItemNode arg = (ArgumentListItemNode)invokeGet.getCall().getArgumentListNode().getFirst();
-				arg.setExpectedType(n.getIndexExpression().getTypeVariable());
-				
+
 			}
+			
+			
 
 		} else if (node instanceof ComparisonNode) {
 			ComparisonNode n = (ComparisonNode) node;
 			// convert to compareTo or equals call
-
+			
+			ArgumentListItemNode arg = new ArgumentListItemNode(0, n.getRight());
+			arg.setExpectedType(n.getRight().getTypeVariable());
+		
 			if (n.getOperation() == ComparisonNode.Operation.EqualTo) {
-				MethodInvocationNode equalsTo = new MethodInvocationNode(n.getLeft(), "equalsTo", n.getRight());
+				
+				MethodInvocationNode equalsTo = new MethodInvocationNode(n.getLeft(), "equalsTo", arg);
 				equalsTo.setTypeVariable(n.getTypeVariable());
 				node.getParent().replace(node, equalsTo);
 			} else if (n.getOperation() == ComparisonNode.Operation.Different) {
-				MethodInvocationNode equalsTo = new MethodInvocationNode(n.getLeft(), "equalsTo", n.getRight());
+
+				MethodInvocationNode equalsTo = new MethodInvocationNode(n.getLeft(), "equalsTo", arg);
 				equalsTo.setTypeVariable(n.getTypeVariable());
 			
 				PreBooleanUnaryExpression not = new PreBooleanUnaryExpression(BooleanOperation.LogicNegate,equalsTo);
@@ -339,7 +358,7 @@ public class DesugarPropertiesVisitor extends AbstractLenseVisitor{
 			} else {
 				// TODO return options LessThan , Equals , GreaterThan 
 			
-				MethodInvocationNode compareTo = new MethodInvocationNode(n.getLeft(), "compareTo", n.getRight());
+				MethodInvocationNode compareTo = new MethodInvocationNode(n.getLeft(), "compareTo", arg);
 				compareTo.setTypeVariable(new FixedTypeVariable(LenseTypeSystem.Natural()));
 				
 				ObjectReadNode parameter = new ObjectReadNode(semanticContext.resolveTypeForName("lense.core.math.Equal",0).get(), "Equal");
@@ -356,7 +375,10 @@ public class DesugarPropertiesVisitor extends AbstractLenseVisitor{
 					parameter = new ObjectReadNode(semanticContext.resolveTypeForName("lense.core.math.Greater",0).get(), "Greater");
 				}
 				
-				MethodInvocationNode equalsTo = new MethodInvocationNode(compareTo, "equalsTo", parameter);
+				ArgumentListItemNode parg = new ArgumentListItemNode(0, parameter);
+				parg.setExpectedType(parameter.getTypeVariable());
+			
+				MethodInvocationNode equalsTo = new MethodInvocationNode(compareTo, "equalsTo", parg);
 				equalsTo.setTypeVariable(n.getTypeVariable());
 				
 				if (negate){

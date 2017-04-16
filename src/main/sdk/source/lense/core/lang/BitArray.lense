@@ -21,23 +21,23 @@ public class BitArray implements Binary {
 	
 	public constructor ( bits: Array<Boolean>);
 
-	public function flip( index: Natural): Void{
+	public flip( index: Natural): Void{
 		this.bits[index] = !this.bits[index];
 	}
 	
-	public function rightShiftBy( n: Natural): BitArray{
+	public rightShiftBy( n: Natural): BitArray{
 		val newArray : Array<Boolean> = new Array<Boolean>(n, false);
 
 		return new BitArray(newArray);
 	}
 	
-	public function leftShiftBy(n : Natural) : BitArray{
+	public leftShiftBy(n : Natural) : BitArray{
 		val newArray : Array<Boolean>  = new Array<Boolean>(n, false);
 
 		return new BitArray(newArray);
 	}
 	
-	public function flipAll() : Binary {
+	public flipAll() : Binary {
 		val  negated : Array<Boolean>= new Array<Boolean>(bits);
 
 		for (n in negated.indexes){
@@ -47,12 +47,12 @@ public class BitArray implements Binary {
 		return new BitArray(negated);
 	}	
 	
-	public function equalsTo(other: Any) : Boolean{
+	public equalsTo(other: Any) : Boolean{
 		return false; //TODO other is BitArray && other.bits.equalsTo(this.bits);
 	}
 
-	public function hashValue():  Integer{
-		return bits.size;
+	public hashValue():  Integer{
+		return bits.size.hashValue();
 	}
 	
 
@@ -64,15 +64,14 @@ public class BitArray implements Binary {
 	
 	public [ index: Natural] : Boolean{
 		get {
-			val primitive : Boolean = bits[index];
-			return primitive;
+			return bits[index];
 		}
 		set(value) {
 			bits[index] = value;
 		}
 	}
 	
-	public function getBitAt( index: Natural) : Boolean {
+	public getBitAt( index: Natural) : Boolean {
 		return this[index];
 	}
 	

@@ -11,6 +11,7 @@ import compiler.syntax.AstNode;
 import compiler.trees.Visitor;
 import compiler.trees.VisitorNext;
 import lense.compiler.asm.ByteCodeTypeDefinitionReader;
+import lense.compiler.ast.ArgumentListItemNode;
 import lense.compiler.ast.ArithmeticNode;
 import lense.compiler.ast.CastNode;
 import lense.compiler.ast.ClassTypeNode;
@@ -155,7 +156,15 @@ public class JavalizeVisitor implements Visitor<AstNode>{
 		} else if (node instanceof ArithmeticNode){
 			ArithmeticNode n = (ArithmeticNode)node;
 			
-			MethodInvocationNode m = new MethodInvocationNode(n.getLeft(), n.getOperation().equivalentMethod(), n.getRight());
+			ArgumentListItemNode arg = new ArgumentListItemNode(0, n.getRight());
+			arg.setExpectedType(n.getRight().getTypeVariable());
+		
+			MethodInvocationNode m = new MethodInvocationNode(
+					n.getLeft(), 
+					n.getOperation().equivalentMethod(), 
+					arg
+			);
+			
 			n.getParent().replace(n, m);
 		} else if (node instanceof MethodInvocationNode){
 			MethodInvocationNode m = (MethodInvocationNode)node;

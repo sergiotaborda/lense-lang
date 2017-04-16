@@ -6,6 +6,6 @@ import lense.core.lang.Any;
 
 public interface Assortment<out T> extends Iterable<T>, Countable /{ given T extends EqualityComparable<T> }/ {
 
-	public function contains(other: Any) : Boolean;
-	public function containsAll(other: Assortment<T>): Boolean; // TODO <R> given R extends T
+	public contains(other: Any) : Boolean;
+	public containsAll(other: Assortment<T>): Boolean; // TODO <R> given R extends T
 }

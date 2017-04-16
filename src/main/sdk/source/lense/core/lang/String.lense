@@ -6,9 +6,9 @@ import lense.core.lang.Any;
 public native class String implements Sequence<Character> {
 
 
-	public native function asString() : String;
+	public native asString() : String;
 	
 	
-	public native function plus( other : String): String;
-	public native function plus( other : Any) : String;
+	public native plus( other : String): String;
+	public native plus( other : Any) : String;
 } 

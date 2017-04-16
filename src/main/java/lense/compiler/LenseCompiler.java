@@ -154,7 +154,7 @@ public class LenseCompiler {
 			File sources = new File(moduleproject, "source");
 
 			if (!sources.exists()){
-				listener.error(new CompilerMessage("No sources found. No folder " + sources.getAbsolutePath() +" exists"));
+				listener.error(new CompilerMessage("No sources found. No folder " + sources.getAbsolutePath() + " exists"));
 			}
 
 			File modulesOut = new File(moduleproject, "compilation/" + nativeLanguage + "/bin");
@@ -568,14 +568,14 @@ public class LenseCompiler {
 
 		builder.append("public class ").append("Module$$Info implements Module {\n");
 
-		builder.append("public function getName() : String{\n");
+		builder.append("public getName() : String{\n");
 		builder.append("	return \"").append(module.getName()).append("\";\n");
 		builder.append("}\n");
 		
-		builder.append("public function getVersion(): Version{\n");
+		builder.append("public getVersion(): Version{\n");
 		builder.append("	return new Version(\"").append(module.getVersion()).append("\");\n");
 		builder.append("}");
-		builder.append("public function getPackages() : Sequence<Package> {\n");
+		builder.append("public getPackages() : Sequence<Package> {\n");
 		builder.append("	var  all : LinkedList<Package>= new LinkedList<Package>();\n ");
 
 		for(i =0; i < packages.size(); i++){ 
@@ -584,10 +584,10 @@ public class LenseCompiler {
 
 		builder.append(" 	return all;");
 		builder.append("}\n")
-		.append(" public function equalsTo( other : Any) : Boolean {\n")
+		.append(" public equalsTo( other : Any) : Boolean {\n")
 		.append("	return false;\n")
 		.append("}\n")
-		.append(" public function hashValue() : Integer {\n")
+		.append(" public hashValue() : Integer {\n")
 		.append("	return getName().hashValue();\n")
 		.append("}\n");
 		builder.append("}");
@@ -598,13 +598,13 @@ public class LenseCompiler {
 		StringBuilder builder = new StringBuilder("import lense.core.lang.reflection.Package; import lense.core.lang.Any; import lense.core.lang.String; import lense.core.lang.Boolean; import lense.core.math.Integer;")
 				.append("public class Package$$Info implements Package { \n")
 				.append(" public constructor ();")
-				.append(" public function getName() : String {\n")
+				.append(" public getName() : String {\n")
 				.append("	return \"").append(pack).append("\" ;\n")
 				.append("}\n")
-				.append(" public function equalsTo( other: Any) : Boolean {\n")
+				.append(" public equalsTo( other: Any) : Boolean {\n")
 				.append("	return false;\n")
 				.append("}\n")
-				.append(" public function hashValue() : Integer {\n")
+				.append(" public hashValue() : Integer {\n")
 				.append("	return getName().hashValue();\n")
 				.append("}\n")
 				.append("}\n");

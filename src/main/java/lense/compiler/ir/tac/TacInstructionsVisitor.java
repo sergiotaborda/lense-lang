@@ -16,7 +16,7 @@ import lense.compiler.ast.AssignmentNode;
 import lense.compiler.ast.BooleanOperatorNode;
 import lense.compiler.ast.BooleanOperatorNode.BooleanOperation;
 import lense.compiler.ast.BreakNode;
-import lense.compiler.ast.ClassInstanceCreationNode;
+import lense.compiler.ast.NewInstanceCreationNode;
 import lense.compiler.ast.ClassTypeNode;
 import lense.compiler.ast.ComparisonNode;
 import lense.compiler.ast.ConstructorDeclarationNode;
@@ -502,28 +502,28 @@ public class TacInstructionsVisitor implements Visitor<AstNode> {
 		} else if (node instanceof IndexedAccessNode){
 			// access[expr]
 			IndexedAccessNode n =(IndexedAccessNode)node;
-			
-			Operand access = n.getAccess().getProperty("tempVal", Operand.class).get();
-			Operand expr = n.getIndexExpression().getProperty("tempVal", Operand.class).get();
-			
-			TypeDefinition ownerType = extractType(((TypedNode)n.getAccess()).getTypeVariable());
-			
-			Operand target = new TemporaryVariable(tempIndex++, access.getOperandType());
-			emit(new Assign(target, access));
-			emit(new PrepareParameter(target));
-			
-			if (!(node.getParent() instanceof AssignmentNode)){
-
-				emit(new PrepareParameter(expr));
-				
-				target = new TemporaryVariable(tempIndex++,extractType(n.getTypeVariable()));
-				emit(new Assign(target,new CallInstruction("get", ownerType,extractType(n.getTypeVariable()))));
-
-				n.setProperty("tempVal", target);
-			} else {
-				n.setProperty("tempVal", new CallInstruction("set", ownerType,extractType(n.getTypeVariable())));
-			}
-			
+//			
+//			Operand access = n.getAccess().getProperty("tempVal", Operand.class).get();
+//			Operand expr = n.getIndexExpression().getProperty("tempVal", Operand.class).get();
+//			
+//			TypeDefinition ownerType = extractType(((TypedNode)n.getAccess()).getTypeVariable());
+//			
+//			Operand target = new TemporaryVariable(tempIndex++, access.getOperandType());
+//			emit(new Assign(target, access));
+//			emit(new PrepareParameter(target));
+//			
+//			if (!(node.getParent() instanceof AssignmentNode)){
+//
+//				emit(new PrepareParameter(expr));
+//				
+//				target = new TemporaryVariable(tempIndex++,extractType(n.getTypeVariable()));
+//				emit(new Assign(target,new CallInstruction("get", ownerType,extractType(n.getTypeVariable()))));
+//
+//				n.setProperty("tempVal", target);
+//			} else {
+//				n.setProperty("tempVal", new CallInstruction("set", ownerType,extractType(n.getTypeVariable())));
+//			}
+//			
 			
 		} else if (node instanceof MethodInvocationNode){
 			MethodInvocationNode n =(MethodInvocationNode)node;
@@ -550,8 +550,8 @@ public class TacInstructionsVisitor implements Visitor<AstNode> {
 			emit(new Assign(target,new CallInstruction(n.getCall().getName(), ownerType,extractType(n.getTypeVariable()))));
 
 			n.setProperty("tempVal", target);
-		}  else if (node instanceof ClassInstanceCreationNode){
-			ClassInstanceCreationNode n =(ClassInstanceCreationNode)node;
+		}  else if (node instanceof NewInstanceCreationNode){
+			NewInstanceCreationNode n =(NewInstanceCreationNode)node;
 
 			if ( n.getArguments() != null && n.getArguments().getChildren() != null){
 				for( AstNode paramNode : n.getArguments().getChildren()){

@@ -11,16 +11,10 @@ import compiler.syntax.AstNode;
  */
 public class IndexedAccessNode extends NeedTypeCalculationNode{
 	
-	private ExpressionNode indexExpression;
+	private ArgumentListNode arguments;
 	private AstNode access;
 
-	/**
-	 * @param methodCallNode
-	 */
-	public void setIndexExpression(ExpressionNode indexExpression) {
-		this.indexExpression = indexExpression;
-		this.add(indexExpression);
-	}
+
 
 	/**
 	 * @param astNode
@@ -30,10 +24,7 @@ public class IndexedAccessNode extends NeedTypeCalculationNode{
 		this.add(node);
 	}
 
-	public ExpressionNode getIndexExpression(){
-		return indexExpression;
-	}
-	
+
 	/**
 	 * Obtains {@link AstNode}.
 	 * @return the access
@@ -42,17 +33,14 @@ public class IndexedAccessNode extends NeedTypeCalculationNode{
 		return access;
 	}
 	
-	@Override
-	public  void replace(AstNode node, AstNode newnode){
-		
-		if (node == access){
-			access = newnode;
-		}
-		
-		if (node == indexExpression){
-			indexExpression = (ExpressionNode) newnode;
-		}
-		
-		super.replace(node, newnode);
+
+	public ArgumentListNode getArguments() {
+		return arguments;
+	}
+
+
+	public void setArguments(ArgumentListNode arguments) {
+		this.arguments = arguments;
+		this.add(arguments);
 	}
 }

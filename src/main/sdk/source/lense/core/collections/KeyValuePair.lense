@@ -10,15 +10,15 @@ public class KeyValuePair<K,V> {
 	public constructor ( val public key : K, val public value: V);
 
 	
-	public function hashValue() : Integer {
+	public hashValue() : Integer {
 		return key.hashValue() + 31 * value.hashValue();
 	}
 	
-	public function equalsTo(other : Any) : Boolean {
+	public equalsTo(other : Any) : Boolean {
 		return other is KeyValuePair && other.key == this.key && other.value == this.value;
 	}
 	
-	public function asString() : String {
-		return  this.key.asString() + " "+ this.value.asString();
+	public asString() : String {
+		return  this.key.asString() + " " + this.value.asString();
 	}
 }

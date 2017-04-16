@@ -3,6 +3,9 @@
  */
 package lense.compiler.ast;
 
+import java.util.Optional;
+
+import compiler.syntax.AstNode;
 import lense.compiler.phases.ScopeDelimiter;
 
 /**
@@ -76,6 +79,8 @@ public class MethodDeclarationNode extends InvocableDeclarionNode implements Sco
 	public String getScopeName() {
 		return name;
 	}
+	
+
 	
 	
 }
