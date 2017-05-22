@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8"/>
-    <title>Monads</title>
+    <title>Intervals</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <meta name="author" content="">
@@ -119,47 +119,85 @@
 	<div class="container-fluid">
 		<div class="row row-offcanvas row-offcanvas-right">
 			 <div class="col-xs-12 col-sm-9 col-sm-push-3">
-				<h1>Monads</h1><p>Lense supports the concept of Monad. A monad is a special container type that allows operations to occur on the contained type without explicitly requiring<br/>the boxing and unboxing of the contained instances. Monads are a special case of the Decorator pattern where all operations return a new object and transform the decorated type in some way.</p><p>Because all monads are containers, they rely on decorating a contained object. In Lense we do this simply by calling the monads constructor.<br/>You can also create <a href="enhancements.html">enhancements</a> to facilitate some more common encapsulations.</p><p>The most common operation is to transform a monad object to another monad object of the same type operating in the contained elements. This is done by the map function.</p><h1>Iterable</h1><p>Iterable is a monad that allows the iteration of elements in a given order. <code>Sequence</code>s like <code>Array</code>s and <code>List</code>s implement <code>Iterable</code>s . Also <code>Association</code>s , <code>Tuple</code>s and <code>Progression</code> are <code>Iterable</code>s.<br/>You can iterate over the elements of any <code>Iterable&lt;T&gt;</code> with the <em>for-each</em> directive and transform them in some way</p>
-<pre><code class="brush: lense ">val cities : Sequence&lt;String&gt; = [&quot;New York&quot;, &quot;London&quot;, &quot;Paris&quot;];
-val lengths : List&lt;Natural&gt; = new List&lt;Natural&gt;();
-
-for (String city in cities){
-	lengths.add(city.size());
-}
-</code></pre><p>When you need to transform several containers or the transformations are complex this type of explicit iteration becomes cumbersome.<br/>Because all Iterables are monads , they have the <code>map</code> method that receives a lambda to operate over all elements. </p>
-<pre><code class="brush: lense ">val cities : Sequence&lt;String&gt; = [&quot;New York&quot;, &quot;London&quot;, &quot;Paris&quot;];
-
-val lengths : Sequence&lt;Natural&gt;  =  cities.map( city -&gt; city.size());
-</code></pre><p>This code simply applies a transformation to all elements of the original container (*cities*) and produces a new <em>Iterable<Natural></em>. Them we assign that result to a List.<br/>Because List has a conversion constructor based on Iterable the elements are copied to the list as if we had write</p>
-<pre><code class="brush: lense ">val cities : Sequence&lt;String&gt; = [&quot;New York&quot;, &quot;London&quot;, &quot;Paris&quot;];
-
-val lengths : List&lt;Natural&gt; =  new List&lt;Natural&gt;(cities.map( city -&gt; city.size()));
-</code></pre><p>You can use several other methods like <code>filter</code> that allows you to exclude some values.<br/>For example, if we want to calculate the cubes of only odd numbers between 1 and 100 we can use a Progression and write </p>
-<pre><code class="brush: lense ">var cubes : Sequence&lt;Natural&gt;=  1..100.filter(n -&gt; n.isOdd()).map( n -&gt; n ** 3));
-</code></pre><p>This a very simple, readable, code that means the same as </p>
-<pre><code class="brush: lense ">val  cubes = new List&lt;Natural&gt;();
-
-for (Natural n in 1..100) {
-	if (n.isOdd()) {
-		lengths.add(n ** 3);
+				<h1>Category</h1><p>A categoy is an assortement of elements that is not iterable and not contable. It defines a <code>contains</code> method that can be invoked directly of by means of the <code>in</code> operator.</p>
+<pre><code class="brush: lense">	if (5 in |[2 , 6)|) { 
+	    // 5 is in the interval
 	}
+</code></pre><p>is the same as </p>
+<pre><code class="brush: lense">	if ( |[2 , 6)|.contains(5)) { 
+	    // 5 is in the interval
+	}
+</code></pre><h1>Interval</h1><p>Lense support intervals as fundamental types. An <code>Interval</code> forms a ordered <code>Category</code> of <code>Comparable</code> elements that contain values between a start and an end element. So you can test if an element exists in the interval.</p>
+<pre><code class="brush: lense">	if (5 in |[2 , 6)|) { 
+	    // 5 is in the interval
+	}
+</code></pre><p>However you cannot iterate over the elements.</p>
+<pre><code class="brush: lense">	for (i in |[2 , 6)|) { // Compilation error : Interval is not Iterable
+	    
+	}
+</code></pre><p>Interval literals in lense follow the mathematical convention of using square brakets for included values and parentesis for excluded values. So <code>|[2 , 6)|</code> represents an interval between 2 , inclusive, and 6 exlusive; meaning 6 does not belong in the interval. Lense also supports open intervals. For example <code>|( * , 7 ]|</code> represent the open start interval that contains all elements from negative infinity to 7, inclusive. Here are some examples of the possibilities:</p>
+<pre><code class="brush: lense ">if ( x in |[ 3 , 7]| ){ 
+	// x is &gt;=3 and &lt;= 7
 }
-</code></pre><h1>Maybe</h1><p>Maybe is a monad that allows us to manipulate possible absent values. <code>Maybe&lt;T&gt;</code> is an abstract type with only two subtypes : <code>Some&lt;T&gt;</code> and None. <code>None</code> has a single instance named <code>none</code>. <code>none</code> represents the absence of value.<br/>Maybe is equivalent to the <code>Optional</code> type that exists in other languages. However, in Lense, Maybe is a fundamental type and its the only way you can handle the concept of "null" since Lense does not allow the traditional <code>null</code> reference value. </p>
-<pre><code class="brush: lense ">public calculateNameLength( name : Maybe&lt;String&gt;) : Maybe&lt;Natural&gt; {
-	return name.map(m -&gt; m.size());
-}
-</code></pre><p>Because Maybe is a fundamental type in Lense we can simplify this method with some shorter syntax:</p>
-<pre><code class="brush: lense ">public calculateNameLength( name: String?) : Natural? {
-	return name.map(m -&gt; m.size());
-}
-</code></pre><p>This simple method returns the length of the given name and we can called it like:</p>
-<pre><code class="brush: lense ">val x : Natural? = calculateNameLength(&quot;London&quot;); // x holds a Some&lt;Natural&gt; with a value 6 inside
-val y : Natural?= calculateNameLength(none); // y holds the instance of &#39;none&#39;. 
-</code></pre><p>Note that the methods does not use any decision directive to handle the absence of value directly. This is handled by the <code>map</code> method it self.<br/>If the original Maybe is really and instanceof of <code>Some</code> it has some value in it, that value is passed to the given lambda and a new <code>Some</code> is created having inside the calculated value.<br/>If the original Maybe is really a <code>none</code> the lambda is not invoked and <code>none</code> is returned.</p><p>You can, if you want to, transform a Maybe<T> to a T by offering a default value, like this:</p>
-<pre><code class="brush: lense ">val  x : Natural? =  ... // obtain in some way
 
-val size : Natural = x.or(0);
-</code></pre><p>this means if <em>x</em> has a value, that value will assigned to <em>size</em>, otherwise 0 will be assigned.</p>
+if ( x in |[ 3 , 7)| ){
+	// x is &gt;=3 and &lt; 7
+}
+
+if ( x in |(3 , 7)| ){
+	// x is &gt;3 and &lt; 7
+}
+
+if ( x in |(3 , 7]| ){
+	// x is &gt;3 and &lt;= 7
+}
+
+if ( x in |( * , 7)| ){ 
+	// x is &lt; 7
+}
+
+if ( x in |[ 3, * )| ){
+	// x is &gt;= 3
+}
+
+if ( x in Interval&lt;Natural&gt;.empty() ){
+	// always false. 
+}
+
+if ( x in Interval&lt;Natural&gt;.all() ){
+	// always true. the full interval covers all possible values.
+}
+</code></pre><p>Intervals can be used in switch statements as any <code>Category</code> can </p>
+<pre><code class="brush: lense">	val x = 9;
+	switch (x) { 
+	   case (in |[ 0, 9]|) {
+		  return &quot;Single digit number&quot;;
+	   }
+	   case (in |(9, *)|) {
+		  return &quot;Multidigits number&quot; 
+	   }
+	}
+</code></pre><h1>Ranges</h1><p>Ranges are closely related to intervals. Ranges are also <code>Categories</code>, but of <code>Enumerable</code>s making them <code>Iterable</code>. Ranges can be understood as intervals of <code>Enumerable</code> values as <code>Enumerable</code> types are also <code>Comparable</code>. Because <code>Enumerable</code> values can produce a sequence of value ranges are iterable. Ranges cannot have open ends. Ranges are also fundamental types in Lense and have their own literal.</p>
+<pre><code class="brush: lense">	if (5 in 2..6) { 
+	    // 5 is in the range from 2, inclusive, to 6, inclusive
+	}
+</code></pre><p>By default both ends of the range are included in the range. We can iterate the values in the range with the for-each directive.</p>
+<pre><code class="brush: lense">	for (i in 2..6) { 
+	    console.println(i);
+	}
+</code></pre><p>this prints:</p>
+<pre><code class="console">2
+3
+4
+5
+6
+</code></pre><p>So for an <code>Enumerable</code> type, intervals have a correspondence to ranges </p>
+<ul>
+  <li>|[ x, y]| correspondes to x..y</li>
+  <li>|( x, y]| correspondes to x&gt;..y</li>
+  <li>|( x, y)| correspondes to x&gt;..&lt;y</li>
+  <li>|[ x, y)| correspondes to x..&lt;y</li>
+</ul><p>Open intervals like <code>|(*, y]|</code> and <code>|( x, *)|</code> have no correspondence with ranges. The empty interval corresponds to <code>Range&lt;T&gt;.empty()</code> and does not exist a full Range.</p>
 			</div>
 			<div class="col-xs-6 col-sm-3 col-sm-pull-9 sidebar-offcanvas" id="sidebar"">
 

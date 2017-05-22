@@ -1,0 +1,24 @@
+	 .console {
+	    background : black;
+	    color: white;
+	    width: 500px;
+		display: block;
+	 }
+	 p {
+	 	text-align:justified;
+	 }
+	 pre {
+	 	background-color:white !important;
+	 	border:0px !important;
+	 	padding:0px !important;
+	 	overflow: visible !important;
+	 }
+	 pre code {
+	 	padding:2px !important;
+	 	margin : 0px !important;
+	 }
+	 
+	.syntaxhighlighter table .container:before {
+		display: none !important;
+	}
+	

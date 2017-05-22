@@ -9,10 +9,10 @@
 	{
 		var keywords =	'abstract as break switch case try catch finally ' +
 						'continue default do while if else for ' +
-						'true false null none' +
+						'true false none ' +
 						'extends implements constructor ' +
 						'import export enhancement module ' +
-						'native new is ' +
+						'native new null is ' +
 						'package module class object enum annotation interface trait ' +
 						'public private protected ' +
 						'in out val var selead override ' +

@@ -26,43 +26,19 @@
 	<script src="js/shBrushCSharp.js"></script>
 	<script src="js/shBrushDart.js"></script>
 	<script src="js/shBrushJava.js"></script>
-		
 	<script src="js/shBrushLense.js"></script>
 
 
     <!-- Le styles -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
-    <link href="css/asciidoctor.css" rel="stylesheet">
+    
     <link href="css/base.css" rel="stylesheet">
     <link href="css/prettify.css" rel="stylesheet">
   	<link rel="stylesheet" type="text/css" href="css/shCore.css"  >
 	<link rel="stylesheet" type="text/css" href="css/shThemeLense.css" >
 	<link rel="stylesheet" type="text/css" href="css/shThemeDefault.css" >
-	
-	<style>
-	 .console {
-	    background : black;
-	    color: white;
-	    width: 500px;
-	 }
-	 p {
-	 	text-align:justified;
-	 }
-	 pre {
-	 	background-color:white !important;
-	 	border:0px !important;
-	 	padding:0px !important;
-	 	overflow: visible !important;
-	 }
-	 pre code {
-	 	padding:2px !important;
-	 	margin : 0px !important;
-	 }
-	 
-	.syntaxhighlighter table .container:before {
-		display: none !important;
-	}
-	</style>
+	<link rel="stylesheet" type="text/css" href="css/site.css" >
+
 	
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
@@ -140,7 +116,10 @@
     </div>
 	<div class="corner-ribbon top-right sticky shadow"><a href="status.html">Exploration Stage</a></div>
     <div class="container">
-	<p><h1>Container Literals</h1><p>Lense recognizes literals for <code>Sequence</code>s, <code>Association</code>s and <code>Tuple</code>s. As a rule, because Lense has type inference it must be possible to infer the type of literal from the syntax, so we need a diferent sintax for each container type. </p><h2>Sequences</h2><p>In C-familly languages an array is a fundamental type and can be created literally using curly brackets <em>{</em> and <em>}</em>, but in more mathematical oriented languages such as Fortran an Julia common brackets are used. </p>
+	<div class="container-fluid">
+		<div class="row row-offcanvas row-offcanvas-right">
+			 <div class="col-xs-12 col-sm-9 col-sm-push-3">
+				<h1>Container Literals</h1><p>Lense recognizes literals for <code>Sequence</code>s, <code>Association</code>s and <code>Tuple</code>s. As a rule, because Lense has type inference it must be possible to infer the type of literal from the syntax, so we need a diferent sintax for each container type. </p><h2>Sequences</h2><p>In C-familly languages an array is a fundamental type and can be created literally using curly brackets <em>{</em> and <em>}</em>, but in more mathematical oriented languages such as Fortran an Julia common brackets are used. </p>
 <pre><code class="brush: java ">// an example in Java
 int[] array = new int[]{1, 2, 3};
 </code></pre><p>On a closer look we can understand the C-family languages syntax like Java or C# as not having array literals <em>per se</em>, but initializers applied to arrays. So the syntax <code>{1 ,2 , 3}</code> does not denote an array, but an initializer. Initializers do not have type and they are intrinsically understood by the compiler.</p><p>What's happening in that java code is that an array is being constructed with <code>new int[]</code> and then initialized with the values 1, 2 and 3. The JVM will translate this two operations as a single operation, but<br/>conceptually there is a difference.</p><p>In C# the same concept is used to initialize both arrays and lists </p>
@@ -218,7 +197,76 @@ address.Street = &quot;Baker Street&quot;;
 address.Number = &quot;221B&quot;;
 address.City = &quot;London&quot;;
 address.Country = &quot;England&quot;;
-</code></pre><p>This feature is similar to the initialization syntax in C# even thought in Lense we would be using the conjunction of two concepts : constructors and record literals.</p></p>
+</code></pre><p>This feature is similar to the initialization syntax in C# even thought in Lense we would be using the conjunction of two concepts : constructors and record literals.</p>
+			</div>
+			<div class="col-xs-6 col-sm-3 col-sm-pull-9 sidebar-offcanvas" id="sidebar"">
+
+<ol>
+	<li>Introduction</i>
+	<li><a href="status.html">Status</a></i>
+	<li>Syntax and Semantics
+		<ol>
+			<li><a href="identifiers.html">Reserved Words</a></li>
+			<li>Variables</li>
+			<li>Mutability</li>
+			<li><a href="nullability.html">Nullability</a></li>
+			<li>Comments</li>
+			<li>Generics</li>
+			<li>Functions</li>
+			
+			<li>Fundamental Types
+				
+				<ul>
+					<li><a href="strings.html">Strings</a></li>
+					<li><a href="numbers.html">Numbers</a></li>
+					<li>Ranges</li>
+					<li><a href="interval.html">Intervals</a></li>
+					<li><a href="arrays.html">Arrays</a></li>
+					<li>Tuples</li>
+					<li><a href="containerLiterals.html">Container Literals</a></li>
+				</ul>
+			</li>
+			<li>Control Statements
+				<ul>
+					<li>Decision: if</li>
+					<li>Loop : while</li>
+					<li>Iteration : for</li>
+					<li>Selection : switch</li>
+				</ul>
+			</li>
+			
+			<li><a href="objects.html">Classes and Objects</a>
+				<ul>
+					<li><a href="constructors.html">Constructors</a></li>
+					<li><a href="properties.html">Properties</a></li>
+				</ul>
+			</li>
+			<li>Enums</li>
+			<li><a href="enhancements.html">Enhancements</a></li>
+			<li>Lambdas</li>
+			<li>Casting</li>
+			<li><a href="operators.html">Operator Overloading</a></li>
+			
+		</ol>
+	</li>
+	<li>Compilation
+		<ul>
+			<li><a href="platforms.html">Platforms</a></li>
+			<li><a href="erasure.html">Erasure</a></li>
+		</ul>
+	</li>
+	<li><a href="concurrency.html">Concurrency</a>
+		<ol>
+			<li>Promisses</li>
+			<li>Executors</li>
+			<li>Actors</li>
+		</ol>
+	</li>
+
+<ol>			</div>
+		</div>
+	</div>
+	
 	
 		</div>
 		<div id="push"></div>

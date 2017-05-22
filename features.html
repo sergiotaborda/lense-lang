@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8"/>
-    <title>Monads</title>
+    <title>Features</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <meta name="author" content="">
@@ -119,47 +119,117 @@
 	<div class="container-fluid">
 		<div class="row row-offcanvas row-offcanvas-right">
 			 <div class="col-xs-12 col-sm-9 col-sm-push-3">
-				<h1>Monads</h1><p>Lense supports the concept of Monad. A monad is a special container type that allows operations to occur on the contained type without explicitly requiring<br/>the boxing and unboxing of the contained instances. Monads are a special case of the Decorator pattern where all operations return a new object and transform the decorated type in some way.</p><p>Because all monads are containers, they rely on decorating a contained object. In Lense we do this simply by calling the monads constructor.<br/>You can also create <a href="enhancements.html">enhancements</a> to facilitate some more common encapsulations.</p><p>The most common operation is to transform a monad object to another monad object of the same type operating in the contained elements. This is done by the map function.</p><h1>Iterable</h1><p>Iterable is a monad that allows the iteration of elements in a given order. <code>Sequence</code>s like <code>Array</code>s and <code>List</code>s implement <code>Iterable</code>s . Also <code>Association</code>s , <code>Tuple</code>s and <code>Progression</code> are <code>Iterable</code>s.<br/>You can iterate over the elements of any <code>Iterable&lt;T&gt;</code> with the <em>for-each</em> directive and transform them in some way</p>
-<pre><code class="brush: lense ">val cities : Sequence&lt;String&gt; = [&quot;New York&quot;, &quot;London&quot;, &quot;Paris&quot;];
-val lengths : List&lt;Natural&gt; = new List&lt;Natural&gt;();
+				<h1>Fundamental Types</h1><p>Some types have fundamental support from the compiler. This means these types have build-in integration with the language.<br/>Lense fundamental types are : <a href="strings.html"><code>String</code></a> , <a href="numbers.html"><code>Number</code></a>, <code>Boolean</code>, <a href="nullability.html"><code>Maybe</code></a>, <code>Range</code>, <a href="interval.html"><code>Interval</code></a> , <code>Sequence</code> and <code>Iterable</code>. </p>
+<table>
+  <thead>
+    <tr>
+      <th align="left">Lense type </th>
+      <th align="center">Literal </th>
+      <th align="center">Support</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td align="left"><code>String</code> </td>
+      <td align="center">"Hello, World" </td>
+      <td align="center"><a href="strings.html">Interpolation</a> : "Hello, {{ name }}". </td>
+    </tr>
+    <tr>
+      <td align="left"><code>Number</code> </td>
+      <td align="center"><em>1</em> , <em>3.14</em> or <em>4+5i</em> </td>
+      <td align="center">Creates whole , rational and complex numbers from they literals </td>
+    </tr>
+    <tr>
+      <td align="left"><code>Boolean</code></td>
+      <td align="center"><code>true</code> and <code>false</code> </td>
+      <td align="center"><a href="erasure.html">Erasured</a> to the runtime plataform's boolean. Flow control conditions must evaluate to a <code>Boolean</code> </td>
+    </tr>
+    <tr>
+      <td align="left"><code>Maybe</code> </td>
+      <td align="center"><code>none</code> , String? </td>
+      <td align="center">Compiler translates any type X followed by a ? (like X?) to Maybe<X> </td>
+    </tr>
+    <tr>
+      <td align="left"><code>Range</code> </td>
+      <td align="center">1..4 or 5..&lt;7 </td>
+      <td align="center">Generates a <code>Range</code> from the literal. Ranges are imutable. </td>
+    </tr>
+    <tr>
+      <td align="left"><code>Interval</code> </td>
+      <td align="center"><code>|(3, 8]|</code> </td>
+      <td align="center">Generates an <code>Interval</code> from the literal.Intervals are imutable. </td>
+    </tr>
+    <tr>
+      <td align="left"><code>Sequence</code></td>
+      <td align="center">[1,2,3,4] </td>
+      <td align="center">Generates a <code>Sequence</code> from the literal. Sequences are imutable. </td>
+    </tr>
+    <tr>
+      <td align="left" colspan="2"><code>Iterable</code> </td>
+      <td align="center">Allows for iteration with <code>for</code> directive, and map-reduce like operations. </td>
+    </tr>
+  </tbody>
+</table><p>In addition specific sub-types of <code>Sequence</code> also receive <a href="containerLiterals.html">literal support</a>:</p>
+<table>
+  <thead>
+    <tr>
+      <th align="left">Lense type </th>
+      <th align="center">Literal </th>
+      <th align="center">Support</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td align="left"><code>Sequence</code></td>
+      <td align="center">[1,2,3,4] </td>
+      <td align="center">Standard representation ordered sequences like lists and arrays. </td>
+    </tr>
+    <tr>
+      <td align="left"><code>Association</code> </td>
+      <td align="center">{ 1 : "en", 2 : "pt" , 3 : "es" } </td>
+      <td align="center">Standard representation for key-value associations </td>
+    </tr>
+    <tr>
+      <td align="left"><code>Tuple</code> </td>
+      <td align="center">(1, "Hello", false) </td>
+      <td align="center">Standard representation for tuples </td>
+    </tr>
+  </tbody>
+</table><h1>Classes, interfaces and inheritance</h1><p>Lense supports structuring code in objects and use classes to template objects and interfaces to template contracts.<br/>Lense also supports concepts like inheritance and traits.</p><h1>Algebric Data Types</h1><p>Lense supports defining a type that limits it's possible values or it's possible subtypes. </p>
+<pre><code class="brush:lense">public class Awnser is yes, no{
 
-for (String city in cities){
-	lengths.add(city.size());
 }
-</code></pre><p>When you need to transform several containers or the transformations are complex this type of explicit iteration becomes cumbersome.<br/>Because all Iterables are monads , they have the <code>map</code> method that receives a lambda to operate over all elements. </p>
-<pre><code class="brush: lense ">val cities : Sequence&lt;String&gt; = [&quot;New York&quot;, &quot;London&quot;, &quot;Paris&quot;];
+</code></pre><p>The compiler will create objects <code>yes</code> and <code>no</code> and proibit <code>Anwser</code> from being instanciated marking it <em>abstract</em>.<br/>When we want to define subtypes we need to explicitly define the other types so the compiler does not create objects instead.<br/>Here's an example:</p>
+<pre><code class="brush:lense">public class Maybe&lt;T&gt; is Some&lt;T&gt;, None {
 
-val lengths : Sequence&lt;Natural&gt;  =  cities.map( city -&gt; city.size());
-</code></pre><p>This code simply applies a transformation to all elements of the original container (*cities*) and produces a new <em>Iterable<Natural></em>. Them we assign that result to a List.<br/>Because List has a conversion constructor based on Iterable the elements are copied to the list as if we had write</p>
-<pre><code class="brush: lense ">val cities : Sequence&lt;String&gt; = [&quot;New York&quot;, &quot;London&quot;, &quot;Paris&quot;];
+	public abstract isAbsent() : Boolean;
+	public abstract value : T { get; }
 
-val lengths : List&lt;Natural&gt; =  new List&lt;Natural&gt;(cities.map( city -&gt; city.size()));
-</code></pre><p>You can use several other methods like <code>filter</code> that allows you to exclude some values.<br/>For example, if we want to calculate the cubes of only odd numbers between 1 and 100 we can use a Progression and write </p>
-<pre><code class="brush: lense ">var cubes : Sequence&lt;Natural&gt;=  1..100.filter(n -&gt; n.isOdd()).map( n -&gt; n ** 3));
-</code></pre><p>This a very simple, readable, code that means the same as </p>
-<pre><code class="brush: lense ">val  cubes = new List&lt;Natural&gt;();
+	public abstract map &lt;R&gt;(Function&lt;R,T&gt; mapping) : Maybe&lt;R&gt;
+}  
 
-for (Natural n in 1..100) {
-	if (n.isOdd()) {
-		lengths.add(n ** 3);
+public class Some&lt;T&gt; extends Maybe&lt;T&gt;{ 
+
+	public constructor (public val value : T);	
+	public isAbsent() { return false;}
+	
+	public map &lt;R&gt;(Function&lt;R,T&gt; mapping) : Maybe&lt;R&gt; {
+		return new Some&lt;R&gt;(mapping.apply(this.value));
 	}
 }
-</code></pre><h1>Maybe</h1><p>Maybe is a monad that allows us to manipulate possible absent values. <code>Maybe&lt;T&gt;</code> is an abstract type with only two subtypes : <code>Some&lt;T&gt;</code> and None. <code>None</code> has a single instance named <code>none</code>. <code>none</code> represents the absence of value.<br/>Maybe is equivalent to the <code>Optional</code> type that exists in other languages. However, in Lense, Maybe is a fundamental type and its the only way you can handle the concept of "null" since Lense does not allow the traditional <code>null</code> reference value. </p>
-<pre><code class="brush: lense ">public calculateNameLength( name : Maybe&lt;String&gt;) : Maybe&lt;Natural&gt; {
-	return name.map(m -&gt; m.size());
-}
-</code></pre><p>Because Maybe is a fundamental type in Lense we can simplify this method with some shorter syntax:</p>
-<pre><code class="brush: lense ">public calculateNameLength( name: String?) : Natural? {
-	return name.map(m -&gt; m.size());
-}
-</code></pre><p>This simple method returns the length of the given name and we can called it like:</p>
-<pre><code class="brush: lense ">val x : Natural? = calculateNameLength(&quot;London&quot;); // x holds a Some&lt;Natural&gt; with a value 6 inside
-val y : Natural?= calculateNameLength(none); // y holds the instance of &#39;none&#39;. 
-</code></pre><p>Note that the methods does not use any decision directive to handle the absence of value directly. This is handled by the <code>map</code> method it self.<br/>If the original Maybe is really and instanceof of <code>Some</code> it has some value in it, that value is passed to the given lambda and a new <code>Some</code> is created having inside the calculated value.<br/>If the original Maybe is really a <code>none</code> the lambda is not invoked and <code>none</code> is returned.</p><p>You can, if you want to, transform a Maybe<T> to a T by offering a default value, like this:</p>
-<pre><code class="brush: lense ">val  x : Natural? =  ... // obtain in some way
 
-val size : Natural = x.or(0);
-</code></pre><p>this means if <em>x</em> has a value, that value will assigned to <em>size</em>, otherwise 0 will be assigned.</p>
+public class None extends Maybe&lt;Nothing&gt; is none{ 
+
+	public isAbsent() { return true;}
+	public value : Nothing { get { throw new NoValuePresentException(); }}
+		
+	public map &lt;R&gt;(Function&lt;R,T&gt; mapping) : Maybe&lt;R&gt; {
+		return none;
+	}		
+}
+
+public object none extends None {}
+</code></pre><h1>Tuples</h1><h1>Records</h1><h1>Interval Literals</h1><h1>Inlined Calls</h1><p><em>under consideration</em></p><h1>Iterators</h1><h1>Local functions and Closures</h1><p><em>under consideration</em></p><h1>Annotations</h1><h1>Enhancements</h1><p>Enhancments are extentions for existing types that allow to add functionality without having access to the type source code.</p><h1>String Interpolation</h1><h1>Pattern Matching</h1><h1>Properties</h1><h1>Type Parameters, Constraints and Variance</h1><h1>Flow sensitive typing</h1><h1>Rational and Complex Numbers</h1>
 			</div>
 			<div class="col-xs-6 col-sm-3 col-sm-pull-9 sidebar-offcanvas" id="sidebar"">
 

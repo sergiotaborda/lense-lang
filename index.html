@@ -26,43 +26,19 @@
 	<script src="js/shBrushCSharp.js"></script>
 	<script src="js/shBrushDart.js"></script>
 	<script src="js/shBrushJava.js"></script>
-		
 	<script src="js/shBrushLense.js"></script>
 
 
     <!-- Le styles -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
-    <link href="css/asciidoctor.css" rel="stylesheet">
+    
     <link href="css/base.css" rel="stylesheet">
     <link href="css/prettify.css" rel="stylesheet">
   	<link rel="stylesheet" type="text/css" href="css/shCore.css"  >
 	<link rel="stylesheet" type="text/css" href="css/shThemeLense.css" >
 	<link rel="stylesheet" type="text/css" href="css/shThemeDefault.css" >
-	
-	<style>
-	 .console {
-	    background : black;
-	    color: white;
-	    width: 500px;
-	 }
-	 p {
-	 	text-align:justified;
-	 }
-	 pre {
-	 	background-color:white !important;
-	 	border:0px !important;
-	 	padding:0px !important;
-	 	overflow: visible !important;
-	 }
-	 pre code {
-	 	padding:2px !important;
-	 	margin : 0px !important;
-	 }
-	 
-	.syntaxhighlighter table .container:before {
-		display: none !important;
-	}
-	</style>
+	<link rel="stylesheet" type="text/css" href="css/site.css" >
+
 	
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
@@ -140,7 +116,10 @@
     </div>
 	<div class="corner-ribbon top-right sticky shadow"><a href="status.html">Exploration Stage</a></div>
     <div class="container">
-	<p><h1>Lense</h1><p>Lense is a strong typed, pure object oriented programming language that tries to be carefully crafted by meticulous observation and analysis of language design state-of-the-art and comparison with other language design decisions (and mistakes, yes). Even with this analysis and comparation with the state-of-the-art, Lense does not aim to be an academic driven language even when it tries to follow a more scientific and logic approach to design decision making.</p><p>Lense goal is to be a simple language, easy to read and write that could be compiled to any object oriented platform. The first effort will focus on running Lense in the Java Virtual Machine (JVM). Other possible platforms are Javascript and CRL (.NET)</p><h1>Some features to expect</h1><h2>Basic Syntax</h2><p>Lense syntax starts fom a C familly based syntax ( methods delimited with <em>{</em> and <em>}</em> ) but moves the type declaration to the end. This is because types can be infered when not declared.</p>
+	<div class="container-fluid">
+		<div class="row row-offcanvas row-offcanvas-right">
+			 <div class="col-xs-12 col-sm-9 col-sm-push-3">
+				<h1>Lense</h1><p>Lense is a strong typed, pure object oriented programming language that tries to be carefully crafted by meticulous observation and analysis of language design state-of-the-art and comparison with other language design decisions (and mistakes, yes). Even with this analysis and comparation with the state-of-the-art, Lense does not aim to be an academic driven language even when it tries to follow a more scientific and logic approach to design decision making.</p><p>Lense goal is to be a simple language, easy to read and write that could be compiled to any object oriented platform. The first effort will focus on running Lense in the Java Virtual Machine (JVM). Other possible platforms are Javascript and CRL (.NET)</p><h1>Some features to expect</h1><h2>Basic Syntax</h2><p>Lense syntax starts fom a C familly based syntax ( methods delimited with <em>{</em> and <em>}</em> ) but moves the type declaration to the end. This is because types can be infered when not declared.</p>
 <pre><code class="brush: lense ">val n = 4; // infers type is Natural
 val r = 5.6; // infers type Rational
 
@@ -148,46 +127,109 @@ var x = n + r; // infers type Rational
 
 val name = &quot;John&quot;; //infers type String
 </code></pre><p>Variables and expressions can be easy inserted within a string using a simple syntax (see <a href="strings.html">string</a>).</p>
-<pre><code class="brush: lense ">val birthday = new Date(1976, 4, 2);
+<pre><code class="brush: lense ">val age = 34;
 var name = &quot;John&quot;;
 
-val message =  &quot;{{ name }} was born on {{ birthday }}&quot;;
-</code></pre><h2>Object Oriented</h2><p>All types are treated as objects in the heap. Some <a href="glossary.html#fundamentalType">fundamental types</a> receive special handling from the compiler in the form of literals or specific operators. The compiler is free to optimize them to the plataform's primitives as it sees fit (see <a href="erasure.html">erasure</a>).</p><p>Because everything is an object all variables must have been initialized at some point and cannot hold <em>null</em>. The concept of "absent value" is support by introducing the <a href="monads.html">Maybe monad</a> (see <a href="nullability.html">nullability</a>). </p><p>Generics are reified and the type information of the generic type parameters can be inspected at runtime. This is really works well with <a href="constructors.html#factory">factory constructors</a></p><p>Types can have generic parameters and these parameters can declare their intended variance on site. </p><p>No <em>statics</em>. All things are objects or exist within an object. Lense supports singleton object definition.</p><h2>Math friendly</h2><p>No symbolic noise : operator symbols are predefined and associated with specific interfaces so classes like numbers and strings can use operators.However defining you own operator symbol is not allowed in order to maintain the code simple to read. The use of interfaces to define operations follows an algebraic structure paradigm so the compiler can reason about the operations (example : altering the order of operations the enhance performance if the operation is commutative)</p><p>Suport to Rational, Imaginary and Complex numbers : Its important that these numeric types are supported even if the performance is not optimal. Peformance is a problem for the runtime , not the language and expression of intention is more important that performance.</p>
+console.print(&quot;{{ name }} is {{ age }} year old&quot;);
+</code></pre><p>Prints:</p>
+<pre><code class="console">John is 34 years old
+</code></pre><h2>Object Oriented</h2><p>All types are treated as objects in the heap. Some <a href="glossary.html#fundamentalType">fundamental types</a> receive special handling from the compiler in the form of literals or specific operators. The compiler is free to optimize them to the plataform's primitives as it sees fit (see <a href="erasure.html">erasure</a>).</p><p>Because everything is an object all variables must have been initialized at some point and cannot hold <em>null</em>. The concept of "absent value" is support by introducing the <a href="monads.html">Maybe monad</a> (see <a href="nullability.html">nullability</a>). </p><p>Generics are reified and the type information of the generic type parameters can be inspected at runtime. This is really works well with <a href="constructors.html#factory">factory constructors</a></p><p>Types can have generic parameters and these parameters can declare their intended variance on site. </p><p>No <em>statics</em>. All things are objects or exist within an object. Lense supports singleton object definition.</p><h2>Math friendly</h2><p>No symbolic noise : operator symbols are predefined and associated with specific interfaces so classes like numbers and strings can use operators.However defining you own operator symbol is not allowed in order to maintain the code simple to read. The use of interfaces to define operations follows an algebraic structure paradigm so the compiler can reason about the operations (example : altering the order of operations the enhance performance if the operation is commutative)</p><p>Suport to Rational, Imaginary and Complex numbers : It is important that these numeric types are supported even if the performance is not optimal. Peformance is a problem for the runtime , not the language. In Lense expression of intention is more important that performance.</p>
 <pre><code class="brush: lense ">var n : Natural = 3; // numbers are naturals by default. naturals are non negative
 var d : Integer = -2; // integer holds negative whole numbers 
 
 var r : Rational = -1.5; // decimal literals are rational numbers by default.
 
 if (r == n/d ){
-	// natural devision always produces a Rational
-	// numbers are compared by value independently of type.
+	// this will be true, because whole division always produces a Rational
+	// and numbers are compared by value independently of type.
 }
-</code></pre><p>Lense supports progressions. Progressions are range like objects that can be iterated from a given start value to a given end value. The main difference between a progression and a range on other languages is that progressions have not to be linear.</p>
-<pre><code class="brush: lense ">for ( x in 3..7 ){
+
+val img : Imaginary = 4i;
+val complex = n + img;
+
+if (complex == 3 + 4i){
+	// this will be true because n==3 and img ==4i
+	// and numbers are compared by value independently of type.
+}
+</code></pre><p>Lense supports <a href="interval.html">Intervals and Ranges</a>. </p>
+<pre><code class="brush: lense ">for ( x in 3..7 ){ // iterate a range
 	// iterate from 3 to 7
 }
-</code></pre><p>Intervals are another usefull type to have fundamental support. Interval literals allow you to express in the limit is contained on the inteval or not. Also allows you to define only upper , or lower bounds</p>
-<pre><code class="brush: lense ">if ( x in |[ 3 , 7)| ){
-	// x is &gt;=3 and &lt; 7
+
+if ( x in |[ 3 , 7)| ){
+	// test if x is &gt;=3 and &lt; 7
 }
 
-if ( x in |( * , 7)| ){
-	// x is &lt; 7
-}
+</code></pre><h2>Modern</h2><p>Funcional programming support to some extend : Support for lambda expressions and types like Function&lt;A,B&gt;. </p><p>Modules : ability to compile meta information in "module bundle" (think .jar or .dll) and their respective dependencies. This would allow for the runtime to determine the modules that are needed for a given module to run.</p><h1>Some features under consideration</h1><p>Closures : are like lambdas but can capture and modify values in the calling scope. Very usefully we try to allow the user to implement its on control directives.</p><p>Constructors are like factory methods : A class is a factory and constructors really construct the object (not only initialize it).<br/>All calls to create new objects are calls to factory methods present in an object thus enforcing the <em>static factory method</em> design pattern out-of the box. </p>
+			</div>
+			<div class="col-xs-6 col-sm-3 col-sm-pull-9 sidebar-offcanvas" id="sidebar"">
 
-if ( x in |[ 3, * )| ){
-	// x is &gt;= 3
-}
+<ol>
+	<li>Introduction</i>
+	<li><a href="status.html">Status</a></i>
+	<li>Syntax and Semantics
+		<ol>
+			<li><a href="identifiers.html">Reserved Words</a></li>
+			<li>Variables</li>
+			<li>Mutability</li>
+			<li><a href="nullability.html">Nullability</a></li>
+			<li>Comments</li>
+			<li>Generics</li>
+			<li>Functions</li>
+			
+			<li>Fundamental Types
+				
+				<ul>
+					<li><a href="strings.html">Strings</a></li>
+					<li><a href="numbers.html">Numbers</a></li>
+					<li>Ranges</li>
+					<li><a href="interval.html">Intervals</a></li>
+					<li><a href="arrays.html">Arrays</a></li>
+					<li>Tuples</li>
+					<li><a href="containerLiterals.html">Container Literals</a></li>
+				</ul>
+			</li>
+			<li>Control Statements
+				<ul>
+					<li>Decision: if</li>
+					<li>Loop : while</li>
+					<li>Iteration : for</li>
+					<li>Selection : switch</li>
+				</ul>
+			</li>
+			
+			<li><a href="objects.html">Classes and Objects</a>
+				<ul>
+					<li><a href="constructors.html">Constructors</a></li>
+					<li><a href="properties.html">Properties</a></li>
+				</ul>
+			</li>
+			<li>Enums</li>
+			<li><a href="enhancements.html">Enhancements</a></li>
+			<li>Lambdas</li>
+			<li>Casting</li>
+			<li><a href="operators.html">Operator Overloading</a></li>
+			
+		</ol>
+	</li>
+	<li>Compilation
+		<ul>
+			<li><a href="platforms.html">Platforms</a></li>
+			<li><a href="erasure.html">Erasure</a></li>
+		</ul>
+	</li>
+	<li><a href="concurrency.html">Concurrency</a>
+		<ol>
+			<li>Promisses</li>
+			<li>Executors</li>
+			<li>Actors</li>
+		</ol>
+	</li>
 
-if ( x in |[]| ){
-	// always false. |[]| is the empty interval
-}
-
-if ( x in |( *, * )| ){
-	// always true. |( *, * )| means all values possible.
-}
-
-</code></pre><h2>Modern</h2><p>Funcional programming support to some extend : Support for lambda expressions and types like Function&lt;A,B&gt;. </p><p>Modules : ability to compile meta information in "module bundle" (think .jar or .dll) and their respective dependencies. This would allow for the runtime to determine the modules that are needed for a given module to run.</p><h1>Some features under consideration</h1><p>Closures : are like lambdas but can capture and modify values in the calling scope. Very usefully we try to allow the user to implement its on control directives.</p><p>Constructors are like factory methods : A class is a factory and constructors really construct the object (not only initialize it). The new keyword can only be used in the constructor and means "create an auto-initialized" object and would be equivalent to a no parameters private constructor in other languages. So all calls to create new objects are calls to factory methods present in the "Class" object enforcing the "static factory method" design patter out-of the box. Being functions the constructors could be passed as lambdas to other functions.</p></p>
+<ol>			</div>
+		</div>
+	</div>
+	
 	
 		</div>
 		<div id="push"></div>
