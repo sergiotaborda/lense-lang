@@ -150,7 +150,6 @@ public class DesugarPropertiesVisitor extends AbstractLenseVisitor{
 
 			AstNode parent = node.getParent();
 
-			parent.remove(node);
 			
 			if (!prp.isAbstract() && !prp.isNative() && prp.getModifier() != null && prp.getInitializer() == null && !prp.isInicializedOnConstructor()){
 				if (!prp.getType().getTypeVariable().getTypeDefinition().getName().equals(LenseTypeSystem.Maybe().getName())){
@@ -269,6 +268,8 @@ public class DesugarPropertiesVisitor extends AbstractLenseVisitor{
 				
 				parent.add(setter);
 			}
+			parent.remove(node);
+			
 		} else if (node instanceof FieldOrPropertyAccessNode){
 			FieldOrPropertyAccessNode n = (FieldOrPropertyAccessNode)node;
 

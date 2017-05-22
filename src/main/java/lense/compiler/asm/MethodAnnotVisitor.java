@@ -11,7 +11,9 @@ import lense.compiler.type.MethodReturn;
 import lense.compiler.type.TypeDefinition;
 import lense.compiler.type.variable.DeclaringTypeBoundedTypeVariable;
 import lense.compiler.type.variable.FixedTypeVariable;
+import lense.compiler.type.variable.GenericTypeBoundToDeclaringTypeVariable;
 import lense.compiler.typesystem.LenseTypeSystem;
+import lense.compiler.typesystem.Variance;
 
 public class MethodAnnotVisitor extends MethodVisitor{
 
@@ -45,10 +47,33 @@ public class MethodAnnotVisitor extends MethodVisitor{
 		if (method!= null){
 			if (isProperty){
 				if (returnSignature != null && returnSignature.length() > 0){
-					TypeDefinition typeDefinition = method.getReturningType().getTypeDefinition();
-					if (!typeDefinition.getName().equals(returnSignature)){
+					TypeDefinition typeDefinition = method.getReturningType().getTypeDefinition(); // TODO this definition is not propertly loaded with genric params
+					if (typeDefinition.getName().equals(returnSignature)){
+						int pos = returnSignature.indexOf('<');
+						if (pos > 0) {
+							String paramType = returnSignature.substring(0, pos);
+							String generics = returnSignature.substring(pos + 1, returnSignature.length() - pos);
+							String[] genericsParams;
+							if (generics.indexOf(',') > 0){
+								genericsParams = generics.split(",");
+							} else {
+								genericsParams = new String[]{generics};
+							}
 						
-						if (typeDefinition.getGenericParameters().isEmpty()){
+							TypeDefinition type = new LenseTypeDefinition(paramType, null, null);
+							// TODO recursivlty define genric parameters
+							for (int index =0; index < method.getDeclaringType().getGenericParameters().size(); index++){
+								if (method.getDeclaringType().getGenericParameters().get(index).equals(genericsParams[0])){
+									method.setReturn(new MethodReturn(new GenericTypeBoundToDeclaringTypeVariable(type, method.getDeclaringType(), index, genericsParams[0], Variance.Covariant )));
+									break;
+								}
+							}
+
+							
+						
+
+							
+						} else if (typeDefinition.getGenericParameters().isEmpty()){
 							method.setReturn(new MethodReturn(new DeclaringTypeBoundedTypeVariable(method.getDeclaringType(), 0, returnSignature, lense.compiler.typesystem.Variance.Covariant)));
 						} else {
 							DeclaringTypeBoundedTypeVariable t = new DeclaringTypeBoundedTypeVariable(method.getDeclaringType(), 0, returnSignature, lense.compiler.typesystem.Variance.Covariant);
@@ -56,7 +81,7 @@ public class MethodAnnotVisitor extends MethodVisitor{
 							method.setReturn(new MethodReturn(new FixedTypeVariable(m)));
 						}
 					}
-					
+
 				}
 				byteCodeReader.addPropertyPart(method,isIndexed,propertyName, isSetter);
 			} else {

@@ -20,6 +20,8 @@ public class ByteCodeTypeDefinitionReader {
 	
 	public TypeDefinition readNative(InputStream input) throws IOException {
 		
+		// TODO need access to TypeResolver.
+		
 		ByteCodeReader cp = new ByteCodeReader();
 		ClassReader cr = new ClassReader(input);
 		cr.accept(cp, 0);

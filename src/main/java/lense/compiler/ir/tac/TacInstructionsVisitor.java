@@ -165,7 +165,7 @@ public class TacInstructionsVisitor implements Visitor<AstNode> {
 			TreeTransverser.transverse(n.getContainer(), this);
 			
 			Operand container = n.getContainer().getProperty("tempVal", Operand.class).get();
-		    TypeDefinition containedType = extractType(n.getContainer().getTypeVariable().getGenericParameters().get(0).getUpperbound());
+		    TypeDefinition containedType = extractType(n.getContainer().getTypeVariable().getGenericParameters().get(0).getUpperBound());
 			
 		    TypeDefinition iterableType = LenseTypeSystem.Iterable();  // semanticContext.typeForName("lense.core.lang.Iterable", 1);
 		    TypeDefinition iteratorType =  LenseTypeSystem.Iterator(); //semanticContext.typeForName("lense.core.lang.Iterator", 1);;

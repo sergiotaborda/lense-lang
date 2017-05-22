@@ -4,6 +4,6 @@ package lense.core.collections;
 public   abstract interface Iterable{
 	
 @lense.core.lang.java.Property( name = "iterator")
-@lense.core.lang.java.MethodSignature( returnSignature = "lense.core.collections.Iterator<lense.core.lang.Any>" , paramsSignature = "")
+@lense.core.lang.java.MethodSignature( returnSignature = "lense.core.collections.Iterator<T>" , paramsSignature = "")
 public  abstract lense.core.collections.Iterator getIterator();
 }

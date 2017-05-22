@@ -17,7 +17,7 @@ public interface IntervalTypeVariable extends TypeVariable{
 	/**
 	 * @return
 	 */
-	TypeVariable getUpperbound();
+	TypeVariable getUpperBound();
 	
 	/**
 	 * @return

@@ -189,7 +189,7 @@ public class StructureVisitor extends AbstractScopedVisitor {
 			IntervalTypeVariable typeParameter = resolveTypeDefinition(m.getReturnType());
 
 			lense.compiler.type.variable.TypeVariable returnTypeVariable;
-			if (typeParameter.getLowerBound().equals(typeParameter.getUpperbound())){
+			if (typeParameter.getLowerBound().equals(typeParameter.getUpperBound())){
 				returnTypeVariable = typeParameter;
 			} else {
 				String typeName = m.getReturnType().getName();

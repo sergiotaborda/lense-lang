@@ -45,11 +45,11 @@ import lense.compiler.ast.FormalParameterNode;
 import lense.compiler.ast.GenericTypeParameterNode;
 import lense.compiler.ast.IndexedAccessNode;
 import lense.compiler.ast.IndexerPropertyDeclarationNode;
-import lense.compiler.ast.LiteralIntervalNode;
 import lense.compiler.ast.LambdaExpressionNode;
 import lense.compiler.ast.LenseAstNode;
 import lense.compiler.ast.LiteralAssociationInstanceCreation;
 import lense.compiler.ast.LiteralExpressionNode;
+import lense.compiler.ast.LiteralIntervalNode;
 import lense.compiler.ast.LiteralSequenceInstanceCreation;
 import lense.compiler.ast.LiteralTupleInstanceCreation;
 import lense.compiler.ast.MethodDeclarationNode;
@@ -88,7 +88,6 @@ import lense.compiler.type.MethodParameter;
 import lense.compiler.type.MethodSignature;
 import lense.compiler.type.Property;
 import lense.compiler.type.TypeDefinition;
-import lense.compiler.type.TypeKind;
 import lense.compiler.type.TypeMember;
 import lense.compiler.type.UnionType;
 import lense.compiler.type.variable.DeclaringTypeBoundedTypeVariable;
@@ -1232,6 +1231,8 @@ public class SemanticVisitor extends AbstractScopedVisitor {
 			String typeName = p.getType().getName();
 			VariableInfo genericParameter = this.getSemanticContext().currentScope().searchVariable(typeName);
 
+			TypeVariable propertyType = p.getType().getTypeVariable();
+			
 			if (genericParameter != null && genericParameter.isTypeVariable()) {
 				List<IntervalTypeVariable> parameters = currentType.getGenericParameters();
 				Optional<Integer> opIndex = currentType.getGenericParameterIndexBySymbol(typeName);
@@ -1243,49 +1244,26 @@ public class SemanticVisitor extends AbstractScopedVisitor {
 
 				int index = opIndex.get();
 
-				DeclaringTypeBoundedTypeVariable pp = new DeclaringTypeBoundedTypeVariable(currentType, index, typeName,
-						parameters.get(index).getVariance());
+				propertyType = new DeclaringTypeBoundedTypeVariable(currentType, index, typeName, parameters.get(index).getVariance());
 
-				if (p.isIndexed()) {
+			} 
+			
+			if (p.isIndexed()) {
 
-					lense.compiler.type.variable.TypeVariable[] params = new lense.compiler.type.variable.TypeVariable[((IndexerPropertyDeclarationNode) p)
-					                                                                                                   .getIndexes().getChildren().size()];
-					int i = 0;
-					for (AstNode n : ((IndexerPropertyDeclarationNode) p).getIndexes().getChildren()) {
-						FormalParameterNode var = (FormalParameterNode) n;
-						TypeVariable type = var.getTypeNode().getTypeVariable();
-						params[i++] = type;
-						// this.getSemanticContext().currentScope().defineTypeVariable(var.getName(),
-						// type, p).setInitialized(true);
-					}
-
-					currentType.addIndexer(pp, p.getAcessor() != null, p.getModifier() != null, params);
-				} else {
-					currentType.addProperty(p.getName(), pp, p.getAcessor() != null, p.getModifier() != null);
+				lense.compiler.type.variable.TypeVariable[] params = new lense.compiler.type.variable.TypeVariable[((IndexerPropertyDeclarationNode) p)
+				                                                                                                   .getIndexes().getChildren().size()];
+				int i = 0;
+				for (AstNode n : ((IndexerPropertyDeclarationNode) p).getIndexes().getChildren()) {
+					FormalParameterNode var = (FormalParameterNode) n;
+					TypeVariable type = var.getTypeNode().getTypeVariable();
+					params[i++] = type;
+					// this.getSemanticContext().currentScope().defineTypeVariable(var.getName(),
+					// type, p).setInitialized(true);
 				}
 
+				currentType.addIndexer(propertyType, p.getAcessor() != null, p.getModifier() != null, params);
 			} else {
-				Optional<TypeDefinition> type = this.getSemanticContext().resolveTypeForName(p.getType().getName(),
-						p.getType().getTypeParametersCount());
-				p.getType().setTypeVariable(type.get());
-				if (p.isIndexed()) {
-					lense.compiler.type.variable.TypeVariable[] params = new lense.compiler.type.variable.TypeVariable[((IndexerPropertyDeclarationNode) p)
-					                                                                                                   .getIndexes().getChildren().size()];
-					int i = 0;
-					for (AstNode n : ((IndexerPropertyDeclarationNode) p).getIndexes().getChildren()) {
-						FormalParameterNode var = (FormalParameterNode) n;
-						TypeVariable t = var.getTypeNode().getTypeVariable();
-						params[i++] = t;
-						// this.getSemanticContext().currentScope().defineTypeVariable(var.getName(),
-						// t, p).setInitialized(true);
-					}
-
-					currentType.addIndexer(p.getType().getTypeVariable(), p.getAcessor() != null,
-							p.getModifier() != null, params);
-				} else {
-					currentType.addProperty(p.getName(), p.getType().getTypeVariable(), p.getAcessor() != null,
-							p.getModifier() != null);
-				}
+				currentType.addProperty(p.getName(), propertyType, p.getAcessor() != null, p.getModifier() != null);
 			}
 
 		} else if (node instanceof IndexedAccessNode) {
@@ -1336,12 +1314,12 @@ public class SemanticVisitor extends AbstractScopedVisitor {
 						for (int i = 0; i < index.get() - 1; i++) {
 							MethodInvocationNode current = new MethodInvocationNode(previous, "tail");
 							current.setTypeVariable(
-									previous.getTypeVariable().getGenericParameters().get(1).getUpperbound());
+									previous.getTypeVariable().getGenericParameters().get(1).getUpperBound());
 							previous = current;
 						}
 
 						TypeVariable upperbound = previous.getTypeVariable().getGenericParameters().get(0)
-								.getUpperbound();
+								.getUpperBound();
 
 						MethodInvocationNode invoke = new MethodInvocationNode(previous, "head");
 						invoke.setTypeVariable(upperbound);
@@ -2050,7 +2028,7 @@ public class SemanticVisitor extends AbstractScopedVisitor {
 			}
 
 			if (!LenseTypeSystem.isAssignableTo(
-					n.getContainer().getTypeVariable().getGenericParameters().get(0).getUpperbound(),
+					n.getContainer().getTypeVariable().getGenericParameters().get(0).getUpperBound(),
 					n.getVariableDeclarationNode().getTypeVariable())) {
 				throw new CompilationError(n.getVariableDeclarationNode().getTypeVariable().getSymbol()
 						+ " is not contained in " + n.getContainer().getTypeVariable());
@@ -2138,11 +2116,11 @@ public class SemanticVisitor extends AbstractScopedVisitor {
 	 */
 	private int countTupleSize(TypeDefinition methodOwnerType) {
 		int count = 0;
-		TypeVariable type = methodOwnerType.getGenericParameters().get(1).getUpperbound();
+		TypeVariable type = methodOwnerType.getGenericParameters().get(1).getUpperBound();
 		while (!LenseTypeSystem.isAssignableTo(type.getTypeDefinition(), LenseTypeSystem.Nothing())) {
 			count++;
 
-			type = type.getGenericParameters().get(1).getUpperbound();
+			type = type.getGenericParameters().get(1).getUpperBound();
 		}
 		return count + 1;
 	}

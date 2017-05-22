@@ -35,18 +35,18 @@ public abstract class CalculatedTypeVariable implements IntervalTypeVariable{
 
 	@Override
 	public boolean isSingleType() {
-		return getLowerBound().equals(getUpperbound());
+		return getLowerBound().equals(getUpperBound());
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public final TypeVariable getUpperbound() {
+	public final TypeVariable getUpperBound() {
 		if (this.getVariance() == Variance.ContraVariant){
 			return original().getLowerBound();
 		} else {
-			return original().getUpperbound();
+			return original().getUpperBound();
 		}
 	}
 
@@ -56,7 +56,7 @@ public abstract class CalculatedTypeVariable implements IntervalTypeVariable{
 	@Override
 	public final TypeVariable getLowerBound() {
 		if (this.getVariance() == Variance.ContraVariant){
-			return original().getUpperbound();
+			return original().getUpperBound();
 		} else {
 			return original().getLowerBound();
 		}
@@ -67,4 +67,7 @@ public abstract class CalculatedTypeVariable implements IntervalTypeVariable{
 		return false;
 	}
 
+	public String toString(){
+		return getLowerBound().toString() + "<:" + getUpperBound().toString();
+	}
 }
