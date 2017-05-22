@@ -1,6 +1,7 @@
 package lense.compiler.phases;
 
 import compiler.syntax.AstNode;
+import compiler.trees.TreeTransverser;
 import compiler.trees.VisitorNext;
 import lense.compiler.CompilationError;
 import lense.compiler.ast.AccessorNode;
@@ -27,6 +28,8 @@ import lense.compiler.ast.ObjectReadNode;
 import lense.compiler.ast.ParametersListNode;
 import lense.compiler.ast.PreBooleanUnaryExpression;
 import lense.compiler.ast.PropertyDeclarationNode;
+import lense.compiler.ast.PropertyOperation;
+import lense.compiler.ast.QualifiedNameNode;
 import lense.compiler.ast.ReturnNode;
 import lense.compiler.ast.TypeNode;
 import lense.compiler.ast.TypedNode;
@@ -183,9 +186,15 @@ public class DesugarPropertiesVisitor extends AbstractLenseVisitor{
 			
 			
 			TypeVariable typeVariable = prp.getType().getTypeVariable();
+			
 			if (typeVariable == null){
 				typeVariable = prp.getType().getTypeParameter();
 			}
+			
+			FieldOrPropertyAccessNode backingField = new FieldOrPropertyAccessNode(privateFieldName);
+			backingField.setType(typeVariable);
+			backingField.setPrimary(new QualifiedNameNode("this"));
+		
 			if (prp.getAcessor() != null){
 				AccessorNode a = prp.getAcessor();
 
@@ -204,16 +213,19 @@ public class DesugarPropertiesVisitor extends AbstractLenseVisitor{
 					getter.setAbstract(prp.isAbstract());
 				}else {
 					BlockNode block = a.getBlock();
-					if (a.isImplicit()){
+					
+			
+					
+					if (a.isImplicit()){ // create access to backing-field 
 						// TODO validate in semantics that is accessor is implicit modifier also is implicit
 						block = new BlockNode();
 						ReturnNode rnode = new ReturnNode();
 						block.add(rnode);
 
-						FieldOrPropertyAccessNode field = new FieldOrPropertyAccessNode(privateFieldName);
-						field.setType(typeVariable);
-						rnode.add(field);
-					} 
+						rnode.add(backingField);
+					} else {
+						translateBackingFieldReference(block,prp.getName(), backingField);
+					}
 					getter.setBlock(block);
 				}
 				getter.setReturnType(prp.getType());
@@ -234,22 +246,28 @@ public class DesugarPropertiesVisitor extends AbstractLenseVisitor{
 	
 				String parameterName  = a.getValueVariableName();
 		
+				if (parameterName.equals(prp.getName())){
+					throw new CompilationError(a, "Modifier parameter cannot have the same name as the property (" + prp.getName() + ")");
+				}
+				
 				if (prp.isNative()){
 					setter.setNative(prp.isNative());
 				} else if (prp.isAbstract()){
 					setter.setAbstract(prp.isAbstract());
 				}else {
 					BlockNode block = a.getBlock();
+					
 					if (a.isImplicit()){
 						block = new BlockNode();
 						AssignmentNode assign = new AssignmentNode(Operation.SimpleAssign);
-						FieldOrPropertyAccessNode field = new FieldOrPropertyAccessNode(privateFieldName);
-						field.setType(typeVariable);
-						assign.setLeft(field);
+						
+						assign.setLeft(backingField);
 						assign.setRight(new VariableReadNode(parameterName, new VariableInfo(parameterName, typeVariable,setter, false, false)));
 
 						block.add(assign);
-					} 
+					} else {
+						translateBackingFieldReference(block,prp.getName(), backingField);
+					}
 					setter.setBlock(block);
 				}
 
@@ -286,6 +304,8 @@ public class DesugarPropertiesVisitor extends AbstractLenseVisitor{
 					// is write access
 					MethodInvocationNode invokeSet = new MethodInvocationNode(n.getPrimary(), "set" + propertyName, arg);
 					invokeSet.setPropertyDerivedMethod(true);
+					invokeSet.setPropertyDerivedName(propertyName);
+					invokeSet.setPropertyOperation(PropertyOperation.WRITE);
 					invokeSet.setTypeVariable(new FixedTypeVariable(LenseTypeSystem.Void()));
 					n.getParent().getParent().replace(n.getParent() , invokeSet);
 					
@@ -293,6 +313,8 @@ public class DesugarPropertiesVisitor extends AbstractLenseVisitor{
 					// is read acesss
 					MethodInvocationNode invokeGet = new MethodInvocationNode(n.getPrimary(), "get" + propertyName);
 					invokeGet.setPropertyDerivedMethod(true);
+					invokeGet.setPropertyDerivedName(propertyName);
+					invokeGet.setPropertyOperation(PropertyOperation.READ);
 					invokeGet.setTypeVariable(n.getTypeVariable());
 					n.getParent().replace(node, invokeGet);
 				}
@@ -317,6 +339,7 @@ public class DesugarPropertiesVisitor extends AbstractLenseVisitor{
 				
 				MethodInvocationNode invokeSet = new MethodInvocationNode(n.getAccess(), "set",list);
 				invokeSet.setIndexDerivedMethod(true);
+				invokeSet.setPropertyOperation(PropertyOperation.WRITE);
 				invokeSet.setTypeVariable(new FixedTypeVariable(LenseTypeSystem.Void()));
 				node.getParent().getParent().replace(n.getParent() , invokeSet);
 
@@ -324,6 +347,7 @@ public class DesugarPropertiesVisitor extends AbstractLenseVisitor{
 				// is read access
 				MethodInvocationNode invokeGet = new MethodInvocationNode(n.getAccess(), "get", list);
 				invokeGet.setIndexDerivedMethod(true);
+				invokeGet.setPropertyOperation(PropertyOperation.READ);
 				invokeGet.setTypeVariable(n.getTypeVariable());
 				node.getParent().replace(node, invokeGet);
 
@@ -412,6 +436,10 @@ public class DesugarPropertiesVisitor extends AbstractLenseVisitor{
 //		
 //		}
 		
+	}
+
+	private void translateBackingFieldReference(BlockNode block, String propertyName, FieldOrPropertyAccessNode backingField) {
+		TreeTransverser.transverse(block, new ExplicitBackingFieldReferenceVisitor(propertyName, backingField));
 	}
 
 
