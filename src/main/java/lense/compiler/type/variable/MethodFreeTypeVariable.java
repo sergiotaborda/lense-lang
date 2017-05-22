@@ -37,7 +37,7 @@ public class MethodFreeTypeVariable extends CalculatedTypeVariable implements Ty
 	}
 	
 	public String toString(){
-		return getUpperbound().toString();
+		return getUpperBound().toString();
 	}
 
 	/**

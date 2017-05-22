@@ -55,7 +55,7 @@ public class RangeTypeVariable implements IntervalTypeVariable {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public TypeVariable getUpperbound() {
+	public TypeVariable getUpperBound() {
 		return upper;
 	}
 
@@ -105,7 +105,7 @@ public class RangeTypeVariable implements IntervalTypeVariable {
 		}
 		if ( other instanceof RangeTypeVariable){
 			RangeTypeVariable r = ((RangeTypeVariable)other);
-			return r.variance.equals(this.variance) && r.getLowerBound().equals(this.lower) && r.getUpperbound().equals(this.upper);
+			return r.variance.equals(this.variance) && r.getLowerBound().equals(this.lower) && r.getUpperBound().equals(this.upper);
 		}
 		return false;
 	}

@@ -121,6 +121,8 @@ public class ByteCodeReader extends ClassVisitor {
 				}
 
 				Constructor m = new  Constructor(name,params , false); // TODO read implicit
+				m.setDeclaringType(def);
+				
 				return new ConstructorAnnotVisitor(this, m);
 			} else {
 				// instance methods
@@ -144,6 +146,8 @@ public class ByteCodeReader extends ClassVisitor {
 				}
 
 				Method m = new Method(name,r,params);
+				m.setDeclaringType(def);
+				
 				return new MethodAnnotVisitor(this, m);
 			}
 		} catch (IllegalArgumentException e){

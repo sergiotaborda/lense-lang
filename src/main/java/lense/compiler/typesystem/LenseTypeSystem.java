@@ -416,12 +416,12 @@ public class LenseTypeSystem{
 
 	public static boolean isAssignableTo(IntervalTypeVariable type, IntervalTypeVariable target){
 	    if (target.getVariance() == Variance.ContraVariant){
-	    	isAssignableTo(target.getUpperbound(), type.getUpperbound());
+	    	isAssignableTo(target.getUpperBound(), type.getUpperBound());
 		} else if (target.getVariance() == Variance.Covariant){
-			return isAssignableTo(type.getUpperbound(), target.getUpperbound());
+			return isAssignableTo(type.getUpperBound(), target.getUpperBound());
 		}
 		 
-		return isAssignableTo(type.getUpperbound(), target.getUpperbound()) && isAssignableTo(type.getLowerBound(), target.getLowerBound()) ;
+		return isAssignableTo(type.getUpperBound(), target.getUpperBound()) && isAssignableTo(type.getLowerBound(), target.getLowerBound()) ;
 	}
 	
 	public static boolean isAssignableTo(TypeVariable type, TypeVariable target){
@@ -431,15 +431,15 @@ public class LenseTypeSystem{
 			} else {
 				IntervalTypeVariable interval = (IntervalTypeVariable)target;
 				// interval contains type ?
-				return isAssignableTo(type, interval.getUpperbound()) && isAssignableTo(interval.getLowerBound(),type);
+				return isAssignableTo(type, interval.getUpperBound()) && isAssignableTo(interval.getLowerBound(),type);
 			}
 		} else {
 			IntervalTypeVariable interval = (IntervalTypeVariable)type;
 			if (target instanceof FixedTypeVariable){
-				return isAssignableTo(interval.getLowerBound(), interval.getUpperbound()) && isAssignableTo(interval.getUpperbound(), target);
+				return isAssignableTo(interval.getLowerBound(), interval.getUpperBound()) && isAssignableTo(interval.getUpperBound(), target);
 			} else {
 				IntervalTypeVariable other = (IntervalTypeVariable)target;
-				return isAssignableTo(interval.getLowerBound(), other.getLowerBound()) && isAssignableTo(other.getUpperbound(), interval.getUpperbound());
+				return isAssignableTo(interval.getLowerBound(), other.getLowerBound()) && isAssignableTo(other.getUpperBound(), interval.getUpperBound());
 			}
 		}
 	}
@@ -542,7 +542,7 @@ public class LenseTypeSystem{
 
 		for (int i =0; i < definition.getGenericParameters().size(); i++){
 			IntervalTypeVariable gen = definition.getGenericParameters().get(i);
-			if (gen.getLowerBound().equals(gen.getUpperbound())){
+			if (gen.getLowerBound().equals(gen.getUpperBound())){
 				throw new CompilationError("Cannot specify a non generic type");
 			}
 			genericParameters[i] = new RangeTypeVariable(gen.getSymbol(), gen.getVariance(),  genericParametersCapture[i],  genericParametersCapture[i]);

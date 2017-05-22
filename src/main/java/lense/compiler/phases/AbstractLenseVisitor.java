@@ -9,11 +9,14 @@ import lense.compiler.context.SemanticContext;
 import lense.compiler.context.SemanticScope;
 import lense.compiler.context.VariableInfo;
 import lense.compiler.type.TypeDefinition;
+import lense.compiler.type.variable.DeclaringTypeBoundedTypeVariable;
 import lense.compiler.type.variable.FixedTypeVariable;
+import lense.compiler.type.variable.GenericTypeBoundToDeclaringTypeVariable;
 import lense.compiler.type.variable.IntervalTypeVariable;
 import lense.compiler.type.variable.RangeTypeVariable;
 import lense.compiler.type.variable.TypeVariable;
 import lense.compiler.typesystem.LenseTypeSystem;
+import lense.compiler.typesystem.Variance;
 
 public  abstract class AbstractLenseVisitor implements Visitor<AstNode>{
 
@@ -39,34 +42,42 @@ public  abstract class AbstractLenseVisitor implements Visitor<AstNode>{
 			}
 
 			TypeDefinition type = semanticContext.typeForName(t.getName(),t.getTypeParametersCount());
-			t.setTypeVariable(new FixedTypeVariable(type));
-
+			
 			if ( t.getTypeParametersCount() > 0) {
 
 				TypeVariable[] genericParametersCapture = new TypeVariable[t.getTypeParametersCount()];
 				int index = 0;
 				for (AstNode n : t.getChildren()) {
-					GenericTypeParameterNode p = (GenericTypeParameterNode) n;
-					TypeNode gt = p.getTypeNode();
-					TypeVariable gtype;
-					if (gt!= null){
-						gtype =  gt.getTypeVariable();
-						if (gtype == null) {
-							gtype = new FixedTypeVariable(semanticContext.typeForName(gt.getName(),gt.getTypeParametersCount()));
+					TypeNode typeNode = ((GenericTypeParameterNode) n).getTypeNode();
+					TypeVariable typeVariable;
+					if (typeNode!= null){
+						typeVariable =  typeNode.getTypeVariable();
+						if (typeVariable == null) {
+							VariableInfo variableInfo = currentScope.searchVariable(typeNode.getName());
+							if (variableInfo.isTypeVariable()){
+
+								typeVariable = new GenericTypeBoundToDeclaringTypeVariable(type, currentScope.getCurrentType(), index , typeNode.getName(),  Variance.Covariant);
+								
+							} else {
+								typeVariable = new FixedTypeVariable(semanticContext.typeForName(typeNode.getName(),typeNode.getTypeParametersCount()));
+							}
+							
 						}
-						genericParametersCapture[index] = gtype;
-						gt.setTypeVariable(genericParametersCapture[index]);
+						genericParametersCapture[index] = typeVariable;
+						typeNode.setTypeVariable(genericParametersCapture[index]);
 					} else {
-						gtype = new FixedTypeVariable( semanticContext.resolveTypeForName("lense.core.lang.Any", 0).get());
-						genericParametersCapture[index] = gtype;
+						typeVariable = new FixedTypeVariable( semanticContext.resolveTypeForName("lense.core.lang.Any", 0).get());
+						genericParametersCapture[index] = typeVariable;
 					}
 					index++;
 				}
 				type = LenseTypeSystem.specify(type,genericParametersCapture);
 				t.setTypeVariable(type);
 			}
-
-			t.setTypeParameter(  new FixedTypeVariable( type).toIntervalTypeVariable());
+			
+			t.setTypeVariable(new FixedTypeVariable(type));
+			t.setTypeParameter(  t.getTypeVariable().toIntervalTypeVariable());
+		
 			
 			return t.getTypeParameter();
 		} catch (lense.compiler.type.TypeNotFoundException e) {

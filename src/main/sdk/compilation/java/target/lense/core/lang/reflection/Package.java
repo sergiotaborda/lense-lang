@@ -1,6 +1,8 @@
 package lense.core.lang.reflection;
 
-public interface Package{
+public   abstract interface Package{
 	
-public lense.core.lang.String getName();
+@lense.core.lang.java.Property( name = "name")
+@lense.core.lang.java.MethodSignature( returnSignature = "lense.core.lang.String" , paramsSignature = "")
+public  abstract lense.core.lang.String getName();
 }

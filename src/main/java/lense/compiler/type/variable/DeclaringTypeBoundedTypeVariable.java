@@ -30,10 +30,6 @@ public class DeclaringTypeBoundedTypeVariable extends CalculatedTypeVariable  {
 		return declaringType.getGenericParameters().get(parameterIndex);
 	}
 	
-	public String toString(){
-		return getLowerBound().toString() + "<:" + getUpperbound().toString();
-	}
-
 	public Optional<String> getSymbol(){
 		return Optional.of(symbol);
 	}

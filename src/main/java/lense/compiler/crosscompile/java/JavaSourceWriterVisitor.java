@@ -72,7 +72,10 @@ import lense.compiler.type.TypeDefinition;
 import lense.compiler.type.variable.CalculatedTypeVariable;
 import lense.compiler.type.variable.DeclaringTypeBoundedTypeVariable;
 import lense.compiler.type.variable.FixedTypeVariable;
+import lense.compiler.type.variable.GenericTypeBoundToDeclaringTypeVariable;
 import lense.compiler.type.variable.IntervalTypeVariable;
+import lense.compiler.type.variable.MethodFreeTypeVariable;
+import lense.compiler.type.variable.RangeTypeVariable;
 import lense.compiler.type.variable.TypeVariable;
 import lense.compiler.typesystem.Imutability;
 import lense.compiler.typesystem.LenseTypeSystem;
@@ -264,7 +267,7 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 				return VisitorNext.Siblings;
 			} else if (node instanceof LiteralIntervalNode) {
 				LiteralIntervalNode interval = (LiteralIntervalNode) node;
-			
+
 				writer.append("lense.core.math.Interval.constructor(");
 
 				if (interval.isStartInf()){
@@ -274,9 +277,9 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 					TreeTransverser.transverse( interval.getStart(), this);
 					writer.append(")");
 				}
-				
+
 				writer.append(",");
-				
+
 				if (interval.isEndInf()){
 					writer.append("lense.core.lang.None.None");
 				} else {
@@ -284,7 +287,7 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 					TreeTransverser.transverse( interval.getEnd(), this);
 					writer.append(")");
 				}
-				
+
 				writer.append(");");
 				return VisitorNext.Siblings;
 			} else if (node instanceof ClassTypeNode) {
@@ -328,11 +331,11 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 								generics.append("=");
 								break;
 							}
-							Optional<String> symbol = n.getTypeNode().getTypeParameter().getUpperbound().getSymbol();
+							Optional<String> symbol = n.getTypeNode().getTypeParameter().getUpperBound().getSymbol();
 							if (!symbol.isPresent()){
 								symbol = Optional.of(LenseTypeSystem.Any().getName());
 							} 
-							
+
 							generics.append(n.getTypeNode().getName()).append("<")
 							.append(symbol.get());
 						}
@@ -344,7 +347,7 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 
 						generics.append(t.getSuperType().getTypeVariable().getTypeDefinition().getName()).append("<");
 						for ( IntervalTypeVariable p : t.getSuperType().getTypeVariable().getTypeDefinition().getGenericParameters()){
-							generics.append(p.getSymbol().orElse(p.getUpperbound().getTypeDefinition().getName()));
+							generics.append(p.getSymbol().orElse(p.getUpperBound().getTypeDefinition().getName()));
 							generics.append(",");
 						}
 						generics.deleteCharAt(generics.length() - 1);
@@ -1048,53 +1051,64 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 					writer.println(")");
 				}
 
-				if(true){
-					writer.print("@lense.core.lang.java.MethodSignature( returnSignature = \"");
 
-					TypeVariable typeVar = m.getReturnType().getTypeVariable();
-					if (typeVar == null) {
-						writer.print(m.getReturnType().getName());
-					} else if (typeVar instanceof FixedTypeVariable ){
-						writer.print(typeVar.getTypeDefinition().getName());
-						if (typeVar.getTypeDefinition().isGeneric()){
-							writer.print("<");
-							boolean first = true;
-							for (IntervalTypeVariable a: typeVar.getTypeDefinition().getGenericParameters()){
-								if (!first){
-									writer.print(",");
-								}
-								first = false;
-								writer.print(a.getUpperbound().getSymbol().orElse(a.getUpperbound().getTypeDefinition().getName()));
+				writer.print("@lense.core.lang.java.MethodSignature( returnSignature = \"");
+
+				// signature is type<A,B>
+				TypeVariable typeVar = m.getReturnType().getTypeVariable();
+				if (typeVar == null) {
+					writer.print(m.getReturnType().getName());
+				} else if (typeVar instanceof FixedTypeVariable ){
+					writer.print(typeVar.getTypeDefinition().getName());
+					if (typeVar.getTypeDefinition().isGeneric()){
+						writer.print("<");
+						boolean first = true;
+						for (IntervalTypeVariable a: typeVar.getTypeDefinition().getGenericParameters()){
+							if (!first){
+								writer.print(",");
 							}
-							writer.print(">");
+							first = false;
+							
+							if (a instanceof GenericTypeBoundToDeclaringTypeVariable){
+								writer.print(a.getSymbol().get());
+							} else {
+								writer.print(a.getUpperBound().getSymbol().orElse(a.getUpperBound().getTypeDefinition().getName()));
+							}
 						}
-					} else if (typeVar instanceof CalculatedTypeVariable ){
+						writer.print(">");
+					}
+				}   else if (typeVar instanceof CalculatedTypeVariable ){
+					CalculatedTypeVariable c = (CalculatedTypeVariable)typeVar;
+					writer.print(c.getSymbol());
+				}  else if (typeVar instanceof RangeTypeVariable ){
+					RangeTypeVariable c = (RangeTypeVariable)typeVar;
+					writer.print(c.getSymbol());
+				} else {
+					throw new RuntimeException("Type signature is not defined for type variable " + typeVar.getClass().getName());
+				}
+
+				writer.print("\" , paramsSignature = \"");
+
+				boolean isFirst = true;
+				for(AstNode p : m.getParameters().getChildren()){
+					FormalParameterNode t = ((FormalParameterNode)p);
+
+					if (!isFirst){
+						writer.print(",");
+					}
+					isFirst = false;
+					typeVar =	t.getTypeVariable();
+					if (typeVar instanceof CalculatedTypeVariable ){
 						CalculatedTypeVariable c = (CalculatedTypeVariable)typeVar;
 						writer.print(c.getSymbol());
-					} 
-
-					writer.print("\" , paramsSignature = \"");
-
-					boolean isFirst = true;
-					for(AstNode p : m.getParameters().getChildren()){
-						FormalParameterNode t = ((FormalParameterNode)p);
-
-						if (!isFirst){
-							writer.print(",");
-						}
-						isFirst = false;
-						typeVar =	t.getTypeVariable();
-						if (typeVar instanceof CalculatedTypeVariable ){
-							CalculatedTypeVariable c = (CalculatedTypeVariable)typeVar;
-							writer.print(c.getSymbol());
-						} else {
-							writer.print("_");
-						}
+					} else {
+						writer.print("_");
 					}
-
-					writer.print("\")\n");
-
 				}
+
+				writer.print("\")\n");
+
+
 				writeVisibility(m.getVisibility());
 
 				if (m.isAbstract()){
@@ -1113,7 +1127,7 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 				writer.print("(");
 
 				if (m.getParameters() != null) {
-					boolean isFirst = true;
+					isFirst = true;
 					for (AstNode n : m.getParameters().getChildren()) {
 						FormalParameterNode p = (FormalParameterNode) n;
 
@@ -1193,7 +1207,7 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 			DeclaringTypeBoundedTypeVariable d = (DeclaringTypeBoundedTypeVariable)p;
 			generics.append(typeDefinition.getGenericParameterSymbolByIndex(d.getIndex()));
 		} else if (p instanceof IntervalTypeVariable){
-			appendGenerics(generics, typeDefinition, ((IntervalTypeVariable)p).getUpperbound());
+			appendGenerics(generics, typeDefinition, ((IntervalTypeVariable)p).getUpperBound());
 		} else {
 			TypeDefinition td = p.getTypeDefinition();
 			generics.append(td.getName());
@@ -1240,7 +1254,7 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 		} else {
 			final TypeVariable type = t.getTypeVariable();
 			if (type == null) {
-				TypeVariable upper = t.getTypeParameter().getUpperbound();
+				TypeVariable upper = t.getTypeParameter().getUpperBound();
 
 				writer.print(upper.getTypeDefinition().getName());
 
@@ -1253,9 +1267,9 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 			} else {
 				IntervalTypeVariable interval = ((IntervalTypeVariable) type);
 				writer.print(interval.getSymbol());
-				if (!interval.getSymbol().equals(interval.getUpperbound().getSymbol())) {
+				if (!interval.getSymbol().equals(interval.getUpperBound().getSymbol())) {
 					writer.print(" extends ");
-					writer.print(interval.getUpperbound().getTypeDefinition().getName());
+					writer.print(interval.getUpperBound().getTypeDefinition().getName());
 				}
 
 			}

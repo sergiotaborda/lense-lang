@@ -1,6 +1,6 @@
 package lense.core.collections;
 
-@lense.core.lang.java.Signature("[=T<Optional.empty]::lense.core.collections.Sequence<T>")
+@lense.core.lang.java.Signature("[=T<lense.core.lang.Any]::lense.core.collections.Sequence<T>")
 public   abstract interface EditableSequence extends lense.core.collections.Sequence , lense.core.lang.Any{
 	
 @lense.core.lang.java.Property( indexed = true)

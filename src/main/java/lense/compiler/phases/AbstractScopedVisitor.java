@@ -20,16 +20,10 @@ public abstract class AbstractScopedVisitor extends AbstractLenseVisitor  {
 
 	
 	@Override
-	public void startVisit() {
-		// TODO Auto-generated method stub
-		
-	}
+	public void startVisit() {}
 
 	@Override
-	public void endVisit() {
-		// TODO Auto-generated method stub
-		
-	}
+	public void endVisit() {}
 
 	/**
 	 * {@inheritDoc}

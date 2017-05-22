@@ -13,4 +13,8 @@ public class Interval<T> implements Category<T> { // TODO T extends Comparable
 	public contains ( other : T)  {
 		return false; // TODO
 	}
+	
+	public asString() : String {
+		return start.asString() + " to " + end.asString(); 
+	}	
 }
