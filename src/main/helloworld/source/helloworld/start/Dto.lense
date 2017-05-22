@@ -9,6 +9,15 @@ public class Dto {
 
   	public name : String? {}
   	public age : Integer {} = 2;
-  	public address : String? {}
+  	public address : String? {
+  		get {
+  			// direct access to backing field
+  			return address;
+  		}
+  		set (value) {
+  			// direct access to backing field
+  			this.address = value;
+  		}
+  	}
   	public matrix : Matrix<String>? {}
 }

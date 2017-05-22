@@ -18,6 +18,8 @@ public class MethodInvocationNode extends NeedTypeCalculationNode {
 	
 	private boolean propertyDerivedMethod;
 	private boolean indexDerivedMethod;
+	private String propertyName;
+	private PropertyOperation propertyOperation;
 	
 	public MethodInvocationNode (){}
 	
@@ -94,6 +96,19 @@ public class MethodInvocationNode extends NeedTypeCalculationNode {
 			this.propertyDerivedMethod = true;
 		}
 	}
-	
 
+	public void setPropertyOperation(PropertyOperation propertyOperation) {
+		this.propertyOperation = propertyOperation;
+	}
+	public PropertyOperation getPropertyOperation() {
+		return this.propertyOperation;
+	}
+	
+	public void setPropertyDerivedName(String propertyName) {
+		this.propertyName = propertyName;
+	}
+	
+	public String getPropertyDerivedName() {
+		return this.propertyName;
+	}
 }
