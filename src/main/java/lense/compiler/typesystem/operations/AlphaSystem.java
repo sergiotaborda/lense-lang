@@ -105,6 +105,13 @@ public class AlphaSystem implements System{
                     return false;
                 
             }
+        } else if (a instanceof FunctionType){
+            FunctionType f = (FunctionType)a;
+            if (b instanceof FunctionType){
+                FunctionType g = (FunctionType)b;
+                return isSubType(f.getReturn().simplify(this), g.getReturn().simplify(this))
+                        && isSubType(g.getArgumentType().simplify(this), f.getArgumentType().simplify(this));
+            }
         }
         
         return false;
@@ -117,6 +124,13 @@ public class AlphaSystem implements System{
         if (a.getClass().isAssignableFrom(b.getClass())){
             if (a instanceof ConcreteType){
                 return ((ConcreteType)a).getName().equals(((ConcreteType)b).getName());
+                
+            } else if (a instanceof FunctionType){
+                FunctionType f = (FunctionType)a;
+                FunctionType g = (FunctionType)b;
+                
+                return areEqual(f.getReturn(), g.getReturn()) && areEqual(f.getArgumentType(), g.getArgumentType());
+                
             } else if (a instanceof CompositeType){
                 List x =  ((CompositeType)a).composition;
                 List y =  ((CompositeType)b).composition;

@@ -17,6 +17,14 @@ public class FunctionType implements Type{
         this.argumentType = new ProductType(Arrays.asList(arguments));
     }
     
+    public Type getReturn(){
+        return returnType;
+    }
+    
+    public Type getArgumentType(){
+        return argumentType;
+    }
+    
     @Override
     public Type or(Type other) {
         if (other instanceof FunctionType){

@@ -34,6 +34,7 @@ public class TestTypeSystem {
         assertSubType(system, C , K);
   
         assertNotSubType(system, I , C);
+        assertNotSubType(system, B , C);
     }
     
     @Test
@@ -41,9 +42,14 @@ public class TestTypeSystem {
         
         System system = new AlphaSystem();
         
+        Type I = new ConcreteType("I");
+        Type K = new ConcreteType("K");
+        
         Type A = new ConcreteType("A");
         Type B = new ConcreteType("B", A);
+
         Type C = new ConcreteType("C");
+        Type D = new ConcreteType("D", C, I, K );
         
         Type intersect = A.and(A).and(A);
         Type simplified = intersect.simplify(system);
@@ -77,13 +83,19 @@ public class TestTypeSystem {
         simplified = intersectWithFinalSubtypeAndOther.simplify(system);
         
         assertEquals( system , BottomType.instance(), simplified);
-        
-       
-        
+
         assertSubType(system,  B.and(C),  A.and(C));
         assertSubType(system,  B.and(C),  C.and(A));
         assertSubType(system,  C.and(B),  A.and(C));
         assertSubType(system,  C.and(B),  C.and(A));
+        
+        assertSubType(system,  C.and(A),  C);
+        assertSubType(system,  C.and(A),  A);
+        
+        assertSubType(system,  A ,  A);
+        
+        assertSubType(system,  D ,  I.and(K));
+
     }
     
     @Test
@@ -168,6 +180,31 @@ public class TestTypeSystem {
                 new UnionType(new ProductType(C, A) , new ProductType(C, B)), 
                 W
         );
+        
+    }
+    
+    @Test
+    public void testFunction() {
+        
+        System system = new AlphaSystem();
+        
+        
+        Type S = new ConcreteType("S");
+        Type R = new ConcreteType("R",S);
+        Type A = new ConcreteType("A");
+        Type B = new ConcreteType("B", A);
+       
+        Type f = new FunctionType(R, A);
+        Type g = new FunctionType(S, B);
+        
+        assertSubType(system , f, g);
+        assertNotSubType(system , g, f);
+        
+        Type r = new FunctionType(R, A);
+        Type s = new FunctionType(S, A);
+        
+        assertSubType(system , r, s);
+        assertNotSubType(system , s, r);
         
     }
     
