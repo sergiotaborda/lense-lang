@@ -1,9 +1,0 @@
-
-import lense.core.lang.Boolean;
-
-public interface Iterator<out T> {
-
-	public moveNext() : Boolean;
-	public current() : T; 
-	
-} 

@@ -1,0 +1,9 @@
+
+import lense.core.math.Real;
+import lense.core.math.Integer;
+
+public native class Rational extends Real {
+
+	public native constructor ( n : Integer , d  :Integer);
+
+}

@@ -1,6 +1,0 @@
-
-import lense.core.math.Comparison;
-
-public native object Greater extends Comparison {
-
-}

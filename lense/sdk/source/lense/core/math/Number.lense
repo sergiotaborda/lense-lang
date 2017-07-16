@@ -1,0 +1,11 @@
+
+import lense.core.lang.String;
+
+/{
+	Represents a mathematical quantity.
+	Number as no properties, operations and is not comparable. 
+}/
+public native class Number {
+
+
+}

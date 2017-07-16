@@ -1,0 +1,8 @@
+
+import lense.core.math.Number;
+import lense.core.math.Real;
+
+
+public native abstract class Imaginary extends Number implements Comparable<Imaginary> {
+
+}

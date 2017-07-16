@@ -1,0 +1,11 @@
+
+import lense.core.math.Natural;
+import lense.core.lang.Boolean;
+import lense.core.lang.Any;
+
+public interface Countable {
+
+	public size : Natural {get;} 
+	public empty : Boolean {get;}
+	
+}

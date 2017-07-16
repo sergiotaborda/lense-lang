@@ -1,8 +1,0 @@
-
-import lense.core.math.Number;
-import lense.core.math.Imaginary;
-import lense.core.math.Real;
-
-public native class Complex extends Number {
-
-}

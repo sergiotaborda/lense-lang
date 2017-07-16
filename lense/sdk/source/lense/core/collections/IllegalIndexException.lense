@@ -1,0 +1,7 @@
+
+import lense.core.lang.Exception;
+
+public class IllegalIndexException extends Exception {
+
+	
+} 
