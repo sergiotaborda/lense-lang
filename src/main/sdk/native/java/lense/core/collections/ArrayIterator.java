@@ -13,14 +13,14 @@ public class ArrayIterator implements Iterator {
 	}
 	
 	@Override
-	public boolean hasNext() {
-		return index < array.length - 1;
+	public boolean moveNext() {
+		return ++index < array.length - 1;
 	}
 
 	@Override
-	public Any next() {
-		index++;
-		if (index >= array.length){
+	public Any current() {
+		
+		if (index < 0 || index >= array.length){
 			throw IllegalIndexException.constructor();
 		}
 		return array[index];

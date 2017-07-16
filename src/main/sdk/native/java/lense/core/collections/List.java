@@ -1,7 +1,6 @@
 package lense.core.collections;
 
 import lense.core.lang.Any;
-import lense.core.lang.Boolean;
 import lense.core.lang.java.Constructor;
 import lense.core.lang.java.Property;
 import lense.core.lang.java.Signature;
@@ -32,8 +31,8 @@ public class List extends AbstractAssortment implements ResizableSequence {
 
 		List array = new List(seq.getSize());
 		Iterator iterator = seq.getIterator();
-		while (iterator.hasNext()) {
-			array.add(iterator.next());
+		while (iterator.moveNext()) {
+			array.add(iterator.current());
 		}
 		return array;
 	}

@@ -14,12 +14,12 @@ class IteratorsAdapter implements Iterator<Any> {
 
 	@Override
 	public boolean hasNext() {
-		return iterable.hasNext();
+		return iterable.moveNext();
 	}
 
 	@Override
 	public Any next() {
-		return iterable.next();
+		return iterable.current();
 	}
 
 }

@@ -10,15 +10,19 @@ public abstract class AbstractAssortment extends Base implements Assortment {
 	public lense.core.lang.String asString(){
 		Iterator it = this.getIterator();
 		lense.core.lang.String result = lense.core.lang.String.valueOfNative("[");
+		boolean isFirst = true;
 		
-		while(it.hasNext()){
-			Any value = it.next();
+		while(it.moveNext()){
+			if (!isFirst){
+				result= result.plus(lense.core.lang.String.valueOfNative(","));
+			} else {
+				isFirst = false;
+			}
+			
+			Any value = it.current();
 			
 			result = result.plus(value.asString());
 		
-			if (it.hasNext()){
-				result= result.plus(lense.core.lang.String.valueOfNative(","));
-			}
 		}
 		result = result.plus(lense.core.lang.String.valueOfNative("]"));
 		return result;

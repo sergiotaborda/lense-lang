@@ -1,4 +1,5 @@
 Change Iterator to move + current
+Change + string operator to ++
 Indexes
 	allow more than one parameter (DONE)
 Remove 

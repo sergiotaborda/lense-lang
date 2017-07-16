@@ -18,8 +18,8 @@ public class LinkedList extends AbstractAssortment implements ResizableSequence 
 		
 		LinkedList array = new LinkedList();
 		Iterator iterator = seq.getIterator();
-		while(iterator.hasNext()){
-			array.add(iterator.next());
+		while(iterator.moveNext()){
+			array.add(iterator.current());
 		}
 		return array;
 	}

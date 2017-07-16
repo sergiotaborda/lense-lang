@@ -20,18 +20,24 @@ public class BigIterator implements Iterator {
 	}
 
 	@Override
-	public boolean hasNext() {
-		return  current == null || current.add(this.nativeBigIntegerProgression.step).compareTo(this.nativeBigIntegerProgression.end) <= 0;
-	}
-
-	@Override
-	public Any next() {
+	public boolean moveNext() {
 		if (current == null){
 			current = start;
 		} else {
-			current = current.add(this.nativeBigIntegerProgression.step);
+			BigInteger newValue = current.add(this.nativeBigIntegerProgression.step);
+			
+			if(newValue.compareTo(this.nativeBigIntegerProgression.end) <= 0){
+				current = newValue;
+			} else {
+				return false;
+			}
 		}
 		
+		return true;
+	}
+
+	@Override
+	public Any current() {
 		return Natural.valueOf(current);
 	}
 	

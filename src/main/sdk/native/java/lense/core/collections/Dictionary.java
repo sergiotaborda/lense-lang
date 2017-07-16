@@ -35,8 +35,8 @@ public class Dictionary implements Association {
 	@Override
 	public boolean containsAll(Assortment other) {
 		Iterator it = other.getIterator();
-		while(it.hasNext()){
-			if (!this.contains(it.next())){
+		while(it.moveNext()){
+			if (!this.contains(it.current())){
 				return false;
 			}
 		}

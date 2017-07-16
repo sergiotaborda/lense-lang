@@ -1,7 +1,6 @@
 package lense.core.collections;
 
 import lense.core.lang.Any;
-import lense.core.lang.Boolean;
 import lense.core.lang.java.Native;
 import lense.core.math.Natural;
 
@@ -22,15 +21,17 @@ class NativeIterator implements Iterator{
 	}
 	
 	@Override
-	public boolean hasNext() {
-		return !current.equalsTo(last);
+	public boolean moveNext() {
+		if (!current.equalsTo(last)){
+			current = current.successor();
+			return true;
+		}
+		return false;
 	}
 
 	@Override
-	public Any next() {
-		Any value = current;
-		current = current.successor();
-		return value;
+	public Any current() {		
+		return current;
 	}
 	
 }

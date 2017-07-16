@@ -14,14 +14,17 @@ public class BooleanArrayIterator implements Iterator {
 	}
 	
 	@Override
-	public boolean hasNext() {
-		return index < array.length - 1;
+	public boolean moveNext() {
+		if (index < array.length - 1){
+			index++;
+			return true;
+		}
+		return false;
 	}
 
 	@Override
-	public Any next() {
-		index++;
-		if (index >= array.length){
+	public Any current() {
+		if (index < 0 || index >= array.length){
 			throw IllegalIndexException.constructor();
 		}
 		return Boolean.valueOfNative(array[index]);

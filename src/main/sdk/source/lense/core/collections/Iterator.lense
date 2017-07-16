@@ -3,7 +3,7 @@ import lense.core.lang.Boolean;
 
 public interface Iterator<out T> {
 
-	public hasNext() : Boolean;
-	public next() : T; // TODO transform to properties avoids clash with java
+	public moveNext() : Boolean;
+	public current() : T; 
 	
 } 

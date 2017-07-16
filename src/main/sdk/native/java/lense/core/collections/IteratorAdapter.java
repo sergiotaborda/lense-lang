@@ -1,24 +1,35 @@
 package lense.core.collections;
 
 import lense.core.lang.Any;
+import lense.core.lang.IllegalIndexException;
 
 public class IteratorAdapter implements Iterator{
 
 	
-	private java.util.Iterator<? extends Any> original;
+	private final java.util.Iterator<? extends Any> original;
+	private Any current = null;
+	private boolean started = false;
 
 	public IteratorAdapter (java.util.Iterator<? extends Any> original){
 		this.original = original;
 	}
 	
 	@Override
-	public boolean hasNext() {
-		return original.hasNext();
+	public boolean moveNext() {
+		if( original.hasNext()){
+			started = true;
+			current =  original.next();
+		}
+		return false;
 	}
 
 	@Override
-	public Any next() {
-		return original.next();
+	public Any current() {
+		
+		if (!started){
+			throw IllegalIndexException.constructor();
+		}
+		return current;
 	}
 
 }

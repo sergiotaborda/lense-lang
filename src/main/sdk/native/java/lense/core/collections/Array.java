@@ -55,8 +55,8 @@ public abstract class Array extends AbstractAssortment implements EditableSequen
 		NativeObjectArray array = new NativeObjectArray(seq.getSize());
 		Iterator iterator = seq.getIterator();
 		int i=0;
-		while(iterator.hasNext()){
-			array.setPrimitive(i++, iterator.next());
+		while(iterator.moveNext()){
+			array.setPrimitive(i++, iterator.current());
 		}
 		return array;
 	}
