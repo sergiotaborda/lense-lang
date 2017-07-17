@@ -48,7 +48,7 @@ public class BitArray implements Binary {
 	}	
 	
 	public equalsTo(other: Any) : Boolean{
-		return false; //TODO other is BitArray && other.bits.equalsTo(this.bits);
+		return other is BitArray && other.bits.equalsTo(this.bits);
 	}
 
 	public hashValue():  Integer{

@@ -15,6 +15,7 @@ public class ExplicitBackingFieldReferenceVisitor extends AbstractLenseVisitor{
 	
 	private String propertyName;
 	private FieldOrPropertyAccessNode backingField;
+    private boolean replacedProperty;
 
 	public ExplicitBackingFieldReferenceVisitor(String propertyName, FieldOrPropertyAccessNode backingField) {
 		this.propertyName = propertyName;
@@ -54,6 +55,7 @@ public class ExplicitBackingFieldReferenceVisitor extends AbstractLenseVisitor{
 	                    assign.setRight((ExpressionNode) prp.getCall().getFirstChild().getFirstChild().getFirstChild());
 	                    prp.getParent().replace(prp, assign);
 	                }
+				    replacedProperty = true;
 				}
 			}
 		}
@@ -71,6 +73,10 @@ public class ExplicitBackingFieldReferenceVisitor extends AbstractLenseVisitor{
         }
         
         return false;
+    }
+
+    public boolean didReplacedProperty() {
+        return replacedProperty;
     }
 
 
