@@ -13,6 +13,14 @@ public class TestTypeSystem {
         assertTrue( "Nothing is not equal to it self ", system.areEqual(BottomType.instance(), BottomType.instance()));
     }
     
+    @Test
+    public void testBoundType() {
+        System system = new AlphaSystem();
+        
+        Type A = BoundedType.within(TopType.instance(), BottomType.instance()).simplify(system);
+        
+        assertTrue(system.areEqual(A, BottomType.instance()));
+    }
     
     @Test
     public void testInheritance() {

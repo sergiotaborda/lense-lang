@@ -36,7 +36,6 @@ import lense.compiler.ast.TypedNode;
 import lense.compiler.ast.VariableReadNode;
 import lense.compiler.context.SemanticContext;
 import lense.compiler.context.VariableInfo;
-import lense.compiler.type.MethodParameter;
 import lense.compiler.type.variable.FixedTypeVariable;
 import lense.compiler.type.variable.TypeVariable;
 import lense.compiler.typesystem.Imutability;
@@ -196,6 +195,9 @@ public class DesugarPropertiesVisitor extends AbstractLenseVisitor{
 			backingField.setPrimary(new QualifiedNameNode("this"));
 		
 			if (prp.getAcessor() != null){
+			    
+			    
+			    
 				AccessorNode a = prp.getAcessor();
 
 
@@ -307,6 +309,8 @@ public class DesugarPropertiesVisitor extends AbstractLenseVisitor{
 					invokeSet.setPropertyDerivedName(propertyName);
 					invokeSet.setPropertyOperation(PropertyOperation.WRITE);
 					invokeSet.setTypeVariable(new FixedTypeVariable(LenseTypeSystem.Void()));
+					invokeSet.setAccess(n.getPrimary());
+					
 					n.getParent().getParent().replace(n.getParent() , invokeSet);
 					
 				} else {
@@ -316,6 +320,8 @@ public class DesugarPropertiesVisitor extends AbstractLenseVisitor{
 					invokeGet.setPropertyDerivedName(propertyName);
 					invokeGet.setPropertyOperation(PropertyOperation.READ);
 					invokeGet.setTypeVariable(n.getTypeVariable());
+					invokeGet.setAccess(n.getPrimary());
+					   
 					n.getParent().replace(node, invokeGet);
 				}
 			}

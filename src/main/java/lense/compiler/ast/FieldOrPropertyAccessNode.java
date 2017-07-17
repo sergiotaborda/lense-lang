@@ -32,6 +32,10 @@ public class FieldOrPropertyAccessNode extends NeedTypeCalculationNode {
 		setName(name);
 		this.kind = FieldKind.FIELD;
 	}
+	
+	public String toString(){
+	    return (primary != null ? primary.toString() : "") + "." + name;
+	}
 
 	/**
 	 * @param string

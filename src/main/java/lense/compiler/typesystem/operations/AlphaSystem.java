@@ -28,7 +28,7 @@ public class AlphaSystem implements System{
             return true;
         } else if (a instanceof ConcreteType){
             ConcreteType c = (ConcreteType)a;
-            if (areEqual(c.getSuperType(), TopType.instance())){
+            if (c.getSuperType() == null || areEqual(c.getSuperType(), TopType.instance())){
                 return false;
             } else if (b instanceof ProductType){
                 List<Type> bTypes = ((ProductType)a).composition;

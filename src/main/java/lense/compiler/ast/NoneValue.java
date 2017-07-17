@@ -24,4 +24,8 @@ public class NoneValue extends LiteralExpressionNode {
 	public String getLiteralValue() {
 		return "null";
 	}
+	
+	  public String toString(){
+          return  "none";
+      }
 }

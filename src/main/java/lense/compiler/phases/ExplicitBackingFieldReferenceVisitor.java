@@ -9,6 +9,7 @@ import lense.compiler.ast.FieldOrPropertyAccessNode;
 import lense.compiler.ast.MethodInvocationNode;
 import lense.compiler.ast.PropertyOperation;
 import lense.compiler.context.SemanticContext;
+import lense.compiler.ast.VariableReadNode;
 
 public class ExplicitBackingFieldReferenceVisitor extends AbstractLenseVisitor{
 	
@@ -41,21 +42,36 @@ public class ExplicitBackingFieldReferenceVisitor extends AbstractLenseVisitor{
 		
 		if (node instanceof MethodInvocationNode){
 			MethodInvocationNode prp = (MethodInvocationNode)node;
+			// the property only matches if the acessor is local
 			if (prp.isPropertyDerivedMethod() && prp.getPropertyDerivedName().equalsIgnoreCase(propertyName)){
-				
-				if (prp.getPropertyOperation() == PropertyOperation.READ){
-					prp.getParent().replace(prp, backingField);
-				} else {
-					AssignmentNode assign = new AssignmentNode(Operation.SimpleAssign);
-					
-					assign.setLeft(backingField);
-					assign.setRight((ExpressionNode) prp.getCall().getFirstChild().getFirstChild().getFirstChild());
-					prp.getParent().replace(prp, assign);
+				if (isLocal(prp.getAccess())){
+				    if (prp.getPropertyOperation() == PropertyOperation.READ){
+	                    prp.getParent().replace(prp, backingField);
+	                } else {
+	                    AssignmentNode assign = new AssignmentNode(Operation.SimpleAssign);
+	                    
+	                    assign.setLeft(backingField);
+	                    assign.setRight((ExpressionNode) prp.getCall().getFirstChild().getFirstChild().getFirstChild());
+	                    prp.getParent().replace(prp, assign);
+	                }
 				}
 			}
 		}
 		
 	}
+
+    private boolean isLocal(AstNode access) {
+        if (access == null){
+            return true;
+        } else if (access instanceof VariableReadNode){
+            VariableReadNode var = (VariableReadNode)access;
+            if (var.getName().equalsIgnoreCase("this") || var.getName().equalsIgnoreCase("super")){
+                return true;
+            }
+        }
+        
+        return false;
+    }
 
 
 
