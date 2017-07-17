@@ -1,4 +1,4 @@
-package lense.compiler.typesystem.operations;
+package lense.compiler.typesystem.labels;
 
 import java.util.Collection;
 import java.util.LinkedList;

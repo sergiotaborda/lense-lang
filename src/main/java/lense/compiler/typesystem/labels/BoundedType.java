@@ -1,4 +1,4 @@
-package lense.compiler.typesystem.operations;
+package lense.compiler.typesystem.labels;
 
 public class BoundedType implements Type{
 

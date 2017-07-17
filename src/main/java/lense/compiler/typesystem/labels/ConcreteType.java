@@ -1,4 +1,4 @@
-package lense.compiler.typesystem.operations;
+package lense.compiler.typesystem.labels;
 
 import java.util.Arrays;
 import java.util.List;

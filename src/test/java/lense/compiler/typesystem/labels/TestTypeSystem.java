@@ -1,8 +1,19 @@
-package lense.compiler.typesystem.operations;
+package lense.compiler.typesystem.labels;
 
 import static org.junit.Assert.*;
 
 import org.junit.Test;
+
+import lense.compiler.typesystem.labels.AlphaSystem;
+import lense.compiler.typesystem.labels.BottomType;
+import lense.compiler.typesystem.labels.BoundedType;
+import lense.compiler.typesystem.labels.ConcreteType;
+import lense.compiler.typesystem.labels.FunctionType;
+import lense.compiler.typesystem.labels.ProductType;
+import lense.compiler.typesystem.labels.System;
+import lense.compiler.typesystem.labels.TopType;
+import lense.compiler.typesystem.labels.Type;
+import lense.compiler.typesystem.labels.UnionType;
 
 public class TestTypeSystem {
 
