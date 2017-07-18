@@ -14,7 +14,7 @@ public class ArrayIterator implements Iterator {
 	
 	@Override
 	public boolean moveNext() {
-		return ++index < array.length - 1;
+		return ++index < array.length;
 	}
 
 	@Override

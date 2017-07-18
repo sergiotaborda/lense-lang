@@ -58,7 +58,7 @@ public class BitArray implements Binary {
 
 	public size : Natural {
 		get{
-			return bits.size;
+			return this.bits.size;
 		}
 	} 
 	

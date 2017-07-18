@@ -13,16 +13,20 @@ class NativeIterator implements Iterator{
 	private final NativeNaturalProgression nativeNaturalProgression;
 	private Natural current;
 	private Natural last;
-	
-	NativeIterator(NativeNaturalProgression nativeNaturalProgression, Natural current){
+	private Natural first;
+
+	NativeIterator(NativeNaturalProgression nativeNaturalProgression, Natural first){
 		this.nativeNaturalProgression = nativeNaturalProgression;
-		this.current = current;
-		this.last = this.nativeNaturalProgression.end.successor();
+		this.first = first;
+		this.last = this.nativeNaturalProgression.end;
 	}
 	
 	@Override
 	public boolean moveNext() {
-		if (!current.equalsTo(last)){
+		if (current == null){
+			current = first;
+			return true;
+		} else if (!current.equalsTo(last)){
 			current = current.successor();
 			return true;
 		}

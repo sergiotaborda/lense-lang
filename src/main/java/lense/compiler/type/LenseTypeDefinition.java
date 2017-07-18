@@ -11,6 +11,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -30,7 +31,7 @@ public class LenseTypeDefinition implements TypeDefinition {
 
 	private String name;
 	private TypeKind kind;
-	private List<TypeMember> members = new ArrayList<TypeMember>();
+	private List<TypeMember> members = new CopyOnWriteArrayList<TypeMember>();
 	private List<TypeDefinition> interfaces = new ArrayList<TypeDefinition>();
 	private List<IntervalTypeVariable> genericParameters;
 	private Map<String , Integer> genericParametersMapping = new HashMap<>();

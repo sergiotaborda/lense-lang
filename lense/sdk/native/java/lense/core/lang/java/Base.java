@@ -13,7 +13,7 @@ public class Base implements Any{
 	
 	@Override @Native
 	public final boolean equals(Object other){
-		return other instanceof Any && super.equals(other);
+		return other instanceof Any && this.equalsTo((Any)other);
 	}
 	
 	@Override @Native

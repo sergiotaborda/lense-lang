@@ -307,15 +307,22 @@ public class DesugarPropertiesVisitor extends AbstractLenseVisitor{
 					invokeSet.setPropertyDerivedName(propertyName);
 					invokeSet.setPropertyOperation(PropertyOperation.WRITE);
 					invokeSet.setTypeVariable(new FixedTypeVariable(LenseTypeSystem.Void()));
+					invokeSet.setAccess(n.getPrimary());
+					
+					
 					n.getParent().getParent().replace(n.getParent() , invokeSet);
 					
 				} else {
+					
+		
 					// is read acesss
 					MethodInvocationNode invokeGet = new MethodInvocationNode(n.getPrimary(), "get" + propertyName);
 					invokeGet.setPropertyDerivedMethod(true);
 					invokeGet.setPropertyDerivedName(propertyName);
 					invokeGet.setPropertyOperation(PropertyOperation.READ);
 					invokeGet.setTypeVariable(n.getTypeVariable());
+					invokeGet.setAccess(n.getPrimary());
+					
 					n.getParent().replace(node, invokeGet);
 				}
 			}
