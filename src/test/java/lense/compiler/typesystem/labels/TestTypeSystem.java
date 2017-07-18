@@ -202,6 +202,34 @@ public class TestTypeSystem {
         
     }
     
+    
+    @Test
+    public void testRecord() {
+        
+        System system = new AlphaSystem();
+        
+        
+        RecordType A = new RecordType("A");
+        RecordType B = new RecordType("B");
+        ConcreteType C = new ConcreteType("C");
+        
+        Type P = new RecordType("P");
+        Type Q = new RecordType("Q");
+        
+        A.putMember("p", P);
+        A.putMember("q", Q);
+        
+        B.putMember("q", Q);
+        B.putMember("p", P);
+        
+        assertEquals(system , A, A);
+        assertEquals(system , B, B);
+        assertEquals(system , B, A);
+        assertEquals(system , A, B);
+
+        assertNotEquals(system , A, C);
+    }
+    
     @Test
     public void testFunction() {
         
@@ -229,6 +257,10 @@ public class TestTypeSystem {
     
     void assertEquals(System system, Type expected, Type obtained){
         assertTrue( expected + " is not equal to " + obtained, system.areEqual(expected, obtained));
+    }
+    
+    void assertNotEquals(System system, Type expected, Type obtained){
+        assertFalse( expected + " is equal to " + obtained, system.areEqual(expected, obtained));
     }
     
     void assertSubType(System system, Type a, Type b){

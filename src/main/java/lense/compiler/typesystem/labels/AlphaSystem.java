@@ -1,10 +1,8 @@
 package lense.compiler.typesystem.labels;
 
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -125,6 +123,28 @@ public class AlphaSystem implements System{
             if (a instanceof ConcreteType){
                 return ((ConcreteType)a).getName().equals(((ConcreteType)b).getName());
                 
+            } else if (a instanceof RecordType){
+                RecordType r = (RecordType)a;
+               
+                if (b instanceof RecordType){
+                    RecordType s = (RecordType)b;
+                    if (r.members().size() != s.members().size()){
+                        return false;
+                    }
+                    
+                    for (TypeMember m : r.members()){
+                        TypeMember k  = s.getMember(m.getName());
+                        
+                        if (k == null || !areEqual(k.getType(), m.getType())){
+                            return false;
+                        }
+                    }
+                    
+                    return true;
+                    
+                } else {
+                    return false;
+                }
             } else if (a instanceof FunctionType){
                 FunctionType f = (FunctionType)a;
                 FunctionType g = (FunctionType)b;

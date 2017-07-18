@@ -59,7 +59,7 @@ public class ConcreteType implements Type {
     
     @Override
     public Type simplify(System system) {
-        return this;
+        return system.reduce(this);
     }
 
     public String toString(){

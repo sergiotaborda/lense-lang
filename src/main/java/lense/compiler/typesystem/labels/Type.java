@@ -1,5 +1,6 @@
 package lense.compiler.typesystem.labels;
 
+import java.util.List;
 
 public interface Type {
 
@@ -20,5 +21,7 @@ public interface Type {
     }
     
     public boolean isFinal();
+    
+
 }
 
