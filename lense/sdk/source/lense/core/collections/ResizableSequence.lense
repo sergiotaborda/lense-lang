@@ -1,0 +1,10 @@
+
+import lense.core.lang.Void;
+import lense.core.math.Natural;
+import lense.core.collections.Sequence;
+
+public interface ResizableSequence<T> extends EditableSequence<T> {
+
+	public add(element: T): Void;
+	public remove(element: T): Void;
+} 

@@ -1,0 +1,7 @@
+
+import lense.core.math.Comparison;
+
+public interface Comparable <in T> {
+
+	public compareTo (other : T) : Comparison;
+}

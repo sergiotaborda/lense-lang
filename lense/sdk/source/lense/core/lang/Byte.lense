@@ -1,0 +1,15 @@
+
+import lense.core.lang.Binary;
+import lense.core.math.Integer;
+import lense.core.math.Natural;
+
+public native class Byte implements Binary {
+
+	public native implicit constructor valueOf ( n: Binary);
+
+	public native toInteger() : Integer;
+	
+	public native toNatural() : Natural;
+	
+	public native flipAll() : Byte; // Covariante overload
+}

@@ -1,5 +1,41 @@
+Change Iterator to move + current
+Change + string operator to ++
 Indexes
 	allow more than one parameter (DONE)
+Remove 
+	function keyword
+Erase
+	Maybe<Boolean> to java.Boolean
+	String and String? 
+	Errasue of IntXYZ inside limits 
+		Needs auto limit verification
+Imutability
+	save as an annotation, handle as a type
+Generics
+ 	Add generic signatures to constructors
+	Capture generics locally (when calling constructors and methods with free generics)
+	Pass capture to methods and constructors
+	T extends X , T super X
+	resolve generics problem of adding list to a list (and a sequence to a sequence)
+	Generate GenericSignatures (DONE)
+	Need GenericType lock to the classe type or method generic defenition
+	
+	Diferenciate ReferenceType and TypeVar 
+	ReferenceType = ClassOrInterfaceType | ArrayType
+	
+	to
+	
+	ReferenceType = ClassOrInterfaceType | ArrayType | TypeVar
+	TypeVar = Identifier
+	ClassOrInterfaceType = ClassOrInterface { < TypeParameters > }
+	ClassOrInterface = Identifier | ClassOrInterfaceType . Identifier
+Flow Sensitive Typing
+	if (DONE)
+	switch
+	assert
+Deconstructing
+Difference between val and var
+	maybe yse let and variable
 Tuples (BNF) and void
 	() === void
 	call methods on void
@@ -7,10 +43,13 @@ Implement Properties
 	in interfaces (DONE)
 	validate all non nullable properties are inicialized
 	do delegation    size {get = list.size}   or size => list.size
-
 Types
 	inference and optional types
 	infere optional : Void for methods (DONE)
+	genrics types of genrica types T<U>
+Reification
+	Generics
+	Expression
 Reflection
 	Type<T> class
 	typeof operator
@@ -33,12 +72,7 @@ Constructors
 Auto-package
 	accept classes in lense.core automatically 
 	accept classes in the same module automatically
-Generics
- 	Add generic signatures to constructors
-	Capture generics locally (when calling constructors and methods with free generics)
-	Pass capture to methods and constructors
-	T extends X , T super X
-	resolve generics problem of adding list to a list (and a sequence to a sequence)
+
 Operators
 	?.
 	+ , - , *  ==> these will throw OverflowException  <=> AddExact, SubtractExact, MultiplyExact.
@@ -148,19 +182,7 @@ Static reading
 		in java "Companion" is a static field in "Console". Companion is a singleton but is not a singleton of the given class. it was its own class.
 		Alternativly "Console" is the name of an object. In this case if "console" exists in package lang.io there will be a class named "IO$Package" and
 		static field of type Console on it so "Console.println" would be IO$Package.Console.println" 
-Generics
-	Generate GenericSignatures (DONE)
-	Need GenericType lock to the classe type or method generic defenition
-	
-	Diferenciate ReferenceType and TypeVar 
-	ReferenceType = ClassOrInterfaceType | ArrayType
-	
-	to
-	
-	ReferenceType = ClassOrInterfaceType | ArrayType | TypeVar
-	TypeVar = Identifier
-	ClassOrInterfaceType = ClassOrInterface { < TypeParameters > }
-	ClassOrInterface = Identifier | ClassOrInterfaceType . Identifier
+
 Maybe<T> cannot be Maybe<Maybe<T>> . What appends if T <: Any and Maybe<T> <: Any ?
 	Introduce more super types in the hierarchy. Consider renaming  Maybe<T> to Reference<T> 
 			Any 

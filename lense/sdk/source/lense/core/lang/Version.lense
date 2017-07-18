@@ -1,0 +1,17 @@
+
+import lense.core.math.Natural;
+import lense.core.lang.String;
+
+public class Version {
+
+    public val major : Natural;
+    public val minor : Natural;
+    public val revision : Natural;
+
+	public constructor ( str : String){
+		// TODO 
+		return new Version(0,0,0);
+	}
+	
+	public constructor ( major: Natural,  minor : Natural, revision : Natural);
+} 

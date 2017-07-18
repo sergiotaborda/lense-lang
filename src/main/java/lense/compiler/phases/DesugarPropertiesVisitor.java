@@ -321,6 +321,8 @@ public class DesugarPropertiesVisitor extends AbstractLenseVisitor{
                     n.getParent().getParent().replace(n.getParent() , invokeSet);
 
                 } else {
+					
+		
                     // is read acesss
                     MethodInvocationNode invokeGet = new MethodInvocationNode(n.getPrimary(), "get" + propertyName);
                     invokeGet.setPropertyDerivedMethod(true);

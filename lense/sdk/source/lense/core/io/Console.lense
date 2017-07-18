@@ -1,0 +1,9 @@
+
+import lense.core.lang.Void;
+import lense.core.lang.Any;
+
+public native class Console {
+
+	public native print( s: Any): Void;
+	public native println( s: Any): Void;
+}

@@ -1,7 +1,0 @@
-
-import lense.core.collections.Progression;
-
-public interface Progressable<A>  {
-
-	public  upTo(end: A) :  Progression<A>;
-}

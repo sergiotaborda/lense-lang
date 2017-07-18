@@ -1,0 +1,8 @@
+
+import lense.core.lang.Void;
+import lense.core.math.Natural;
+import lense.core.collections.ResizableSequence;
+
+public native class List<T> implements ResizableSequence<T> {
+
+} 

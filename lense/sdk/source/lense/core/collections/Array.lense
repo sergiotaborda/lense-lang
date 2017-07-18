@@ -1,0 +1,20 @@
+
+import lense.core.lang.Void;
+import lense.core.math.Natural;
+import lense.core.collections.List;
+import lense.core.collections.Sequence;
+import lense.core.collections.EditableSequence;
+import lense.core.collections.Progression;
+
+public native class Array<T> implements EditableSequence<T> {
+
+	public native implicit constructor (other: Sequence<T> );
+	
+	public native constructor ( size: Natural , seed: T);
+	
+	public native [index: Natural] : T { get; set;}
+	
+	public native size : Natural { get; }
+
+	public native indexes : Progression<Natural> { get; }
+} 

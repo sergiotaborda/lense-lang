@@ -18,9 +18,9 @@ public class TestHelloWorldModule {
 
 	@Test  
 	public void testHelloWorldCompilation() throws IOException {
-		File moduleproject = new File(new File(".").getAbsoluteFile().getParentFile(), "src/main/helloworld");
+		File moduleproject = new File(new File(".").getAbsoluteFile().getParentFile(), "lense/helloworld");
 	
-		File base = new File(new File(".").getAbsoluteFile().getParentFile(), "src/main/sdk/compilation/modules");
+		File base = new File(new File(".").getAbsoluteFile().getParentFile(), "lense/sdk/compilation/modules");
 		ClasspathRepository repo = new ClasspathRepository(base);
 
 		final LenseCompiler compiler = new LenseCompiler(repo);

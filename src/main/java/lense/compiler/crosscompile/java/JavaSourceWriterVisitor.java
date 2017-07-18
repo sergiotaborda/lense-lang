@@ -517,13 +517,13 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 				writer.append("\nlense.core.collections.Iterator $it = ((lense.core.collections.Iterable)");
 				TreeTransverser.transverse(f.getContainer(), this);
 				writer.append(").getIterator();\n");
-				writer.append("while ( $it.hasNext()) {\n");
+				writer.append("while ( $it.moveNext()) {\n");
 
 				TreeTransverser.transverse(f.getVariableDeclarationNode(), this);
 
 				String typeName = f.getVariableDeclarationNode().getTypeVariable().getTypeDefinition().getName();
 
-				writer.append("= (").append(typeName).append(") $it.next();\n");
+				writer.append("= (").append(typeName).append(") $it.current();\n");
 
 				StringWriter w = new StringWriter();
 				PrintWriter sp = new PrintWriter(w);

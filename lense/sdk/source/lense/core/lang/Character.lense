@@ -1,0 +1,7 @@
+
+import lense.core.math.Natural;
+
+public native class Character {
+
+	public native constructor ( code: Natural);
+} 

@@ -1,5 +1,0 @@
-
-
-public interface EditableAssociation<K,V> extends Association<K,V> {
-
-} 

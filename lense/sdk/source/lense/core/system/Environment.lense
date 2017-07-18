@@ -1,0 +1,14 @@
+
+import lense.core.collections.Association;
+import lense.core.lang.Void;
+import lense.core.lang.Nothing;
+import lense.core.math.Int32;
+import lense.core.system.Runnable;
+import lense.core.lang.String;
+
+public interface Environment { // TODO abstract class
+
+	public properties : Association<String,String> {get;}
+	public exit(exitCode: Int32): Nothing;
+	public addShutdownHook( hook : Runnable) : Void;
+}
