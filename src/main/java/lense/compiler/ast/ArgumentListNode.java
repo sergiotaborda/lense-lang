@@ -43,6 +43,18 @@ public class ArgumentListNode extends LenseAstNode {
 		return (ArgumentListItemNode)super.getFirstChild();
 	}
 	
-
+	  public String toString(){
+	        StringBuilder builder = new StringBuilder("(");
+	        
+	        if (!this.getChildren().isEmpty()){
+	            for(AstNode n : this.getChildren()){
+	                builder.append(n.toString()).append(",");
+	            }
+	            builder.deleteCharAt(builder.length()-1);
+	        }
+	 
+	        
+	        return builder.append(")").toString();
+	    }
 
 }

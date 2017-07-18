@@ -41,5 +41,7 @@ public class StringValue extends LiteralExpressionNode {
 		return value;
 	}
 
-
+	  public String toString(){
+          return  value;
+      }
 }
