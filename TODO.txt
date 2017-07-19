@@ -3,14 +3,14 @@ Change + string operator to ++
 Indexes
 	allow more than one parameter (DONE)
 Remove 
-	function keyword
+	function keyword (DONE)
 Erase
 	Maybe<Boolean> to java.Boolean
 	String and String? 
 	Errasue of IntXYZ inside limits 
 		Needs auto limit verification
 Imutability
-	save as an annotation, handle as a type
+	save flag as an annotation, handle as a type
 Generics
  	Add generic signatures to constructors
 	Capture generics locally (when calling constructors and methods with free generics)
@@ -35,7 +35,7 @@ Flow Sensitive Typing
 	assert
 Deconstructing
 Difference between val and var
-	maybe yse let and variable
+	maybe use let and variable
 Tuples (BNF) and void
 	() === void
 	call methods on void
@@ -44,9 +44,9 @@ Implement Properties
 	validate all non nullable properties are inicialized
 	do delegation    size {get = list.size}   or size => list.size
 Types
-	inference and optional types
-	infere optional : Void for methods (DONE)
-	genrics types of genrica types T<U>
+	inference and optional typing
+	infere optional ": Void" for methods return (DONE)
+	generic types of generic types T<U>
 Reification
 	Generics
 	Expression
