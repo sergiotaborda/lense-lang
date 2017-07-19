@@ -208,7 +208,7 @@ public class DesugarPropertiesVisitor extends AbstractLenseVisitor{
                         
                         
                     } else {
-                        translateBackingFieldReference(block,prp.getName(), backingField);
+                        shoudlGenerateBackingField = translateBackingFieldReference(block,prp.getName(), backingField);
                     }
                     getter.setBlock(block);
                 }
