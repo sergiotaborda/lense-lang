@@ -31,5 +31,9 @@ public class BooleanValue extends LiteralExpressionNode {
 	public String getLiteralValue() {
 		return value ? "true" : "false";
 	}
+	
+	public String toString(){
+	    return  value ? "true" : "false";
+	}
 
 }

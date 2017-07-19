@@ -1,0 +1,19 @@
+
+import lense.core.math.Natural;
+import lense.core.lang.Boolean;
+
+public interface Binary {
+
+	public  size : Natural {get;} // TODO change to bitsCount
+	
+	// ~operator
+	public flipAll() : Binary; // TODO change to return Self
+	
+	// << operator
+	public rightShiftBy( n : Natural) : Binary;
+	
+	// >> operator
+	public leftShiftBy( n: Natural) : Binary;
+	
+	public getBitAt( index: Natural) : Boolean;
+}

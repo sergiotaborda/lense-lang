@@ -3,25 +3,12 @@
  */
 package lense.compiler;
 
-import compiler.trees.Visitor;
-import lense.compiler.ast.ArithmeticNode;
-import lense.compiler.ast.AssignmentNode;
-import lense.compiler.ast.BooleanValue;
-import lense.compiler.ast.NewInstanceCreationNode;
-import lense.compiler.ast.ExpressionNode;
-import lense.compiler.ast.FieldOrPropertyAccessNode;
-import lense.compiler.ast.LiteralExpressionNode;
-import lense.compiler.ast.MethodInvocationNode;
-import lense.compiler.ast.NoneValue;
-import lense.compiler.ast.NumericValue;
-import lense.compiler.ast.ObjectReadNode;
-import lense.compiler.ast.ScopedVariableDefinitionNode;
-import lense.compiler.ast.StringConcatenationNode;
-import lense.compiler.ast.StringValue;
-import lense.compiler.type.variable.FixedTypeVariable;
-import lense.compiler.typesystem.LenseTypeSystem;
 import compiler.syntax.AstNode;
+import compiler.trees.Visitor;
 import compiler.trees.VisitorNext;
+import lense.compiler.ast.ArithmeticNode;
+import lense.compiler.ast.StringConcatenationNode;
+import lense.compiler.typesystem.LenseTypeSystem;
 
 /**
  * 

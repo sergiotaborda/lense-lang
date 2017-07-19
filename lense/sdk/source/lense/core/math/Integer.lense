@@ -1,0 +1,17 @@
+
+import lense.core.math.Whole;
+import lense.core.math.Rational;
+import lense.core.math.Natural;
+
+public native class Integer extends Whole{
+
+
+		public native implicit constructor valueOf( n :Natural);
+		
+		public native plus( n : Integer) : Integer;
+		public native minus( n : Integer) : Integer;
+		public native multiply( n : Integer) : Integer;
+		public native divide( n : Integer) : Rational;
+		
+		public native symmetric() : Integer;
+}

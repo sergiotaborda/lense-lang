@@ -24,7 +24,7 @@
       <resource>
         <directory>src</directory>
         <excludes>
-          <exclude>**/*.java</exclude>
+          <exclude>main/sdk/**/*.java</exclude>
         </excludes>
       </resource>
     </resources>
@@ -35,6 +35,13 @@
         <configuration>
           <source>1.8</source>
           <target>1.8</target>
+          <includes>
+            <include>src/main/java/**/*.java</include>
+          </includes>
+          <excludes>
+           <exclude>src/main/sdk/**/*.java</exclude>
+          </excludes>
+         
         </configuration>
       </plugin>
     </plugins>

@@ -23,6 +23,10 @@ public class ArgumentListItemNode extends LenseAstNode{
 	public TypeVariable getExpectedType() {
 		return expectedType;
 	}
+	
+	public String toString(){
+	    return this.getChildren().get(0).toString();
+	}
 
 	public void setExpectedType(TypeVariable expectedType) {
 		if (expectedType == null){

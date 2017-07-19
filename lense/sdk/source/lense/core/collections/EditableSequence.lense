@@ -1,0 +1,9 @@
+
+import lense.core.lang.Void;
+import lense.core.math.Natural;
+import lense.core.collections.Sequence;
+
+public interface EditableSequence<T> extends Sequence<T> {
+
+	public  [ index: Natural] : T { get; set;}
+} 

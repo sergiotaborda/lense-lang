@@ -1,0 +1,9 @@
+
+import lense.core.lang.Maybe;
+
+
+public native class Some<T> extends Maybe<T> {
+
+	public constructor (value : T);
+	
+} 

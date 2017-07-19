@@ -1,0 +1,6 @@
+
+
+public interface Multiplyable <F, P> {
+
+	public multiply (factor : F) : P;
+}

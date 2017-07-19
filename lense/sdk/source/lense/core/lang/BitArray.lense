@@ -1,0 +1,79 @@
+
+import lense.core.lang.Binary;
+import lense.core.lang.Boolean;
+import lense.core.collections.Array;
+import lense.core.math.Natural;
+import lense.core.lang.Void;
+import lense.core.math.Integer;
+
+public class BitArray implements Binary {
+
+	private val bits: Array<Boolean>;
+
+
+	public constructor (bitCount: Natural){
+		return new BitArray(new Array<Boolean>(bitCount, false));
+	}
+	
+	public constructor ( bitCount: Natural,  seed: Boolean){
+		return new BitArray(new Array<Boolean>(bitCount, seed));
+	}
+	
+	public constructor ( bits: Array<Boolean>);
+
+	public flip( index: Natural): Void{
+		this.bits[index] = !this.bits[index];
+	}
+	
+	public rightShiftBy( n: Natural): BitArray{
+		val newArray : Array<Boolean> = new Array<Boolean>(n, false);
+
+		return new BitArray(newArray);
+	}
+	
+	public leftShiftBy(n : Natural) : BitArray{
+		val newArray : Array<Boolean>  = new Array<Boolean>(n, false);
+
+		return new BitArray(newArray);
+	}
+	
+	public flipAll() : Binary {
+		val  negated : Array<Boolean>= new Array<Boolean>(bits);
+
+		for (n in negated.indexes){
+			negated[n] = !negated[n];
+		}
+		
+		return new BitArray(negated);
+	}	
+	
+	public equalsTo(other: Any) : Boolean{
+		return other is BitArray && other.bits.equalsTo(this.bits);
+	}
+
+	public hashValue():  Integer{
+		return bits.size.hashValue();
+	}
+	
+
+	public size : Natural {
+		get{
+			return bits.size;
+		}
+	} 
+	
+	public [ index: Natural] : Boolean{
+		get {
+			return bits[index];
+		}
+		set(value) {
+			bits[index] = value;
+		}
+	}
+	
+	public getBitAt( index: Natural) : Boolean {
+		return this[index];
+	}
+	
+
+}

@@ -1,0 +1,26 @@
+
+import lense.core.collections.Array;
+
+public class Matrix<T> {
+
+  	private  constructor ( val public  rowsCount : Natural, val public columnsCount: Natural,  private cells : Array<T>);
+     
+     
+    public constructor ( rowsCount : Natural,  columnsCount: Natural,  seed : T){
+    	return new Matrix<T> (  rowsCount, columnsCount, new Array<T>(rowsCount * columnsCount, seed));
+    }
+    
+  
+    public [ row : Natural, column: Natural] : T {
+        get { 
+            return cells[calculateCell(row, column)];
+        }
+        set (value){
+           cells[calculateCell(row, column)] = value;
+        }
+    }
+     
+    private calculateCell( row : Natural,  column: Natural) : Natural{
+        return row * rowsCount + column;
+    }   
+}

@@ -1,0 +1,35 @@
+
+public val class Tuple <out H , out T /*extends Tuple*/> implements Iterable<Any>{
+
+	private val head : H;
+	private val tail : Maybe<T> = None;
+	
+	constructor (head: H, tail: T){
+		this.head = head;
+		this.tail = tail;
+	}
+	
+	constructor (head: H){
+		this.head = head;
+	}
+
+	public [ index: Natural]: Any{
+		if (index == 0){
+			return head;
+		} else if (tail.isPresent) {
+			return tail.get(index-1);
+		} else {
+			throw new IllegalIndexException(index);
+		}
+	}
+	
+	public head(): H{
+		return head;
+	}
+	
+	public tail(): T{
+		return tail;
+	}
+	
+	/*TODO verify all methods in interface are implemented
+}

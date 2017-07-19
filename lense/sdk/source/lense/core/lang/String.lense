@@ -1,0 +1,14 @@
+
+import lense.core.lang.Character;
+import lense.core.collections.Sequence;
+import lense.core.lang.Any;
+
+public native class String implements Sequence<Character> {
+
+
+	public native asString() : String;
+	
+	
+	public native plus( other : String): String;
+	public native plus( other : Any) : String;
+} 

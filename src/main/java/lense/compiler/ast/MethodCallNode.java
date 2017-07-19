@@ -33,7 +33,10 @@ public class MethodCallNode extends StatementNode {
 		setArgumentListNode(arguments);
 	}
 
-
+    public String toString(){
+        return name + arguments.toString();
+    }
+    
 	/**
 	 * @param argumentListNode
 	 */
