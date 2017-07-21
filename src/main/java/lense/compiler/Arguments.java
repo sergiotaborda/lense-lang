@@ -1,11 +1,18 @@
 package lense.compiler;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+
+import lense.compiler.tools.LenseCommand;
+
 public class Arguments {
 
+	private final Map<LenseCommand.Parameter, String> parameters = new HashMap<>();
 	
 	private LenseCommand command = LenseCommand.HELP;
-	private String repositoryBase = "src/main/sdk/compilation/modules";
-	private String source = "";
+	private String repositoryBase = "lense/sdk/compilation/modules";
+    private LenseCommand.Mode mode;
 	
 	public LenseCommand getCommand() {
 		return command;
@@ -24,10 +31,26 @@ public class Arguments {
 	}
 
 	public String getSource() {
-		return source;
+		return getParameter(LenseCommand.Parameter.SOURCE).orElse("");
 	}
 
 	public void setSource(String source) {
-		this.source = source;
+	    setParameter(LenseCommand.Parameter.SOURCE, source);
 	}
+
+    public void setMode(LenseCommand.Mode mode) {
+        this.mode = mode;
+    }
+    
+    public Optional<LenseCommand.Mode> getMode() {
+        return Optional.ofNullable(mode);
+    }
+    
+    public void setParameter(LenseCommand.Parameter parameter, String value) {
+        this.parameters.put(parameter, value);
+    }
+    
+    public Optional<String> getParameter(LenseCommand.Parameter parameter){
+        return Optional.ofNullable(this.parameters.get(parameter));
+    }
 }

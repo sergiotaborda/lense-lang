@@ -1,3 +1,7 @@
+Lense CLI
+	compile
+	run
+	document
 Change Iterator to move + current (DONE)
 Change + string operator to ++ => needs resolution on the increment/decrement operator issue 
 Indexes
