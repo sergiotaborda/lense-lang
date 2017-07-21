@@ -3,7 +3,7 @@ package lense.compiler.tools;
 import java.io.File;
 
 import lense.compiler.Arguments;
-import lense.compiler.LenseCompiler;
+import lense.compiler.crosscompile.java.LenseToJavaCompiler;
 import lense.compiler.repository.ClasspathRepository;
 
 public class LenseCompilerTool implements LenseTool{
@@ -22,7 +22,7 @@ public class LenseCompilerTool implements LenseTool{
         
         long time = System.currentTimeMillis();
         
-        final LenseCompiler compiler = new LenseCompiler(repo);
+        final LenseToJavaCompiler compiler = new LenseToJavaCompiler(repo);
         compiler.compileModuleFromDirectory(moduleproject);
         
         long elapsed = System.currentTimeMillis() - time;

@@ -23,7 +23,8 @@ public class TestHelloWorldModule {
 //		compiler.compileModuleFromDirectory(moduleproject);
 		
 		
-		Lense.main("compile:java --source=lense/helloworld".split(" "));
-		
+	//	Lense.main("compile:java --source=lense/helloworld".split(" "));
+		Lense.main("compile --source=lense/helloworld".split(" "));
+	        
 	}
 }

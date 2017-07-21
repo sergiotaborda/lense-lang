@@ -11,8 +11,8 @@ import java.util.Optional;
 
 import org.junit.Test;
 
-import lense.compiler.LenseCompiler;
 import lense.compiler.ast.QualifiedNameNode;
+import lense.compiler.crosscompile.java.LenseToJavaCompiler;
 import lense.compiler.repository.ModuleRepository;
 import lense.compiler.repository.TypeRepository;
 import lense.compiler.repository.Version;
@@ -50,7 +50,7 @@ public class TestSdkCompilation {
 
 		};
 
-		new LenseCompiler(repo).compileModuleFromDirectory(folder);
+		new LenseToJavaCompiler(repo).compileModuleFromDirectory(folder);
 	}
 
 
