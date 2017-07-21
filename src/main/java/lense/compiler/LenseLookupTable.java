@@ -90,7 +90,8 @@ public class LenseLookupTable extends AbstractLookupTable {
 			}
 			long time = System.currentTimeMillis() - mark;
 			
-			System.out.println("Read Table from file " + time + "ms");
+			// TODO use proper loggign
+			//System.out.println("Read Table from file " + time + "ms");
 		}
 	}
 

@@ -88,7 +88,7 @@ public class NameResolutionPhase implements CompilerPhase {
 				for(Iterator<Import> it = ct.imports().iterator(); it.hasNext();){
 					Import imp = it.next();
 					if (imp.isContainer() || !imp.isUsed()) {
-						listener.warn(new CompilerMessage(imp.getTypeName().getName() + " import is not used."));
+						listener.warn(new CompilerMessage(imp.getTypeName().getName() + " import is declared but not used in " + ct.getName()));
 						it.remove();
 					}
 				}

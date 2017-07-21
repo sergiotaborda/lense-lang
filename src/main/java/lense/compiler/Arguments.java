@@ -11,7 +11,6 @@ public class Arguments {
     private final Map<LenseCommand.Parameter, String> parameters = new HashMap<>();
 
     private LenseCommand command = LenseCommand.HELP;
-    private String repositoryBase = "lense/sdk/compilation/modules";
     private LenseCommand.Mode mode;
 
     public LenseCommand getCommand() {
@@ -22,12 +21,12 @@ public class Arguments {
         this.command = command;
     }
 
-    public String getRepositoryBase() {
-        return repositoryBase;
+    public Optional<String> getRepositoryBase() {
+        return getParameter(LenseCommand.Parameter.REPOSITORY);
     }
 
     public void setRepositoryBase(String repositoryBase) {
-        this.repositoryBase = repositoryBase;
+        setParameter(LenseCommand.Parameter.REPOSITORY,repositoryBase);
     }
 
     public String getSource() {

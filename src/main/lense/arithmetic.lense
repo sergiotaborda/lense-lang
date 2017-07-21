@@ -1,27 +1,28 @@
 
 public class Calculator {
 
-	Natural field = 8;
+	val field : Natural = 8;
 	
-	public Natural calculateIt (Natural x){
+	public  calculateIt ( x  : Natural) : Natural{
 		
-		val Natural a = 2;
+		val a: Natural = 2;
 		
 		a = 8;
 		
-		val Natural b = -3;
-		val Natural c = this.field + b;
+		val b : Natural = -3;
+		val c : Natural = this.field + b;
 		
 		this.field = c;
 		
-		val Natural d = c * a + x;
+		val  d : Natural = c * a + x;
 		
-		val Natural u = calculateIt(a - c);
+		val u : Natural = calculateIt(a - c);
 		
 		return u;
 	}
-	/*
-	public Natural incrementId (Natural x){
+	
+	/{
+	public incrementId ( x  : Natural)  : Natural{
 	
 		val Natural a = 2;
 		
@@ -35,7 +36,7 @@ public class Calculator {
 	}
 	
 
-	public Natural ifelse (Boolean condition){
+	public ifelse ( condition: Boolean)  : Natural{
 	
 		val Natural a = 0;
 		val Natural b = 0;
@@ -51,7 +52,7 @@ public class Calculator {
 	
 	
 	
-	public Natural whiledo (Boolean condition){
+	public whiledo ( condition : Boolean)  : Natural{
 	
 		val Natural a = 0;
 		val Natural b = 0;
@@ -68,7 +69,7 @@ public class Calculator {
 	
 	
 	
-	public Natural switchIt (Boolean condition){
+	public switchIt ( condition : Boolean) : Natural{
 	
 		val Natural a = 0;
 		switch (a){
@@ -87,12 +88,12 @@ public class Calculator {
 		}
 		return a;
 	}
-	*/
+	*}
 	
-	public Natural forEach (){
+	public  forEach () : Natural{
 	
-		val Natural a = 0;
-		Sequence<Natural> array = [1,2,3,4,5];
+		val a : Natural = 0;
+		val array : Sequence<Natural> = [1,2,3,4,5];
 		
 		for (Natural i in array){
 			a = a + i;

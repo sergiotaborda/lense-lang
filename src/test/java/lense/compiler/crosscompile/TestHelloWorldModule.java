@@ -24,7 +24,7 @@ public class TestHelloWorldModule {
 		
 		
 	//	Lense.main("compile:java --source=lense/helloworld".split(" "));
-		Lense.main("compile --source=lense/helloworld".split(" "));
+		Lense.main("compile --source=lense/helloworld --repo=lense/sdk/compilation/modules".split(" "));
 	        
 	}
 }

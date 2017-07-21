@@ -86,11 +86,11 @@ public class ByteCodeReader extends ClassVisitor {
 	}
 
 	public FieldVisitor visitField(int access, String name, String desc,String signature, Object value) {
-		if ((access & ACC_STATIC) !=0){
-			System.out.println(" STATIC " + desc + " " + name);
-		} else {
-			System.out.println(" " + desc + " " + name);
-		}
+//		if ((access & ACC_STATIC) !=0){
+//			System.out.println(" STATIC " + desc + " " + name);
+//		} else {
+//			System.out.println(" " + desc + " " + name);
+//		}
 
 		return null;
 	}

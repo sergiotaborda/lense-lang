@@ -17,7 +17,7 @@ public class TestParsing {
 
 
 	
-	@Test
+	@Test @Ignore
 	public void testLiteralSequence() throws IOException {
 
 
@@ -44,17 +44,17 @@ public class TestParsing {
 		ListCompilationUnitSet unitSet = new ListCompilationUnitSet();
 		unitSet.add(new StringCompilationUnit(
 		"public class Test { " +
-		" public function test() : Void{" +
-		" var Integer i = 3;" +
-		" var Integer j = i++++;" + 
-		"}"
+		" public test() : Void{" +
+		" var  i : Integer = 3;" +
+		" var  j : Integer = (i++)++;" + 
+		"}}"
 		));
 
 		new LenseSourceCompiler().parse(unitSet).sendToList();
 
 	}
 
-	@Test
+	@Test @Ignore
 	public void testByteArray()  {
 		File file = new File(new File(".").getAbsoluteFile().getParentFile(),"src/main/sdk/source/lense/core/lang/BitArray.lense");
 		
@@ -66,7 +66,7 @@ public class TestParsing {
 		new LenseSourceCompiler().parse(unitSet).sendToList();
 	}
 	
-	@Test
+	@Test @Ignore
 	public void testLinkedList()  {
 		File file = new File(new File(".").getAbsoluteFile().getParentFile(),"src/main/sdk/source/lense/core/collections/LinkedList.lense");
 		

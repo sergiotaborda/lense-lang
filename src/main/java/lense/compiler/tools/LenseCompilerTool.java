@@ -2,6 +2,8 @@ package lense.compiler.tools;
 
 import java.io.File;
 
+import compiler.CompilerListener;
+import compiler.CompilerMessage;
 import lense.compiler.Arguments;
 import lense.compiler.crosscompile.java.LenseToJavaCompiler;
 import lense.compiler.repository.ClasspathRepository;
@@ -10,8 +12,19 @@ public class LenseCompilerTool implements LenseTool{
 
     @Override
     public void run(Arguments arguments) {
-
-        File base = new File(new File(".").getAbsoluteFile().getParentFile(), arguments.getRepositoryBase());
+        println("Runing from " + new File(".").getAbsoluteFile());
+        
+        File base;
+        if (arguments.getRepositoryBase().isPresent()){
+            base = new File(arguments.getRepositoryBase().get());
+            if (!base.isAbsolute()){
+                base = new File(new File(".").getAbsoluteFile().getParentFile(), arguments.getRepositoryBase().get());
+            }
+            
+        } else {
+            base = new File(System.getProperty("user.home"), ".lense/repository");
+        }
+      
         ClasspathRepository repo = new ClasspathRepository(base);
 
         println("Using repository at " + base);
@@ -23,6 +36,29 @@ public class LenseCompilerTool implements LenseTool{
         long time = System.currentTimeMillis();
         
         final LenseToJavaCompiler compiler = new LenseToJavaCompiler(repo);
+        compiler.setCompilerListener(new CompilerListener() {
+            
+            @Override
+            public void warn(CompilerMessage error) {
+                System.out.println("[WARN ]:" + error.getMessage());
+            }
+            
+            @Override
+            public void start() {}
+            
+            @Override
+            public void error(CompilerMessage error) {
+                System.out.println("[ERROR]:" + error.getMessage());
+            }
+            
+            @Override
+            public void end() {}
+
+            @Override
+            public void trace(CompilerMessage error) {
+               //no-op
+            }
+        });
         compiler.compileModuleFromDirectory(moduleproject);
         
         long elapsed = System.currentTimeMillis() - time;

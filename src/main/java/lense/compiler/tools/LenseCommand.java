@@ -14,7 +14,8 @@ public enum LenseCommand {
 
     public enum Parameter {
         SOURCE,
-        TARGET
+        TARGET,
+        REPOSITORY
     }
 
     
@@ -38,6 +39,8 @@ public enum LenseCommand {
             return Parameter.SOURCE;
         } else if (name.equalsIgnoreCase("target")){
             return Parameter.TARGET;
+        } else if (name.equalsIgnoreCase("repo")){
+            return Parameter.REPOSITORY;
         }
         throw new ToolException(name + " is not a recognized parameter for " + this.name().toLowerCase());
     }
