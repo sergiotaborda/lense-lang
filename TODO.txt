@@ -1,5 +1,5 @@
 Change Iterator to move + current (DONE)
-Change + string operator to ++
+Change + string operator to ++ => needs resolution on the increment/decrement operator issue 
 Indexes
 	allow more than one parameter (DONE)
 Remove 
@@ -87,7 +87,7 @@ Operators
 	?+, ?- , ?*, ?/ ==> these will return Maybe<T> with None value when overload appends
 	- (symmetric) closed for all except natural. Natural.symmetric():Integer (DONE)
 	
-	i++ and i-- this operators imply in tree rewrite of on node by a collection of nodes. are statements, not expressions. 
+	i++ and i-- this operators implies in tree rewrite of on node by a collection of nodes. are statements, not expressions. 
 	equivalent to a = a.sucessor() and a = a.predecessor();
 
 	In32.max.sucessor = In32.max; (warp)
