@@ -169,7 +169,7 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 				if (typeVariable != null){
 					writer.print("/* BOXING IN to " +  typeVariable.getTypeDefinition().getName()+ "*/");
 				} else {
-					writer.print("/* BOXING IN */");
+					writer.print("/* BOXING IN to ?  */");
 				}
 
 				TreeTransverser.transverse(node.getChildren().get(0), this);

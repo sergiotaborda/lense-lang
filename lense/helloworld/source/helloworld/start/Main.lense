@@ -98,7 +98,7 @@ public class Main extends ConsoleApplication {
   	 	   
   	 	var n = #EFA2;
   	 	
-  	 	var p : Integer = parameter; // TODO properly read this value. currenlty is zero
+  	 	var p : Integer = parameter; 
   	 	
   	 	console.println("parameter p is 99 : {{ p }}");
   	 	 

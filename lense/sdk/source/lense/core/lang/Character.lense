@@ -1,7 +1,8 @@
 
 import lense.core.math.Natural;
+import lense.core.lang.Ordinal;
 
-public native class Character {
+public native class Character implements Ordinal<Character> {
 
 	public native constructor ( code: Natural);
 } 

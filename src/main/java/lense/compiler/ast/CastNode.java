@@ -10,6 +10,9 @@ public class CastNode extends ExpressionNode {
 	private TypeDefinition type;
 
 	public CastNode (LenseAstNode other, TypeDefinition type){
+	    if (type == null){
+            throw new IllegalArgumentException("Type is necessary");
+        }
 		this.add(other);
 		this.type = type;
 	}
@@ -23,7 +26,7 @@ public class CastNode extends ExpressionNode {
 	}
 
 	public TypeVariable getTypeVariable() {
-		return new  FixedTypeVariable(type);
+		return new FixedTypeVariable(type);
 	}
 }
 

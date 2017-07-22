@@ -1,0 +1,12 @@
+
+/{
+	Implies that all instances of this implementing class are orderable
+	so each instance can be related to another instance after it (successor) and an instance before it (predecessor)
+
+
+}/
+public interface Ordinal<T> {
+
+	public successor() : T;
+	public predecessor() : T;
+}

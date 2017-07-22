@@ -10,8 +10,8 @@ import lense.compiler.type.variable.TypeVariable;
 public class BoxingPointNode extends ExpressionNode {
 
 	public enum BoxingDirection {
-		BOXING_IN,
-		BOXING_OUT,
+		BOXING_IN, // wrap primitive
+		BOXING_OUT, // convert to primitive
 	}
 	
 	private BoxingDirection boxingDirection;

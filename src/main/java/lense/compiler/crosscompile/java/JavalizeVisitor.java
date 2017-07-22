@@ -13,6 +13,7 @@ import compiler.trees.VisitorNext;
 import lense.compiler.asm.ByteCodeTypeDefinitionReader;
 import lense.compiler.ast.ArgumentListItemNode;
 import lense.compiler.ast.ArithmeticNode;
+import lense.compiler.ast.BooleanOperatorNode;
 import lense.compiler.ast.CastNode;
 import lense.compiler.ast.ClassTypeNode;
 import lense.compiler.ast.MethodInvocationNode;
@@ -179,6 +180,11 @@ public class JavalizeVisitor implements Visitor<AstNode>{
 				TypeDefinition typeDefinition = m.getTypeVariable().getTypeDefinition();
 				if (typeDefinition.getName().equals("lense.core.lang.Void")){
 					return;
+				}
+				
+				if (parent instanceof BooleanOperatorNode && typeDefinition.getName().equals("lense.core.lang.Boolean")){
+				    // lense.core.lang.Boolean is already been erased inside BooleanOperatorNode
+				    return;
 				}
 				CastNode cast = new CastNode(m, typeDefinition);
 				parent.replace(node, cast);

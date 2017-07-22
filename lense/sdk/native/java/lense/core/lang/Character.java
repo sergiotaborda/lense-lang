@@ -7,7 +7,7 @@ import lense.core.math.Int32;
 import lense.core.math.Integer;
 import lense.core.math.Natural;
 
-public final class Character extends Base implements Any{
+public final class Character extends Base implements Any, Ordinal{
 
 	@Constructor
 	public static Character constructor (Natural code){
@@ -44,4 +44,16 @@ public final class Character extends Base implements Any{
 	public String asString() {
 		return String.valueOfNative(java.lang.Character.toString(code));
 	}
+
+    @Override
+    public Object successsor() {
+     // TODO consider range from 0 to Int16.max
+       return new Character(this.code++);
+    }
+
+    @Override
+    public Object predecessor() {
+        // TODO consider range from 0 to Int16.max
+        return new Character(this.code--);
+    }
 }
