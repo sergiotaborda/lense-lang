@@ -10,9 +10,9 @@ import java.util.Set;
 import lense.compiler.Import;
 import lense.compiler.context.SemanticContext;
 import lense.compiler.phases.ScopeDelimiter;
+import lense.compiler.type.LenseTypeDefinition;
 import lense.compiler.type.LenseUnitKind;
 import lense.compiler.typesystem.Visibility;
-import lense.compiler.type.LenseTypeDefinition;
 
 
 /**

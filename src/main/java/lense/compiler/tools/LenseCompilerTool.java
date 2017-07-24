@@ -5,7 +5,9 @@ import java.io.File;
 import compiler.CompilerListener;
 import compiler.CompilerMessage;
 import lense.compiler.Arguments;
+import lense.compiler.LenseCompiler;
 import lense.compiler.crosscompile.java.LenseToJavaCompiler;
+import lense.compiler.crosscompile.javascript.LenseToJsCompiler;
 import lense.compiler.repository.ClasspathRepository;
 
 public class LenseCompilerTool implements LenseTool{
@@ -35,7 +37,20 @@ public class LenseCompilerTool implements LenseTool{
         
         long time = System.currentTimeMillis();
         
-        final LenseToJavaCompiler compiler = new LenseToJavaCompiler(repo);
+        
+        LenseCompiler compiler;
+
+        switch (arguments.getMode().orElse(LenseCommand.Mode.JAVA)){
+        case JAVA:
+            compiler  = new LenseToJavaCompiler(repo);
+            break;
+        case JAVA_SCRIPT:
+            compiler  = new LenseToJsCompiler(repo);
+            break;
+        default:
+            throw new ToolException("This target language is not supported yet");
+        }
+
         compiler.setCompilerListener(new CompilerListener() {
             
             @Override

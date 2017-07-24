@@ -147,7 +147,7 @@ public abstract class LenseCompiler {
     }
 
     protected abstract void createModuleArchive(FileLocations locations, ModuleNode module, File base, Set<String> applications) throws IOException, FileNotFoundException;
-    protected abstract CompositePhase initCorePhase(CompositePhase corePhase, Map<String, File> nativeTypes);
+    protected abstract void initCorePhase(CompositePhase corePhase, Map<String, File> nativeTypes);
     protected abstract void compileNative(FileLocations fileLocations, Map<String, File> nativeTypes) throws IOException;
 
     /**
@@ -162,7 +162,9 @@ public abstract class LenseCompiler {
         ConstructorDesugarPhase constructorDesugar = new ConstructorDesugarPhase(listener);
         SemanticAnaylisisPhase semantic = new SemanticAnaylisisPhase(listener);
 
-        CompositePhase corePhase = initCorePhase (new CompositePhase().add(semantic), nativeTypes);
+        CompositePhase corePhase = new CompositePhase().add(semantic);
+                
+        initCorePhase (corePhase, nativeTypes);
 
         listener.start();
         try {

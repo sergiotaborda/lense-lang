@@ -27,7 +27,6 @@ import lense.compiler.ast.BooleanOperatorNode.BooleanOperation;
 import lense.compiler.ast.BooleanValue;
 import lense.compiler.ast.CastNode;
 import lense.compiler.ast.CatchOptionNode;
-import lense.compiler.ast.NewInstanceCreationNode;
 import lense.compiler.ast.ClassTypeNode;
 import lense.compiler.ast.ComparisonNode;
 import lense.compiler.ast.ComparisonNode.Operation;
@@ -41,11 +40,12 @@ import lense.compiler.ast.FieldOrPropertyAccessNode.FieldKind;
 import lense.compiler.ast.ForEachNode;
 import lense.compiler.ast.FormalParameterNode;
 import lense.compiler.ast.InstanceOfNode;
-import lense.compiler.ast.LiteralIntervalNode;
 import lense.compiler.ast.LiteralAssociationInstanceCreation;
+import lense.compiler.ast.LiteralIntervalNode;
 import lense.compiler.ast.LiteralTupleInstanceCreation;
 import lense.compiler.ast.MethodDeclarationNode;
 import lense.compiler.ast.MethodInvocationNode;
+import lense.compiler.ast.NewInstanceCreationNode;
 import lense.compiler.ast.NoneValue;
 import lense.compiler.ast.NumericValue;
 import lense.compiler.ast.ObjectReadNode;
@@ -65,7 +65,6 @@ import lense.compiler.ast.VariableDeclarationNode;
 import lense.compiler.ast.VariableReadNode;
 import lense.compiler.ast.VariableWriteNode;
 import lense.compiler.ast.WhileNode;
-import lense.compiler.phases.PropertyNamesSpecification;
 import lense.compiler.type.LenseTypeDefinition;
 import lense.compiler.type.LenseUnitKind;
 import lense.compiler.type.TypeDefinition;
@@ -74,7 +73,6 @@ import lense.compiler.type.variable.DeclaringTypeBoundedTypeVariable;
 import lense.compiler.type.variable.FixedTypeVariable;
 import lense.compiler.type.variable.GenericTypeBoundToDeclaringTypeVariable;
 import lense.compiler.type.variable.IntervalTypeVariable;
-import lense.compiler.type.variable.MethodFreeTypeVariable;
 import lense.compiler.type.variable.RangeTypeVariable;
 import lense.compiler.type.variable.TypeVariable;
 import lense.compiler.typesystem.Imutability;
@@ -1008,18 +1006,18 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 							AstNode n = it.next();
 							FormalParameterNode p = (FormalParameterNode) n;
 
-							if (p.getVisibility() != Visibility.Undefined && p.getVisibility() != Visibility.Private ){
-								if (p.getImutabilityValue() == Imutability.Imutable){
-									// set the field directly
-									writer.append("this.").append(p.getName()).append(" = ").append(p.getName()).append(";").println();
-								} else {
-									writer.append("set" + PropertyNamesSpecification.resolvePropertyName(p.getName()))
-									.append("(").append(p.getName()).append(")");
-								}
-
-							} else {
+//							if (p.getVisibility() != Visibility.Undefined && p.getVisibility() != Visibility.Private ){
+//								if (p.getImutabilityValue() == Imutability.Imutable){
+//									// set the field directly
+//									writer.append("this.").append(p.getName()).append(" = ").append(p.getName()).append(";").println();
+//								} else {
+//									writer.append("set" + PropertyNamesSpecification.resolvePropertyName(p.getName()))
+//									.append("(").append(p.getName()).append(")");
+//								}
+//
+//							} else {
 								writer.append("this.").append(p.getName()).append(" = ").append(p.getName()).append(";").println();
-							}
+							//}
 
 
 						}

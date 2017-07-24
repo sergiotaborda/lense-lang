@@ -3,11 +3,6 @@
  */
 package lense.compiler.ast;
 
-import lense.compiler.ast.QualifiedNameNode;
-import lense.compiler.ast.LenseAstNode;
-
-
-
 /**
  * 
  */

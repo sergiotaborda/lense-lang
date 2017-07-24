@@ -56,15 +56,14 @@ public class LenseToJavaCompiler extends LenseCompiler{
 		super("java",globalRepository,new  JavaCompilerBackEndFactory()); // JavaBackEndFactory(); //new  JavaSourceBackEnd(); //JavaBinaryBackEndFactory();
 	}
 
-	protected CompositePhase initCorePhase(CompositePhase corePhase, Map<String, File> nativeTypes){
+	protected void initCorePhase(CompositePhase corePhase, Map<String, File> nativeTypes){
 	    
 	    DesugarPropertiesPhase desugarProperties = new DesugarPropertiesPhase(this.getCompilerListener());
        // IntermediatyRepresentationPhase  ir = new IntermediatyRepresentationPhase();
         JavalizePhase  jv = new JavalizePhase(this.getCompilerListener(),nativeTypes);
         
         corePhase.add(desugarProperties).add(jv);//.add(ir);
-        
-        return corePhase;
+  
 	}
 
     protected void createModuleArchive(FileLocations locations, ModuleNode module, File base, Set<String> applications) throws IOException, FileNotFoundException {

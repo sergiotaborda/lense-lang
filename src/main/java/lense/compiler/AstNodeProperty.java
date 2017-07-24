@@ -5,8 +5,6 @@ package lense.compiler;
 
 import java.lang.reflect.Method;
 
-import lense.compiler.AstNodeProperty;
-
 /**
  * 
  */

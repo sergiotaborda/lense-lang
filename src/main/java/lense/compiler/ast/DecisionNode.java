@@ -3,10 +3,6 @@
  */
 package lense.compiler.ast;
 
-import lense.compiler.ast.BlockNode;
-import lense.compiler.ast.ConditionalStatement;
-import lense.compiler.ast.ExpressionNode;
-import lense.compiler.ast.StatementNode;
 import compiler.syntax.AstNode;
 
 

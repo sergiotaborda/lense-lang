@@ -5,6 +5,12 @@ package lense.compiler.phases;
 
 import java.util.Iterator;
 
+import compiler.CompilationResult;
+import compiler.CompilerListener;
+import compiler.CompilerMessage;
+import compiler.CompilerPhase;
+import compiler.syntax.AstNode;
+import compiler.trees.TreeTransverser;
 import lense.compiler.CompilationError;
 import lense.compiler.Import;
 import lense.compiler.ast.ClassTypeNode;
@@ -14,12 +20,6 @@ import lense.compiler.ast.UnitTypes;
 import lense.compiler.context.SemanticContext;
 import lense.compiler.repository.UpdatableTypeRepository;
 import lense.compiler.typesystem.PackageResolver;
-import compiler.CompilationResult;
-import compiler.CompilerListener;
-import compiler.CompilerMessage;
-import compiler.CompilerPhase;
-import compiler.syntax.AstNode;
-import compiler.trees.TreeTransverser;
 
 /**
  * 

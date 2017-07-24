@@ -22,8 +22,15 @@ public class ArgumentParser {
 	    for (int i =0; i < args.length; i++){
 	        String arg = args[i];
 	        if (arg.contains(":")){
+	            if (i!=0){
+	                throw new IllegalCommandArgument(arg);
+	            }
 	            String[] commandAndMode = arg.split(":");
 	
+	            if (commandAndMode.length == 1){
+                    throw new IllegalCommandArgument(arg);
+                }
+	            
 	            tokenList.add(new CommandToolToken(commandAndMode[0]));
 	            tokenList.add(new CommandModeToolToken(commandAndMode[1]));
 	        } else if (arg.startsWith("--")){
@@ -48,6 +55,8 @@ public class ArgumentParser {
                 tokenList.add(new FlagToolToken(flag));
             } else if (i == 0){
 	            tokenList.add(new CommandToolToken(arg));
+	        } else {
+	            throw new IllegalCommandArgument(arg);
 	        }
 	    }
 	    

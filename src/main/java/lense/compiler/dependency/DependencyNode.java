@@ -3,9 +3,8 @@
  */
 package lense.compiler.dependency;
 
-import lense.compiler.ast.LenseAstNode;
-
 import compiler.CompiledUnit;
+import lense.compiler.ast.LenseAstNode;
 /**
  * 
  */

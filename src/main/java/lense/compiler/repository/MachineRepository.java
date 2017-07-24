@@ -6,7 +6,6 @@ package lense.compiler.repository;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import lense.compiler.ast.QualifiedNameNode;

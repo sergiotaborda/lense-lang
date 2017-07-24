@@ -8,8 +8,8 @@ import lense.compiler.ast.ExpressionNode;
 import lense.compiler.ast.FieldOrPropertyAccessNode;
 import lense.compiler.ast.MethodInvocationNode;
 import lense.compiler.ast.PropertyOperation;
-import lense.compiler.context.SemanticContext;
 import lense.compiler.ast.VariableReadNode;
+import lense.compiler.context.SemanticContext;
 
 public class ExplicitBackingFieldReferenceVisitor extends AbstractLenseVisitor{
 	

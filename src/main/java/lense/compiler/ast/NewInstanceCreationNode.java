@@ -8,7 +8,6 @@ import java.util.List;
 import compiler.syntax.AstNode;
 import lense.compiler.type.CallableMemberMember;
 import lense.compiler.type.Constructor;
-import lense.compiler.type.ConstructorParameter;
 import lense.compiler.type.variable.TypeVariable;
 
 /**

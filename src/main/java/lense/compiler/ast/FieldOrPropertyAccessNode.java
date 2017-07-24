@@ -3,9 +3,8 @@
  */
 package lense.compiler.ast;
 
-import lense.compiler.type.variable.TypeVariable;
-
 import compiler.syntax.AstNode;
+import lense.compiler.type.variable.TypeVariable;
 
 
 

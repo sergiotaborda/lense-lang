@@ -12,7 +12,6 @@ import compiler.lexer.ScanPosition;
 import compiler.lexer.StringLiteralTokenState;
 import compiler.lexer.Token;
 import compiler.lexer.TokenState;
-import lense.compiler.CompilationError;
 
 /**
  * 

@@ -44,9 +44,11 @@ import lense.compiler.typesystem.LenseTypeSystem;
 public class DesugarPropertiesVisitor extends AbstractLenseVisitor{
 
     private SemanticContext semanticContext;
+    private String innerPropertyPrefix;
 
-    public DesugarPropertiesVisitor (SemanticContext sc){
+    public DesugarPropertiesVisitor (SemanticContext sc, String innerPropertyPrefix){
         this.semanticContext = sc;
+        this.innerPropertyPrefix = innerPropertyPrefix;
     }
 
     @Override
@@ -147,8 +149,8 @@ public class DesugarPropertiesVisitor extends AbstractLenseVisitor{
         } else if (node instanceof PropertyDeclarationNode){
             PropertyDeclarationNode prp = (PropertyDeclarationNode)node;
 
-            String propertyName = PropertyNamesSpecification.resolvePropertyName(prp.getName());
-            String privateFieldName = PropertyNamesSpecification.resolvePropertyInnerName(prp.getName());
+            String propertyName = resolvePropertyName(prp.getName());
+            String privateFieldName = resolvePropertyInnerName(prp.getName());
 
             AstNode parent = node.getParent();
 
@@ -301,7 +303,7 @@ public class DesugarPropertiesVisitor extends AbstractLenseVisitor{
             FieldOrPropertyAccessNode n = (FieldOrPropertyAccessNode)node;
 
             if (n.getKind() == FieldKind.PROPERTY){
-                String propertyName = PropertyNamesSpecification.resolvePropertyName(n.getName());
+                String propertyName = resolvePropertyName(n.getName());
 
                 if (n.getParent()  instanceof AssignmentNode && ((AssignmentNode)n.getParent()).getLeft() == node){
                     ExpressionNode value = ((AssignmentNode)n.getParent()).getRight();
@@ -451,6 +453,19 @@ public class DesugarPropertiesVisitor extends AbstractLenseVisitor{
         //		
         //		}
 
+    }
+
+    public String resolvePropertyName(String name) {
+        return name.substring(0, 1).toUpperCase() + name.substring(1);
+    }
+    
+    public String resolvePropertyInnerName (String propertyName){
+        if (innerPropertyPrefix == null){
+            return propertyName;
+        } else {
+            return innerPropertyPrefix + propertyName;
+        }
+       
     }
 
     private boolean translateBackingFieldReference(BlockNode block, String propertyName, FieldOrPropertyAccessNode backingField) {

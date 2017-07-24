@@ -4,7 +4,6 @@
 package lense.compiler.ast;
 
 import lense.compiler.typesystem.Imutability;
-import lense.compiler.ast.LenseAstNode;
 
 
 /**

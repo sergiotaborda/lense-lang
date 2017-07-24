@@ -3,9 +3,6 @@
  */
 package lense.compiler.ast;
 
-import lense.compiler.ast.ArgumentListNode;
-import lense.compiler.ast.MethodCallNode;
-import lense.compiler.ast.NeedTypeCalculationNode;
 import compiler.syntax.AstNode;
 
 /**

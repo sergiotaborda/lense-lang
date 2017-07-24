@@ -9,7 +9,6 @@ import lense.compiler.ast.BooleanValue;
 import lense.compiler.ast.ExpressionNode;
 import lense.compiler.ast.MethodInvocationNode;
 import lense.compiler.ast.ReturnNode;
-import lense.compiler.ast.StringValue;
 import lense.compiler.ast.TypedNode;
 import lense.compiler.type.variable.FixedTypeVariable;
 import lense.compiler.type.variable.TypeVariable;

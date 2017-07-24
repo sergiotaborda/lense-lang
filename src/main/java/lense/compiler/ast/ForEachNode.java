@@ -3,13 +3,8 @@
  */
 package lense.compiler.ast;
 
-import lense.compiler.ast.BlockNode;
-import lense.compiler.ast.ExpressionNode;
-import lense.compiler.ast.StatementNode;
-import lense.compiler.ast.VariableDeclarationNode;
-import lense.compiler.context.SemanticScope;
-import lense.compiler.phases.ScopeDelimiter;
 import compiler.syntax.AstNode;
+import lense.compiler.phases.ScopeDelimiter;
 
 
 

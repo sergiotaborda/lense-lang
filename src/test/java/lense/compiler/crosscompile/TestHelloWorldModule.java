@@ -27,4 +27,11 @@ public class TestHelloWorldModule {
 		Lense.main("compile --source=lense/helloworld --repo=lense/sdk/compilation/modules".split(" "));
 	        
 	}
+	
+	@Test  
+    public void testHelloWorldCompilationJavaScript() {
+
+       Lense.main("compile:js --source=lense/helloworld".split(" "));
+ 
+    }
 }

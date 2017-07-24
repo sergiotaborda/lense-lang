@@ -4,7 +4,6 @@
 package lense.compiler.ast;
 
 import lense.compiler.context.VariableInfo;
-import lense.compiler.type.TypeDefinition;
 import lense.compiler.type.variable.TypeVariable;
 
 

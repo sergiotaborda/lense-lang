@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import compiler.syntax.AstNode;
@@ -209,14 +208,6 @@ public class JavalizeVisitor implements Visitor<AstNode>{
 		return false;
 	}
 	
-	private <T> boolean optionalEquals(Optional<T> a , Optional<T> b ){
-		if (a.isPresent() && b.isPresent()){
-			return a.get().equals(b.get());
-		} else {
-			return false;
-		}
-	}
-
 	private boolean isContainedIn(Property c, List<Property> nativeProperties) {
 		for (Property n : nativeProperties){
 			if (n.getName().equals(c.getName()) && n.getReturningType().getSymbol().equals(c.getReturningType().getSymbol())){

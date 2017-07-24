@@ -3,13 +3,6 @@
  */
 package lense.compiler.ast;
 
-import lense.compiler.ast.BlockNode;
-import lense.compiler.ast.CatchOptionsNode;
-import lense.compiler.ast.ExpressionNode;
-import lense.compiler.ast.LenseAstNode;
-
-
-
 /**
  * 
  */

@@ -3,9 +3,9 @@ import compiler.AbstractGrammar;
 import compiler.parser.EmptyTerminal;
 import compiler.parser.Identifier;
 import compiler.parser.NonTerminal;
+import compiler.parser.Numeric;
 import compiler.parser.Terminal;
 import compiler.parser.Text;
-import compiler.parser.Numeric;
 
 public abstract class AbstractLenseGrammar extends AbstractGrammar {
 

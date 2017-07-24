@@ -6,8 +6,6 @@ package lense.compiler;
 import compiler.lexer.TokenStream;
 import compiler.parser.BottomUpParser;
 import compiler.parser.nodes.ParserTreeNode;
-import lense.compiler.LenseAwareTokenStream;
-import lense.compiler.LenseLanguage;
 
 /**
  * 

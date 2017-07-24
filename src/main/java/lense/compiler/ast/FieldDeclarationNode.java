@@ -3,13 +3,7 @@
  */
 package lense.compiler.ast;
 
-import lense.compiler.ast.AnnotadedLenseAstNode;
-import lense.compiler.ast.ExpressionNode;
-import lense.compiler.ast.ImutabilityNode;
-import lense.compiler.ast.ScopedVariableDefinitionNode;
-import lense.compiler.ast.TypeNode;
 import lense.compiler.context.VariableInfo;
-import lense.compiler.type.TypeDefinition;
 import lense.compiler.type.variable.TypeVariable;
 import lense.compiler.typesystem.Imutability;
 

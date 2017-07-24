@@ -171,7 +171,7 @@ public class StructureVisitor extends AbstractScopedVisitor {
 			MethodDeclarationNode m = (MethodDeclarationNode)node;
 
 			if (m.getReturnType().needsInference()){
-				Optional<ReturnNode> op = m.findChild(ReturnNode.class);
+				Optional<ReturnNode> op = m.findFirstChild(ReturnNode.class);
 				
 				if (op.isPresent()){
 					

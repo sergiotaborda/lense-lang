@@ -3,11 +3,14 @@
  */
 package lense.compiler;
 
-import compiler.lexer.*;
 import java.util.Optional;
 import java.util.function.Consumer;
 
 import compiler.Grammar;
+import compiler.lexer.OperatorTokenState;
+import compiler.lexer.ParseState;
+import compiler.lexer.ScanPosition;
+import compiler.lexer.Token;
 import compiler.lexer.TokenState;
 
 /**
