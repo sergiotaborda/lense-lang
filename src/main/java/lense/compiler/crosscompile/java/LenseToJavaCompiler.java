@@ -38,6 +38,7 @@ import lense.compiler.CompilationError;
 import lense.compiler.FileLocations;
 import lense.compiler.LenseCompiler;
 import lense.compiler.ast.ModuleNode;
+import lense.compiler.crosscompile.ErasurePhase;
 import lense.compiler.phases.CompositePhase;
 import lense.compiler.phases.DesugarPropertiesPhase;
 import lense.compiler.repository.TypeRepository;
@@ -59,10 +60,11 @@ public class LenseToJavaCompiler extends LenseCompiler{
 	protected void initCorePhase(CompositePhase corePhase, Map<String, File> nativeTypes){
 	    
 	    DesugarPropertiesPhase desugarProperties = new DesugarPropertiesPhase(this.getCompilerListener());
+	    ErasurePhase erasurePhase = new ErasurePhase(this.getCompilerListener());
        // IntermediatyRepresentationPhase  ir = new IntermediatyRepresentationPhase();
         JavalizePhase  jv = new JavalizePhase(this.getCompilerListener(),nativeTypes);
         
-        corePhase.add(desugarProperties).add(jv);//.add(ir);
+        corePhase.add(desugarProperties).add(erasurePhase).add(jv);//.add(ir);
   
 	}
 

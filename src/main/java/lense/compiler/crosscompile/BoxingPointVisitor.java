@@ -1,4 +1,4 @@
-package lense.compiler.crosscompile.java;
+package lense.compiler.crosscompile;
 
 import java.util.function.Function;
 
@@ -15,7 +15,7 @@ import lense.compiler.ast.MethodDeclarationNode;
 import lense.compiler.ast.MethodInvocationNode;
 import lense.compiler.ast.ReturnNode;
 import lense.compiler.ast.VariableDeclarationNode;
-import lense.compiler.crosscompile.java.BoxingPointNode.BoxingDirection;
+import lense.compiler.crosscompile.BoxingPointNode.BoxingDirection;
 import lense.compiler.type.variable.TypeVariable;
 import lense.compiler.typesystem.LenseTypeSystem;
 

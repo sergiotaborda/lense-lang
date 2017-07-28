@@ -1,6 +1,5 @@
 package lense.core.math;
 
-import java.math.BigDecimal;
 
 import lense.core.lang.Any;
 import lense.core.lang.java.Constructor;
@@ -18,7 +17,7 @@ public class Decimal32 extends Decimal{
 		if (other instanceof Decimal32){
 			return (Decimal32)other;
 		} else {
-			return new Decimal32(other.getNativeBig().floatValue());
+			return new Decimal32(other.promoteToBigDecimal().value.floatValue());
 		}
 	}
 	
@@ -37,9 +36,9 @@ public class Decimal32 extends Decimal{
 		return lense.core.lang.String.valueOfNative(Float.toString(value));
 	}
 	
-	@Override @Native
-	protected BigDecimal getNativeBig() {
-		return new BigDecimal(value);
+	@Override 
+	protected BigDecimal promoteToBigDecimal() {   
+		return new BigDecimal(java.math.BigDecimal.valueOf(value));
 	}
 	
 	public Int32 compareTo(Real other){

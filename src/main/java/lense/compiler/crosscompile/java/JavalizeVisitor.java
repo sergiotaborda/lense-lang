@@ -153,20 +153,8 @@ public class JavalizeVisitor implements Visitor<AstNode>{
 			
 			
 
-		} else if (node instanceof ArithmeticNode){
-			ArithmeticNode n = (ArithmeticNode)node;
-			
-			ArgumentListItemNode arg = new ArgumentListItemNode(0, n.getRight());
-			arg.setExpectedType(n.getRight().getTypeVariable());
-		
-			MethodInvocationNode m = new MethodInvocationNode(
-					n.getLeft(), 
-					n.getOperation().equivalentMethod(), 
-					arg
-			);
-			
-			n.getParent().replace(n, m);
-		} else if (node instanceof MethodInvocationNode){
+		} 
+		else if (node instanceof MethodInvocationNode){
 			MethodInvocationNode m = (MethodInvocationNode)node;
 			
 

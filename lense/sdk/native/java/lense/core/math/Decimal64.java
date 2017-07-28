@@ -2,9 +2,7 @@ package lense.core.math;
 
 
 import lense.core.lang.Any;
-import lense.core.lang.Boolean;
 import lense.core.lang.java.Constructor;
-import lense.core.lang.java.Native;
 
 public class Decimal64 extends Decimal{
 
@@ -19,7 +17,7 @@ public class Decimal64 extends Decimal{
 		if (other instanceof Decimal64){
 			return (Decimal64)other;
 		} else {
-			return new Decimal64(other.getNativeBig().doubleValue());
+			return new Decimal64(other.promoteToBigDecimal().value.doubleValue());
 		}
 	}
 	
@@ -36,11 +34,6 @@ public class Decimal64 extends Decimal{
 	
 	public lense.core.lang.String asString(){
 		return lense.core.lang.String.valueOfNative(Double.toString(value));
-	}
-	
-	@Override @Native
-	protected java.math.BigDecimal getNativeBig() {
-		return new java.math.BigDecimal(value);
 	}
 	
 	public Int32 compareTo(Real other){
@@ -97,9 +90,9 @@ public class Decimal64 extends Decimal{
 	}
 	
 	@Override
-	protected Real promoteNext() {
-		return new BigDecimal(this.getNativeBig());
-	}
+	protected BigDecimal promoteToBigDecimal() {   
+        return new BigDecimal(java.math.BigDecimal.valueOf(value));
+    }
 
 	@Override
 	public Real divide(Real other) {
@@ -119,4 +112,10 @@ public class Decimal64 extends Decimal{
 	public Integer signum() {
 		return new Int32((int)Math.signum(this.value));
 	}
+
+
+    @Override
+    protected Real promoteNext() {
+        return this.promoteToBigDecimal();
+    }
 }

@@ -5,7 +5,7 @@ import lense.core.lang.String;
 	Represents a mathematical quantity.
 	Number as no properties or operations and is not comparable. 
 }/
-public native class Number {
+public native abstract class Number {
 
 
 }

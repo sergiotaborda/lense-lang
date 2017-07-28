@@ -1,10 +1,11 @@
-package lense.compiler.crosscompile.java;
+package lense.compiler.crosscompile;
 
 import compiler.syntax.AstNode;
 import compiler.trees.Visitor;
 import compiler.trees.VisitorNext;
 import lense.compiler.ast.ArgumentListItemNode;
 import lense.compiler.ast.BooleanOperatorNode.BooleanOperation;
+import lense.compiler.crosscompile.java.JavaTypeKind;
 import lense.compiler.ast.BooleanValue;
 import lense.compiler.ast.ExpressionNode;
 import lense.compiler.ast.MethodInvocationNode;
@@ -16,7 +17,7 @@ import lense.compiler.typesystem.LenseTypeSystem;
 
 public class ErasureVisitor implements Visitor<AstNode> {
 
-	static FixedTypeVariable primitiveBooleanType = new FixedTypeVariable(new JavaPrimitiveTypeDefinition("boolean"));
+	static FixedTypeVariable primitiveBooleanType = new FixedTypeVariable(new PrimitiveTypeDefinition("boolean"));
 
 	@Override
 	public void startVisit() {}
@@ -45,7 +46,7 @@ public class ErasureVisitor implements Visitor<AstNode> {
 
 			if (tv != null && tv.isFixed() &&  LenseTypeSystem.Boolean().getName().equals(tv.getTypeDefinition().getName())) {
 
-				FixedTypeVariable f = new FixedTypeVariable(new JavaPrimitiveTypeDefinition("boolean"));
+				FixedTypeVariable f = new FixedTypeVariable(new PrimitiveTypeDefinition("boolean"));
 				t.setTypeVariable(f);
 			}
 
@@ -64,44 +65,65 @@ public class ErasureVisitor implements Visitor<AstNode> {
 
 				if (m.getCall().getName().equals("negate")){
 
-					m.getParent().replace(m, new JavaBooleanOperationsNode(m.getAccess(), BooleanOperation.LogicNegate));
+					m.getParent().replace(m, new PrimitiveBooleanOperationsNode(m.getAccess(), BooleanOperation.LogicNegate));
 				}
 			}
 		} else if (node instanceof BoxingPointNode){
 			BoxingPointNode a = (BoxingPointNode)node;
 			ExpressionNode val = a.getValue();
 
-			if (a.getTypeVariable().equals(val.getTypeVariable())){
+//			if (val.getTypeVariable() == null){
+//			    return;
+//			} else
+			    if (val.getTypeVariable().equals(a.getTypeVariable())){
 				a.getParent().replace(a, val);
 			} else {
 				if (a.isBoxingDirectionOut()){
 					// OUT BOXING
-					if ( a.getTypeVariable().getTypeDefinition().getKind() == JavaTypeKind.Primitive){
+				    
+				    if (a.getTypeVariable() == null){
+				      
+                        if (val instanceof BooleanValue){
+                            // constant
+                            if(a.getReferenceNode() instanceof ArgumentListItemNode){
+                                ArgumentListItemNode ref = (ArgumentListItemNode)a.getReferenceNode();
+                                if (ref.isGeneric()){
+                                    a.getParent().replace(a, new PrimitiveBooleanBox(val));
+                                    return;
+                                }
+                            } 
+                            
+                            a.getParent().replace(a, new PrimitiveBooleanValue(((BooleanValue)val).isValue()));
+                        } 
+	                    
+				    } else if ( val instanceof BooleanValue || a.getTypeVariable().getTypeDefinition().getKind() == JavaTypeKind.Primitive){
 
 						if (val instanceof BooleanValue){
 							// constant
 							if(a.getReferenceNode() instanceof ArgumentListItemNode){
 								ArgumentListItemNode ref = (ArgumentListItemNode)a.getReferenceNode();
 								if (ref.isGeneric()){
-									a.getParent().replace(a, new JavaPrimitiveBooleanBox(val));
+									a.getParent().replace(a, new PrimitiveBooleanBox(val));
 									return;
 								}
 							} 
 							
-							a.getParent().replace(a, new JavaPrimitiveBooleanValue(((BooleanValue)val).isValue()));
+							a.getParent().replace(a, new PrimitiveBooleanValue(((BooleanValue)val).isValue()));
 						} else if (!val.getTypeVariable().isFixed()){
 
-							a.getParent().replace(a, new JavaPrimitiveBooleanUnbox(val));
+							a.getParent().replace(a, new PrimitiveBooleanUnbox(val));
 						}
 
-					} // TODO StringConcatenationNode, StringValue
+					} 
+					
+					// TODO StringConcatenationNode, StringValue
 
 				} else {
 					// IN BOXING
 					if (val instanceof BooleanValue){
 						a.getParent().replace(a, val);
 					} else if (val.getTypeVariable().getTypeDefinition().getKind() == JavaTypeKind.Primitive){
-						a.getParent().replace(a, new JavaPrimitiveBooleanBox(val));
+						a.getParent().replace(a, new PrimitiveBooleanBox(val));
 					}
 
 				}

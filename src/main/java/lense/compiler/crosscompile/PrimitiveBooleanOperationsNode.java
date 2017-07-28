@@ -1,4 +1,4 @@
-package lense.compiler.crosscompile.java;
+package lense.compiler.crosscompile;
 
 import compiler.syntax.AstNode;
 import lense.compiler.ast.BooleanOperatorNode;
@@ -6,14 +6,14 @@ import lense.compiler.ast.BooleanOperatorNode.BooleanOperation;
 import lense.compiler.ast.ExpressionNode;
 import lense.compiler.type.variable.FixedTypeVariable;
 
-public class JavaBooleanOperationsNode extends ExpressionNode {
+public class PrimitiveBooleanOperationsNode extends ExpressionNode {
 
 	private BooleanOperation operation;
 
-	public JavaBooleanOperationsNode(AstNode original, BooleanOperatorNode.BooleanOperation operation){
+	public PrimitiveBooleanOperationsNode(AstNode original, BooleanOperatorNode.BooleanOperation operation){
 		this.add(original);
 		this.operation = operation;
-		this.setTypeVariable(new FixedTypeVariable(new JavaPrimitiveTypeDefinition("boolean")));
+		this.setTypeVariable(new FixedTypeVariable(new PrimitiveTypeDefinition("boolean")));
 	}
 
 	public BooleanOperation getOperation() {

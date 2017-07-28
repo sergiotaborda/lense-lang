@@ -3,6 +3,7 @@ package lense.core.math;
 import java.math.BigInteger;
 
 import lense.core.lang.java.Constructor;
+import lense.core.lang.java.Native;
 
 public abstract class Integer extends Whole implements Comparable{
 
@@ -95,5 +96,10 @@ public abstract class Integer extends Whole implements Comparable{
 	
 	public abstract Integer signum();
 
-	
+	public abstract boolean isZero();
+    public abstract boolean isOne();
+
+    @Native
+    public abstract Int32 toInt32();
+
 }

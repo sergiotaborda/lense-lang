@@ -58,7 +58,12 @@ public class Method implements CallableMember<Method> {
 	
 	
 	public String toString(){
-		return  name + "(" + parameters + ") :" + returnParameter.getType().getSymbol().orElse("_");
+	    if (parameters.isEmpty()){
+	        return  name + "( ) :" + returnParameter.getType().getSymbol().orElse(returnParameter.getType().getTypeDefinition().getName());
+	    } else {
+	        return  name + "(" + parameters + ") :" + returnParameter.getType().getSymbol().orElse(returnParameter.getType().getTypeDefinition().getName());
+	    }
+	
 	}
 	
 	/**

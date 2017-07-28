@@ -1,18 +1,18 @@
-package lense.compiler.crosscompile.java;
+package lense.compiler.crosscompile;
 
 import compiler.syntax.AstNode;
 import lense.compiler.ast.ExpressionNode;
 import lense.compiler.type.variable.FixedTypeVariable;
 import lense.compiler.type.variable.TypeVariable;
 
-public class JavaPrimitiveBooleanBox extends ExpressionNode {
+public class PrimitiveBooleanUnbox extends ExpressionNode {
 
-	public JavaPrimitiveBooleanBox(AstNode other) {
+	public PrimitiveBooleanUnbox(AstNode other) {
 		this.add(other);
 	}
 	
 	public TypeVariable getTypeVariable() {
-		return new FixedTypeVariable(new JavaPrimitiveTypeDefinition("boolean"));
+		return new FixedTypeVariable(new PrimitiveTypeDefinition("boolean"));
 	}
 
 }

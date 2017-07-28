@@ -1,0 +1,7 @@
+
+import lense.core.lang.Exception;
+
+public class ArithmeticException extends Exception {
+
+	//constructor (); // TODO pass message to super
+}

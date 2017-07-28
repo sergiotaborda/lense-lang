@@ -4,6 +4,11 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import compiler.CompiledUnit;
 import compiler.CompilerBackEnd;
@@ -12,7 +17,9 @@ import compiler.trees.TreeTransverser;
 import lense.compiler.CompilerBackEndFactory;
 import lense.compiler.FileLocations;
 import lense.compiler.ast.ClassTypeNode;
+import lense.compiler.ast.LenseAstNode;
 import lense.compiler.crosscompile.java.JavaSourceWriterVisitor;
+import lense.compiler.ast.QualifiedNameNode;
 
 public class JsCompilerBackEndFactory implements CompilerBackEndFactory {
 
@@ -24,42 +31,67 @@ public class JsCompilerBackEndFactory implements CompilerBackEndFactory {
     @Override
     public void setClasspath(File base) {
         // TODO Auto-generated method stub
-        
+
     }
-    
+
     static class JsCompilerBackEnd implements CompilerBackEnd {
 
         private FileLocations locations;
+        private Map<String , NamespaceNode> namespaces = new HashMap<>();
 
         public JsCompilerBackEnd(FileLocations locations) {
             this.locations = locations;
         }
+
 
         /**
          * {@inheritDoc}
          */
         @Override
         public void use(CompiledUnit unit) {
-            toSource(unit);
+
+            for ( AstNode it : ((LenseAstNode)unit.getAstRootNode()).findChilds(c -> c instanceof ClassTypeNode)){
+
+                ClassTypeNode classNode = (ClassTypeNode)it;
+                QualifiedNameNode original = new QualifiedNameNode(classNode.getName());
+
+                QualifiedNameNode name = original.getPrevious();
+                NamespaceNode subNode = new NamespaceNode(original.getName());
+                subNode.addUnit(classNode);
+                
+                while (name != null){
+                    NamespaceNode node = namespaces.get(name.getName());
+
+                    if (node == null){
+                        NamespaceNode ns = new NamespaceNode(name.getName());
+                        
+                        namespaces.put(name.getName(), ns);
+                        
+                        if (subNode != null ){
+                            ns.add(subNode);
+                        }
+                        subNode = ns;
+                        
+                        name = name.getPrevious();
+                    } else {
+
+                        node.add(subNode);
+                        break;
+                    }
+                }
+
+            }
+
         }
 
-        public File toSource(CompiledUnit unit) {
-            
+        public void afterAll() {
+            List<NamespaceNode> roots = namespaces.values().stream().filter(ns -> ns.getParent() == null).collect(Collectors.toList());
+           
             File target = locations.getTargetFolder();
-            File compiled = target;
-            if (target.isDirectory()){
-                AstNode node = unit.getAstRootNode().getChildren().get(0);
+           
+            for (NamespaceNode root : roots ){
                 
-                if (!(node instanceof ClassTypeNode)){
-                    return null;
-                }
-                ClassTypeNode t = (ClassTypeNode)node;
-                
-                if (t.isNative()){
-                    return null;
-                }
-                
-                String path = t.getName().replace('.', '/');
+                String path = root.getName().replace('.', '/');
                 int pos = path.lastIndexOf('/');
                 String filename = path.substring(pos+1) + ".js";
                 File folder;
@@ -69,29 +101,54 @@ public class JsCompilerBackEndFactory implements CompilerBackEndFactory {
                 } else {
                     folder = target;
                 }
-                
+
                 folder.mkdirs();
-                
-                compiled = new File(folder, filename);
+
+                File compiled = new File(folder, filename);
                 try {
                     compiled.createNewFile();
+
+                    try(PrintWriter writer = new PrintWriter(new FileWriter(compiled))){
+                        
+                        // add header
+                        printNameSpace("",root, writer);
+                        
+                    } 
                     
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                
-            }
-
-            try(PrintWriter writer = new PrintWriter(new FileWriter(compiled))){
-                TreeTransverser.transverse(unit.getAstRootNode(), new JavascriptSourceWriterVisitor(writer));
-                return compiled;
-            } catch (IOException e) {
-                e.printStackTrace();
-                return null;
             }
         }
 
-        
+
+        private void printNameSpace(String parentNameSpaceName, NamespaceNode ns, PrintWriter writer) {
+            QualifiedNameNode original = new QualifiedNameNode(ns.getName());
+            
+            String namespaceName = original.getLast().getName();
+            if (parentNameSpaceName.isEmpty()){
+                writer.append("var ").append(namespaceName).append(" = ").append(namespaceName).append(" || {}; ").println();;
+            } else if (!ns.getChildren().isEmpty()){
+                writer.append(parentNameSpaceName).append(".").append(namespaceName).append(" = ").append(parentNameSpaceName).append(".").append(namespaceName).append(" || {}; ").println();;
+            }
+               
+            for ( AstNode u : ns.getUnits()){
+                TreeTransverser.transverse(u, new Ecma5JavascriptWriterVisitor(locations.getNativeFolder(), writer, namespaceName));
+                
+            }
+
+            // add each element 
+            for ( NamespaceNode n : ns.getChildren()){
+                if (parentNameSpaceName.isEmpty()){
+                    printNameSpace(namespaceName, n, writer);
+                } else {
+                    printNameSpace(parentNameSpaceName + "." + namespaceName, n, writer);
+                }
+                
+            }
+        }
+
+
     }
-    
+
 }

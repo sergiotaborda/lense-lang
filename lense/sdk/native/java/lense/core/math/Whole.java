@@ -27,7 +27,6 @@ public abstract class Whole extends Number implements Comparable{
 	public abstract boolean isOne();
 
 
-
 	@Override
 	public boolean equalsTo(Any other) {
 		return other instanceof Whole && ((Whole)other).asBigInteger().compareTo(this.asBigInteger()) == 0;

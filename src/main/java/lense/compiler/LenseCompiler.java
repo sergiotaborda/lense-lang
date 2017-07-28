@@ -22,6 +22,7 @@ import compiler.CompilationResult;
 import compiler.CompilationResultSet;
 import compiler.CompilationUnitSet;
 import compiler.CompiledUnit;
+import compiler.CompilerBackEnd;
 import compiler.CompilerListener;
 import compiler.CompilerMessage;
 import compiler.FolderCompilationUnionSet;
@@ -329,6 +330,7 @@ public abstract class LenseCompiler {
 
 
             GraphTransversor<DependencyRelation, DependencyNode> tt = new TopologicOrderTransversor<>();
+            final CompilerBackEnd backend = backendFactory.create(locations);
             tt.addListener(new GraphTranverseListener<DependencyNode, DependencyRelation>() {
 
                 @Override
@@ -342,7 +344,7 @@ public abstract class LenseCompiler {
                     CompiledUnit unit = e.getVertex().getObject().getCompiledUnit();
                     if (unit != null){
                         new CompilationResultSet( new CompilationResult(unit))
-                        .passBy(corePhase).sendTo( backendFactory.create(locations));
+                        .passBy(corePhase).sendTo( backend);
 
                     }
 
@@ -376,7 +378,7 @@ public abstract class LenseCompiler {
             parser.parse(all)
             .passBy(new NameResolutionPhase(currentModuleRepository, new PathPackageResolver(locations.getSourceFolder().toPath()), listener))
             .passBy(corePhase)
-            .sendTo(backendFactory.create(locations));
+            .sendTo(backend);
 
             // produce module metadata and class
 
@@ -387,7 +389,7 @@ public abstract class LenseCompiler {
             parser.parse(all)
             .passBy(new NameResolutionPhase(currentModuleRepository, new PathPackageResolver(locations.getSourceFolder().toPath()), listener))
             .passBy(corePhase)
-            .sendTo(backendFactory.create(locations  ));
+            .sendTo(backend);
 
             File modules = locations.getModulesFolder();
             if (!modules.exists()){

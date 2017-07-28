@@ -37,6 +37,11 @@ import lense.compiler.ast.FieldAccessNode;
 import lense.compiler.ast.FieldDeclarationNode;
 import lense.compiler.ast.FieldOrPropertyAccessNode;
 import lense.compiler.ast.FieldOrPropertyAccessNode.FieldKind;
+import lense.compiler.crosscompile.PrimitiveBooleanOperationsNode;
+import lense.compiler.crosscompile.BoxingPointNode;
+import lense.compiler.crosscompile.PrimitiveBooleanBox;
+import lense.compiler.crosscompile.PrimitiveBooleanUnbox;
+import lense.compiler.crosscompile.PrimitiveBooleanValue;
 import lense.compiler.ast.ForEachNode;
 import lense.compiler.ast.FormalParameterNode;
 import lense.compiler.ast.InstanceOfNode;
@@ -132,14 +137,14 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 				.append(((StringValue) node).getValue()).append("\")");
 			} else if (node instanceof BooleanValue) {
 
-				if (node instanceof JavaPrimitiveBooleanValue){
+				if (node instanceof PrimitiveBooleanValue){
 					writer.print(((BooleanValue) node).getLiteralValue());
 				} else {
 					writer.print(((BooleanValue) node).isValue() ? "lense.core.lang.Boolean.TRUE" : "lense.core.lang.Boolean.FALSE");
 				}
 
-			} else if (node instanceof JavaBooleanOperationsNode){
-				JavaBooleanOperationsNode n = (JavaBooleanOperationsNode)node;
+			} else if (node instanceof PrimitiveBooleanOperationsNode){
+				PrimitiveBooleanOperationsNode n = (PrimitiveBooleanOperationsNode)node;
 
 				if (n.getOperation() == BooleanOperation.LogicNegate){
 					writer.print("!");
@@ -148,14 +153,23 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 					throw new UnsupportedOperationException();
 				}
 				return VisitorNext.Siblings;
-			} else if (node instanceof JavaPrimitiveBooleanUnbox){
+			} else if (node instanceof PrimitiveBooleanUnbox){
 
+			    AstNode n = node.getChildren().get(0);
+			    
+			    if (n instanceof MethodInvocationNode){
+			        MethodInvocationNode m = (MethodInvocationNode)n;
+			        if (m.getTypeVariable().isSingleType()){
+			            TreeTransverser.transverse(n, this);
+			            return VisitorNext.Siblings;
+			        }
+			    }
 				writer.print("/* BOXING OUT */(");
-				TreeTransverser.transverse(node.getChildren().get(0), this);
+				TreeTransverser.transverse(n, this);
 				writer.print(").toPrimitiveBoolean()");
 
 				return VisitorNext.Siblings;
-			} else if (node instanceof JavaPrimitiveBooleanBox){
+			} else if (node instanceof PrimitiveBooleanBox){
 
 				writer.print("/* BOXING IN */ lense.core.lang.Boolean.valueOfNative(");
 				TreeTransverser.transverse(node.getChildren().get(0), this);

@@ -3,7 +3,6 @@ package lense.core.math;
 import java.math.BigInteger;
 
 import lense.core.lang.Binary;
-import lense.core.lang.Boolean;
 import lense.core.lang.java.Constructor;
 import lense.core.lang.java.Native;
 import lense.core.lang.java.Property;
@@ -181,6 +180,11 @@ public class Int32 extends Integer implements Binary {
 	public Integer signum() {
 		return new Int32( value == 0 ? 0 : (value < 0 ? -1 : 1));
 	}
+
+    @Override
+    public Int32 toInt32() {
+        return this;
+    }
 
 
 

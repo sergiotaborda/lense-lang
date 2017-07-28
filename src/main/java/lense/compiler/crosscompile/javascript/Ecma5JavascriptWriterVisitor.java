@@ -1,5 +1,10 @@
 package lense.compiler.crosscompile.javascript;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Arrays;
@@ -62,11 +67,11 @@ import lense.compiler.ast.VariableDeclarationNode;
 import lense.compiler.ast.VariableReadNode;
 import lense.compiler.ast.VariableWriteNode;
 import lense.compiler.ast.WhileNode;
-import lense.compiler.crosscompile.java.BoxingPointNode;
-import lense.compiler.crosscompile.java.JavaBooleanOperationsNode;
-import lense.compiler.crosscompile.java.JavaPrimitiveBooleanBox;
-import lense.compiler.crosscompile.java.JavaPrimitiveBooleanUnbox;
-import lense.compiler.crosscompile.java.JavaPrimitiveBooleanValue;
+import lense.compiler.crosscompile.BoxingPointNode;
+import lense.compiler.crosscompile.PrimitiveBooleanBox;
+import lense.compiler.crosscompile.PrimitiveBooleanOperationsNode;
+import lense.compiler.crosscompile.PrimitiveBooleanUnbox;
+import lense.compiler.crosscompile.PrimitiveBooleanValue;
 import lense.compiler.crosscompile.java.JavaSourceWriterVisitor;
 import lense.compiler.type.LenseTypeDefinition;
 import lense.compiler.type.TypeDefinition;
@@ -77,17 +82,22 @@ import lense.compiler.type.variable.TypeVariable;
 import lense.compiler.typesystem.LenseTypeSystem;
 import lense.compiler.typesystem.Visibility;
 
-public class JavascriptSourceWriterVisitor implements Visitor<AstNode> {
+public class Ecma5JavascriptWriterVisitor implements Visitor<AstNode> {
 
     private PrintWriter writer;
+    private String rootNameSpace;
+    private File nativeFolder;
 
     /**
      * Constructor.
+     * @param file 
      * 
      * @param writer
      */
-    public JavascriptSourceWriterVisitor(PrintWriter writer) {
+    public Ecma5JavascriptWriterVisitor(File nativeFolder, PrintWriter writer, String rootNameSpace) {
         this.writer = writer;
+        this.rootNameSpace = rootNameSpace;
+        this.nativeFolder = nativeFolder;
     }
 
     @Override
@@ -122,15 +132,16 @@ public class JavascriptSourceWriterVisitor implements Visitor<AstNode> {
                         .append(((StringValue) node).getValue()).append("\")");
             } else if (node instanceof BooleanValue) {
 
-                if (node instanceof JavaPrimitiveBooleanValue) {
+                if (node instanceof PrimitiveBooleanValue) {
                     writer.print(((BooleanValue) node).getLiteralValue());
                 } else {
-                    writer.print(((BooleanValue) node).isValue() ? "lense.core.lang.Boolean.TRUE"
+                    writer.print(((BooleanValue) node).isValue() 
+                            ? "lense.core.lang.Boolean.TRUE"
                             : "lense.core.lang.Boolean.FALSE");
                 }
 
-            } else if (node instanceof JavaBooleanOperationsNode) {
-                JavaBooleanOperationsNode n = (JavaBooleanOperationsNode) node;
+            } else if (node instanceof PrimitiveBooleanOperationsNode) {
+                PrimitiveBooleanOperationsNode n = (PrimitiveBooleanOperationsNode) node;
 
                 if (n.getOperation() == BooleanOperation.LogicNegate) {
                     writer.print("!");
@@ -139,14 +150,14 @@ public class JavascriptSourceWriterVisitor implements Visitor<AstNode> {
                     throw new UnsupportedOperationException();
                 }
                 return VisitorNext.Siblings;
-            } else if (node instanceof JavaPrimitiveBooleanUnbox) {
+            } else if (node instanceof PrimitiveBooleanUnbox) {
 
                 writer.print("/* BOXING OUT */(");
                 TreeTransverser.transverse(node.getChildren().get(0), this);
                 writer.print(").toPrimitiveBoolean()");
 
                 return VisitorNext.Siblings;
-            } else if (node instanceof JavaPrimitiveBooleanBox) {
+            } else if (node instanceof PrimitiveBooleanBox) {
 
                 writer.print("/* BOXING IN */ lense.core.lang.Boolean.valueOfNative(");
                 TreeTransverser.transverse(node.getChildren().get(0), this);
@@ -155,11 +166,11 @@ public class JavascriptSourceWriterVisitor implements Visitor<AstNode> {
                 return VisitorNext.Siblings;
             } else if (node instanceof BoxingPointNode) {
                 TypeVariable typeVariable = ((BoxingPointNode) node).getTypeVariable();
-                if (typeVariable != null) {
-                    writer.print("/* BOXING IN to " + typeVariable.getTypeDefinition().getName() + "*/");
-                } else {
-                    writer.print("/* BOXING IN to ?  */");
-                }
+//                if (typeVariable != null) {
+//                    writer.print("/* BOXING IN to " + typeVariable.getTypeDefinition().getName() + "*/");
+//                } else {
+//                    writer.print("/* BOXING IN to ?  */");
+//                }
 
                 TreeTransverser.transverse(node.getChildren().get(0), this);
                 return VisitorNext.Siblings;
@@ -353,16 +364,15 @@ public class JavascriptSourceWriterVisitor implements Visitor<AstNode> {
             } else if (node instanceof ForEachNode) {
                 ForEachNode f = (ForEachNode) node;
 
-                writer.append("\nlense.core.collections.Iterator $it = ((lense.core.collections.Iterable)");
+                writer.println();
+                writer.append("var $it = (");
                 TreeTransverser.transverse(f.getContainer(), this);
                 writer.append(").getIterator();\n");
                 writer.append("while ( $it.moveNext()) {\n");
 
                 TreeTransverser.transverse(f.getVariableDeclarationNode(), this);
 
-                String typeName = f.getVariableDeclarationNode().getTypeVariable().getTypeDefinition().getName();
-
-                writer.append("= (").append(typeName).append(") $it.current();\n");
+                writer.append("= ").append(" $it.current();\n");
 
                 StringWriter w = new StringWriter();
                 PrintWriter sp = new PrintWriter(w);
@@ -480,17 +490,19 @@ public class JavascriptSourceWriterVisitor implements Visitor<AstNode> {
             } else if (node instanceof CastNode) {
                 CastNode n = (CastNode) node;
 
-                if (n.getType().getName().equals(LenseTypeSystem.Any().getName())) {
-
-                    TreeTransverser.transverse(n.getInner(), this);
-
-                } else {
-                    writer.append("((").append(n.getType().getName()).append(")");
-
-                    TreeTransverser.transverse(n.getInner(), this);
-
-                    writer.append(")");
-                }
+                TreeTransverser.transverse(n.getInner(), this);
+                
+//                if (n.getType().getName().equals(LenseTypeSystem.Any().getName())) {
+//
+//                    TreeTransverser.transverse(n.getInner(), this);
+//
+//                } else {
+//                    writer.append("((").append(n.getType().getName()).append(")");
+//
+//                    TreeTransverser.transverse(n.getInner(), this);
+//
+//                    writer.append(")");
+//                }
 
                 return VisitorNext.Siblings;
             } else if (node instanceof AssignmentNode) {
@@ -589,17 +601,8 @@ public class JavascriptSourceWriterVisitor implements Visitor<AstNode> {
             } else if (node instanceof VariableDeclarationNode) {
                 VariableDeclarationNode t = (VariableDeclarationNode) node;
 
-                // if (t.getInfo() != null) {
-                // if (t.getInfo().isEfectivlyFinal()) {
-                // writer.print("final ");
-                // }
-                // }
-                if (t.getTypeVariable() == null) {
-                    writer.print("????");
-                } else {
-                    writer.print(t.getTypeVariable().getTypeDefinition().getName());
-                }
-                writer.print(" ");
+
+                writer.print(" var ");
                 writer.print(sanitize(t.getName()));
 
                 if (t.getInitializer() != null) {
@@ -610,7 +613,7 @@ public class JavascriptSourceWriterVisitor implements Visitor<AstNode> {
                 if (t.getInfo() != null) {
 
                     if (t.getInfo().doesEscape()) {
-                        writer.print("/* doesEscape */");
+                       // writer.print("/* doesEscape */");
                     }
 
                 }
@@ -748,17 +751,12 @@ public class JavascriptSourceWriterVisitor implements Visitor<AstNode> {
             } else if (node instanceof ConstructorDeclarationNode) {
                 ConstructorDeclarationNode m = (ConstructorDeclarationNode) node;
 
-                if (m.isPrimary()) {
-                    
-                } else {
-                    
-                }
-                
+
                 writer.print(" ");
 
                 if (!m.isPrimary()) {
-                    writer.println("\n");
-
+                    writer.println("\n ");
+                    writer.print(" function ");
                     if (m.getName() == null) {
                         writer.print("constructor");
                     } else {
@@ -779,9 +777,6 @@ public class JavascriptSourceWriterVisitor implements Visitor<AstNode> {
                             writer.print(", ");
                         }
 
-                        TreeTransverser.transverse(p.getTypeNode(), this);
-
-                        writer.print(" ");
                         writer.print(sanitize(p.getName()));
 
                     }
@@ -831,9 +826,6 @@ public class JavascriptSourceWriterVisitor implements Visitor<AstNode> {
                             writer.print(", ");
                         }
 
-                        TreeTransverser.transverse(p.getTypeNode(), this);
-
-                        writer.print(" ");
                         writer.print(p.getName());
 
                     }
@@ -901,11 +893,35 @@ public class JavascriptSourceWriterVisitor implements Visitor<AstNode> {
 
     private void writeClass(ClassTypeNode t) {
 
-        writer.println(/* Generated by lense-js compiler */);
+        if (t.isAbstract()){
+            return;
+        }
+        if (t.isNative()){
+            // TODO 
+            
+            File nativeFile = new File(nativeFolder, t.getName() + ".js");
+            if (nativeFile.exists()){
+                
+                try (BufferedReader reader = new BufferedReader(new FileReader(nativeFile))){
+                    String line;
+                    while ((line = reader.readLine()) != null){
+                        writer.println(line);
+                    }
+                    
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                
+            } else {
+                writer.println("/* absent native " + t.getName() + "*/");
+            }
+            
+            return;
+        }
 
-        writer.append(" function ");
-
-        writer.print(t.getName());
+        writer.append(t.getName());
+        
+        writer.append(" = function ");
 
         // write primary constructor
 

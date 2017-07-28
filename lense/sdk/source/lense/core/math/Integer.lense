@@ -14,4 +14,12 @@ public native class Integer extends Whole implements Ordinal<Integer>{
 		public native divide( n : Integer) : Rational;
 		
 		public native symmetric() : Integer;
+		
+		public native isZero() : Boolean;
+
+		public native isOne() : Boolean;
+		/{
+			Return 0 if the value is zero, -1 if the value if less than zero and 1 if greater
+		}/
+		public native signum() : Integer;
 }

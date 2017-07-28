@@ -9,6 +9,7 @@ import java.util.Set;
 import lense.compiler.FileLocations;
 import lense.compiler.LenseCompiler;
 import lense.compiler.ast.ModuleNode;
+import lense.compiler.crosscompile.ErasurePhase;
 import lense.compiler.phases.CompositePhase;
 import lense.compiler.phases.DesugarPropertiesPhase;
 import lense.compiler.repository.TypeRepository;
@@ -30,7 +31,10 @@ public class LenseToJsCompiler extends LenseCompiler{
     protected void initCorePhase(CompositePhase corePhase, Map<String, File> nativeTypes) {
         DesugarPropertiesPhase desugarProperties = new DesugarPropertiesPhase(this.getCompilerListener());
         desugarProperties.setInnerPropertyPrefix("_");
-        corePhase.add(desugarProperties);
+        
+        ErasurePhase erasurePhase = new ErasurePhase(this.getCompilerListener());
+        
+        corePhase.add(desugarProperties).add(erasurePhase);
         
     }
 

@@ -1,10 +1,6 @@
 package lense.core.math;
 
-import java.math.BigDecimal;
-
 import lense.core.lang.java.Constructor;
-import lense.core.lang.java.Native;
-import lense.core.lang.Boolean;
 
 public abstract class Real extends Number{
 
@@ -16,12 +12,10 @@ public abstract class Real extends Number{
 	}
 	
 	public Int32 compareTo(Real other){
-		Real r = (Real)other;
-		return Int32.valueOfNative(this.getNativeBig().compareTo(r.getNativeBig()));
+		return this.minus(other).signum().toInt32();
 	}
-
-	@Native
-	protected abstract BigDecimal getNativeBig();
+	
+	protected abstract BigDecimal promoteToBigDecimal();
 	
 	public abstract Real plus (Real other);
 	public abstract Real minus (Real other);
