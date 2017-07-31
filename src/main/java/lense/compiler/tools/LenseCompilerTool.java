@@ -27,6 +27,10 @@ public class LenseCompilerTool implements LenseTool{
             base = new File(System.getProperty("user.home"), ".lense/repository");
         }
       
+        if (!base.exists()){
+        	 println("No repository found at " + base);
+             return;
+        }
         ClasspathRepository repo = new ClasspathRepository(base);
 
         println("Using repository at " + base);

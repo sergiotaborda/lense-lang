@@ -1,5 +1,7 @@
 lense.core.math.Natural = function (){
 
+
+
 	var value = 0;
 
 	function minus ( other) {
@@ -27,7 +29,7 @@ lense.core.math.Natural = function (){
 			return result;
 		}
 	}
-	function upTo( other: Natural) : Progression<Natural>;
+	function upTo( other){ throw Error ("Not Implemented Yet")}
 	
 	function symmetric() {
 		var result = new lense.core.math.Integer();
@@ -35,3 +37,9 @@ lense.core.math.Natural = function (){
 		return result;
 	}
 }
+
+lense.core.math.Natural.valueOfNative = function (number){
+		var n = new lense.core.math.Natural();
+		n.value = number;
+		return n;
+	}
