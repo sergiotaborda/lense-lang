@@ -72,9 +72,9 @@ public class ErasureVisitor implements Visitor<AstNode> {
 			BoxingPointNode a = (BoxingPointNode)node;
 			ExpressionNode val = a.getValue();
 
-//			if (val.getTypeVariable() == null){
-//			    return;
-//			} else
+			if (val.getTypeVariable() == null){
+			    return;
+			} else
 			    if (val.getTypeVariable().equals(a.getTypeVariable())){
 				a.getParent().replace(a, val);
 			} else {

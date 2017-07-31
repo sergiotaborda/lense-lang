@@ -205,19 +205,19 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 						String decPart = n.getLiteralValue().substring(pos+1);
 
 						int decPos = decPart.length();
-						StringBuilder builder = new StringBuilder("1");
+						StringBuilder decimalPart = new StringBuilder("1");
 						for(int i = 0 ; i < decPos; i++){
-							builder.append("0");
+							decimalPart.append("0");
 						}
 						if(intPart.equals("0")){
 							intPart = "";
 						}
 						writer.append(n.getTypeVariable().getTypeDefinition().getName())
-						.append(".valueOfNative(").append(intPart).append(decPart).append(',').append(builder).append(")");
+						.append(".constructor(lense.core.math.Integer.valueOfNative(").append(intPart).append(decPart).append("),lense.core.math.Integer.valueOfNative(").append(decimalPart).append("))");
 
 					} else {
 						writer.append(n.getTypeVariable().getTypeDefinition().getName())
-						.append(".valueOfNative(").append(n.toString()).append(")");
+						.append(".constructor(lense.core.math.Integer.valueOfNative(").append(n.toString()).append("), lense.core.math.Integer.valueOfNative(1))");
 					}
 				} else {
 					// TODO test bounds (number could be to big , should use string

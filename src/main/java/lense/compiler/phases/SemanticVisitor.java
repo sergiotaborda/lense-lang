@@ -1168,6 +1168,7 @@ public class SemanticVisitor extends AbstractScopedVisitor {
                                 variableDeclaration.getInitializer());
 
                         variableDeclaration.setInitializer(m);
+                        m.setTypeVariable(type);
 
                     } else {
                         throw new CompilationError(node,
