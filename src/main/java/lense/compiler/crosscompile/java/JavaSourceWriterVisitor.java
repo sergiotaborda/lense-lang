@@ -66,6 +66,7 @@ import lense.compiler.ast.StringValue;
 import lense.compiler.ast.SwitchNode;
 import lense.compiler.ast.SwitchOption;
 import lense.compiler.ast.TernaryConditionalExpressionNode;
+import lense.compiler.ast.ThowNode;
 import lense.compiler.ast.TryStatement;
 import lense.compiler.ast.TypeNode;
 import lense.compiler.ast.VariableDeclarationNode;
@@ -134,7 +135,9 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 		try {
 			if (node instanceof NoneValue) {
 				writer.print("lense.core.lang.None.NONE");
-			} else if (node instanceof StringValue) {
+			} else if (node instanceof ThowNode) {
+                writer.print("throw ");
+            } else if (node instanceof StringValue) {
 				writer.append("lense.core.lang.String.valueOfNative(").append("\"")
 				.append(((StringValue) node).getValue()).append("\")");
 			} else if (node instanceof BooleanValue) {

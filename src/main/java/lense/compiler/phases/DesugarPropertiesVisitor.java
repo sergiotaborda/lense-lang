@@ -403,32 +403,39 @@ public class DesugarPropertiesVisitor extends AbstractLenseVisitor{
                 MethodInvocationNode compareTo = new MethodInvocationNode(n.getLeft(), "compareWith", arg);
                 compareTo.setTypeVariable(new FixedTypeVariable(LenseTypeSystem.Natural()));
 
-                ObjectReadNode parameter = new ObjectReadNode(semanticContext.resolveTypeForName("lense.core.math.Equal",0).get(), "Equal");
-                boolean negate = false;
-                if (n.getOperation() == ComparisonNode.Operation.LessThan){
-                    parameter = new ObjectReadNode(semanticContext.resolveTypeForName("lense.core.math.Smaller",0).get(), "Smaller");
-                } else if (n.getOperation() == ComparisonNode.Operation.LessOrEqualTo){
-                    parameter = new ObjectReadNode(semanticContext.resolveTypeForName("lense.core.math.Greater",0).get(), "Greater");
-                    negate = true;
-                }  else if (n.getOperation() == ComparisonNode.Operation.GreaterOrEqualTo){
-                    parameter = new ObjectReadNode(semanticContext.resolveTypeForName("lense.core.math.Smaller",0).get(), "Smaller");
-                    negate = true;
-                }  else if (n.getOperation() == ComparisonNode.Operation.GreaterThan){
-                    parameter = new ObjectReadNode(semanticContext.resolveTypeForName("lense.core.math.Greater",0).get(), "Greater");
-                }
-
-                ArgumentListItemNode parg = new ArgumentListItemNode(0, parameter);
-                parg.setExpectedType(parameter.getTypeVariable());
-
-                MethodInvocationNode equalsTo = new MethodInvocationNode(compareTo, "equalsTo", parg);
-                equalsTo.setTypeVariable(n.getTypeVariable());
-
-                if (negate){
-                    PreBooleanUnaryExpression not = new PreBooleanUnaryExpression(BooleanOperation.LogicNegate,equalsTo);
-                    node.getParent().replace(node, not);
+                if (n.getOperation() == ComparisonNode.Operation.Compare){
+                    node.getParent().replace(node, compareTo);
+                    
                 } else {
-                    node.getParent().replace(node, equalsTo);
+                    ObjectReadNode parameter = new ObjectReadNode(semanticContext.resolveTypeForName("lense.core.math.Equal",0).get(), "Equal");
+                    boolean negate = false;
+                    if (n.getOperation() == ComparisonNode.Operation.LessThan){
+                        parameter = new ObjectReadNode(semanticContext.resolveTypeForName("lense.core.math.Smaller",0).get(), "Smaller");
+                    } else if (n.getOperation() == ComparisonNode.Operation.LessOrEqualTo){
+                        parameter = new ObjectReadNode(semanticContext.resolveTypeForName("lense.core.math.Greater",0).get(), "Greater");
+                        negate = true;
+                    }  else if (n.getOperation() == ComparisonNode.Operation.GreaterOrEqualTo){
+                        parameter = new ObjectReadNode(semanticContext.resolveTypeForName("lense.core.math.Smaller",0).get(), "Smaller");
+                        negate = true;
+                    }  else if (n.getOperation() == ComparisonNode.Operation.GreaterThan){
+                        parameter = new ObjectReadNode(semanticContext.resolveTypeForName("lense.core.math.Greater",0).get(), "Greater");
+                    }
+
+                    ArgumentListItemNode parg = new ArgumentListItemNode(0, parameter);
+                    parg.setExpectedType(parameter.getTypeVariable());
+
+                    MethodInvocationNode equalsTo = new MethodInvocationNode(compareTo, "equalsTo", parg);
+                    equalsTo.setTypeVariable(n.getTypeVariable());
+
+                    if (negate){
+                        PreBooleanUnaryExpression not = new PreBooleanUnaryExpression(BooleanOperation.LogicNegate,equalsTo);
+                        node.getParent().replace(node, not);
+                    } else {
+                        node.getParent().replace(node, equalsTo);
+                    }
                 }
+                
+              
 
 
 

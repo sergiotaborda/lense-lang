@@ -10,7 +10,7 @@ import lense.core.math.ArithmeticException;
 }/
 public class Rational extends Real {
 
-	public constructor ( val public numerator : Integer , val public denominator  :Integer);
+	public constructor ( public val  numerator : Integer , public val denominator  :Integer);
 	
 	public equalsTo(other : Any) : Boolean {
 		if(other is Rational){
@@ -99,9 +99,9 @@ public class Rational extends Real {
 	}
 
 	public divide( other: Rational) : Rational {
-		// if (other.isZero()){
-			//TODO throw new ArithmeticException("Cannot divide by zero");
-		//}
+		 if (other.isZero()){
+			throw new ArithmeticException(); // "Cannot divide by zero"
+		}
 		 return symplify(
 				 this.numerator * other.denominator,
 				 this.denominator * other.numerator

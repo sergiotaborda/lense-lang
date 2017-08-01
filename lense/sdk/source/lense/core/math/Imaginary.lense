@@ -92,8 +92,11 @@ public class Imaginary extends Number implements Comparable<Imaginary> {
 	
 	public compareWith(other : Any) : Comparison {
 		if (other is Imaginary){
-			return this.value.compareWith(other.value); // TODO implement <=> operator
-		} 
+			return this.value <=> other.value; // TODO implement <=> operator
+		}
+		
+		//throw new Exception(); // TODO create IncorrectTypeException
+		
 			// TODO throw exception
 			// TODO if - else with no return after
 			return this.value.compareWith(this.value); // TODO implement <=> operator 

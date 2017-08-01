@@ -8,11 +8,11 @@ import lense.core.lang.HashValue;
 
 public class KeyValuePair<K,V> {
 
-	public constructor ( val public key : K, val public value: V);
+	public constructor ( public val key : K,  public val value: V);
 
 	
 	public hashValue() : HashValue {
-		return key.hashValue().concat(value.hashValue()); // TODO ++ operator
+		return key.hashValue().concat(value.hashValue());
 	}
 	
 	public equalsTo(other : Any) : Boolean {
