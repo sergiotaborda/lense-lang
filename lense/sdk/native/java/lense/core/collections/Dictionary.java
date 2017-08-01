@@ -4,11 +4,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 import lense.core.lang.Any;
+import lense.core.lang.HashValue;
 import lense.core.lang.Maybe;
 import lense.core.lang.None;
 import lense.core.lang.Some;
 import lense.core.lang.String;
-import lense.core.math.Integer;
 import lense.core.math.Natural;
 
 public class Dictionary implements Association {
@@ -58,8 +58,8 @@ public class Dictionary implements Association {
 	}
 
 	@Override
-	public Integer hashValue() {
-		return Integer.valueOfNative(map.hashCode());
+	public HashValue hashValue() {
+		return new HashValue(map.hashCode());
 	}
 
 	@Override

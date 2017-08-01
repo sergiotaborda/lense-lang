@@ -3,10 +3,8 @@ package lense.core.collections;
 import java.util.stream.IntStream;
 
 import lense.core.lang.Any;
-import lense.core.lang.Boolean;
+import lense.core.lang.HashValue;
 import lense.core.lang.java.Base;
-import lense.core.math.Int32;
-import lense.core.math.Integer;
 import lense.core.math.Natural;
 
 public class NativeProgression extends Base implements Progression{
@@ -30,7 +28,7 @@ public class NativeProgression extends Base implements Progression{
 	}
 
 	@Override
-	public Integer hashValue() {
-		return Int32.valueOfNative(start ^ end);
+	public HashValue hashValue() {
+		return new HashValue(start ^ end);
 	}
 }

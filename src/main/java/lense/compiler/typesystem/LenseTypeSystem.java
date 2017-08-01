@@ -349,6 +349,8 @@ public class LenseTypeSystem{
 		register(new FundamentalLenseTypeDefinition("lense.core.math.Rational", LenseUnitKind.Class, real));
 
 		LenseTypeDefinition img = register(new FundamentalLenseTypeDefinition("lense.core.math.Imaginary", LenseUnitKind.Class, number));
+		img.addMethod("real", real);
+		
 		LenseTypeDefinition complex = register(new FundamentalLenseTypeDefinition("lense.core.math.Complex", LenseUnitKind.Class, number));
 		
 		LenseTypeDefinition interval = register(new FundamentalLenseTypeDefinition("lense.core.math.Interval", LenseUnitKind.Class, any, new RangeTypeVariable("T", Variance.Invariant, any, nothing))); // TODO use Comparable

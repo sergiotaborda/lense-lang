@@ -2,6 +2,8 @@ package lense.core.math;
 
 import java.math.BigInteger;
 
+import lense.core.lang.HashValue;
+
 
 public final class UNat extends ScalableNatural{
 
@@ -92,8 +94,8 @@ public final class UNat extends ScalableNatural{
 		}
 	}
 
-	public final Integer hashValue(){
-		return Int32.valueOfNative(Long.hashCode(this.value));
+	public final HashValue hashValue(){
+		return new HashValue (Long.hashCode(this.value));
 	}
 	
 	public final lense.core.lang.String asString(){

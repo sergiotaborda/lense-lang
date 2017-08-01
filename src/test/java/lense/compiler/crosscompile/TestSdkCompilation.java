@@ -3,6 +3,8 @@
  */
 package lense.compiler.crosscompile;
 
+import static org.junit.Assert.fail;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
@@ -11,6 +13,9 @@ import java.util.Optional;
 
 import org.junit.Test;
 
+import compiler.CompilerListener;
+import compiler.CompilerMessage;
+import lense.compiler.ast.LenseCompilerListener;
 import lense.compiler.ast.QualifiedNameNode;
 import lense.compiler.crosscompile.java.LenseToJavaCompiler;
 import lense.compiler.crosscompile.javascript.LenseToJsCompiler;
@@ -51,7 +56,9 @@ public class TestSdkCompilation {
 
 		};
 
-		new LenseToJavaCompiler(repo).compileModuleFromDirectory(folder);
+		new LenseToJavaCompiler(repo)
+		.setCompilerListener(LenseCompilerListener.error(msg -> fail(msg.getMessage())))
+		.compileModuleFromDirectory(folder);
 	}
 
 	@Test 
@@ -79,7 +86,9 @@ public class TestSdkCompilation {
 
         };
 
-        new LenseToJsCompiler(repo).compileModuleFromDirectory(folder);
+        new LenseToJsCompiler(repo)
+        .setCompilerListener(LenseCompilerListener.error(msg -> fail(msg.getMessage())))
+        .compileModuleFromDirectory(folder);
     }
 
 }

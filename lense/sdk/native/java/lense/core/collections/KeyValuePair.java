@@ -2,6 +2,7 @@ package lense.core.collections;
 
 
 import lense.core.lang.Any;
+import lense.core.lang.HashValue;
 import lense.core.lang.java.Base;
 import lense.core.lang.java.Constructor;
 import lense.core.lang.java.MethodSignature;
@@ -35,8 +36,8 @@ public class KeyValuePair extends Base {
 		return this.key.equalsTo(other.key) && this.value.equalsTo(other.value);
 	}
 	
-	public lense.core.math.Integer hashValue(){
-		return key.hashValue().plus(lense.core.math.Integer.valueOfNative(31).multiply(value.hashValue()));
+	public HashValue hashValue(){
+		return key.hashValue().concat(value.hashValue());
 	}
 	
 	@MethodSignature( returnSignature = "K" , paramsSignature = "")

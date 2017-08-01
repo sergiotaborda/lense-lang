@@ -2,6 +2,7 @@ package lense.core.math;
 
 
 import lense.core.lang.Any;
+import lense.core.lang.HashValue;
 import lense.core.lang.java.Constructor;
 
 public class Decimal64 extends Decimal{
@@ -17,18 +18,22 @@ public class Decimal64 extends Decimal{
 		if (other instanceof Decimal64){
 			return (Decimal64)other;
 		} else {
-			return new Decimal64(other.promoteToBigDecimal().value.doubleValue());
+			return new Decimal64(other.promoteToBigDecimal().value.toString());
 		}
 	}
 	
 	@Constructor(isImplicit= true)
 	public static Decimal64 valueOf(Whole other){
-		return new Decimal64(other.asBigInteger().doubleValue());
+		return new Decimal64(other.asBigInteger().toString());
 	}
 	
 	private double value;
 	
-	Decimal64(double value){
+	Decimal64(String value){
+        this(Double.parseDouble(value));
+    }
+
+    Decimal64(double value){
 		this.value = value;
 	}
 	
@@ -47,8 +52,8 @@ public class Decimal64 extends Decimal{
 	}
 
 	@Override
-	public Integer hashValue() {
-		return Int32.valueOfNative(Double.hashCode(value));
+	public HashValue hashValue() {
+		return new HashValue(Double.hashCode(value));
 	}
 	
 	@Override
@@ -104,7 +109,7 @@ public class Decimal64 extends Decimal{
 	}
 
 	@Override
-	public Real symetric() {
+	public Real symmetric() {
 		return new Decimal64(-this.value);
 	}
 

@@ -1,7 +1,6 @@
 package lense.core.lang;
 
 import lense.core.lang.java.Constructor;
-import lense.core.math.Integer;
 
 public class None extends Maybe {
 
@@ -18,8 +17,8 @@ public class None extends Maybe {
 	}
 
 	@Override
-	public Integer hashValue() {
-		return Integer.ZERO;
+	public HashValue hashValue() {
+		return new HashValue(0);
 	}
 
 	@Override

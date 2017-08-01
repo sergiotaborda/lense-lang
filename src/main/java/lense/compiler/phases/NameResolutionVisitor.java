@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import compiler.parser.IdentifierNode;
 import compiler.syntax.AstNode;
 import compiler.trees.TreeTransverser;
 import compiler.trees.VisitorNext;
@@ -319,7 +320,7 @@ public class NameResolutionVisitor extends AbstractScopedVisitor {
 			if (match.isPresent()){
 				typeNode.setName(match.get().getTypeName());
 			}
-		}
+		} 
 
 		return VisitorNext.Children;
 	}

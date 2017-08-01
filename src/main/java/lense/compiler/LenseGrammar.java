@@ -26,6 +26,7 @@ import lense.compiler.ast.ArithmeticNode;
 import lense.compiler.ast.ArithmeticOperation;
 import lense.compiler.ast.AssignmentNode;
 import lense.compiler.ast.BlockNode;
+import lense.compiler.ast.BooleanOperation;
 import lense.compiler.ast.BooleanOperatorNode;
 import lense.compiler.ast.BooleanValue;
 import lense.compiler.ast.BreakNode;
@@ -3203,7 +3204,7 @@ public class LenseGrammar extends AbstractLenseGrammar {
 	 * @param string
 	 * @return
 	 */
-	private BooleanOperatorNode.BooleanOperation resolveBooleanOperation(Symbol symbol) {
+	private BooleanOperation resolveBooleanOperation(Symbol symbol) {
 
 		String op;
 		if (symbol.getSemanticAttribute("lexicalValue").isPresent()) {
@@ -3215,19 +3216,19 @@ public class LenseGrammar extends AbstractLenseGrammar {
 
 		switch (op) {
 		case "&":
-			return BooleanOperatorNode.BooleanOperation.BitAnd;
+			return BooleanOperation.BitAnd;
 		case "&&":
-			return BooleanOperatorNode.BooleanOperation.LogicShortAnd;
+			return BooleanOperation.LogicShortAnd;
 		case "|":
-			return BooleanOperatorNode.BooleanOperation.BitOr;
+			return BooleanOperation.BitOr;
 		case "||":
-			return BooleanOperatorNode.BooleanOperation.LogicShortOr;
+			return BooleanOperation.LogicShortOr;
 		case "^":
-			return BooleanOperatorNode.BooleanOperation.BitXor;
+			return BooleanOperation.BitXor;
 		case "~":
-			return BooleanOperatorNode.BooleanOperation.BitNegate;
+			return BooleanOperation.BitNegate;
 		case "!":
-			return BooleanOperatorNode.BooleanOperation.LogicNegate;
+			return BooleanOperation.LogicNegate;
 		default:
 			throw new CompilationError(op + "is not a recognized operator");
 		}

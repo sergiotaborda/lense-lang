@@ -34,7 +34,7 @@ public abstract class Whole extends Number implements Comparable{
 
 
 	@Override
-	public Comparison compareTo(Any other) {
+	public Comparison compareWith(Any other) {
 		int comp = this.compareTo((Whole)other);
 		if (comp > 0){
 			return Greater.constructor();
@@ -46,7 +46,7 @@ public abstract class Whole extends Number implements Comparable{
 	}
 
 	protected abstract BigInteger asBigInteger();
-	
+
 	public abstract Natural abs();
 	
 	protected abstract Integer asInteger();
@@ -57,16 +57,16 @@ public abstract class Whole extends Number implements Comparable{
 	}
 	
 	public Complex plus(Imaginary n ){
-		return new Complex(Real.valueOf(this), n.value);
+		return Complex.constructor(Real.valueOf(this), n.real());
 	}
 	
 	public Complex minus(Imaginary n){
-		return new Complex(Real.valueOf(this), n.value.symetric());
+		return Complex.constructor(Real.valueOf(this), n.real().symmetric());
 	}
 	public Imaginary multiply(Imaginary n){
-		return Imaginary.valueOf(Real.valueOf(this).multiply(n.value));
+		return Imaginary.valueOf(Real.valueOf(this).multiply(n.real()));
 	}
 	public Imaginary divide(Imaginary n){
-		return Imaginary.valueOf(Real.valueOf(this).divide(n.value));
+		return Imaginary.valueOf(Real.valueOf(this).divide(n.real()));
 	}
 }

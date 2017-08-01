@@ -4,5 +4,5 @@ import lense.core.lang.Any;
 
 public interface Comparable extends Any {
 
-	public Comparison compareTo (Any other); 
+	public Comparison compareWith (Any other); 
 }

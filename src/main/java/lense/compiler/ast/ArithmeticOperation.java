@@ -15,8 +15,12 @@ public enum ArithmeticOperation {
 		SignedRightShift("signedRightShift",">>>"),
 		LeftShift("leftShift","<<"),
 		Increment("successor","++"),
-		Decrement("predecessor","--");
-		
+		Decrement("predecessor","--"),
+        BitAnd ("and", "&"),
+        BitOr ("or", "|"),
+        BitXor("xor","^"),
+        Complement("flipAll","~"); // unary
+    
 		private String equivalentMethod;
 		private String symbol;
 		

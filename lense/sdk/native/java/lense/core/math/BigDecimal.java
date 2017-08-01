@@ -1,6 +1,7 @@
 package lense.core.math;
 
 import lense.core.lang.Any;
+import lense.core.lang.HashValue;
 import lense.core.lang.java.Constructor;
 
 public class BigDecimal extends Decimal {
@@ -12,7 +13,11 @@ public class BigDecimal extends Decimal {
 
     @Constructor
     public static BigDecimal constructor (Rational other){
-        return new BigDecimal(other.getNumerator().asBigInteger().divide(other.getDenominator().asBigInteger()) );
+     
+        java.math.BigDecimal n = new java.math.BigDecimal( other.getNumerator().asBigInteger());
+        java.math.BigDecimal d = new java.math.BigDecimal( other.getDenominator().asBigInteger());
+        
+        return new BigDecimal(n.divide(d));
     }
 
     final java.math.BigDecimal value;
@@ -37,8 +42,8 @@ public class BigDecimal extends Decimal {
     }
 
     @Override
-    public Integer hashValue() {
-        return Int32.valueOfNative(this.value.hashCode());
+    public HashValue hashValue() {
+        return new HashValue(this.value.hashCode());
     }
 
     @Override
@@ -77,7 +82,7 @@ public class BigDecimal extends Decimal {
     }
 
     @Override
-    public Real symetric() {
+    public Real symmetric() {
         return new BigDecimal(this.value.negate());
     }
 

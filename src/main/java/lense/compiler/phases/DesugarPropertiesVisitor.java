@@ -10,7 +10,7 @@ import lense.compiler.ast.ArgumentListNode;
 import lense.compiler.ast.AssignmentNode;
 import lense.compiler.ast.AssignmentNode.Operation;
 import lense.compiler.ast.BlockNode;
-import lense.compiler.ast.BooleanOperatorNode.BooleanOperation;
+import lense.compiler.ast.BooleanOperation;
 import lense.compiler.ast.ComparisonNode;
 import lense.compiler.ast.ExpressionNode;
 import lense.compiler.ast.FieldDeclarationNode;
@@ -400,7 +400,7 @@ public class DesugarPropertiesVisitor extends AbstractLenseVisitor{
             } else {
                 // TODO return options LessThan , Equals , GreaterThan 
 
-                MethodInvocationNode compareTo = new MethodInvocationNode(n.getLeft(), "compareTo", arg);
+                MethodInvocationNode compareTo = new MethodInvocationNode(n.getLeft(), "compareWith", arg);
                 compareTo.setTypeVariable(new FixedTypeVariable(LenseTypeSystem.Natural()));
 
                 ObjectReadNode parameter = new ObjectReadNode(semanticContext.resolveTypeForName("lense.core.math.Equal",0).get(), "Equal");

@@ -11,8 +11,8 @@ import compiler.trees.TreeTransverser;
 import compiler.trees.VisitorNext;
 import lense.compiler.CompilationError;
 import lense.compiler.TypeAlreadyDefinedException;
+import lense.compiler.ast.BooleanOperation;
 import lense.compiler.ast.BooleanOperatorNode;
-import lense.compiler.ast.BooleanOperatorNode.BooleanOperation;
 import lense.compiler.ast.ConstructorDeclarationNode;
 import lense.compiler.ast.DecisionNode;
 import lense.compiler.ast.FieldDeclarationNode;
@@ -88,8 +88,6 @@ public class StructureVisitor extends AbstractScopedVisitor {
 				typeNode.setTypeParameter(f.toIntervalTypeVariable());
 			}
 
-			TreeTransverser.transverse(n.getExpression(), this);
-
 			if (n.getExpression() instanceof VariableReadNode) {
 				VariableReadNode var = (VariableReadNode) n.getExpression();
 
@@ -100,6 +98,8 @@ public class StructureVisitor extends AbstractScopedVisitor {
 				propagateType(node, typeNode, var.getName());
 				
 			} 
+			
+			TreeTransverser.transverse(n.getExpression(), this);
 
 			return VisitorNext.Siblings;
 		}  

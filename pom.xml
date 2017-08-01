@@ -9,7 +9,7 @@
   	<dependency>
   		<groupId>compiler-little</groupId>
   		<artifactId>compiler-little</artifactId>
-  		<version>0.5.2</version>
+  		<version>0.5.3</version>
   	</dependency>
   	<dependency>
 		<groupId>org.ow2.asm</groupId>

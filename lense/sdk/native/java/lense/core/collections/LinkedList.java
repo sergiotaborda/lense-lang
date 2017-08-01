@@ -1,6 +1,7 @@
 package lense.core.collections;
 
 import lense.core.lang.Any;
+import lense.core.lang.HashValue;
 import lense.core.lang.java.Constructor;
 import lense.core.lang.java.Property;
 import lense.core.lang.java.Signature;
@@ -90,7 +91,7 @@ public class LinkedList extends AbstractAssortment implements ResizableSequence 
 	}
 
 	@Override
-	public Integer hashValue() {
+	public HashValue hashValue() {
 		throw new UnsupportedOperationException();
 	}
 

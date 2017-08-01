@@ -3,11 +3,9 @@ package lense.core.collections;
 import java.math.BigInteger;
 
 import lense.core.lang.Any;
-import lense.core.lang.Boolean;
+import lense.core.lang.HashValue;
 import lense.core.lang.java.Base;
 import lense.core.lang.java.Native;
-import lense.core.math.Int32;
-import lense.core.math.Integer;
 
 @Native
 public class NativeBigIntegerProgression extends Base implements Progression{
@@ -33,7 +31,7 @@ public class NativeBigIntegerProgression extends Base implements Progression{
 	}
 
 	@Override
-	public Integer hashValue() {
-		return Int32.valueOfNative(start.hashCode() ^ end.hashCode());
+	public HashValue hashValue() {
+		return new HashValue(start.hashCode() ^ end.hashCode());
 	}
 }

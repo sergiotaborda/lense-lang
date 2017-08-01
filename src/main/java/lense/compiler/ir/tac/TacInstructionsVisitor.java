@@ -14,7 +14,6 @@ import lense.compiler.ast.ArithmeticNode;
 import lense.compiler.ast.ArithmeticOperation;
 import lense.compiler.ast.AssignmentNode;
 import lense.compiler.ast.BooleanOperatorNode;
-import lense.compiler.ast.BooleanOperatorNode.BooleanOperation;
 import lense.compiler.ast.BreakNode;
 import lense.compiler.ast.ClassTypeNode;
 import lense.compiler.ast.ComparisonNode;
@@ -573,7 +572,7 @@ public class TacInstructionsVisitor implements Visitor<AstNode> {
 
 
 
-	private Operation logicOperationFor(BooleanOperation operation) {
+	private Operation logicOperationFor(lense.compiler.ast.BooleanOperation operation) {
 		switch(operation){
 		case BitAnd:
 			return Operation.BITWISE_AND;

@@ -1,0 +1,10 @@
+
+import lense.core.math.Integer;
+import lense.core.lang.Boolean;
+
+public native class HashValue   {
+
+	public native constructor();
+	
+	public native concat( n : HashValue) : HashValue;
+} 

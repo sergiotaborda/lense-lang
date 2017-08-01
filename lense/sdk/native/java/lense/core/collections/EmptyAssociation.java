@@ -3,6 +3,7 @@ package lense.core.collections;
 import java.util.Collections;
 
 import lense.core.lang.Any;
+import lense.core.lang.HashValue;
 import lense.core.lang.Maybe;
 import lense.core.lang.None;
 import lense.core.lang.String;
@@ -45,8 +46,8 @@ public class EmptyAssociation implements Association {
 	}
 
 	@Override
-	public Integer hashValue() {
-		return Int32.valueOfNative(0);
+	public HashValue hashValue() {
+		return new HashValue(0);
 	}
 
 	@Override

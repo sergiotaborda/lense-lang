@@ -1,24 +1,14 @@
 package lense.core.math;
 
 import lense.core.lang.Any;
+import lense.core.lang.HashValue;
 import lense.core.lang.java.Constructor;
-import lense.core.lang.java.Native;
 
 public class Rational extends Real{
 
     @Constructor
     public static Rational constructor(Integer n , Integer d){
         return new Rational(n,d);
-    }
-
-    @Native
-    public static Rational valueOfNative(long n , long d){
-        return new Rational(Integer.valueOfNative(n),Integer.valueOfNative(d));
-    }
-
-    @Native
-    public static Rational valueOfNative(long n ){
-        return new Rational(Integer.valueOfNative(n),Integer.ONE);
     }
 
 
@@ -53,9 +43,10 @@ public class Rational extends Real{
     }
 
     @Override
-    public final Integer hashValue(){
-        return Int32.valueOfNative(numerator.hashCode() ^ denominator.hashCode());
+    public final HashValue hashValue(){
+        return new HashValue(numerator.hashCode() ^ denominator.hashCode());
     }
+
 
     public lense.core.lang.String asString(){
         if (this.denominator.isOne()){
@@ -147,7 +138,7 @@ public class Rational extends Real{
     }
 
     @Override
-    public Real symetric() {
+    public Real symmetric() {
         return new Rational(numerator.symmetric(), denominator);
     }
 

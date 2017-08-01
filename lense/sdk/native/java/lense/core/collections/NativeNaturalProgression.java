@@ -1,10 +1,9 @@
 package lense.core.collections;
 
 import lense.core.lang.Any;
-import lense.core.lang.Boolean;
+import lense.core.lang.HashValue;
 import lense.core.lang.java.Base;
 import lense.core.lang.java.Native;
-import lense.core.math.Integer;
 import lense.core.math.Natural;
 
 @Native
@@ -29,7 +28,7 @@ public class NativeNaturalProgression extends Base implements Progression{
 	}
 
 	@Override
-	public Integer hashValue() {
-		return start.hashValue().plus(end.hashValue()); // TODO xor
+	public HashValue hashValue() {
+		return start.hashValue().concat(end.hashValue()); 
 	}
 }

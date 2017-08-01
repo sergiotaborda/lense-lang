@@ -5,6 +5,6 @@ import lense.core.lang.Boolean;
 public native class Any {
 
 	public native equalsTo( other: Any) : Boolean;
-	public native hashValue () : Integer;
+	public native hashValue () : HashValue; // it is really ExclusiveDijunctable & Field
 	public native asString () : String;
 } 

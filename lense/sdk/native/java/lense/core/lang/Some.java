@@ -28,7 +28,7 @@ public class Some extends Maybe{
 	}
 
 	@Override
-	public Integer hashValue() {
+	public HashValue hashValue() {
 		return value.hashValue();
 	}
 

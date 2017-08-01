@@ -1,7 +1,7 @@
 package lense.core.math;
 
 import lense.core.lang.Any;
-import lense.core.lang.Boolean;
+import lense.core.lang.HashValue;
 import lense.core.lang.java.Constructor;
 
 public class Imaginary extends Number{
@@ -9,18 +9,15 @@ public class Imaginary extends Number{
 	
 	@Constructor
 	public static Imaginary constructor (){
-		return Imaginary.valueOfNative(0);
+		return valueOf(Real.Zero);
 	}
 	
-	public static Imaginary valueOfNative(long value){
-		return Imaginary.valueOf(Rational.valueOfNative(value));
-	}
-
+	@Constructor
 	public static Imaginary valueOf(Real real){
 		return new Imaginary(real);
 	}
 
-	Real value;
+	private Real value;
 	
 	private Imaginary(Real value) {
 		this.value = value;
@@ -35,7 +32,7 @@ public class Imaginary extends Number{
 	}
 
 	public Real multiply(Imaginary other) {
-		return this.value.multiply(other.value).symetric();
+		return this.value.multiply(other.value).symmetric();
 	}
 
 	public Real divide(Imaginary other) {
@@ -60,11 +57,11 @@ public class Imaginary extends Number{
 	}
 	
 	public Complex plus(Real other) {
-		return new Complex(other, value);
+		return Complex.constructor(other, value);
 	}
 
 	public Complex minus(Real other) {
-		return new Complex(value.symetric(), value);
+		return Complex.constructor(value.symmetric(), value);
 	}
 
 	public Imaginary multiply(Real other) {
@@ -89,7 +86,11 @@ public class Imaginary extends Number{
 	}
 	
 	@Override
-	public Integer hashValue() {
+	public HashValue hashValue() {
 		return value.hashValue();
 	}
+
+    public Real real() {
+        return value;
+    }
 }

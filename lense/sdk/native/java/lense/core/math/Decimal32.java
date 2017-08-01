@@ -2,6 +2,7 @@ package lense.core.math;
 
 
 import lense.core.lang.Any;
+import lense.core.lang.HashValue;
 import lense.core.lang.java.Constructor;
 import lense.core.lang.java.Native;
 
@@ -51,8 +52,8 @@ public class Decimal32 extends Decimal{
 	}
 
 	@Override
-	public Integer hashValue() {
-		return Int32.valueOfNative(Float.hashCode(value));
+	public HashValue hashValue() {
+		return new HashValue(Float.hashCode(value));
 	}
 
 	@Override
@@ -108,7 +109,7 @@ public class Decimal32 extends Decimal{
 	}
 	
 	@Override
-	public Real symetric() {
+	public Real symmetric() {
 		return new Decimal32(-this.value);
 	}
 	

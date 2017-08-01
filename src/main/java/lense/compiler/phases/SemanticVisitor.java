@@ -17,8 +17,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import lense.compiler.typesystem.FundamentalLenseTypeDefinition;
-
 import compiler.parser.IdentifierNode;
 import compiler.syntax.AstNode;
 import compiler.trees.TreeTransverser;
@@ -31,7 +29,8 @@ import lense.compiler.ast.ArgumentListNode;
 import lense.compiler.ast.ArithmeticNode;
 import lense.compiler.ast.ArithmeticOperation;
 import lense.compiler.ast.AssignmentNode;
-import lense.compiler.ast.BooleanOperatorNode.BooleanOperation;
+import lense.compiler.ast.BooleanOperation;
+import lense.compiler.ast.BooleanOperatorNode;
 import lense.compiler.ast.CastNode;
 import lense.compiler.ast.CatchOptionNode;
 import lense.compiler.ast.ClassBodyNode;
@@ -96,6 +95,7 @@ import lense.compiler.type.variable.DeclaringTypeBoundedTypeVariable;
 import lense.compiler.type.variable.FixedTypeVariable;
 import lense.compiler.type.variable.IntervalTypeVariable;
 import lense.compiler.type.variable.TypeVariable;
+import lense.compiler.typesystem.FundamentalLenseTypeDefinition;
 import lense.compiler.typesystem.Imutability;
 import lense.compiler.typesystem.LenseTypeSystem;
 import lense.compiler.typesystem.Visibility;
@@ -541,8 +541,7 @@ public class SemanticVisitor extends AbstractScopedVisitor {
             if (t.needsInference()) {
                 return;
             }
-            resolveTypeDefinition(t);
-
+            resolveTypeDefinition(t);  
         } else if (node instanceof LiteralSequenceInstanceCreation) {
             LiteralSequenceInstanceCreation literal = (LiteralSequenceInstanceCreation) node;
             TypeDefinition maxType = ((TypedNode) literal.getArguments().getFirst().getFirstChild()).getTypeVariable()
@@ -759,105 +758,20 @@ public class SemanticVisitor extends AbstractScopedVisitor {
 
             n.setTypeVariable(new FixedTypeVariable(funtionType));
 
+        } else if (node instanceof BooleanOperatorNode) {
+            BooleanOperatorNode b = (BooleanOperatorNode)node;
 
+            Optional<ArithmeticOperation> equivalent = b.getOperation().equivalentArithmeticOperation();
+            
+            if (equivalent.isPresent()){
+                promoteArithmeticOperatorToMethodCall(b, b.getLeft(), b.getRight(), equivalent.get() );  
+            }
+            
         } else if (node instanceof ArithmeticNode) {
             ArithmeticNode n = (ArithmeticNode) node;
-
-            TypeVariable left = n.getLeft().getTypeVariable();
-            TypeVariable right = n.getRight().getTypeVariable();
-
-            if (left.equals(right) && left.getTypeDefinition().equals(LenseTypeSystem.String())) {
-                n.setTypeVariable(left);
-
-                StringConcatenationNode c;
-                if (n.getLeft() instanceof StringConcatenationNode) {
-                    c = (StringConcatenationNode) n.getLeft();
-                    c.add(n.getRight());
-                } else {
-                    c = new StringConcatenationNode();
-                    c.add(n.getLeft());
-                    c.add(n.getRight());
-
-                }
-                c.setTypeVariable(left);
-                n.getParent().replace(n, c);
-
-            } else {
-                // find instance operator method
-                TypeDefinition type = unsureNotFundamental(left.getTypeDefinition());
-                
-                
-               
-                if (type.equals(LenseTypeSystem.String())) {
-
-                    MethodInvocationNode convert = new MethodInvocationNode(n.getRight(), "asString");
-                    convert.setTypeVariable(left.toIntervalTypeVariable());
-
-                    StringConcatenationNode concat = new StringConcatenationNode();
-                    concat.add(n.getLeft());
-                    concat.add(convert);
-                    concat.setTypeVariable(left);
-
-                    n.getParent().replace(node, concat);
-                } else {
-                    MethodSignature signature = new MethodSignature(
-                            n.getOperation().equivalentMethod(),
-                            new MethodParameter(right)
-                            );
-
-                    Optional<Method> method = type.getMethodBySignature(signature);
-
-                    if (!method.isPresent()) {
-
-                        method = type.getMethodByPromotableSignature(signature);
-
-                        if (!method.isPresent()) {
-                            // search static operator
-                            throw new CompilationError(node, "Method " + n.getOperation().equivalentMethod() + "("
-                                    + right + ") is not defined in " + left);
-                        } else {
-                            // Promote
-                            Optional<Constructor> op = left.getTypeDefinition()
-                                    .getConstructorByParameters(new ConstructorParameter(right));
-
-
-                            n.replace(n.getRight(), NewInstanceCreationNode.of(left,  op.get(), n.getRight()));
-                        }
-                    }
-
-
-                    ArgumentListItemNode arg = new ArgumentListItemNode(0, n.getRight());
-                    arg.setExpectedType(n.getRight().getTypeVariable());
-
-                    MethodInvocationNode invokeOp = new MethodInvocationNode(
-                            n.getLeft(),
-                            n.getOperation().equivalentMethod(),
-                            arg
-                            );
-
-                    List<CallableMemberMember<Method>> methodParameters = method.get().getParameters();
-                    if (methodParameters.size() != invokeOp.getCall().getArgumentListNode().getChildren().size()) {
-                        throw new CompilationError(node, "Argument count does not match parameters count");
-                    }
-
-                    for (int i = 0; i < methodParameters.size(); i++) {
-                        MethodParameter param = (MethodParameter) methodParameters.get(i);
-                        ArgumentListItemNode a = (ArgumentListItemNode) invokeOp.getCall().getArgumentListNode()
-                                .getChildren().get(i);
-                        a.setExpectedType(param.getType());
-                    }
-
-                    n.getParent().replace(node, invokeOp);
-
-                    TypeVariable t = method.get().getReturningType();
-                    if (t == null){
-                        throw new IllegalStateException("Type cannot be null");
-                    }
-                    invokeOp.setTypeVariable(t);
-
-                }
-            }
-
+    
+            promoteArithmeticOperatorToMethodCall(n, n.getLeft(), n.getRight(), n.getOperation() );  
+ 
         } else if (node instanceof PosExpression) {
             PosExpression p = (PosExpression) node;
 
@@ -984,7 +898,7 @@ public class SemanticVisitor extends AbstractScopedVisitor {
             final TypeDefinition type = ((TypedNode) p.getChildren().get(0)).getTypeVariable().getTypeDefinition();
 
             String methodName;
-            if (p.getOperation().equals(BooleanOperation.BitNegate)) { /* ~a */
+            if (p.getOperation().equals(ArithmeticOperation.Complement)) { /* ~a */
                 // TODO verify operator interface Binary
                 if (LenseTypeSystem.Boolean().equals(type)) {
                     methodName = "flipAll";
@@ -1774,7 +1688,7 @@ public class SemanticVisitor extends AbstractScopedVisitor {
                 if (method.isPresent()) {
                     m.setTypeVariable(method.get().getReturningType());
                 } else {
-                    throw new CompilationError(node, "There is not method named '" + name + "' in type '"
+                    throw new CompilationError(node, "There is no method named '" + name + "' in type '"
                             + def.getName() + "' with arguments " + Arrays.toString(parameters));
                     // throw new UnsupportedOperationException();
                     // if (!LenseTypeSystem.isAssignableTo(def,
@@ -2082,12 +1996,110 @@ public class SemanticVisitor extends AbstractScopedVisitor {
         } 
     }
 
+
+    private void promoteArithmeticOperatorToMethodCall(ExpressionNode parent, ExpressionNode leftExpression, ExpressionNode rightExpression,
+                ArithmeticOperation operation) {   
+        
+        TypeVariable left = leftExpression.getTypeVariable();
+        TypeVariable right = rightExpression.getTypeVariable();
+        
+        if (left.equals(right) && left.getTypeDefinition().equals(LenseTypeSystem.String())) {
+            parent.setTypeVariable(left);
+
+            StringConcatenationNode c;
+            if (leftExpression instanceof StringConcatenationNode) {
+                c = (StringConcatenationNode) leftExpression;
+                c.add(rightExpression);
+            } else {
+                c = new StringConcatenationNode();
+                c.add(leftExpression);
+                c.add(rightExpression);
+
+            }
+            c.setTypeVariable(left);
+            parent.getParent().replace(parent, c);
+
+        } else {
+            // find instance operator method
+            TypeDefinition type = unsureNotFundamental(left.getTypeDefinition());
+
+            if (type.equals(LenseTypeSystem.String())) {
+
+                MethodInvocationNode convert = new MethodInvocationNode(rightExpression, "asString");
+                convert.setTypeVariable(left.toIntervalTypeVariable());
+
+                StringConcatenationNode concat = new StringConcatenationNode();
+                concat.add(leftExpression);
+                concat.add(convert);
+                concat.setTypeVariable(left);
+
+                parent.getParent().replace(parent, concat);
+            } else {
+                MethodSignature signature = new MethodSignature(
+                        operation.equivalentMethod(),
+                        new MethodParameter(right)
+                        );
+
+                Optional<Method> method = type.getMethodBySignature(signature);
+
+                if (!method.isPresent()) {
+
+                    method = type.getMethodByPromotableSignature(signature);
+
+                    if (!method.isPresent()) {
+                        // search static operator
+                        throw new CompilationError(parent, "Method " + operation.equivalentMethod() + "("
+                                + right + ") is not defined in " + left);
+                    } else {
+                        // Promote
+                        Optional<Constructor> op = left.getTypeDefinition()
+                                .getConstructorByParameters(new ConstructorParameter(right));
+
+
+                        parent.replace(rightExpression, NewInstanceCreationNode.of(left,  op.get(), rightExpression));
+                    }
+                }
+
+
+                ArgumentListItemNode arg = new ArgumentListItemNode(0, rightExpression);
+                arg.setExpectedType(rightExpression.getTypeVariable());
+
+                MethodInvocationNode invokeOp = new MethodInvocationNode(
+                        leftExpression,
+                        operation.equivalentMethod(),
+                        arg
+                        );
+
+                List<CallableMemberMember<Method>> methodParameters = method.get().getParameters();
+                if (methodParameters.size() != invokeOp.getCall().getArgumentListNode().getChildren().size()) {
+                    throw new CompilationError(parent, "Argument count does not match parameters count");
+                }
+
+                for (int i = 0; i < methodParameters.size(); i++) {
+                    MethodParameter param = (MethodParameter) methodParameters.get(i);
+                    ArgumentListItemNode a = (ArgumentListItemNode) invokeOp.getCall().getArgumentListNode()
+                            .getChildren().get(i);
+                    a.setExpectedType(param.getType());
+                }
+
+                parent.getParent().replace(parent, invokeOp);
+
+                TypeVariable t = method.get().getReturningType();
+                if (t == null){
+                    throw new IllegalStateException("Type cannot be null");
+                }
+                invokeOp.setTypeVariable(t);
+
+            }
+        }
+    }
+
     private TypeDefinition unsureNotFundamental(TypeDefinition type) {
         if (type instanceof FundamentalLenseTypeDefinition){
             return getSemanticContext().resolveTypeForName(type.getName(), type.getGenericParameters().size()).get();
         }
         return type;
-            
+
     }
 
     private void resolveFieldPropertyOrVariableName(AstNode node, FieldOrPropertyAccessNode m, TypeVariable currentType, TypeVariable fieldOwnerType, String name) {
@@ -2104,7 +2116,7 @@ public class SemanticVisitor extends AbstractScopedVisitor {
                 Optional<Property> property = def.getPropertyByName(name);
 
                 if (!property.isPresent()) {
-                    throw new CompilationError(node, name + " is not defined in " + fieldOwnerType);
+                    throw new CompilationError(node, "Field " + name + " is not defined in " + fieldOwnerType);
 
                 } else {
                     m.setTypeVariable(property.get().getReturningType()); // TODO

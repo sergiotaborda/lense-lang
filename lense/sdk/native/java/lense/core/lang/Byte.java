@@ -72,14 +72,32 @@ public class Byte extends Base implements Binary{
 	}
 
 	@Override
-	public Integer hashValue() {
-		return new Int32(value);
+	public HashValue hashValue() {
+		return new HashValue(value);
 	}
 
 	@Override
 	public String asString() {
 		return String.valueOfNative(java.lang.Integer.toString(value));
 	}
+
+    @Override
+    public Byte xor(ExclusiveDijunctable other) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public Byte or(Dijunctable other) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public Byte and(Injunctable other) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
 
 }

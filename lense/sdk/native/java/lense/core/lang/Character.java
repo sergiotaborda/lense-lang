@@ -36,8 +36,8 @@ public final class Character extends Base implements Any, Ordinal{
 	}
 
 	@Override
-	public Integer hashValue() {
-		return Int32.valueOfNative(code);
+	public HashValue hashValue() {
+		return new HashValue(code);
 	}
 
 	@Override

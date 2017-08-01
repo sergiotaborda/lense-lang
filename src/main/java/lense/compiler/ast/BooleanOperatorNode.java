@@ -7,30 +7,6 @@ package lense.compiler.ast;
  * 
  */
 public class BooleanOperatorNode extends BooleanExpressionNode {
-
-	public enum BooleanOperation {
-		BitAnd ("&"),
-		BitOr ("|"),
-		BitXor("^"),
-		BitNegate("~"), // unary
-		LogicNegate("!"),  // unary
-		LogicShortAnd("&&"),
-		LogicShortOr("||");
-		//InstanceofType("is");
-		
-		private String symbol;
-
-		BooleanOperation(String symbol){
-			this.symbol = symbol;
-		}
-
-		/**
-		 * @return
-		 */
-		public String symbol() {
-			return symbol;
-		}
-	}
 	
 	private BooleanOperation operation;
 

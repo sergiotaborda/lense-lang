@@ -2,6 +2,7 @@ package lense.core.math;
 
 import java.math.BigInteger;
 
+import lense.core.lang.HashValue;
 import lense.core.lang.java.Constructor;
 import lense.core.lang.java.Native;
 
@@ -86,9 +87,7 @@ public abstract class Integer extends Whole implements Comparable{
 		return this;
 	}
 	
-	public final Integer hashValue(){
-		return this;
-	}
+	public abstract HashValue hashValue();
 
 	public abstract Integer successor();
 	public abstract Integer predecessor();
@@ -101,5 +100,7 @@ public abstract class Integer extends Whole implements Comparable{
 
     @Native
     public abstract Int32 toInt32();
+
+    public abstract boolean isNegative();
 
 }

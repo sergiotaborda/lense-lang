@@ -1,6 +1,7 @@
 package lense.core.math;
 
 import lense.core.lang.Any;
+import lense.core.lang.HashValue;
 import lense.core.lang.String;
 import lense.core.lang.java.Constructor;
 import lense.core.lang.java.SingletonObject;
@@ -21,8 +22,8 @@ public final class Greater extends Comparison{
 	}
 
 	@Override
-	public Integer hashValue() {
-		return Int32.valueOfNative(1);
+	public HashValue hashValue() {
+		return new HashValue(1);
 	}
 	
 	@Override

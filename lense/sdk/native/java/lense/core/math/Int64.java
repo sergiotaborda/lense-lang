@@ -3,6 +3,10 @@ package lense.core.math;
 import java.math.BigInteger;
 
 import lense.core.lang.Binary;
+import lense.core.lang.Dijunctable;
+import lense.core.lang.ExclusiveDijunctable;
+import lense.core.lang.HashValue;
+import lense.core.lang.Injunctable;
 import lense.core.lang.java.Constructor;
 import lense.core.lang.java.Native;
 import lense.core.lang.java.Property;
@@ -208,5 +212,40 @@ public class Int64 extends Integer implements Binary{
         return Int32.valueOfNative((int)this.value);
     }
 	
-	
+    @Override
+    public boolean isNegative() {
+        return this.value < 0;
+    }
+    
+    @Override
+    public Int64 xor(ExclusiveDijunctable other) {
+        if (other instanceof Int64){
+            return new Int64(this.value ^ ((Int64)other).value);
+        } else {
+            throw new IllegalArgumentException("Cannot inject with a diferent class");
+        }
+    }
+
+    @Override
+    public Int64 or(Dijunctable other) {
+        if (other instanceof Int64){
+            return new Int64(this.value | ((Int64)other).value);
+        } else {
+            throw new IllegalArgumentException("Cannot inject with a diferent class");
+        }
+    }
+
+    @Override
+    public Int64 and(Injunctable other) {
+        if (other instanceof Int64){
+            return new Int64(this.value & ((Int64)other).value);
+        } else {
+            throw new IllegalArgumentException("Cannot inject with a diferent class");
+        }
+    }
+    
+    @Override
+    public HashValue hashValue() {
+        return new HashValue(Long.hashCode(value));
+    }
 }

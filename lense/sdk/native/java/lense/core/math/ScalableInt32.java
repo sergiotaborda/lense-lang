@@ -2,6 +2,8 @@ package lense.core.math;
 
 import java.math.BigInteger;
 
+import lense.core.lang.HashValue;
+
 public class ScalableInt32 extends ScalableInteger {
 
     int value;
@@ -122,4 +124,13 @@ public class ScalableInt32 extends ScalableInteger {
         return Int32.valueOfNative(this.value);
     }
 
+    @Override
+    public boolean isNegative() {
+        return this.value < 0;
+    }
+    
+    @Override
+    public HashValue hashValue() {
+        return new HashValue(value);
+    }
 }

@@ -4,7 +4,7 @@ import compiler.syntax.AstNode;
 import compiler.trees.Visitor;
 import compiler.trees.VisitorNext;
 import lense.compiler.ast.ArgumentListItemNode;
-import lense.compiler.ast.BooleanOperatorNode.BooleanOperation;
+import lense.compiler.ast.BooleanOperation;
 import lense.compiler.crosscompile.java.JavaTypeKind;
 import lense.compiler.ast.BooleanValue;
 import lense.compiler.ast.ExpressionNode;

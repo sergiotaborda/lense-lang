@@ -1,0 +1,9 @@
+
+import lense.core.math.Integer;
+import lense.core.lang.Boolean;
+
+public interface Injunctable<T> {
+
+	public and( other: T) : T;
+	
+} 

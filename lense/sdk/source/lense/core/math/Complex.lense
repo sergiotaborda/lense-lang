@@ -3,6 +3,76 @@ import lense.core.math.Number;
 import lense.core.math.Imaginary;
 import lense.core.math.Real;
 
-public native class Complex extends Number {
+public class Complex extends Number {
 
+	private var real : Real = new Real.zero();
+	private var imaginary: Real = new Real.zero();
+
+	public  constructor (){
+		return new Complex(new Real.zero(), new Real.zero());
+	}
+	
+	public implicit constructor valueOfReal( real : Real){
+		return new Complex(real, new Real.zero());
+	}
+	
+    public constructor ( real : Real, imaginary: Real);
+	
+	public plus( other : Complex) : Complex {
+		return new Complex(this.real.plus(other.real), this.imaginary.plus(other.imaginary));
+	}
+
+	public minus( other : Complex) : Complex {
+		return new Complex(this.real. minus(other.real), this.imaginary. minus(other.imaginary));
+	}
+
+	public  multiply( other : Complex) : Complex {
+		return new Complex(
+				this.real.multiply(other.real).minus(this.imaginary.multiply(other.imaginary)) ,
+				this.real.multiply(other.imaginary).plus(this.imaginary.multiply(other.real))
+		);
+	}
+
+	public divide( denominator : Complex ) : Complex {
+		var magnitude : Real =  denominator.abs();
+		//if (magnitude.isZero()){
+		//	throw new ArithmeticException();
+		//}
+		return this.multiply(denominator.conjugate()).divide(magnitude);
+	}
+	
+	public divide( denominator: Real ) : Complex {
+		return new Complex(this.real.divide(denominator), this.imaginary.divide(denominator));
+	}
+
+	public conjugate() : Complex {
+		return new Complex(this.real, -this.imaginary);
+	}
+	
+	public isZero() : Boolean {
+		return real.isZero() && imaginary.isZero();
+	}
+	
+	public abs() : Real {
+		return real.multiply(real).plus(this.imaginary.multiply(this.imaginary));
+	}
+	
+	public equalsTo( other : Any) : Boolean {
+		if (other is Complex){
+			return this.real.equalsTo(other.real) && this.imaginary.equalsTo(other.imaginary);
+		}
+		return false;
+	}
+	
+	public hashValue() : HashValue {
+		return this.real.hashValue().concat(this.imaginary.hashValue()); 
+	} 
+
+	public  asString() : String {
+	    var sign : String = "+";
+	    if (imaginary.signum() < 0){
+	    	sign = " - ";
+	    }
+		return real.asString() + sign +  imaginary.asString() + "i";
+	}
 }

@@ -76,13 +76,13 @@ public class Main extends ConsoleApplication {
   	 
   	   console.println("Product is : {{ bx * cx }}");
   	 
-  	 	var rational : Any = 0.5;
+  	 	var rational : Any = 0.3;
   	 	
   	 	console.println("");
   	 	
   	 	if (rational is Rational){
   	 		console.println("Decimal literals are rational");
-  	 		var dec : Decimal64 = rational;  
+  	 		var dec : Decimal64 = toRational(rational);  
   	 		console.println("dec is {{ dec }}");
   	 	} else {
   	 		console.println("Decimal literals are NOT rational");
@@ -198,8 +198,11 @@ public class Main extends ConsoleApplication {
   	     
   	     console.println(getlength([1,2]));
   	    
+  	    console.println("End");
+  	 	
   	}
 
+	public toRational(number : Rational) : Rational => number;
 
   	public getlength ( seq : Sequence<Natural>) => seq.size; 
   	

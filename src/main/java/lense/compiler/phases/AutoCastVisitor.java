@@ -1,5 +1,6 @@
 package lense.compiler.phases;
 
+import compiler.parser.IdentifierNode;
 import compiler.syntax.AstNode;
 import compiler.trees.VisitorNext;
 import lense.compiler.ast.CastNode;
@@ -74,7 +75,19 @@ public class AutoCastVisitor extends AbstractLenseVisitor  {
 				}
 				
 			}
-		}
+		} else if (node instanceof IdentifierNode){
+		    if (((IdentifierNode)node).getId().equals(variableName)){
+		       
+		        VariableInfo variable = this.getSemanticContext().currentScope().searchVariable(variableName);
+
+		        VariableReadNode read = new VariableReadNode(variableName, variable);
+		        CastNode cast = new CastNode(read, this.typeVariable.getTypeDefinition());
+                
+		        node.getParent().replace(node, cast);
+		    }
+		    
+
+		} 
 		
 	}
 

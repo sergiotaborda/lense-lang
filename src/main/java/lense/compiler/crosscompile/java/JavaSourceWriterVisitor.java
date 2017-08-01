@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import javax.lang.model.element.QualifiedNameable;
+
 import compiler.parser.IdentifierNode;
 import compiler.syntax.AstNode;
 import compiler.trees.TreeTransverser;
@@ -22,8 +24,8 @@ import lense.compiler.ast.ArgumentListNode;
 import lense.compiler.ast.ArithmeticNode;
 import lense.compiler.ast.AssignmentNode;
 import lense.compiler.ast.BlockNode;
+import lense.compiler.ast.BooleanOperation;
 import lense.compiler.ast.BooleanOperatorNode;
-import lense.compiler.ast.BooleanOperatorNode.BooleanOperation;
 import lense.compiler.ast.BooleanValue;
 import lense.compiler.ast.CastNode;
 import lense.compiler.ast.CatchOptionNode;
@@ -213,17 +215,19 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 							intPart = "";
 						}
 						writer.append(n.getTypeVariable().getTypeDefinition().getName())
-						.append(".constructor(lense.core.math.Integer.valueOfNative(").append(intPart).append(decPart).append("),lense.core.math.Integer.valueOfNative(").append(decimalPart).append("))");
+						.append(".constructor(lense.core.math.NativeNumberFactory.newInteger(").append(intPart).append(decPart).append("),lense.core.math.NativeNumberFactory.newInteger(").append(decimalPart).append("))");
 
 					} else {
 						writer.append(n.getTypeVariable().getTypeDefinition().getName())
-						.append(".constructor(lense.core.math.Integer.valueOfNative(").append(n.toString()).append("), lense.core.math.Integer.valueOfNative(1))");
+						.append(".constructor(lense.core.math.NativeNumberFactory.newInteger(").append(n.toString()).append("), lense.core.math.NativeNumberFactory.newInteger(1))");
 					}
-				} else {
-					// TODO test bounds (number could be to big , should use string
+				}  else {
+				    // TODO test bounds (number could be to big , should use string
 
-					writer.append(n.getTypeVariable().getTypeDefinition().getName())
-					.append(".valueOfNative(").append(n.toString()).append(")");
+				    QualifiedNameNode qn = new QualifiedNameNode(n.getTypeVariable().getTypeDefinition().getName());
+				    writer.append("lense.core.math.NativeNumberFactory.new")
+				    .append(qn.getLast().getName())
+					.append("(").append(n.toString()).append(")");
 				}
 
 			} else if (node instanceof lense.compiler.ast.LiteralSequenceInstanceCreation){

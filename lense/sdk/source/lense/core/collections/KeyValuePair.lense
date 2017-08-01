@@ -4,14 +4,15 @@ import lense.core.math.Integer;
 import lense.core.lang.Any;
 import lense.core.lang.Boolean;
 import lense.core.lang.String;
+import lense.core.lang.HashValue;
 
 public class KeyValuePair<K,V> {
 
 	public constructor ( val public key : K, val public value: V);
 
 	
-	public hashValue() : Integer {
-		return key.hashValue() + 31 * value.hashValue();
+	public hashValue() : HashValue {
+		return key.hashValue().concat(value.hashValue()); // TODO ++ operator
 	}
 	
 	public equalsTo(other : Any) : Boolean {

@@ -101,8 +101,9 @@ public abstract class LenseCompiler {
         this.backendFactory = backendFactory;
     }
 
-    public void setCompilerListener(CompilerListener listener){
+    public LenseCompiler setCompilerListener(CompilerListener listener){
         this.listener = listener;
+        return this;
     }
 
     protected CompilerListener getCompilerListener(){
@@ -444,7 +445,7 @@ public abstract class LenseCompiler {
         .append(" public equalsTo( other : Any) : Boolean {\n")
         .append("   return false;\n")
         .append("}\n")
-        .append(" public hashValue() : Integer {\n")
+        .append(" public hashValue() : HashValue {\n")
         .append("   return getName().hashValue();\n")
         .append("}\n");
         builder.append("}");
@@ -461,7 +462,7 @@ public abstract class LenseCompiler {
                 .append(" public equalsTo( other: Any) : Boolean {\n")
                 .append("   return false;\n")
                 .append("}\n")
-                .append(" public hashValue() : Integer {\n")
+                .append(" public hashValue() : HashValue {\n")
                 .append("   return getName().hashValue();\n")
                 .append("}\n")
                 .append("}\n");

@@ -1,0 +1,9 @@
+
+import lense.core.math.Integer;
+import lense.core.lang.Boolean;
+
+public interface Dijunctable<T> {
+
+	public or( other: T) : T;
+	
+} 

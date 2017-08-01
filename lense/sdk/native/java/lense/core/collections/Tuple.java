@@ -2,6 +2,7 @@ package lense.core.collections;
 
 import lense.core.lang.Any;
 import lense.core.lang.Boolean;
+import lense.core.lang.HashValue;
 import lense.core.lang.IllegalIndexException;
 import lense.core.lang.java.Base;
 import lense.core.lang.java.Constructor;
@@ -67,8 +68,8 @@ public class Tuple extends Base implements Any, Iterable {
 	}
 
 	@Override
-	public Integer hashValue() {
-		return Int32.valueOfNative(this.head.hashCode());
+	public HashValue hashValue() {
+		return new HashValue(this.head.hashCode());
 	}
 
 	@Override

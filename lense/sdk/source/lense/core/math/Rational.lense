@@ -10,10 +10,7 @@ import lense.core.math.ArithmeticException;
 }/
 public class Rational extends Real {
 
-	val numerator : Integer;
-	val denominator :Integer;
-	
-	public constructor ( numerator : Integer , denominator  :Integer);
+	public constructor ( val public numerator : Integer , val public denominator  :Integer);
 	
 	public equalsTo(other : Any) : Boolean {
 		if(other is Rational){
@@ -22,8 +19,8 @@ public class Rational extends Real {
 		return false;
 	}
 
-	public hashValue() : Integer {
-		return numerator.hashValue() * denominator.hashValue();
+	public hashValue() : HashValue {
+		return numerator.hashValue().concat(denominator.hashValue());
 	}
 	
 	public asString() : String {
@@ -78,7 +75,7 @@ public class Rational extends Real {
 
 	public  multiply(other : Real) : Real {
 		if (other is Rational){
-			return multiply(other);
+			return multiply(other); // TODO flow senstivie cast
 		} 
 			
 		return promoteNext() * other;
@@ -119,12 +116,13 @@ public class Rational extends Real {
 		return this.numerator.equalsTo(denominator);
 	}
 
-	public symetric() : Real {
+	public symmetric() : Real {
 		return new Rational(numerator.symmetric(), denominator);
 	}
 	
 	public signum() : Integer {
 		return numerator.signum() * denominator.signum();
 	}
+
 
 }
