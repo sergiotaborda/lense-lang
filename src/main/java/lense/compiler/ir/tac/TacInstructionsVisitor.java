@@ -762,7 +762,7 @@ public class TacInstructionsVisitor implements Visitor<AstNode> {
 			return Operation.DECREMENT;
 		case Division:
 			return Operation.DIVIDE;
-		case FractionDivision:
+		case IntegerDivision:
 			return Operation.DIVIDE;
 		case Remainder:
 			return Operation.REMAINDER;

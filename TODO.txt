@@ -1,5 +1,5 @@
 Lense CLI
-	compile
+	compile (DONE)
 	run
 	document
 Change Iterator to move + current (DONE)
@@ -46,7 +46,7 @@ Tuples (BNF) and void
 Implement Properties 
 	in interfaces (DONE)
 	validate all non nullable properties are inicialized
-	do delegation    size {get = list.size}   or size => list.size
+	do delegation    size {get = list.size}   or size => list.size (DONE)
 Types
 	inference and optional typing
 	infere optional ": Void" for methods return (DONE)
@@ -127,7 +127,7 @@ Revisit Fields  not initialized
 Operators and Operacional Interfaces	
 	- operator for rational division /
 	- operator for integer division \ , consistent with % operator D = d.q + r where q = D \ d and r = D % d;
-	- handle comparable operators with Comparable<T>
+	- handle comparable operators with Comparable<T> (DONE)
 Allow module to have any name
 	-place module.lense in source root folder
 	-allow for package in files as optional. if present validate it matches the folder structure
@@ -165,7 +165,7 @@ Literals
 	 
 	 
 	 intervals literal
-	 sequence literals [1,2,3,4]  DONE
+	 sequence literals [1,2,3,4]  (DONE)
 	 map literals { "a": 1, "b": 2 , "c" : 3} (DONE)
      Builders like Window { Size = Size { 20, 40} }} equivalente to new : xml alternative + parser
 	 Property bag as single loadable/parsable file (JSON style) 

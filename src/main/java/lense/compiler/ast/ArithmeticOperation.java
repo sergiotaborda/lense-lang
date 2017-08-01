@@ -10,7 +10,7 @@ public enum ArithmeticOperation {
 		Subtraction("minus","-"),
 		Division("divide","/"),
 		Remainder("remainder","%"),
-		FractionDivision("rationalDivide", "//"),
+		IntegerDivision("wholeDivide", "\\"),
 		RightShift("rightShift", ">>"),
 		SignedRightShift("signedRightShift",">>>"),
 		LeftShift("leftShift","<<"),
