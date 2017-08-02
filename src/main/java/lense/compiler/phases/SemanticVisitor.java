@@ -200,6 +200,9 @@ public class SemanticVisitor extends AbstractScopedVisitor {
 
             constructorDeclarationNode.setReturnType(new TypeNode(this.getSemanticContext().currentScope().getCurrentType()));
 
+            // define variable in the method scope. the current scope is block
+            this.getSemanticContext().currentScope().defineVariable("@returnOfMethod", new FixedTypeVariable(this.getSemanticContext().currentScope().getCurrentType()), node);
+      
         } else if (node instanceof MethodDeclarationNode) {
 
             MethodDeclarationNode m = (MethodDeclarationNode) node;
@@ -213,6 +216,12 @@ public class SemanticVisitor extends AbstractScopedVisitor {
             if (this.getSemanticContext().currentScope().getCurrentType().getKind() == LenseUnitKind.Interface) {
                 m.setAbstract(true);
             }
+            
+            
+         // define variable in the method scope. the current scope is block
+            this.getSemanticContext().currentScope().defineVariable("@returnOfMethod", new FixedTypeVariable(LenseTypeSystem.Nothing()), node);
+      
+            
         } else if (node instanceof AccessorNode) {
 
             AccessorNode m = (AccessorNode) node;
@@ -233,6 +242,10 @@ public class SemanticVisitor extends AbstractScopedVisitor {
                     this.getSemanticContext().currentScope().defineVariable(var.getName(), type, node).setInitialized(true);
                 }
             }
+            
+            // define variable in the method scope. the current scope is block
+            this.getSemanticContext().currentScope().defineVariable("@returnOfMethod", m.getParent().getType().getTypeVariable(), node);
+      
 
         } else if (node instanceof ModifierNode) {
 
@@ -938,7 +951,7 @@ public class SemanticVisitor extends AbstractScopedVisitor {
             TypeVariable left = n.getLeft().getTypeVariable();
             TypeVariable right = n.getRight().getTypeVariable();
 
-            if (!LenseTypeSystem.isAssignableTo(right, left)) {
+            if (!LenseTypeSystem.getInstance().isAssignableTo(right, left)) {
 
                 if (!LenseTypeSystem.getInstance().isPromotableTo(right, left)) {
                     if ( left.getTypeDefinition().getName().equals(LenseTypeSystem.Maybe().getName())){
@@ -1005,9 +1018,9 @@ public class SemanticVisitor extends AbstractScopedVisitor {
             if (type instanceof UnionType) {
                 UnionType unionType = (UnionType) type;
 
-                if (LenseTypeSystem.isAssignableTo(unionType.getLeft(), unionType.getRight())) {
+                if (LenseTypeSystem.getInstance().isAssignableTo(unionType.getLeft(), unionType.getRight())) {
                     type = unionType.getRight(); // TODO promote side
-                } else if (LenseTypeSystem.isAssignableTo(unionType.getRight(), unionType.getLeft())) {
+                } else if (LenseTypeSystem.getInstance().isAssignableTo(unionType.getRight(), unionType.getLeft())) {
                     type = unionType.getLeft(); // TODO promote side
                 } else if (LenseTypeSystem.getInstance().isPromotableTo(unionType.getLeft(), unionType.getRight())) {
                     type = unionType.getRight(); // TODO promote side
@@ -1065,7 +1078,7 @@ public class SemanticVisitor extends AbstractScopedVisitor {
                 TypeVariable right = init.getTypeVariable();
 
 
-                if (!LenseTypeSystem.isAssignableTo(right, type)) {
+                if (!LenseTypeSystem.getInstance().isAssignableTo(right, type)) {
                     if (LenseTypeSystem.getInstance().isPromotableTo(right, type)) {
                         // TODO use promote node
                         Optional<Constructor> op = type.getTypeDefinition()
@@ -1115,7 +1128,7 @@ public class SemanticVisitor extends AbstractScopedVisitor {
                 TypeVariable expType = exp.getTypeVariable();
 
                 TypeVariable propType = p.getType().getTypeVariable();
-                if (!LenseTypeSystem.isAssignableTo(expType, propType)) {
+                if (!LenseTypeSystem.getInstance().isAssignableTo(expType, propType)) {
                     if (!LenseTypeSystem.getInstance().isPromotableTo(expType, propType)) {
                         throw new CompilationError(node,
                                 expType + " is not assignable to " + propType + " in property " + p.getName());
@@ -1217,11 +1230,11 @@ public class SemanticVisitor extends AbstractScopedVisitor {
                 Optional<Integer> index = asConstantNumber(indexArgument);
                 if (index.isPresent()) {
 
-                    Optional<Method> tail = methodOwnerType.getMethodsByName("tail").stream()
-                            .filter(md -> md.getParameters().size() == 0).findAny();
-
-                    Optional<Method> head = methodOwnerType.getMethodsByName("head").stream()
-                            .filter(md -> md.getParameters().size() == 0).findAny();
+//                    Optional<Method> tail = methodOwnerType.getMethodsByName("tail").stream()
+//                            .filter(md -> md.getParameters().size() == 0).findAny();
+//
+//                    Optional<Method> head = methodOwnerType.getMethodsByName("head").stream()
+//                            .filter(md -> md.getParameters().size() == 0).findAny();
 
                     int max = countTupleSize(methodOwnerType);
 
@@ -1410,7 +1423,7 @@ public class SemanticVisitor extends AbstractScopedVisitor {
                     Optional<Property> property = def.getPropertyByName(name);
 
                     if (!property.isPresent()) {
-                        if (!LenseTypeSystem.isAssignableTo(def, LenseTypeSystem.Maybe())) {
+                        if (!LenseTypeSystem.getInstance().isAssignableTo(def, LenseTypeSystem.Maybe())) {
                             throw new CompilationError(node,
                                     "No field or property '" + name + "' is defined in " + fieldOwnerType);
                         }
@@ -1810,12 +1823,12 @@ public class SemanticVisitor extends AbstractScopedVisitor {
                 this.getSemanticContext().currentScope().searchVariable(vr.getName()).markEscapes();
             }
 
-            // define variable in the method scope. the current scope is block
-            try {
-                this.getSemanticContext().currentScope().getParent().defineVariable("@returnOfMethod", n.getTypeVariable(), node);
-            } catch (TypeAlreadyDefinedException e) {
-                // ok. no problem;
-            }
+            // mark variable in the method scope. 
+            VariableInfo returnVariable = this.getSemanticContext().currentScope().searchVariable("@returnOfMethod");
+            returnVariable.setTypeVariable(
+                    LenseTypeSystem.getInstance().unionOf(returnVariable.getTypeVariable(), n.getTypeVariable())     
+            );
+         
         } else if (node instanceof AccessorNode) {
 
             AccessorNode m = (AccessorNode) node;
@@ -1827,7 +1840,7 @@ public class SemanticVisitor extends AbstractScopedVisitor {
                     VariableInfo variable = this.getSemanticContext().currentScope().searchVariable("@returnOfMethod");
 
                     if (variable != null && !variable.getTypeVariable().equals(VOID)) {
-                        throw new CompilationError("Method " + m.getParent().getName() + " can not return a value");
+                        throw new CompilationError("Method " + m.getParent().getName() + " cannot return a value");
                     }
                 } else {
                     VariableInfo variable = this.getSemanticContext().currentScope().searchVariable("@returnOfMethod");
@@ -1860,8 +1873,8 @@ public class SemanticVisitor extends AbstractScopedVisitor {
                     if (returnType.getTypeDefinition().equals(VOID)) {
                         VariableInfo variable = this.getSemanticContext().currentScope().searchVariable("@returnOfMethod");
 
-                        if (variable != null && !variable.getTypeVariable().equals(VOID)) {
-                            throw new CompilationError(node, "Method " + m.getName() + " can not return a value");
+                        if (variable != null && !LenseTypeSystem.getInstance().isAssignableTo(variable.getTypeVariable(), new FixedTypeVariable(VOID))) {
+                            throw new CompilationError(node, "Method " + m.getName() + " cannot return a value");
                         }
                     } else {
                         VariableInfo variable = this.getSemanticContext().currentScope().searchVariable("@returnOfMethod");
@@ -1874,19 +1887,9 @@ public class SemanticVisitor extends AbstractScopedVisitor {
                             }
                         }
 
-                        ReturnNode rn = null;
-                        for (AstNode r : m.getBlock().getChildren()) {
-                            if (r instanceof ReturnNode) {
-                                rn = (ReturnNode) r;
-                                break;
-                            }
-                        }
+                       
 
-                        if (rn == null) {
-                            throw new CompilationError(node, variable.getTypeVariable() + " no return found");
-                        }
-
-                        if (!LenseTypeSystem.isAssignableTo(variable.getTypeVariable(), returnType)) {
+                        if (!LenseTypeSystem.getInstance().isAssignableTo(variable.getTypeVariable(), returnType)) {
 
                             if (!LenseTypeSystem.getInstance().isPromotableTo(variable.getTypeVariable(), returnType)) {
                                 throw new CompilationError(node, variable.getTypeVariable() + " is not assignable to "
@@ -1894,6 +1897,19 @@ public class SemanticVisitor extends AbstractScopedVisitor {
                             } else {
                                 // TODO promote
 
+                                ReturnNode rn = null;
+                                for (AstNode r : m.getBlock().getChildren()) {
+                                    if (r instanceof ReturnNode) {
+                                        rn = (ReturnNode) r;
+                                        break;
+                                    }
+                                }
+
+                                if (rn == null) {
+                                    throw new CompilationError(node, variable.getTypeVariable() + " no return found");
+                                }
+                                
+                                
                                 Optional<Constructor> op = returnType.getTypeDefinition()
                                         .getConstructorByParameters(new ConstructorParameter(variable.getTypeVariable()));
 
@@ -1943,14 +1959,14 @@ public class SemanticVisitor extends AbstractScopedVisitor {
         } else if (node instanceof ForEachNode) {
             ForEachNode n = (ForEachNode) node;
 
-            if (!LenseTypeSystem.isAssignableTo(n.getContainer().getTypeVariable(),
+            if (!LenseTypeSystem.getInstance().isAssignableTo(n.getContainer().getTypeVariable(),
                     new FixedTypeVariable(LenseTypeSystem.Iterable()))) {
 
                 throw new CompilationError(node, "Can only iterate over an instance of " + LenseTypeSystem.Iterable());
 
             }
 
-            if (!LenseTypeSystem.isAssignableTo(
+            if (!LenseTypeSystem.getInstance().isAssignableTo(
                     n.getContainer().getTypeVariable().getGenericParameters().get(0).getUpperBound(),
                     n.getVariableDeclarationNode().getTypeVariable())) {
                 throw new CompilationError(n.getVariableDeclarationNode().getTypeVariable().getSymbol()
@@ -1978,7 +1994,7 @@ public class SemanticVisitor extends AbstractScopedVisitor {
         } else if (node instanceof CatchOptionNode) {
 
             TypeVariable exceptionType = ((CatchOptionNode) node).getExceptions().getTypeVariable();
-            if (!LenseTypeSystem.isAssignableTo(exceptionType, new FixedTypeVariable(LenseTypeSystem.Exception()))) {
+            if (!LenseTypeSystem.getInstance().isAssignableTo(exceptionType, new FixedTypeVariable(LenseTypeSystem.Exception()))) {
                 throw new CompilationError("No exception of TypeDefinition " + exceptionType.getSymbol()
                 + " can be thrown; an exception TypeDefinition must be a subclass of Exception");
             }
@@ -2146,7 +2162,7 @@ public class SemanticVisitor extends AbstractScopedVisitor {
     private int countTupleSize(TypeDefinition methodOwnerType) {
         int count = 0;
         TypeVariable type = methodOwnerType.getGenericParameters().get(1).getUpperBound();
-        while (!LenseTypeSystem.isAssignableTo(type.getTypeDefinition(), LenseTypeSystem.Nothing())) {
+        while (!LenseTypeSystem.getInstance().isAssignableTo(type.getTypeDefinition(), LenseTypeSystem.Nothing())) {
             count++;
 
             type = type.getGenericParameters().get(1).getUpperBound();

@@ -35,9 +35,9 @@ public class Complex extends Number {
 
 	public divide( denominator : Complex ) : Complex {
 		var magnitude : Real =  denominator.abs();
-		//if (magnitude.isZero()){
-		//	throw new ArithmeticException();
-		//}
+		if (magnitude.isZero()){
+			throw new Exception();
+		}
 		return this.multiply(denominator.conjugate()).divide(magnitude);
 	}
 	

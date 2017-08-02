@@ -318,7 +318,7 @@ public class LenseTypeDefinition implements TypeDefinition {
 
 		for (int i = 0; i < indexes.length; i++){
 			// TODO use TypeVariables
-			if (!LenseTypeSystem.isAssignableTo(params[i], indexes[i])){
+			if (!LenseTypeSystem.getInstance().isAssignableTo(params[i], indexes[i])){
 				return false;
 			}
 		}
