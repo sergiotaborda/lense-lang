@@ -48,7 +48,7 @@ public class Complex extends Number{
     public Complex divide(Complex other) {
         Real denominator =  other.abs();
         if (denominator.isZero()){
-            throw new ArithmeticException();
+            throw ArithmeticException.constructor(lense.core.lang.String.valueOfNative("Cannot divide by zero"));
         }
         return this.multiply(other.conjugate()).divide(denominator);
     }

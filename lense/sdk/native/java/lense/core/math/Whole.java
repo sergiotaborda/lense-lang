@@ -17,6 +17,9 @@ public abstract class Whole extends Number implements Comparable{
 	public abstract Whole multiply(Whole other);
 	
 	public Rational divide(Whole other){
+	    if (other.isZero()){
+            throw ArithmeticException.constructor(lense.core.lang.String.valueOfNative("Cannot divide by zero"));
+        }
 		return Rational.constructor(this.asInteger(), other.asInteger());
 	}
 	

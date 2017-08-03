@@ -33,6 +33,7 @@ import lense.compiler.ast.ClassTypeNode;
 import lense.compiler.ast.ComparisonNode;
 import lense.compiler.ast.ComparisonNode.Operation;
 import lense.compiler.ast.ConstructorDeclarationNode;
+import lense.compiler.ast.ConstructorExtentionNode;
 import lense.compiler.ast.ContinueNode;
 import lense.compiler.ast.DecisionNode;
 import lense.compiler.ast.FieldAccessNode;
@@ -497,11 +498,15 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 					for (AstNode a : t.getCatchOptions().getChildren()) {
 						CatchOptionNode c = (CatchOptionNode) a;
 
-						writer.print(" catch (");
+						writer.append(" catch (");
 
-						TreeTransverser.transverse(c.getExceptions(), this);
+	                    FormalParameterNode p = c.getExceptions();
 
-						writer.println(")");
+	                    TreeTransverser.transverse(p.getTypeNode(), this);
+
+	                    writer.append(" ").append(p.getName());
+	                    
+						writer.append(")").println();;
 
 						TreeTransverser.transverse(c.getInstructions(), this);
 
@@ -1020,7 +1025,25 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 					}
 					writer.append("){\n");
 
-					if (m.getParameters() != null) {
+					if (m.getExtention() != null){
+					    ConstructorExtentionNode extention = m.getExtention();
+					    writer.append(extention.getCallLevel()).append("(");
+					    
+					    Iterator<AstNode> it = extention.getArguments().getChildren().iterator();
+                        while (it.hasNext()){
+                            ArgumentListItemNode arg = (ArgumentListItemNode)it.next();
+                            
+                            TreeTransverser.transverse(arg, this);
+                            
+                            if (it.hasNext()){
+                               writer.append(","); 
+                            }
+                        }
+                        
+					    writer.append(");").println();
+					    
+					    
+					} else if (m.getParameters() != null) {
 
 						Iterator<AstNode> it = m.getParameters().getChildren().iterator();
 						while (it.hasNext()){

@@ -20,7 +20,7 @@ public abstract class Natural extends Whole  {
 	@Native
 	public static Natural valueOfNative(int value){
 		if (value < 0){
-			throw new ArithmeticException();
+		    throw ArithmeticException.constructor(lense.core.lang.String.valueOfNative("A negative integer cannot be transformed to a Natural"));
 		}
 		return new UNat(value);
 	}
@@ -28,7 +28,7 @@ public abstract class Natural extends Whole  {
 	@Native
 	public static Natural valueOfNative(long value) {
 		if (value < 0){
-			throw new ArithmeticException();
+		    throw ArithmeticException.constructor(lense.core.lang.String.valueOfNative("A negative integer cannot be transformed to a Natural"));
 		}
 		return new UNat(value);
 	}
@@ -39,7 +39,7 @@ public abstract class Natural extends Whole  {
 
 	public static Natural valueOf(BigInteger n) {
 		if (n.signum() < 0){
-			throw new ArithmeticException();
+	       throw ArithmeticException.constructor(lense.core.lang.String.valueOfNative("A negative integer cannot be transformed to a Natural"));
 		}
 		if (n.compareTo(new BigInteger("18446744073709551615")) <= 0){
 			return new UNat(n.toString());

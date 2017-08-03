@@ -100,7 +100,7 @@ public class Rational extends Real {
 
 	public divide( other: Rational) : Rational {
 		 if (other.isZero()){
-			throw new ArithmeticException(); // "Cannot divide by zero"
+			throw new ArithmeticException("Cannot divide by zero"); 
 		}
 		 return symplify(
 				 this.numerator * other.denominator,

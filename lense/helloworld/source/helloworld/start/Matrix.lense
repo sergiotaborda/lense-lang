@@ -3,7 +3,7 @@ import lense.core.collections.Array;
 
 public class Matrix<T> {
 
-  	private  constructor ( val public  rowsCount : Natural, val public columnsCount: Natural,  private cells : Array<T>);
+  	private  constructor (public val rowsCount : Natural, public val columnsCount: Natural,  private cells : Array<T>);
      
      
     public constructor ( rowsCount : Natural,  columnsCount: Natural,  seed : T){

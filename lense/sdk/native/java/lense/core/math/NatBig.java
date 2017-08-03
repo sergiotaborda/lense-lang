@@ -56,7 +56,7 @@ public class NatBig extends Natural{
 	@Override
 	public Natural predecessor() {
 		if (value.signum() == 0){
-			throw new ArithmeticException();
+		    throw ArithmeticException.constructor(lense.core.lang.String.valueOfNative("min predecessor reached"));
 		}
 		return new NatBig(value.subtract(BigInteger.ONE));
 	}

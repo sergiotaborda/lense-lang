@@ -244,7 +244,7 @@ public class SemanticVisitor extends AbstractScopedVisitor {
             }
             
             // define variable in the method scope. the current scope is block
-            this.getSemanticContext().currentScope().defineVariable("@returnOfMethod", m.getParent().getType().getTypeVariable(), node);
+            this.getSemanticContext().currentScope().defineVariable("@returnOfMethod", m.getParent().getType().getTypeParameter(), node);
       
 
         } else if (node instanceof ModifierNode) {
@@ -2036,6 +2036,8 @@ public class SemanticVisitor extends AbstractScopedVisitor {
             parent.getParent().replace(parent, c);
 
         } else {
+            // validate division by zero
+            
             // find instance operator method
             TypeDefinition type = unsureNotFundamental(left.getTypeDefinition());
 

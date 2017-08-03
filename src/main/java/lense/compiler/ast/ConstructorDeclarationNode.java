@@ -16,6 +16,7 @@ public class ConstructorDeclarationNode extends InvocableDeclarionNode implement
 	private BlockNode block;
 	private boolean isPrimary= false;
 	private boolean isImplicit = false;
+    private ConstructorExtentionNode constructorExtentionNode;
 
 	public TypeNode getReturnType() {
 		return returnType;
@@ -66,7 +67,15 @@ public class ConstructorDeclarationNode extends InvocableDeclarionNode implement
 			return name + this.getParameters().getChildren().size();
 		}
 	}
+    
+	public void setExtention(ConstructorExtentionNode constructorExtentionNode) {
+       this.constructorExtentionNode = constructorExtentionNode;
+       this.add(constructorExtentionNode);
+    }
 	
+	public ConstructorExtentionNode getExtention(){
+	    return this.constructorExtentionNode;
+	}
 
 	
 	

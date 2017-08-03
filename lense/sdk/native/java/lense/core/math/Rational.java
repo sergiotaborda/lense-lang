@@ -119,7 +119,7 @@ public class Rational extends Real{
 
     public Rational divide(Rational other) {
         if (other.isZero()){
-            throw new ArithmeticException("Cannot divide by zero");
+            throw ArithmeticException.constructor(lense.core.lang.String.valueOfNative("Cannot divide by zero"));
         }
         return symplify(
                 this.numerator.multiply(other.denominator),

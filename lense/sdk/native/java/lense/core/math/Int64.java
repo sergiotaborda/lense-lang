@@ -131,7 +131,7 @@ public class Int64 extends Integer implements Binary{
 	@Override
 	public final Integer successor() {
 		if (value == java.lang.Integer.MAX_VALUE){
-			throw new ArithmeticException();
+		    throw ArithmeticException.constructor(lense.core.lang.String.valueOfNative("max success reached"));
 		}
 		return valueOfNative(value + 1);
 	}
@@ -149,7 +149,7 @@ public class Int64 extends Integer implements Binary{
 	@Override
 	public final Integer predecessor() {
 		if (value == java.lang.Long.MIN_VALUE){
-			throw new ArithmeticException();
+		    throw ArithmeticException.constructor(lense.core.lang.String.valueOfNative("min predecessor reached"));
 		}
 		return valueOfNative(value - 1);
 	}

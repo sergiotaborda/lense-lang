@@ -8,6 +8,7 @@ import java.math.BigInteger;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Predicate;
 
 import compiler.SymbolBasedToken;
 import compiler.TokenSymbol;
@@ -19,6 +20,7 @@ import compiler.parser.SemanticAction;
 import compiler.parser.Symbol;
 import compiler.syntax.AstNode;
 import lense.compiler.ast.AccessorNode;
+import lense.compiler.ast.ConstructorExtentionNode;
 import lense.compiler.ast.AnnotationListNode;
 import lense.compiler.ast.AnnotationNode;
 import lense.compiler.ast.ArgumentListNode;
@@ -1218,6 +1220,28 @@ public class LenseGrammar extends AbstractLenseGrammar {
             p.setAstNode(node);
         });
 
+        getNonTerminal("constructorExtension").addSemanticAction((p, r) -> {
+            ConstructorExtentionNode node = new ConstructorExtentionNode();
+            
+            int separatorIndex = findIndexOf(r, s -> s.getLexicalValue().equals("(") );
+
+            String level = r.get(1).getLexicalValue();
+            
+            node.setCallLevel(level);
+            
+            if (separatorIndex > 2){
+                String constructorName = r.get(1).getLexicalValue();
+                node.setConstructorName(constructorName);
+            }
+            
+            Optional<ArgumentListNode> args = r.get(separatorIndex + 1).getAstNode(ArgumentListNode.class);
+            
+            node.setArguments(args.get());
+            
+            p.setAstNode(node);
+            
+        });
+        
         getNonTerminal("constructorDeclaration").addSemanticAction((p, r) -> {
 
             Modifiers modifiers = new Modifiers();
@@ -1245,8 +1269,18 @@ public class LenseGrammar extends AbstractLenseGrammar {
             if (formalParams.isPresent()) {
                 declarator.setParameters(formalParams.get());
             }
-
-            Optional<BlockNode> block = r.size() > next + 3 ? r.get(next + 3).getAstNode(BlockNode.class)
+            
+            Optional<ConstructorExtentionNode> constructorExtentionNode = r.size() > next + 3 
+                    ? r.get(next + 3).getAstNode(ConstructorExtentionNode.class)
+                    : Optional.empty();
+                    
+            if (constructorExtentionNode.isPresent()){
+                next++;
+                declarator.setExtention(constructorExtentionNode.get());
+            }
+                    
+            Optional<BlockNode> block = r.size() > next + 3 
+                    ? r.get(next + 3).getAstNode(BlockNode.class)
                     : Optional.empty();
 
             if (block.isPresent()) {
@@ -1256,6 +1290,7 @@ public class LenseGrammar extends AbstractLenseGrammar {
                 declarator.setBlock(null);
                 declarator.setPrimary(true);
             }
+            
             p.setAstNode(declarator);
 
         });
@@ -1752,7 +1787,7 @@ public class LenseGrammar extends AbstractLenseGrammar {
 
                 }
 
-                if (r.get(nextNodeIndex + 1).getAstNode().isPresent()) {
+                if (nextNodeIndex + 1 < r.size() && r.get(nextNodeIndex + 1).getAstNode().isPresent()) {
                     // finally
                     node.setFinally(r.get(nextNodeIndex + 1).getAstNode(BlockNode.class).get());
                 }
@@ -3284,7 +3319,7 @@ public class LenseGrammar extends AbstractLenseGrammar {
 
     }
 
-    private static <T> int readModifiers(List<Symbol> r, Modifiers modifiers, Class<T> type) {
+    private <T> int readModifiers(List<Symbol> r, Modifiers modifiers, Class<T> type) {
         int next = 0;
         T declarator = null;
         while (declarator == null && next < r.size()) {
@@ -3309,5 +3344,18 @@ public class LenseGrammar extends AbstractLenseGrammar {
         }
         return -1;
     }
+    
+    private int findIndexOf(List<Symbol> symbols , Predicate<Symbol> predicate){
+        int index = -1;
+        for (Symbol s : symbols){
+            index++;
+            
+            if (predicate.test(s)){
+                return index;
+            }
+        }
+        return index;
+    }
+    
 
 }

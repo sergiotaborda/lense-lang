@@ -115,7 +115,7 @@ public final class UNat extends ScalableNatural{
 	@Override
 	public Natural predecessor() {
 		if (value == 0L){
-			throw new ArithmeticException();
+		    throw ArithmeticException.constructor(lense.core.lang.String.valueOfNative("min predecessor reached"));
 		}
 		return new UNat(value - 1);
 	}
@@ -133,7 +133,7 @@ public final class UNat extends ScalableNatural{
 		if (Long.compareUnsigned(this.value, java.lang.Integer.MAX_VALUE) <= 0){
 			return (int)this.value;
 		}
-		throw new ArithmeticException("To big for an int");
+	    throw ArithmeticException.constructor(lense.core.lang.String.valueOfNative("To big for a primitive int"));
 	}
 
 	@Override
