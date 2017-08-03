@@ -22,6 +22,7 @@ import compiler.trees.VisitorNext;
 import lense.compiler.ast.ArgumentListItemNode;
 import lense.compiler.ast.ArgumentListNode;
 import lense.compiler.ast.ArithmeticNode;
+import lense.compiler.ast.AssertNode;
 import lense.compiler.ast.AssignmentNode;
 import lense.compiler.ast.BlockNode;
 import lense.compiler.ast.BooleanOperation;
@@ -138,6 +139,15 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 				writer.print("lense.core.lang.None.NONE");
 			} else if (node instanceof ThowNode) {
                 writer.print("throw ");
+            } else if (node instanceof AssertNode) {
+                
+                writer.append("if (!(");
+                
+                TreeTransverser.transverse(node.getFirstChild(), this);
+                
+                writer.append(")){ throw lense.core.lang.AssertionException.constructor(); }").println();
+                
+                return VisitorNext.Siblings;
             } else if (node instanceof StringValue) {
 				writer.append("lense.core.lang.String.valueOfNative(").append("\"")
 				.append(((StringValue) node).getValue()).append("\")");

@@ -1,0 +1,8 @@
+
+import lense.core.lang.Exception;
+
+public class AssertionException extends Exception {
+
+	public constructor ();
+
+}

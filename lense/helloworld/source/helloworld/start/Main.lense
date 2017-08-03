@@ -95,6 +95,7 @@ public class Main extends ConsoleApplication {
   	 	 
   	    var decimal : Decimal64 = 0.5;  
   	 	   
+  	 	assert ( 3/4 == 3/4);
   	 	
   	 	var dc = 0.5 + 4i;
   	 	
@@ -208,6 +209,11 @@ public class Main extends ConsoleApplication {
   	}
 
 	public toRational(number : Rational) : Rational => number;
+	
+	public toRationalFromAny( any : Any) : Rational{
+		assert( any is Rational);
+		return any;
+	}
 
   	public getlength ( seq : Sequence<Natural>) => seq.size; 
   	

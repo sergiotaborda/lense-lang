@@ -3,6 +3,7 @@
  */
 package lense.compiler.phases;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -11,6 +12,7 @@ import compiler.trees.TreeTransverser;
 import compiler.trees.VisitorNext;
 import lense.compiler.CompilationError;
 import lense.compiler.TypeAlreadyDefinedException;
+import lense.compiler.ast.AssertNode;
 import lense.compiler.ast.BooleanOperation;
 import lense.compiler.ast.BooleanOperatorNode;
 import lense.compiler.ast.ConstructorDeclarationNode;
@@ -96,7 +98,6 @@ public class StructureVisitor extends AbstractScopedVisitor {
 				FieldOrPropertyAccessNode var = (FieldOrPropertyAccessNode) n.getExpression();
 
 				propagateType(node, typeNode, var.getName());
-				
 			} 
 			
 			TreeTransverser.transverse(n.getExpression(), this);
@@ -136,6 +137,23 @@ public class StructureVisitor extends AbstractScopedVisitor {
 
 			TreeTransverser.transverse(b.getTrueBlock(), new AutoCastVisitor(this.getSemanticContext(), name,typeNode.getTypeVariable() ));
 		
+		} else if (parent instanceof AssertNode) {
+		    
+		    List<AstNode> siblings = parent.getParent().getChildren();
+		    
+		    boolean found = false;
+		    for (AstNode a : siblings){
+		        
+		        if (found){
+		            TreeTransverser.transverse(a, new AutoCastVisitor(this.getSemanticContext(), name,typeNode.getTypeVariable() ));
+                }
+
+		        if (a == parent){
+		            found = true;
+		        }
+		        
+		        
+		    }
 		}
 	}
 

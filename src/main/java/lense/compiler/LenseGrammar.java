@@ -26,6 +26,7 @@ import lense.compiler.ast.AnnotationNode;
 import lense.compiler.ast.ArgumentListNode;
 import lense.compiler.ast.ArithmeticNode;
 import lense.compiler.ast.ArithmeticOperation;
+import lense.compiler.ast.AssertNode;
 import lense.compiler.ast.AssignmentNode;
 import lense.compiler.ast.BlockNode;
 import lense.compiler.ast.BooleanOperation;
@@ -1694,6 +1695,13 @@ public class LenseGrammar extends AbstractLenseGrammar {
         getNonTerminal("throwsStatement").addSemanticAction((p, r) -> {
 
             ThowNode node = new ThowNode(ensureExpression(r.get(1).getAstNode().get()));
+            
+            p.setAstNode(node);
+        });
+        
+        getNonTerminal("assertStatement").addSemanticAction((p, r) -> {
+
+            AssertNode node = new AssertNode(ensureExpression(r.get(2).getAstNode().get()));
             
             p.setAstNode(node);
         });

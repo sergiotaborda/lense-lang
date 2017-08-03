@@ -71,9 +71,10 @@ formalParameterList = formalParameter | formalParameterList, ',', formalParamete
 blockStatements = blockStatement | blockStatements, blockStatement;
 	blockStatement = localVariableDeclarationStatement | statement;
 		localVariableDeclarationStatement = imutabilityModifier , variableName, ':' , type, ';' | imutabilityModifier , variableName , '=' , expression, ';' | imutabilityModifier , variableName, ':', type , '=' , expression, ';' ;
-		statement= expressionStatement | whileStatement | forStatement | ifThenStatement | switchStatement | returnStatement | breakStatement | continueStatement | tryStatement | throwsStatement;
+		statement= expressionStatement | whileStatement | forStatement | ifThenStatement | switchStatement | returnStatement | breakStatement | continueStatement | tryStatement | throwsStatement | assertStatement;
 			returnStatement =  'return', expression, ';' |  'return', ';';
 			throwsStatement = 'throw', expression, ';' ;
+			assertStatement = 'assert', '(', expression, ')' , ';';
 			breakStatement = 'break', identifier, ';' | 'break', ';' ;
 			continueStatement= 'continue', identifier, ';' | 'continue', ';';
 			tryStatement= 'try', resource?, block, catches?, finally?;

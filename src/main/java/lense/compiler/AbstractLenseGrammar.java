@@ -91,6 +91,7 @@ public abstract class AbstractLenseGrammar extends AbstractGrammar {
         NonTerminal statement = addNonTerminal(NonTerminal.of("statement"));
         NonTerminal returnStatement = addNonTerminal(NonTerminal.of("returnStatement"));
         NonTerminal throwsStatement = addNonTerminal(NonTerminal.of("throwsStatement"));
+        NonTerminal assertStatement = addNonTerminal(NonTerminal.of("assertStatement"));
         NonTerminal breakStatement = addNonTerminal(NonTerminal.of("breakStatement"));
         NonTerminal continueStatement = addNonTerminal(NonTerminal.of("continueStatement"));
         NonTerminal tryStatement = addNonTerminal(NonTerminal.of("tryStatement"));
@@ -239,9 +240,10 @@ public abstract class AbstractLenseGrammar extends AbstractGrammar {
         blockStatements.setRule(blockStatement.or(blockStatements.add(blockStatement)));
         blockStatement.setRule(localVariableDeclarationStatement.or(statement));
         localVariableDeclarationStatement.setRule(imutabilityModifier.add(variableName).add(Terminal.of(":")).add(type).add(Terminal.of(";")).or(imutabilityModifier.add(variableName).add(Terminal.of("=")).add(expression).add(Terminal.of(";")).or(imutabilityModifier.add(variableName).add(Terminal.of(":")).add(type).add(Terminal.of("=")).add(expression).add(Terminal.of(";")))));
-        statement.setRule(expressionStatement.or(whileStatement.or(forStatement.or(ifThenStatement.or(switchStatement.or(returnStatement.or(breakStatement.or(continueStatement.or(tryStatement.or(throwsStatement))))))))));
+        statement.setRule(expressionStatement.or(whileStatement.or(forStatement.or(ifThenStatement.or(switchStatement.or(returnStatement.or(breakStatement.or(continueStatement.or(tryStatement.or(throwsStatement.or(assertStatement)))))))))));
         returnStatement.setRule(Terminal.of("return").add(expression).add(Terminal.of(";")).or(Terminal.of("return").add(Terminal.of(";"))));
         throwsStatement.setRule(Terminal.of("throw").add(expression).add(Terminal.of(";")));
+        assertStatement.setRule(Terminal.of("assert").add(Terminal.of("(")).add(expression).add(Terminal.of(")")).add(Terminal.of(";")));
         breakStatement.setRule(Terminal.of("break").add(Identifier.instance()).add(Terminal.of(";")).or(Terminal.of("break").add(Terminal.of(";"))));
         continueStatement.setRule(Terminal.of("continue").add(Identifier.instance()).add(Terminal.of(";")).or(Terminal.of("continue").add(Terminal.of(";"))));
         tryStatement.setRule(Terminal.of("try").add(resource).add(block).add(catches).add(ntfinally).or(Terminal.of("try").add(resource).add(block).add(catches)).or(Terminal.of("try").add(resource).add(block).add(ntfinally)).or(Terminal.of("try").add(resource).add(block)).or(Terminal.of("try").add(block).add(catches).add(ntfinally)).or(Terminal.of("try").add(block).add(catches)).or(Terminal.of("try").add(block).add(ntfinally)).or(Terminal.of("try").add(block)));
