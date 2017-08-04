@@ -21,6 +21,7 @@ import compiler.trees.VisitorNext;
 import lense.compiler.ast.ArgumentListItemNode;
 import lense.compiler.ast.ArgumentListNode;
 import lense.compiler.ast.ArithmeticNode;
+import lense.compiler.ast.AssertNode;
 import lense.compiler.ast.AssignmentNode;
 import lense.compiler.ast.BlockNode;
 import lense.compiler.ast.BooleanOperation;
@@ -61,6 +62,7 @@ import lense.compiler.ast.StringValue;
 import lense.compiler.ast.SwitchNode;
 import lense.compiler.ast.SwitchOption;
 import lense.compiler.ast.TernaryConditionalExpressionNode;
+import lense.compiler.ast.ThowNode;
 import lense.compiler.ast.TryStatement;
 import lense.compiler.ast.TypeNode;
 import lense.compiler.ast.VariableDeclarationNode;
@@ -127,6 +129,17 @@ public class Ecma5JavascriptWriterVisitor implements Visitor<AstNode> {
         try {
             if (node instanceof NoneValue) {
                 writer.print("lense.core.lang.None.NONE");
+            } else if (node instanceof ThowNode) {
+                writer.print("throw ");
+            } else if (node instanceof AssertNode) {
+                
+                writer.append("if (!(");
+                
+                TreeTransverser.transverse(node.getFirstChild(), this);
+                
+                writer.append(")){ throw lense.core.lang.AssertionException.constructor(); }").println();
+                
+                return VisitorNext.Siblings;
             } else if (node instanceof StringValue) {
                 writer.append("lense.core.lang.String.valueOfNative(").append("\"")
                         .append(((StringValue) node).getValue()).append("\")");
@@ -331,8 +344,12 @@ public class Ecma5JavascriptWriterVisitor implements Visitor<AstNode> {
 
                         writer.print(" catch (");
 
-                        TreeTransverser.transverse(c.getExceptions(), this);
+                        FormalParameterNode p = c.getExceptions();
 
+                        TreeTransverser.transverse(p.getTypeNode(), this);
+
+                        writer.append(" ").append(p.getName());
+                        
                         writer.println(")");
 
                         TreeTransverser.transverse(c.getInstructions(), this);

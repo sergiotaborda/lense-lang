@@ -18,6 +18,7 @@ import lense.core.math.Real;
 import lense.core.math.Decimal64;
 import lense.core.math.Rational;
 import lense.core.math.Interval;
+import lense.core.math.ArithmeticException;
 import helloworld.start.Matrix;
 
 public class Main extends ConsoleApplication {
@@ -29,7 +30,8 @@ public class Main extends ConsoleApplication {
 
   	public onStart()  {
   	
-  	 	console.println("Begin");
+  	 	console.println("Begin " + this.type().name);
+  	 	
   	 	
   	 	try {
   	 		var f = 4 / 0;

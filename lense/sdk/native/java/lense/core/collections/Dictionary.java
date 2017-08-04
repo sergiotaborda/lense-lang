@@ -9,10 +9,10 @@ import lense.core.lang.Maybe;
 import lense.core.lang.None;
 import lense.core.lang.Some;
 import lense.core.lang.String;
+import lense.core.lang.java.Base;
 import lense.core.math.Natural;
 
-public class Dictionary implements Association {
-
+public class Dictionary extends Base implements Association {
 
 	public static Dictionary fromKeyValueArray(KeyValuePair ... pairs){
 		return new Dictionary(pairs);

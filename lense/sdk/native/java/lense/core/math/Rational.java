@@ -3,6 +3,7 @@ package lense.core.math;
 import lense.core.lang.Any;
 import lense.core.lang.HashValue;
 import lense.core.lang.java.Constructor;
+import lense.core.lang.java.NonNull;
 
 public class Rational extends Real{
 
@@ -15,7 +16,7 @@ public class Rational extends Real{
     private Integer numerator;
     private Integer denominator;
 
-    private Rational(Integer n, Integer d) {
+    private Rational(@NonNull Integer n, @NonNull Integer d) {
         numerator = n;
         denominator = d;
     }

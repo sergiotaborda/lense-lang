@@ -414,7 +414,7 @@ public abstract class LenseCompiler {
 
     private StringBuilder writeModule(ModuleNode module, Set<QualifiedNameNode> packages) {
         StringBuilder builder = new StringBuilder("import lense.core.lang.reflection.Module;\n")
-                .append(" import lense.core.lang.String;\n import lense.core.lang.Boolean;\n import lense.core.math.Integer;\n")
+                .append(" import lense.core.lang.String;\n import lense.core.lang.Boolean;\n")
                 .append(" import lense.core.lang.Version;\n import lense.core.collections.Sequence; import lense.core.collections.LinkedList;\n")
                 .append(" import lense.core.lang.reflection.Package;\n import lense.core.lang.Any;\n");
 
@@ -453,7 +453,7 @@ public abstract class LenseCompiler {
     }
 
     private StringBuilder writePackage(QualifiedNameNode pack) {
-        StringBuilder builder = new StringBuilder("import lense.core.lang.reflection.Package; import lense.core.lang.Any; import lense.core.lang.String; import lense.core.lang.Boolean; import lense.core.math.Integer;")
+        StringBuilder builder = new StringBuilder("import lense.core.lang.reflection.Package; import lense.core.lang.Any; import lense.core.lang.String; import lense.core.lang.Boolean;")
                 .append("public class Package$$Info implements Package { \n")
                 .append(" public constructor ();")
                 .append(" public getName() : String {\n")

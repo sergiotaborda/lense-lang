@@ -1,10 +1,12 @@
 
 import lense.core.math.Integer;
 import lense.core.lang.Boolean;
+import lense.core.lang.reflection.Type;
 
 public native class Any {
 
 	public native equalsTo( other: Any) : Boolean;
-	public native hashValue () : HashValue; // it is really ExclusiveDijunctable & Field
+	public native hashValue () : HashValue; // it is really ExclusiveDijunctable & math.Field
 	public native asString () : String;
+	public native type() : Type;
 } 

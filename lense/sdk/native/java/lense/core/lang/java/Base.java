@@ -2,6 +2,7 @@ package lense.core.lang.java;
 
 import lense.core.lang.Any;
 import lense.core.lang.HashValue;
+import lense.core.lang.reflection.Type;
 
 public class Base implements Any{
 
@@ -33,4 +34,9 @@ public class Base implements Any{
 	public HashValue hashValue() {
 		return new HashValue(super.hashCode());
 	}
+
+    @Override
+    public Type type() {
+        return new Type(this.getClass());
+    }
 }

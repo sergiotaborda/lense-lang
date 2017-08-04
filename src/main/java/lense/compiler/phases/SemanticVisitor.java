@@ -1415,7 +1415,7 @@ public class SemanticVisitor extends AbstractScopedVisitor {
                 if (!(fieldOwnerType instanceof FixedTypeVariable)) {
                     throw new UnsupportedOperationException();
                 }
-                TypeDefinition def = ((FixedTypeVariable) fieldOwnerType).getTypeDefinition();
+                TypeDefinition def = unsureNotFundamental(((FixedTypeVariable) fieldOwnerType).getTypeDefinition());
                 Optional<Field> field = def.getFieldByName(name);
 
                 if (!field.isPresent()) {
