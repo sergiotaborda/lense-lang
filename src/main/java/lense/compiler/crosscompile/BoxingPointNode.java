@@ -1,4 +1,4 @@
-package lense.compiler.crosscompile.java;
+package lense.compiler.crosscompile;
 
 import java.util.function.Function;
 

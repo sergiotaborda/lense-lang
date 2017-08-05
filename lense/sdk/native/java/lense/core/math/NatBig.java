@@ -2,6 +2,8 @@ package lense.core.math;
 
 import java.math.BigInteger;
 
+import lense.core.lang.HashValue;
+
 public class NatBig extends Natural{
 
 	private BigInteger value;
@@ -28,8 +30,8 @@ public class NatBig extends Natural{
 		return value;
 	}
 
-	public final Integer hashValue(){
-		return Int32.valueOfNative(value.hashCode());
+	public final HashValue hashValue(){
+		return new HashValue(value.hashCode());
 	}
 	
 	public lense.core.lang.String asString(){
@@ -54,7 +56,7 @@ public class NatBig extends Natural{
 	@Override
 	public Natural predecessor() {
 		if (value.signum() == 0){
-			throw new ArithmeticException();
+		    throw ArithmeticException.constructor(lense.core.lang.String.valueOfNative("min predecessor reached"));
 		}
 		return new NatBig(value.subtract(BigInteger.ONE));
 	}
@@ -66,8 +68,7 @@ public class NatBig extends Natural{
 
 	@Override
 	public int toPrimitiveInt() {
-		// TODO Auto-generated method stub
-		return 0;
+		return this.value.intValue();
 	}
 
 	@Override

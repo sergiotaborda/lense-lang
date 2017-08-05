@@ -8,12 +8,12 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 
-import lense.compiler.FileLocations;
-import lense.compiler.ast.ClassTypeNode;
 import compiler.CompiledUnit;
 import compiler.CompilerBackEnd;
 import compiler.syntax.AstNode;
 import compiler.trees.TreeTransverser;
+import lense.compiler.FileLocations;
+import lense.compiler.ast.ClassTypeNode;
 
 /**
  * 

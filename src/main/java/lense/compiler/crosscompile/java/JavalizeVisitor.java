@@ -7,20 +7,21 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import lense.compiler.ast.NewInstanceCreationNode;
 import compiler.syntax.AstNode;
 import compiler.trees.Visitor;
 import compiler.trees.VisitorNext;
 import lense.compiler.asm.ByteCodeTypeDefinitionReader;
-import lense.compiler.ast.ArgumentListItemNode;
-import lense.compiler.ast.ArithmeticNode;
 import lense.compiler.ast.BooleanOperatorNode;
 import lense.compiler.ast.CastNode;
 import lense.compiler.ast.ClassTypeNode;
 import lense.compiler.ast.MethodInvocationNode;
+import lense.compiler.ast.NumericValue;
 import lense.compiler.context.SemanticContext;
 import lense.compiler.type.CallableMember;
 import lense.compiler.type.CallableMemberMember;
 import lense.compiler.type.Constructor;
+import lense.compiler.type.ConstructorParameter;
 import lense.compiler.type.IndexerProperty;
 import lense.compiler.type.LenseTypeDefinition;
 import lense.compiler.type.LenseUnitKind;
@@ -154,20 +155,8 @@ public class JavalizeVisitor implements Visitor<AstNode>{
 			
 			
 
-		} else if (node instanceof ArithmeticNode){
-			ArithmeticNode n = (ArithmeticNode)node;
-			
-			ArgumentListItemNode arg = new ArgumentListItemNode(0, n.getRight());
-			arg.setExpectedType(n.getRight().getTypeVariable());
-		
-			MethodInvocationNode m = new MethodInvocationNode(
-					n.getLeft(), 
-					n.getOperation().equivalentMethod(), 
-					arg
-			);
-			
-			n.getParent().replace(n, m);
-		} else if (node instanceof MethodInvocationNode){
+		} 
+		else if (node instanceof MethodInvocationNode){
 			MethodInvocationNode m = (MethodInvocationNode)node;
 			
 
@@ -209,14 +198,6 @@ public class JavalizeVisitor implements Visitor<AstNode>{
 		return false;
 	}
 	
-	private <T> boolean optionalEquals(Optional<T> a , Optional<T> b ){
-		if (a.isPresent() && b.isPresent()){
-			return a.get().equals(b.get());
-		} else {
-			return false;
-		}
-	}
-
 	private boolean isContainedIn(Property c, List<Property> nativeProperties) {
 		for (Property n : nativeProperties){
 			if (n.getName().equals(c.getName()) && n.getReturningType().getSymbol().equals(c.getReturningType().getSymbol())){

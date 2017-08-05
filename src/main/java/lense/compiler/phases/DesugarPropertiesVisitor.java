@@ -10,7 +10,7 @@ import lense.compiler.ast.ArgumentListNode;
 import lense.compiler.ast.AssignmentNode;
 import lense.compiler.ast.AssignmentNode.Operation;
 import lense.compiler.ast.BlockNode;
-import lense.compiler.ast.BooleanOperatorNode.BooleanOperation;
+import lense.compiler.ast.BooleanOperation;
 import lense.compiler.ast.ComparisonNode;
 import lense.compiler.ast.ExpressionNode;
 import lense.compiler.ast.FieldDeclarationNode;
@@ -44,9 +44,11 @@ import lense.compiler.typesystem.LenseTypeSystem;
 public class DesugarPropertiesVisitor extends AbstractLenseVisitor{
 
     private SemanticContext semanticContext;
+    private String innerPropertyPrefix;
 
-    public DesugarPropertiesVisitor (SemanticContext sc){
+    public DesugarPropertiesVisitor (SemanticContext sc, String innerPropertyPrefix){
         this.semanticContext = sc;
+        this.innerPropertyPrefix = innerPropertyPrefix;
     }
 
     @Override
@@ -147,8 +149,8 @@ public class DesugarPropertiesVisitor extends AbstractLenseVisitor{
         } else if (node instanceof PropertyDeclarationNode){
             PropertyDeclarationNode prp = (PropertyDeclarationNode)node;
 
-            String propertyName = PropertyNamesSpecification.resolvePropertyName(prp.getName());
-            String privateFieldName = PropertyNamesSpecification.resolvePropertyInnerName(prp.getName());
+            String propertyName = resolvePropertyName(prp.getName());
+            String privateFieldName = resolvePropertyInnerName(prp.getName());
 
             AstNode parent = node.getParent();
 
@@ -301,7 +303,7 @@ public class DesugarPropertiesVisitor extends AbstractLenseVisitor{
             FieldOrPropertyAccessNode n = (FieldOrPropertyAccessNode)node;
 
             if (n.getKind() == FieldKind.PROPERTY){
-                String propertyName = PropertyNamesSpecification.resolvePropertyName(n.getName());
+                String propertyName = resolvePropertyName(n.getName());
 
                 if (n.getParent()  instanceof AssignmentNode && ((AssignmentNode)n.getParent()).getLeft() == node){
                     ExpressionNode value = ((AssignmentNode)n.getParent()).getRight();
@@ -398,35 +400,42 @@ public class DesugarPropertiesVisitor extends AbstractLenseVisitor{
             } else {
                 // TODO return options LessThan , Equals , GreaterThan 
 
-                MethodInvocationNode compareTo = new MethodInvocationNode(n.getLeft(), "compareTo", arg);
+                MethodInvocationNode compareTo = new MethodInvocationNode(n.getLeft(), "compareWith", arg);
                 compareTo.setTypeVariable(new FixedTypeVariable(LenseTypeSystem.Natural()));
 
-                ObjectReadNode parameter = new ObjectReadNode(semanticContext.resolveTypeForName("lense.core.math.Equal",0).get(), "Equal");
-                boolean negate = false;
-                if (n.getOperation() == ComparisonNode.Operation.LessThan){
-                    parameter = new ObjectReadNode(semanticContext.resolveTypeForName("lense.core.math.Smaller",0).get(), "Smaller");
-                } else if (n.getOperation() == ComparisonNode.Operation.LessOrEqualTo){
-                    parameter = new ObjectReadNode(semanticContext.resolveTypeForName("lense.core.math.Greater",0).get(), "Greater");
-                    negate = true;
-                }  else if (n.getOperation() == ComparisonNode.Operation.GreaterOrEqualTo){
-                    parameter = new ObjectReadNode(semanticContext.resolveTypeForName("lense.core.math.Smaller",0).get(), "Smaller");
-                    negate = true;
-                }  else if (n.getOperation() == ComparisonNode.Operation.GreaterThan){
-                    parameter = new ObjectReadNode(semanticContext.resolveTypeForName("lense.core.math.Greater",0).get(), "Greater");
-                }
-
-                ArgumentListItemNode parg = new ArgumentListItemNode(0, parameter);
-                parg.setExpectedType(parameter.getTypeVariable());
-
-                MethodInvocationNode equalsTo = new MethodInvocationNode(compareTo, "equalsTo", parg);
-                equalsTo.setTypeVariable(n.getTypeVariable());
-
-                if (negate){
-                    PreBooleanUnaryExpression not = new PreBooleanUnaryExpression(BooleanOperation.LogicNegate,equalsTo);
-                    node.getParent().replace(node, not);
+                if (n.getOperation() == ComparisonNode.Operation.Compare){
+                    node.getParent().replace(node, compareTo);
+                    
                 } else {
-                    node.getParent().replace(node, equalsTo);
+                    ObjectReadNode parameter = new ObjectReadNode(semanticContext.resolveTypeForName("lense.core.math.Equal",0).get(), "Equal");
+                    boolean negate = false;
+                    if (n.getOperation() == ComparisonNode.Operation.LessThan){
+                        parameter = new ObjectReadNode(semanticContext.resolveTypeForName("lense.core.math.Smaller",0).get(), "Smaller");
+                    } else if (n.getOperation() == ComparisonNode.Operation.LessOrEqualTo){
+                        parameter = new ObjectReadNode(semanticContext.resolveTypeForName("lense.core.math.Greater",0).get(), "Greater");
+                        negate = true;
+                    }  else if (n.getOperation() == ComparisonNode.Operation.GreaterOrEqualTo){
+                        parameter = new ObjectReadNode(semanticContext.resolveTypeForName("lense.core.math.Smaller",0).get(), "Smaller");
+                        negate = true;
+                    }  else if (n.getOperation() == ComparisonNode.Operation.GreaterThan){
+                        parameter = new ObjectReadNode(semanticContext.resolveTypeForName("lense.core.math.Greater",0).get(), "Greater");
+                    }
+
+                    ArgumentListItemNode parg = new ArgumentListItemNode(0, parameter);
+                    parg.setExpectedType(parameter.getTypeVariable());
+
+                    MethodInvocationNode equalsTo = new MethodInvocationNode(compareTo, "equalsTo", parg);
+                    equalsTo.setTypeVariable(n.getTypeVariable());
+
+                    if (negate){
+                        PreBooleanUnaryExpression not = new PreBooleanUnaryExpression(BooleanOperation.LogicNegate,equalsTo);
+                        node.getParent().replace(node, not);
+                    } else {
+                        node.getParent().replace(node, equalsTo);
+                    }
                 }
+                
+              
 
 
 
@@ -451,6 +460,19 @@ public class DesugarPropertiesVisitor extends AbstractLenseVisitor{
         //		
         //		}
 
+    }
+
+    public String resolvePropertyName(String name) {
+        return name.substring(0, 1).toUpperCase() + name.substring(1);
+    }
+    
+    public String resolvePropertyInnerName (String propertyName){
+        if (innerPropertyPrefix == null){
+            return propertyName;
+        } else {
+            return innerPropertyPrefix + propertyName;
+        }
+       
     }
 
     private boolean translateBackingFieldReference(BlockNode block, String propertyName, FieldOrPropertyAccessNode backingField) {

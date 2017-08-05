@@ -1,10 +1,11 @@
-package lense.compiler.crosscompile.java;
+package lense.compiler.crosscompile;
 
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import lense.compiler.crosscompile.java.JavaTypeKind;
 import lense.compiler.type.Constructor;
 import lense.compiler.type.ConstructorParameter;
 import lense.compiler.type.Field;
@@ -18,12 +19,12 @@ import lense.compiler.type.TypeMember;
 import lense.compiler.type.variable.IntervalTypeVariable;
 import lense.compiler.type.variable.TypeVariable;
 
-public class JavaPrimitiveTypeDefinition implements TypeDefinition {
+public class PrimitiveTypeDefinition implements TypeDefinition {
 
 	
 	private String name;
 
-	public JavaPrimitiveTypeDefinition(String name){
+	public PrimitiveTypeDefinition(String name){
 		this.name = name;
 	}
 	

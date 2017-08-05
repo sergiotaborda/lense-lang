@@ -2,6 +2,7 @@ package lense.core.math;
 
 import java.math.BigInteger;
 
+import lense.core.lang.HashValue;
 import lense.core.lang.java.Constructor;
 
 public class BigInt extends Integer {
@@ -81,8 +82,20 @@ public class BigInt extends Integer {
 		return new Int32(value.signum());
 	}
 
+    @Override
+    public Int32 toInt32() {
+        return Int32.valueOfNative(this.value.intValue());
+    }
 
+    @Override
+    public boolean isNegative() {
+        return this.value.compareTo(BigInteger.ZERO) < 0;
+    }
 
+    @Override
+    public HashValue hashValue() {
+        return new HashValue(this.value.hashCode());
+    }
 	
 
 

@@ -49,7 +49,6 @@ public class ReturnNode extends StatementNode implements TypedNode {
 		return expectedType;
 	}
 
-
 	public void setExpectedType(TypeVariable returnType) {
 		this.expectedType = returnType;
 	}

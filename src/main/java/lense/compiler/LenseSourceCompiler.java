@@ -3,17 +3,13 @@
  */
 package lense.compiler;
 
-import lense.compiler.crosscompile.java.JavalizePhase;
-import lense.compiler.phases.CompositePhase;
-import lense.compiler.phases.DesugarPropertiesPhase;
-import lense.compiler.phases.IntermediatyRepresentationPhase;
-import lense.compiler.phases.SemanticAnaylisisPhase;
-import lense.compiler.typesystem.PackageResolver;
-import lense.compiler.phases.NameResolutionPhase;
 import compiler.AstCompiler;
 import compiler.CompilationResultSet;
 import compiler.CompilationUnit;
 import compiler.CompilationUnitSet;
+import lense.compiler.phases.NameResolutionPhase;
+import lense.compiler.phases.SemanticAnaylisisPhase;
+import lense.compiler.typesystem.PackageResolver;
 /**
  * 
  */

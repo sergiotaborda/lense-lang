@@ -2,6 +2,8 @@ package lense.core.math;
 
 import java.math.BigInteger;
 
+import lense.core.lang.HashValue;
+
 
 public final class UNat extends ScalableNatural{
 
@@ -92,8 +94,8 @@ public final class UNat extends ScalableNatural{
 		}
 	}
 
-	public final Integer hashValue(){
-		return Int32.valueOfNative(Long.hashCode(this.value));
+	public final HashValue hashValue(){
+		return new HashValue (Long.hashCode(this.value));
 	}
 	
 	public final lense.core.lang.String asString(){
@@ -113,7 +115,7 @@ public final class UNat extends ScalableNatural{
 	@Override
 	public Natural predecessor() {
 		if (value == 0L){
-			throw new ArithmeticException();
+		    throw ArithmeticException.constructor(lense.core.lang.String.valueOfNative("min predecessor reached"));
 		}
 		return new UNat(value - 1);
 	}
@@ -131,7 +133,7 @@ public final class UNat extends ScalableNatural{
 		if (Long.compareUnsigned(this.value, java.lang.Integer.MAX_VALUE) <= 0){
 			return (int)this.value;
 		}
-		throw new ArithmeticException("To big for an int");
+	    throw ArithmeticException.constructor(lense.core.lang.String.valueOfNative("To big for a primitive int"));
 	}
 
 	@Override

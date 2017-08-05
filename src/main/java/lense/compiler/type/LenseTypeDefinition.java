@@ -11,8 +11,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.Optional;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -318,7 +318,7 @@ public class LenseTypeDefinition implements TypeDefinition {
 
 		for (int i = 0; i < indexes.length; i++){
 			// TODO use TypeVariables
-			if (!LenseTypeSystem.isAssignableTo(params[i], indexes[i])){
+			if (!LenseTypeSystem.getInstance().isAssignableTo(params[i], indexes[i])){
 				return false;
 			}
 		}

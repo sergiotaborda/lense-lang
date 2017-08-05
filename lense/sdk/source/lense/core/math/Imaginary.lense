@@ -1,8 +1,100 @@
 
 import lense.core.math.Number;
 import lense.core.math.Real;
+import lense.core.math.Whole;
+import lense.core.math.Equal;
+
+public class Imaginary extends Number implements Comparable<Imaginary> {
 
 
-public native abstract class Imaginary extends Number implements Comparable<Imaginary> {
+	var value : Real = new Real.zero();
+	
+	public implicit constructor valueOf ( value : Real);
+	
+	public constructor (){
+		return new Imaginary(Real.Zero);
+	}
+	
+	public real() : Real {
+		return value;
+	}
+	
+	public  plus( other : Imaginary) : Imaginary {
+		return new Imaginary(this.value + other.value);
+	}
 
+	public  minus( other: Imaginary ) : Imaginary {
+		return new Imaginary(this.value - other.value);
+	}
+
+	public  multiply( other: Imaginary) : Real {
+		return -(this.value * other.value);
+	}
+
+	public  divide( other: Imaginary) : Real {
+		return this.value.divide(other.value);
+	}
+	
+	public plus( other: Whole ) : Complex {
+		return plus(new Real.valueOf(other));
+	}
+
+	public minus( other : Whole) : Complex {
+		return minus(new Real.valueOf(other));
+	}
+
+	public multiply( other: Whole) : Imaginary {
+		return multiply(new Real.valueOf(other));
+	}
+
+	public divide( other : Whole) : Imaginary{
+		return divide(new Real.valueOf(other));
+	}
+	
+	public plus( other: Real) : Complex {
+		return new Complex(other, this.value);
+	}
+
+	public minus( other: Real ) : Complex {
+		return new Complex(-other, this.value);
+	}
+
+	public multiply( other: Real) : Imaginary {
+		return new Imaginary(this.value * other);
+	}
+
+	public divide( other: Real ) : Imaginary {
+		return new Imaginary(this.value / other);
+	}
+	
+	public asString() : String {
+		return this.value.asString() + "i";
+	}
+	
+	public symmetric() : Imaginary {
+		return new Imaginary(-this.value);
+	}
+	
+	public signum() : Integer{
+		return value.signum();
+	}
+	
+	public equalsTo( other : Any) : Boolean {
+		if (other is Imaginary){
+			return this.value.equalsTo(other.value);
+		}
+		return false;
+	}
+
+	public  hashValue() : HashValue {
+		return value.hashValue();
+	}
+	
+	public compareWith(other : Any) : Comparison {
+		if (other is Imaginary){
+			return this.value <=> other.value; // TODO implement <=> operator
+		} 
+		
+	    throw new Exception(); // TODO create IncorrectTypeException
+	}
 }

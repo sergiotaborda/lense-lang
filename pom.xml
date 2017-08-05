@@ -9,7 +9,7 @@
   	<dependency>
   		<groupId>compiler-little</groupId>
   		<artifactId>compiler-little</artifactId>
-  		<version>0.5</version>
+  		<version>0.5.3</version>
   	</dependency>
   	<dependency>
 		<groupId>org.ow2.asm</groupId>
@@ -41,7 +41,22 @@
           <excludes>
            <exclude>src/main/sdk/**/*.java</exclude>
           </excludes>
-         
+        </configuration>
+      </plugin>
+      <plugin>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>single</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <descriptorRefs>
+            <descriptorRef>jar-with-dependencies</descriptorRef>
+          </descriptorRefs>
         </configuration>
       </plugin>
     </plugins>

@@ -3,9 +3,6 @@
  */
 package lense.compiler.ast;
 
-import java.util.Optional;
-
-import compiler.syntax.AstNode;
 import lense.compiler.phases.ScopeDelimiter;
 
 /**

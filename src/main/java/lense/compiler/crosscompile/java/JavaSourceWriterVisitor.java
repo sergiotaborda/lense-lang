@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import javax.lang.model.element.QualifiedNameable;
+
 import compiler.parser.IdentifierNode;
 import compiler.syntax.AstNode;
 import compiler.trees.TreeTransverser;
@@ -20,32 +22,39 @@ import compiler.trees.VisitorNext;
 import lense.compiler.ast.ArgumentListItemNode;
 import lense.compiler.ast.ArgumentListNode;
 import lense.compiler.ast.ArithmeticNode;
+import lense.compiler.ast.AssertNode;
 import lense.compiler.ast.AssignmentNode;
 import lense.compiler.ast.BlockNode;
+import lense.compiler.ast.BooleanOperation;
 import lense.compiler.ast.BooleanOperatorNode;
-import lense.compiler.ast.BooleanOperatorNode.BooleanOperation;
 import lense.compiler.ast.BooleanValue;
 import lense.compiler.ast.CastNode;
 import lense.compiler.ast.CatchOptionNode;
-import lense.compiler.ast.NewInstanceCreationNode;
 import lense.compiler.ast.ClassTypeNode;
 import lense.compiler.ast.ComparisonNode;
 import lense.compiler.ast.ComparisonNode.Operation;
 import lense.compiler.ast.ConstructorDeclarationNode;
+import lense.compiler.ast.ConstructorExtentionNode;
 import lense.compiler.ast.ContinueNode;
 import lense.compiler.ast.DecisionNode;
 import lense.compiler.ast.FieldAccessNode;
 import lense.compiler.ast.FieldDeclarationNode;
 import lense.compiler.ast.FieldOrPropertyAccessNode;
 import lense.compiler.ast.FieldOrPropertyAccessNode.FieldKind;
+import lense.compiler.crosscompile.PrimitiveBooleanOperationsNode;
+import lense.compiler.crosscompile.BoxingPointNode;
+import lense.compiler.crosscompile.PrimitiveBooleanBox;
+import lense.compiler.crosscompile.PrimitiveBooleanUnbox;
+import lense.compiler.crosscompile.PrimitiveBooleanValue;
 import lense.compiler.ast.ForEachNode;
 import lense.compiler.ast.FormalParameterNode;
 import lense.compiler.ast.InstanceOfNode;
-import lense.compiler.ast.LiteralIntervalNode;
 import lense.compiler.ast.LiteralAssociationInstanceCreation;
+import lense.compiler.ast.LiteralIntervalNode;
 import lense.compiler.ast.LiteralTupleInstanceCreation;
 import lense.compiler.ast.MethodDeclarationNode;
 import lense.compiler.ast.MethodInvocationNode;
+import lense.compiler.ast.NewInstanceCreationNode;
 import lense.compiler.ast.NoneValue;
 import lense.compiler.ast.NumericValue;
 import lense.compiler.ast.ObjectReadNode;
@@ -59,13 +68,13 @@ import lense.compiler.ast.StringValue;
 import lense.compiler.ast.SwitchNode;
 import lense.compiler.ast.SwitchOption;
 import lense.compiler.ast.TernaryConditionalExpressionNode;
+import lense.compiler.ast.ThowNode;
 import lense.compiler.ast.TryStatement;
 import lense.compiler.ast.TypeNode;
 import lense.compiler.ast.VariableDeclarationNode;
 import lense.compiler.ast.VariableReadNode;
 import lense.compiler.ast.VariableWriteNode;
 import lense.compiler.ast.WhileNode;
-import lense.compiler.phases.PropertyNamesSpecification;
 import lense.compiler.type.LenseTypeDefinition;
 import lense.compiler.type.LenseUnitKind;
 import lense.compiler.type.TypeDefinition;
@@ -74,7 +83,6 @@ import lense.compiler.type.variable.DeclaringTypeBoundedTypeVariable;
 import lense.compiler.type.variable.FixedTypeVariable;
 import lense.compiler.type.variable.GenericTypeBoundToDeclaringTypeVariable;
 import lense.compiler.type.variable.IntervalTypeVariable;
-import lense.compiler.type.variable.MethodFreeTypeVariable;
 import lense.compiler.type.variable.RangeTypeVariable;
 import lense.compiler.type.variable.TypeVariable;
 import lense.compiler.typesystem.Imutability;
@@ -129,19 +137,30 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 		try {
 			if (node instanceof NoneValue) {
 				writer.print("lense.core.lang.None.NONE");
-			} else if (node instanceof StringValue) {
+			} else if (node instanceof ThowNode) {
+                writer.print("throw ");
+            } else if (node instanceof AssertNode) {
+                
+                writer.append("if (!(");
+                
+                TreeTransverser.transverse(node.getFirstChild(), this);
+                
+                writer.append(")){ throw lense.core.lang.AssertionException.constructor(); }").println();
+                
+                return VisitorNext.Siblings;
+            } else if (node instanceof StringValue) {
 				writer.append("lense.core.lang.String.valueOfNative(").append("\"")
 				.append(((StringValue) node).getValue()).append("\")");
 			} else if (node instanceof BooleanValue) {
 
-				if (node instanceof JavaPrimitiveBooleanValue){
+				if (node instanceof PrimitiveBooleanValue){
 					writer.print(((BooleanValue) node).getLiteralValue());
 				} else {
 					writer.print(((BooleanValue) node).isValue() ? "lense.core.lang.Boolean.TRUE" : "lense.core.lang.Boolean.FALSE");
 				}
 
-			} else if (node instanceof JavaBooleanOperationsNode){
-				JavaBooleanOperationsNode n = (JavaBooleanOperationsNode)node;
+			} else if (node instanceof PrimitiveBooleanOperationsNode){
+				PrimitiveBooleanOperationsNode n = (PrimitiveBooleanOperationsNode)node;
 
 				if (n.getOperation() == BooleanOperation.LogicNegate){
 					writer.print("!");
@@ -150,14 +169,23 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 					throw new UnsupportedOperationException();
 				}
 				return VisitorNext.Siblings;
-			} else if (node instanceof JavaPrimitiveBooleanUnbox){
+			} else if (node instanceof PrimitiveBooleanUnbox){
 
+			    AstNode n = node.getChildren().get(0);
+			    
+			    if (n instanceof MethodInvocationNode){
+			        MethodInvocationNode m = (MethodInvocationNode)n;
+			        if (m.getTypeVariable().isSingleType()){
+			            TreeTransverser.transverse(n, this);
+			            return VisitorNext.Siblings;
+			        }
+			    }
 				writer.print("/* BOXING OUT */(");
-				TreeTransverser.transverse(node.getChildren().get(0), this);
+				TreeTransverser.transverse(n, this);
 				writer.print(").toPrimitiveBoolean()");
 
 				return VisitorNext.Siblings;
-			} else if (node instanceof JavaPrimitiveBooleanBox){
+			} else if (node instanceof PrimitiveBooleanBox){
 
 				writer.print("/* BOXING IN */ lense.core.lang.Boolean.valueOfNative(");
 				TreeTransverser.transverse(node.getChildren().get(0), this);
@@ -193,25 +221,27 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 						String decPart = n.getLiteralValue().substring(pos+1);
 
 						int decPos = decPart.length();
-						StringBuilder builder = new StringBuilder("1");
+						StringBuilder decimalPart = new StringBuilder("1");
 						for(int i = 0 ; i < decPos; i++){
-							builder.append("0");
+							decimalPart.append("0");
 						}
 						if(intPart.equals("0")){
 							intPart = "";
 						}
 						writer.append(n.getTypeVariable().getTypeDefinition().getName())
-						.append(".valueOfNative(").append(intPart).append(decPart).append(',').append(builder).append(")");
+						.append(".constructor(lense.core.math.NativeNumberFactory.newInteger(").append(intPart).append(decPart).append("),lense.core.math.NativeNumberFactory.newInteger(").append(decimalPart).append("))");
 
 					} else {
 						writer.append(n.getTypeVariable().getTypeDefinition().getName())
-						.append(".valueOfNative(").append(n.toString()).append(")");
+						.append(".constructor(lense.core.math.NativeNumberFactory.newInteger(").append(n.toString()).append("), lense.core.math.NativeNumberFactory.newInteger(1))");
 					}
-				} else {
-					// TODO test bounds (number could be to big , should use string
+				}  else {
+				    // TODO test bounds (number could be to big , should use string
 
-					writer.append(n.getTypeVariable().getTypeDefinition().getName())
-					.append(".valueOfNative(").append(n.toString()).append(")");
+				    QualifiedNameNode qn = new QualifiedNameNode(n.getTypeVariable().getTypeDefinition().getName());
+				    writer.append("lense.core.math.NativeNumberFactory.new")
+				    .append(qn.getLast().getName())
+					.append("(").append(n.toString()).append(")");
 				}
 
 			} else if (node instanceof lense.compiler.ast.LiteralSequenceInstanceCreation){
@@ -478,11 +508,15 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 					for (AstNode a : t.getCatchOptions().getChildren()) {
 						CatchOptionNode c = (CatchOptionNode) a;
 
-						writer.print(" catch (");
+						writer.append(" catch (");
 
-						TreeTransverser.transverse(c.getExceptions(), this);
+	                    FormalParameterNode p = c.getExceptions();
 
-						writer.println(")");
+	                    TreeTransverser.transverse(p.getTypeNode(), this);
+
+	                    writer.append(" ").append(p.getName());
+	                    
+						writer.append(")").println();;
 
 						TreeTransverser.transverse(c.getInstructions(), this);
 
@@ -1001,25 +1035,43 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 					}
 					writer.append("){\n");
 
-					if (m.getParameters() != null) {
+					if (m.getExtention() != null){
+					    ConstructorExtentionNode extention = m.getExtention();
+					    writer.append(extention.getCallLevel()).append("(");
+					    
+					    Iterator<AstNode> it = extention.getArguments().getChildren().iterator();
+                        while (it.hasNext()){
+                            ArgumentListItemNode arg = (ArgumentListItemNode)it.next();
+                            
+                            TreeTransverser.transverse(arg, this);
+                            
+                            if (it.hasNext()){
+                               writer.append(","); 
+                            }
+                        }
+                        
+					    writer.append(");").println();
+					    
+					    
+					} else if (m.getParameters() != null) {
 
 						Iterator<AstNode> it = m.getParameters().getChildren().iterator();
 						while (it.hasNext()){
 							AstNode n = it.next();
 							FormalParameterNode p = (FormalParameterNode) n;
 
-							if (p.getVisibility() != Visibility.Undefined && p.getVisibility() != Visibility.Private ){
-								if (p.getImutabilityValue() == Imutability.Imutable){
-									// set the field directly
-									writer.append("this.").append(p.getName()).append(" = ").append(p.getName()).append(";").println();
-								} else {
-									writer.append("set" + PropertyNamesSpecification.resolvePropertyName(p.getName()))
-									.append("(").append(p.getName()).append(")");
-								}
-
-							} else {
+//							if (p.getVisibility() != Visibility.Undefined && p.getVisibility() != Visibility.Private ){
+//								if (p.getImutabilityValue() == Imutability.Imutable){
+//									// set the field directly
+//									writer.append("this.").append(p.getName()).append(" = ").append(p.getName()).append(";").println();
+//								} else {
+//									writer.append("set" + PropertyNamesSpecification.resolvePropertyName(p.getName()))
+//									.append("(").append(p.getName()).append(")");
+//								}
+//
+//							} else {
 								writer.append("this.").append(p.getName()).append(" = ").append(p.getName()).append(";").println();
-							}
+							//}
 
 
 						}

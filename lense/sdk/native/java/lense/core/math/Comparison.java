@@ -1,15 +1,17 @@
 package lense.core.math;
 
-import lense.core.lang.Any;
+import lense.core.lang.java.Base;
 import lense.core.lang.java.Constructor;
+import lense.core.lang.java.Native;
 
-public abstract class Comparison implements Any {
+public abstract class Comparison extends Base  {
 
 	@Constructor // TODO remove
 	public static Comparison constructor (){
 		return Equal.constructor();
 	}
 	
+	@Native
 	public static Comparison valueOfNative(int compareTo) {
 		 if (compareTo < 0){
 			return Smaller.constructor();

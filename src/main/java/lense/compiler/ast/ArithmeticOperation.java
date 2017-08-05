@@ -10,13 +10,17 @@ public enum ArithmeticOperation {
 		Subtraction("minus","-"),
 		Division("divide","/"),
 		Remainder("remainder","%"),
-		FractionDivision("rationalDivide", "//"),
+		IntegerDivision("wholeDivide", "\\"),
 		RightShift("rightShift", ">>"),
 		SignedRightShift("signedRightShift",">>>"),
 		LeftShift("leftShift","<<"),
 		Increment("successor","++"),
-		Decrement("predecessor","--");
-		
+		Decrement("predecessor","--"),
+        BitAnd ("and", "&"),
+        BitOr ("or", "|"),
+        BitXor("xor","^"),
+        Complement("flipAll","~"); // unary
+    
 		private String equivalentMethod;
 		private String symbol;
 		

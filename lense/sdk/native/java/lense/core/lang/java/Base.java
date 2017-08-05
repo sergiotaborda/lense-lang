@@ -1,8 +1,8 @@
 package lense.core.lang.java;
 
 import lense.core.lang.Any;
-import lense.core.math.Int32;
-import lense.core.math.Integer;
+import lense.core.lang.HashValue;
+import lense.core.lang.reflection.Type;
 
 public class Base implements Any{
 
@@ -17,7 +17,7 @@ public class Base implements Any{
 	}
 	
 	@Override @Native
-	public int hashCode(){
+	public  int hashCode(){
 		return this.hashValue().hashCode();
 	}
 	
@@ -31,7 +31,12 @@ public class Base implements Any{
 	}
 
 	@Override
-	public Integer hashValue() {
-		return Int32.valueOfNative(super.hashCode());
+	public HashValue hashValue() {
+		return new HashValue(super.hashCode());
 	}
+
+    @Override
+    public Type type() {
+        return new Type(this.getClass());
+    }
 }

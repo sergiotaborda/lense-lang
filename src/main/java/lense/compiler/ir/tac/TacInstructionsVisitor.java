@@ -14,9 +14,7 @@ import lense.compiler.ast.ArithmeticNode;
 import lense.compiler.ast.ArithmeticOperation;
 import lense.compiler.ast.AssignmentNode;
 import lense.compiler.ast.BooleanOperatorNode;
-import lense.compiler.ast.BooleanOperatorNode.BooleanOperation;
 import lense.compiler.ast.BreakNode;
-import lense.compiler.ast.NewInstanceCreationNode;
 import lense.compiler.ast.ClassTypeNode;
 import lense.compiler.ast.ComparisonNode;
 import lense.compiler.ast.ConstructorDeclarationNode;
@@ -31,6 +29,7 @@ import lense.compiler.ast.IndexedAccessNode;
 import lense.compiler.ast.LiteralCreation;
 import lense.compiler.ast.MethodDeclarationNode;
 import lense.compiler.ast.MethodInvocationNode;
+import lense.compiler.ast.NewInstanceCreationNode;
 import lense.compiler.ast.NumericValue;
 import lense.compiler.ast.PosExpression;
 import lense.compiler.ast.PreExpression;
@@ -573,7 +572,7 @@ public class TacInstructionsVisitor implements Visitor<AstNode> {
 
 
 
-	private Operation logicOperationFor(BooleanOperation operation) {
+	private Operation logicOperationFor(lense.compiler.ast.BooleanOperation operation) {
 		switch(operation){
 		case BitAnd:
 			return Operation.BITWISE_AND;
@@ -763,7 +762,7 @@ public class TacInstructionsVisitor implements Visitor<AstNode> {
 			return Operation.DECREMENT;
 		case Division:
 			return Operation.DIVIDE;
-		case FractionDivision:
+		case IntegerDivision:
 			return Operation.DIVIDE;
 		case Remainder:
 			return Operation.REMAINDER;

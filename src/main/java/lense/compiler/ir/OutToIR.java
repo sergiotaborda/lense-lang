@@ -1,11 +1,11 @@
 package lense.compiler.ir;
 
-import lense.compiler.ast.ClassTypeNode;
-import lense.compiler.ast.UnitTypes;
-import lense.compiler.ir.tac.TacInstructionsVisitor;
 import compiler.CompiledUnit;
 import compiler.CompilerBackEnd;
 import compiler.trees.TreeTransverser;
+import lense.compiler.ast.ClassTypeNode;
+import lense.compiler.ast.UnitTypes;
+import lense.compiler.ir.tac.TacInstructionsVisitor;
 
 public class OutToIR implements CompilerBackEnd {
 

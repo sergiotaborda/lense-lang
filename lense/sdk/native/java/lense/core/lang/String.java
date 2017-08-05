@@ -90,8 +90,8 @@ public class String extends Base implements Sequence {
 	}
 
 	@Override
-	public Integer hashValue() {
-		return Int32.valueOfNative(this.str.hashCode());
+	public HashValue hashValue() {
+		return new HashValue(this.str.hashCode());
 	}
 
 	public String plus(String other){

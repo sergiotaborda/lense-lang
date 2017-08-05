@@ -3,10 +3,14 @@
  */
 package lense.compiler.ast;
 
+import lense.compiler.type.variable.FixedTypeVariable;
+import lense.compiler.type.variable.TypeVariable;
+import lense.compiler.typesystem.LenseTypeSystem;
+
 /**
  * 
  */
-public class ComparisonNode extends BooleanExpressionNode {
+public class ComparisonNode extends ExpressionNode {
 
 	public enum Operation {
 		LessThan ("<"),
@@ -17,7 +21,9 @@ public class ComparisonNode extends BooleanExpressionNode {
 		Different ("!="),
 		ReferenceEquals ("==="),
 		ReferenceDifferent ("!=="), 
-		InstanceOf("is");
+		InstanceOf("is"),
+		Compare("<=>");
+	    
 		private String symbol;
 
 		Operation(String symbol){
@@ -34,6 +40,12 @@ public class ComparisonNode extends BooleanExpressionNode {
 	
 	private Operation operation;
 
+	public TypeVariable getTypeVariable() {
+        return  this.operation == Operation.Compare 
+                ? new FixedTypeVariable(LenseTypeSystem.Comparison())
+                : new FixedTypeVariable(LenseTypeSystem.Boolean());
+    }
+	
 	/**
 	 * Constructor.
 	 * @param resolveComparisonOperation

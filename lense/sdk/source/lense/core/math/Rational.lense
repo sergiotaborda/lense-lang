@@ -1,9 +1,128 @@
 
 import lense.core.math.Real;
 import lense.core.math.Integer;
+import lense.core.lang.String;
+import lense.core.lang.Boolean;
+import lense.core.math.ArithmeticException;
 
-public native class Rational extends Real {
+/{
+	A fraction n/d 
+}/
+public class Rational extends Real {
 
-	public native constructor ( n : Integer , d  :Integer);
+	public constructor ( public val  numerator : Integer , public val denominator  :Integer);
+	
+	public equalsTo(other : Any) : Boolean {
+		if(other is Rational){
+			return this.numerator == other.numerator && this.denominator == other.denominator;
+		} 
+		return false;
+	}
+
+	public hashValue() : HashValue {
+		return numerator.hashValue().concat(denominator.hashValue());
+	}
+	
+	public asString() : String {
+		if (this.denominator.isOne()){
+			return this.numerator.asString();
+		} 
+		return this.numerator.asString() + "/" + this.denominator.asString();
+	}
+	
+	private symplify( numerator : Integer,  denominator : Integer ) : Rational {
+		return new Rational(numerator,denominator );
+	}
+	
+	public plus( other : Real) : Real {
+		if (other is Rational){
+			return plus(other);
+		} 
+		
+		return promoteNext() + other;
+		
+	}
+	
+	private  promoteNext() : Real {
+		return promoteToBigDecimal(); 
+	}
+	
+	protected promoteToBigDecimal() : BigDecimal {
+		return new BigDecimal(this);
+	}
+
+	public plus( other : Rational) : Rational {
+		 return symplify(
+				 this.numerator * other.denominator  + this.denominator * other.numerator , 
+				 this.denominator * other.denominator 
+		 );
+	}
+
+	public minus( other : Real) : Real {
+		if (other is Rational){
+			return minus(other);
+		} 
+		
+		return promoteNext() - other;
+	}
+	
+	public minus( other : Rational) : Rational{
+		 return symplify(
+				 this.numerator * other.denominator - this.denominator * other.numerator , 
+				 this.denominator * other.denominator 
+		 );
+	}
+
+	public  multiply(other : Real) : Real {
+		if (other is Rational){
+			return multiply(other); // TODO flow senstivie cast
+		} 
+			
+		return promoteNext() * other;
+		
+	}
+	
+	public multiply( other : Rational) : Rational {
+		 return symplify(
+				 this.numerator * other.numerator,
+				 this.denominator * other.denominator
+		 );
+	}
+
+	public divide( other : Real) : Real {
+		if (other is Rational){
+			return divide(other);
+		} 
+		
+		return promoteNext().divide(other);
+		
+	}
+
+	public divide( other: Rational) : Rational {
+		 if (other.isZero()){
+			throw new ArithmeticException("Cannot divide by zero"); 
+		}
+		 return symplify(
+				 this.numerator * other.denominator,
+				 this.denominator * other.numerator
+		 );
+	}
+	
+	public isZero() : Boolean {
+		return this.numerator.isZero();
+	}
+
+	public isOne() : Boolean{
+		return this.numerator.equalsTo(denominator);
+	}
+
+	public symmetric() : Real {
+		return new Rational(numerator.symmetric(), denominator);
+	}
+	
+	public signum() : Integer {
+		return numerator.signum() * denominator.signum();
+	}
+
 
 }

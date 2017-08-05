@@ -2,7 +2,7 @@ package lense.core.lang;
 
 import lense.core.math.Natural;
 
-public interface Binary {
+public interface Binary extends ExclusiveDijunctable , Dijunctable , Injunctable {
 
 	public Natural getSize ();
 	

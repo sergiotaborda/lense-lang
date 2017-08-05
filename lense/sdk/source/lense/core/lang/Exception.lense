@@ -1,5 +1,12 @@
 
+import lense.core.lang.String;
 
 public native class Exception {
 
+	public native constructor( val message: String ,  val cause: Exception);
+
+	public native constructor();
+	public native constructor(message: String);
+	public native constructor(cause: Exception);
+	
 }

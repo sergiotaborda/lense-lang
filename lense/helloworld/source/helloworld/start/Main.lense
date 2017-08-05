@@ -18,6 +18,7 @@ import lense.core.math.Real;
 import lense.core.math.Decimal64;
 import lense.core.math.Rational;
 import lense.core.math.Interval;
+import lense.core.math.ArithmeticException;
 import helloworld.start.Matrix;
 
 public class Main extends ConsoleApplication {
@@ -29,8 +30,16 @@ public class Main extends ConsoleApplication {
 
   	public onStart()  {
   	
-  	 	console.println("Begin");
+  	 	console.println("Begin " + this.type().name);
   	 	
+  	 	
+  	 	try {
+  	 		var f = 4 / 0;
+  	 		console.println("f is " + f);
+  	 	} catch (e : ArithmeticException){
+  	 		console.println("try catch worked");
+  	 	}
+  	 		
   	 	var dto = new Dto();
   	 	
   	 	console.println("name is " + dto.name);
@@ -69,20 +78,18 @@ public class Main extends ConsoleApplication {
   	 	console.println("Complex is : {{ cx }} with magnitude :{{ r }} "); 
   	 
   	 	var bx  = 4 +2i;
-  	   
-  	 
-  		 
+
   	   console.println("Other Complex is : {{ bx }} ");
   	 
   	   console.println("Product is : {{ bx * cx }}");
   	 
-  	 	var rational : Any = 0.5;
+  	 	var rational : Any = 0.3;
   	 	
   	 	console.println("");
   	 	
   	 	if (rational is Rational){
   	 		console.println("Decimal literals are rational");
-  	 		var dec : Decimal64 = rational;  
+  	 		var dec : Decimal64 = toRational(rational);  
   	 		console.println("dec is {{ dec }}");
   	 	} else {
   	 		console.println("Decimal literals are NOT rational");
@@ -90,6 +97,7 @@ public class Main extends ConsoleApplication {
   	 	 
   	    var decimal : Decimal64 = 0.5;  
   	 	   
+  	 	assert ( 3/4 == 3/4);
   	 	
   	 	var dc = 0.5 + 4i;
   	 	
@@ -198,8 +206,16 @@ public class Main extends ConsoleApplication {
   	     
   	     console.println(getlength([1,2]));
   	    
+  	    console.println("End");
+  	 	
   	}
 
+	public toRational(number : Rational) : Rational => number;
+	
+	public toRationalFromAny( any : Any) : Rational{
+		assert( any is Rational);
+		return any;
+	}
 
   	public getlength ( seq : Sequence<Natural>) => seq.size; 
   	

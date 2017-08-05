@@ -3,7 +3,10 @@ package lense.core.math;
 import java.math.BigInteger;
 
 import lense.core.lang.Binary;
-import lense.core.lang.Boolean;
+import lense.core.lang.Dijunctable;
+import lense.core.lang.ExclusiveDijunctable;
+import lense.core.lang.HashValue;
+import lense.core.lang.Injunctable;
 import lense.core.lang.java.Constructor;
 import lense.core.lang.java.Native;
 import lense.core.lang.java.Property;
@@ -106,7 +109,7 @@ public class Int32 extends Integer implements Binary {
 	@Override
 	public final Integer successor() {
 		if (value == java.lang.Integer.MAX_VALUE){
-			throw new ArithmeticException();
+		    throw ArithmeticException.constructor(lense.core.lang.String.valueOfNative("max success reached"));
 		}
 		return valueOfNative(value + 1);
 	}
@@ -124,7 +127,7 @@ public class Int32 extends Integer implements Binary {
 	@Override
 	public final Integer predecessor() {
 		if (value == java.lang.Integer.MIN_VALUE){
-			throw new ArithmeticException();
+		    throw ArithmeticException.constructor(lense.core.lang.String.valueOfNative("min predecessor reached"));
 		}
 		return valueOfNative(value - 1);
 	}
@@ -181,6 +184,48 @@ public class Int32 extends Integer implements Binary {
 	public Integer signum() {
 		return new Int32( value == 0 ? 0 : (value < 0 ? -1 : 1));
 	}
+
+    @Override
+    public Int32 toInt32() {
+        return this;
+    }
+
+    @Override
+    public boolean isNegative() {
+        return this.value < 0;
+    }
+
+    @Override
+    public Int32 xor(ExclusiveDijunctable other) {
+        if (other instanceof Int32){
+            return new Int32(this.value ^ ((Int32)other).value);
+        } else {
+            throw new IllegalArgumentException("Cannot inject with a diferent class");
+        }
+    }
+
+    @Override
+    public Int32 or(Dijunctable other) {
+        if (other instanceof Int32){
+            return new Int32(this.value | ((Int32)other).value);
+        } else {
+            throw new IllegalArgumentException("Cannot inject with a diferent class");
+        }
+    }
+
+    @Override
+    public Int32 and(Injunctable other) {
+        if (other instanceof Int32){
+            return new Int32(this.value & ((Int32)other).value);
+        } else {
+            throw new IllegalArgumentException("Cannot inject with a diferent class");
+        }
+    }
+
+    @Override
+    public HashValue hashValue() {
+        return new HashValue(this.value);
+    }
 
 
 

@@ -1,7 +1,5 @@
 package lense.compiler.typesystem.labels;
 
-import java.util.List;
-
 public interface Type {
 
     public Type or (Type other);

@@ -1,8 +1,8 @@
 package lense.core.math;
 
-import java.math.BigDecimal;
 
 import lense.core.lang.Any;
+import lense.core.lang.HashValue;
 import lense.core.lang.java.Constructor;
 import lense.core.lang.java.Native;
 
@@ -18,7 +18,7 @@ public class Decimal32 extends Decimal{
 		if (other instanceof Decimal32){
 			return (Decimal32)other;
 		} else {
-			return new Decimal32(other.getNativeBig().floatValue());
+			return new Decimal32(other.promoteToBigDecimal().value.floatValue());
 		}
 	}
 	
@@ -37,9 +37,9 @@ public class Decimal32 extends Decimal{
 		return lense.core.lang.String.valueOfNative(Float.toString(value));
 	}
 	
-	@Override @Native
-	protected BigDecimal getNativeBig() {
-		return new BigDecimal(value);
+	@Override 
+	protected BigDecimal promoteToBigDecimal() {   
+		return new BigDecimal(java.math.BigDecimal.valueOf(value));
 	}
 	
 	public Int32 compareTo(Real other){
@@ -52,8 +52,8 @@ public class Decimal32 extends Decimal{
 	}
 
 	@Override
-	public Integer hashValue() {
-		return Int32.valueOfNative(Float.hashCode(value));
+	public HashValue hashValue() {
+		return new HashValue(Float.hashCode(value));
 	}
 
 	@Override
@@ -109,7 +109,7 @@ public class Decimal32 extends Decimal{
 	}
 	
 	@Override
-	public Real symetric() {
+	public Real symmetric() {
 		return new Decimal32(-this.value);
 	}
 	

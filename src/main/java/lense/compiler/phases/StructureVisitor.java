@@ -3,6 +3,7 @@
  */
 package lense.compiler.phases;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -11,8 +12,9 @@ import compiler.trees.TreeTransverser;
 import compiler.trees.VisitorNext;
 import lense.compiler.CompilationError;
 import lense.compiler.TypeAlreadyDefinedException;
+import lense.compiler.ast.AssertNode;
+import lense.compiler.ast.BooleanOperation;
 import lense.compiler.ast.BooleanOperatorNode;
-import lense.compiler.ast.BooleanOperatorNode.BooleanOperation;
 import lense.compiler.ast.ConstructorDeclarationNode;
 import lense.compiler.ast.DecisionNode;
 import lense.compiler.ast.FieldDeclarationNode;
@@ -88,8 +90,6 @@ public class StructureVisitor extends AbstractScopedVisitor {
 				typeNode.setTypeParameter(f.toIntervalTypeVariable());
 			}
 
-			TreeTransverser.transverse(n.getExpression(), this);
-
 			if (n.getExpression() instanceof VariableReadNode) {
 				VariableReadNode var = (VariableReadNode) n.getExpression();
 
@@ -98,8 +98,9 @@ public class StructureVisitor extends AbstractScopedVisitor {
 				FieldOrPropertyAccessNode var = (FieldOrPropertyAccessNode) n.getExpression();
 
 				propagateType(node, typeNode, var.getName());
-				
 			} 
+			
+			TreeTransverser.transverse(n.getExpression(), this);
 
 			return VisitorNext.Siblings;
 		}  
@@ -136,6 +137,23 @@ public class StructureVisitor extends AbstractScopedVisitor {
 
 			TreeTransverser.transverse(b.getTrueBlock(), new AutoCastVisitor(this.getSemanticContext(), name,typeNode.getTypeVariable() ));
 		
+		} else if (parent instanceof AssertNode) {
+		    
+		    List<AstNode> siblings = parent.getParent().getChildren();
+		    
+		    boolean found = false;
+		    for (AstNode a : siblings){
+		        
+		        if (found){
+		            TreeTransverser.transverse(a, new AutoCastVisitor(this.getSemanticContext(), name,typeNode.getTypeVariable() ));
+                }
+
+		        if (a == parent){
+		            found = true;
+		        }
+		        
+		        
+		    }
 		}
 	}
 
@@ -171,7 +189,7 @@ public class StructureVisitor extends AbstractScopedVisitor {
 			MethodDeclarationNode m = (MethodDeclarationNode)node;
 
 			if (m.getReturnType().needsInference()){
-				Optional<ReturnNode> op = m.findChild(ReturnNode.class);
+				Optional<ReturnNode> op = m.findFirstChild(ReturnNode.class);
 				
 				if (op.isPresent()){
 					

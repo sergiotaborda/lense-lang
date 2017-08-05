@@ -9,7 +9,6 @@ import lense.compiler.context.SemanticContext;
 import lense.compiler.context.SemanticScope;
 import lense.compiler.context.VariableInfo;
 import lense.compiler.type.TypeDefinition;
-import lense.compiler.type.variable.DeclaringTypeBoundedTypeVariable;
 import lense.compiler.type.variable.FixedTypeVariable;
 import lense.compiler.type.variable.GenericTypeBoundToDeclaringTypeVariable;
 import lense.compiler.type.variable.IntervalTypeVariable;

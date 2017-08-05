@@ -37,8 +37,6 @@ public class JavalizePhase implements CompilerPhase {
 		for (ClassTypeNode ct : types.getTypes()){
 			// cannot share semantic context among classes
 			try {
-				TreeTransverser.transverse(ct,new BoxingPointVisitor());
-				TreeTransverser.transverse(ct,new ErasureVisitor());
 				TreeTransverser.transverse(ct,new JavalizeVisitor(ct.getSemanticContext(), this.nativeTypes));
 			} catch (CompilationError e){
 				listener.error(new CompilerMessage(e.getMessage()));

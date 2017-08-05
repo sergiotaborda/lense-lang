@@ -3,7 +3,7 @@ import lense.core.math.Whole;
 import lense.core.math.Rational;
 import lense.core.math.Natural;
 
-public native class Integer extends Whole{
+public native class Integer extends Whole implements Ordinal<Integer>{
 
 
 		public native implicit constructor valueOf( n :Natural);
@@ -14,4 +14,12 @@ public native class Integer extends Whole{
 		public native divide( n : Integer) : Rational;
 		
 		public native symmetric() : Integer;
+		
+		public native isZero() : Boolean;
+
+		public native isOne() : Boolean;
+		/{
+			Return 0 if the value is zero, -1 if the value if less than zero and 1 if greater
+		}/
+		public native signum() : Integer;
 }

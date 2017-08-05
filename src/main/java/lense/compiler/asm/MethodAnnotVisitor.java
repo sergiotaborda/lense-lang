@@ -69,10 +69,6 @@ public class MethodAnnotVisitor extends MethodVisitor{
 								}
 							}
 
-							
-						
-
-							
 						} else if (typeDefinition.getGenericParameters().isEmpty()){
 							method.setReturn(new MethodReturn(new DeclaringTypeBoundedTypeVariable(method.getDeclaringType(), 0, returnSignature, lense.compiler.typesystem.Variance.Covariant)));
 						} else {

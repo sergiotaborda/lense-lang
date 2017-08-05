@@ -4,6 +4,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import compiler.FileCompilationUnit;
@@ -12,7 +13,7 @@ import lense.compiler.LenseSourceCompiler;
 
 public class TestConstrutors {
 
-	@Test
+	@Test @Ignore
 	public void testConstrutors()  {
 		File file = new File(new File(".").getAbsoluteFile().getParentFile(),"src/main/lense/construtors.lense");
 		File klass = new File(new File(".").getAbsoluteFile().getParentFile(),"src/main/lense/");

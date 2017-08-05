@@ -3,11 +3,9 @@
  */
 package lense.compiler.ast;
 
-import lense.compiler.typesystem.LenseTypeSystem;
-import lense.compiler.ast.ExpressionNode;
-import lense.compiler.type.TypeDefinition;
 import lense.compiler.type.variable.FixedTypeVariable;
 import lense.compiler.type.variable.TypeVariable;
+import lense.compiler.typesystem.LenseTypeSystem;
 
 /**
  * 

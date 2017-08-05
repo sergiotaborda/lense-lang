@@ -6,7 +6,6 @@ import compiler.CompiledUnit;
 import compiler.CompilerBackEnd;
 import lense.compiler.CompilerBackEndFactory;
 import lense.compiler.FileLocations;
-import lense.compiler.repository.ModuleRepository;
 
 public class JavaBackEndFactory implements CompilerBackEndFactory {
 

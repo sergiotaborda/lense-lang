@@ -4,6 +4,7 @@ import java.util.Arrays;
 
 import lense.core.lang.Any;
 import lense.core.lang.Boolean;
+import lense.core.lang.HashValue;
 import lense.core.lang.IllegalIndexException;
 import lense.core.lang.java.Native;
 import lense.core.math.Int32;
@@ -91,7 +92,7 @@ final class NativeBooleanArray extends Array {
 	}
 
 	@Override
-	public Integer hashValue() {
-		return Int32.valueOfNative(array.length);
+	public HashValue hashValue() {
+		return new HashValue(array.length);
 	}
 }

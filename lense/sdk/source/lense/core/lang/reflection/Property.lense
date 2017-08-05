@@ -1,0 +1,9 @@
+
+import lense.core.math.Integer;
+import lense.core.lang.String;
+
+public native class Property {
+
+	protected native constructor();
+	public native name : String {get;} 
+} 

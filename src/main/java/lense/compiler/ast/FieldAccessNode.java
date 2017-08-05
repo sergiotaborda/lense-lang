@@ -3,10 +3,8 @@
  */
 package lense.compiler.ast;
 
-import lense.compiler.ast.NeedTypeCalculationNode;
-import lense.compiler.type.TypeDefinition;
-import lense.compiler.type.variable.TypeVariable;
 import compiler.syntax.AstNode;
+import lense.compiler.type.variable.TypeVariable;
 
 
 

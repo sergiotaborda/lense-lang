@@ -5,6 +5,12 @@ package lense.compiler.phases;
 
 import java.util.Iterator;
 
+import compiler.CompilationResult;
+import compiler.CompilerListener;
+import compiler.CompilerMessage;
+import compiler.CompilerPhase;
+import compiler.syntax.AstNode;
+import compiler.trees.TreeTransverser;
 import lense.compiler.CompilationError;
 import lense.compiler.Import;
 import lense.compiler.ast.ClassTypeNode;
@@ -14,12 +20,6 @@ import lense.compiler.ast.UnitTypes;
 import lense.compiler.context.SemanticContext;
 import lense.compiler.repository.UpdatableTypeRepository;
 import lense.compiler.typesystem.PackageResolver;
-import compiler.CompilationResult;
-import compiler.CompilerListener;
-import compiler.CompilerMessage;
-import compiler.CompilerPhase;
-import compiler.syntax.AstNode;
-import compiler.trees.TreeTransverser;
 
 /**
  * 
@@ -88,7 +88,7 @@ public class NameResolutionPhase implements CompilerPhase {
 				for(Iterator<Import> it = ct.imports().iterator(); it.hasNext();){
 					Import imp = it.next();
 					if (imp.isContainer() || !imp.isUsed()) {
-						listener.warn(new CompilerMessage(imp.getTypeName().getName() + " import is not used."));
+						listener.warn(new CompilerMessage(imp.getTypeName().getName() + " import is declared but not used in " + ct.getName()));
 						it.remove();
 					}
 				}

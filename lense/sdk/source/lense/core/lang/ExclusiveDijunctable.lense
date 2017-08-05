@@ -1,0 +1,9 @@
+
+import lense.core.math.Integer;
+import lense.core.lang.Boolean;
+
+public interface ExclusiveDijunctable<T> {
+
+	public xor( other: T) : T; // TODO should be public xor( other: Self) : Self
+	
+} 

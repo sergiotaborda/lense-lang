@@ -1,9 +1,16 @@
+Lense CLI
+	compile (DONE)
+	run
+	document
 Change Iterator to move + current (DONE)
 Change + string operator to ++ => needs resolution on the increment/decrement operator issue 
 Indexes
 	allow more than one parameter (DONE)
-Remove 
-	function keyword (DONE)
+Named Parameters and Default Parameters
+	- allow for calling functions with names   go ( from: x, to : y) is the same as go (to: y ; from: x)
+	- allow for defining default values in the argument so the parameter is not mandatory   
+			define print ( msg : String : printer : Printer = defaultPrinter)
+			call as print("hello") or as print("hello", myPrinter);
 Erase
 	Maybe<Boolean> to java.Boolean
 	String and String? 
@@ -32,7 +39,7 @@ Generics
 Flow Sensitive Typing
 	if (DONE)
 	switch
-	assert
+	assert (DONE)
 Deconstructing
 Difference between val and var
 	maybe use let and variable
@@ -42,7 +49,7 @@ Tuples (BNF) and void
 Implement Properties 
 	in interfaces (DONE)
 	validate all non nullable properties are inicialized
-	do delegation    size {get = list.size}   or size => list.size
+	do delegation    size {get = list.size}   or size => list.size (DONE)
 Types
 	inference and optional typing
 	infere optional ": Void" for methods return (DONE)
@@ -52,7 +59,7 @@ Reification
 	Expression
 Reflection
 	Type<T> class
-	typeof operator
+	typeof operator , like Type t =  typeof(T)
 	is operator (DONE)
 	after testing for type auto cast variable (create a new scope to shadow previous variable)
 		inside && (DONE)
@@ -112,6 +119,7 @@ Case classes and objects
     - Object (DONE)
     - Enum
     - Annotation
+    - Enhancements -> usefull for operations on numbers of different types. enhancements can be native
 	- case classes, 
 	- case objects 
 	- data classes 
@@ -121,12 +129,16 @@ Revisit ordering of elements in class body.
 	- it should not matter
 Revisit Fields  not initialized 
 Operators and Operacional Interfaces	
-	- operator for rational division /
+	- operator for rational division / (DONE)
 	- operator for integer division \ , consistent with % operator D = d.q + r where q = D \ d and r = D % d;
-	- handle comparable operators with Comparable<T>
+	- handle comparable operators with Comparable<T> (DONE)
+	- implement exists x as a flow sensitive way to decapsulate Maybe similar to instanceof 
+		if (exists x) {  x.do()  }  == transforms to ==> if (x.hasValue()) { x' = x.Value ; x'.do() } 
+		return exists x;  == transforms to ==> return x.hasValue()
 Allow module to have any name
 	-place module.lense in source root folder
-	-allow for package in files as optional. if present validate it matches the folder structure
+	-allow for package in files as optional. (DONE) 
+		if present validate it matches the folder structure 
 Ad elvis operator since transparent maybe is no good ?:
     List<String>? maybeList = ...
     maybeList.map( a -> a) <---- accessing maybe.map, a is a list
@@ -160,12 +172,11 @@ Literals
 	- imaginary unit is 'i' and 2i means  Rational("2") * Complex.I; (DONE)
 	 
 	 
-	 intervals literal
-	 sequence literals [1,2,3,4]  DONE
+	 intervals literal (DONE)
+	 sequence literals [1,2,3,4]  (DONE)
 	 map literals { "a": 1, "b": 2 , "c" : 3} (DONE)
      Builders like Window { Size = Size { 20, 40} }} equivalente to new : xml alternative + parser
 	 Property bag as single loadable/parsable file (JSON style) 
-
 
 Callable
 	Functions<R, T...> are subtypes of Callable<R, Tuple<T, Tuple<T...>>>

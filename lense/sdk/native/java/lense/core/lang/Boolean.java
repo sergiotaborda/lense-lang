@@ -53,8 +53,8 @@ public class Boolean extends Base implements Any{
 	}
 
 	@Override
-	public Integer hashValue() {
-		return value ? Int32.valueOfNative(1) :Int32.valueOfNative(0);
+	public HashValue hashValue() {
+		return value ? new HashValue(1) : new HashValue(0);
 	}
 
 	public Boolean and(Boolean other) {

@@ -10,13 +10,13 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import compiler.parser.IdentifierNode;
 import compiler.syntax.AstNode;
 import compiler.trees.TreeTransverser;
 import compiler.trees.VisitorNext;
 import lense.compiler.CompilationError;
 import lense.compiler.Import;
 import lense.compiler.ast.ArgumentListNode;
-import lense.compiler.ast.NewInstanceCreationNode;
 import lense.compiler.ast.ClassTypeNode;
 import lense.compiler.ast.FieldDeclarationNode;
 import lense.compiler.ast.FieldOrPropertyAccessNode;
@@ -26,12 +26,13 @@ import lense.compiler.ast.FormalParameterNode;
 import lense.compiler.ast.GenericTypeParameterNode;
 import lense.compiler.ast.ImplementedInterfacesNode;
 import lense.compiler.ast.InstanceOfNode;
-import lense.compiler.ast.LiteralIntervalNode;
 import lense.compiler.ast.LiteralAssociationInstanceCreation;
+import lense.compiler.ast.LiteralIntervalNode;
 import lense.compiler.ast.LiteralSequenceInstanceCreation;
 import lense.compiler.ast.LiteralTupleInstanceCreation;
 import lense.compiler.ast.MethodDeclarationNode;
 import lense.compiler.ast.MethodInvocationNode;
+import lense.compiler.ast.NewInstanceCreationNode;
 import lense.compiler.ast.NumericValue;
 import lense.compiler.ast.PropertyDeclarationNode;
 import lense.compiler.ast.QualifiedNameNode;
@@ -319,7 +320,7 @@ public class NameResolutionVisitor extends AbstractScopedVisitor {
 			if (match.isPresent()){
 				typeNode.setName(match.get().getTypeName());
 			}
-		}
+		} 
 
 		return VisitorNext.Children;
 	}

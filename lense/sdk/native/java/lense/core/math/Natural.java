@@ -6,6 +6,7 @@ import lense.core.collections.NativeNaturalProgression;
 import lense.core.collections.Progression;
 import lense.core.lang.java.Constructor;
 import lense.core.lang.java.Native;
+import lense.core.lang.java.NonNull;
 
 public abstract class Natural extends Whole  {
 
@@ -20,7 +21,7 @@ public abstract class Natural extends Whole  {
 	@Native
 	public static Natural valueOfNative(int value){
 		if (value < 0){
-			throw new ArithmeticException();
+		    throw ArithmeticException.constructor(lense.core.lang.String.valueOfNative("A negative integer cannot be transformed to a Natural"));
 		}
 		return new UNat(value);
 	}
@@ -28,7 +29,7 @@ public abstract class Natural extends Whole  {
 	@Native
 	public static Natural valueOfNative(long value) {
 		if (value < 0){
-			throw new ArithmeticException();
+		    throw ArithmeticException.constructor(lense.core.lang.String.valueOfNative("A negative integer cannot be transformed to a Natural"));
 		}
 		return new UNat(value);
 	}
@@ -39,7 +40,7 @@ public abstract class Natural extends Whole  {
 
 	public static Natural valueOf(BigInteger n) {
 		if (n.signum() < 0){
-			throw new ArithmeticException();
+	       throw ArithmeticException.constructor(lense.core.lang.String.valueOfNative("A negative integer cannot be transformed to a Natural"));
 		}
 		if (n.compareTo(new BigInteger("18446744073709551615")) <= 0){
 			return new UNat(n.toString());
@@ -47,7 +48,7 @@ public abstract class Natural extends Whole  {
 		return new NatBig(n);
 	}
 
-	public Progression upTo(Natural other){
+	public @NonNull Progression upTo(@NonNull Natural other){
 		return new NativeNaturalProgression(this, other);
 	}
 
@@ -56,31 +57,31 @@ public abstract class Natural extends Whole  {
 
 	public abstract int modulus(int n);
 
-	public abstract Natural plus (Natural other);
+	public abstract @NonNull Natural plus (@NonNull Natural other);
 
 	@Override
-	public final Whole minus(Whole other) {
+	public final @NonNull Whole minus(@NonNull Whole other) {
 		return this.asInteger().minus(other);
 	}
 
-	public final Integer minus(Natural other) {
+	public final @NonNull Integer minus(@NonNull Natural other) {
 		return this.asInteger().minus(other.asInteger());
 	}
 	
-	public final Integer symmetric() {
+	public final @NonNull Integer symmetric() {
 		return asInteger().symmetric();
 	}
 	
-	public final boolean isLessThen(Natural other) {
+	public final boolean isLessThen(@NonNull Natural other) {
 		return  compareTo(other) < 0;
 	}
 	
-	public final boolean isLessOrEqualTo(Natural other) {
+	public final boolean isLessOrEqualTo(@NonNull Natural other) {
 		return  compareTo(other) <= 0;
 	}
 
-	public abstract Natural successor();
-	public abstract Natural predecessor();
+	public abstract @NonNull Natural successor();
+	public abstract @NonNull Natural predecessor();
 
 	public abstract boolean isZero();
 
@@ -88,10 +89,10 @@ public abstract class Natural extends Whole  {
 
 	
 
-	public abstract Natural multiply(Natural other);
+	public abstract @NonNull Natural multiply(@NonNull Natural other);
 
 	@Override
-	public Whole plus(Whole other) {
+	public @NonNull Whole plus(@NonNull Whole other) {
 		if (other instanceof Natural){
 			return this.plus((Natural)other);
 		} else {
@@ -100,7 +101,7 @@ public abstract class Natural extends Whole  {
 	}
 
 	@Override
-	public Whole multiply(Whole other) {
+	public @NonNull Whole multiply(@NonNull Whole other) {
 		if (other instanceof Natural){
 			return this.multiply((Natural)other);
 		} else {
@@ -108,12 +109,12 @@ public abstract class Natural extends Whole  {
 		}
 	}
 	
-	public Integer multiply(Integer other) {
+	public @NonNull Integer multiply(@NonNull Integer other) {
 		return this.asInteger().multiply(other.asInteger());
 	}
 
 	@Override
-	public final Natural abs() {
+	public final @NonNull Natural abs() {
 		return this;
 	}
 }

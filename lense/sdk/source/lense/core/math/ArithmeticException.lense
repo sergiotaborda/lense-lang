@@ -1,0 +1,8 @@
+
+import lense.core.lang.Exception;
+import lense.core.lang.String;
+
+public class ArithmeticException extends Exception {
+
+	public constructor (message: String ) extends super (message); 
+}

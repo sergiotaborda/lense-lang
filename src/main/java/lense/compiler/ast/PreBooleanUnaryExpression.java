@@ -3,7 +3,6 @@
  */
 package lense.compiler.ast;
 
-import lense.compiler.ast.BooleanOperatorNode.BooleanOperation;
 import lense.compiler.type.variable.TypeVariable;
 
 /**

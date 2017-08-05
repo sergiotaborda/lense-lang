@@ -3,16 +3,16 @@ package lense.core.collections;
 import java.util.Collections;
 
 import lense.core.lang.Any;
+import lense.core.lang.HashValue;
 import lense.core.lang.Maybe;
 import lense.core.lang.None;
 import lense.core.lang.String;
+import lense.core.lang.java.Base;
 import lense.core.lang.java.Native;
-import lense.core.math.Int32;
-import lense.core.math.Integer;
 import lense.core.math.Natural;
 
 @Native
-public class EmptyAssociation implements Association {
+public class EmptyAssociation extends Base implements Association {
 
 	@Override
 	public boolean contains(Any other) {
@@ -45,8 +45,8 @@ public class EmptyAssociation implements Association {
 	}
 
 	@Override
-	public Integer hashValue() {
-		return Int32.valueOfNative(0);
+	public HashValue hashValue() {
+		return new HashValue(0);
 	}
 
 	@Override

@@ -1,4 +1,4 @@
-package lense.compiler.crosscompile.java;
+package lense.compiler.crosscompile;
 
 import java.util.function.Function;
 
@@ -8,8 +8,6 @@ import compiler.trees.VisitorNext;
 import lense.compiler.ast.ArgumentListItemNode;
 import lense.compiler.ast.ArgumentListNode;
 import lense.compiler.ast.AssignmentNode;
-import lense.compiler.ast.BooleanOperatorNode;
-import lense.compiler.ast.CastNode;
 import lense.compiler.ast.ConstructorDeclarationNode;
 import lense.compiler.ast.ExpressionNode;
 import lense.compiler.ast.FieldOrPropertyAccessNode;
@@ -17,7 +15,7 @@ import lense.compiler.ast.MethodDeclarationNode;
 import lense.compiler.ast.MethodInvocationNode;
 import lense.compiler.ast.ReturnNode;
 import lense.compiler.ast.VariableDeclarationNode;
-import lense.compiler.crosscompile.java.BoxingPointNode.BoxingDirection;
+import lense.compiler.crosscompile.BoxingPointNode.BoxingDirection;
 import lense.compiler.type.variable.TypeVariable;
 import lense.compiler.typesystem.LenseTypeSystem;
 
