@@ -10,4 +10,6 @@ public abstract class Decimal extends Real {
 	}
 	
 	protected abstract Real promoteNext();
+	
+ 
 }

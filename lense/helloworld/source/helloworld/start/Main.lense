@@ -99,6 +99,29 @@ public class Main extends ConsoleApplication {
   	 	   
   	 	assert ( 3/4 == 3/4);
   	 	
+  	 	assert(  8 / 3 is Rational);
+  	 	assert(  8 \ 3 is Whole);
+  	 	
+  	 	var ratio = 8 / 3;
+  	 	var wholeDivision = 8 \ 3;
+  	 	var remainder = 8 % 3;
+  	 	
+  	 
+  	  // TODO correct \ escaping inside string	
+  	 	console.println("8 / 3 = {{ ratio }} and 8 \ 3 ={{wholeDivision }}  so  8 ={{ wholeDivision }} * 3 + {{ remainder }}");
+  	 	
+   // TODO verifiy if a variable was already defined
+  	   var pow : Natural = 4 ** 3;
+  	   var powNeg : Rational = 4 ** -3;
+  	   
+  	   console.println(" 4 ** 3 = {{ pow }} (64)");
+  	   console.println(" 4 ** -3 = {{ powNeg }} (1/64)");
+  	  
+  	     var distance = dist(3, 4); 
+  	 	
+  	 	console.println(" distance srqt(3x3 + 4x4) = {{ distance }}");
+  	    console.println(" distance srqt(1 + 1) = {{ dist(1, 1) }}");
+  	  
   	 	var dc = 0.5 + 4i;
   	 	
   	 	console.println("Complex is : {{ dc }} "); 
@@ -210,6 +233,11 @@ public class Main extends ConsoleApplication {
   	 	
   	}
 
+	public dist(x : Natural, y : Natural) : Real {
+		return (x ** 2 + y ** 2) ** (1/2);
+	}
+	
+	
 	public toRational(number : Rational) : Rational => number;
 	
 	public toRationalFromAny( any : Any) : Rational{

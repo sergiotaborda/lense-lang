@@ -2354,6 +2354,7 @@ public class LenseGrammar extends AbstractLenseGrammar {
         };
         getNonTerminal("shiftExpression").addSemanticAction(arithmetics);
         getNonTerminal("multiplicativeExpression").addSemanticAction(arithmetics);
+        getNonTerminal("powerExpression").addSemanticAction(arithmetics);
 
         getNonTerminal("additiveExpression").addSemanticAction((p, r) -> {
             if (r.size() == 1) {

@@ -4,6 +4,7 @@ import java.math.BigInteger;
 
 import lense.core.lang.HashValue;
 import lense.core.lang.java.Constructor;
+import lense.core.lang.java.NonNull;
 
 public class BigInt extends Integer {
 
@@ -59,8 +60,34 @@ public class BigInt extends Integer {
 	}
 
 	@Override
+    public @NonNull Integer raiseTo(Natural other) {
+        if (this.isZero()){
+            if (other.isZero()){
+                return Integer.ONE;
+            }
+            return this;
+        } else if (this.isOne()){
+            return Integer.ONE;
+        } else if (other.isZero()){
+            return Integer.ONE;
+        } else if (other.isOne()){
+            return this;
+        } else if (other.compareTo(Integer.valueOfNative(2)) == 0){
+            return  this.multiply(this);
+        } else if (other.compareTo(Integer.valueOfNative(3)) == 0){
+            return  this.multiply(this).multiply(this);
+        } else if (other.isInInt32Range()){
+            return new BigInt(this.value.pow(other.toPrimitiveInt()));
+        } else {
+            // TODO resolve calculation. possible too big
+            throw new UnsupportedOperationException("raiseTo a number biger than Int32.MAX is not support yet");
+        }
+        
+    }
+    
+	@Override
 	public Natural abs() {
-		return new NatBig(this.value.abs());
+		return new BigNatural(this.value.abs());
 	}
 	
 	public lense.core.lang.String asString(){
@@ -97,7 +124,6 @@ public class BigInt extends Integer {
         return new HashValue(this.value.hashCode());
     }
 	
-
 
 
 }

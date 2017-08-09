@@ -12,4 +12,8 @@ public native abstract class Whole extends Number implements Comparable<Whole> {
 		public native minus( n : Whole) : Whole;
 		public native multiply( n : Whole) : Whole;
 		public native divide( n : Whole) : Rational;
+		public native wholeDivide (other : Whole) : Whole; 
+		public native remainder (other : Whole) : Whole; 	
+		
+		public native abs () : Natural; 
 }

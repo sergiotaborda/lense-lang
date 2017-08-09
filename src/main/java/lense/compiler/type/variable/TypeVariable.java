@@ -5,6 +5,7 @@ package lense.compiler.type.variable;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 
 import lense.compiler.type.TypeDefinition;
 
@@ -30,5 +31,7 @@ public interface TypeVariable {
 
 	public boolean isSingleType();
 	public boolean isFixed();
+
+    public void ensureNotFundamental(Function<TypeDefinition, TypeDefinition> convert);
     
 }

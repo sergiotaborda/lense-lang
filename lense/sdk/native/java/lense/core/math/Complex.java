@@ -8,17 +8,17 @@ public class Complex extends Number{
 
     @Constructor
     public static Complex constructor (){
-        return new Complex(Real.Zero, Real.Zero);
+        return new Complex(Real.ZERO, Real.ZERO);
     }
     
     @Constructor
     public static Complex valueOfReal( Real real){
-        return new Complex(real, Real.Zero);
+        return new Complex(real, Real.ZERO);
     }
     
     @Constructor
     public static Complex constructor (Real real, Real imginary){
-        return new Complex(real, Real.Zero);
+        return new Complex(real, Real.ZERO);
     }
 
 

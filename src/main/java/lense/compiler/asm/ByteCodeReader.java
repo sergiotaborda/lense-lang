@@ -32,7 +32,6 @@ import lense.compiler.type.variable.DeclaringTypeBoundedTypeVariable;
 import lense.compiler.type.variable.FixedTypeVariable;
 import lense.compiler.type.variable.RangeTypeVariable;
 import lense.compiler.type.variable.TypeVariable;
-import lense.compiler.typesystem.FundamentalLenseTypeDefinition;
 import lense.compiler.typesystem.LenseTypeSystem;
 import lense.compiler.typesystem.Variance;
 
@@ -72,16 +71,16 @@ public class ByteCodeReader extends ClassVisitor {
             kind = lense.compiler.type.LenseUnitKind.Annotation;
         }
 
-        LenseTypeDefinition superDef = new FundamentalLenseTypeDefinition("lense.core.lang.Any", LenseUnitKind.Class, null);
+        LenseTypeDefinition superDef = new LoadedLenseTypeDefinition("lense.core.lang.Any", LenseUnitKind.Class, null);
         if (superName != null && !superName.startsWith("java/")) {
-            superDef = new FundamentalLenseTypeDefinition(superName.replace('/', '.'), LenseUnitKind.Class, null);
+            superDef = new LoadedLenseTypeDefinition(superName.replace('/', '.'), LenseUnitKind.Class, null);
         }
-        def = new FundamentalLenseTypeDefinition(name.replace('/', '.'), kind, superDef);
+        def = new LoadedLenseTypeDefinition(name.replace('/', '.'), kind, superDef);
 
         if (interfaces.length > 0) {
             for (String f : interfaces) {
                 if (f != null && !f.startsWith("java/")) {
-                    def.addInterface(new FundamentalLenseTypeDefinition(f.replace('/', '.'), LenseUnitKind.Interface, null));
+                    def.addInterface(new LoadedLenseTypeDefinition(f.replace('/', '.'), LenseUnitKind.Interface, null));
                 }
             }
         }
@@ -297,7 +296,7 @@ public class ByteCodeReader extends ClassVisitor {
                                     LenseTypeSystem.Any(), LenseTypeSystem.Nothing()));
                         } else {
                             def.addGenericParameter(symbol, new RangeTypeVariable(symbol, variance,
-                                    new FundamentalLenseTypeDefinition(upperBound, null, null), LenseTypeSystem.Nothing()));
+                                    new LoadedLenseTypeDefinition(upperBound, null, null), LenseTypeSystem.Nothing()));
                         }
                     }
                 }
@@ -321,7 +320,7 @@ public class ByteCodeReader extends ClassVisitor {
                 return;
             }
             String interfaceType = ss.substring(0, pos);
-            LenseTypeDefinition type = new FundamentalLenseTypeDefinition(interfaceType, LenseUnitKind.Interface, null);
+            LenseTypeDefinition type = new LoadedLenseTypeDefinition(interfaceType, LenseUnitKind.Interface, null);
             String n = ss.substring(pos + 1, ss.lastIndexOf('>'));
             if (n.contains("<")) {
 
@@ -340,7 +339,7 @@ public class ByteCodeReader extends ClassVisitor {
                         type.addGenericParameter(symbol, tv);
                     } else {
                         // hard bound
-                        tv = new FixedTypeVariable(new FundamentalLenseTypeDefinition(symbol, null, null));
+                        tv = new FixedTypeVariable(new LoadedLenseTypeDefinition(symbol, null, null));
                         type.addGenericParameter("X" + Integer.toString(i), tv);
                     }
                     i++;
@@ -356,7 +355,7 @@ public class ByteCodeReader extends ClassVisitor {
                 return;
             }
             String interfaceType = ss.substring(0, pos);
-            LenseTypeDefinition type = new FundamentalLenseTypeDefinition(interfaceType, LenseUnitKind.Interface, null);
+            LenseTypeDefinition type = new LoadedLenseTypeDefinition(interfaceType, LenseUnitKind.Interface, null);
             String n = ss.substring(pos + 1, ss.lastIndexOf('>'));
             if (n.contains("<")) {
 
@@ -374,7 +373,7 @@ public class ByteCodeReader extends ClassVisitor {
                         type.addGenericParameter(symbol, tv);
                     } else {
                         // hard bound
-                        tv = new FixedTypeVariable(new FundamentalLenseTypeDefinition(symbol, null, null));
+                        tv = new FixedTypeVariable(new LoadedLenseTypeDefinition(symbol, null, null));
                         type.addGenericParameter("", tv);
                     }
                 }

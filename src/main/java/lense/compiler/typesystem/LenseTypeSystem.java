@@ -499,7 +499,7 @@ public class LenseTypeSystem{
             }
         }
 
-        // inheritance
+        // super type
         if (type.getSuperDefinition() != null){
             if (!type.getSuperDefinition().getName().equals("lense.core.lang.Any") && type.isGeneric()){
                 IntervalTypeVariable[] types = new IntervalTypeVariable[type.getGenericParameters().size()];
@@ -641,6 +641,10 @@ public class LenseTypeSystem{
         } else if (a.getTypeDefinition().getName().equals("lense.core.lang.Nothing") ){ 
             return b;
         } else if (b.getTypeDefinition().getName().equals("lense.core.lang.Nothing") ){ 
+            return a;
+        } else if ( isAssignableTo(a, b) ){ 
+            return b;
+        } else if ( isAssignableTo(b, a) ){ 
             return a;
         } else {
             return new FixedTypeVariable(new UnionType(a, b));

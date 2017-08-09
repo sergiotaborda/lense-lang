@@ -4,8 +4,8 @@ import lense.core.lang.java.Constructor;
 
 public abstract class Real extends Number{
 
-    public static final Real Zero = Rational.constructor(Int32.valueOfNative(0), Integer.ONE);
-    public static final Real One = Rational.constructor(Int32.valueOfNative(1), Integer.ONE);
+    public static final Rational ZERO = Rational.constructor(Int32.valueOfNative(0), Integer.ONE);
+    public static final Rational ONE = Rational.constructor(Int32.valueOfNative(1), Integer.ONE);
 
     @Constructor
     public static Real constructor(){
@@ -20,12 +20,12 @@ public abstract class Real extends Number{
     
     @Constructor
     public static Real zero(){
-        return Zero;
+        return ZERO;
     }
 
     @Constructor
     public static Real one(){
-        return One;
+        return ONE;
     }
 
     public Int32 compareTo(Real other){
@@ -49,7 +49,8 @@ public abstract class Real extends Number{
     public abstract Real minus (Real other);
     public abstract Real multiply(Real other);
     public abstract Real divide(Real other);
-
+    public abstract Real raiseTo(Real other);
+    
     public Complex plus (Imaginary other){
         return Complex.constructor(this, other.real());	
     }
@@ -73,4 +74,8 @@ public abstract class Real extends Number{
     public abstract boolean isOne();
 
     public abstract Integer signum();
+
+    public abstract Integer asInteger();
+
+    public abstract boolean isWhole();
 }

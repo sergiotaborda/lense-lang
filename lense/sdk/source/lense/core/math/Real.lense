@@ -24,5 +24,9 @@ public native abstract class Real extends Number implements Comparable<Real> {
 	public native multiply (other: Imaginary): Imaginary;
 	public native divide (other: Imaginary): Imaginary;
 	
+	public native raiseTo(other : Real) : Real;
 	
+	public native asInteger() : Integer;
+
+    public native isWhole() : Boolean;
 }

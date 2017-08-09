@@ -3,6 +3,9 @@
  */
 package lense.compiler.context;
 
+import java.math.BigDecimal;
+import java.util.Optional;
+
 import compiler.syntax.AstNode;
 import lense.compiler.type.variable.TypeVariable;
 
@@ -20,6 +23,8 @@ public class VariableInfo {
 	private boolean imutable;
 	private boolean predefined;
 	private AstNode declaringNode;
+    private BigDecimal min;
+    private BigDecimal max;
 
 	/**
 	 * Constructor.
@@ -102,6 +107,28 @@ public class VariableInfo {
 		this.imutable = imutable;
 	}
 
+    public void setMininumValue(Number min) {
+        if (min instanceof BigDecimal){
+            this.min = (BigDecimal)min;
+        } else {
+            this.min = new BigDecimal(min.toString());
+        }
+    }
 
+    public void setMaximumValue(Number max) {
+        if (max instanceof BigDecimal){
+            this.max = (BigDecimal)max;
+        } else {
+            this.max = new BigDecimal(max.toString());
+        }
+    }
+
+    public Optional<BigDecimal> getMinimum(){
+        return Optional.ofNullable(this.min);
+    }
+
+    public Optional<BigDecimal> getMaximum(){
+        return Optional.ofNullable(this.max);
+    }
 	
 }

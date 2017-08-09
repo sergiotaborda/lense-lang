@@ -1415,7 +1415,7 @@ public class SemanticVisitor extends AbstractScopedVisitor {
                 if (!(fieldOwnerType instanceof FixedTypeVariable)) {
                     throw new UnsupportedOperationException();
                 }
-                TypeDefinition def = unsureNotFundamental(((FixedTypeVariable) fieldOwnerType).getTypeDefinition());
+                TypeDefinition def = ensureNotFundamental(((FixedTypeVariable) fieldOwnerType).getTypeDefinition());
                 Optional<Field> field = def.getFieldByName(name);
 
                 if (!field.isPresent()) {
@@ -1972,6 +1972,9 @@ public class SemanticVisitor extends AbstractScopedVisitor {
                 throw new CompilationError(n.getVariableDeclarationNode().getTypeVariable().getSymbol()
                         + " is not contained in " + n.getContainer().getTypeVariable());
             }
+            
+            VariableInfo iterationVariable = this.getSemanticContext().currentScope().searchVariable(n.getVariableDeclarationNode().getName());
+            
             if (n.getContainer() instanceof RangeNode) {
                 RangeNode range = (RangeNode) n.getContainer();
 
@@ -1981,7 +1984,25 @@ public class SemanticVisitor extends AbstractScopedVisitor {
                 MethodInvocationNode create = new MethodInvocationNode(range.getStart(), "upTo", arg);
                 create.setTypeVariable(new FixedTypeVariable(
                         LenseTypeSystem.specify(LenseTypeSystem.Progression(), range.getStart().getTypeVariable())));
+                
                 n.replace(range, create);
+                
+                if (LenseTypeSystem.getInstance().isAssignableTo(
+                        iterationVariable.getTypeVariable(), 
+                        new FixedTypeVariable(LenseTypeSystem.Natural()))){ // TODO change to .Number()
+                    // is a number
+                    // try to determine limits 
+                    
+                    if (range.getStart() instanceof NumericValue){
+                         iterationVariable.setMininumValue(((NumericValue)range.getStart()).getValue());
+                    }
+                    
+                    if (range.getEnd() instanceof NumericValue){
+                        iterationVariable.setMaximumValue( ((NumericValue)range.getEnd()).getValue());
+                   }
+                    
+                }
+                
             }
         } else if (node instanceof ParametersListNode) {
 
@@ -2016,8 +2037,8 @@ public class SemanticVisitor extends AbstractScopedVisitor {
     private void promoteArithmeticOperatorToMethodCall(ExpressionNode parent, ExpressionNode leftExpression, ExpressionNode rightExpression,
                 ArithmeticOperation operation) {   
         
-        TypeVariable left = leftExpression.getTypeVariable();
-        TypeVariable right = rightExpression.getTypeVariable();
+        TypeVariable left = ensureNotFundamental(leftExpression.getTypeVariable());
+        TypeVariable right = ensureNotFundamental(rightExpression.getTypeVariable());
         
         if (left.equals(right) && left.getTypeDefinition().equals(LenseTypeSystem.String())) {
             parent.setTypeVariable(left);
@@ -2039,7 +2060,7 @@ public class SemanticVisitor extends AbstractScopedVisitor {
             // validate division by zero
             
             // find instance operator method
-            TypeDefinition type = unsureNotFundamental(left.getTypeDefinition());
+            TypeDefinition type = ensureNotFundamental(left.getTypeDefinition());
 
             if (type.equals(LenseTypeSystem.String())) {
 
@@ -2112,10 +2133,18 @@ public class SemanticVisitor extends AbstractScopedVisitor {
         }
     }
 
-    private TypeDefinition unsureNotFundamental(TypeDefinition type) {
+    private TypeDefinition ensureNotFundamental(TypeDefinition type) {
         if (type instanceof FundamentalLenseTypeDefinition){
             return getSemanticContext().resolveTypeForName(type.getName(), type.getGenericParameters().size()).get();
         }
+        return type;
+
+    }
+    
+    private TypeVariable ensureNotFundamental(TypeVariable type) {
+        
+        type.ensureNotFundamental(t ->  getSemanticContext().resolveTypeForName(t.getName(), t.getGenericParameters().size()).get());
+        
         return type;
 
     }

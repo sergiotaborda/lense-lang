@@ -248,4 +248,30 @@ public class Int64 extends Integer implements Binary{
     public HashValue hashValue() {
         return new HashValue(Long.hashCode(value));
     }
+    
+    public Integer wholeDivide (Integer other){
+        if (other.isZero()){
+            throw ArithmeticException.constructor(lense.core.lang.String.valueOfNative("Cannot divide by zero"));
+        }  
+        if (other instanceof Int64){
+            return new Int64(this.value / ((Int64)other).value);
+        } else if (other instanceof Int32){
+            return new Int64(this.value / ((Int32)other).value);
+        } else {
+            return super.wholeDivide(other);
+        }
+    }
+
+    public Integer remainder (Integer other){
+        if (other.isZero()){
+            throw ArithmeticException.constructor(lense.core.lang.String.valueOfNative("Cannot divide by zero"));
+        }  
+        if (other instanceof Int64){
+            return new Int64(this.value % ((Int64)other).value);
+        } else if (other instanceof Int32){
+            return new Int64(this.value % ((Int32)other).value);
+        } else {
+            return super.wholeDivide(other);
+        }
+    }
 }
