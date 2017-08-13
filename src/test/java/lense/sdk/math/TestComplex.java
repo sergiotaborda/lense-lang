@@ -13,7 +13,7 @@ public class TestComplex {
 
 	@Test
 	public void testComplexAbs () {
-		Imaginary img = Imaginary.valueOfNative(4);
+		Imaginary img = Imaginary.valueOf(Real.valueOf(Natural.valueOfNative(4)));
 		Natural n = Natural.valueOfNative(3);
 		Real r = Real.valueOf(n);
 		
