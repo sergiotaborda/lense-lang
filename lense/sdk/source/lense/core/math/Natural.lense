@@ -3,9 +3,10 @@ import lense.core.math.Whole;
 import lense.core.math.Progressable;
 import lense.core.math.Integer;
 import lense.core.math.Rational;
+import lense.core.math.Comparable;
 import lense.core.collections.Progression;
 
-public native class Natural extends Whole implements Progressable<Natural>{
+public native class Natural extends Whole implements Progressable<Natural> , Comparable<Natural>{
 
 
 	public native minus ( other: Natural)  : Integer;

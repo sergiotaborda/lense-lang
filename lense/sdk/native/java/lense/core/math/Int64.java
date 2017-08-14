@@ -274,4 +274,10 @@ public class Int64 extends Integer implements Binary{
             return super.wholeDivide(other);
         }
     }
+    
+
+    @Override
+    public boolean isPositive() {
+       return this.value > 0;
+    }
 }

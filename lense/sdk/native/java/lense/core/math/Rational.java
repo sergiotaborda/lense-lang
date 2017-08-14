@@ -194,4 +194,8 @@ public class Rational extends Real {
     public boolean isWhole() {
         return this.promoteToBigDecimal().isWhole();
     }
+
+
+
+
 }

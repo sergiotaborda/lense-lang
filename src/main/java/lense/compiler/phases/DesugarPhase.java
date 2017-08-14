@@ -9,12 +9,12 @@ import lense.compiler.CompilationError;
 import lense.compiler.ast.ClassTypeNode;
 import lense.compiler.ast.UnitTypes;
 
-public class DesugarPropertiesPhase implements CompilerPhase{
+public class DesugarPhase implements CompilerPhase{
 	
 	private CompilerListener listener;
 	private String innerPropertyPrefix;
 	
-	public DesugarPropertiesPhase(CompilerListener listener){
+	public DesugarPhase(CompilerListener listener){
 		this.listener = listener;
 	}
 	
@@ -33,7 +33,7 @@ public class DesugarPropertiesPhase implements CompilerPhase{
 		for (ClassTypeNode ct : types.getTypes()){
 			// cannot share semantic context among classes
 			try {
-				TreeTransverser.transverse(ct,new DesugarPropertiesVisitor(ct.getSemanticContext(), innerPropertyPrefix));
+				TreeTransverser.transverse(ct,new DesugarVisitor(ct.getSemanticContext(), innerPropertyPrefix));
 			} catch (CompilationError e){
 				listener.error(new CompilerMessage(e.getMessage()));
 				return new CompilationResult(e);

@@ -3,6 +3,8 @@
  */
 package lense.compiler.type.variable;
 
+import java.util.function.Function;
+
 import lense.compiler.type.TypeDefinition;
 import lense.compiler.typesystem.Variance;
 
@@ -40,6 +42,11 @@ public class InherintedTypeVariable extends CalculatedTypeVariable  {
 	public IntervalTypeVariable changeBaseType(TypeDefinition concrete) {
 		return new InherintedTypeVariable(concrete, superTypeParameterIndex,positionVariance );
 	}
+
+    @Override
+    public void ensureNotFundamental(Function<TypeDefinition, TypeDefinition> convert) {
+        this.declaringClass = convert.apply(declaringClass);
+    }
 
 
 

@@ -140,9 +140,21 @@ public class Decimal64 extends Decimal{
         return Integer.valueOfNative((long)this.value);
     }
 
+    
 
     @Override
     public boolean isWhole() {
         return this.value % 1 == 0;
+    }
+
+
+    @Override
+    public Comparison compareWith(Any other) {
+        if (other instanceof Decimal64){
+            return Comparison.valueOfNative(Double.compare(this.value, ((Decimal64) other).value));
+        } else if (other instanceof Real){
+            return super.compareWith((Real)other);
+        }
+        throw new ClassCastException("Cannot compare");
     }
 }

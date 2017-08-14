@@ -985,11 +985,13 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 					}
 				}
 
+				ClassTypeNode astnode = (ClassTypeNode)m.getParent().getParent();
+				
 				writer.print(")");
 
-				if (m.isNative()) {
+				if (m.isNative() || astnode.isAbstract()) {
 					// TODO write native peer call
-					writer.println("{ // native \n }");
+					writer.println("{ return null; // native \n }");
 				} else if (m.isPrimary()) {
 					writer.println("{ /* primary*/");
 

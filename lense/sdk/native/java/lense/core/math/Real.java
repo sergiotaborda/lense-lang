@@ -1,8 +1,9 @@
 package lense.core.math;
 
+import lense.core.lang.Any;
 import lense.core.lang.java.Constructor;
 
-public abstract class Real extends Number{
+public abstract class Real extends Number implements Comparable , SignedNumber {
 
     public static final Rational ZERO = Rational.constructor(Int32.valueOfNative(0), Integer.ONE);
     public static final Rational ONE = Rational.constructor(Int32.valueOfNative(1), Integer.ONE);
@@ -78,4 +79,22 @@ public abstract class Real extends Number{
     public abstract Integer asInteger();
 
     public abstract boolean isWhole();
+    
+    @Override
+    public boolean isNegative() {
+        return this.signum().isNegative();
+    }
+
+    @Override
+    public boolean isPositive() {
+        return this.signum().isPositive();
+    }
+    
+    @Override
+    public Comparison compareWith(Any other) {
+        if ( other instanceof Real) {
+            return this.compareWith((Real)other);
+        }
+        throw new ClassCastException();
+    }
 }

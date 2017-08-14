@@ -4,6 +4,7 @@
 package lense.compiler.type.variable;
 
 import java.util.Optional;
+import java.util.function.Function;
 
 import lense.compiler.type.Method;
 import lense.compiler.type.MethodSignature;
@@ -64,6 +65,11 @@ public class MethodFreeTypeVariable extends CalculatedTypeVariable implements Ty
 	public IntervalTypeVariable changeBaseType(TypeDefinition concrete) {
 		throw new UnsupportedOperationException();
 	}
+
+    @Override
+    public void ensureNotFundamental(Function<TypeDefinition, TypeDefinition> convert) {
+        //no-op
+    }
 
 
 }

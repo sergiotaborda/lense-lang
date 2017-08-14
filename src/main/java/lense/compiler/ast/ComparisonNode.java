@@ -36,6 +36,19 @@ public class ComparisonNode extends ExpressionNode {
 		public String symbol() {
 			return symbol;
 		}
+
+        public boolean dependsOnComparable() {
+           switch (this){
+               case LessThan:
+               case GreaterThan:
+               case LessOrEqualTo:
+               case GreaterOrEqualTo:
+               case Compare:
+                   return true;
+               default :
+                  return false;
+           }
+        }
 	}
 	
 	private Operation operation;

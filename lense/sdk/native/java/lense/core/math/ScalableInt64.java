@@ -186,4 +186,10 @@ public class ScalableInt64 extends ScalableInteger {
             return super.wholeDivide(other);
         }
     }
+    
+
+    @Override
+    public boolean isPositive() {
+       return this.value > 0;
+    }
 }

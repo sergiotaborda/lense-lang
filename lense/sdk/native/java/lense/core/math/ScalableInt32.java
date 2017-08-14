@@ -155,4 +155,10 @@ public class ScalableInt32 extends ScalableInteger {
             return super.wholeDivide(other);
         }
     }
+    
+
+    @Override
+    public boolean isPositive() {
+       return this.value > 0;
+    }
 }

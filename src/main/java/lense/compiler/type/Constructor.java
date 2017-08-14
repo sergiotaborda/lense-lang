@@ -6,6 +6,8 @@ package lense.compiler.type;
 import java.util.ArrayList;
 import java.util.List;
 
+import lense.compiler.typesystem.Visibility;
+
 /**
  * 
  */
@@ -15,6 +17,7 @@ public class Constructor implements CallableMember<Constructor>{
 	private TypeDefinition declaringType;
 	private boolean isImplicit;
 	private String name;
+    private Visibility visibility;
 
 	/**
 	 * Constructor.
@@ -142,4 +145,13 @@ public class Constructor implements CallableMember<Constructor>{
 	public void setImplicit(boolean isImplicit) {
 		this.isImplicit = isImplicit;
 	}
+
+    @Override
+    public Visibility getVisibility() {
+        return visibility;
+    }
+    
+    public void setVisibility(Visibility visibility){
+        this.visibility = visibility;
+    }
 }

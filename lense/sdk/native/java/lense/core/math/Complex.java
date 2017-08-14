@@ -83,4 +83,9 @@ public class Complex extends Number{
     public lense.core.lang.String asString(){
         return real.asString().plus(imginary.signum().compareTo(Integer.ZERO) <=0 ? "-" : "+").plus(imginary.asString()).plus("i");
     }
+    
+    @Override
+    public boolean isZero() {
+        return this.real.isZero() && this.imginary.isZero();
+    }
 }

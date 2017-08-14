@@ -93,4 +93,9 @@ public class Imaginary extends Number{
     public Real real() {
         return value;
     }
+
+    @Override
+    public boolean isZero() {
+        return value.isZero();
+    }
 }

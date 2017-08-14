@@ -7,7 +7,7 @@ import lense.core.lang.java.Constructor;
 import lense.core.lang.java.Native;
 import lense.core.lang.java.NonNull;
 
-public abstract class Integer extends Whole implements Comparable{
+public abstract class Integer extends Whole implements Comparable, SignedNumber{
 
 	@Constructor
 	public static Integer constructor(){

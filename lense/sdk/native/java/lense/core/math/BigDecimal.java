@@ -113,4 +113,16 @@ public class BigDecimal extends Decimal {
     public boolean isWhole() {
         return this.value.remainder(java.math.BigDecimal.ONE).compareTo(java.math.BigDecimal.ZERO) == 0;
     }
+
+    @Override
+    public Comparison compareWith(Any other) {
+        if (other instanceof BigDecimal){
+            return Comparison.valueOfNative(this.value.compareTo(((BigDecimal) other).value));
+        } else if (other instanceof Real){
+            return super.compareWith((Real)other);
+        }
+        throw new ClassCastException("Cannot compare");
+            
+    }
+
 }

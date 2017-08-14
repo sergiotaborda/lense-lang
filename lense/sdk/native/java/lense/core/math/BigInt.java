@@ -118,12 +118,19 @@ public class BigInt extends Integer {
     public boolean isNegative() {
         return this.value.compareTo(BigInteger.ZERO) < 0;
     }
+    
+    @Override
+    public boolean isPositive() {
+        return this.value.compareTo(BigInteger.ZERO) > 0;
+    }
+    
 
     @Override
     public HashValue hashValue() {
         return new HashValue(this.value.hashCode());
     }
-	
+
+ 
 
 
 }

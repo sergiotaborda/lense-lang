@@ -20,7 +20,6 @@ import compiler.parser.SemanticAction;
 import compiler.parser.Symbol;
 import compiler.syntax.AstNode;
 import lense.compiler.ast.AccessorNode;
-import lense.compiler.ast.ConstructorExtentionNode;
 import lense.compiler.ast.AnnotationListNode;
 import lense.compiler.ast.AnnotationNode;
 import lense.compiler.ast.ArgumentListNode;
@@ -40,6 +39,7 @@ import lense.compiler.ast.ClassTypeNode;
 import lense.compiler.ast.ComparisonNode;
 import lense.compiler.ast.ComparisonNode.Operation;
 import lense.compiler.ast.ConstructorDeclarationNode;
+import lense.compiler.ast.ConstructorExtentionNode;
 import lense.compiler.ast.ContinueNode;
 import lense.compiler.ast.DecisionNode;
 import lense.compiler.ast.ExpressionNode;
@@ -2750,10 +2750,10 @@ public class LenseGrammar extends AbstractLenseGrammar {
 
             NumericValue v = new NumericValue();
             if (!Character.isDigit(number.charAt(number.length() - 1))) {
-                final Number n = parseNumber(number.substring(0, number.length() - 1));
+                final BigDecimal n = parseNumber(number.substring(0, number.length() - 1));
                 v.setValue(n, determineNumberType(number));
             } else {
-                final Number n = parseNumber(number);
+                final BigDecimal n = parseNumber(number);
                 v.setValue(n, determineNumberType(number));
             }
 
@@ -3150,14 +3150,14 @@ public class LenseGrammar extends AbstractLenseGrammar {
         }
     }
 
-    private Number parseNumber(String number) {
+    private BigDecimal parseNumber(String number) {
         number = number.replaceAll("_", "");
         if (number.startsWith("#")) {
             // hexadecimal
-            return new BigInteger(number.substring(1), 16);
+            return new BigDecimal(new BigInteger(number.substring(1), 16));
         } else if (number.startsWith("$")) {
             // binary
-            return new BigInteger(number.substring(1), 2);
+            return new BigDecimal(new BigInteger(number.substring(1), 2));
         }
         return new BigDecimal(number);
     }

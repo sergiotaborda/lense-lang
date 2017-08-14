@@ -86,6 +86,8 @@ public class Imaginary extends Number implements Comparable<Imaginary> {
 		return false;
 	}
 
+	public isZero() : Boolean => this.value.isZero();
+
 	public  hashValue() : HashValue {
 		return value.hashValue();
 	}

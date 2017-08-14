@@ -11,7 +11,7 @@ import lense.compiler.LenseCompiler;
 import lense.compiler.ast.ModuleNode;
 import lense.compiler.crosscompile.ErasurePhase;
 import lense.compiler.phases.CompositePhase;
-import lense.compiler.phases.DesugarPropertiesPhase;
+import lense.compiler.phases.DesugarPhase;
 import lense.compiler.repository.TypeRepository;
 
 public class LenseToJsCompiler extends LenseCompiler{
@@ -29,7 +29,7 @@ public class LenseToJsCompiler extends LenseCompiler{
 
     @Override
     protected void initCorePhase(CompositePhase corePhase, Map<String, File> nativeTypes) {
-        DesugarPropertiesPhase desugarProperties = new DesugarPropertiesPhase(this.getCompilerListener());
+        DesugarPhase desugarProperties = new DesugarPhase(this.getCompilerListener());
         desugarProperties.setInnerPropertyPrefix("_");
         
         ErasurePhase erasurePhase = new ErasurePhase(this.getCompilerListener());

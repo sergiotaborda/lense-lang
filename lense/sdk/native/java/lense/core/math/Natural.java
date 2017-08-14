@@ -8,7 +8,7 @@ import lense.core.lang.java.Constructor;
 import lense.core.lang.java.Native;
 import lense.core.lang.java.NonNull;
 
-public abstract class Natural extends Whole  {
+public abstract class Natural extends Whole implements Comparable  {
 
     public static final Natural ONE = Natural.valueOfNative(1);
     public static final Natural ZERO = Natural.valueOfNative(0);

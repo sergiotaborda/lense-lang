@@ -249,4 +249,9 @@ public class Int32 extends Integer implements Binary {
         }
     }
 
+    @Override
+    public boolean isPositive() {
+       return this.value > 0;
+    }
+
 }

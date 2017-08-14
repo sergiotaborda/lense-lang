@@ -4,6 +4,7 @@
 package lense.compiler.type.variable;
 
 import java.util.Optional;
+import java.util.function.Function;
 
 import lense.compiler.type.TypeDefinition;
 import lense.compiler.type.TypeMember;
@@ -59,6 +60,11 @@ public class TypeMemberDeclaringTypeVariable extends CalculatedTypeVariable impl
 	public IntervalTypeVariable changeBaseType(TypeDefinition concrete) {
 		return new TypeMemberDeclaringTypeVariable(this.member, parameterIndex);
 	}
+
+    @Override
+    public void ensureNotFundamental(Function<TypeDefinition, TypeDefinition> convert) {
+        // no-op
+    }
 
 
 }

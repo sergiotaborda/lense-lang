@@ -5,7 +5,7 @@ import java.math.BigInteger;
 import lense.core.lang.Any;
 import lense.core.lang.java.Constructor;
 
-public abstract class Whole extends Number implements Comparable{
+public abstract class Whole extends Number implements Comparable {
 
     @Constructor
     public static Whole constructor(){
