@@ -161,4 +161,9 @@ public class ScalableInt32 extends ScalableInteger {
     public boolean isPositive() {
        return this.value > 0;
     }
+
+    @Override
+    public int toPrimitiveInt() {
+       return value;
+    }
 }

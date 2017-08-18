@@ -79,43 +79,38 @@ public class StructureVisitor extends AbstractScopedVisitor {
 
 			}
 		}else if (node instanceof InstanceOfNode) {
-			InstanceOfNode n = (InstanceOfNode)node;
+            InstanceOfNode n = (InstanceOfNode)node;
 
-			TypeNode typeNode = n.getTypeNode();
-			Map<Integer, TypeDefinition> map = this.getSemanticContext().typeAllForName( typeNode.getName());
+            TypeNode typeNode = n.getTypeNode();
+            Map<Integer, TypeDefinition> map = this.getSemanticContext().typeAllForName( typeNode.getName());
 
-			if (map.size() == 1){
-				FixedTypeVariable f = new FixedTypeVariable(map.values().iterator().next());
-				typeNode.setTypeVariable(f);
-				typeNode.setTypeParameter(f.toIntervalTypeVariable());
-			}
+            if (map.size() == 1){
+                FixedTypeVariable f = new FixedTypeVariable(map.values().iterator().next());
+                typeNode.setTypeVariable(f);
+                typeNode.setTypeParameter(f.toIntervalTypeVariable());
+            }
 
-			if (n.getExpression() instanceof VariableReadNode) {
-				VariableReadNode var = (VariableReadNode) n.getExpression();
+            
+            TreeTransverser.transverse(n.getExpression(), this);
 
-				propagateType(node, typeNode, var.getName());
-			} else if (n.getExpression() instanceof FieldOrPropertyAccessNode){
-				FieldOrPropertyAccessNode var = (FieldOrPropertyAccessNode) n.getExpression();
-
-				propagateType(node, typeNode, var.getName());
-			} 
-			
-			TreeTransverser.transverse(n.getExpression(), this);
-
-			return VisitorNext.Siblings;
-		}  
+        }   
 		return VisitorNext.Children;
 	}
 	
 
 	private void propagateType(AstNode node, TypeNode typeNode, String name) {
 		AstNode parent = node.getParent();
-		if (parent instanceof BooleanOperatorNode){
+		
+	     if (parent instanceof BooleanOperatorNode){
 			BooleanOperatorNode b = (BooleanOperatorNode)parent ;
 
 			if (b.getChildren().get(0) == node){ // this the left side
 				if (b.getOperation() == BooleanOperation.LogicShortAnd){
-					TreeTransverser.transverse(b.getChildren().get(1), new AutoCastVisitor(this.getSemanticContext(), name,typeNode.getTypeVariable() ));
+				    TypeVariable type = typeNode.getTypeVariable();
+				    if (type == null){
+				        throw new IllegalStateException("type cannot be null");
+				    }
+					TreeTransverser.transverse(b.getChildren().get(1), new AutoCastVisitor(this.getSemanticContext(), name, type));
 				}
 			}
 		}
@@ -270,7 +265,31 @@ public class StructureVisitor extends AbstractScopedVisitor {
 					currentType.addProperty(p.getName(), p.getType().getTypeVariable(), p.getAcessor() != null, p.getModifier() != null);
 				}
 			}
-		}  
+		}  else if (node instanceof InstanceOfNode) {
+            InstanceOfNode n = (InstanceOfNode)node;
+
+            TypeNode typeNode = n.getTypeNode();
+            Map<Integer, TypeDefinition> map = this.getSemanticContext().typeAllForName( typeNode.getName());
+
+            if (map.size() == 1){
+                FixedTypeVariable f = new FixedTypeVariable(map.values().iterator().next());
+                typeNode.setTypeVariable(f);
+                typeNode.setTypeParameter(f.toIntervalTypeVariable());
+            }
+
+            if (n.getExpression() instanceof VariableReadNode) {
+                VariableReadNode var = (VariableReadNode) n.getExpression();
+
+                propagateType(node, typeNode, var.getName());
+            } else if (n.getExpression() instanceof FieldOrPropertyAccessNode){
+                FieldOrPropertyAccessNode var = (FieldOrPropertyAccessNode) n.getExpression();
+
+                propagateType(node, typeNode, var.getName());
+            } 
+            
+            TreeTransverser.transverse(n.getExpression(), this);
+
+        }   
 
 	}
 

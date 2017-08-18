@@ -63,6 +63,10 @@ public class LenseTypeDefinition implements TypeDefinition {
 			this.genericParametersMapping.put(parameters[i].getSymbol().orElse("_"), i);
 		}
 	}
+	
+	public boolean isFundamental(){
+	    return false;
+	}
 
 	public void updateFrom(TypeDefinition o){
 		if (o != this){

@@ -28,19 +28,19 @@ public class Exception extends java.lang.RuntimeException {
         return new Exception(cause);
     }
 
-    protected Exception(){
+    public Exception(){
         super();
     }
 
-    protected Exception(String message, Exception cause){
+    public Exception(String message, Exception cause){
         super(message.toString(), cause);
     }
     
-    protected Exception(String message){
+    public Exception(String message){
         super(message.toString());
     }
     
-    protected Exception(Exception cause){
+    public Exception(Exception cause){
         super(cause);
     }
     

@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Optional;
 
 import lense.compiler.ast.QualifiedNameNode;
+import lense.compiler.modules.ModuleIdentifier;
+import lense.compiler.modules.ModuleTypeContents;
 import lense.compiler.type.TypeDefinition;
 import lense.compiler.typesystem.TypeSearchParameters;
 
@@ -22,16 +24,6 @@ public interface TypeRepository {
 	Optional<TypeDefinition> resolveType(TypeSearchParameters filter);
 
 
-	/**
-	 * @param qualifiedNameNode
-	 */
-	List<ModuleRepository> resolveModuleByName(QualifiedNameNode qualifiedNameNode);
-
-	/**
-	 * @param qualifiedNameNode
-	 * @param version
-	 */
-	Optional<ModuleRepository> resolveModuleByNameAndVersion(QualifiedNameNode qualifiedNameNode, Version version);
-
+	
 
 }

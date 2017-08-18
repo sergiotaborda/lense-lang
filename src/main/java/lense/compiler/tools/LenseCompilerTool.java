@@ -31,7 +31,7 @@ public class LenseCompilerTool implements LenseTool{
         	 println("No repository found at " + base);
              return;
         }
-        ClasspathRepository repo = new ClasspathRepository(base);
+       ClasspathRepository repo = new ClasspathRepository(base);
 
         println("Using repository at " + base);
         

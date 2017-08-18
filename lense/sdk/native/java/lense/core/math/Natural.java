@@ -10,8 +10,9 @@ import lense.core.lang.java.NonNull;
 
 public abstract class Natural extends Whole implements Comparable  {
 
-    public static final Natural ONE = Natural.valueOfNative(1);
-    public static final Natural ZERO = Natural.valueOfNative(0);
+    public static final @NonNull Natural ONE = Natural.valueOfNative(1);
+    public static final @NonNull Natural ZERO = Natural.valueOfNative(0);
+    public static final @NonNull Natural INT_MAX = Natural.valueOfNative(java.lang.Integer.MAX_VALUE);
 
     @Constructor
     public static Natural constructor(){
@@ -86,7 +87,8 @@ public abstract class Natural extends Whole implements Comparable  {
     public abstract boolean isZero();
 
     public abstract boolean isOne();
-
+    
+    public abstract Natural remainder (Natural other);
 
 
     public abstract @NonNull Natural multiply(@NonNull Natural other);

@@ -21,7 +21,7 @@ public class DeclaringTypeBoundedTypeVariable extends CalculatedTypeVariable  {
 	private String symbol;
 
 	public DeclaringTypeBoundedTypeVariable (TypeDefinition declaringType, int parameterIndex, String symbol, Variance positionVariance){
-		this.positionVariance = positionVariance;
+	    this.positionVariance = positionVariance;
 		this.declaringType = declaringType;
 		this.parameterIndex= parameterIndex;
 		this.symbol = symbol;

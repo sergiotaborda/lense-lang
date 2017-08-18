@@ -24,7 +24,7 @@ public class LenseSourceCompiler extends AstCompiler {
 	}
 
 	public CompilationResultSet parse(CompilationUnitSet unitSet){
-		LenseTypeRepository repo = new LenseTypeRepository();
+		FundamentalTypesModuleContents repo = new FundamentalTypesModuleContents();
 		
 		PackageResolver resolver = new PackageResolver(){
 

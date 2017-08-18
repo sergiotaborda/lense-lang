@@ -29,9 +29,9 @@ import compiler.FolderCompilationUnionSet;
 import compiler.ListCompilationUnitSet;
 import compiler.StringCompilationUnit;
 import compiler.syntax.AstNode;
+import compiler.trees.TreeTransverser;
 import lense.compiler.ast.ClassTypeNode;
 import lense.compiler.ast.GenericTypeParameterNode;
-import lense.compiler.ast.ModuleImportNode;
 import lense.compiler.ast.ModuleNode;
 import lense.compiler.ast.QualifiedNameNode;
 import lense.compiler.ast.TypeNode;
@@ -45,13 +45,17 @@ import lense.compiler.graph.GraphTransversor;
 import lense.compiler.graph.GraphTranverseListener;
 import lense.compiler.graph.TopologicOrderTransversor;
 import lense.compiler.graph.VertexTraversalEvent;
+import lense.compiler.modules.EditableModuleDescriptor;
+import lense.compiler.modules.ModuleDescription;
+import lense.compiler.modules.ModuleTypeContents;
+import lense.compiler.modules.ModulesRepository;
 import lense.compiler.phases.CompositePhase;
 import lense.compiler.phases.ConstructorDesugarPhase;
 import lense.compiler.phases.NameResolutionPhase;
 import lense.compiler.phases.SemanticAnaylisisPhase;
 import lense.compiler.repository.ClasspathRepository;
-import lense.compiler.repository.ModuleRepository;
-import lense.compiler.repository.TypeRepository;
+import lense.compiler.repository.ModuleCompilationScopeTypeRepository;
+import lense.compiler.repository.UpdatableTypeRepository;
 import lense.compiler.type.LenseTypeDefinition;
 import lense.compiler.type.variable.IntervalTypeVariable;
 import lense.compiler.type.variable.RangeTypeVariable;
@@ -84,17 +88,17 @@ public abstract class LenseCompiler {
 
         @Override
         public void trace(CompilerMessage trace) {
-          
+
         }
 
     };
 
-    private TypeRepository globalRepository;
+    private ModulesRepository globalRepository;
     private String nativeLanguageName;
 
     private CompilerBackEndFactory backendFactory;
 
-    public LenseCompiler (String nativeLanguageName, TypeRepository globalRepository,CompilerBackEndFactory backendFactory){
+    public LenseCompiler (String nativeLanguageName, ModulesRepository globalRepository,CompilerBackEndFactory backendFactory){
         // The global, even remote, repository
         this.globalRepository = globalRepository;
         this.nativeLanguageName = nativeLanguageName;
@@ -165,7 +169,7 @@ public abstract class LenseCompiler {
         SemanticAnaylisisPhase semantic = new SemanticAnaylisisPhase(listener);
 
         CompositePhase corePhase = new CompositePhase().add(semantic);
-                
+
         initCorePhase (corePhase, nativeTypes);
 
         listener.start();
@@ -178,7 +182,7 @@ public abstract class LenseCompiler {
             compileNative(locations, nativeTypes);
 
             // compile lense files
-            CompilationUnitSet moduleUnit = new FolderCompilationUnionSet(locations.getSourceFolder() , name -> name.equals("module.lense"));
+            CompilationUnitSet moduleUnit = new FolderCompilationUnionSet(locations.getSourceFolder() , fileName -> fileName.equals("module.lense"));
 
             AstCompiler parser = new AstCompiler(new LenseLanguage());
 
@@ -192,16 +196,44 @@ public abstract class LenseCompiler {
             // locate module definition
             ModuleNode module  = (ModuleNode) modulesList.get(0).getAstRootNode().getChildren().get(0);
 
+            EditableModuleDescriptor moduleDescriptor = new EditableModuleDescriptor();
+
+            TreeTransverser.transverse(module, new ModuleDescriptionReaderVisitor(moduleDescriptor));
+
+            boolean selfCompilation = moduleDescriptor.getName().equals("lense.core");
+            
+            if (!selfCompilation){ // if not compiling lense core
+                Optional<ModuleDescription> coreModule = moduleDescriptor.getModuleByName("lense.core");
+
+                if (coreModule.isPresent()){
+                    // TODO match the current version for compatabiliy and/or take the SDK for that version
+                } else {
+                    // assume the current version is the target
+                }
+            }
+
 
             // Define the repository being mounted
-            ModuleRepository currentModuleRepository = new ModuleRepository(module, globalRepository);
+            ModuleCompilationScopeTypeRepository currentModuleRepository = new ModuleCompilationScopeTypeRepository();
 
+            for(ModuleDescription requiredModule : moduleDescriptor.getRequiredModules()){
 
-            for(compiler.syntax.AstNode n : module.getImports().getChildren()){
-                ModuleImportNode ip = (ModuleImportNode)n;
                 // import dependent modules from local repository
                 // is they are not present , abort
-                ModuleRepository repo = currentModuleRepository.importModule(ip.getQualifiedNameNode(), ip.getVersionNode());
+                Optional<ModuleTypeContents> otherModule = globalRepository.resolveModuleByNameAndVersion(requiredModule.getModuleIdentifier());
+
+
+                if (!otherModule.isPresent()){
+                    throw new CompilationError("Cannot import module " + requiredModule.getName() + " version " + requiredModule.getVersion() + ". Is it in the local repository?");
+                } else {
+                    currentModuleRepository.addRequiredModule(otherModule.get());
+                }
+                
+            }
+            
+            if (selfCompilation){
+                // add fundamental types
+                currentModuleRepository.addRequiredModule(new FundamentalTypesModuleContents());
             }
 
             File base = null;

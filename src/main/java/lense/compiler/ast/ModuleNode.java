@@ -3,6 +3,7 @@
  */
 package lense.compiler.ast;
 
+import lense.compiler.modules.ModuleDescription;
 import lense.compiler.repository.Version;
 
 
@@ -34,6 +35,7 @@ public class ModuleNode extends LenseAstNode {
 	 * @param exports
 	 */
 	public void setExports(ModuleMembersNode exports) {
+	    this.add(exports);
 		this.exports = exports;
 	}
 
@@ -41,6 +43,7 @@ public class ModuleNode extends LenseAstNode {
 	 * @param imports
 	 */
 	public void setImports(ModuleMembersNode imports) {
+	    this.add(imports);
 		this.imports = imports;
 	}
 

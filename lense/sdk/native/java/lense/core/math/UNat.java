@@ -146,6 +146,15 @@ public final class UNat extends ScalableNatural{
        return this.value < (long)java.lang.Integer.MAX_VALUE;
     }
 
+    @Override
+    public Natural remainder(Natural other) {
+         if (other instanceof UNat){
+             return new UNat(this.value % ((UNat)other).value);
+         } else {
+             return new BigNatural(asBigInteger().remainder(other.asBigInteger()));
+         }
+    }
+
 	
 
 

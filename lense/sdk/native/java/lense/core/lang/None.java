@@ -36,4 +36,9 @@ public class None extends Maybe {
 		return true;
 	}
 
+    @Override
+    public Maybe map(Function transformer) {
+        return this;
+    }
+
 }

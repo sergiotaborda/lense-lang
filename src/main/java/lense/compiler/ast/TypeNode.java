@@ -3,6 +3,7 @@
  */
 package lense.compiler.ast;
 
+import compiler.syntax.AstNode;
 import lense.compiler.type.TypeDefinition;
 import lense.compiler.type.variable.FixedTypeVariable;
 import lense.compiler.type.variable.IntervalTypeVariable;
@@ -31,6 +32,24 @@ public class TypeNode extends LenseAstNode implements TypedNode{
 	public boolean needsInference(){
 		return this.needsInference;
 	}
+	
+	public String toString(){
+	    StringBuilder builder = new StringBuilder( name.toString());
+	    if (!this.getChildren().isEmpty()){
+	        builder.append("<");
+	        
+	        for (AstNode n : this.getChildren()){
+	            GenericTypeParameterNode a = (GenericTypeParameterNode)n;
+	            builder.append(a.getTypeNode().toString()).append(",");
+	        }
+	        builder.deleteCharAt(builder.length() - 1);
+	        
+	        builder.append(">");
+	    }
+	    
+	    return builder.toString();
+	}
+	
 	/**
 	 * Constructor.
 	 * @param object
@@ -90,6 +109,15 @@ public class TypeNode extends LenseAstNode implements TypedNode{
 		this.type = new FixedTypeVariable(type);
 	}
 	
+	@Override
+	protected AstNode prepareAttach(AstNode node){
+	    if (!(node instanceof GenericTypeParameterNode)){
+	        throw new IllegalArgumentException("Not a generic parameter");
+	    }
+	    
+	    return super.prepareAttach(node);
+	}
+
 	/**
 	 * @return
 	 */

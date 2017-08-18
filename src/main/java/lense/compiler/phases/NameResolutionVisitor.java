@@ -90,15 +90,17 @@ public class NameResolutionVisitor extends AbstractScopedVisitor {
 
 			if (n.getGenerics() != null) {
 
-				for (AstNode a : n.getGenerics().getChildren()) {
-					GenericTypeParameterNode g = (GenericTypeParameterNode)a;
+			    if (n.getGenerics().getChildren().size() != currentType.getGenericParameters().size()){
+			        for (AstNode a : n.getGenerics().getChildren()) {
+	                    GenericTypeParameterNode g = (GenericTypeParameterNode)a;
 
-					TypeNode tn = g.getTypeNode();
-					FixedTypeVariable typeVar = new FixedTypeVariable(LenseTypeSystem.Any());
+	                    TypeNode tn = g.getTypeNode();
+	                    FixedTypeVariable typeVar = new FixedTypeVariable(LenseTypeSystem.Any());
 
-					currentType.addGenericParameter(tn.getName(), typeVar);
-				}
-
+	                    currentType.addGenericParameter(tn.getName(), typeVar);
+	                }
+			    }
+			 
 			}
 
 			this.getSemanticContext().currentScope().defineVariable("this", new FixedTypeVariable(currentType), node);
@@ -346,6 +348,7 @@ public class NameResolutionVisitor extends AbstractScopedVisitor {
 		}
 
 
+		// try to find it in the core
 		List<String> paths = Arrays.asList("lense.core.collections","lense.core.math","lense.core.lang");
 
 		for(String path : paths) {

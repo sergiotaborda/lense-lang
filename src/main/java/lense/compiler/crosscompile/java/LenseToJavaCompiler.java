@@ -39,6 +39,7 @@ import lense.compiler.FileLocations;
 import lense.compiler.LenseCompiler;
 import lense.compiler.ast.ModuleNode;
 import lense.compiler.crosscompile.ErasurePhase;
+import lense.compiler.modules.ModulesRepository;
 import lense.compiler.phases.CompositePhase;
 import lense.compiler.phases.DesugarPhase;
 import lense.compiler.repository.TypeRepository;
@@ -52,9 +53,9 @@ public class LenseToJavaCompiler extends LenseCompiler{
 
     private JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 
-	public LenseToJavaCompiler (TypeRepository globalRepository){
+	public LenseToJavaCompiler (ModulesRepository globalModulesRepository){
 		// The global, even remote, repository
-		super("java",globalRepository,new  JavaCompilerBackEndFactory()); // JavaBackEndFactory(); //new  JavaSourceBackEnd(); //JavaBinaryBackEndFactory();
+		super("java",globalModulesRepository,new  JavaCompilerBackEndFactory()); // JavaBackEndFactory(); //new  JavaSourceBackEnd(); //JavaBinaryBackEndFactory();
 	}
 
 	protected void initCorePhase(CompositePhase corePhase, Map<String, File> nativeTypes){

@@ -4,6 +4,8 @@
 package lense.compiler.typesystem;
 
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -312,14 +314,15 @@ public class LenseTypeSystem{
         tuple.addMethod("get", any, new MethodParameter(natural, "index"));
 
         sequence.addMethod("get", new MethodReturn( new DeclaringTypeBoundedTypeVariable(sequence, 0, "T", Variance.Covariant)) , new MethodParameter(natural, "index")); 
-        array.addMethod("set", svoid  , new MethodParameter(natural, "index"), new MethodParameter(new DeclaringTypeBoundedTypeVariable(array,0,"T",Variance.Invariant), "value")); 
+        //array.addMethod("set", svoid  , new MethodParameter(natural, "index"), new MethodParameter(new DeclaringTypeBoundedTypeVariable(array,0,"T",Variance.Invariant), "value")); 
 
+        array.addIndexer( new DeclaringTypeBoundedTypeVariable(array,0,"T",Variance.Invariant), true, true, new TypeVariable[]{ new FixedTypeVariable(natural)});
+        
         LenseTypeDefinition integer = register(new FundamentalLenseTypeDefinition("lense.core.math.Integer", LenseUnitKind.Class, whole));
         LenseTypeDefinition sint = register(new FundamentalLenseTypeDefinition("lense.core.math.Int32", LenseUnitKind.Class, integer));
         LenseTypeDefinition slong =register(new FundamentalLenseTypeDefinition("lense.core.math.Int64", LenseUnitKind.Class, integer));
         LenseTypeDefinition sshort =register(new FundamentalLenseTypeDefinition("lense.core.math.Int16", LenseUnitKind.Class, integer));
 
-        sint.addConstructor(true , "valueOf", new ConstructorParameter(natural));
         sint.addConstructor(true, "valueOf", new ConstructorParameter(whole));
 
         integer.addConstructor(true,"valueOf", new ConstructorParameter(natural));
@@ -338,8 +341,7 @@ public class LenseTypeSystem{
         integer.addMethod("remainder", integer, new MethodParameter(integer));
         integer.addMethod("plus", integer, new MethodParameter(integer));
 
-        natural.addMethod("negative", integer); // TODO could overflow
-        //natural.addMethod("symmetric", integer); // TODO could overflow
+        natural.addMethod("symmetric", integer); 
 
         sequence.addProperty("size", natural, true, false);
 
@@ -347,9 +349,8 @@ public class LenseTypeSystem{
         LenseTypeDefinition string = register(new FundamentalLenseTypeDefinition("lense.core.lang.String", LenseUnitKind.Class, any, new IntervalTypeVariable[0]));
         string.addInterface(specify(sequence, character));
 
-        sint.addConstructor("parse", new ConstructorParameter(string));
+       // sint.addConstructor("parse", new ConstructorParameter(string));
 
-        string.addMethod("toMaybe", specify(maybe, string));
         string.addMethod("get", character, new MethodParameter (natural));
         string.addMethod("plus", string, new MethodParameter (string));
         string.addMethod("plus", string, new MethodParameter (any));
@@ -357,7 +358,7 @@ public class LenseTypeSystem{
 
         //any.addMethod("toString", string);
 
-        LenseTypeDefinition real = register(new FundamentalLenseTypeDefinition("lense.core.lang.Real", LenseUnitKind.Class, number));
+        LenseTypeDefinition real = register(new FundamentalLenseTypeDefinition("lense.core.math.Real", LenseUnitKind.Class, number));
 
         LenseTypeDefinition decimal = register(new FundamentalLenseTypeDefinition("lense.core.math.Decimal", LenseUnitKind.Class, real));
         register(new FundamentalLenseTypeDefinition("lense.core.math.Decimal64", LenseUnitKind.Class, decimal));
@@ -427,7 +428,7 @@ public class LenseTypeSystem{
                 if (isMaybe){
                     return Optional.of(specify(Maybe(), definitions.get(key)));
                 }
-                return Optional.of(definitions.get(key));
+                return Optional.ofNullable(definitions.get(key));
             }
         }
         return Optional.empty();
@@ -486,7 +487,7 @@ public class LenseTypeSystem{
         }
 
 
-        if (type.getName().equals( target.getName()) &&  type.getGenericParameters().size() == target.getGenericParameters().size() ){
+        if (type.getName().equals( target.getName()) /*&&  type.getGenericParameters().size() == target.getGenericParameters().size()*/ ){
             boolean assignable = true;
             for (int i = 0; i < type.getGenericParameters().size(); i++){
                 if (!isAssignableTo(type.getGenericParameters().get(i), target.getGenericParameters().get(i))){
@@ -785,6 +786,10 @@ public class LenseTypeSystem{
             tail = tail.getGenericParameters().get(1).getTypeDefinition();
         }
         return count;
+    }
+
+    public Collection<LenseTypeDefinition> getAll() {
+        return Collections.unmodifiableCollection(this.definitions.values());
     }
 
 

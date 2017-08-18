@@ -192,4 +192,9 @@ public class ScalableInt64 extends ScalableInteger {
     public boolean isPositive() {
        return this.value > 0;
     }
+
+    @Override
+    public int toPrimitiveInt() {
+       return (int)this.value;
+    }
 }
