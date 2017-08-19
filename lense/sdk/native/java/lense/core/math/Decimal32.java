@@ -4,7 +4,6 @@ package lense.core.math;
 import lense.core.lang.Any;
 import lense.core.lang.HashValue;
 import lense.core.lang.java.Constructor;
-import lense.core.lang.java.Native;
 
 public class Decimal32 extends Decimal{
 
@@ -27,7 +26,7 @@ public class Decimal32 extends Decimal{
 		return new Decimal32(other.asBigInteger().floatValue());
 	}
 	
-	private float value;
+   float value;
 	
 	private Decimal32(float value){
 		this.value = value;
@@ -117,4 +116,37 @@ public class Decimal32 extends Decimal{
 	public Integer signum() {
 		return new Int32((int)Math.signum(this.value));
 	}
+	
+	@Override
+    public Real raiseTo(Real other) {
+        if (other instanceof Decimal64){
+            return new Decimal64(Math.pow(this.value, ((Decimal32)other).value));
+        } else if (other instanceof Decimal32){
+            return new Decimal64(Math.pow(this.value, ((Decimal32)other).value));
+        } else {
+            return new Decimal64(Math.pow(this.value, valueOf(other).value));
+        }
+    }
+	
+    @Override
+    public Integer asInteger() {
+        return Integer.valueOfNative((long)this.value);
+    }
+
+
+    @Override
+    public boolean isWhole() {
+        return this.value % 1 == 0;
+    }
+
+    @Override
+    public Comparison compareWith(Any other) {
+        if (other instanceof Decimal32){
+            return Comparison.valueOfNative(Float.compare(this.value, ((Decimal32) other).value));
+        } else if (other instanceof Real){
+            return super.compareWith((Real)other);
+        }
+        throw new ClassCastException("Cannot compare");
+            
+    }
 }

@@ -136,6 +136,8 @@ public abstract class AbstractLenseGrammar extends AbstractGrammar {
         NonTerminal additiveExpression = addNonTerminal(NonTerminal.of("additiveExpression"));
         NonTerminal multiplicativeExpression = addNonTerminal(NonTerminal.of("multiplicativeExpression"));
         NonTerminal multiplicativeOperator = addNonTerminal(NonTerminal.of("multiplicativeOperator"));
+        NonTerminal powerExpression = addNonTerminal(NonTerminal.of("powerExpression"));
+        NonTerminal powerOperator = addNonTerminal(NonTerminal.of("powerOperator"));
         NonTerminal rangeExpression = addNonTerminal(NonTerminal.of("rangeExpression"));
         NonTerminal intervalStart = addNonTerminal(NonTerminal.of("intervalStart"));
         NonTerminal intervalEnd = addNonTerminal(NonTerminal.of("intervalEnd"));
@@ -286,8 +288,10 @@ public abstract class AbstractLenseGrammar extends AbstractGrammar {
         shiftExpression.setRule(additiveExpression.or(shiftExpression.add(shiftOperator).add(additiveExpression)));
         shiftOperator.setRule(Terminal.of("<<").or(Terminal.of(">>").or(Terminal.of(">>>"))));
         additiveExpression.setRule(multiplicativeExpression.or(additiveExpression.add(Terminal.of("+")).add(multiplicativeExpression).or(additiveExpression.add(Terminal.of("-")).add(multiplicativeExpression))));
-        multiplicativeExpression.setRule(rangeExpression.or(multiplicativeExpression.add(multiplicativeOperator).add(rangeExpression)));
-        multiplicativeOperator.setRule(Terminal.of("*").or(Terminal.of("/").or(Terminal.of("%"))));
+        multiplicativeExpression.setRule(powerExpression.or(multiplicativeExpression.add(multiplicativeOperator).add(powerExpression)));
+        multiplicativeOperator.setRule(Terminal.of("*").or(Terminal.of("/").or(Terminal.of("\\").or(Terminal.of("%")))));
+        powerExpression.setRule(rangeExpression.or(powerExpression.add(powerOperator).add(rangeExpression)));
+        powerOperator.setRule(Terminal.of("**"));
         rangeExpression.setRule(unaryExpression.or(unaryExpression.add(Terminal.of("..")).add(unaryExpression).or(intervalStart.add(unaryExpression).add(Terminal.of(",")).add(unaryExpression).add(intervalEnd).or(Terminal.of("|(").add(Terminal.of("*")).add(Terminal.of(",")).add(unaryExpression).add(intervalEnd).or(intervalStart.add(unaryExpression).add(Terminal.of(",")).add(Terminal.of("*")).add(Terminal.of(")|")))))));
         intervalStart.setRule(Terminal.of("|[").or(Terminal.of("|(")));
         intervalEnd.setRule(Terminal.of(")|").or(Terminal.of("]|")));

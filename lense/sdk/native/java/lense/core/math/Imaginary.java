@@ -9,7 +9,7 @@ public class Imaginary extends Number{
 	
 	@Constructor
 	public static Imaginary constructor (){
-		return valueOf(Real.Zero);
+		return valueOf(Real.ZERO);
 	}
 	
 	@Constructor
@@ -92,5 +92,10 @@ public class Imaginary extends Number{
 
     public Real real() {
         return value;
+    }
+
+    @Override
+    public boolean isZero() {
+        return value.isZero();
     }
 }

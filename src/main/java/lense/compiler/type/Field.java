@@ -5,6 +5,7 @@ package lense.compiler.type;
 
 import lense.compiler.type.variable.TypeMemberAwareTypeVariable;
 import lense.compiler.type.variable.TypeVariable;
+import lense.compiler.typesystem.Visibility;
 
 /**
  * 
@@ -15,6 +16,7 @@ public class Field implements TypeMember {
 	private String name;
 	private TypeDefinition declaringType;
 	private boolean isFinal;
+    private Visibility visibility;
 	 
 	/**
 	 * Constructor.
@@ -112,5 +114,13 @@ public class Field implements TypeMember {
 	public boolean isIndexer() {
 		return false;
 	}
-
+	
+    @Override
+    public Visibility getVisibility() {
+        return visibility;
+    }
+    
+    public void setVisibility(Visibility visibility){
+        this.visibility = visibility;
+    }
 }

@@ -29,10 +29,9 @@ public final class ErasurePhase implements CompilerPhase{
             return new CompilationResult(new RuntimeException("Unexpected Error. Result as no node."));
         }
         for (ClassTypeNode ct : types.getTypes()){
-            // cannot share semantic context among classes
             try {
-                TreeTransverser.transverse(ct,new BoxingPointVisitor());
-                TreeTransverser.transverse(ct,new ErasureVisitor());
+                TreeTransverser.transverse(ct,new BoxingPointClassificationVisitor());
+                TreeTransverser.transverse(ct,new BoxingPointErasureVisitor());
             } catch (CompilationError e){
                 listener.error(new CompilerMessage(e.getMessage()));
                 return new CompilationResult(e);

@@ -8,114 +8,174 @@ import lense.core.lang.java.Constructor;
 import lense.core.lang.java.Native;
 import lense.core.lang.java.NonNull;
 
-public abstract class Natural extends Whole  {
+public abstract class Natural extends Whole implements Comparable  {
 
-	public static final Natural ONE = Natural.valueOfNative(1);
-	public static final Natural ZERO = Natural.valueOfNative(0);
+    public static final Natural ONE = Natural.valueOfNative(1);
+    public static final Natural ZERO = Natural.valueOfNative(0);
 
-	@Constructor
-	public static Natural constructor(){
-		return Natural.valueOfNative(0);
-	}
+    @Constructor
+    public static Natural constructor(){
+        return Natural.valueOfNative(0);
+    }
 
-	@Native
-	public static Natural valueOfNative(int value){
-		if (value < 0){
-		    throw ArithmeticException.constructor(lense.core.lang.String.valueOfNative("A negative integer cannot be transformed to a Natural"));
-		}
-		return new UNat(value);
-	}
+    @Native
+    public static Natural valueOfNative(int value){
+        if (value < 0){
+            throw ArithmeticException.constructor(lense.core.lang.String.valueOfNative("A negative integer cannot be transformed to a Natural"));
+        }
+        return new UNat(value);
+    }
 
-	@Native
-	public static Natural valueOfNative(long value) {
-		if (value < 0){
-		    throw ArithmeticException.constructor(lense.core.lang.String.valueOfNative("A negative integer cannot be transformed to a Natural"));
-		}
-		return new UNat(value);
-	}
-	
-	public static Natural valueOf(String n) {
-		return valueOf(new BigInteger(n));
-	}
+    @Native
+    public static Natural valueOfNative(long value) {
+        if (value < 0){
+            throw ArithmeticException.constructor(lense.core.lang.String.valueOfNative("A negative integer cannot be transformed to a Natural"));
+        }
+        return new UNat(value);
+    }
 
-	public static Natural valueOf(BigInteger n) {
-		if (n.signum() < 0){
-	       throw ArithmeticException.constructor(lense.core.lang.String.valueOfNative("A negative integer cannot be transformed to a Natural"));
-		}
-		if (n.compareTo(new BigInteger("18446744073709551615")) <= 0){
-			return new UNat(n.toString());
-		} 
-		return new NatBig(n);
-	}
+    public static Natural valueOf(String n) {
+        return valueOf(new BigInteger(n));
+    }
 
-	public @NonNull Progression upTo(@NonNull Natural other){
-		return new NativeNaturalProgression(this, other);
-	}
+    public static Natural valueOf(BigInteger n) {
+        if (n.signum() < 0){
+            throw ArithmeticException.constructor(lense.core.lang.String.valueOfNative("A negative integer cannot be transformed to a Natural"));
+        }
+        if (n.compareTo(new BigInteger("18446744073709551615")) <= 0){
+            return new UNat(n.toString());
+        } 
+        return new BigNatural(n);
+    }
 
-	@Native
-	public abstract int toPrimitiveInt();
+    public @NonNull Progression upTo(@NonNull Natural other){
+        return new NativeNaturalProgression(this, other);
+    }
 
-	public abstract int modulus(int n);
+    @Native
+    public abstract int toPrimitiveInt();
 
-	public abstract @NonNull Natural plus (@NonNull Natural other);
+    public abstract int modulus(int n);
 
-	@Override
-	public final @NonNull Whole minus(@NonNull Whole other) {
-		return this.asInteger().minus(other);
-	}
+    public abstract @NonNull Natural plus (@NonNull Natural other);
 
-	public final @NonNull Integer minus(@NonNull Natural other) {
-		return this.asInteger().minus(other.asInteger());
-	}
-	
-	public final @NonNull Integer symmetric() {
-		return asInteger().symmetric();
-	}
-	
-	public final boolean isLessThen(@NonNull Natural other) {
-		return  compareTo(other) < 0;
-	}
-	
-	public final boolean isLessOrEqualTo(@NonNull Natural other) {
-		return  compareTo(other) <= 0;
-	}
+    @Override
+    public final @NonNull Whole minus(@NonNull Whole other) {
+        return this.asInteger().minus(other);
+    }
 
-	public abstract @NonNull Natural successor();
-	public abstract @NonNull Natural predecessor();
+    public final @NonNull Integer minus(@NonNull Natural other) {
+        return this.asInteger().minus(other.asInteger());
+    }
 
-	public abstract boolean isZero();
+    public final @NonNull Integer symmetric() {
+        return asInteger().symmetric();
+    }
 
-	public abstract boolean isOne();
+    public final boolean isLessThen(@NonNull Natural other) {
+        return  compareTo(other) < 0;
+    }
 
-	
+    public final boolean isLessOrEqualTo(@NonNull Natural other) {
+        return  compareTo(other) <= 0;
+    }
 
-	public abstract @NonNull Natural multiply(@NonNull Natural other);
+    public abstract @NonNull Natural successor();
+    public abstract @NonNull Natural predecessor();
 
-	@Override
-	public @NonNull Whole plus(@NonNull Whole other) {
-		if (other instanceof Natural){
-			return this.plus((Natural)other);
-		} else {
-			return this.asInteger().plus(other.asInteger());
-		}
-	}
+    public abstract boolean isZero();
 
-	@Override
-	public @NonNull Whole multiply(@NonNull Whole other) {
-		if (other instanceof Natural){
-			return this.multiply((Natural)other);
-		} else {
-			return this.asInteger().multiply(other.asInteger());
-		}
-	}
-	
-	public @NonNull Integer multiply(@NonNull Integer other) {
-		return this.asInteger().multiply(other.asInteger());
-	}
+    public abstract boolean isOne();
 
-	@Override
-	public final @NonNull Natural abs() {
-		return this;
-	}
+
+
+    public abstract @NonNull Natural multiply(@NonNull Natural other);
+
+
+    public Real raiseTo( Real other){
+        if (other.isZero()){
+            if (other.isZero()){
+                return Real.ONE;
+            }
+            return Real.ZERO;
+        } else if (this.isOne()){
+            return Real.ONE;
+        } else if (other.isOne()){
+            return Rational.constructor(this.asInteger(), Integer.ONE);
+        } 
+        return this.asBigNat().raiseTo(other);
+    }
+
+    public Natural raiseTo( Natural other){
+        if (this.isZero()){
+            if (other.isZero()){
+                return Natural.ONE;
+            }
+            return this;
+        } else if (this.isOne()){
+            return Natural.ONE;
+        } else if (other.isZero()){
+            return Natural.ONE;
+        } else if (other.isOne()){
+            return this;
+        } else if (other.compareTo(Integer.valueOfNative(2)) == 0){
+            return  this.multiply(this);
+        } else if (other.compareTo(Integer.valueOfNative(3)) == 0){
+            return  this.multiply(this).multiply(this);
+        }
+        return this.asBigNat().raiseTo(other);
+    }
+
+    protected BigNatural asBigNat(){
+        return new BigNatural(this.asBigInteger());
+    }
+
+    protected abstract boolean isInInt32Range();
+
+    public Rational raiseTo( Integer other){
+        if (this.isZero()){
+            if (other.isZero()){
+                return Real.ONE;
+            }
+            return Rational.ZERO;
+        } else if (this.isOne()){
+            return Rational.ONE;
+        } else if (other.isZero()){
+            return Rational.ONE;
+        } else if (other.isOne()){
+            return Rational.constructor(this.asInteger(), Integer.ONE);
+        }  else if (other.isNegative()){
+            return Rational.constructor(Integer.ONE, this.raiseTo(other.abs()).asInteger());
+        } else {
+            return Rational.constructor( this.raiseTo(other.abs()).asInteger(), Integer.ONE);
+        }
+    }
+
+    @Override
+    public @NonNull Whole plus(@NonNull Whole other) {
+        if (other instanceof Natural){
+            return this.plus((Natural)other);
+        } else {
+            return this.asInteger().plus(other.asInteger());
+        }
+    }
+
+    @Override
+    public @NonNull Whole multiply(@NonNull Whole other) {
+        if (other instanceof Natural){
+            return this.multiply((Natural)other);
+        } else {
+            return this.asInteger().multiply(other.asInteger());
+        }
+    }
+
+    public @NonNull Integer multiply(@NonNull Integer other) {
+        return this.asInteger().multiply(other.asInteger());
+    }
+
+    @Override
+    public final @NonNull Natural abs() {
+        return this;
+    }
 }
 

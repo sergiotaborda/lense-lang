@@ -3,26 +3,26 @@ Lense CLI
 	run
 	document
 Change Iterator to move + current (DONE)
-Change + string operator to ++ => needs resolution on the increment/decrement operator issue 
+Change + string operator to ++ => needs resolution on the increment/decrement operator issue [SYNTAX]
 Indexes
 	allow more than one parameter (DONE)
 Named Parameters and Default Parameters
-	- allow for calling functions with names   go ( from: x, to : y) is the same as go (to: y ; from: x)
-	- allow for defining default values in the argument so the parameter is not mandatory   
+	- allow for calling functions with names   go ( from: x, to : y) is the same as go (to: y ; from: x) [SYNTAX]
+	- allow for defining default values in the argument so the parameter is not mandatory    [SYNTAX]
 			define print ( msg : String : printer : Printer = defaultPrinter)
 			call as print("hello") or as print("hello", myPrinter);
 Erase
+	Add numeric limit verification (DONE for ranges)
 	Maybe<Boolean> to java.Boolean
 	String and String? 
-	Errasue of IntXYZ inside limits 
-		Needs auto limit verification
+	Errasue of primitive numbers inside limits (needs limit verification)
 Imutability
 	save flag as an annotation, handle as a type
 Generics
- 	Add generic signatures to constructors
+ 	Add generic signatures to constructors [SYNTAX]
 	Capture generics locally (when calling constructors and methods with free generics)
 	Pass capture to methods and constructors
-	T extends X , T super X
+	T extends X , T super X [SYNTAX]
 	resolve generics problem of adding list to a list (and a sequence to a sequence)
 	Generate GenericSignatures (DONE)
 	Need GenericType lock to the classe type or method generic defenition
@@ -41,8 +41,9 @@ Flow Sensitive Typing
 	switch
 	assert (DONE)
 Deconstructing
-Difference between val and var
+Difference between val and var [SYNTAX]
 	maybe use let and variable
+	maybe use value and mutable value (mutable is an annotation)
 Tuples (BNF) and void
 	() === void
 	call methods on void
@@ -58,8 +59,8 @@ Reification
 	Generics
 	Expression
 Reflection
-	Type<T> class
-	typeof operator , like Type t =  typeof(T)
+	Type<T> class (DONE)
+	typeof operator , like Type t =  typeof(T) [SYNTAX]
 	is operator (DONE)
 	after testing for type auto cast variable (create a new scope to shadow previous variable)
 		inside && (DONE)
@@ -67,31 +68,44 @@ Reflection
 		inside IF (DONE)
 		inside While
 Imports
-	detected non existing imports -> depends on finding by name, ignoring parametric types
+	detected non existing imports -> depends on finding by name, ignoring parametric types (DONE)
 	use naming to find types. discard parametric type count
-R/R (Compiler)
-	revise reduce-reduce conflicts
-Constructors 
-	-rethink the static stategy
-	- delegation
-	- inicialization
-	- auto- declare properties and fields  (DONE)
 Auto-package
 	accept classes in lense.core automatically 
 	accept classes in the same module automatically
-
+Constructors 
+	-rethink the static stategy
+	- delegation (DONE)
+	- delegation when super returns a differnet type of object 
+	- inicialization
+	- auto- declare properties and fields  (DONE)
+Module 
+	Module detection and import 
+	Module Repositories
+Operators and Operacional Interfaces	
+	- operator for rational division / (DONE)
+	- operator for integer division \ , consistent with % operator D = d * q + r where q = D \ d and r = D % d; (DONE)
+	- handle comparable operators with Comparable<T> (DONE)
+	- implement exists x as a flow sensitive way to decapsulate Maybe similar to instanceof 
+		if (exists x) {  x.do()  }  == transforms to ==> if (x.isPresent) { x' = x.Value ; x'.do() } 
+		return exists x;  == transforms to ==> return x.hasValue()
+		OR implement if (x != none) == transforms to ==> if (x.isPresent) { x' = x.Value ; x'.do() } BETTER because as no more keywords
+	- comparison operators compositions e.x: if (2 < x() <= 10)  == transforms to ==> if ( y = x();  2 < y && y <= 10) simplify if x is not a function if (2 <x && x < 4)
+		- rewrite if ( x() in |(2 , 10 ]|) as if (2 < x() <= 10) in the case of numbers
 Operators
-	?.
-	+ , - , *  ==> these will throw OverflowException  <=> AddExact, SubtractExact, MultiplyExact.
-	/ always return elements of |Q , |R or |C    N/N , Z/Z , N/Z, Z/N , Q,Q -> Q , Q/R, R/Q, R/R -> R, x/C or C/x = C
-	>> , << (Binary)
-	& , | , ^
+	?.  [SYNTAX]
+	+ , - , *  ==> these will scale ad infinitum (DONE)
+	/ always return elements of |Q , |R or |C    N/N , Z/Z , N/Z, Z/N , Q,Q -> Q , Q/R, R/Q, R/R -> R, x/C or C/x = C (DONE)
+	>> , << (Binary) (DONE)
+	& , | , ^ (DONE)
 	** (Exponenciable) pow()
 	+= ,*= (ok, auto  a += n <==> a = a + n and  a *= n <==> a = a * n
     -=, /= (only for some kinds  nat a = 2 , a -= 1 (ok); a-= 1(ok) ; a-= 1 (error);
 	++ , -- (Ordinal) successor() and predecessor() (DONE)
 	&+, &- , &*, &/ ==> these will wrap around silently (java default)
 	?+, ?- , ?*, ?/ ==> these will return Maybe<T> with None value when overload appends
+	!+ , !- , !*, !/ ==> thee do exact operation and throw OverflowException <=>AddExact, SubtractExact, MultiplyExact.
+	
 	- (symmetric) closed for all except natural. Natural.symmetric():Integer (DONE)
 	
 	i++ and i-- this operators implies in tree rewrite of on node by a collection of nodes. are statements, not expressions. 
@@ -128,13 +142,7 @@ Case classes and objects
 Revisit ordering of elements in class body.
 	- it should not matter
 Revisit Fields  not initialized 
-Operators and Operacional Interfaces	
-	- operator for rational division / (DONE)
-	- operator for integer division \ , consistent with % operator D = d.q + r where q = D \ d and r = D % d;
-	- handle comparable operators with Comparable<T> (DONE)
-	- implement exists x as a flow sensitive way to decapsulate Maybe similar to instanceof 
-		if (exists x) {  x.do()  }  == transforms to ==> if (x.hasValue()) { x' = x.Value ; x'.do() } 
-		return exists x;  == transforms to ==> return x.hasValue()
+
 Allow module to have any name
 	-place module.lense in source root folder
 	-allow for package in files as optional. (DONE) 
@@ -232,5 +240,6 @@ Imutability
 Scala way of "all are functions" collapses the Collections variance intuition becasue functions are contravariant 
 	and collections concepts are covariant the result is an invariant collections api
 	http://www.stackoverflow.dluat.com/questions/676615/why-is-scalas-immutable-set-not-covariant-in-its-type	 
-
+R/R (Compiler)
+	revise reduce-reduce conflicts
 	

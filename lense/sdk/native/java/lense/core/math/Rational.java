@@ -5,7 +5,7 @@ import lense.core.lang.HashValue;
 import lense.core.lang.java.Constructor;
 import lense.core.lang.java.NonNull;
 
-public class Rational extends Real{
+public class Rational extends Real {
 
     @Constructor
     public static Rational constructor(Integer n , Integer d){
@@ -156,4 +156,46 @@ public class Rational extends Real{
     protected BigDecimal promoteToBigDecimal() {
         return new BigDecimal(new java.math.BigDecimal(numerator.asBigInteger().divide(this.denominator.asBigInteger()).toString()));
     }
+
+    @Override
+    public Real raiseTo(Real other) {
+        if (this.isZero()){
+            if (other.isZero()){
+                return Real.ONE;
+            }
+            return this;
+        }
+        if (other.isWhole()){
+            Integer p = other.asInteger();
+            Natural n = p.abs();
+            Rational result = new Rational(this.numerator.raiseTo(n), this.denominator.raiseTo(n));
+            if (p.isNegative()){
+                result = result.invert();
+            } 
+            return result;
+        } else {
+            return promoteToBigDecimal().raiseTo(other);
+        }
+    }
+
+    private Rational invert() {
+        if (this.isZero()){
+            throw ArithmeticException.constructor(lense.core.lang.String.valueOfNative("Cannot invert zero"));
+        }
+        return new Rational(this.denominator, this.numerator);
+    }
+
+    @Override
+    public Integer asInteger() {
+        return promoteToBigDecimal().asInteger();
+    }
+
+    @Override
+    public boolean isWhole() {
+        return this.promoteToBigDecimal().isWhole();
+    }
+
+
+
+
 }

@@ -123,4 +123,38 @@ public class Decimal64 extends Decimal{
     protected Real promoteNext() {
         return this.promoteToBigDecimal();
     }
+    
+    public Real raiseTo(Real other) {
+        if (other instanceof Decimal64){
+            return new Decimal64(Math.pow(this.value, ((Decimal64)other).value));
+        } else if (other instanceof Decimal32){
+            return new Decimal64(Math.pow(this.value, ((Decimal32)other).value));
+        } else {
+            return new Decimal64(Math.pow(this.value, valueOf(other).value));
+        }
+    }
+
+
+    @Override
+    public Integer asInteger() {
+        return Integer.valueOfNative((long)this.value);
+    }
+
+    
+
+    @Override
+    public boolean isWhole() {
+        return this.value % 1 == 0;
+    }
+
+
+    @Override
+    public Comparison compareWith(Any other) {
+        if (other instanceof Decimal64){
+            return Comparison.valueOfNative(Double.compare(this.value, ((Decimal64) other).value));
+        } else if (other instanceof Real){
+            return super.compareWith((Real)other);
+        }
+        throw new ClassCastException("Cannot compare");
+    }
 }

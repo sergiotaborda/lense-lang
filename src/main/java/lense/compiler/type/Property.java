@@ -5,6 +5,7 @@ package lense.compiler.type;
 
 import lense.compiler.type.variable.TypeMemberAwareTypeVariable;
 import lense.compiler.type.variable.TypeVariable;
+import lense.compiler.typesystem.Visibility;
 
 /**
  * 
@@ -16,6 +17,7 @@ public class Property  implements TypeMember{
 	private TypeDefinition declaringType;
 	private boolean canRead;
 	private boolean canWrite;
+    private Visibility visibility;
 	 
 	/**
 	 * Constructor.
@@ -99,5 +101,12 @@ public class Property  implements TypeMember{
 		return canWrite;
 	}
 
-
+    @Override
+    public Visibility getVisibility() {
+        return visibility;
+    }
+    
+    public void setVisibility(Visibility visibility){
+        this.visibility = visibility;
+    }
 }

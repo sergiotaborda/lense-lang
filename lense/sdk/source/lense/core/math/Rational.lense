@@ -124,5 +124,38 @@ public class Rational extends Real {
 		return numerator.signum() * denominator.signum();
 	}
 
+	public asInteger() : Integer {
+		return this.numerator \ this.denominator;
+	}
 
+    public isWhole() : Boolean {
+    	return this.numerator % this.denominator == 0;
+    }
+    
+    public raiseTo(other : Real) : Real {
+    	if (this == 0){ // TODO intrisify x == 0 to x.isZero
+    		if (other == 0){
+    			return new Rational(1,1);
+    		}
+            return this;
+        } else if ( this == 1) {
+        	return this;
+        } else if ( other == 0) {
+        	return new Rational(1,1);
+        } else if (other.isWhole()){
+            val p : Integer = other.asInteger();
+            val n : Natural = p.abs();
+            var result : Rational = new Rational(this.numerator ** n, this.denominator ** n);
+            if (p < 0) { // TODO intrisify x < 0 to x.isNegative()
+                result = result.invert();
+            } 
+            return result;
+        } else {
+            return promoteToBigDecimal().raiseTo(other);
+        }
+    }
+
+	public invert () : Rational {
+		return new Rational(this.denominator, this.numerator);
+	}
 }

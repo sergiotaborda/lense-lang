@@ -5,6 +5,7 @@ package lense.compiler.ast;
 
 public enum ArithmeticOperation {
 
+        Power ("raiseTo", "**"),
 	    Multiplication ("multiply", "*"),
 		Addition("plus", "+"),
 		Subtraction("minus","-"),

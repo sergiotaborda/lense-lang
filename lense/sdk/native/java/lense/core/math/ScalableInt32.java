@@ -133,4 +133,32 @@ public class ScalableInt32 extends ScalableInteger {
     public HashValue hashValue() {
         return new HashValue(value);
     }
+    
+    public Integer wholeDivide (Integer other){
+        if (other.isZero()){
+            throw ArithmeticException.constructor(lense.core.lang.String.valueOfNative("Cannot divide by zero"));
+        }  
+        if (other instanceof ScalableInt32){
+            return new ScalableInt32(this.value / ((ScalableInt32)other).value);
+        } else {
+            return super.wholeDivide(other);
+        }
+    }
+
+    public Integer remainder (Integer other){
+        if (other.isZero()){
+            throw ArithmeticException.constructor(lense.core.lang.String.valueOfNative("Cannot divide by zero"));
+        }  
+        if (other instanceof ScalableInt32){
+            return new ScalableInt32(this.value % ((ScalableInt32)other).value);
+        } else {
+            return super.wholeDivide(other);
+        }
+    }
+    
+
+    @Override
+    public boolean isPositive() {
+       return this.value > 0;
+    }
 }

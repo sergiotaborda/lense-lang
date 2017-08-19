@@ -72,7 +72,7 @@ public final class UNat extends ScalableNatural{
 
 	@Override
 	protected Natural promoteNext() {
-		return new NatBig(asBigInteger());
+		return new BigNatural(asBigInteger());
 	}
 
 	@Override
@@ -140,6 +140,11 @@ public final class UNat extends ScalableNatural{
 	public int modulus(int n) {
 		return (int)(this.value % n);
 	}
+
+    @Override
+    protected boolean isInInt32Range() {
+       return this.value < (long)java.lang.Integer.MAX_VALUE;
+    }
 
 	
 

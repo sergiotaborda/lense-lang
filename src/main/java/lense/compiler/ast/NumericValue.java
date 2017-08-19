@@ -3,6 +3,8 @@
  */
 package lense.compiler.ast;
 
+import java.math.BigDecimal;
+
 import lense.compiler.type.TypeDefinition;
 import lense.compiler.type.variable.FixedTypeVariable;
 import lense.compiler.typesystem.LenseTypeSystem;
@@ -13,20 +15,20 @@ import lense.compiler.typesystem.LenseTypeSystem;
  */
 public class NumericValue extends LiteralExpressionNode {
 
-	private Number number;
+	private BigDecimal number;
 
 	public NumericValue (){};
 	
 	public static  NumericValue zero (){
 		NumericValue nv = new NumericValue();
-		nv.setValue(0, LenseTypeSystem.Natural());
+		nv.setValue(BigDecimal.ZERO, LenseTypeSystem.Natural());
 		return nv;
 	};
 	
 	/**
 	 * @param n
 	 */
-	public void setValue(Number n, TypeDefinition type) {
+	public void setValue(BigDecimal n, TypeDefinition type) {
 		this.number = n;
 		this.setTypeVariable(new FixedTypeVariable(type));
 	}
@@ -49,6 +51,10 @@ public class NumericValue extends LiteralExpressionNode {
 	public String getLiteralValue() {
 		return number.toString();
 	}
+
+    public boolean isZero() {
+        return number.signum() == 0;
+    }
 
 
 }

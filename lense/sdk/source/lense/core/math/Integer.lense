@@ -13,6 +13,11 @@ public native class Integer extends Whole implements Ordinal<Integer>{
 		public native multiply( n : Integer) : Integer;
 		public native divide( n : Integer) : Rational;
 		
+		public native wholeDivide (other : Integer) : Integer; 
+		public native remainder (other : Integer) : Integer; 
+		
+		public native raiseTo (other : Natural) : Integer; 
+		
 		public native symmetric() : Integer;
 		
 		public native isZero() : Boolean;

@@ -50,7 +50,7 @@ public class Complex extends Number {
 	}
 	
 	public isZero() : Boolean {
-		return real.isZero() && imaginary.isZero();
+		return real == 0 && imaginary == 0;
 	}
 	
 	public abs() : Real {
@@ -64,6 +64,7 @@ public class Complex extends Number {
 		return false;
 	}
 	
+
 	public hashValue() : HashValue {
 		return this.real.hashValue().concat(this.imaginary.hashValue()); 
 	} 

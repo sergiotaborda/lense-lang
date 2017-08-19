@@ -4,6 +4,7 @@
 package lense.compiler.type.variable;
 
 import java.util.Optional;
+import java.util.function.Function;
 
 import lense.compiler.type.TypeDefinition;
 import lense.compiler.typesystem.Variance;
@@ -50,6 +51,11 @@ public class DeclaringTypeBoundedTypeVariable extends CalculatedTypeVariable  {
 	public int getIndex() {
 		return parameterIndex;
 	}
+
+    @Override
+    public void ensureNotFundamental(Function<TypeDefinition, TypeDefinition> convert) {
+        this.declaringType = convert.apply(this.declaringType);
+    }
 
 
 	

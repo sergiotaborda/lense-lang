@@ -1,0 +1,28 @@
+
+import lense.core.lang.String;
+import lense.core.lang.Boolean;
+import lense.core.math.Number;
+import lense.core.math.Integer;
+
+/{
+	Represents a mathematical quantity.
+	Number as no properties or operations and is not comparable. 
+}/
+public abstract class SignedNumber extends Number {
+
+	public abstract isZero() : Boolean;
+	
+	/{
+		Returns the same as this < 0  
+	
+	}/
+    public abstract isNegative() : Boolean;
+    
+    /{
+		Returns the same as this > 0  
+		Note that 0.isPositive() returns false;
+	}/
+    public abstract isPositive() : Boolean;
+    
+    public abstract signum(): Integer;
+}

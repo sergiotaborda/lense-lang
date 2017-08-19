@@ -1,6 +1,7 @@
 package lense.compiler.type.variable;
 
 import java.util.Optional;
+import java.util.function.Function;
 
 import lense.compiler.type.TypeDefinition;
 import lense.compiler.typesystem.Variance;
@@ -44,6 +45,11 @@ public class GenericTypeBoundToDeclaringTypeVariable extends CalculatedTypeVaria
 	public Optional<String> getSymbol() {
 		return Optional.of(name);
 	}
-
+	
+    @Override
+    public void ensureNotFundamental(Function<TypeDefinition, TypeDefinition> convert) {
+        this.declaringType = convert.apply(this.declaringType);
+        this.genericType = convert.apply(this.genericType);
+    }
 
 }

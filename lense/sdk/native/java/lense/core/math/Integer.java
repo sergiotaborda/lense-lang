@@ -5,8 +5,9 @@ import java.math.BigInteger;
 import lense.core.lang.HashValue;
 import lense.core.lang.java.Constructor;
 import lense.core.lang.java.Native;
+import lense.core.lang.java.NonNull;
 
-public abstract class Integer extends Whole implements Comparable{
+public abstract class Integer extends Whole implements Comparable, SignedNumber{
 
 	@Constructor
 	public static Integer constructor(){
@@ -45,19 +46,20 @@ public abstract class Integer extends Whole implements Comparable{
 		return super.divide(other);
 	}
 	
+	@Native
 	public static Integer valueOfNative(int n) {
 		return ScalableInt32.valueOf(n);
 	}
-	
+	@Native
 	public static Integer valueOfNative(long n) {
 		return ScalableInt64.valueOf(n);
 	}
-	
+	@Native
 	public static Integer valueOfNative(String n) {
-		return valueOf(new BigInteger(n));
+		return valueOfNative(new BigInteger(n));
 	}
-	
-	public static Integer valueOf(BigInteger n) {
+	@Native
+	public static Integer valueOfNative(BigInteger n) {
 
 		if (n.bitLength() <= 32){
 			return ScalableInt32.valueOf(n.intValue());
@@ -103,4 +105,37 @@ public abstract class Integer extends Whole implements Comparable{
 
     public abstract boolean isNegative();
 
+    public @NonNull Integer raiseTo(Natural other) {
+        if (this.isZero()){
+            if (other.isZero()){
+                return Integer.ONE;
+            }
+            return this;
+        } else if (this.isOne()){
+            return Integer.ONE;
+        } else if (other.isZero()){
+            return Integer.ONE;
+        } else if (other.isOne()){
+            return this;
+        } else if (other.compareTo(Integer.valueOfNative(2)) == 0){
+            return  this.multiply(this);
+        } else if (other.compareTo(Integer.valueOfNative(3)) == 0){
+            return  this.multiply(this).multiply(this);
+        }
+        return new BigInt(this.asBigInteger()).raiseTo(other);
+    }
+
+    public Integer wholeDivide (Integer other){
+        if (other.isZero()){
+            throw ArithmeticException.constructor(lense.core.lang.String.valueOfNative("Cannot divide by zero"));
+        }  
+        return Integer.valueOfNative(this.asBigInteger().divide(other.asBigInteger()));
+    }
+
+    public Integer remainder (Integer other){
+        if (other.isZero()){
+            throw ArithmeticException.constructor(lense.core.lang.String.valueOfNative("Cannot divide by zero"));
+        }  
+        return Integer.valueOfNative(this.asBigInteger().remainder(other.asBigInteger()));
+    }
 }

@@ -5,6 +5,7 @@ package lense.compiler.type.variable;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 
 import lense.compiler.type.TypeDefinition;
 import lense.compiler.typesystem.Variance;
@@ -128,5 +129,12 @@ public class RangeTypeVariable implements IntervalTypeVariable {
 	public boolean isFixed() {
 		return false;
 	}
+	
+    @Override
+    public void ensureNotFundamental(Function<TypeDefinition, TypeDefinition> convert) {
+        this.upper.ensureNotFundamental(convert);
+        this.lower.ensureNotFundamental(convert);
+        
+    }
 
 }

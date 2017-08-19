@@ -3,6 +3,8 @@
  */
 package lense.compiler.type;
 
+import lense.compiler.typesystem.Visibility;
+
 /**
  * 
  */
@@ -46,5 +48,7 @@ public interface TypeMember {
 	 */
 	TypeMember changeDeclaringType(TypeDefinition concrete);
 
+	
+	public Visibility getVisibility();
 
 }

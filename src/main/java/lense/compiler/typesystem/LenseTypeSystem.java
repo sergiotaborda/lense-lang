@@ -79,6 +79,11 @@ public class LenseTypeSystem{
     public static TypeDefinition Comparison() {
         return getInstance().getForName("lense.core.math.Comparison").get();
     }
+    
+    // Fundamental
+    public static TypeDefinition Comparable() {
+        return getInstance().getForName("lense.core.math.Comparable", 1).get();
+    }
 
     // Fundamental
     public static TypeDefinition Void() {
@@ -204,13 +209,15 @@ public class LenseTypeSystem{
 
     private LenseTypeSystem (){
         
+        LenseTypeDefinition any = register(new FundamentalLenseTypeDefinition("lense.core.lang.Any", LenseUnitKind.Class, null));
         
         LenseTypeDefinition nothing = register(new FundamentalLenseTypeDefinition("lense.core.lang.Nothing", LenseUnitKind.Class, null));
 
         register(new FundamentalLenseTypeDefinition("lense.core.math.Comparison", LenseUnitKind.Class, null));
 
-        LenseTypeDefinition any = register(new FundamentalLenseTypeDefinition("lense.core.lang.Any", LenseUnitKind.Class, null));
-        register(new LenseTypeDefinition("lense.core.lang.Exception", LenseUnitKind.Class, any));
+        register(new FundamentalLenseTypeDefinition("lense.core.math.Comparable", LenseUnitKind.Interface, any, new RangeTypeVariable("T", Variance.Covariant, any,nothing)));
+
+         register(new LenseTypeDefinition("lense.core.lang.Exception", LenseUnitKind.Class, any));
 
         //	    SenseTypeDefinition function1 = register(new SenseTypeDefinition("lense.core.lang.Function", Kind.Class, any,
         //				new RangeTypeVariable("R", Variance.Invariant, any, nothing)
@@ -499,7 +506,7 @@ public class LenseTypeSystem{
             }
         }
 
-        // inheritance
+        // super type
         if (type.getSuperDefinition() != null){
             if (!type.getSuperDefinition().getName().equals("lense.core.lang.Any") && type.isGeneric()){
                 IntervalTypeVariable[] types = new IntervalTypeVariable[type.getGenericParameters().size()];
@@ -642,6 +649,10 @@ public class LenseTypeSystem{
             return b;
         } else if (b.getTypeDefinition().getName().equals("lense.core.lang.Nothing") ){ 
             return a;
+        } else if ( isAssignableTo(a, b) ){ 
+            return b;
+        } else if ( isAssignableTo(b, a) ){ 
+            return a;
         } else {
             return new FixedTypeVariable(new UnionType(a, b));
         }
@@ -775,6 +786,7 @@ public class LenseTypeSystem{
         }
         return count;
     }
+
 
 
 

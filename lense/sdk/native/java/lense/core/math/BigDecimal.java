@@ -96,4 +96,33 @@ public class BigDecimal extends Decimal {
     protected BigDecimal promoteToBigDecimal() {
         return this;
     }
+
+    @Override
+    public Real raiseTo(Real other) {
+        // TODO use bigdecimal arithmetic. use double for now
+        return Decimal64.valueOf(this).raiseTo(other);
+    }
+    
+    @Override
+    public Integer asInteger() {
+        return  Integer.valueOfNative(this.value.toBigInteger());
+    }
+
+
+    @Override
+    public boolean isWhole() {
+        return this.value.remainder(java.math.BigDecimal.ONE).compareTo(java.math.BigDecimal.ZERO) == 0;
+    }
+
+    @Override
+    public Comparison compareWith(Any other) {
+        if (other instanceof BigDecimal){
+            return Comparison.valueOfNative(this.value.compareTo(((BigDecimal) other).value));
+        } else if (other instanceof Real){
+            return super.compareWith((Real)other);
+        }
+        throw new ClassCastException("Cannot compare");
+            
+    }
+
 }
