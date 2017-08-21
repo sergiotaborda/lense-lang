@@ -2,12 +2,11 @@ package lense.compiler.crosscompile.java;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
-import lense.compiler.ast.NewInstanceCreationNode;
 import compiler.syntax.AstNode;
 import compiler.trees.Visitor;
 import compiler.trees.VisitorNext;
@@ -16,12 +15,10 @@ import lense.compiler.ast.BooleanOperatorNode;
 import lense.compiler.ast.CastNode;
 import lense.compiler.ast.ClassTypeNode;
 import lense.compiler.ast.MethodInvocationNode;
-import lense.compiler.ast.NumericValue;
 import lense.compiler.context.SemanticContext;
 import lense.compiler.type.CallableMember;
 import lense.compiler.type.CallableMemberMember;
 import lense.compiler.type.Constructor;
-import lense.compiler.type.ConstructorParameter;
 import lense.compiler.type.IndexerProperty;
 import lense.compiler.type.LenseTypeDefinition;
 import lense.compiler.type.LenseUnitKind;
@@ -41,6 +38,7 @@ public class JavalizeVisitor implements Visitor<AstNode>{
 
 	private SemanticContext semanticContext;
 	private Map<String, File> nativeTypes;
+	private Map<String, LenseTypeDefinition> nativeLoadedTypes = new HashMap<>();
 	private ByteCodeTypeDefinitionReader asmReader = new ByteCodeTypeDefinitionReader();
 	
 	public JavalizeVisitor(SemanticContext semanticContext, Map<String, File> nativeTypes) {
@@ -59,6 +57,29 @@ public class JavalizeVisitor implements Visitor<AstNode>{
 		return VisitorNext.Children;
 	}
 
+	
+	private TypeDefinition loadByName(String name) throws IOException {
+		
+		LenseTypeDefinition def = nativeLoadedTypes.get(name);
+		if (def != null) {
+			return def;
+		}
+		
+		File classFile = nativeTypes.get(name);
+	    def =  (LenseTypeDefinition)asmReader.readNative(classFile);
+		
+		loadDependencies(def);
+		
+		nativeLoadedTypes.put(name, def);
+		return def;
+	}
+
+	private void loadDependencies(LenseTypeDefinition type) throws IOException {
+		if (type.getSuperDefinition() != null && !type.getSuperDefinition().getName().equals("lense.core.lang.Any")) {
+			type.setSuperTypeDefinition(this.loadByName(type.getSuperDefinition().getName()));
+		}
+	}
+	
 	@Override
 	public void visitAfterChildren(AstNode node) {	
 		
@@ -75,9 +96,9 @@ public class JavalizeVisitor implements Visitor<AstNode>{
 				}
 				
 				// verify correct contract
-				File classFile = nativeTypes.get(n.getName());
+				
 				try {
-					TypeDefinition nativeType = asmReader.readNative(classFile);
+					TypeDefinition nativeType = loadByName(n.getName());
 					
 					TypeDefinition type = n.getSemanticContext().resolveTypeForName(n.getName(), n.getGenericParametersCount()).get();
 					
@@ -85,8 +106,8 @@ public class JavalizeVisitor implements Visitor<AstNode>{
 					List<Constructor> construtors = type.getMembers().stream().filter( c -> c.isConstructor()).map(c -> (Constructor)c).collect(Collectors.toList());
 					List<Constructor> nativeConstrutors = nativeType.getMembers().stream().filter( c -> c.isConstructor()).map(c -> (Constructor)c).collect(Collectors.toList());
 					
-					List<Method> methods = type.getMembers().stream().filter( c -> c.isMethod()).map(c -> (Method)c).collect(Collectors.toList());
-					List<Method> nativeMethods = nativeType.getMembers().stream().filter( c -> c.isMethod()).map(c -> (Method)c).collect(Collectors.toList());
+					List<Method> methods = type.getAllMembers().stream().filter( c -> c.isMethod()).map(c -> (Method)c).collect(Collectors.toList());
+					List<Method> nativeMethods = nativeType.getAllMembers().stream().filter( c -> c.isMethod()).map(c -> (Method)c).collect(Collectors.toList());
 					
 					
 					if (nativeConstrutors.isEmpty() && type.getKind() == LenseUnitKind.Class && !type.isAbstract()){

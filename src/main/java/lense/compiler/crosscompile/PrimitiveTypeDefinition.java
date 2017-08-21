@@ -118,4 +118,9 @@ public class PrimitiveTypeDefinition implements TypeDefinition {
 		return false;
 	}
 
+	@Override
+	public Collection<TypeMember> getAllMembers() {
+		return this.getMembers();
+	}
+
 }

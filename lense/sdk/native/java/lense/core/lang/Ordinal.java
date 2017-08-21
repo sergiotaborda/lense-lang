@@ -2,6 +2,6 @@ package lense.core.lang;
 
 public interface Ordinal<T> {
 
-    public T successsor();
+    public T successor();
     public T predecessor();
 }

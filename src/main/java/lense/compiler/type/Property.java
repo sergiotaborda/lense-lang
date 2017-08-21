@@ -109,4 +109,13 @@ public class Property  implements TypeMember{
     public void setVisibility(Visibility visibility){
         this.visibility = visibility;
     }
+    
+	public int hashCode(){
+		return name.hashCode();
+	}
+
+	public boolean equals (Object other){
+		return other instanceof Property && ((Property)other).name.equals(this.name);
+	}
+
 }

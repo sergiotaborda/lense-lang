@@ -3,8 +3,6 @@ package lense.core.lang;
 import lense.core.lang.java.Base;
 import lense.core.lang.java.Constructor;
 import lense.core.lang.java.Native;
-import lense.core.math.Int32;
-import lense.core.math.Integer;
 import lense.core.math.Natural;
 
 public final class Character extends Base implements Any, Ordinal{
@@ -45,8 +43,8 @@ public final class Character extends Base implements Any, Ordinal{
 		return String.valueOfNative(java.lang.Character.toString(code));
 	}
 
-    @Override
-    public Object successsor() {
+    @Override     
+    public Object successor() {
      // TODO consider range from 0 to Int16.max
        return new Character(this.code++);
     }

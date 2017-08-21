@@ -5,6 +5,7 @@ import java.util.function.Function;
 
 import lense.core.lang.Any;
 import lense.core.lang.java.Constructor;
+import lense.core.lang.java.MethodSignature;
 import lense.core.lang.java.Native;
 import lense.core.lang.java.Property;
 import lense.core.lang.java.Signature;
@@ -61,10 +62,11 @@ public abstract class Array extends AbstractAssortment implements EditableSequen
 		return array;
 	}
 
-	@Override @Property(indexed = true , name = "")
+	@Override @Property(indexed = true ) 
+	@MethodSignature( returnSignature = "T" , paramsSignature = "lense.core.math.Natural")
 	public abstract Any get(Natural index);
 	
-	@Override  @Property(indexed = true , name = "", setter = true)
+	@Override  @Property(indexed = true , setter = true)
 	public abstract void  set(Natural index, Any value);
 	
 	@Override @Property(name = "size")
@@ -76,6 +78,21 @@ public abstract class Array extends AbstractAssortment implements EditableSequen
 	@Override @Property(name = "indexes")
 	public abstract Progression getIndexes();
 
-
+	
+	public abstract boolean contains(Any other);
+	
+	public boolean containsAll(Assortment other) {
+		if (this.isEmpty()) {
+			return other.isEmpty();
+		}
+		
+		Iterator it = other.getIterator();
+		while (it.moveNext()) {
+			if (!this.contains(it.current())) {
+				return false;
+			}
+		}
+		return true;
+	}
 
 }

@@ -37,13 +37,13 @@ import lense.compiler.typesystem.Variance;
 
 public class ByteCodeReader extends ClassVisitor {
 
-    LenseTypeDefinition def;
+	LoadedLenseTypeDefinition def;
 
     public ByteCodeReader() {
         super(ASM5);
     }
 
-    public TypeDefinition getType() {
+    public LoadedLenseTypeDefinition getType() {
         return def;
     }
 

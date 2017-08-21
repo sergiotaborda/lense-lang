@@ -249,7 +249,7 @@ public class LenseTypeSystem{
         LenseTypeDefinition iterable = register(new FundamentalLenseTypeDefinition("lense.core.collections.Iterable", LenseUnitKind.Interface, any, new RangeTypeVariable("T", Variance.Covariant, any,nothing))); 
         LenseTypeDefinition iterator = register(new FundamentalLenseTypeDefinition("lense.core.collections.Iterator", LenseUnitKind.Interface, any, new RangeTypeVariable("T", Variance.Covariant, any,nothing))); 
 
-        iterable.addMethod("iterator", iterator); 
+        iterable.addProperty("iterator", iterator, true, false);
 
         iterator.addMethod("hasNext", sbool);
         iterator.addMethod("hasNext", any); 
@@ -313,7 +313,9 @@ public class LenseTypeSystem{
 
         tuple.addMethod("get", any, new MethodParameter(natural, "index"));
 
-        sequence.addMethod("get", new MethodReturn( new DeclaringTypeBoundedTypeVariable(sequence, 0, "T", Variance.Covariant)) , new MethodParameter(natural, "index")); 
+        
+        sequence.addIndexer(new DeclaringTypeBoundedTypeVariable(sequence, 0, "T", Variance.Covariant), true, true, new TypeVariable[] {new FixedTypeVariable(natural)});
+    
         //array.addMethod("set", svoid  , new MethodParameter(natural, "index"), new MethodParameter(new DeclaringTypeBoundedTypeVariable(array,0,"T",Variance.Invariant), "value")); 
 
         array.addIndexer( new DeclaringTypeBoundedTypeVariable(array,0,"T",Variance.Invariant), true, true, new TypeVariable[]{ new FixedTypeVariable(natural)});

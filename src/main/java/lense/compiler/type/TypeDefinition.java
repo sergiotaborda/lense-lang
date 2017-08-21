@@ -22,7 +22,17 @@ public interface TypeDefinition {
 	
 	public TypeKind getKind();
 	
+	/**
+	 * 
+	 * @return members of the type 
+	 */
 	public List<TypeMember> getMembers();
+	
+	/**
+	 * 
+	 * @return members of the type, including ones defined in super classes or interfaces
+	 */
+	public Collection<TypeMember> getAllMembers();
 	
 	public TypeDefinition getSuperDefinition();
 

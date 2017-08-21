@@ -106,7 +106,7 @@ public class RangeTypeVariable implements IntervalTypeVariable {
 		}
 		if ( other instanceof RangeTypeVariable){
 			RangeTypeVariable r = ((RangeTypeVariable)other);
-			return r.variance.equals(this.variance) && r.getLowerBound().equals(this.lower) && r.getUpperBound().equals(this.upper);
+			return (this.variance == this.variance || r.variance.equals(this.variance)) && r.getLowerBound().equals(this.lower) && r.getUpperBound().equals(this.upper);
 		}
 		return false;
 	}

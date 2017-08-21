@@ -15,6 +15,7 @@ import java.nio.file.FileVisitResult;
 import java.nio.file.FileVisitor;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -267,7 +268,7 @@ public class LenseToJavaCompiler extends LenseCompiler{
 				if (!source.exists()){
 					System.err.println("Compiled file with java compiler does not exist");
 				} else {
-					Files.move(source.toPath(), target.toPath());
+					Files.move(source.toPath(), target.toPath(),StandardCopyOption.REPLACE_EXISTING);
 					nativeTypes.put(packageFile.substring(1).replace(File.separatorChar, '.').replaceAll(".class",""), target);
 				}
 

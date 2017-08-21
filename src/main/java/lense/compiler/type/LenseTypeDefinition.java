@@ -7,11 +7,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -579,6 +581,23 @@ public class LenseTypeDefinition implements TypeDefinition {
 			}
 		}
 		return null;
+	}
+
+	
+	@Override
+	public Collection<TypeMember> getAllMembers() {
+	
+		Set<TypeMember> members = new HashSet<>(this.getMembers());
+		
+		if (this.getSuperDefinition() != null) {
+			members.addAll(this.getSuperDefinition().getAllMembers());
+		}
+		
+		for ( TypeDefinition it : this.getInterfaces()) {
+			members.addAll(it.getAllMembers());
+		}
+		
+		return members;
 	}
 
 

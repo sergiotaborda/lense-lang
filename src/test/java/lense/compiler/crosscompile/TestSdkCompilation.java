@@ -13,20 +13,13 @@ import java.util.Optional;
 
 import org.junit.Test;
 
-import compiler.CompilerListener;
-import compiler.CompilerMessage;
 import lense.compiler.ast.LenseCompilerListener;
-import lense.compiler.ast.QualifiedNameNode;
 import lense.compiler.ast.SystemOutCompilerListener;
 import lense.compiler.crosscompile.java.LenseToJavaCompiler;
 import lense.compiler.crosscompile.javascript.LenseToJsCompiler;
 import lense.compiler.modules.ModuleIdentifier;
 import lense.compiler.modules.ModuleTypeContents;
 import lense.compiler.modules.ModulesRepository;
-import lense.compiler.repository.TypeRepository;
-import lense.compiler.repository.Version;
-import lense.compiler.type.TypeDefinition;
-import lense.compiler.typesystem.TypeSearchParameters;
 
 /**
  * 

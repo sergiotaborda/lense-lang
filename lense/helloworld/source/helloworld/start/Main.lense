@@ -29,7 +29,7 @@ public class Main extends ConsoleApplication {
 	
 
   	public onStart()  {
-  	/{
+ 
   	 	console.println("Begin " + this.type().name);
   	 	
   	 	
@@ -230,10 +230,10 @@ public class Main extends ConsoleApplication {
   	     console.println(getlength([1,2]));
   	    
   	    console.println("End");
-  	 	}/
+  	 
   	}
 
-/{
+
 	public dist(x : Natural, y : Natural) : Real {
 		return (x ** 2 + y ** 2) ** (1/2);
 	}
@@ -255,6 +255,6 @@ public class Main extends ConsoleApplication {
   		
   		return o;
   	}
-}/
+
 
 }

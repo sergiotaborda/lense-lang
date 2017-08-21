@@ -58,7 +58,17 @@ public class DeclaringTypeBoundedTypeVariable extends CalculatedTypeVariable  {
     }
 
 
+    public boolean equals(Object other){
+		return other instanceof DeclaringTypeBoundedTypeVariable && equals((DeclaringTypeBoundedTypeVariable)other);
+	}
 	
+    private boolean equals(DeclaringTypeBoundedTypeVariable other) {
+    	return this.parameterIndex == other.parameterIndex && this.declaringType.equals(other.declaringType);
+    }
+    
+	public int hashCode(){
+		return parameterIndex ^ declaringType.hashCode();
+	}
 
 
 }
