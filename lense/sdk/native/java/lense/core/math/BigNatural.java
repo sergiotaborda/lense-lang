@@ -122,7 +122,7 @@ public class BigNatural extends Natural{
         return this.value.longValue() < java.lang.Integer.MAX_VALUE;
     }
 
-    @Override
+  
     public Natural remainder(Natural other) {
         return new BigNatural(this.value.remainder(other.asBigInteger()));
     }

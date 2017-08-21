@@ -13,20 +13,29 @@ import lense.compiler.typesystem.TypeSearchParameters;
 
 public class ModuleCompilationScopeTypeRepository implements UpdatableTypeRepository {
 
-    private final ModuleTypeContents currentModuleTypes = new ModuleTypeContents(new ModuleDescription() {
-        
-        @Override
-        public Version getVersion() {
-            return null;
-        }
-        
-        @Override
-        public String getName() {
-            return "currentModule";
-        }
-    });
+    private ModuleTypeContents currentModuleTypes;
     
     private List<ModuleTypeContents> requiredModules = new LinkedList<>();
+    
+    
+    public ModuleCompilationScopeTypeRepository(){
+        this(new ModuleTypeContents(new ModuleDescription() {
+            
+            @Override
+            public Version getVersion() {
+                return null;
+            }
+            
+            @Override
+            public String getName() {
+                return "currentModule";
+            }
+        }));
+    }
+    
+    public ModuleCompilationScopeTypeRepository(ModuleTypeContents currentModuleTypes){
+        this.currentModuleTypes = currentModuleTypes;
+    }
     
     @Override
     public Optional<TypeDefinition> resolveType(TypeSearchParameters filter) {
@@ -57,7 +66,7 @@ public class ModuleCompilationScopeTypeRepository implements UpdatableTypeReposi
     @Override
     public Map<Integer, TypeDefinition> resolveTypesMap(String name) {
         Map<Integer, TypeDefinition> map = currentModuleTypes.resolveTypesMap(name);
-        if (map == null || map.size() == 0){
+        if (map == null || map.isEmpty()){
             
             for (ModuleTypeContents otherModule : requiredModules){
                 map = otherModule.resolveTypesMap(name);
@@ -67,7 +76,7 @@ public class ModuleCompilationScopeTypeRepository implements UpdatableTypeReposi
             }
         }
         
-        return Collections.emptyMap();
+        return map;
     }
 
 }

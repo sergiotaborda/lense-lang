@@ -349,28 +349,37 @@ public class NameResolutionVisitor extends AbstractScopedVisitor {
 
 
 		// try to find it in the core
-		List<String> paths = Arrays.asList("lense.core.collections","lense.core.math","lense.core.lang");
-
-		for(String path : paths) {
-
-			String fullType = path + "." + typeNode.getName();
-
-			Optional<TypeDefinition> libraryType = this.getSemanticContext().resolveTypeForName(fullType,typeNode.getTypeParametersCount());
-
-			if (libraryType.isPresent()) {
-				typeNode.setName(new QualifiedNameNode(libraryType.get().getName()));
-				final Import implicitType = Import.singleType(new QualifiedNameNode(fullType),typeNode.getName());
-				implicitType.setUsed(true);
-				ct.addImport(implicitType);
-				return;
-			}
+		
+		if (!tryDefaultPath(typeNode)){
+		    throw new CompilationError(node, "Type " + typeNode.getName() + " was not imported in " + name);
 		}
 
-
-		throw new CompilationError(node,
-				"Type " + typeNode.getName() + " was not imported in " + name);
+	
 	}
 
+   static final List<String> paths = Arrays.asList("lense.core.collections","lense.core.math","lense.core.lang");
+
+	private boolean tryDefaultPath(TypeNode typeNode){
+	   
+        for(String path : paths) {
+
+            String fullType = path + "." + typeNode.getName();
+
+            Optional<TypeDefinition> libraryType = this.getSemanticContext().resolveTypeForName(fullType,typeNode.getTypeParametersCount());
+
+            if (libraryType.isPresent()) {
+                typeNode.setName(new QualifiedNameNode(libraryType.get().getName()));
+                final Import implicitType = Import.singleType(new QualifiedNameNode(fullType),typeNode.getName());
+                implicitType.setUsed(true);
+                ct.addImport(implicitType);
+                return true;
+            }
+        }
+        
+        return false;
+	}
+	
+	
 	private VisitorNext resolveName(ClassTypeNode ct, AstNode parent, AstNode child, QualifiedNameNode original) {
 
 		QualifiedNameNode qn = original;

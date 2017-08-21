@@ -30,12 +30,13 @@ public class Method implements CallableMember<Method> {
 		return methodFreeGenericTypes;
 	}
 	
-	public Method(String name, MethodReturn returnParameter, MethodParameter ... parameters){
-		this(name, returnParameter, Arrays.asList(parameters));
+	public Method(Visibility visibility,String name, MethodReturn returnParameter, MethodParameter ... parameters){
+		this(visibility,name, returnParameter, Arrays.asList(parameters));
 	}
 	
-	public Method(String name, MethodReturn returnParameter, List<? extends CallableMemberMember<Method>>  parameters){
+	public Method(Visibility visibility,String name, MethodReturn returnParameter, List<? extends CallableMemberMember<Method>>  parameters){
 		this.name = name;
+		this.visibility = visibility;
 		
 		this.returnParameter = returnParameter;
 		this.returnParameter.setDeclaringMember(this);
@@ -179,7 +180,7 @@ public class Method implements CallableMember<Method> {
 	public Method changeDeclaringType(TypeDefinition concrete) {
 		
 		MethodReturn r = new MethodReturn(this.returnParameter.getType().changeBaseType(concrete));
-		Method m = new Method(this.name, r, this.parameters);
+		Method m = new Method(this.visibility, this.name, r, this.parameters);
 		m.setDeclaringType(concrete);
 		return m;
 	}

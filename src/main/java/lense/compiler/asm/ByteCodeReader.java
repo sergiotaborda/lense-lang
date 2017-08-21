@@ -16,6 +16,7 @@ import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
 
 import lense.compiler.type.Constructor;
 import lense.compiler.type.ConstructorParameter;
@@ -34,6 +35,7 @@ import lense.compiler.type.variable.RangeTypeVariable;
 import lense.compiler.type.variable.TypeVariable;
 import lense.compiler.typesystem.LenseTypeSystem;
 import lense.compiler.typesystem.Variance;
+import lense.compiler.typesystem.Visibility;
 
 public class ByteCodeReader extends ClassVisitor {
 
@@ -122,11 +124,12 @@ public class ByteCodeReader extends ClassVisitor {
                     }
                 }
 
-                Constructor m = new Constructor(name, params, false); // TODO
+                Constructor m = new Constructor(name, params, false,readVisibility(access)); // TODO
                                                                       // read
                                                                       // implicit
                 m.setDeclaringType(def);
-
+                m.setAbstract(readAbstract(access));
+                
                 return new ConstructorAnnotVisitor(this, m);
             } else {
                 // instance methods
@@ -150,15 +153,33 @@ public class ByteCodeReader extends ClassVisitor {
                     }
                 }
 
-                Method m = new Method(name, r, params);
+                Method m = new Method(readVisibility(access), name, r, params);
                 m.setDeclaringType(def);
 
+                m.setAbstract(readAbstract(access));
+                
                 return new MethodAnnotVisitor(this, m);
             }
         } catch (IllegalArgumentException e) {
             return null;
         }
 
+    }
+    
+    private boolean readAbstract(int access){
+        return (access & Opcodes.ACC_ABSTRACT) == 1;
+    }
+    
+    private Visibility readVisibility(int access){
+        if ((access & Opcodes.ACC_PUBLIC) == 1){
+            return Visibility.Public;
+        } else if ((access & Opcodes.ACC_PRIVATE) == 1){
+            return Visibility.Private;
+        } else if ((access & Opcodes.ACC_PROTECTED) == 1){
+            return Visibility.Protected;
+        }
+        
+        return Visibility.Undefined;
     }
 
     private TypeDefinition typeForName(String name) {

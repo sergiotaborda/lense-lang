@@ -18,6 +18,7 @@ public class Property  implements TypeMember{
 	private boolean canRead;
 	private boolean canWrite;
     private Visibility visibility;
+    private boolean isAbstract;
 	 
 	/**
 	 * Constructor.
@@ -118,4 +119,12 @@ public class Property  implements TypeMember{
 		return other instanceof Property && ((Property)other).name.equals(this.name);
 	}
 
+    @Override
+    public boolean isAbstract() {
+        return isAbstract;
+    }
+    
+    public void setAbstract(boolean isAbstract) {
+        this.isAbstract = isAbstract;
+    }
 }

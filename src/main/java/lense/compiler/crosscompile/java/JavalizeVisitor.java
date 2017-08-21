@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import compiler.syntax.AstNode;
@@ -25,6 +26,7 @@ import lense.compiler.type.LenseUnitKind;
 import lense.compiler.type.Method;
 import lense.compiler.type.Property;
 import lense.compiler.type.TypeDefinition;
+import lense.compiler.type.TypeMember;
 import lense.compiler.type.variable.FixedTypeVariable;
 import lense.compiler.type.variable.TypeVariable;
 import lense.compiler.typesystem.LenseTypeSystem;
@@ -116,18 +118,26 @@ public class JavalizeVisitor implements Visitor<AstNode>{
 					
 					if (!type.isAbstract()){
 						for(Constructor c : construtors){
-							
-							if (!isContainedIn(c,nativeConstrutors)){
-								throw new lense.compiler.CompilationError(node, "Native implementation does not contain constructor " + c.getName() + "(" + c.getParameters() +")");
-							}
+						    
+						    checkMatch(node,
+						            c, 
+						            isContainedIn(c,nativeConstrutors).orElseThrow(() -> 
+						                new lense.compiler.CompilationError(node, "Native implementation does not contain constructor " + c.getName() + "(" + c.getParameters() +")")
+						            )
+						    );
+						    
 						}
 					}
 					
 					
 					for(Method c : methods){
-						if (!isContainedIn(c,nativeMethods)){
-							throw new lense.compiler.CompilationError(node, "Native implementation does not contain method " + c);
-						}
+					    checkMatch(node,
+                                c, 
+                                isContainedIn(c,nativeMethods).orElseThrow(() -> 
+                                    new lense.compiler.CompilationError(node, "Native implementation does not contain method " + c)
+                                )
+                        );
+					    
 					}
 					
 					List<Property> properties = type.getMembers().stream().filter( c -> c.isProperty()).map(c -> (Property)c).collect(Collectors.toList());
@@ -135,9 +145,13 @@ public class JavalizeVisitor implements Visitor<AstNode>{
 					
 					
 					for(Property c : properties){
-						if (!isContainedIn(c,nativeProperties)){
-							throw new lense.compiler.CompilationError(node, "Native implementation does not contain property " + c.getName());
-						}
+					    checkMatch(node,
+                                c, 
+                                isContainedIn(c,nativeProperties).orElseThrow(() -> 
+                                    new lense.compiler.CompilationError(node, "Native implementation does not contain property " + c.getName())
+                                )
+                        );
+					    
 					}
 					
 					List<IndexerProperty> indexers = type.getMembers().stream().filter( c -> c.isIndexer()).map(c -> (IndexerProperty)c).collect(Collectors.toList());
@@ -145,9 +159,14 @@ public class JavalizeVisitor implements Visitor<AstNode>{
 					
 					
 					for(IndexerProperty c : indexers){
-						if (!isContainedIn(c,nativeIndexers)){
-							throw new lense.compiler.CompilationError(node, "Native implementation does not contain indexer " + c.getName());
-						}
+					    
+					    checkMatch(node,
+                                c, 
+                                isContainedIn(c,nativeIndexers).orElseThrow(() -> 
+                                    new lense.compiler.CompilationError(node, "Native implementation does not contain indexer " + c.getName())
+                                )
+                        );
+					    
 					}
 
 				} catch (IOException e) {
@@ -202,7 +221,16 @@ public class JavalizeVisitor implements Visitor<AstNode>{
 		}
 	}
 
-	private boolean isContainedIn(IndexerProperty c, List<IndexerProperty> nativeIndexers) {
+
+	   private void checkMatch(AstNode node,TypeMember c, TypeMember n) {
+	        if (n.isAbstract() && !c.isAbstract()){
+	            throw new lense.compiler.CompilationError(node, "Native implementation abstractness does not match for member " + c.getName() + "(found " + n.isAbstract() + ", expected " + c.isAbstract() + ")");
+	        } else if (c.getVisibility() != n.getVisibility()){
+	            throw new lense.compiler.CompilationError(node, "Native implementation visibility does not match for member " + c.getName() + "(found " + n.getVisibility() + ", expected " + c.getVisibility() + ")");
+	        }
+	    }
+	
+    private Optional<IndexerProperty> isContainedIn(IndexerProperty c, List<IndexerProperty> nativeIndexers) {
 		for (IndexerProperty n : nativeIndexers){
 			if (n.getReturningType().getTypeDefinition().getName().equals(c.getReturningType().getTypeDefinition().getName()) && c.getIndexes().length == n.getIndexes().length ){
 				for ( int i =0 ; i < c.getIndexes().length; i++){
@@ -210,28 +238,28 @@ public class JavalizeVisitor implements Visitor<AstNode>{
 					TypeVariable b = n.getIndexes()[i];
 					
 					if (!a.getTypeDefinition().getName().equals(b.getTypeDefinition().getName())){
-						return false;
+						return Optional.empty();
 					}
 				}
-				return true;
+				return Optional.of(n);
 			}
 		}
-		return false;
+		return Optional.empty();
 	}
 	
-	private boolean isContainedIn(Property c, List<Property> nativeProperties) {
+	private Optional<Property> isContainedIn(Property c, List<Property> nativeProperties) {
 		for (Property n : nativeProperties){
 			if (n.getName().equals(c.getName()) && n.getReturningType().getSymbol().equals(c.getReturningType().getSymbol())){
-				return true;
+				return Optional.of(n);
 			}
 		}
-		return false;
+		return Optional.empty();
 	}
 
-	private <T extends CallableMember<T>> boolean isContainedIn(T c, List<T> nativeConstrutors) {
+	private <T extends CallableMember<T>> Optional<T> isContainedIn(T c, List<T> nativeConstrutors) {
 		outter : for (T n : nativeConstrutors){
 			if (n.getName().equals(c.getName()) && n.getParameters().size() == c.getParameters().size()){
-				
+			
 				for ( int i =0 ; i < c.getParameters().size(); i++){
 					CallableMemberMember<T> a = c.getParameters().get(i);
 					CallableMemberMember<T> b = n.getParameters().get(i);
@@ -240,10 +268,10 @@ public class JavalizeVisitor implements Visitor<AstNode>{
 						continue outter;
 					}
 				}
-				return true;
+				return Optional.of(n);
 			}
 		}
-		return false;
+		return Optional.empty();
 	}
 
 	

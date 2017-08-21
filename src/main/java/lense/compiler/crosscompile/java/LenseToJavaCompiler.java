@@ -268,7 +268,7 @@ public class LenseToJavaCompiler extends LenseCompiler{
 				if (!source.exists()){
 					System.err.println("Compiled file with java compiler does not exist");
 				} else {
-					Files.move(source.toPath(), target.toPath(),StandardCopyOption.REPLACE_EXISTING);
+					Files.move(source.toPath(), target.toPath());
 					nativeTypes.put(packageFile.substring(1).replace(File.separatorChar, '.').replaceAll(".class",""), target);
 				}
 

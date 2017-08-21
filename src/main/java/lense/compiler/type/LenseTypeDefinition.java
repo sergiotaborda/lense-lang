@@ -198,7 +198,7 @@ public class LenseTypeDefinition implements TypeDefinition {
 	}
 
 	public Constructor addConstructor(boolean implicit, String name, ConstructorParameter... parameters) {
-		Constructor m = new Constructor(name,Arrays.asList(parameters), implicit);
+		Constructor m = new Constructor(name,Arrays.asList(parameters), implicit,Visibility.Public);
 		addConstructor(m);
 		return m;
 	}
@@ -207,17 +207,22 @@ public class LenseTypeDefinition implements TypeDefinition {
 		m.setDeclaringType(this);
 		this.members.add(m);
 	}
+	
+	public void addMethod( String name, TypeDefinition returnType, MethodParameter... parameters) {
+        addMethod(Visibility.Public,name, new MethodReturn(new FixedTypeVariable(returnType)), parameters);
+    }
+	
 	/**
 	 * @param name2
 	 * @param typeDefinition
 	 * @param parameters
 	 */
-	public void addMethod(String name, TypeDefinition returnType, MethodParameter... parameters) {
-		addMethod(name, new MethodReturn(new FixedTypeVariable(returnType)), parameters);
+	public void addMethod(Visibility visibility, String name, TypeDefinition returnType, MethodParameter... parameters) {
+		addMethod(visibility,name, new MethodReturn(new FixedTypeVariable(returnType)), parameters);
 	}
 
-	public void addMethod(String name, MethodReturn returnType, MethodParameter... parameters) {
-		addMethod(new Method(name, returnType, parameters));
+	public void addMethod(Visibility visibility,String name, MethodReturn returnType, MethodParameter... parameters) {
+		addMethod(new Method(visibility, name, returnType, parameters));
 
 	}
 

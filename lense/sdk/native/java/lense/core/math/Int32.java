@@ -32,20 +32,16 @@ public class Int32 extends Integer implements Binary {
 	public static Int32 valueOf(Whole n){
 		if (n instanceof Int32){
 		    return (Int32)n;
-		} else if (n instanceof Integer){
-		    Integer integer = ((Integer)n);
+		} else {
+		    BigInteger max = BigInteger.valueOf(java.lang.Integer.MAX_VALUE);
+		    BigInteger min = BigInteger.valueOf(java.lang.Integer.MIN_VALUE);
+		    BigInteger val = n.asBigInteger();
 		    
-		    if (integer.isLessOrEqualTo(Integer.INT_MIN) || !integer.isLessOrEqualTo(Integer.INT_MAX)){
-		        throw new lense.core.lang.Exception();
-            } else {
-                return new Int32(integer.toPrimitiveInt());
-            }
-		}else {
-		    Natural nat = ((Natural)n);
-		    if (nat.isLessOrEqualTo(Natural.INT_MAX)){
-		        return new Int32(nat.toPrimitiveInt());
+		    if (val.compareTo(min) >=0 && val.compareTo(max) <=0 ){
+		        // in range of a int32
+		        return new Int32(val.intValue());
 		    } else {
-		        throw new lense.core.lang.Exception();
+		        throw ArithmeticException.constructor();
 		    }
 		}
 		

@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import lense.compiler.type.LenseUnitKind;
 import compiler.syntax.AstNode;
 import compiler.trees.TreeTransverser;
 import compiler.trees.VisitorNext;
@@ -43,6 +44,7 @@ import lense.compiler.type.variable.IntervalTypeVariable;
 import lense.compiler.type.variable.TypeMemberDeclaringTypeVariable;
 import lense.compiler.type.variable.TypeVariable;
 import lense.compiler.typesystem.LenseTypeSystem;
+import lense.compiler.typesystem.Visibility;
 /**
  * Read the classe members and fills a SenseType object
  */
@@ -220,7 +222,16 @@ public class StructureVisitor extends AbstractScopedVisitor {
 			ParametersListNode parameters = m.getParameters();
 			MethodParameter[] params = asMethodParameters(parameters);
 
-			Method method = new Method(m.getName(), new MethodReturn(returnTypeVariable), params);
+			Visibility visiblity = m.getVisibility();
+			
+			if (visiblity == null){
+			    if (this.currentType.getKind().equals(LenseUnitKind.Interface)){
+			        visiblity = Visibility.Public;
+			    } else {
+			        visiblity = Visibility.Protected;
+			    }
+			}
+			Method method = new Method(visiblity, m.getName(), new MethodReturn(returnTypeVariable), params);
 			currentType.addMethod(method);
 			
 		} else if (node instanceof PropertyDeclarationNode){

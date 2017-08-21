@@ -9,9 +9,6 @@ import lense.core.lang.java.NonNull;
 
 public abstract class Integer extends Whole implements Comparable, SignedNumber{
 
-	public static @NonNull Integer INT_MAX = Integer.valueOfNative(java.lang.Integer.MAX_VALUE);
-	public static @NonNull Integer INT_MIN = Integer.valueOfNative(java.lang.Integer.MIN_VALUE);
-
     @Constructor
 	public static Integer constructor(){
 		return Int32.valueOfNative(0);

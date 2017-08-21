@@ -149,7 +149,7 @@ public class SemanticVisitor extends AbstractScopedVisitor {
         if (currentType!= null){
             if (!currentType.hasConstructor()) {
                 // if no constructor exists, add a default one
-                Constructor ctr = new Constructor("constructor", Collections.emptyList(), false);
+                Constructor ctr = new Constructor("constructor", Collections.emptyList(), false, Visibility.Public);
                 ctr.setVisibility(Visibility.Public);
                 currentType.addConstructor(ctr);
             }
@@ -624,7 +624,7 @@ public class SemanticVisitor extends AbstractScopedVisitor {
             ClassBodyNode n = (ClassBodyNode)node;
             if (!currentType.hasConstructor() && currentType.getKind() == LenseUnitKind.Class) {
                 // if no constructor exists, add a default one
-                currentType.addConstructor(new Constructor("constructor", Collections.emptyList(), false));
+                currentType.addConstructor(new Constructor("constructor", Collections.emptyList(), false,Visibility.Public));
 
                 ConstructorDeclarationNode c = new ConstructorDeclarationNode();
                 c.setReturnType(new TypeNode(currentType));

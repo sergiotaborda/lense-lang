@@ -214,7 +214,11 @@ public abstract class LenseCompiler {
 
 
             // Define the repository being mounted
-            ModuleCompilationScopeTypeRepository currentModuleRepository = new ModuleCompilationScopeTypeRepository();
+//            ModuleCompilationScopeTypeRepository currentModuleRepository = selfCompilation 
+//                    ? new ModuleCompilationScopeTypeRepository(new FundamentalTypesModuleContents()) 
+//                    : new ModuleCompilationScopeTypeRepository();
+
+            ModuleCompilationScopeTypeRepository currentModuleRepository =  new ModuleCompilationScopeTypeRepository();
 
             for(ModuleDescription requiredModule : moduleDescriptor.getRequiredModules()){
 
@@ -229,11 +233,6 @@ public abstract class LenseCompiler {
                     currentModuleRepository.addRequiredModule(otherModule.get());
                 }
                 
-            }
-            
-            if (selfCompilation){
-                // add fundamental types
-                currentModuleRepository.addRequiredModule(new FundamentalTypesModuleContents());
             }
 
             File base = null;

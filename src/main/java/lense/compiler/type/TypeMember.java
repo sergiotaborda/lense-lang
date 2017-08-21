@@ -50,5 +50,7 @@ public interface TypeMember {
 
 	
 	public Visibility getVisibility();
+	
+	public boolean isAbstract();
 
 }
