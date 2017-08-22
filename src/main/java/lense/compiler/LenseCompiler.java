@@ -55,7 +55,6 @@ import lense.compiler.phases.NameResolutionPhase;
 import lense.compiler.phases.SemanticAnaylisisPhase;
 import lense.compiler.repository.ClasspathRepository;
 import lense.compiler.repository.ModuleCompilationScopeTypeRepository;
-import lense.compiler.repository.UpdatableTypeRepository;
 import lense.compiler.type.LenseTypeDefinition;
 import lense.compiler.type.variable.IntervalTypeVariable;
 import lense.compiler.type.variable.RangeTypeVariable;

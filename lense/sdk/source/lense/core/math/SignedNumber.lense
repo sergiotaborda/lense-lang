@@ -5,24 +5,24 @@ import lense.core.math.Number;
 import lense.core.math.Integer;
 
 /{
-	Represents a mathematical quantity.
+	Represents a mathematical quantity that can be compared to 0.
 	Number as no properties or operations and is not comparable. 
 }/
-public abstract class SignedNumber extends Number {
+public interface SignedNumber  {
 
-	public abstract isZero() : Boolean;
+	public isZero() : Boolean;
 	
 	/{
 		Returns the same as this < 0  
 	
 	}/
-    public abstract isNegative() : Boolean;
+    public isNegative() : Boolean;
     
     /{
 		Returns the same as this > 0  
 		Note that 0.isPositive() returns false;
 	}/
-    public abstract isPositive() : Boolean;
+    public isPositive() : Boolean;
     
-    public abstract signum(): Integer;
+    public signum(): Integer;
 }
