@@ -280,4 +280,9 @@ public class Int64 extends Integer implements Binary{
     public boolean isPositive() {
        return this.value > 0;
     }
+
+    @Override
+    public int toPrimitiveInt() {
+        return (int)this.value;
+    }
 }

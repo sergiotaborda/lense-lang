@@ -2,8 +2,9 @@ package lense.core.lang;
 
 import lense.core.lang.java.Constructor;
 import lense.core.lang.java.Native;
+import lense.core.lang.reflection.Type;
 
-public class Exception extends java.lang.RuntimeException {
+public class Exception extends java.lang.RuntimeException implements Any {
 
     @Native
     private static final long serialVersionUID = 1L;
@@ -28,29 +29,42 @@ public class Exception extends java.lang.RuntimeException {
         return new Exception(cause);
     }
 
-    protected Exception(){
+    public Exception(){
         super();
     }
 
-    protected Exception(String message, Exception cause){
+    public Exception(String message, Exception cause){
         super(message.toString(), cause);
     }
     
-    protected Exception(String message){
+    public Exception(String message){
         super(message.toString());
     }
     
-    protected Exception(Exception cause){
+    public Exception(Exception cause){
         super(cause);
     }
+
+	
+    @Override
+	public boolean equalsTo(Any other) {
+		return other.getClass().isInstance(this) && this.getClass().isInstance(other);
+	}
+
+	@Override
+	public HashValue hashValue() {
+		return HashValue.constructor();
+	}
+
+	@Override
+	public String asString() {
+		return String.valueOfNative(super.getMessage());
+	}
+
+	@Override
+	public Type type() {
+		return new Type(this.getClass());
+	}
     
-//    @Property needs erasure of lense.String? => java.String to work because getMessage has the same name that the user class
-//    public String getMessage(){
-//        if (super.getMessage() == null){
-//            return String.valueOfNative("");
-//        } else {
-//            return String.valueOfNative(super.getMessage());
-//        }
-//        
-//    }
+
 }

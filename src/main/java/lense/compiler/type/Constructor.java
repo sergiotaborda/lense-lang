@@ -18,21 +18,33 @@ public class Constructor implements CallableMember<Constructor>{
 	private boolean isImplicit;
 	private String name;
     private Visibility visibility;
+    private boolean isAbstract;
 
 	/**
 	 * Constructor.
 	 * @param parameters
 	 */
-	public Constructor(String name, List<? extends CallableMemberMember<Constructor>> parameters, boolean isImplicit) {
+	public Constructor(String name, List<? extends CallableMemberMember<Constructor>> parameters, boolean isImplicit, Visibility visibility) {
 		this.parameters  = new ArrayList<>(parameters);
 		this.isImplicit = isImplicit;
 		this.name = name;
+		this.visibility = visibility;
 		
 		for(CallableMemberMember<Constructor> mp : this.parameters){
 			mp.setDeclaringMember(this);
 		}
 	}
-
+	private Constructor(Constructor other) {
+	    this.parameters = new ArrayList<>(other.parameters);
+	    this.isImplicit = other.isImplicit;
+        this.name = other.name;
+        this.visibility = other.visibility;
+        
+        for(CallableMemberMember<Constructor> mp : this.parameters){
+            mp.setDeclaringMember(this);
+        }
+	    
+	}
 	public String toString(){
 		return this.name + "(" +  this.parameters.toString() +")";
 	}
@@ -78,7 +90,7 @@ public class Constructor implements CallableMember<Constructor>{
 	 */
 	@Override
 	public TypeMember changeDeclaringType(TypeDefinition concrete) {
-		Constructor c = new Constructor(this.name,this.parameters, this.isImplicit);
+		Constructor c = new Constructor(this);
 		c.declaringType = concrete;
 		return c;
 	}
@@ -153,5 +165,14 @@ public class Constructor implements CallableMember<Constructor>{
     
     public void setVisibility(Visibility visibility){
         this.visibility = visibility;
+    }
+
+    @Override
+    public boolean isAbstract() {
+        return isAbstract;
+    }
+    
+    public void setAbstract(boolean isAbstract) {
+        this.isAbstract = isAbstract;
     }
 }

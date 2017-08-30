@@ -18,6 +18,7 @@ public class Property  implements TypeMember{
 	private boolean canRead;
 	private boolean canWrite;
     private Visibility visibility;
+    private boolean isAbstract;
 	 
 	/**
 	 * Constructor.
@@ -108,5 +109,22 @@ public class Property  implements TypeMember{
     
     public void setVisibility(Visibility visibility){
         this.visibility = visibility;
+    }
+    
+	public int hashCode(){
+		return name.hashCode();
+	}
+
+	public boolean equals (Object other){
+		return other instanceof Property && ((Property)other).name.equals(this.name);
+	}
+
+    @Override
+    public boolean isAbstract() {
+        return isAbstract;
+    }
+    
+    public void setAbstract(boolean isAbstract) {
+        this.isAbstract = isAbstract;
     }
 }

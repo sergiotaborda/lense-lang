@@ -29,15 +29,28 @@ public class Int32 extends Integer implements Binary {
 	}  
 	
 	@Constructor(isImplicit = true)
-	public static Int32 valueOf(Natural n){
-		// TODO validate overflow
-		return new Int32(n.toPrimitiveInt());
+	public static Int32 valueOf(Whole n){
+		if (n instanceof Int32){
+		    return (Int32)n;
+		} else {
+		    BigInteger max = BigInteger.valueOf(java.lang.Integer.MAX_VALUE);
+		    BigInteger min = BigInteger.valueOf(java.lang.Integer.MIN_VALUE);
+		    BigInteger val = n.asBigInteger();
+		    
+		    if (val.compareTo(min) >=0 && val.compareTo(max) <=0 ){
+		        // in range of a int32
+		        return new Int32(val.intValue());
+		    } else {
+		        throw ArithmeticException.constructor();
+		    }
+		}
+		
 	}  
 	
-	@Constructor
-	public static Int32 parse(String s){
-		return new Int32(java.lang.Integer.parseInt(s));
-	}
+//	@Constructor
+//    public static Int32 parse(lense.core.lang.String s){
+//        return new Int32(java.lang.Integer.parseInt(s.toString()));
+//    }
 
    int value;
 
@@ -252,6 +265,11 @@ public class Int32 extends Integer implements Binary {
     @Override
     public boolean isPositive() {
        return this.value > 0;
+    }
+
+    @Override
+    public int toPrimitiveInt() {
+        return value;
     }
 
 }

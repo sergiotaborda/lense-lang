@@ -149,7 +149,7 @@ public class SemanticVisitor extends AbstractScopedVisitor {
         if (currentType!= null){
             if (!currentType.hasConstructor()) {
                 // if no constructor exists, add a default one
-                Constructor ctr = new Constructor("constructor", Collections.emptyList(), false);
+                Constructor ctr = new Constructor("constructor", Collections.emptyList(), false, Visibility.Public);
                 ctr.setVisibility(Visibility.Public);
                 currentType.addConstructor(ctr);
             }
@@ -403,7 +403,11 @@ public class SemanticVisitor extends AbstractScopedVisitor {
 
             if (t.getInterfaces() != null) {
                 for (AstNode n : t.getInterfaces().getChildren()) {
-                    generifyInterfaceType(myType, myGenericTypes, (TypeNode) n);
+                    // generifyInterfaceType(myType, myGenericTypes, (TypeNode) n);
+                    
+                    TypeDefinition interfaceType = specifySuperInterface(myType, myGenericTypes, (TypeNode) n);
+                    
+                    myType.addInterface(interfaceType);
 
                 }
             }
@@ -485,7 +489,58 @@ public class SemanticVisitor extends AbstractScopedVisitor {
         return VisitorNext.Children;
     }
 
-    private void generifyInterfaceType(LenseTypeDefinition parentType, List<VariableInfo> genericTypes, TypeNode tn) {
+    private TypeDefinition specifySuperInterface(LenseTypeDefinition declaringType, List<VariableInfo> implementationGenericTypes, TypeNode interfaceNode) {
+
+        TypeDefinition rawInterfaceType = this.getSemanticContext().typeForName(interfaceNode.getName(), interfaceNode.getTypeParametersCount());
+
+        if (rawInterfaceType.getGenericParameters().isEmpty()){
+            // no generics
+            interfaceNode.setTypeVariable(new FixedTypeVariable(rawInterfaceType));
+            return rawInterfaceType;
+        }
+
+        IntervalTypeVariable[] parameters = new IntervalTypeVariable[interfaceNode.getTypeParametersCount()];
+        int index = 0;
+        for (AstNode a : interfaceNode.getChildren()) {
+            // match the relevant generic types
+            GenericTypeParameterNode g = (GenericTypeParameterNode) a;
+            TypeNode generitcTypeParameter = g.getTypeNode();
+
+            if (generitcTypeParameter.getTypeVariable() == null || generitcTypeParameter.getTypeVariable().getTypeDefinition().equals(ANY)) {
+                for (int i = 0; i < implementationGenericTypes.size(); i++) {
+                    VariableInfo v = implementationGenericTypes.get(i);
+                    if (v.getName().equals(generitcTypeParameter.getName())) {
+
+
+                        parameters[index] = new DeclaringTypeBoundedTypeVariable(
+                                declaringType, 
+                                i, 
+                                generitcTypeParameter.getName(),
+                                g.getVariance()
+                                ).toIntervalTypeVariable();
+
+                    }
+                }
+            } else {
+                if (generitcTypeParameter.getTypeParametersCount() > 0) {
+                    // Recursive call
+                    parameters[index] =  new FixedTypeVariable(specifySuperInterface(declaringType, implementationGenericTypes, generitcTypeParameter)).toIntervalTypeVariable();
+
+                } else {
+                    parameters[index] = generitcTypeParameter.getTypeVariable().toIntervalTypeVariable();
+                }
+            }
+
+            index++;
+        }
+        
+        LenseTypeDefinition interfaceType = LenseTypeSystem.specify(rawInterfaceType, parameters);
+        interfaceNode.setTypeVariable(new FixedTypeVariable(interfaceType));
+
+        return interfaceType;
+    }
+
+    private void generifyInterfaceType(LenseTypeDefinition parentType, List<VariableInfo> parentGenericTypes, TypeNode tn) {
 
         TypeDefinition rawInterfaceType = this.getSemanticContext().typeForName(tn.getName(), tn.getTypeParametersCount());
         TypeDefinition interfaceType = rawInterfaceType;
@@ -496,17 +551,35 @@ public class SemanticVisitor extends AbstractScopedVisitor {
                 GenericTypeParameterNode g = (GenericTypeParameterNode) a;
                 TypeNode tt = g.getTypeNode();
                 if (tt.getTypeVariable() == null || tt.getTypeVariable().getTypeDefinition().equals(ANY)) {
-                    for (int i = 0; i < genericTypes.size(); i++) {
-                        VariableInfo v = genericTypes.get(i);
+
+
+                    for (int i = 0; i < parentGenericTypes.size(); i++) {
+                        VariableInfo v = parentGenericTypes.get(i);
                         if (v.getName().equals(tt.getName())) {
-                            parameters[index] = new DeclaringTypeBoundedTypeVariable(parentType, i, tt.getName(),
-                                    g.getVariance()).toIntervalTypeVariable();
+
+                            if (parentType == null){
+                                parameters[index] = new DeclaringTypeBoundedTypeVariable(
+                                        parentType, 
+                                        i, 
+                                        tt.getName(),
+                                        g.getVariance()
+                                        ).toIntervalTypeVariable();
+                            } else {
+                                parameters[index] = new DeclaringTypeBoundedTypeVariable(
+                                        parentType, 
+                                        i, 
+                                        tt.getName(),
+                                        g.getVariance()
+                                        ).toIntervalTypeVariable();
+                            }
+
                         }
                     }
+
                 } else {
                     if (tt.getTypeParametersCount() > 0) {
                         // Recursive call
-                        generifyInterfaceType(null, genericTypes, tt);
+                        generifyInterfaceType(null, parentGenericTypes, tt);
                         parameters[index] = new FixedTypeVariable(tt.getTypeVariable().getTypeDefinition())
                                 .toIntervalTypeVariable();
                     } else {
@@ -522,7 +595,7 @@ public class SemanticVisitor extends AbstractScopedVisitor {
 
             if (parentType != null) {
                 parentType.addInterface(interfaceType);
-                this.getSemanticContext().registerType(parentType, genericTypes.size());
+                this.getSemanticContext().registerType(parentType, parentGenericTypes.size());
             }
 
         } else {
@@ -540,16 +613,18 @@ public class SemanticVisitor extends AbstractScopedVisitor {
     public void doVisitAfterChildren(AstNode node) {
         if (node instanceof ComparisonNode) {
             ComparisonNode n = (ComparisonNode) node;
-            
-            
-            if (n.getOperation().dependsOnComparable() &&  !LenseTypeSystem.getInstance().isAssignableTo(n.getLeft().getTypeVariable(), new FixedTypeVariable( LenseTypeSystem.Comparable())) ){
-                throw new CompilationError(node, n.getLeft().getTypeVariable().getTypeDefinition().getName() + " is not Comparable");
+
+            TypeDefinition comparable = LenseTypeSystem.Comparable();
+            TypeVariable leftSide = ensureNotFundamental(n.getLeft().getTypeVariable());
+
+            if (n.getOperation().dependsOnComparable() &&  !LenseTypeSystem.getInstance().isAssignableTo(leftSide, new FixedTypeVariable(comparable )) ){
+                throw new CompilationError(node, leftSide.getTypeDefinition().getName() + " is not Comparable");
             }
         } else  if (node instanceof ClassBodyNode){
             ClassBodyNode n = (ClassBodyNode)node;
             if (!currentType.hasConstructor() && currentType.getKind() == LenseUnitKind.Class) {
                 // if no constructor exists, add a default one
-                currentType.addConstructor(new Constructor("constructor", Collections.emptyList(), false));
+                currentType.addConstructor(new Constructor("constructor", Collections.emptyList(), false,Visibility.Public));
 
                 ConstructorDeclarationNode c = new ConstructorDeclarationNode();
                 c.setReturnType(new TypeNode(currentType));

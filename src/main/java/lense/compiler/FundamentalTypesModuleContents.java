@@ -4,23 +4,19 @@
 package lense.compiler;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
-import lense.compiler.ast.QualifiedNameNode;
-import lense.compiler.repository.ModuleRepository;
-import lense.compiler.repository.UpdatableTypeRepository;
-import lense.compiler.repository.Version;
+import lense.compiler.modules.ModuleTypeContents;
 import lense.compiler.type.LenseTypeDefinition;
 import lense.compiler.type.TypeDefinition;
 import lense.compiler.typesystem.LenseTypeSystem;
 import lense.compiler.typesystem.TypeSearchParameters;
-
 /**
  * 
  */
-public class LenseTypeRepository implements UpdatableTypeRepository{
+public class FundamentalTypesModuleContents extends ModuleTypeContents {
 
 	
 	private Map<TypeSearchParameters, TypeDefinition> mapping = new HashMap<>();
@@ -77,26 +73,13 @@ public class LenseTypeRepository implements UpdatableTypeRepository{
 		}
 		
 	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public List<ModuleRepository> resolveModuleByName(QualifiedNameNode qualifiedNameNode) {
-		throw new UnsupportedOperationException("Not implememented yet");
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public Optional<ModuleRepository> resolveModuleByNameAndVersion(QualifiedNameNode qualifiedNameNode, Version version) {
-		throw new UnsupportedOperationException("Not implememented yet");
-	}
 
 	@Override
 	public Map<Integer, TypeDefinition> resolveTypesMap(String name) {
-		throw new UnsupportedOperationException("Not implememented yet");
+	    final LenseTypeSystem instance = LenseTypeSystem.getInstance();
+        
+       return instance.getAll().stream().filter(d -> d.getName().equals(name)).collect(Collectors.toMap(d -> d.getGenericParameters().size(), d-> d));
+
 	}
 
 

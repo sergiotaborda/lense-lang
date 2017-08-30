@@ -18,6 +18,7 @@ public class IndexerProperty  implements TypeMember {
 	private boolean canWrite;
 	private TypeVariable[] params;
     private Visibility visibility;
+    private boolean isAbstract;
 	 
 	/**
 	 * Constructor.
@@ -117,5 +118,34 @@ public class IndexerProperty  implements TypeMember {
         this.visibility = visibility;
     }
 
+	public int hashCode(){
+		return params.length;
+	}
 
+	public boolean equals (Object other){
+		return other instanceof IndexerProperty && equals((IndexerProperty)other);
+	}
+	
+	private boolean equals (IndexerProperty other){
+		if( this.params.length != other.params.length) {
+			return false;
+		}
+		
+		for (int i =0; i < this.params.length; i++) {
+			if (!this.params[i].equals(other.params[i])) {
+				return false;
+			}
+		}
+		
+		return true;
+	}
+
+    @Override
+    public boolean isAbstract() {
+        return isAbstract;
+    }
+    
+    public void setAbstract(boolean isAbstract) {
+        this.isAbstract = isAbstract;
+    }
 }

@@ -7,11 +7,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -62,6 +64,10 @@ public class LenseTypeDefinition implements TypeDefinition {
 		for (int i =0; i < parameters.length; i++){
 			this.genericParametersMapping.put(parameters[i].getSymbol().orElse("_"), i);
 		}
+	}
+	
+	public boolean isFundamental(){
+	    return false;
 	}
 
 	public void updateFrom(TypeDefinition o){
@@ -192,7 +198,7 @@ public class LenseTypeDefinition implements TypeDefinition {
 	}
 
 	public Constructor addConstructor(boolean implicit, String name, ConstructorParameter... parameters) {
-		Constructor m = new Constructor(name,Arrays.asList(parameters), implicit);
+		Constructor m = new Constructor(name,Arrays.asList(parameters), implicit,Visibility.Public);
 		addConstructor(m);
 		return m;
 	}
@@ -201,17 +207,22 @@ public class LenseTypeDefinition implements TypeDefinition {
 		m.setDeclaringType(this);
 		this.members.add(m);
 	}
+	
+	public void addMethod( String name, TypeDefinition returnType, MethodParameter... parameters) {
+        addMethod(Visibility.Public,name, new MethodReturn(new FixedTypeVariable(returnType)), parameters);
+    }
+	
 	/**
 	 * @param name2
 	 * @param typeDefinition
 	 * @param parameters
 	 */
-	public void addMethod(String name, TypeDefinition returnType, MethodParameter... parameters) {
-		addMethod(name, new MethodReturn(new FixedTypeVariable(returnType)), parameters);
+	public void addMethod(Visibility visibility, String name, TypeDefinition returnType, MethodParameter... parameters) {
+		addMethod(visibility,name, new MethodReturn(new FixedTypeVariable(returnType)), parameters);
 	}
 
-	public void addMethod(String name, MethodReturn returnType, MethodParameter... parameters) {
-		addMethod(new Method(name, returnType, parameters));
+	public void addMethod(Visibility visibility,String name, MethodReturn returnType, MethodParameter... parameters) {
+		addMethod(new Method(visibility, name, returnType, parameters));
 
 	}
 
@@ -575,6 +586,23 @@ public class LenseTypeDefinition implements TypeDefinition {
 			}
 		}
 		return null;
+	}
+
+	
+	@Override
+	public Collection<TypeMember> getAllMembers() {
+	
+		Set<TypeMember> members = new HashSet<>(this.getMembers());
+		
+		if (this.getSuperDefinition() != null) {
+			members.addAll(this.getSuperDefinition().getAllMembers());
+		}
+		
+		for ( TypeDefinition it : this.getInterfaces()) {
+			members.addAll(it.getAllMembers());
+		}
+		
+		return members;
 	}
 
 

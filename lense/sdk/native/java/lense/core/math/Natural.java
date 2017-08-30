@@ -8,7 +8,7 @@ import lense.core.lang.java.Constructor;
 import lense.core.lang.java.Native;
 import lense.core.lang.java.NonNull;
 
-public abstract class Natural extends Whole implements Comparable  {
+public abstract class Natural extends Whole  {
 
     public static final Natural ONE = Natural.valueOfNative(1);
     public static final Natural ZERO = Natural.valueOfNative(0);
@@ -18,6 +18,12 @@ public abstract class Natural extends Whole implements Comparable  {
         return Natural.valueOfNative(0);
     }
 
+    @Constructor
+    public static Natural parse(lense.core.lang.String text){
+        return valueOf(text.toString());
+    }
+
+    
     @Native
     public static Natural valueOfNative(int value){
         if (value < 0){
@@ -177,5 +183,7 @@ public abstract class Natural extends Whole implements Comparable  {
     public final @NonNull Natural abs() {
         return this;
     }
+    
+    public abstract Natural remainder(Natural n);
 }
 

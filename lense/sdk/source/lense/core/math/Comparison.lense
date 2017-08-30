@@ -1,6 +1,6 @@
 
 
-public native class Comparison {
+public native abstract class Comparison {
 
 
 }

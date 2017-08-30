@@ -3,14 +3,8 @@ package lense.core.math;
 import java.math.BigInteger;
 
 import lense.core.lang.Any;
-import lense.core.lang.java.Constructor;
 
 public abstract class Whole extends Number implements Comparable {
-
-    @Constructor
-    public static Whole constructor(){
-        return Natural.valueOfNative(0);
-    }
 
     public abstract Whole plus (Whole other);
     public abstract Whole minus (Whole other);

@@ -1,74 +1,40 @@
 /**
  * 
  */
-package lense.compiler.repository;
+package lense.compiler.modules;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import lense.compiler.CompilationError;
-import lense.compiler.ast.ModuleNode;
-import lense.compiler.ast.QualifiedNameNode;
-import lense.compiler.ast.VersionNode;
+import lense.compiler.repository.UpdatableTypeRepository;
+import lense.compiler.repository.Version;
 import lense.compiler.type.LenseTypeDefinition;
 import lense.compiler.type.TypeDefinition;
 import lense.compiler.typesystem.LenseTypeSystem;
 import lense.compiler.typesystem.TypeSearchParameters;
 
 /**
- * 
+ * Represents a TypeRepository for a given module
  */
-public class ModuleRepository implements UpdatableTypeRepository {
+public class ModuleTypeContents implements UpdatableTypeRepository {
 
-	private Map<String, List<ModuleRepository>> modules = new HashMap<String, List<ModuleRepository>>();
-	private TypeRepository localRepository;
 	private String moduleName;
 	private Version version;
 
 	// type name -> type generics count -> type def
 	private Map<String,Map< Integer, TypeDefinition>> types = new HashMap<>();
 
-	/**
-	 * Constructor.
-	 * @param module
-	 * @param localRepository
-	 */
-	public ModuleRepository(ModuleNode module, TypeRepository localRepository) {
-		this ( module.getName(), module.getVersion(),  localRepository);
-	}
-	public ModuleRepository(String moduleName, Version version) {
-		this(moduleName, version, null);
+
+	public ModuleTypeContents() {
+		
 	}
 
-	public ModuleRepository(String moduleName, Version version, TypeRepository localRepository) {
-		this.localRepository = localRepository;
-		this.moduleName =moduleName;
-		this.version =version;
+	public ModuleTypeContents(ModuleDescription descriptor) {
+		this.moduleName =descriptor.getName();
 	}
-
-
-	/**
-	 * @param qualifiedNameNode
-	 * @param versionNode
-	 */
-	public ModuleRepository importModule(QualifiedNameNode qualifiedNameNode, VersionNode versionNode) {
-		Optional<ModuleRepository> module = localRepository.resolveModuleByNameAndVersion(qualifiedNameNode,versionNode.getVersion()) ;
-		if (!module.isPresent()){
-			throw new CompilationError("Cannot import module " + qualifiedNameNode.getName() + " version " + versionNode.getVersion().toString() + ". Is it in the local repository?");
-		}
-		ArrayList<ModuleRepository> mods = new ArrayList<ModuleRepository>();
-
-		mods.add(module.get());
-
-		modules.put(module.get().getName(), mods );
-
-		return module.get();
-	}
-
 
 	/**
 	 * @return
@@ -79,21 +45,7 @@ public class ModuleRepository implements UpdatableTypeRepository {
 	
 	@Override
 	public Map<Integer, TypeDefinition> resolveTypesMap(String name) {
-		Map<Integer, TypeDefinition> map = types.get(name);
-		
-		if (map == null){
-			
-			if (localRepository != null){
-				Optional<TypeDefinition> type = localRepository.resolveType(new TypeSearchParameters(name));
-				
-				if (type.isPresent()){
-					return Collections.singletonMap(type.get().getGenericParameters().size(), type.get());
-				}
-				return Collections.emptyMap();
-			}
-		}
-		
-		return map;
+		return  types.get(name);
 	}
 
 	/**
@@ -119,81 +71,61 @@ public class ModuleRepository implements UpdatableTypeRepository {
 			return Optional.of(it);
 		}
 
-		if (localRepository != null){
-			Optional<TypeDefinition> type = localRepository.resolveType(filter);
-
-			if (type.isPresent()){
-				return type;
-			}
-
-			String moduleOfType = resolveModule(filter.getName());
-
-			if (moduleOfType != null){
-				for (ModuleRepository mr : modules.get(moduleOfType)){
-					type = mr.resolveType(filter);
-					if (type.isPresent()){
-						return type;
-					}
-				}
-			}
-		}
-
-
 		return Optional.empty();
 
 	}
 
-	/**
-	 * @param name
-	 * @return
-	 */
-	private String resolveModule(String name) {
-		if (modules.isEmpty()){
-			return null;
-		}
+//	/**
+//	 * @param name
+//	 * @return
+//	 */
+//	private String resolveModule(String name) {
+//		if (modules.isEmpty()){
+//			return null;
+//		}
+//
+//		QualifiedNameNode qn = new QualifiedNameNode(name).getPrevious();
+//
+//		while(qn != null){
+//
+//			if (modules.containsKey(qn.getName())){
+//				return qn.getName();
+//			}
+//
+//			qn= qn.getPrevious();
+//		}
+//
+//		return null;
+//	}
 
-		QualifiedNameNode qn = new QualifiedNameNode(name).getPrevious();
-
-		while(qn != null){
-
-			if (modules.containsKey(qn.getName())){
-				return qn.getName();
-			}
-
-			qn= qn.getPrevious();
-		}
-
-		return null;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public List<ModuleRepository> resolveModuleByName(QualifiedNameNode qualifiedNameNode) {
-		if (moduleName.equals(qualifiedNameNode)){
-			return Collections.singletonList(this);
-		}
-
-
-		List<ModuleRepository> list = modules.get(qualifiedNameNode.getName());
-
-		if (list == null){
-			return Collections.emptyList();
-		} else {
-			return list;
-		}
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public Optional<ModuleRepository> resolveModuleByNameAndVersion( QualifiedNameNode qualifiedNameNode, Version version) {
-		List<ModuleRepository> list = resolveModuleByName(qualifiedNameNode);
-
-		return list.stream().filter(m -> m.getVersion().equals(version)).findAny();
-	}
+//	/**
+//	 * {@inheritDoc}
+//	 */
+//	@Override
+//	public List<ModularTypeRepository> resolveModuleByName(String qualifiedNameNode) {
+//		if (moduleName.equals(qualifiedNameNode)){
+//			return Collections.singletonList(this);
+//		}
+//
+//
+//		List<ModularTypeRepository> list = modules.get(qualifiedNameNode);
+//
+//		if (list == null){
+//			return Collections.emptyList();
+//		} else {
+//			return list;
+//		}
+//	}
+//
+//	/**
+//	 * {@inheritDoc}
+//	 */
+//	@Override
+//	public Optional<ModularTypeRepository> resolveModuleByNameAndVersion(ModuleIdentifier identifier) {
+//		List<ModularTypeRepository> list = resolveModuleByName(identifier.getName());
+//
+//		return list.stream().filter(m -> m.getVersion().equals(version)).findAny();
+//	}
 
 
 	/**

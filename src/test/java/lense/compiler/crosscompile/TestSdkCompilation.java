@@ -13,17 +13,13 @@ import java.util.Optional;
 
 import org.junit.Test;
 
-import compiler.CompilerListener;
-import compiler.CompilerMessage;
 import lense.compiler.ast.LenseCompilerListener;
-import lense.compiler.ast.QualifiedNameNode;
+import lense.compiler.ast.SystemOutCompilerListener;
 import lense.compiler.crosscompile.java.LenseToJavaCompiler;
 import lense.compiler.crosscompile.javascript.LenseToJsCompiler;
-import lense.compiler.repository.ModuleRepository;
-import lense.compiler.repository.TypeRepository;
-import lense.compiler.repository.Version;
-import lense.compiler.type.TypeDefinition;
-import lense.compiler.typesystem.TypeSearchParameters;
+import lense.compiler.modules.ModuleIdentifier;
+import lense.compiler.modules.ModuleTypeContents;
+import lense.compiler.modules.ModulesRepository;
 
 /**
  * 
@@ -35,29 +31,23 @@ public class TestSdkCompilation {
 	public void testCompileLibrary() throws IOException {
 		File folder = new File(new File(".").getAbsoluteFile().getParentFile(), "/lense/sdk/");
 
+		
 
-		TypeRepository repo = new TypeRepository(){
-
-			@Override
-			public Optional<TypeDefinition> resolveType(TypeSearchParameters filter) {
-				return Optional.empty();
-			}
-
-			@Override
-			public List<ModuleRepository> resolveModuleByName(QualifiedNameNode qualifiedNameNode) {
-				return Collections.emptyList();
-			}
-
-			@Override
-			public Optional<ModuleRepository> resolveModuleByNameAndVersion(QualifiedNameNode qualifiedNameNode,
-					Version version) {
-				return Optional.empty();
-			}
-
-		};
-
-		new LenseToJavaCompiler(repo)
-		.setCompilerListener(LenseCompilerListener.error(msg -> fail(msg.getMessage())))
+		ModulesRepository repo = new ModulesRepository() {
+            
+            @Override
+            public Optional<ModuleTypeContents> resolveModuleByNameAndVersion(ModuleIdentifier identifier) {
+                return Optional.empty();
+            }
+            
+            @Override
+            public List<ModuleTypeContents> resolveModuleByName(String qualifiedNameNode) {
+                return Collections.emptyList();
+            }
+        };
+        new LenseToJavaCompiler(repo)
+		//.setCompilerListener(LenseCompilerListener.error(msg -> fail(msg.getMessage())))
+        .setCompilerListener(new SystemOutCompilerListener())
 		.compileModuleFromDirectory(folder);
 	}
 
@@ -65,25 +55,17 @@ public class TestSdkCompilation {
     public void testCompileLibraryJavascript() throws IOException {
         File folder = new File(new File(".").getAbsoluteFile().getParentFile(), "/lense/sdk/");
 
-
-        TypeRepository repo = new TypeRepository(){
-
+        ModulesRepository repo = new ModulesRepository() {
+            
             @Override
-            public Optional<TypeDefinition> resolveType(TypeSearchParameters filter) {
+            public Optional<ModuleTypeContents> resolveModuleByNameAndVersion(ModuleIdentifier identifier) {
                 return Optional.empty();
             }
-
+            
             @Override
-            public List<ModuleRepository> resolveModuleByName(QualifiedNameNode qualifiedNameNode) {
+            public List<ModuleTypeContents> resolveModuleByName(String qualifiedNameNode) {
                 return Collections.emptyList();
             }
-
-            @Override
-            public Optional<ModuleRepository> resolveModuleByNameAndVersion(QualifiedNameNode qualifiedNameNode,
-                    Version version) {
-                return Optional.empty();
-            }
-
         };
 
         new LenseToJsCompiler(repo)

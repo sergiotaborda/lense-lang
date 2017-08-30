@@ -17,6 +17,7 @@ public class Field implements TypeMember {
 	private TypeDefinition declaringType;
 	private boolean isFinal;
     private Visibility visibility;
+    private boolean isAbstract;
 	 
 	/**
 	 * Constructor.
@@ -122,5 +123,14 @@ public class Field implements TypeMember {
     
     public void setVisibility(Visibility visibility){
         this.visibility = visibility;
+    }
+    
+    @Override
+    public boolean isAbstract() {
+        return isAbstract;
+    }
+    
+    public void setAbstract(boolean isAbstract) {
+        this.isAbstract = isAbstract;
     }
 }

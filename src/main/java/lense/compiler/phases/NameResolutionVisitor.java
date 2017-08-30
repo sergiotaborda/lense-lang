@@ -90,15 +90,17 @@ public class NameResolutionVisitor extends AbstractScopedVisitor {
 
 			if (n.getGenerics() != null) {
 
-				for (AstNode a : n.getGenerics().getChildren()) {
-					GenericTypeParameterNode g = (GenericTypeParameterNode)a;
+			    if (n.getGenerics().getChildren().size() != currentType.getGenericParameters().size()){
+			        for (AstNode a : n.getGenerics().getChildren()) {
+	                    GenericTypeParameterNode g = (GenericTypeParameterNode)a;
 
-					TypeNode tn = g.getTypeNode();
-					FixedTypeVariable typeVar = new FixedTypeVariable(LenseTypeSystem.Any());
+	                    TypeNode tn = g.getTypeNode();
+	                    FixedTypeVariable typeVar = new FixedTypeVariable(LenseTypeSystem.Any());
 
-					currentType.addGenericParameter(tn.getName(), typeVar);
-				}
-
+	                    currentType.addGenericParameter(tn.getName(), typeVar);
+	                }
+			    }
+			 
 			}
 
 			this.getSemanticContext().currentScope().defineVariable("this", new FixedTypeVariable(currentType), node);
@@ -346,28 +348,38 @@ public class NameResolutionVisitor extends AbstractScopedVisitor {
 		}
 
 
-		List<String> paths = Arrays.asList("lense.core.collections","lense.core.math","lense.core.lang");
-
-		for(String path : paths) {
-
-			String fullType = path + "." + typeNode.getName();
-
-			Optional<TypeDefinition> libraryType = this.getSemanticContext().resolveTypeForName(fullType,typeNode.getTypeParametersCount());
-
-			if (libraryType.isPresent()) {
-				typeNode.setName(new QualifiedNameNode(libraryType.get().getName()));
-				final Import implicitType = Import.singleType(new QualifiedNameNode(fullType),typeNode.getName());
-				implicitType.setUsed(true);
-				ct.addImport(implicitType);
-				return;
-			}
+		// try to find it in the core
+		
+		if (!tryDefaultPath(typeNode)){
+		    throw new CompilationError(node, "Type " + typeNode.getName() + " was not imported in " + name);
 		}
 
-
-		throw new CompilationError(node,
-				"Type " + typeNode.getName() + " was not imported in " + name);
+	
 	}
 
+   static final List<String> paths = Arrays.asList("lense.core.collections","lense.core.math","lense.core.lang");
+
+	private boolean tryDefaultPath(TypeNode typeNode){
+	   
+        for(String path : paths) {
+
+            String fullType = path + "." + typeNode.getName();
+
+            Optional<TypeDefinition> libraryType = this.getSemanticContext().resolveTypeForName(fullType,typeNode.getTypeParametersCount());
+
+            if (libraryType.isPresent()) {
+                typeNode.setName(new QualifiedNameNode(libraryType.get().getName()));
+                final Import implicitType = Import.singleType(new QualifiedNameNode(fullType),typeNode.getName());
+                implicitType.setUsed(true);
+                ct.addImport(implicitType);
+                return true;
+            }
+        }
+        
+        return false;
+	}
+	
+	
 	private VisitorNext resolveName(ClassTypeNode ct, AstNode parent, AstNode child, QualifiedNameNode original) {
 
 		QualifiedNameNode qn = original;

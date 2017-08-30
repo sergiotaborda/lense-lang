@@ -10,13 +10,13 @@ import lense.compiler.FileLocations;
 import lense.compiler.LenseCompiler;
 import lense.compiler.ast.ModuleNode;
 import lense.compiler.crosscompile.ErasurePhase;
+import lense.compiler.modules.ModulesRepository;
 import lense.compiler.phases.CompositePhase;
 import lense.compiler.phases.DesugarPhase;
-import lense.compiler.repository.TypeRepository;
 
 public class LenseToJsCompiler extends LenseCompiler{
 
-    public LenseToJsCompiler(TypeRepository globalRepository) {
+    public LenseToJsCompiler(ModulesRepository globalRepository) {
         super("js", globalRepository, new JsCompilerBackEndFactory());
     }
 

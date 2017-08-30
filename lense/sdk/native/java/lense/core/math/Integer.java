@@ -9,7 +9,7 @@ import lense.core.lang.java.NonNull;
 
 public abstract class Integer extends Whole implements Comparable, SignedNumber{
 
-	@Constructor
+    @Constructor
 	public static Integer constructor(){
 		return Int32.valueOfNative(0);
 	}
@@ -70,9 +70,14 @@ public abstract class Integer extends Whole implements Comparable, SignedNumber{
 	}
 	
 
-	public final boolean isLessThen(Integer other) {
+	public final boolean isLessThen(@NonNull Integer other) {
 		return 	 compareTo(other) < 0;
 	}
+	
+    public final boolean isLessOrEqualTo(@NonNull Integer other) {
+        return  compareTo(other) <= 0;
+    }
+
 	
 	@Override
 	public Whole plus(Whole other) {
@@ -138,4 +143,6 @@ public abstract class Integer extends Whole implements Comparable, SignedNumber{
         }  
         return Integer.valueOfNative(this.asBigInteger().remainder(other.asBigInteger()));
     }
+
+    public abstract int toPrimitiveInt() ;
 }

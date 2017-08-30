@@ -10,14 +10,11 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.nio.file.FileVisitResult;
 import java.nio.file.FileVisitor;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -28,20 +25,15 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 
-import javax.tools.JavaCompiler;
-import javax.tools.JavaFileObject;
-import javax.tools.StandardJavaFileManager;
-import javax.tools.StandardLocation;
-import javax.tools.ToolProvider;
-
 import lense.compiler.CompilationError;
 import lense.compiler.FileLocations;
 import lense.compiler.LenseCompiler;
 import lense.compiler.ast.ModuleNode;
 import lense.compiler.crosscompile.ErasurePhase;
+import lense.compiler.crosscompile.java.JavaCompilerBackEndFactory.JavaCompilerBackEnd;
+import lense.compiler.modules.ModulesRepository;
 import lense.compiler.phases.CompositePhase;
 import lense.compiler.phases.DesugarPhase;
-import lense.compiler.repository.TypeRepository;
 
 /**
  * 
@@ -49,12 +41,10 @@ import lense.compiler.repository.TypeRepository;
 public class LenseToJavaCompiler extends LenseCompiler{
 
 
-
-    private JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-
-	public LenseToJavaCompiler (TypeRepository globalRepository){
-		// The global, even remote, repository
-		super("java",globalRepository,new  JavaCompilerBackEndFactory()); // JavaBackEndFactory(); //new  JavaSourceBackEnd(); //JavaBinaryBackEndFactory();
+    private final static JavaCompilerBackEndFactory javaCompilerBackEndFactory = new JavaCompilerBackEndFactory();
+    
+	public LenseToJavaCompiler (ModulesRepository globalModulesRepository){
+		super("java",globalModulesRepository,javaCompilerBackEndFactory); // JavaBackEndFactory(); //new  JavaSourceBackEnd(); //JavaBinaryBackEndFactory();
 	}
 
 	protected void initCorePhase(CompositePhase corePhase, Map<String, File> nativeTypes){
@@ -72,6 +62,8 @@ public class LenseToJavaCompiler extends LenseCompiler{
         StringBuilder builder;
         Manifest jarManifest = new Manifest();
         jarManifest.getMainAttributes().put(Attributes.Name.MANIFEST_VERSION, "1.0");
+        
+        JavaCompilerBackEnd compilerBackEnd = javaCompilerBackEndFactory.create(locations);
         
         // add bootstrap class
         if (!applications.isEmpty()){
@@ -92,19 +84,22 @@ public class LenseToJavaCompiler extends LenseCompiler{
         		writer.close();
         	}
         	
-        	StandardJavaFileManager fileManager = compiler.getStandardFileManager(null, null, null);
-        	Iterable<? extends JavaFileObject> compilationUnits = fileManager.getJavaFileObjectsFromFiles(Collections.singletonList(sourceFile));
+        	compilerBackEnd.compile(sourceFile);
         	
-        	List<File> classPath = new ArrayList<>(2);
-        	if (base != null){
-        		for (File jar : base.listFiles(f -> f.getName().endsWith(".jar"))){
-        			classPath.add(jar);
-        		}
-        	}
-        	classPath.add(locations.getTargetFolder());
-        	fileManager.setLocation(StandardLocation.CLASS_PATH, classPath);
-
-            compiler.getTask(new PrintWriter(System.err),fileManager, null, null, null,  compilationUnits).call();
+//        	StandardJavaFileManager fileManager = compiler.getStandardFileManager(null, null, null);
+//        	
+//        	List<File> classPath = new ArrayList<>(2);
+//            if (base != null){
+//                for (File jar : base.listFiles(f -> f.getName().endsWith(".jar"))){
+//                    classPath.add(jar);
+//                }
+//            }
+//            classPath.add(locations.getTargetFolder());
+//            fileManager.setLocation(StandardLocation.CLASS_PATH, classPath);
+//            
+//        	Iterable<? extends JavaFileObject> compilationUnits = fileManager.getJavaFileObjectsFromFiles(Collections.singletonList(sourceFile));
+//
+//            compiler.getTask(new PrintWriter(System.err),fileManager, null, null, null,  compilationUnits).call();
 
             jarManifest.getMainAttributes().put(Attributes.Name.MAIN_CLASS, pack + ".Bootstrap");
         	
@@ -121,7 +116,7 @@ public class LenseToJavaCompiler extends LenseCompiler{
         File moduleProperties = new File(locations.getTargetFolder(), "module.properties");
         p.store(new FileOutputStream(moduleProperties), "Lense module definition");
 
-        createJar(p,locations.getTargetFolder(), file,jarManifest);
+        createJar(locations.getTargetFolder(), file,jarManifest);
     }
 
 	private StringBuilder writeBootstrap(String applicationType , String pack) {
@@ -142,7 +137,7 @@ public class LenseToJavaCompiler extends LenseCompiler{
 		return builder;
 	}
 
-	private void createJar(Properties properties, File source, File output, Manifest manifest) throws IOException {
+	private void createJar(File source, File output, Manifest manifest) throws IOException {
 	
 		JarOutputStream target = new JarOutputStream(new FileOutputStream(output), manifest);
 
@@ -249,28 +244,24 @@ public class LenseToJavaCompiler extends LenseCompiler{
 		});
 
 
-		StandardJavaFileManager fileManager = compiler.getStandardFileManager(null, null, null);
+		if (javaCompilerBackEndFactory.create(fileLocations).compile(files)){
+		    for (File n : files){
+                String packageFile = n.getAbsolutePath().substring(rootDir.toString().length());
+                int pos = packageFile.indexOf(".java");
+                packageFile = packageFile.substring(0, pos) + ".class";
+                File source = new File(n.getParentFile(), n.getName().substring(0,  n.getName().length() - 5) + ".class");
+                File target = new File(fileLocations.getTargetFolder(),packageFile);
 
-		Iterable<? extends JavaFileObject> compilationUnits1 = fileManager.getJavaFileObjectsFromFiles(files);
-		if (compiler.getTask(new PrintWriter(System.err), fileManager, null, null, null, compilationUnits1).call()){
+                target.getParentFile().mkdirs();
 
-			for (File n : files){
-				String packageFile = n.getAbsolutePath().substring(rootDir.toString().length());
-				int pos = packageFile.indexOf(".java");
-				packageFile = packageFile.substring(0, pos) + ".class";
-				File source = new File(n.getParentFile(), n.getName().substring(0,  n.getName().length() - 5) + ".class");
-				File target = new File(fileLocations.getTargetFolder(),packageFile);
+                if (!source.exists()){
+                    System.err.println("Compiled file with java compiler does not exist");
+                } else {
+                    Files.move(source.toPath(), target.toPath());
+                    nativeTypes.put(packageFile.substring(1).replace(File.separatorChar, '.').replaceAll(".class",""), target);
+                }
 
-				target.getParentFile().mkdirs();
-
-				if (!source.exists()){
-					System.err.println("Compiled file with java compiler does not exist");
-				} else {
-					Files.move(source.toPath(), target.toPath());
-					nativeTypes.put(packageFile.substring(1).replace(File.separatorChar, '.').replaceAll(".class",""), target);
-				}
-
-			}
+            }
 		} else {
 			System.err.println("Cannot compile source with java compiler");
 		}

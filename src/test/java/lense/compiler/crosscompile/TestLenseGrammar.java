@@ -45,7 +45,7 @@ import lense.compiler.Import;
 import lense.compiler.LenseGrammar;
 import lense.compiler.LenseLanguage;
 import lense.compiler.LenseSourceCompiler;
-import lense.compiler.LenseTypeRepository;
+import lense.compiler.FundamentalTypesModuleContents;
 import lense.compiler.PathPackageResolver;
 import lense.compiler.ast.ClassTypeNode;
 import lense.compiler.ast.UnitTypes;
@@ -423,7 +423,7 @@ public class TestLenseGrammar {
 		ListCompilationUnitSet unitSet = new ListCompilationUnitSet();
 		unitSet.add(new FileCompilationUnit(file));
 
-		LenseTypeRepository typeRepo = new LenseTypeRepository();
+		FundamentalTypesModuleContents typeRepo = new FundamentalTypesModuleContents();
 
 		AstCompiler parser = new AstCompiler(new LenseLanguage());
 		AstNode unitTypes = parser
@@ -451,7 +451,7 @@ public class TestLenseGrammar {
 		ListCompilationUnitSet unitSet = new ListCompilationUnitSet();
 		unitSet.add(new FileCompilationUnit(file));
 
-		LenseTypeRepository typeRepo = new LenseTypeRepository();
+		FundamentalTypesModuleContents typeRepo = new FundamentalTypesModuleContents();
 
 		AstCompiler parser = new AstCompiler(new LenseLanguage());
 		AstNode unitTypes = parser

@@ -9,6 +9,8 @@ import lense.core.collections.Progression;
 public native class Natural extends Whole implements Progressable<Natural> , Comparable<Natural>{
 
 
+	public constructor parse(text :String); 
+
 	public native minus ( other: Natural)  : Integer;
 	public native plus ( other: Natural) : Natural;
 	public native multiply ( other: Natural) : Natural;
@@ -18,6 +20,8 @@ public native class Natural extends Whole implements Progressable<Natural> , Com
 	public native raiseTo( other: Natural) : Natural;
 	public native raiseTo( other: Integer) : Rational;
 	public native raiseTo( other: Real) : Real;
+	public native remainder (other : Natural) : Natural; 	
+	
 	
 	public native upTo( other: Natural) : Progression<Natural>;
 	public native symmetric(): Integer;

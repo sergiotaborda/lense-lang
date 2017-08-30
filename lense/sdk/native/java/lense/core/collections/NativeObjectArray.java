@@ -7,8 +7,6 @@ import lense.core.lang.Any;
 import lense.core.lang.HashValue;
 import lense.core.lang.IllegalIndexException;
 import lense.core.lang.java.Native;
-import lense.core.math.Int32;
-import lense.core.math.Integer;
 import lense.core.math.Natural;
 
 @Native
@@ -80,11 +78,6 @@ final class NativeObjectArray extends Array {
 			}
 		}
 		return false;
-	}
-
-	@Override
-	public boolean containsAll(Assortment other) {
-		throw new UnsupportedOperationException();
 	}
 
 	@Override

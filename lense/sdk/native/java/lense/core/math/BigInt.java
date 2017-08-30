@@ -130,6 +130,11 @@ public class BigInt extends Integer {
         return new HashValue(this.value.hashCode());
     }
 
+    @Override
+    public int toPrimitiveInt() {
+        return value.intValue();
+    }
+
  
 
 
