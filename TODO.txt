@@ -3,7 +3,10 @@ Lense CLI
 	run
 	document
 Change Iterator to move + current (DONE)
-Change + string operator to ++ => needs resolution on the increment/decrement operator issue [SYNTAX]
+Change 
+	+ string operator to ++ => needs resolution on the increment/decrement operator issue [SYNTAX]
+	** operator to ^^ [SYNTAX]
+	commons patterns like "real + imaginary" to "new Complex(real,imaginary)"
 Indexes
 	allow more than one parameter (DONE)
 Named Parameters and Default Parameters
@@ -11,13 +14,21 @@ Named Parameters and Default Parameters
 	- allow for defining default values in the argument so the parameter is not mandatory    [SYNTAX]
 			define print ( msg : String : printer : Printer = defaultPrinter)
 			call as print("hello") or as print("hello", myPrinter);
+Traits
+	interfaces accept default methods. Can be simulated as invocation with static methods or inline in javascript
+	a keyword may be used to deferenciate abstract methods from the ones that are defaults. this correlates to the inheritance structure
+	that shoud be closed/sealed/final by default
+Meta Types and meta Interfaces 
+	meta types can be defined explicitly and implements meta interfaces
+	Operators correlate to predefined meta interfaces
+	meta interfaces cannot be implemented by objects but can be used as a type in a parameter or generic and in a instanceof (althout may be not in auto cast)
 Erase
 	Add numeric limit verification (DONE for ranges)
 	Maybe<Boolean> to java.Boolean
 	String and String? 
 	Errasue of primitive numbers inside limits (needs limit verification)
 Imutability
-	save flag as an annotation, handle as a type
+	save flag as an annotation, handle as a type. maybe a meta interface
 Generics
  	Add generic signatures to constructors [SYNTAX]
 	Capture generics locally (when calling constructors and methods with free generics)
