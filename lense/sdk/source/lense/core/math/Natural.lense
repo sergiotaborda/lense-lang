@@ -21,8 +21,9 @@ public native class Natural extends Whole implements Progressable<Natural> , Com
 	public native raiseTo( other: Integer) : Rational;
 	public native raiseTo( other: Real) : Real;
 	public native remainder (other : Natural) : Natural; 	
-	
+	public native wholeDivide (other : Natural) : Natural; 	
+	public native wholeDivide (other : Integer) : Integer; 	
 	
 	public native upTo( other: Natural) : Progression<Natural>;
-	public native symmetric(): Integer;
+
 }

@@ -8,7 +8,6 @@ public abstract class Whole extends Number implements Comparable {
 
     public abstract Whole plus (Whole other);
     public abstract Whole minus (Whole other);
-    public abstract Whole multiply(Whole other);
 
     public Rational divide(Whole other){
         if (other.isZero()){
@@ -21,14 +20,25 @@ public abstract class Whole extends Number implements Comparable {
         if (other.isZero()){
             throw ArithmeticException.constructor(lense.core.lang.String.valueOfNative("Cannot divide by zero"));
         }  
-        return Integer.valueOfNative(this.asBigInteger().divide(other.asBigInteger()));
+        return Integer.valueOfNative(this.asJavaBigInteger().divide(other.asJavaBigInteger()));
     }
+    
+    public Natural gcd(Whole other) {
+        BigInteger gcd =  this.asJavaBigInteger().gcd(other.asJavaBigInteger());
+        
+        if (gcd.bitLength() < 64){
+            return new UNat(gcd.longValue());
+        } else {
+            return new BigNatural(gcd);
+        }
+    }
+
 
     public Whole remainder (Whole other){
         if (other.isZero()){
             throw ArithmeticException.constructor(lense.core.lang.String.valueOfNative("Cannot divide by zero"));
         }  
-        return Integer.valueOfNative(this.asBigInteger().remainder(other.asBigInteger()));
+        return Integer.valueOfNative(this.asJavaBigInteger().remainder(other.asJavaBigInteger()));
     }
 
 
@@ -41,7 +51,7 @@ public abstract class Whole extends Number implements Comparable {
 
     @Override
     public boolean equalsTo(Any other) {
-        return other instanceof Whole && ((Whole)other).asBigInteger().compareTo(this.asBigInteger()) == 0;
+        return other instanceof Whole && ((Whole)other).asJavaBigInteger().compareTo(this.asJavaBigInteger()) == 0;
     }
 
 
@@ -57,7 +67,7 @@ public abstract class Whole extends Number implements Comparable {
         }
     }
 
-    protected abstract BigInteger asBigInteger();
+    protected abstract BigInteger asJavaBigInteger();
 
     public abstract Natural abs();
 
@@ -65,7 +75,7 @@ public abstract class Whole extends Number implements Comparable {
 
 
     protected final int compareTo(Whole other){
-        return this.asBigInteger().compareTo(other.asBigInteger());
+        return this.asJavaBigInteger().compareTo(other.asJavaBigInteger());
     }
 
     public Complex plus(Imaginary n ){

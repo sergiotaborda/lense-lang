@@ -80,7 +80,7 @@ public class ScalableInt64 extends ScalableInteger {
     }
 
     @Override
-    protected BigInteger asBigInteger() {
+    protected BigInteger asJavaBigInteger() {
         return BigInteger.valueOf(value);
     }
 
@@ -89,7 +89,7 @@ public class ScalableInt64 extends ScalableInteger {
         if (other instanceof ScalableInt64){
             return Long.compare(this.value,((ScalableInt64)other).value );
         } else {
-            return asBigInteger().compareTo(other.asBigInteger());
+            return asJavaBigInteger().compareTo(other.asJavaBigInteger());
         }
     }
 

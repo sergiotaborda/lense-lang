@@ -4,7 +4,7 @@ import java.math.BigInteger;
 
 public abstract class ScalableNatural extends Natural {
 
-	protected abstract BigInteger asBigInteger();
+	protected abstract BigInteger asJavaBigInteger();
 	
 	
 	protected abstract Natural  promoteNext();

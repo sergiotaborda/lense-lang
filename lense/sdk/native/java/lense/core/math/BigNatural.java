@@ -18,15 +18,15 @@ public class BigNatural extends Natural{
 
     @Override
     public Natural plus(Natural other) {
-        return new BigNatural(this.value.add(other.asBigInteger()));
+        return new BigNatural(this.value.add(other.asJavaBigInteger()));
     }
 
     @Override
     public Natural multiply(Natural other) {
-        return new BigNatural(this.value.multiply(other.asBigInteger()));
+        return new BigNatural(this.value.multiply(other.asJavaBigInteger()));
     }
 
-    protected BigInteger asBigInteger(){
+    protected BigInteger asJavaBigInteger(){
         return value;
     }
 
@@ -124,7 +124,12 @@ public class BigNatural extends Natural{
 
   
     public Natural remainder(Natural other) {
-        return new BigNatural(this.value.remainder(other.asBigInteger()));
+        return new BigNatural(this.value.remainder(other.asJavaBigInteger()));
+    }
+
+    @Override
+    public Natural wholeDivide(Natural other) {
+        return new BigNatural(this.value.divide(other.asJavaBigInteger()));
     }
 
 }

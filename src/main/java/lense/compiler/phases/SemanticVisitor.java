@@ -1633,6 +1633,19 @@ public class SemanticVisitor extends AbstractScopedVisitor {
                     if (!method.isPresent()) {
                         throw new CompilationError(node, "Method " + signature + " is not defined in " + methodOwnerType
                                 + " or its super classes");
+                    } else {
+                        
+                        List<CallableMemberMember<Method>> parameteres = method.get().getParameters();
+                        
+                        for ( int i =0 ; i < parameteres.size(); i++){
+                       
+                            ArgumentListItemNode parent = ((ArgumentListItemNode)m.getCall().getArgumentListNode().getChildren().get(i));
+                            ExpressionNode rightExpression =  (ExpressionNode)parent.getFirstChild();
+                            
+                            promote (parent, rightExpression, parameteres.get(i).getType(), rightExpression.getTypeVariable());
+                        }
+                        
+                        
                     }
                 }
 
@@ -2176,11 +2189,7 @@ public class SemanticVisitor extends AbstractScopedVisitor {
                                 + right + ") is not defined in " + left);
                     } else {
                         // Promote
-                        Optional<Constructor> op = left.getTypeDefinition()
-                                .getConstructorByParameters(new ConstructorParameter(right));
-
-
-                        parent.replace(rightExpression, NewInstanceCreationNode.of(left,  op.get(), rightExpression));
+                        promote(parent, rightExpression, left, right);
                     }
                 }
 
@@ -2216,6 +2225,28 @@ public class SemanticVisitor extends AbstractScopedVisitor {
 
             }
         }
+    }
+
+    private void promote(LenseAstNode parent, ExpressionNode rightExpression, TypeVariable left, TypeVariable right) {
+        
+        if (LenseTypeSystem.getInstance().isAssignableTo(left, right)){
+            return;
+        }
+        
+        Optional<Constructor> op = left.getTypeDefinition()
+                .getConstructorByParameters(new ConstructorParameter(right));
+
+        if (!op.isPresent()){
+            throw new CompilationError(parent , "Implicit constructor not found to promote "+ right + " to " + left);
+        }
+        if (rightExpression instanceof NumericValue){
+            NumericValue n = (NumericValue)rightExpression;
+            
+            n.setTypeVariable(left);
+        } else {
+            parent.replace(rightExpression, NewInstanceCreationNode.of(left,  op.get(), rightExpression));
+        }
+        
     }
 
     private TypeDefinition ensureNotFundamental(TypeDefinition type) {

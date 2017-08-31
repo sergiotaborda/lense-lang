@@ -13,7 +13,7 @@ public abstract class Real extends Number implements Comparable , SignedNumber {
         return Rational.constructor(Int32.valueOfNative(0), Integer.ONE);
     }
 
-    @Constructor
+    @Constructor(isImplicit = true)
     public static Real valueOf(Whole other) {
         return Rational.constructor(other.asInteger(), Integer.ONE);
     }
@@ -46,6 +46,8 @@ public abstract class Real extends Number implements Comparable , SignedNumber {
 
     protected abstract BigDecimal promoteToBigDecimal();
 
+    public abstract Real abs();
+    
     public abstract Real plus (Real other);
     public abstract Real minus (Real other);
     public abstract Real multiply(Real other);

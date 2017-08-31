@@ -106,7 +106,7 @@ public class Int64 extends Integer implements Binary{
 	}
 
 	@Override
-	protected BigInteger asBigInteger() {
+	protected BigInteger asJavaBigInteger() {
 		return BigInteger.valueOf(value);
 	}
 
@@ -115,7 +115,7 @@ public class Int64 extends Integer implements Binary{
 		if (other instanceof Int64){
 			return Long.compare(this.value,((Int64)other).value );
 		} else {
-			return asBigInteger().compareTo(other.asBigInteger());
+			return asJavaBigInteger().compareTo(other.asJavaBigInteger());
 		}
 	}
 

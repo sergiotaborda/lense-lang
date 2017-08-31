@@ -1,6 +1,7 @@
 
 import lense.core.math.Real;
 import lense.core.math.Integer;
+import lense.core.math.Natural;
 import lense.core.lang.String;
 import lense.core.lang.Boolean;
 import lense.core.math.ArithmeticException;
@@ -10,7 +11,47 @@ import lense.core.math.ArithmeticException;
 }/
 public class Rational extends Real {
 
-	public constructor ( public val  numerator : Integer , public val denominator  :Integer);
+	private constructor ( public val  numerator : Integer , public val denominator : Natural);
+
+	public constructor (  numerator : Integer ,   denominator : Integer ){
+	
+		if (denominator == 0){
+			throw new ArithmeticException("Cannot create a Rational with zero as denominator"); 
+		}
+		
+		if (numerator == 0){
+			// all forms of zero are the same. 
+			denominator = 1;
+		} else if (denominator < 0){ // let the numerator carrie the sign
+			numerator = -numerator;
+			denominator = -denominator;
+		}
+		
+		if (denominator != 1 ){
+			val gcd = numerator.gcd(denominator);
+			numerator = numerator \ gcd;
+            denominator = denominator \ gcd;
+		}
+		
+		return new Rational(numerator , denominator.abs());
+	}
+	
+	private symplify( numerator : Integer,  denominator : Natural ) : Rational {
+	
+		if (numerator == 0){
+			// all forms of zero are the same. 
+			denominator = 1;
+		} 
+		
+		if (denominator != 1 ){
+			val gcd = numerator.gcd(denominator);
+			numerator = numerator \ gcd;
+            denominator = denominator \ gcd;
+		}
+		
+		return new Rational(numerator , denominator.abs());
+	
+	}
 	
 	public equalsTo(other : Any) : Boolean {
 		if(other is Rational){
@@ -24,15 +65,13 @@ public class Rational extends Real {
 	}
 	
 	public asString() : String {
-		if (this.denominator.isOne()){
+		if (this.denominator == 1){
 			return this.numerator.asString();
 		} 
 		return this.numerator.asString() + "/" + this.denominator.asString();
 	}
 	
-	private symplify( numerator : Integer,  denominator : Integer ) : Rational {
-		return new Rational(numerator,denominator );
-	}
+
 	
 	public plus( other : Real) : Real {
 		if (other is Rational){
@@ -53,7 +92,7 @@ public class Rational extends Real {
 
 	public plus( other : Rational) : Rational {
 		 return symplify(
-				 this.numerator * other.denominator  + this.denominator * other.numerator , 
+				 other.denominator * this.numerator   + this.denominator * other.numerator , 
 				 this.denominator * other.denominator 
 		 );
 	}
@@ -68,7 +107,7 @@ public class Rational extends Real {
 	
 	public minus( other : Rational) : Rational{
 		 return symplify(
-				 this.numerator * other.denominator - this.denominator * other.numerator , 
+				 other.denominator * this.numerator  - this.denominator * other.numerator , 
 				 this.denominator * other.denominator 
 		 );
 	}
@@ -99,13 +138,19 @@ public class Rational extends Real {
 	}
 
 	public divide( other: Rational) : Rational {
-		 if (other.isZero()){
+		 if (other == 0){
 			throw new ArithmeticException("Cannot divide by zero"); 
 		}
-		 return symplify(
-				 this.numerator * other.denominator,
-				 this.denominator * other.numerator
-		 );
+		
+		var n = other.denominator * this.numerator;
+		var otherN = other.numerator;
+		if (otherN < 0){ // set the sign in the final numerator 
+			n = -n;
+		}
+		return symplify(
+				 n,
+				 this.denominator * otherN.abs()
+		);
 	}
 	
 	public isZero() : Boolean {
@@ -121,7 +166,7 @@ public class Rational extends Real {
 	}
 	
 	public signum() : Integer {
-		return numerator.signum() * denominator.signum();
+		return numerator.signum();
 	}
 
 	public asInteger() : Integer {
@@ -132,30 +177,46 @@ public class Rational extends Real {
     	return this.numerator % this.denominator == 0;
     }
     
-    public raiseTo(other : Real) : Real {
-    	if (this == 0){ // TODO intrisify x == 0 to x.isZero
-    		if (other == 0){
+    public raiseTo(exponent : Real) : Real {
+    	if (this == 0){ 
+    		if (exponent == 0){
     			return new Rational(1,1);
     		}
             return this;
         } else if ( this == 1) {
         	return this;
-        } else if ( other == 0) {
+        } else if ( exponent == 0) {
         	return new Rational(1,1);
-        } else if (other.isWhole()){
-            val p : Integer = other.asInteger();
+        } else if (exponent.isWhole()){
+            val p : Integer = exponent.asInteger();
             val n : Natural = p.abs();
-            var result : Rational = new Rational(this.numerator ** n, this.denominator ** n);
-            if (p < 0) { // TODO intrisify x < 0 to x.isNegative()
+            var result : Rational = new Rational(this.numerator ^^ n, this.denominator ^^ n);
+            if (p < 0) {
                 result = result.invert();
             } 
             return result;
         } else {
-            return promoteToBigDecimal().raiseTo(other);
+        	val n = this.numerator ^^ exponent;
+        	val d = this.denominator ^^ exponent;
+        	
+        	if (n.isWhole() && d.isWhole()){
+        		return new Rational( n.asInteger() , d.asInteger());
+        	}
+
+            return n/ d;
         }
     }
 
 	public invert () : Rational {
-		return new Rational(this.denominator, this.numerator);
+		return new Rational(this.denominator * 1Z, this.numerator.abs());
 	}
+	
+	public abs() : Real {
+	  var n = this.numerator;
+	  if (n < 0 ){
+	  	n = -n;
+	  }
+	  
+	  return new Rational(n, this.denominator);
+    }
 }

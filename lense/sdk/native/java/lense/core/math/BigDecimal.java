@@ -3,6 +3,7 @@ package lense.core.math;
 import lense.core.lang.Any;
 import lense.core.lang.HashValue;
 import lense.core.lang.java.Constructor;
+import lense.core.lang.String;
 
 public class BigDecimal extends Decimal {
 
@@ -14,8 +15,8 @@ public class BigDecimal extends Decimal {
     @Constructor
     public static BigDecimal constructor (Rational other){
      
-        java.math.BigDecimal n = new java.math.BigDecimal( other.getNumerator().asBigInteger());
-        java.math.BigDecimal d = new java.math.BigDecimal( other.getDenominator().asBigInteger());
+        java.math.BigDecimal n = new java.math.BigDecimal( other.getNumerator().asJavaBigInteger());
+        java.math.BigDecimal d = new java.math.BigDecimal( other.getDenominator().asJavaBigInteger());
         
         return new BigDecimal(n.divide(d));
     }
@@ -30,6 +31,9 @@ public class BigDecimal extends Decimal {
         this.value = value;
     }
 
+    public String asString(){
+        return String.valueOfNative(value.toString());
+    }
 
     public Int32 compareTo(Real other){
         return super.compareTo(other);
@@ -123,6 +127,11 @@ public class BigDecimal extends Decimal {
         }
         throw new ClassCastException("Cannot compare");
             
+    }
+
+    @Override
+    public Real abs() {
+       return new BigDecimal(this.value.abs());
     }
 
 }

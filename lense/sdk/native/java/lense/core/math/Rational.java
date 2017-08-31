@@ -14,9 +14,14 @@ public class Rational extends Real {
 
 
     private Integer numerator;
-    private Integer denominator;
+    private Natural denominator;
 
     private Rational(@NonNull Integer n, @NonNull Integer d) {
+        numerator = n;
+        denominator = d.abs();
+    }
+    
+    private Rational(@NonNull Integer n, @NonNull Natural d) {
         numerator = n;
         denominator = d;
     }
@@ -25,7 +30,7 @@ public class Rational extends Real {
         return numerator;
     }
 
-    public Integer getDenominator(){
+    public Natural getDenominator(){
         return denominator;
     }
 
@@ -56,7 +61,7 @@ public class Rational extends Real {
         return this.numerator.asString().plus("/").plus(this.denominator.toString());
     }
 
-    private Rational symplify(Integer numerator, Integer denominator) {
+    private Rational symplify(Integer numerator, Natural denominator) {
         return new Rational(numerator,denominator );
     }
 
@@ -72,7 +77,7 @@ public class Rational extends Real {
 
     public Rational plus(Rational other) {
         return symplify(
-                this.numerator.multiply(other.denominator).plus(this.denominator.multiply(other.numerator)) , 
+                this.denominator.multiply(other.numerator).plus(this.denominator.multiply(other.numerator)) , 
                 this.denominator.multiply(other.denominator) 
                 );
     }
@@ -88,7 +93,7 @@ public class Rational extends Real {
 
     public Rational minus(Rational other) {
         return symplify(
-                this.numerator.multiply(other.denominator).minus(this.denominator.multiply(other.numerator)) , 
+                this.denominator.multiply(other.numerator).minus(this.denominator.multiply(other.numerator)) , 
                 this.denominator.multiply(other.denominator) 
                 );
     }
@@ -123,8 +128,8 @@ public class Rational extends Real {
             throw ArithmeticException.constructor(lense.core.lang.String.valueOfNative("Cannot divide by zero"));
         }
         return symplify(
-                this.numerator.multiply(other.denominator),
-                this.denominator.multiply(other.numerator)
+                other.denominator.multiply(this.numerator),
+                this.denominator.multiply(other.numerator.abs())
                 );
     }
 
@@ -154,7 +159,7 @@ public class Rational extends Real {
 
     @Override
     protected BigDecimal promoteToBigDecimal() {
-        return new BigDecimal(new java.math.BigDecimal(numerator.asBigInteger().divide(this.denominator.asBigInteger()).toString()));
+        return new BigDecimal(new java.math.BigDecimal(numerator.asJavaBigInteger().divide(this.denominator.asJavaBigInteger()).toString()));
     }
 
     @Override
@@ -182,7 +187,7 @@ public class Rational extends Real {
         if (this.isZero()){
             throw ArithmeticException.constructor(lense.core.lang.String.valueOfNative("Cannot invert zero"));
         }
-        return new Rational(this.denominator, this.numerator);
+        return new Rational(this.denominator.multiply(Integer.ONE), this.numerator.abs());
     }
 
     @Override
@@ -193,6 +198,11 @@ public class Rational extends Real {
     @Override
     public boolean isWhole() {
         return this.promoteToBigDecimal().isWhole();
+    }
+
+    @Override
+    public Real abs() {
+        return new Rational(this.numerator.abs().asInteger(), this.denominator.abs().asInteger());
     }
 
 

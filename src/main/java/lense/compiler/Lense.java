@@ -9,13 +9,19 @@ import lense.compiler.tools.ToolException;
 public class Lense {
 
 	public static void main(String[] args) {
-	    try{
-	        new Lense().run(new ArgumentParser().parse(args));
-	    } catch (ToolException e){
-	        println(e.getMessage());
-	        help();
-	    }
+	    execute(args);
 	}
+	
+	public static int execute(String[] args) {
+        try{
+            new Lense().run(new ArgumentParser().parse(args));
+            return 0;
+        } catch (ToolException e){
+            println(e.getMessage());
+            help();
+            return -1;
+        }
+    }
 	
 	public void run(Arguments arguments) {
 	    switch (arguments.getCommand()){

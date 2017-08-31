@@ -23,7 +23,7 @@ public class Decimal32 extends Decimal{
 	
 	@Constructor(isImplicit= true)
 	public static Decimal32 valueOf(Whole other){
-		return new Decimal32(other.asBigInteger().floatValue());
+		return new Decimal32(other.asJavaBigInteger().floatValue());
 	}
 	
    float value;
@@ -148,5 +148,10 @@ public class Decimal32 extends Decimal{
         }
         throw new ClassCastException("Cannot compare");
             
+    }
+
+    @Override
+    public Real abs() {
+        return new Decimal32(Math.abs(this.value));
     }
 }

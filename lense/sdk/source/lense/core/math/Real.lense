@@ -1,15 +1,17 @@
 
 import lense.core.math.Number;
 import lense.core.lang.Boolean;
+import lense.core.math.SignedNumber;
 
-public native abstract class Real extends Number implements Comparable<Real> {
+public native abstract class Real extends Number implements Comparable<Real>, SignedNumber {
 
 	public native constructor zero();
 	public native constructor one();
 
 	public native implicit constructor valueOf(whole : Whole);
 
-
+	public native abs(): Real;
+	
 	public native symmetric() : Real;
 	
 	public native isZero() : Boolean;

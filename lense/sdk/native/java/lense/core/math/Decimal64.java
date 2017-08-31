@@ -24,7 +24,7 @@ public class Decimal64 extends Decimal{
 	
 	@Constructor(isImplicit= true)
 	public static Decimal64 valueOf(Whole other){
-		return new Decimal64(other.asBigInteger().toString());
+		return new Decimal64(other.asJavaBigInteger().toString());
 	}
 	
 	private double value;
@@ -156,5 +156,10 @@ public class Decimal64 extends Decimal{
             return super.compareWith((Real)other);
         }
         throw new ClassCastException("Cannot compare");
+    }
+    
+    @Override
+    public Real abs() {
+        return new Decimal64(Math.abs(this.value));
     }
 }

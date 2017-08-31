@@ -154,7 +154,9 @@ public class NameResolutionVisitor extends AbstractScopedVisitor {
 							n.getTypeVariable().getTypeDefinition().getSimpleName(), false
 							));
 
-					matchImports(ct, n.getTypeVariable().getTypeDefinition().getSimpleName()).get().setMemberCalled(true);
+					matchImports(ct, n.getTypeVariable().getTypeDefinition().getSimpleName())
+					.orElseThrow(() -> new CompilationError(node,"Cannot find " +  n.getTypeVariable().getTypeDefinition().getSimpleName()))
+					.setMemberCalled(true);
 
 				}
 

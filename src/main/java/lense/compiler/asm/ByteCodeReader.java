@@ -183,13 +183,18 @@ public class ByteCodeReader extends ClassVisitor {
     }
 
     private TypeDefinition typeForName(String name) {
+        
         if ("V".equals(name)) {
             return LenseTypeSystem.Void();
         } else if (name.startsWith("Z")) {
             return LenseTypeSystem.Boolean();
         } else if (name.startsWith("L")) {
-            return new lense.compiler.typesystem.FundamentalLenseTypeDefinition(
-                    name.substring(1, name.length() - 1).replace('/', '.'), null, null);
+            
+            String qualifiedName = name.substring(1, name.length() - 1).replace('/', '.');
+            if (qualifiedName.equals(def.getName())){
+                return def;
+            }
+            return new lense.compiler.typesystem.FundamentalLenseTypeDefinition(qualifiedName, null, null);
         } else {
             throw new IllegalArgumentException(name + " is not a recognized type");
         }

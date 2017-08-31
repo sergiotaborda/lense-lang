@@ -61,7 +61,7 @@ public final class UNat extends ScalableNatural{
 	}
 
 	@Override
-	protected BigInteger asBigInteger() {
+	protected BigInteger asJavaBigInteger() {
 		return new BigInteger(this.toString());
 	}
 
@@ -72,7 +72,7 @@ public final class UNat extends ScalableNatural{
 
 	@Override
 	protected Natural promoteNext() {
-		return new BigNatural(asBigInteger());
+		return new BigNatural(asJavaBigInteger());
 	}
 
 	@Override
@@ -90,7 +90,7 @@ public final class UNat extends ScalableNatural{
 		if (other instanceof UNat){
 			return Long.compareUnsigned(this.value, ((UNat)other).value );
 		} else {
-			return asBigInteger().compareTo(other.asBigInteger());
+			return asJavaBigInteger().compareTo(other.asJavaBigInteger());
 		}
 	}
 
@@ -151,11 +151,20 @@ public final class UNat extends ScalableNatural{
          if (other instanceof UNat){
              return new UNat(this.value % ((UNat)other).value);
          } else {
-             return new BigNatural(asBigInteger().remainder(other.asBigInteger()));
+             return new BigNatural(asJavaBigInteger().remainder(other.asJavaBigInteger()));
          }
     }
 
-	
+    @Override
+    public Natural wholeDivide(Natural other) {
+        if (other instanceof UNat){
+            return new UNat(this.value / ((UNat)other).value);
+        } else {
+            return new BigNatural(asJavaBigInteger().divide(other.asJavaBigInteger()));
+        }
+    }
+
+  
 
 
 }

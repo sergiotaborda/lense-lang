@@ -291,7 +291,7 @@ public abstract class AbstractLenseGrammar extends AbstractGrammar {
         multiplicativeExpression.setRule(powerExpression.or(multiplicativeExpression.add(multiplicativeOperator).add(powerExpression)));
         multiplicativeOperator.setRule(Terminal.of("*").or(Terminal.of("/").or(Terminal.of("\\").or(Terminal.of("%")))));
         powerExpression.setRule(rangeExpression.or(powerExpression.add(powerOperator).add(rangeExpression)));
-        powerOperator.setRule(Terminal.of("**"));
+        powerOperator.setRule(Terminal.of("^^"));
         rangeExpression.setRule(unaryExpression.or(unaryExpression.add(Terminal.of("..")).add(unaryExpression).or(intervalStart.add(unaryExpression).add(Terminal.of(",")).add(unaryExpression).add(intervalEnd).or(Terminal.of("|(").add(Terminal.of("*")).add(Terminal.of(",")).add(unaryExpression).add(intervalEnd).or(intervalStart.add(unaryExpression).add(Terminal.of(",")).add(Terminal.of("*")).add(Terminal.of(")|")))))));
         intervalStart.setRule(Terminal.of("|[").or(Terminal.of("|(")));
         intervalEnd.setRule(Terminal.of(")|").or(Terminal.of("]|")));

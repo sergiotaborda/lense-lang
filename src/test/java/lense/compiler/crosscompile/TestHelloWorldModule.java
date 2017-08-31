@@ -3,6 +3,7 @@
  */
 package lense.compiler.crosscompile;
 
+import org.junit.Assert;
 import org.junit.Test;
 
 import lense.compiler.Lense;
@@ -24,14 +25,14 @@ public class TestHelloWorldModule {
 		
 		
 	//	Lense.main("compile:java --source=lense/helloworld".split(" "));
-		Lense.main("compile --source=lense/helloworld --repo=lense/sdk/compilation/modules".split(" "));
+		Assert.assertEquals(0, Lense.execute("compile --source=lense/helloworld --repo=lense/sdk/compilation/modules".split(" ")));
 	        
 	}
 	
 	@Test  
     public void testHelloWorldCompilationJavaScript() {
 
-       Lense.main("compile:js --source=lense/helloworld".split(" "));
+	    Assert.assertEquals(0, Lense.execute("compile:js --source=lense/helloworld".split(" ")));
  
     }
 }

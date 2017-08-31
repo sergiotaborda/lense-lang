@@ -4,8 +4,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.objectweb.asm.ClassReader;
 
@@ -28,9 +26,10 @@ public class ByteCodeTypeDefinitionReader {
 		ClassReader cr = new ClassReader(input);
 		cr.accept(cp, 0);
 		
-
-		return  cp.getType();
 		
+		LoadedLenseTypeDefinition def = cp.getType();
+		
+		return def;
 	}
 	
 

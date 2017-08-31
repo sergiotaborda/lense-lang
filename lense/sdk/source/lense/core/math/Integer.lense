@@ -14,9 +14,11 @@ public native class Integer extends Whole implements Ordinal<Integer>{
 		public native divide( n : Integer) : Rational;
 		
 		public native wholeDivide (other : Integer) : Integer; 
+		public native wholeDivide (other : Natural) : Integer; 
 		public native remainder (other : Integer) : Integer; 
 		
 		public native raiseTo (other : Natural) : Integer; 
+		public native raiseTo (other : Real) : Real; 
 		
 		public native symmetric() : Integer;
 		
@@ -27,4 +29,6 @@ public native class Integer extends Whole implements Ordinal<Integer>{
 			Return 0 if the value is zero, -1 if the value if less than zero and 1 if greater
 		}/
 		public native signum() : Integer;
+		
+	
 }

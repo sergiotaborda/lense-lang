@@ -5,8 +5,10 @@ Lense CLI
 Change Iterator to move + current (DONE)
 Change 
 	+ string operator to ++ => needs resolution on the increment/decrement operator issue [SYNTAX]
-	** operator to ^^ [SYNTAX]
-	commons patterns like "real + imaginary" to "new Complex(real,imaginary)"
+	** operator to ^^ [SYNTAX] (DONE)
+Commons patterns like :
+		"real + imaginary" to "new Complex(real,imaginary)"
+		1/x to x.invert();
 Indexes
 	allow more than one parameter (DONE)
 Named Parameters and Default Parameters
@@ -109,7 +111,7 @@ Operators
 	/ always return elements of |Q , |R or |C    N/N , Z/Z , N/Z, Z/N , Q,Q -> Q , Q/R, R/Q, R/R -> R, x/C or C/x = C (DONE)
 	>> , << (Binary) (DONE)
 	& , | , ^ (DONE)
-	** (Exponenciable) pow()
+	^^ (Exponenciable) pow() (DNOE)
 	+= ,*= (ok, auto  a += n <==> a = a + n and  a *= n <==> a = a * n
     -=, /= (only for some kinds  nat a = 2 , a -= 1 (ok); a-= 1(ok) ; a-= 1 (error);
 	++ , -- (Ordinal) successor() and predecessor() (DONE)

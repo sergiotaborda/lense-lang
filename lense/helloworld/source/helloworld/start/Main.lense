@@ -111,17 +111,23 @@ public class Main extends ConsoleApplication {
   	 	console.println("8 / 3 = {{ ratio }} and 8 \ 3 ={{wholeDivision }}  so  8 ={{ wholeDivision }} * 3 + {{ remainder }}");
   	 	
    // TODO verifiy if a variable was already defined
-  	   var pow : Natural = 4 ** 3;
-  	   var powNeg : Rational = 4 ** -3;
+  	   var pow : Natural = 4 ^^ 3;
+  	   var powNeg : Rational = 4 ^^ -3;
   	   
-  	   console.println(" 4 ** 3 = {{ pow }} (64)");
-  	   console.println(" 4 ** -3 = {{ powNeg }} (1/64)");
+  	    console.println(" 4 ^^ 3 = {{ pow }} (64)");
+  	    console.println(" 4 ^^ -3 = {{ powNeg }} (1/64)");
   	  
   	     var distance = dist(3, 4); 
   	 	
   	 	console.println(" distance srqt(3x3 + 4x4) = {{ distance }}");
+  	 	console.println(" distance srqt(3x3 + 4x4) = {{ hypot(3, 4) }}");
+  	 	
   	    console.println(" distance srqt(1 + 1) = {{ dist(1, 1) }}");
-  	  
+  	    console.println(" distance srqt(1 + 1) = {{ hypot(1, 1) }}");
+  	    
+  	    console.println(" distance srqt(5 + 7) = {{ dist(5, 7) }}");
+  	    console.println(" distance srqt(5 + 7) = {{ hypot(5, 7) }}");
+  	    
   	 	var dc = 0.5 + 4i;
   	 	
   	 	console.println("Complex is : {{ dc }} "); 
@@ -234,10 +240,20 @@ public class Main extends ConsoleApplication {
   	}
 
 
-	public dist(x : Natural, y : Natural) : Real {
-		return (x ** 2 + y ** 2) ** (1/2);
+	public dist(x : Integer, y : Integer) : Real {
+		return (x ^^ 2 + y ^^ 2) ^^ 0.5;
 	}
 	
+	public hypot(x : Real, y : Real) : Real {
+
+		val ax = x.abs();
+		val ay = y.abs();
+		
+		val z = ax >= ay ? ax : ay;
+		val r = (ax <= ay ? ax : ay) / z ;
+		
+		return z * (1.0 + r ^^ 2) ^^ 0.5;
+	}
 	
 	public toRational(number : Rational) : Rational => number;
 	

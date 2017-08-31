@@ -54,7 +54,7 @@ public class ScalableInt32 extends ScalableInteger {
     }
 
     @Override
-    protected BigInteger asBigInteger() {
+    protected BigInteger asJavaBigInteger() {
         return BigInteger.valueOf(value);
     }
 
@@ -62,7 +62,7 @@ public class ScalableInt32 extends ScalableInteger {
         if (other instanceof ScalableInt32){
             return  java.lang.Integer.compare(this.value, ((ScalableInt32)other).value);
         } else {
-            return asBigInteger().compareTo(other.asBigInteger());
+            return asJavaBigInteger().compareTo(other.asJavaBigInteger());
         }
     }
 

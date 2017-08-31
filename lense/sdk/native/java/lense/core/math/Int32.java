@@ -35,7 +35,7 @@ public class Int32 extends Integer implements Binary {
 		} else {
 		    BigInteger max = BigInteger.valueOf(java.lang.Integer.MAX_VALUE);
 		    BigInteger min = BigInteger.valueOf(java.lang.Integer.MIN_VALUE);
-		    BigInteger val = n.asBigInteger();
+		    BigInteger val = n.asJavaBigInteger();
 		    
 		    if (val.compareTo(min) >=0 && val.compareTo(max) <=0 ){
 		        // in range of a int32
@@ -99,7 +99,7 @@ public class Int32 extends Integer implements Binary {
 	}
 
 	@Override
-	protected BigInteger asBigInteger() {
+	protected BigInteger asJavaBigInteger() {
 		return BigInteger.valueOf(value);
 	}
 
@@ -107,7 +107,7 @@ public class Int32 extends Integer implements Binary {
 		if (other instanceof Int32){
 			return  java.lang.Integer.compare(this.value, ((Int32)other).value);
 		} else {
-			return asBigInteger().compareTo(other.asBigInteger());
+			return asJavaBigInteger().compareTo(other.asJavaBigInteger());
 		}
 	}
 
@@ -271,5 +271,6 @@ public class Int32 extends Integer implements Binary {
     public int toPrimitiveInt() {
         return value;
     }
+
 
 }

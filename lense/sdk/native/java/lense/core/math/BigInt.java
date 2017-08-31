@@ -21,16 +21,16 @@ public class BigInt extends Integer {
 
 	@Override
 	public Integer plus(Integer other) {
-		return new BigInt(this.value.add(other.asBigInteger()));
+		return new BigInt(this.value.add(other.asJavaBigInteger()));
 	}
 	
 	@Override
 	public Integer minus(Integer other) {
-		return new BigInt(this.value.subtract(other.asBigInteger()));
+		return new BigInt(this.value.subtract(other.asJavaBigInteger()));
 	}
 			
 	@Override
-	protected BigInteger asBigInteger() {
+	protected BigInteger asJavaBigInteger() {
 		return value;
 	}
 
@@ -134,8 +134,5 @@ public class BigInt extends Integer {
     public int toPrimitiveInt() {
         return value.intValue();
     }
-
  
-
-
 }

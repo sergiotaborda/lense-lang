@@ -24,6 +24,7 @@ public abstract class Natural extends Whole  {
     }
 
     
+    
     @Native
     public static Natural valueOfNative(int value){
         if (value < 0){
@@ -57,7 +58,20 @@ public abstract class Natural extends Whole  {
     public @NonNull Progression upTo(@NonNull Natural other){
         return new NativeNaturalProgression(this, other);
     }
-
+    
+    public abstract Natural wholeDivide (Natural other);
+    
+    public Integer wholeDivide(Integer other) {
+        BigInteger div = asJavaBigInteger().divide(other.asJavaBigInteger());
+        
+        if (div.bitLength() < 32){
+            return new Int32(div.intValue());
+        } else if (div.bitLength() < 64){
+            return new Int64(div.longValue());
+        }
+        return new BigInt(div);
+    }
+    
     @Native
     public abstract int toPrimitiveInt();
 
@@ -133,7 +147,7 @@ public abstract class Natural extends Whole  {
     }
 
     protected BigNatural asBigNat(){
-        return new BigNatural(this.asBigInteger());
+        return new BigNatural(this.asJavaBigInteger());
     }
 
     protected abstract boolean isInInt32Range();
@@ -163,15 +177,6 @@ public abstract class Natural extends Whole  {
             return this.plus((Natural)other);
         } else {
             return this.asInteger().plus(other.asInteger());
-        }
-    }
-
-    @Override
-    public @NonNull Whole multiply(@NonNull Whole other) {
-        if (other instanceof Natural){
-            return this.multiply((Natural)other);
-        } else {
-            return this.asInteger().multiply(other.asInteger());
         }
     }
 

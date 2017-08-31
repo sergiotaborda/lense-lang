@@ -99,9 +99,9 @@ public class JavaCompilerBackEndFactory implements CompilerBackEndFactory {
         @Override
         public void report(Diagnostic<? extends JavaFileObject> diagnostic) {
             if (diagnostic.getKind().equals(Diagnostic.Kind.ERROR)){
-                throw new RuntimeException(diagnostic.getMessage(Locale.getDefault()));
+                throw new RuntimeException(diagnostic.toString());
             } else {
-                System.out.println(diagnostic.getMessage(Locale.getDefault()));
+                System.out.println(diagnostic.toString());
             }
         }
         
