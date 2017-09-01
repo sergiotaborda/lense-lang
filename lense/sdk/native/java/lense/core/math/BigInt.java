@@ -55,8 +55,8 @@ public class BigInt extends Integer {
 	}
 
 	@Override
-	public Integer multiply(Integer predecessor) {
-		return new BigInt(this.value.multiply(BigInteger.ONE));
+	public Integer multiply(Integer other) {
+		return new BigInt(this.value.multiply(other.asJavaBigInteger()));
 	}
 
 	@Override

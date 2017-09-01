@@ -122,7 +122,9 @@ public final class UNat extends ScalableNatural{
 
 	@Override
 	protected Integer asInteger() {
-		if (value < Long.MAX_VALUE && value > 0){
+	    if (value < (long)java.lang.Integer.MAX_VALUE){
+            return ScalableInt32.valueOf((int)value);
+        } else if (value < Long.MAX_VALUE){
 			return ScalableInt64.valueOf(value);
 		} 
 		return new BigInt(new BigInteger(this.toString()));

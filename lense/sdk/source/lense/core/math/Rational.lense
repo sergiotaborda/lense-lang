@@ -45,11 +45,13 @@ public class Rational extends Real {
 		
 		if (denominator != 1 ){
 			val gcd = numerator.gcd(denominator);
+			
+			// TODO log (gcd)
 			numerator = numerator \ gcd;
             denominator = denominator \ gcd;
 		}
 		
-		return new Rational(numerator , denominator.abs());
+		return new Rational(numerator , denominator);
 	
 	}
 	
@@ -143,13 +145,12 @@ public class Rational extends Real {
 		}
 		
 		var n = other.denominator * this.numerator;
-		var otherN = other.numerator;
-		if (otherN < 0){ // set the sign in the final numerator 
+		if (other.numerator < 0){ // set the sign in the final numerator 
 			n = -n;
 		}
 		return symplify(
 				 n,
-				 this.denominator * otherN.abs()
+				 this.denominator * other.numerator.abs()
 		);
 	}
 	

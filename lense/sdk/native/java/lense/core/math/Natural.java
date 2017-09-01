@@ -23,8 +23,6 @@ public abstract class Natural extends Whole  {
         return valueOf(text.toString());
     }
 
-    
-    
     @Native
     public static Natural valueOfNative(int value){
         if (value < 0){
@@ -107,11 +105,8 @@ public abstract class Natural extends Whole  {
 
     public abstract boolean isOne();
 
-
-
     public abstract @NonNull Natural multiply(@NonNull Natural other);
-
-
+    
     public Real raiseTo( Real other){
         if (other.isZero()){
             if (other.isZero()){
@@ -181,7 +176,7 @@ public abstract class Natural extends Whole  {
     }
 
     public @NonNull Integer multiply(@NonNull Integer other) {
-        return this.asInteger().multiply(other.asInteger());
+        return other.asInteger().multiply(this.asInteger());
     }
 
     @Override

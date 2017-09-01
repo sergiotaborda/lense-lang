@@ -60,6 +60,7 @@ import lense.compiler.ast.NumericValue;
 import lense.compiler.ast.ObjectReadNode;
 import lense.compiler.ast.ParametersListNode;
 import lense.compiler.ast.PosExpression;
+import lense.compiler.ast.PreBooleanUnaryExpression;
 import lense.compiler.ast.QualifiedNameNode;
 import lense.compiler.ast.ReturnNode;
 import lense.compiler.ast.StatementNode;
@@ -874,6 +875,15 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 				TreeTransverser.transverse(n.getRight(), this);
 
 				return VisitorNext.Siblings;
+			} else if (node instanceof PreBooleanUnaryExpression){
+			   
+			    
+			    PreBooleanUnaryExpression p = (PreBooleanUnaryExpression)node;
+			    if (p.getOperation() == BooleanOperation.LogicNegate){
+			        writer.print("!");
+			    }
+			    
+			    return VisitorNext.Children;
 			} else if (node instanceof ComparisonNode) {
 				ComparisonNode n = (ComparisonNode) node;
 

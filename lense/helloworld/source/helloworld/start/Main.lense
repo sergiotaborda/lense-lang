@@ -128,6 +128,11 @@ public class Main extends ConsoleApplication {
   	    console.println(" distance srqt(5 + 7) = {{ dist(5, 7) }}");
   	    console.println(" distance srqt(5 + 7) = {{ hypot(5, 7) }}");
   	    
+  	    val h = 50 / 60;
+  	    val h2 = 20 / 5;
+  	    console.println(" reduced 50/ 60 = {{ h }} = 5/6");
+  	    console.println(" reduced 20/ 5 = {{ h2 }} = 4");
+  	    
   	 	var dc = 0.5 + 4i;
   	 	
   	 	console.println("Complex is : {{ dc }} "); 
@@ -249,10 +254,20 @@ public class Main extends ConsoleApplication {
 		val ax = x.abs();
 		val ay = y.abs();
 		
-		val z = ax >= ay ? ax : ay;
-		val r = (ax <= ay ? ax : ay) / z ;
+		val max = ax >= ay ? ax : ay;
+		val min = ax >= ay ? ay : ax;
 		
-		return z * (1.0 + r ^^ 2) ^^ 0.5;
+	   console.println(" max = {{ max }}");
+	   console.println(" min = {{ min }}");
+		
+		val r = min / max ;
+		
+		  console.println("r = {{ r }}");
+		  val k = r ^^ 2;
+		    console.println("r ^^ 2 = {{ k }}");
+		 console.println("j = {{ 1.0 + k }}");
+		 
+		return max * (1.0 + r ^^ 2) ^^ 0.5;
 	}
 	
 	public toRational(number : Rational) : Rational => number;
