@@ -128,10 +128,8 @@ public class Main extends ConsoleApplication {
   	    console.println(" distance srqt(5 + 7) = {{ dist(5, 7) }}");
   	    console.println(" distance srqt(5 + 7) = {{ hypot(5, 7) }}");
   	    
-  	    val h = 50 / 60;
-  	    val h2 = 20 / 5;
-  	    console.println(" reduced 50/ 60 = {{ h }} = 5/6");
-  	    console.println(" reduced 20/ 5 = {{ h2 }} = 4");
+  	    console.println(" reduced 50/ 60 = {{ 50 / 60 }} = 5/6");
+  	    console.println(" reduced 20/ 5 = {{ 20 / 5 }} = 4");
   	    
   	 	var dc = 0.5 + 4i;
   	 	
@@ -289,3 +287,4 @@ public class Main extends ConsoleApplication {
 
 
 }
+

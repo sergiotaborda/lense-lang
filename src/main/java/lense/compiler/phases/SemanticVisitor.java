@@ -18,6 +18,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import compiler.parser.IdentifierNode;
+import compiler.parser.NameIdentifierNode;
 import compiler.syntax.AstNode;
 import compiler.trees.TreeTransverser;
 import compiler.trees.VisitorNext;
@@ -1484,7 +1485,7 @@ public class SemanticVisitor extends AbstractScopedVisitor {
             } else if (access instanceof IdentifierNode) {
 
                 VariableInfo variable = this.getSemanticContext().currentScope()
-                        .searchVariable(((IdentifierNode) access).getId());
+                        .searchVariable(((IdentifierNode) access).getName());
 
                 fieldOwnerType = variable.getTypeVariable();
             } else {
@@ -1567,37 +1568,37 @@ public class SemanticVisitor extends AbstractScopedVisitor {
                 AstNode a = it.next().getFirstChild();
                 if (a instanceof IdentifierNode) {
                     IdentifierNode id = (IdentifierNode) a;
-                    VariableInfo info = this.getSemanticContext().currentScope().searchVariable(id.getId());
+                    VariableInfo info = this.getSemanticContext().currentScope().searchVariable(id.getName());
 
                     if (info == null) {
                         // try field
 
                         TypeDefinition currentType = this.getSemanticContext().currentScope().getCurrentType();
 
-                        Optional<Field> field = currentType.getFieldByName(id.getId());
+                        Optional<Field> field = currentType.getFieldByName(id.getName());
 
                         if (!field.isPresent()) {
 
-                            Optional<Property> property = currentType.getPropertyByName(id.getId());
+                            Optional<Property> property = currentType.getPropertyByName(id.getName());
 
                             if (!property.isPresent()) {
-                                throw new CompilationError(id, id.getId() + " is not a variable or a field");
+                                throw new CompilationError(id, id.getName() + " is not a variable or a field");
                             } else {
-                                FieldOrPropertyAccessNode r = new FieldOrPropertyAccessNode(id.getId());
+                                FieldOrPropertyAccessNode r = new FieldOrPropertyAccessNode(id.getName());
                                 r.setKind(FieldKind.PROPERTY);
                                 r.setType(property.get().getReturningType());
                                 it.set(new ArgumentListItemNode(it.nextIndex() - 1, r));
                             }
 
                         } else {
-                            FieldOrPropertyAccessNode r = new FieldOrPropertyAccessNode(id.getId());
+                            FieldOrPropertyAccessNode r = new FieldOrPropertyAccessNode(id.getName());
                             r.setKind(FieldKind.FIELD);
                             r.setType(field.get().getReturningType());
                             it.set(new ArgumentListItemNode(it.nextIndex() - 1, r));
                         }
 
                     } else {
-                        VariableReadNode r = new VariableReadNode(id.getId(), info);
+                        VariableReadNode r = new VariableReadNode(id.getName(), info);
                         it.set(new ArgumentListItemNode(it.nextIndex() - 1, r));
                     }
                 } else {
@@ -1754,27 +1755,12 @@ public class SemanticVisitor extends AbstractScopedVisitor {
                     }
 
                 }
-            } else if (access instanceof VariableReadNode) {
-                VariableReadNode var = (VariableReadNode) access;
+            } else if (access instanceof NameIdentifierNode ) {
 
-                Optional<Field> field = currentType.getFieldByName(var.getName());
+                methodOwnerType = typeForName(methodOwnerType, access, ((NameIdentifierNode) access).getName());
 
-                if (field.isPresent()) {
-                    if (!var.getVariableInfo().isInitialized()) {
-                        throw new CompilationError(access, "Variable " + var.getName() + " was not initialized");
-                    }
-
-                }
-
-                methodOwnerType = ((TypedNode) access).getTypeVariable();
             } else if (access instanceof TypedNode) {
                 methodOwnerType = ((TypedNode) access).getTypeVariable();
-            } else if (access instanceof IdentifierNode) {
-
-                VariableInfo variable = this.getSemanticContext().currentScope()
-                        .searchVariable(((IdentifierNode) access).getId());
-
-                methodOwnerType = variable.getTypeVariable();
             } else {
                 throw new CompilationError("Not supported yet");
             }
@@ -2131,6 +2117,38 @@ public class SemanticVisitor extends AbstractScopedVisitor {
         } 
     }
 
+    private TypeVariable typeForName(TypeVariable methodOwnerType, AstNode access, String name) {
+        VariableInfo variable = this.getSemanticContext().currentScope()
+                .searchVariable(name);
+
+        if (variable != null){
+            methodOwnerType = variable.getTypeVariable();
+        } else {
+            
+            // can be a field 
+            
+            Optional<Field> field = currentType.getFieldByName(name);
+
+            if (field.isPresent()) {
+                methodOwnerType = field.get().getReturningType();
+                
+            } else {
+                
+                // can be a property
+                Optional<Property> property = currentType.getPropertyByName(name);
+
+                if (property.isPresent()) {
+                    methodOwnerType = property.get().getReturningType();
+                    
+                } else {
+                    throw new CompilationError(access, "Identifier " + name + " was not defined");
+                }
+
+            }
+        }
+        return methodOwnerType;
+    }
+
 
     private void promoteArithmeticOperatorToMethodCall(ExpressionNode parent, ExpressionNode leftExpression, ExpressionNode rightExpression,
             ArithmeticOperation operation) {   
@@ -2382,10 +2400,10 @@ public class SemanticVisitor extends AbstractScopedVisitor {
                 }
                 return new MethodParameter(maybeType.get());
             } else if (v instanceof IdentifierNode) {
-                VariableInfo var = this.getSemanticContext().currentScope().searchVariable(((IdentifierNode) v).getId());
+                VariableInfo var = this.getSemanticContext().currentScope().searchVariable(((IdentifierNode) v).getName());
 
                 if (var == null) {
-                    throw new CompilationError(v, ((IdentifierNode) v).getId() + " is not a field or variable");
+                    throw new CompilationError(v, ((IdentifierNode) v).getName() + " is not a field or variable");
                 }
 
                 return new MethodParameter(var.getTypeVariable());

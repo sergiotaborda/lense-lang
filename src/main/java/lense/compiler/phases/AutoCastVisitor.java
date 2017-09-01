@@ -76,7 +76,7 @@ public class AutoCastVisitor extends AbstractLenseVisitor  {
 				
 			}
 		} else if (node instanceof IdentifierNode){
-		    if (((IdentifierNode)node).getId().equals(variableName)){
+		    if (((IdentifierNode)node).getName().equals(variableName)){
 		       
 		        VariableInfo variable = this.getSemanticContext().currentScope().searchVariable(variableName);
 

@@ -24,6 +24,7 @@ public class LenseStringLiteralTokenState extends StringLiteralTokenState {
 	boolean mayInterpolate;
 	boolean mayUnicode;
 	boolean escape;
+	boolean bindToNext = false;
 	/**
 	 * Constructor.
 	 * @param currentState
@@ -47,10 +48,14 @@ public class LenseStringLiteralTokenState extends StringLiteralTokenState {
 				builder.append(c);
 				escape = false; // reset flag
 			} else {
-				Optional<Token> token = grammar.stringLiteralMath(pos, builder.toString());
-				if (token.isPresent()){
-					tokensQueue.accept(token.get());
-				}
+			    
+			    String endTerm = builder.toString().trim();
+			    
+                Optional<Token> token = grammar.stringLiteralMath(pos, endTerm);
+                if (token.isPresent()){
+                    tokensQueue.accept(token.get());
+                }
+		    
 
 				return this.getScanner().newInitialState();
 			}
@@ -99,14 +104,17 @@ public class LenseStringLiteralTokenState extends StringLiteralTokenState {
 				if (token.isPresent()){
 					tokensQueue.accept(token.get());
 					builder.delete(0, builder.length());
+					builder.append(" ");
 				}
 				
-				// send . operator
-				tokensQueue.accept(grammar.maybeMatch(pos, ".").get());
+//				// send . operator
+//				tokensQueue.accept(grammar.maybeMatch(pos, ".").get());
+//				
+//				// send plus method 
+//				tokensQueue.accept(grammar.maybeMatch(pos, "plus").get());
 				
-				// send plus method 
-				tokensQueue.accept(grammar.maybeMatch(pos, "plus").get());
-				
+		        // send + operator
+                tokensQueue.accept(grammar.maybeMatch(pos, "+").get());
 				
 				// send ( operator
 				tokensQueue.accept(grammar.maybeMatch(pos, "(").get());
@@ -128,20 +136,23 @@ public class LenseStringLiteralTokenState extends StringLiteralTokenState {
 				// send ) operator
 				tokensQueue.accept(grammar.maybeMatch(pos, ")").get());
 				
-//				// send . operator
-//				tokensQueue.accept(grammar.maybeMatch(pos, ".").get());
-//				
-//				// send toString 
-//				tokensQueue.accept(grammar.maybeMatch(pos, "toString").get());
-//				
-//				// send ( operator 
-//				tokensQueue.accept(grammar.maybeMatch(pos, "(").get());
-//				
-//				// send ) operator 
-//				tokensQueue.accept(grammar.maybeMatch(pos, ")").get());
+				// send . operator
+				tokensQueue.accept(grammar.maybeMatch(pos, ".").get());
+				
+				// send toString 
+				tokensQueue.accept(grammar.maybeMatch(pos, "asString").get());
+				
+				// send ( operator 
+				tokensQueue.accept(grammar.maybeMatch(pos, "(").get());
+				
+				// send ) operator 
+				tokensQueue.accept(grammar.maybeMatch(pos, ")").get());
 				
 				// send + operator
 				tokensQueue.accept(grammar.maybeMatch(pos, "+").get());
+	                
+	                
+			
 				
 			}
 		} else {

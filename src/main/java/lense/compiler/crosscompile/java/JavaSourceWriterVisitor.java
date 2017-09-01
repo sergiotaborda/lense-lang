@@ -205,7 +205,7 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 				return VisitorNext.Siblings;
 
 			} else if (node instanceof IdentifierNode) {
-				String identifier = ((IdentifierNode) node).getId();
+				String identifier = ((IdentifierNode) node).getName();
 				writer.print(sanitize(identifier));
 			} else if (node instanceof QualifiedNameNode) {
 				writer.print(((QualifiedNameNode) node).getName());

@@ -3,6 +3,7 @@
  */
 package lense.compiler.ast;
 
+import compiler.parser.NameIdentifierNode;
 import lense.compiler.context.VariableInfo;
 import lense.compiler.type.variable.TypeVariable;
 
@@ -10,7 +11,7 @@ import lense.compiler.type.variable.TypeVariable;
 /**
  * 
  */
-public class VariableReadNode extends ExpressionNode {
+public class VariableReadNode extends ExpressionNode implements NameIdentifierNode {
 
 	private String name;
 	private VariableInfo variableInfo;
