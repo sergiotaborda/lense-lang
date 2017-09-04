@@ -135,18 +135,18 @@ public class LenseStringLiteralTokenState extends StringLiteralTokenState {
 				state.receive(pos, (char)0, tokensQueue);
 				// send ) operator
 				tokensQueue.accept(grammar.maybeMatch(pos, ")").get());
-				
-				// send . operator
-				tokensQueue.accept(grammar.maybeMatch(pos, ".").get());
-				
-				// send toString 
-				tokensQueue.accept(grammar.maybeMatch(pos, "asString").get());
-				
-				// send ( operator 
-				tokensQueue.accept(grammar.maybeMatch(pos, "(").get());
-				
-				// send ) operator 
-				tokensQueue.accept(grammar.maybeMatch(pos, ")").get());
+//				
+//				// send . operator
+//				tokensQueue.accept(grammar.maybeMatch(pos, ".").get());
+//				
+//				// send toString 
+//				tokensQueue.accept(grammar.maybeMatch(pos, "asString").get());
+//				
+//				// send ( operator 
+//				tokensQueue.accept(grammar.maybeMatch(pos, "(").get());
+//				
+//				// send ) operator 
+//				tokensQueue.accept(grammar.maybeMatch(pos, ")").get());
 				
 				// send + operator
 				tokensQueue.accept(grammar.maybeMatch(pos, "+").get());
