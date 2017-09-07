@@ -1,9 +1,11 @@
 package lense.core.lang;
 
+import lense.core.lang.java.Property;
 import lense.core.math.Natural;
 
 public interface Binary extends ExclusiveDijunctable , Dijunctable , Injunctable {
 
+    @Property(name = "size")
 	public Natural getSize ();
 	
 	// ~operator

@@ -12,6 +12,8 @@ import lense.compiler.type.TypeDefinition;
  */
 public interface UpdatableTypeRepository extends TypeRepository {
 
+   
+    
 	/**
 	 * @param type
 	 * @param genericParametersCount 

@@ -93,8 +93,10 @@ public class SemanticContext {
 				return LenseTypeSystem.Any();
 			} else if (LenseTypeSystem.Nothing().getName().equals(name)){
 				return LenseTypeSystem.Nothing();
-			}
+			} 
 			throw new TypeNotFoundException(name + "'" + genericParametersCount +" is not a recognized type. Did you imported it ?");
+		} else if (type.get().getGenericParameters().size() != genericParametersCount) {
+		    throw new TypeNotFoundException(name + "'" + genericParametersCount +" is not a recognized type. Did you imported it ?");
 		}
 		
 		return type.get();

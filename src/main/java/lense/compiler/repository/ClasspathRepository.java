@@ -12,9 +12,11 @@ import java.util.jar.Manifest;
 import java.util.stream.Collectors;
 
 import lense.compiler.asm.ByteCodeTypeDefinitionReader;
+import lense.compiler.asm.LoadedLenseTypeDefinition;
 import lense.compiler.modules.ModuleIdentifier;
 import lense.compiler.modules.ModulesRepository;
 import lense.compiler.modules.ModuleTypeContents;
+import lense.compiler.type.LenseTypeDefinition;
 import lense.compiler.type.TypeDefinition;
 import lense.compiler.typesystem.TypeSearchParameters;
 
@@ -31,11 +33,13 @@ public class ClasspathRepository implements TypeRepository, ModulesRepository{
 	public ClasspathRepository(File folder){
 		this.baseFolder = folder;
 		
-		ByteCodeTypeDefinitionReader reader = new ByteCodeTypeDefinitionReader();
+		
 		try {
 			for (File jarFile : folder.listFiles(f -> f.isFile() && f.getName().endsWith(".jar"))){
 				ModuleTypeContents moduleRepo = new ModuleTypeContents();
 
+				ByteCodeTypeDefinitionReader reader = new ByteCodeTypeDefinitionReader(moduleRepo);
+				
 				modules.add(moduleRepo);
 				try(java.util.jar.JarFile jar = new java.util.jar.JarFile(jarFile)){
 				  //Manifest manifest = jar.getManifest();
@@ -47,8 +51,10 @@ public class ClasspathRepository implements TypeRepository, ModulesRepository{
 
 	                    if (file.getName().endsWith(".class")){
 	                        try (java.io.InputStream is = jar.getInputStream(file)){
-	                            TypeDefinition type = reader.readNative(is);
-	                            moduleRepo.registerType(type, type.getGenericParameters().size());
+	                            LenseTypeDefinition type = reader.readNative(is);
+	                            if (!type.isPlataformSpecific()){
+	                                moduleRepo.registerType(type, type.getGenericParameters().size());
+	                            }
 	                        }
 	                    } else if (file.getName().equals("module.properties")){
 	                        try (java.io.InputStream is = jar.getInputStream(file)){

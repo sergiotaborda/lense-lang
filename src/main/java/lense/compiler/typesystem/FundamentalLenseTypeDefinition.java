@@ -1,7 +1,6 @@
 package lense.compiler.typesystem;
 
-import java.util.Collections;
-import java.util.List;
+import java.util.Arrays;
 
 import lense.compiler.type.LenseTypeDefinition;
 import lense.compiler.type.TypeKind;
@@ -14,18 +13,11 @@ public class FundamentalLenseTypeDefinition extends LenseTypeDefinition {
 	}
 
 	public FundamentalLenseTypeDefinition(String name, TypeKind kind, LenseTypeDefinition superDefinition,IntervalTypeVariable... parameters) {
-		super(name, kind, superDefinition,parameters);
+		super(name, kind, superDefinition, Arrays.asList(parameters));
 	}
-	
+
 	public boolean isFundamental(){
         return true;
     }
-//	   /**
-//     * {@inheritDoc}
-//     */
-//    @Override
-//    public List<IntervalTypeVariable> getGenericParameters() {
-//        return Collections.unmodifiableList(super.getGenericParameters());
-//    }
-    
+
 }

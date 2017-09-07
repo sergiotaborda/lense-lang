@@ -50,6 +50,7 @@ public abstract class Array extends AbstractAssortment implements EditableSequen
 //	}
 	
 	@Constructor(isImplicit = true)
+	@MethodSignature( returnSignature = "lense.core.collections.Array<T>", paramsSignature = "lense.core.collections.Sequence<T>")
 	public static Array constructor (Sequence seq){
 		// TODO verify natural range
 		
@@ -67,15 +68,18 @@ public abstract class Array extends AbstractAssortment implements EditableSequen
 	public abstract Any get(Natural index);
 	
 	@Override  @Property(indexed = true , setter = true)
+	@MethodSignature( returnSignature = "" , paramsSignature = "lense.core.math.Natural,T")
 	public abstract void  set(Natural index, Any value);
 	
 	@Override @Property(name = "size")
 	public abstract Natural getSize();
 
 	@Override @Property(name = "iterator")
+	@MethodSignature( returnSignature = "lense.core.collections.Iterator<T>", paramsSignature = "")
 	public abstract Iterator getIterator();
 	
 	@Override @Property(name = "indexes")
+	@MethodSignature( returnSignature = "lense.core.collections.Progression<lense.core.math.Natural>", paramsSignature = "")
 	public abstract Progression getIndexes();
 
 	

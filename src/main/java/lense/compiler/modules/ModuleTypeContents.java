@@ -4,6 +4,7 @@
 package lense.compiler.modules;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,7 +26,7 @@ public class ModuleTypeContents implements UpdatableTypeRepository {
 	private Version version;
 
 	// type name -> type generics count -> type def
-	private Map<String,Map< Integer, TypeDefinition>> types = new HashMap<>();
+	private final Map<String,Map< Integer, TypeDefinition>> types = new HashMap<>();
 
 
 	public ModuleTypeContents() {
@@ -45,7 +46,11 @@ public class ModuleTypeContents implements UpdatableTypeRepository {
 	
 	@Override
 	public Map<Integer, TypeDefinition> resolveTypesMap(String name) {
-		return  types.get(name);
+		Map<Integer, TypeDefinition> map = types.get(name);
+		if (map == null){
+		    return Collections.emptyMap();
+		}
+		return map;
 	}
 
 	/**
@@ -144,7 +149,13 @@ public class ModuleTypeContents implements UpdatableTypeRepository {
 
 		if (!types.containsKey(type.getName())){
 			HashMap<Integer, TypeDefinition> map = new HashMap<>();
+			
+			if (type.getGenericParameters().size() != genericParametersCount){
+			    throw new IllegalArgumentException("Number of generic params does not match");
+			}
+			
 			map.put(genericParametersCount, type);
+			
 			types.put(type.getName(), map);
 			return type;
 		} else {
@@ -157,7 +168,26 @@ public class ModuleTypeContents implements UpdatableTypeRepository {
 				cached.updateFrom(type);
 				return cached;
 			} else {
-				throw new RuntimeException();
+			    // a type is already registered with another params count
+			    cached = map.size() == 1 ? map.values().iterator().next() : null;
+			    
+			    if (cached != null){
+			        if (cached != type){
+			            cached.updateFrom(type);
+			        } // else : they are the same. No need to do an update
+			        
+			        map.clear();
+			        
+			        if (type.getGenericParameters().size() != genericParametersCount){
+		                throw new IllegalArgumentException("Number of generic params does not match");
+		            }
+			        
+                    map.put(genericParametersCount, cached);
+                    
+                    return cached;
+			    }
+			    
+				throw new IllegalStateException("Registered type does not match the new registed type");
 			}
 			
 		}
@@ -177,13 +207,15 @@ public class ModuleTypeContents implements UpdatableTypeRepository {
 
 			for(TypeDefinition def : map.values()){
 
-				if (def.getName().equals(LenseTypeSystem.Any().getName())){
-					continue;
-				}
+			    if (LenseTypeSystem.getInstance().isAny(def)){
+                    continue;
+                }
+			    
 				LenseTypeDefinition type = (LenseTypeDefinition)def;
 
+				
 				Optional<TypeDefinition> op;
-				if (LenseTypeSystem.Any().getName().equals(type.getSuperDefinition().getName())){
+				if (type.getSuperDefinition() == null || LenseTypeSystem.getInstance().isAny(type.getSuperDefinition())){
 					op = Optional.of(LenseTypeSystem.Any());
 				} else {
 					Map<Integer, TypeDefinition> m = types.get(type.getSuperDefinition().getName());
@@ -208,23 +240,23 @@ public class ModuleTypeContents implements UpdatableTypeRepository {
 	private void loadInterfaces(LenseTypeDefinition type) {
 		if (!type.getInterfaces().isEmpty()){
 			List<TypeDefinition> newInterfaces = new ArrayList<>(type.getInterfaces().size());
-			for(TypeDefinition it : type.getInterfaces()){
+			for(TypeDefinition matchInterface : type.getInterfaces()){
 				
-				Map<Integer, TypeDefinition> m = types.get(it.getName());
+				Map<Integer, TypeDefinition> m = types.get(matchInterface.getName());
 				
 				if (m == null){
 					throw new RuntimeException();
 				} else if (m.size() == 1){
-					LenseTypeDefinition t = (LenseTypeDefinition)m.values().iterator().next();
-					if (t.isGeneric()){
-						loadInterfaces(t);
-						newInterfaces.add(LenseTypeSystem.specify(t, it.getGenericParameters().toArray(new lense.compiler.type.variable.TypeVariable[0])));
+					LenseTypeDefinition realInterface = (LenseTypeDefinition)m.values().iterator().next();
+					if (realInterface.isGeneric()){
+						loadInterfaces(realInterface);
+						newInterfaces.add(LenseTypeSystem.specify(realInterface, type.getGenericParameters()));
 					} else {
-						newInterfaces.add(t);
+						newInterfaces.add(realInterface);
 					}
 					
 				} else {
-					newInterfaces.add(resolveType(new TypeSearchParameters(it.getName(), it.getGenericParameters().size())).get());
+					newInterfaces.add(resolveType(new TypeSearchParameters(matchInterface.getName(), matchInterface.getGenericParameters().size())).get());
 				}
 				
 			}

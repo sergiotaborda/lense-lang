@@ -23,7 +23,6 @@ import lense.compiler.type.LenseTypeDefinition;
 import lense.compiler.type.LenseUnitKind;
 import lense.compiler.type.Method;
 import lense.compiler.type.MethodParameter;
-import lense.compiler.type.MethodReturn;
 import lense.compiler.type.MethodSignature;
 import lense.compiler.type.TypeDefinition;
 import lense.compiler.type.UnionType;
@@ -244,7 +243,7 @@ public class LenseTypeSystem {
 
         sbool.addMethod("negate", sbool);
 
-        register(new LenseTypeDefinition("lense.core.lang.Interval", LenseUnitKind.Class, any,
+        register(new FundamentalLenseTypeDefinition("lense.core.lang.Interval", LenseUnitKind.Class, any,
                 new RangeTypeVariable("T", Variance.Covariant, any, nothing)));
 
         // TODO treat interfaces and traits as attached types
@@ -311,7 +310,7 @@ public class LenseTypeSystem {
                 new ConstructorParameter(new DeclaringTypeBoundedTypeVariable(keyValue, 0, "K", Variance.Invariant)),
                 new ConstructorParameter(new DeclaringTypeBoundedTypeVariable(keyValue, 1, "v", Variance.Invariant)));
 
-        register(new LenseTypeDefinition("lense.core.collections.Association", LenseUnitKind.Class,
+        register(new FundamentalLenseTypeDefinition("lense.core.collections.Association", LenseUnitKind.Class,
                 specify(sequence, keyValue), new RangeTypeVariable("K", Variance.ContraVariant, any, nothing),
                 new RangeTypeVariable("V", Variance.Covariant, any, nothing)));
 
@@ -577,7 +576,6 @@ public class LenseTypeSystem {
     }
 
     public static LenseTypeDefinition specify(TypeDefinition definition, TypeVariable... genericParametersCapture) {
-
         IntervalTypeVariable[] defs = new IntervalTypeVariable[genericParametersCapture.length];
         for (int i = 0; i < genericParametersCapture.length; i++) {
             defs[i] = genericParametersCapture[i].toIntervalTypeVariable();
@@ -585,6 +583,19 @@ public class LenseTypeSystem {
 
         return specify(definition, defs);
     }
+    
+    public static LenseTypeDefinition specify(TypeDefinition definition, List<IntervalTypeVariable> genericParameters) {
+
+        return ((LenseTypeDefinition)definition).specify(genericParameters);
+    }
+    
+    public static LenseTypeDefinition specify(TypeDefinition definition, IntervalTypeVariable... genericParameters) {
+        if (definition == null){
+            throw new IllegalArgumentException("Definition type is required");
+        }
+        return ((LenseTypeDefinition)definition).specify(Arrays.asList(genericParameters));
+    }
+
 
     /**
      * @param progression
@@ -611,31 +622,6 @@ public class LenseTypeSystem {
         return specify(definition, genericParameters);
     }
 
-    public static LenseTypeDefinition specify(TypeDefinition definition, IntervalTypeVariable... genericParameters) {
-        LenseTypeDefinition concrete = new LenseTypeDefinition(definition.getName(), definition.getKind(),
-                (LenseTypeDefinition) definition.getSuperDefinition(), genericParameters);
-
-        concrete.addMembers(definition.getMembers().stream().map(m -> m.changeDeclaringType(concrete)));
-
-        for (TypeDefinition def : definition.getInterfaces()) {
-
-            if (def.isGeneric()) {
-                IntervalTypeVariable[] binded = new IntervalTypeVariable[def.getGenericParameters().size()];
-                int i = 0;
-                for (IntervalTypeVariable p : def.getGenericParameters()) {
-                    binded[i++] = p.changeBaseType(concrete).toIntervalTypeVariable();
-                }
-                TypeDefinition sp = specify(def, binded);
-
-                concrete.addInterface(sp);
-            } else {
-                concrete.addInterface(def);
-            }
-
-        }
-
-        return concrete;
-    }
 
     public boolean isPromotableTo(TypeDefinition a, TypeDefinition b) {
         return isPromotableTo(new FixedTypeVariable(a), new FixedTypeVariable(b));
@@ -831,5 +817,11 @@ public class LenseTypeSystem {
     public Collection<LenseTypeDefinition> getAll() {
         return Collections.unmodifiableCollection(this.definitions.values());
     }
+
+    public boolean isAny(TypeDefinition type) {
+        return type.getName().equals(Any().getName());
+    }
+
+
 
 }

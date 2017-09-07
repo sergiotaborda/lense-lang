@@ -43,7 +43,9 @@ public class VariableReadNode extends ExpressionNode implements NameIdentifierNo
 		this.name = name;
 	}
 
-
+	public String toString(){
+	    return name;
+	}
 	/**
 	 * @return
 	 */

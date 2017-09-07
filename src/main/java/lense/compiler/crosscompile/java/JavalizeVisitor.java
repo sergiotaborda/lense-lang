@@ -17,6 +17,7 @@ import lense.compiler.ast.CastNode;
 import lense.compiler.ast.ClassTypeNode;
 import lense.compiler.ast.MethodInvocationNode;
 import lense.compiler.context.SemanticContext;
+import lense.compiler.repository.UpdatableTypeRepository;
 import lense.compiler.type.CallableMember;
 import lense.compiler.type.CallableMemberMember;
 import lense.compiler.type.Constructor;
@@ -38,14 +39,15 @@ import lense.compiler.typesystem.LenseTypeSystem;
  */
 public class JavalizeVisitor implements Visitor<AstNode>{
 
-    private SemanticContext semanticContext;
-    private Map<String, File> nativeTypes;
-    private Map<String, LenseTypeDefinition> nativeLoadedTypes = new HashMap<>();
-    private ByteCodeTypeDefinitionReader asmReader = new ByteCodeTypeDefinitionReader();
+    private final SemanticContext semanticContext;
+    private final Map<String, File> nativeTypes;
+    private final Map<String, LenseTypeDefinition> nativeLoadedTypes = new HashMap<>();
+    private final ByteCodeTypeDefinitionReader asmReader;
 
-    public JavalizeVisitor(SemanticContext semanticContext, Map<String, File> nativeTypes) {
+    public JavalizeVisitor(SemanticContext semanticContext, Map<String, File> nativeTypes, UpdatableTypeRepository typeContainer) {
         this.semanticContext = semanticContext;
         this.nativeTypes = nativeTypes;
+        this.asmReader = new ByteCodeTypeDefinitionReader(typeContainer);
     }
 
     @Override
@@ -78,7 +80,14 @@ public class JavalizeVisitor implements Visitor<AstNode>{
 
     private void loadDependencies(LenseTypeDefinition type) throws IOException {
         if (type.getSuperDefinition() != null && !type.getSuperDefinition().getName().equals("lense.core.lang.Any")) {
-            type.setSuperTypeDefinition(this.loadByName(type.getSuperDefinition().getName()));
+            LenseTypeDefinition superType = this.loadByName(type.getSuperDefinition().getName());
+            
+            if (!superType.isPlataformSpecific()){
+                type.setSuperTypeDefinition(superType);
+            } else {
+                type.setSuperTypeDefinition(this.loadByName("lense.core.lang.Any"));
+            }
+          
         }
     }
 

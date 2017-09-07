@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import lense.compiler.type.LenseUnitKind;
 import compiler.syntax.AstNode;
 import compiler.trees.TreeTransverser;
 import compiler.trees.VisitorNext;
@@ -22,7 +21,6 @@ import lense.compiler.ast.FieldDeclarationNode;
 import lense.compiler.ast.FieldOrPropertyAccessNode;
 import lense.compiler.ast.FormalParameterNode;
 import lense.compiler.ast.IndexerPropertyDeclarationNode;
-import lense.compiler.ast.InferedTypeNode;
 import lense.compiler.ast.InstanceOfNode;
 import lense.compiler.ast.MethodDeclarationNode;
 import lense.compiler.ast.ParametersListNode;
@@ -35,6 +33,7 @@ import lense.compiler.context.SemanticContext;
 import lense.compiler.context.VariableInfo;
 import lense.compiler.type.ConstructorParameter;
 import lense.compiler.type.LenseTypeDefinition;
+import lense.compiler.type.LenseUnitKind;
 import lense.compiler.type.Method;
 import lense.compiler.type.MethodParameter;
 import lense.compiler.type.MethodReturn;
@@ -57,7 +56,11 @@ public class StructureVisitor extends AbstractScopedVisitor {
 		super(semanticContext);
 		this.currentType = currentType;
 	}
-
+	
+    @Override
+    protected Optional<LenseTypeDefinition> getCurrentType() {
+        return Optional.of(currentType);
+    }
 
 	/**
 	 * {@inheritDoc}
@@ -254,7 +257,7 @@ public class StructureVisitor extends AbstractScopedVisitor {
 					int i =0;
 					for (AstNode n :  ((IndexerPropertyDeclarationNode)p).getIndexes().getChildren()) {
 						FormalParameterNode var = (FormalParameterNode) n;
-						params[i++] = var.getTypeNode().getTypeVariable();
+						params[i++] = var.getTypeNode().getTypeParameter();
 					}
 
 					currentType.addIndexer(pp, p.getAcessor() != null, p.getModifier() != null, params);
@@ -268,7 +271,7 @@ public class StructureVisitor extends AbstractScopedVisitor {
 					int i =0;
 					for (AstNode n :  ((IndexerPropertyDeclarationNode)p).getIndexes().getChildren()) {
 						FormalParameterNode var = (FormalParameterNode) n;
-						params[i++] = var.getTypeNode().getTypeVariable();
+						params[i++] = var.getTypeNode().getTypeParameter();
 					}
 
 					currentType.addIndexer(p.getType().getTypeVariable(), p.getAcessor() != null, p.getModifier() != null, params);
@@ -304,17 +307,17 @@ public class StructureVisitor extends AbstractScopedVisitor {
 
 	}
 
-	private TypeNode inferType(TypeNode t) {
-
-		if (t.getParent().getParent() instanceof  lense.compiler.ast.ForEachNode){
-			lense.compiler.ast.ForEachNode f = (lense.compiler.ast.ForEachNode)t.getParent().getParent();
-
-			return new InferedTypeNode( () -> f.getContainer());
-		} else {
-			throw new CompilationError(t, "Impossible to infer type with parent " + t.getParent());
-		}
-
-	}
+//	private TypeNode inferType(TypeNode t) {
+//
+//		if (t.getParent().getParent() instanceof  lense.compiler.ast.ForEachNode){
+//			lense.compiler.ast.ForEachNode f = (lense.compiler.ast.ForEachNode)t.getParent().getParent();
+//
+//			return new InferedTypeNode( () -> f.getContainer());
+//		} else {
+//			throw new CompilationError(t, "Impossible to infer type with parent " + t.getParent());
+//		}
+//
+//	}
 
 
 	private ConstructorParameter[] asConstructorParameters(ParametersListNode parameters) {
@@ -358,6 +361,9 @@ public class StructureVisitor extends AbstractScopedVisitor {
 		}
 		return params;
 	}
+
+
+
 
 
 

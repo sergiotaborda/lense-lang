@@ -7,29 +7,33 @@ import java.io.InputStream;
 
 import org.objectweb.asm.ClassReader;
 
+import lense.compiler.repository.UpdatableTypeRepository;
+import lense.compiler.type.LenseTypeDefinition;
 import lense.compiler.type.TypeDefinition;
 
 public class ByteCodeTypeDefinitionReader {
 
-	
-	public ByteCodeTypeDefinitionReader(){}
+    private final UpdatableTypeRepository typeContainer;
+    
+	public ByteCodeTypeDefinitionReader(UpdatableTypeRepository typeContainer){
+	    this.typeContainer = typeContainer;
+	}
 	
 	public TypeDefinition readNative(File classFile) throws IOException {	
 		return readNative(new FileInputStream(classFile));
 	}
 	
-	public TypeDefinition readNative(InputStream input) throws IOException {
+	public LenseTypeDefinition readNative(InputStream input) throws IOException {
 		
 		// TODO need access to TypeResolver.
 		
-		ByteCodeReader cp = new ByteCodeReader();
+		ByteCodeReader cp = new ByteCodeReader(typeContainer);
 		ClassReader cr = new ClassReader(input);
 		cr.accept(cp, 0);
 		
 		
-		LoadedLenseTypeDefinition def = cp.getType();
-		
-		return def;
+		return cp.getType();
+
 	}
 	
 

@@ -3,6 +3,8 @@
  */
 package lense.compiler.type;
 
+import java.util.stream.Stream;
+
 import lense.compiler.type.variable.TypeMemberAwareTypeVariable;
 import lense.compiler.type.variable.TypeVariable;
 import lense.compiler.typesystem.Visibility;
@@ -16,7 +18,7 @@ public class IndexerProperty  implements TypeMember {
 	private TypeDefinition declaringType;
 	private boolean canRead;
 	private boolean canWrite;
-	private TypeVariable[] params;
+	private TypeVariable[] parameterTypes;
     private Visibility visibility;
     private boolean isAbstract;
 	 
@@ -28,10 +30,14 @@ public class IndexerProperty  implements TypeMember {
 	 */
 	public IndexerProperty(TypeDefinition declaringType, TypeVariable type, boolean canRead, boolean canWrite , TypeVariable ... params ) {
 		this.type = type;
-		this.params = params;
+		this.parameterTypes = params;
 		this.declaringType = declaringType;
 		this.canRead=  canRead;
 		this.canWrite =canWrite;
+		
+		if (Stream.of(params).anyMatch(p -> p == null)){
+		    throw new IllegalArgumentException("Parameter type cannot be null");
+		}
 	}
 
 	public TypeVariable getReturningType() {
@@ -39,7 +45,7 @@ public class IndexerProperty  implements TypeMember {
 	}
 
 	public TypeVariable[] getIndexes() {
-		return params;
+		return parameterTypes;
 	}
 
 	public TypeDefinition getDeclaringType() {
@@ -70,7 +76,7 @@ public class IndexerProperty  implements TypeMember {
 	public TypeMember changeDeclaringType(TypeDefinition concrete) {
 		TypeVariable t = this.type.changeBaseType(concrete);
 		
-		IndexerProperty p = new IndexerProperty(concrete, t , this.canRead, this.canWrite, this.params);
+		IndexerProperty p = new IndexerProperty(concrete, t , this.canRead, this.canWrite, this.parameterTypes);
 		if (t instanceof TypeMemberAwareTypeVariable){
 			((TypeMemberAwareTypeVariable)t).setDeclaringMember(p);
 		}
@@ -81,7 +87,7 @@ public class IndexerProperty  implements TypeMember {
 	public String getName() {
 		StringBuilder builder = new StringBuilder("[");
 		
-		for (TypeVariable p : params){
+		for (TypeVariable p : parameterTypes){
 			builder.append(p.getTypeDefinition().getName()).append(",");
 		}
 		builder.deleteCharAt(builder.length()-1);
@@ -89,6 +95,11 @@ public class IndexerProperty  implements TypeMember {
 		return builder.append("]").toString();
 	}
 
+	@Override
+	public String toString(){
+	    return this.getName();
+	}
+	
 	@Override
 	public boolean isIndexer() {
 		return true;
@@ -119,7 +130,7 @@ public class IndexerProperty  implements TypeMember {
     }
 
 	public int hashCode(){
-		return params.length;
+		return parameterTypes.length;
 	}
 
 	public boolean equals (Object other){
@@ -127,12 +138,12 @@ public class IndexerProperty  implements TypeMember {
 	}
 	
 	private boolean equals (IndexerProperty other){
-		if( this.params.length != other.params.length) {
+		if( this.parameterTypes.length != other.parameterTypes.length) {
 			return false;
 		}
 		
-		for (int i =0; i < this.params.length; i++) {
-			if (!this.params[i].equals(other.params[i])) {
+		for (int i =0; i < this.parameterTypes.length; i++) {
+			if (!this.parameterTypes[i].equals(other.parameterTypes[i])) {
 				return false;
 			}
 		}

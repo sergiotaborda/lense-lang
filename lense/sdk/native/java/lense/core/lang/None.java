@@ -1,7 +1,9 @@
 package lense.core.lang;
 
 import lense.core.lang.java.Constructor;
+import lense.core.lang.java.Signature;
 
+@Signature(":lense.core.lang.Maybe<lense.core.lang.Nothing>:")
 public class None extends Maybe {
 
 	public static final None NONE = new None();

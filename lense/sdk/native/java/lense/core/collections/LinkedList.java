@@ -3,6 +3,7 @@ package lense.core.collections;
 import lense.core.lang.Any;
 import lense.core.lang.HashValue;
 import lense.core.lang.java.Constructor;
+import lense.core.lang.java.MethodSignature;
 import lense.core.lang.java.Property;
 import lense.core.lang.java.Signature;
 import lense.core.math.Integer;
@@ -35,21 +36,24 @@ public class LinkedList extends AbstractAssortment implements ResizableSequence 
 	}
 	
 	@Override @Property(indexed = true , name = "", setter = true)
+	@MethodSignature( returnSignature = "" , paramsSignature = "lense.core.math.Natural,T")
 	public void set(Natural index, Any element) {
 		list.set(index.toPrimitiveInt(), element);
 	}
 
 	@Override @Property(indexed = true , name = "")
+    @MethodSignature( returnSignature = "T" , paramsSignature = "lense.core.math.Natural")
 	public Any get(Natural index) {
 		return list.get(index.toPrimitiveInt());
 	}
 
-	@Override
+	@Override @Property(name = "size")
 	public Natural getSize() {
 		return Natural.valueOfNative(list.size());
 	}
 
-	@Override
+	@Override @Property(name = "iterator")
+    @MethodSignature( returnSignature = "lense.core.collections.Iterator<T>", paramsSignature = "")
 	public Iterator getIterator() {
 		return new IteratorAdapter(list.iterator());
 	}
@@ -64,7 +68,8 @@ public class LinkedList extends AbstractAssortment implements ResizableSequence 
 		 list.remove(value);
 	}
 
-	@Override
+    @Override @Property(name = "indexes")
+    @MethodSignature( returnSignature = "lense.core.collections.Progression<lense.core.math.Natural>", paramsSignature = "")
 	public Progression getIndexes() {
 		return new NativeProgression(0, list.size() -1);
 	}

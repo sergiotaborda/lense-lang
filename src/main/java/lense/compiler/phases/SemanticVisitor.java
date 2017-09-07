@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import compiler.parser.IdentifierNode;
 import compiler.parser.NameIdentifierNode;
@@ -121,6 +122,12 @@ public class SemanticVisitor extends AbstractScopedVisitor {
         // sc.resolveTypeForName("lense.core.lang.Nothing", 0).get();
     }
 
+    
+    @Override
+    protected Optional<LenseTypeDefinition> getCurrentType() {
+        return Optional.of(currentType);
+    }
+    
     /**
      * {@inheritDoc}
      */
@@ -176,7 +183,7 @@ public class SemanticVisitor extends AbstractScopedVisitor {
                                 Collection<Method> implemented = currentType.getMethodsByName(m.getName());
                                 if (!implemented.stream().anyMatch(i -> typeSystem.isMethodImplementedBy(m, i))) {
                                     throw new CompilationError(currentType.getSimpleName() + " is not abstract and method "
-                                            + m.toString() + " is not implemented");
+                                            + m.toString() + " on "  + st.getName() +"  is not implemented");
                                 }
                             }
                         }
@@ -1213,8 +1220,7 @@ public class SemanticVisitor extends AbstractScopedVisitor {
                 int i = 0;
                 for (AstNode n : ((IndexerPropertyDeclarationNode) p).getIndexes().getChildren()) {
                     FormalParameterNode var = (FormalParameterNode) n;
-                    TypeVariable type = var.getTypeNode().getTypeVariable();
-                    params[i++] = type;
+                    params[i++] =  var.getTypeNode().getTypeParameter();
                     // this.getSemanticContext().currentScope().defineTypeVariable(var.getName(),
                     // type, p).setInitialized(true);
                 }
@@ -1310,7 +1316,7 @@ public class SemanticVisitor extends AbstractScopedVisitor {
                 Optional<IndexerProperty> indexer = methodOwnerType.getIndexerPropertyByTypeArray(signatureTypes);
 
                 if (!indexer.isPresent()) {
-                    throw new CompilationError(node, "No indexer " + signatureTypes
+                    throw new CompilationError(node, "No indexer " + Stream.of(signatureTypes).map(t -> t.toString()).collect(Collectors.joining(","))
                             + " is defined for type " + methodOwnerType);
                 }
 
@@ -1807,7 +1813,7 @@ public class SemanticVisitor extends AbstractScopedVisitor {
 
                 if (!constructor.isPresent()) {
                     throw new CompilationError(n,
-                            "Constructor " + def.getName() + "(" + Arrays.toString(parameters) + ") is not defined");
+                            "Constructor " + def.getName() + "(" + Stream.of(parameters).map(cp -> cp.toString()).collect(Collectors.joining(",")) + ") is not defined");
                 }
             }
 

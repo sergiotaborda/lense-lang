@@ -34,6 +34,7 @@ import lense.compiler.crosscompile.java.JavaCompilerBackEndFactory.JavaCompilerB
 import lense.compiler.modules.ModulesRepository;
 import lense.compiler.phases.CompositePhase;
 import lense.compiler.phases.DesugarPhase;
+import lense.compiler.repository.UpdatableTypeRepository;
 
 /**
  * 
@@ -47,12 +48,12 @@ public class LenseToJavaCompiler extends LenseCompiler{
 		super("java",globalModulesRepository,javaCompilerBackEndFactory); // JavaBackEndFactory(); //new  JavaSourceBackEnd(); //JavaBinaryBackEndFactory();
 	}
 
-	protected void initCorePhase(CompositePhase corePhase, Map<String, File> nativeTypes){
+	protected void initCorePhase(CompositePhase corePhase, Map<String, File> nativeTypes, UpdatableTypeRepository typeContainer){
 	    
 	    DesugarPhase desugarProperties = new DesugarPhase(this.getCompilerListener());
 	    ErasurePhase erasurePhase = new ErasurePhase(this.getCompilerListener());
        // IntermediatyRepresentationPhase  ir = new IntermediatyRepresentationPhase();
-        JavalizePhase  jv = new JavalizePhase(this.getCompilerListener(),nativeTypes);
+        JavalizePhase  jv = new JavalizePhase(this.getCompilerListener(),nativeTypes, typeContainer);
         
         corePhase.add(desugarProperties).add(erasurePhase).add(jv);//.add(ir);
   

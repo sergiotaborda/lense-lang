@@ -1,6 +1,6 @@
 
 import lense.core.collections.Iterable;
 
-public interface Progression<A> extends Iterable<A> {
+public interface Progression<T> extends Iterable<T> {
 
 }

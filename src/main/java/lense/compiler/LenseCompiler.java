@@ -55,6 +55,7 @@ import lense.compiler.phases.NameResolutionPhase;
 import lense.compiler.phases.SemanticAnaylisisPhase;
 import lense.compiler.repository.ClasspathRepository;
 import lense.compiler.repository.ModuleCompilationScopeTypeRepository;
+import lense.compiler.repository.UpdatableTypeRepository;
 import lense.compiler.type.LenseTypeDefinition;
 import lense.compiler.type.variable.IntervalTypeVariable;
 import lense.compiler.type.variable.RangeTypeVariable;
@@ -152,7 +153,7 @@ public abstract class LenseCompiler {
     }
 
     protected abstract void createModuleArchive(FileLocations locations, ModuleNode module, File base, Set<String> applications) throws IOException, FileNotFoundException;
-    protected abstract void initCorePhase(CompositePhase corePhase, Map<String, File> nativeTypes);
+    protected abstract void initCorePhase(CompositePhase corePhase, Map<String, File> nativeTypes, UpdatableTypeRepository typeContainer);
     protected abstract void compileNative(FileLocations fileLocations, Map<String, File> nativeTypes) throws IOException;
 
     /**
@@ -169,7 +170,6 @@ public abstract class LenseCompiler {
 
         CompositePhase corePhase = new CompositePhase().add(semantic);
 
-        initCorePhase (corePhase, nativeTypes);
 
         listener.start();
         try {
@@ -239,6 +239,8 @@ public abstract class LenseCompiler {
                 base = ((ClasspathRepository)globalRepository).getBase();
                 backendFactory.setClasspath(base);
             }
+            
+            initCorePhase (corePhase, nativeTypes, currentModuleRepository);
 
             DependencyGraph graph = new DependencyGraph();
 
@@ -302,7 +304,7 @@ public abstract class LenseCompiler {
                         ltype = (LenseTypeDefinition)type.getSemanticContext().typeForName(type.getName(), type.getGenericParametersCount());
 
                     } catch (TypeNotPresentException e) {
-                        ltype = new LenseTypeDefinition(type.getName(), type.getKind(), null,typeParameters.toArray(new lense.compiler.type.variable.IntervalTypeVariable[0]));
+                        ltype = new LenseTypeDefinition(type.getName(), type.getKind(), null,typeParameters);
                         ltype = (LenseTypeDefinition) currentModuleRepository.registerType(ltype, ltype.getGenericParameters().size());
                     }
 

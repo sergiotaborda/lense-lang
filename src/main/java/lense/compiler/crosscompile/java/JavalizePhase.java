@@ -11,16 +11,19 @@ import compiler.trees.TreeTransverser;
 import lense.compiler.CompilationError;
 import lense.compiler.ast.ClassTypeNode;
 import lense.compiler.ast.UnitTypes;
+import lense.compiler.repository.UpdatableTypeRepository;
 
 public class JavalizePhase implements CompilerPhase {
 
 	
 	private CompilerListener listener;
 	private Map<String, File> nativeTypes;
+    private UpdatableTypeRepository typeContainer;
 	
-	public JavalizePhase (CompilerListener listener, Map<String, File> nativeTypes){
+	public JavalizePhase (CompilerListener listener, Map<String, File> nativeTypes, UpdatableTypeRepository typeContainer){
 		this.listener = listener;
 		this.nativeTypes = nativeTypes;
+		this.typeContainer = typeContainer;
 	}
 	
 	@Override
@@ -37,7 +40,7 @@ public class JavalizePhase implements CompilerPhase {
 		for (ClassTypeNode ct : types.getTypes()){
 			// cannot share semantic context among classes
 			try {
-				TreeTransverser.transverse(ct,new JavalizeVisitor(ct.getSemanticContext(), this.nativeTypes));
+				TreeTransverser.transverse(ct,new JavalizeVisitor(ct.getSemanticContext(), this.nativeTypes, typeContainer));
 			} catch (CompilationError e){
 				listener.error(new CompilerMessage(e.getMessage()));
 				return new CompilationResult(e);
