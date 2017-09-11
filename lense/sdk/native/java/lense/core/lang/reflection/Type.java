@@ -11,6 +11,7 @@ import lense.core.collections.Sequence;
 import lense.core.lang.Any;
 import lense.core.lang.java.Base;
 import lense.core.lang.java.Constructor;
+import lense.core.lang.java.PlatformSpecific;
 
 public class Type extends Base {
 
@@ -42,7 +43,7 @@ public class Type extends Base {
         List<lense.core.lang.reflection.Method> methods = new LinkedList<>();
                 
         for (Method javaMethod :  javaType.getMethods()){
-            if (!javaMethod.isAnnotationPresent(lense.core.lang.java.Native.class)){
+            if (!javaMethod.isAnnotationPresent(lense.core.lang.java.PlatformSpecific.class)){
                 lense.core.lang.java.Property prop = javaMethod.getDeclaredAnnotation(lense.core.lang.java.Property.class);
                 if (prop == null){
                     methods.add(new lense.core.lang.reflection.Method(javaMethod));
@@ -62,7 +63,7 @@ public class Type extends Base {
         Set<java.lang.String> names = new HashSet<>();
         
         for (Method javaMethod :  javaType.getMethods()){
-            if (!javaMethod.isAnnotationPresent(lense.core.lang.java.Native.class)){
+            if (!javaMethod.isAnnotationPresent(lense.core.lang.java.PlatformSpecific.class)){
                 lense.core.lang.java.Property prop = javaMethod.getDeclaredAnnotation(lense.core.lang.java.Property.class);
                 if (prop != null){
                     if (names.add(prop.name())){

@@ -3,7 +3,7 @@ import lense.core.collections.KeyValuePair;
 import lense.core.collections.Assortment;
 import lense.core.lang.Any;
 
-public interface Association<K,V> extends Assortment<KeyValuePair<K,V>> {
+public interface Association<in K, out V> extends Assortment<KeyValuePair<K,V>> {
 
 
 }

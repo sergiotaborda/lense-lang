@@ -3,7 +3,9 @@ package lense.core.lang;
 import lense.core.lang.java.Base;
 import lense.core.lang.java.Constructor;
 import lense.core.lang.java.Native;
+import lense.core.lang.java.PlatformSpecific;
 import lense.core.math.Natural;
+
 
 public final class Character extends Base implements Any, Ordinal{
 
@@ -12,7 +14,7 @@ public final class Character extends Base implements Any, Ordinal{
 		return new Character((char)code.toPrimitiveInt());
 	}
 	
-	@Native
+	@PlatformSpecific
 	public static Character valueOfNative (char code){
 		return new Character(code);
 	}

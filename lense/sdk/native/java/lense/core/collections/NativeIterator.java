@@ -2,9 +2,10 @@ package lense.core.collections;
 
 import lense.core.lang.Any;
 import lense.core.lang.java.Native;
+import lense.core.lang.java.PlatformSpecific;
 import lense.core.math.Natural;
 
-@Native
+@PlatformSpecific
 class NativeIterator implements Iterator{
 
 	/**

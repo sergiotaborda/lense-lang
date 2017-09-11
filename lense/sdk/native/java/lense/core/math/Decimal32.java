@@ -41,10 +41,7 @@ public class Decimal32 extends Decimal{
 		return new BigDecimal(java.math.BigDecimal.valueOf(value));
 	}
 	
-	public Int32 compareTo(Real other){
-		return super.compareTo(other);
-	}
-	
+
 	@Override
 	public boolean equalsTo(Any other) {
 		return other instanceof Decimal32 && Float.compare(((Decimal32)other).value ,this.value) == 0;

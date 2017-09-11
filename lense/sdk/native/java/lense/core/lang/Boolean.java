@@ -3,8 +3,8 @@ package lense.core.lang;
 import lense.core.lang.java.Base;
 import lense.core.lang.java.Constructor;
 import lense.core.lang.java.Native;
-import lense.core.math.Int32;
-import lense.core.math.Integer;
+import lense.core.lang.java.PlatformSpecific;
+
 
 public class Boolean extends Base implements Any{
 
@@ -13,7 +13,7 @@ public class Boolean extends Base implements Any{
 	
 	private boolean value;
 
-	@Native
+	@PlatformSpecific
 	public final static Boolean valueOfNative(boolean value) {
 		return value ? TRUE : FALSE;
 	}
@@ -23,12 +23,12 @@ public class Boolean extends Base implements Any{
 		return FALSE;
 	}
 	
-	@Native
+	@PlatformSpecific
 	private Boolean(boolean value){
 		this.value = value;
 	}
 	
-	@Native
+	@PlatformSpecific
 	public boolean toPrimitiveBoolean() {
 		return value;
 	}

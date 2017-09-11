@@ -3,9 +3,10 @@ package lense.core.collections;
 import lense.core.lang.Any;
 import lense.core.lang.Boolean;
 import lense.core.lang.java.Native;
+import lense.core.lang.java.PlataformSpecific;
 import lense.core.math.Natural;
 
-@Native
+@PlataformSpecific
 class NativeIterator implements Iterator{
 
 	/**

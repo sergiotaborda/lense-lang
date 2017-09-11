@@ -120,11 +120,6 @@ public class ScalableInt32 extends ScalableInteger {
     }
 
     @Override
-    public Int32 toInt32() {
-        return Int32.valueOfNative(this.value);
-    }
-
-    @Override
     public boolean isNegative() {
         return this.value < 0;
     }

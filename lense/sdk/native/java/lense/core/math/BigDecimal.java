@@ -35,10 +35,6 @@ public class BigDecimal extends Decimal {
         return String.valueOfNative(value.toString());
     }
 
-    public Int32 compareTo(Real other){
-        return super.compareTo(other);
-    }
-
 
     @Override
     public boolean equalsTo(Any other) {

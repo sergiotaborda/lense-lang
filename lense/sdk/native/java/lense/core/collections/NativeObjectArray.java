@@ -7,9 +7,10 @@ import lense.core.lang.Any;
 import lense.core.lang.HashValue;
 import lense.core.lang.IllegalIndexException;
 import lense.core.lang.java.Native;
+import lense.core.lang.java.PlatformSpecific;
 import lense.core.math.Natural;
 
-@Native
+@PlatformSpecific
 final class NativeObjectArray extends Array {
 
 	private Any[] array;
@@ -62,7 +63,7 @@ final class NativeObjectArray extends Array {
 
 	@Override
 	public Iterator getIterator() {
-		return new ArrayIterator(array);
+		return new NativeArrayIterator(array);
 	}
 
 	@Override

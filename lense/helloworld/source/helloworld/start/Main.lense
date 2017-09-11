@@ -176,7 +176,7 @@ public class Main extends ConsoleApplication {
   		
   		console.println("Pre increment of 23 is {{j}} = 24 with value at {{i}} = 24");
   		
-  		i= 23;
+  		i = 23;
   		j = i++;
   			
   		console.println("Pos increment of 23 is {{j}} = 23 with value at {{i}} = 24");

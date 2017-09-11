@@ -1,8 +1,8 @@
 package lense.core.math;
 
-import lense.core.lang.java.Native;
+import lense.core.lang.java.PlatformSpecific;
 
-@Native
+@PlatformSpecific
 public final class NativeNumberFactory {
 
     public static Natural newNatural(long nativeValue){

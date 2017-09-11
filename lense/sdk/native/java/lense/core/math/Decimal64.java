@@ -41,10 +41,6 @@ public class Decimal64 extends Decimal{
 		return lense.core.lang.String.valueOfNative(Double.toString(value));
 	}
 	
-	public Int32 compareTo(Real other){
-		return super.compareTo(other);
-	}
-	
 	
 	@Override
 	public boolean equalsTo(Any other) {

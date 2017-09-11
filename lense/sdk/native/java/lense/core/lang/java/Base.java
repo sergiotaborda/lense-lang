@@ -4,7 +4,7 @@ import lense.core.lang.Any;
 import lense.core.lang.HashValue;
 import lense.core.lang.reflection.Type;
 
-@PlataformSpecific
+@PlatformSpecific
 public class Base implements Any{
 
 	@Override @Native

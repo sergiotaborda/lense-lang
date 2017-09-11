@@ -7,7 +7,7 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.CLASS)
 @Target(ElementType.METHOD)
-@Native
+@PlatformSpecific
 public @interface MethodSignature {
 
 	String returnSignature();

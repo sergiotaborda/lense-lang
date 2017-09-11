@@ -7,11 +7,12 @@ import lense.core.lang.Boolean;
 import lense.core.lang.HashValue;
 import lense.core.lang.IllegalIndexException;
 import lense.core.lang.java.Native;
+import lense.core.lang.java.PlatformSpecific;
 import lense.core.math.Int32;
 import lense.core.math.Integer;
 import lense.core.math.Natural;
 
-@Native
+@PlatformSpecific
 final class NativeBooleanArray extends Array {
 
 	private boolean[] array;

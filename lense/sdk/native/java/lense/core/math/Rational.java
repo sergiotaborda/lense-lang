@@ -34,10 +34,6 @@ public class Rational extends Real {
         return denominator;
     }
 
-    public Int32 compareTo(Real other){
-        return super.compareTo(other);
-    }
-
 
     @Override
     public boolean equalsTo(Any other) {

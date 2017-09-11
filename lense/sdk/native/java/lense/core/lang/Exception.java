@@ -2,11 +2,12 @@ package lense.core.lang;
 
 import lense.core.lang.java.Constructor;
 import lense.core.lang.java.Native;
+import lense.core.lang.java.PlatformSpecific;
 import lense.core.lang.reflection.Type;
 
 public class Exception extends java.lang.RuntimeException implements Any {
 
-    @Native
+	@PlatformSpecific
     private static final long serialVersionUID = 1L;
 
     @Constructor

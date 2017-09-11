@@ -3,6 +3,7 @@ package lense.core.math;
 import lense.core.lang.java.Base;
 import lense.core.lang.java.Constructor;
 import lense.core.lang.java.Native;
+import lense.core.lang.java.PlatformSpecific;
 
 public abstract class Comparison extends Base  {
 
@@ -11,7 +12,7 @@ public abstract class Comparison extends Base  {
 		return Equal.constructor();
 	}
 	
-	@Native
+	@PlatformSpecific
 	public static Comparison valueOfNative(int compareTo) {
 		 if (compareTo < 0){
 			return Smaller.constructor();

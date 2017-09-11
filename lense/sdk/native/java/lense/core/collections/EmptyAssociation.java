@@ -9,10 +9,10 @@ import lense.core.lang.None;
 import lense.core.lang.String;
 import lense.core.lang.java.Base;
 import lense.core.lang.java.Native;
-import lense.core.lang.java.PlataformSpecific;
+import lense.core.lang.java.PlatformSpecific;
 import lense.core.math.Natural;
 
-@PlataformSpecific
+@PlatformSpecific
 public class EmptyAssociation extends Base implements Association {
 
 	@Override

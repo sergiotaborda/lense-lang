@@ -6,7 +6,7 @@ public final class ModuleIdentifier {
 
     private Version version;
     private String name;
-
+    
     public ModuleIdentifier(String name, Version version) {
        this.name = name;
        this.version = version;

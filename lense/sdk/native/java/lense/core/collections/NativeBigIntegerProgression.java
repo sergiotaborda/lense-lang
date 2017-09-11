@@ -6,8 +6,9 @@ import lense.core.lang.Any;
 import lense.core.lang.HashValue;
 import lense.core.lang.java.Base;
 import lense.core.lang.java.Native;
+import lense.core.lang.java.PlatformSpecific;
 
-@Native
+@PlatformSpecific
 public class NativeBigIntegerProgression extends Base implements Progression{
 
 	private BigInteger start;

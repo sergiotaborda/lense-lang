@@ -110,11 +110,6 @@ public class BigInt extends Integer {
 	}
 
     @Override
-    public Int32 toInt32() {
-        return Int32.valueOfNative(this.value.intValue());
-    }
-
-    @Override
     public boolean isNegative() {
         return this.value.compareTo(BigInteger.ZERO) < 0;
     }

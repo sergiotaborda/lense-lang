@@ -6,6 +6,7 @@ import lense.core.lang.HashValue;
 import lense.core.lang.java.Constructor;
 import lense.core.lang.java.Native;
 import lense.core.lang.java.NonNull;
+import lense.core.lang.java.PlatformSpecific;
 
 public abstract class Integer extends Whole implements Comparable, SignedNumber{
 
@@ -46,19 +47,19 @@ public abstract class Integer extends Whole implements Comparable, SignedNumber{
 		return super.divide(other);
 	}
 	
-	@Native
+	@PlatformSpecific
 	public static Integer valueOfNative(int n) {
 		return ScalableInt32.valueOf(n);
 	}
-	@Native
+	@PlatformSpecific
 	public static Integer valueOfNative(long n) {
 		return ScalableInt64.valueOf(n);
 	}
-	@Native
+	@PlatformSpecific
 	public static Integer valueOfNative(String n) {
 		return valueOfNative(new BigInteger(n));
 	}
-	@Native
+	@PlatformSpecific
 	public static Integer valueOfNative(BigInteger n) {
 
 		if (n.bitLength() <= 32){
@@ -100,9 +101,6 @@ public abstract class Integer extends Whole implements Comparable, SignedNumber{
 
 	public abstract boolean isZero();
     public abstract boolean isOne();
-
-    @Native
-    public abstract Int32 toInt32();
 
     public abstract boolean isNegative();
 

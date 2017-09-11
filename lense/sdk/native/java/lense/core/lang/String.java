@@ -7,10 +7,8 @@ import lense.core.collections.Progression;
 import lense.core.collections.Sequence;
 import lense.core.lang.java.Base;
 import lense.core.lang.java.Constructor;
-import lense.core.lang.java.Native;
+import lense.core.lang.java.PlatformSpecific;
 import lense.core.lang.java.Signature;
-import lense.core.math.Int32;
-import lense.core.math.Integer;
 import lense.core.math.Natural;
 
 @Signature("::lense.core.collections.Sequence<lense.core.lang.Character>")
@@ -23,14 +21,14 @@ public class String extends Base implements Sequence {
 		return EMPTY;
 	}
 	
-	@Native
+	@PlatformSpecific
 	public static String valueOfNative(java.lang.String str){
 		return new String(str);
 	}
 	
 	private java.lang.String str;
 	
-	@Native
+	@PlatformSpecific
 	private String(java.lang.String str){
 		this.str = str;
 	}
@@ -98,7 +96,7 @@ public class String extends Base implements Sequence {
 		return new String(this.str + other.str);
 	}
 	
-	@Native
+	@PlatformSpecific
 	public String plus(java.lang.String other){
 		return new String(this.str + other);
 	}

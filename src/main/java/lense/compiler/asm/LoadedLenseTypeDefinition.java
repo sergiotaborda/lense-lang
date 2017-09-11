@@ -31,7 +31,9 @@ public class LoadedLenseTypeDefinition extends FundamentalLenseTypeDefinition {
     
         public void setGenericParameters(List<IntervalTypeVariable> typeVar) {
             
-            
+          if (!genericParameters.isEmpty()) {
+        	  throw new IllegalStateException("Generics already been set");
+          }
           for(IntervalTypeVariable variable : typeVar){
               String genericParameterSymbol = variable.getSymbol().orElseThrow(() -> new RuntimeException("Generic parameter symbol is necessary"));
               if (!genericParametersMapping.containsKey(genericParameterSymbol)){

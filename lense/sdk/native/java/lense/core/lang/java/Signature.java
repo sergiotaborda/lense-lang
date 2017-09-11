@@ -7,7 +7,7 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.CLASS)
 @Target(ElementType.TYPE)
-@Native
+@PlatformSpecific
 public @interface Signature {
 
 	String value();

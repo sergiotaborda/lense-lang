@@ -7,6 +7,7 @@ import lense.core.lang.Any;
 import lense.core.lang.java.Constructor;
 import lense.core.lang.java.MethodSignature;
 import lense.core.lang.java.Native;
+import lense.core.lang.java.PlatformSpecific;
 import lense.core.lang.java.Property;
 import lense.core.lang.java.Signature;
 import lense.core.math.Natural;
@@ -21,13 +22,13 @@ public abstract class Array extends AbstractAssortment implements EditableSequen
 		return new NativeObjectArray(size, seed);
 	}
 	
-	@Native
+	@PlatformSpecific
 	public static  Array fromAnyArray (Any ... nativearray){
 		// TODO verify natural range
 		return new NativeObjectArray(nativearray);
 	}
 	
-	@Native
+	@PlatformSpecific
 	public static Array booleanArrayfromNativeNumberString (String value){
 		BigInteger big = new BigInteger(value);
 		
@@ -39,7 +40,7 @@ public abstract class Array extends AbstractAssortment implements EditableSequen
 		return new NativeBooleanArray(array);
 	}
 	
-	@Native
+	@PlatformSpecific
 	public static <T> Array fromNative (T[] nativearray, Function<T, Any> transform){
 		// TODO verify natural range
 		return new NativeObjectArray(nativearray, transform);

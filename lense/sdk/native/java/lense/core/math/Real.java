@@ -29,10 +29,6 @@ public abstract class Real extends Number implements Comparable , SignedNumber {
         return ONE;
     }
 
-    public Int32 compareTo(Real other){
-        return this.minus(other).signum().toInt32();
-    }
-    
     public Comparison compareWith(Real other){
         final Integer difference = this.minus(other).signum();
         if (difference.isZero()){

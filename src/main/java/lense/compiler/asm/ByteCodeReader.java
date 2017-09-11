@@ -76,6 +76,10 @@ public class ByteCodeReader extends ClassVisitor {
         if (map.isEmpty()){
             LoadedLenseTypeDefinition type = new LoadedLenseTypeDefinition(name, kind, null);
 
+            if (name.startsWith("lense.core.lang.java")) {
+            	type.setPlataformSpecific(true);
+            }
+            
             this.typeContainer.registerType(type, 0);
 
             return type;
@@ -347,32 +351,35 @@ public class ByteCodeReader extends ClassVisitor {
                     if (def instanceof LoadedLenseTypeDefinition) {
                         LoadedLenseTypeDefinition loadedDef = (LoadedLenseTypeDefinition)def;
 
-                        List<IntervalTypeVariable> genericVariables = new ArrayList<>(variables.length);
+                        if (loadedDef.getGenericParameters().isEmpty()) {
+                        	  List<IntervalTypeVariable> genericVariables = new ArrayList<>(variables.length);
 
-                        for (int i = 0; i < variables.length; i++) {
-                            String s = variables[i];
-                            Variance variance = lense.compiler.typesystem.Variance.Invariant;
-                            if (s.startsWith("+")) {
-                                variance = lense.compiler.typesystem.Variance.Covariant;
-                            } else if (s.startsWith("-")) {
-                                variance = lense.compiler.typesystem.Variance.ContraVariant;
-                            }
-                            pos = s.indexOf('<');
-                            String symbol = s.substring(1, pos);
-                            String upperBound = s.substring(pos + 1);
+                              for (int i = 0; i < variables.length; i++) {
+                                  String s = variables[i];
+                                  Variance variance = lense.compiler.typesystem.Variance.Invariant;
+                                  if (s.startsWith("+")) {
+                                      variance = lense.compiler.typesystem.Variance.Covariant;
+                                  } else if (s.startsWith("-")) {
+                                      variance = lense.compiler.typesystem.Variance.ContraVariant;
+                                  }
+                                  pos = s.indexOf('<');
+                                  String symbol = s.substring(1, pos);
+                                  String upperBound = s.substring(pos + 1);
 
-                            names[i] = symbol;
-                            maps.put(symbol, i);
+                                  names[i] = symbol;
+                                  maps.put(symbol, i);
 
-                            if (upperBound.equals(LenseTypeSystem.Any().getName())) {
-                                genericVariables.add(new RangeTypeVariable(symbol, variance, LenseTypeSystem.Any(), LenseTypeSystem.Nothing()));
-                            } else {
-                                genericVariables.add(new RangeTypeVariable(symbol, variance, resolveTypByNameAndKind(upperBound, null), LenseTypeSystem.Nothing()));
-                            }
+                                  if (upperBound.equals(LenseTypeSystem.Any().getName())) {
+                                      genericVariables.add(new RangeTypeVariable(symbol, variance, LenseTypeSystem.Any(), LenseTypeSystem.Nothing()));
+                                  } else {
+                                      genericVariables.add(new RangeTypeVariable(symbol, variance, resolveTypByNameAndKind(upperBound, null), LenseTypeSystem.Nothing()));
+                                  }
 
+                              }
+
+                              loadedDef.setGenericParameters(genericVariables);
                         }
-
-                        loadedDef.setGenericParameters(genericVariables);
+                      
                     }
                 }
 
@@ -385,22 +392,24 @@ public class ByteCodeReader extends ClassVisitor {
 
                 String[] g = parts[2].contains("&") ? parts[2].split("&") : new String[] { parts[2] };
                 for (String ss : g) {
-                    parseInterfaceSignature(ss, maps, def);
+                	parseInterfaceSignature(ss, maps, def).ifPresent( type ->  def.addInterface(type));
+                  
                 }
 
             }
         }
 
-        public void parseInterfaceSignature(String ss, Map<String, Integer> maps, TypeDefinition parent) {
+        public Optional<LenseTypeDefinition> parseInterfaceSignature(String ss, Map<String, Integer> maps, LenseTypeDefinition parent) {
             int pos = ss.indexOf('<');
             if (pos < 0) {
-                return;
+                return Optional.empty();
             }
             String interfaceType = ss.substring(0, pos);
             LenseTypeDefinition type = resolveTypByNameAndKind(interfaceType, LenseUnitKind.Interface);
             String n = ss.substring(pos + 1, ss.lastIndexOf('>'));
             if (n.contains("<")) {
 
+            	//TODO return 
                 parseInterfaceSignature(n, maps, type);
 
             } else {
@@ -409,36 +418,40 @@ public class ByteCodeReader extends ClassVisitor {
 
                 if (type instanceof LoadedLenseTypeDefinition){
                     LoadedLenseTypeDefinition loadedDef = (LoadedLenseTypeDefinition)type;
-                    List<IntervalTypeVariable> variables = new ArrayList<>(g.length);
 
-                    for (String symbol : g) {
-                        Integer index = maps.get(symbol);
+                    if (loadedDef.getGenericParameters().isEmpty()) {
+                    	List<IntervalTypeVariable> variables = new ArrayList<>(g.length);
 
-                        if (index != null) {
-                            // generic type
-                            variables.add( new DeclaringTypeBoundedTypeVariable(parent, index, symbol, lense.compiler.typesystem.Variance.Invariant));
+                        for (String symbol : g) {
+                            Integer index = maps.get(symbol);
 
-                        } else {
-                            // hard bound
-                            Optional<String> indexSymbol = type.getGenericParameterSymbolByIndex(i);
-                            if (!indexSymbol.isPresent()){ 
-                                LenseTypeDefinition t = resolveTypByNameAndKind(symbol, null);
+                            if (index != null) {
+                                // generic type
+                                variables.add( new DeclaringTypeBoundedTypeVariable(parent, index, symbol, lense.compiler.typesystem.Variance.Invariant));
 
-                                variables.add(new RangeTypeVariable(symbol, lense.compiler.typesystem.Variance.Invariant, t, t));
-                                //                                tv = new FixedTypeVariable();
-                                //                                variables.addGenericParameter("X" + Integer.toString(i), tv);
+                            } else {
+                                // hard bound
+                                Optional<String> indexSymbol = type.getGenericParameterSymbolByIndex(i);
+                                if (!indexSymbol.isPresent()){ 
+                                    LenseTypeDefinition t = resolveTypByNameAndKind(symbol, null);
+
+                                    variables.add(new RangeTypeVariable(symbol, lense.compiler.typesystem.Variance.Invariant, t, t));
+                                    //                                tv = new FixedTypeVariable();
+                                    //                                variables.addGenericParameter("X" + Integer.toString(i), tv);
+                                }
+
                             }
-
+                            i++;
                         }
-                        i++;
-                    }
 
-                    loadedDef.setGenericParameters(variables);
+                        loadedDef.setGenericParameters(variables);
+                    }
+                    
                 }
 
 
             }
-            def.addInterface(type);
+            return Optional.of(type);
 
         }
 

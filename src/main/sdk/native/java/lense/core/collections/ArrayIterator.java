@@ -2,7 +2,9 @@ package lense.core.collections;
 
 import lense.core.lang.Any;
 import lense.core.lang.IllegalIndexException;
+import lense.core.lang.java.PlataformSpecific;
 
+@PlataformSpecific
 public class ArrayIterator implements Iterator {
 
 	private Any[] array;

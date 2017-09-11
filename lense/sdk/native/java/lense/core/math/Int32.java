@@ -9,6 +9,7 @@ import lense.core.lang.HashValue;
 import lense.core.lang.Injunctable;
 import lense.core.lang.java.Constructor;
 import lense.core.lang.java.Native;
+import lense.core.lang.java.PlatformSpecific;
 import lense.core.lang.java.Property;
 
 public class Int32 extends Integer implements Binary {
@@ -23,7 +24,7 @@ public class Int32 extends Integer implements Binary {
 		return new Int32(0);
 	}
 	
-	@Native
+	@PlatformSpecific
 	public static Int32 valueOfNative(int n){
 		return new Int32(n);
 	}  
@@ -198,10 +199,6 @@ public class Int32 extends Integer implements Binary {
 		return new Int32( value == 0 ? 0 : (value < 0 ? -1 : 1));
 	}
 
-    @Override
-    public Int32 toInt32() {
-        return this;
-    }
 
     @Override
     public boolean isNegative() {

@@ -7,6 +7,7 @@ import lense.core.collections.Progression;
 import lense.core.lang.java.Constructor;
 import lense.core.lang.java.Native;
 import lense.core.lang.java.NonNull;
+import lense.core.lang.java.PlatformSpecific;
 
 public abstract class Natural extends Whole  {
 
@@ -23,7 +24,7 @@ public abstract class Natural extends Whole  {
         return valueOf(text.toString());
     }
 
-    @Native
+    @PlatformSpecific
     public static Natural valueOfNative(int value){
         if (value < 0){
             throw ArithmeticException.constructor(lense.core.lang.String.valueOfNative("A negative integer cannot be transformed to a Natural"));
@@ -31,7 +32,7 @@ public abstract class Natural extends Whole  {
         return new UNat(value);
     }
 
-    @Native
+    @PlatformSpecific
     public static Natural valueOfNative(long value) {
         if (value < 0){
             throw ArithmeticException.constructor(lense.core.lang.String.valueOfNative("A negative integer cannot be transformed to a Natural"));
@@ -70,7 +71,7 @@ public abstract class Natural extends Whole  {
         return new BigInt(div);
     }
     
-    @Native
+    @PlatformSpecific
     public abstract int toPrimitiveInt();
 
     public abstract int modulus(int n);
