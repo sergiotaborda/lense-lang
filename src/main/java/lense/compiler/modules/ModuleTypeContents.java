@@ -250,7 +250,7 @@ public class ModuleTypeContents implements UpdatableTypeRepository {
 					LenseTypeDefinition realInterface = (LenseTypeDefinition)m.values().iterator().next();
 					if (realInterface.isGeneric()){
 						loadInterfaces(realInterface);
-						newInterfaces.add(LenseTypeSystem.specify(realInterface, type.getGenericParameters()));
+						newInterfaces.add(LenseTypeSystem.specify(realInterface, matchInterface.getGenericParameters()));
 					} else {
 						newInterfaces.add(realInterface);
 					}

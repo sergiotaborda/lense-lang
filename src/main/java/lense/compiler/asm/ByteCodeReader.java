@@ -409,8 +409,8 @@ public class ByteCodeReader extends ClassVisitor {
             String n = ss.substring(pos + 1, ss.lastIndexOf('>'));
             if (n.contains("<")) {
 
-            	//TODO return 
-                parseInterfaceSignature(n, maps, type);
+
+                return parseInterfaceSignature(n, maps, type).map( generic -> LenseTypeSystem.specify(type, generic));
 
             } else {
                 String[] g = n.contains(",") ? n.split(",") : new String[] { n };
