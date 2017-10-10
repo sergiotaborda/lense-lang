@@ -837,7 +837,7 @@ public class SemanticVisitor extends AbstractScopedVisitor {
             }
 
             // replace by a method invocation
-            MethodInvocationNode method = new MethodInvocationNode(node.getChildren().get(0), methodName);
+            MethodInvocationNode method = new MethodInvocationNode(ensureExpression(node.getChildren().get(0)), methodName);
             method.setTypeVariable(list.get().getReturningType());
 
             if (node.getParent() instanceof ReturnNode) {
@@ -873,7 +873,7 @@ public class SemanticVisitor extends AbstractScopedVisitor {
                 }
 
                 // replace by a method invocation
-                MethodInvocationNode method = new MethodInvocationNode(node.getChildren().get(0), methodName);
+                MethodInvocationNode method = new MethodInvocationNode(ensureExpression(node.getChildren().get(0)), methodName);
 
                 method.setTypeVariable(list.get().getReturningType());
 
@@ -901,7 +901,7 @@ public class SemanticVisitor extends AbstractScopedVisitor {
                 }
 
                 // replace by a method invocation
-                MethodInvocationNode method = new MethodInvocationNode(node.getChildren().get(0), methodName);
+                MethodInvocationNode method = new MethodInvocationNode(ensureExpression(node.getChildren().get(0)), methodName);
                 method.setTypeVariable(list.get().getReturningType());
 
                 if (node.getParent() instanceof ReturnNode) {
@@ -967,7 +967,7 @@ public class SemanticVisitor extends AbstractScopedVisitor {
             }
 
             // replace by a method invocation
-            MethodInvocationNode method = new MethodInvocationNode(node.getChildren().get(0), methodName);
+            MethodInvocationNode method = new MethodInvocationNode(ensureExpression(node.getChildren().get(0)), methodName);
 
             method.setTypeVariable(list.get().getReturningType());
 
@@ -1266,13 +1266,13 @@ public class SemanticVisitor extends AbstractScopedVisitor {
                     int max = countTupleSize(methodOwnerType);
 
                     if (index.get().intValue() == 0) {
-                        MethodInvocationNode invoke = new MethodInvocationNode(m.getAccess(), "head");
+                        MethodInvocationNode invoke = new MethodInvocationNode(ensureExpression(m.getAccess()), "head");
 
                         node.getParent().replace(node, invoke);
                         invoke.setTypeVariable(methodOwnerType.getGenericParameters().get(0));
                         return;
                     } else if (index.get() < max) {
-                        MethodInvocationNode previous = new MethodInvocationNode(m.getAccess(), "tail");
+                        MethodInvocationNode previous = new MethodInvocationNode(ensureExpression(m.getAccess()), "tail");
                         previous.setTypeVariable(methodOwnerType.getGenericParameters().get(1));
 
                         for (int i = 0; i < index.get() - 1; i++) {
@@ -1425,10 +1425,18 @@ public class SemanticVisitor extends AbstractScopedVisitor {
                 fieldOwnerType = ((CastNode) access).getTypeVariable();
             } else if (access instanceof IdentifierNode) {
 
-                VariableInfo variable = this.getSemanticContext().currentScope()
-                        .searchVariable(((IdentifierNode) access).getName());
-
-                fieldOwnerType = variable.getTypeVariable();
+                TypeVariable ownerType = this.getSemanticContext().currentScope().searchVariable("this").getTypeVariable();
+      	      
+                Optional<TypedNode> typedNode = typeForName(access, ((IdentifierNode) access).getName());
+                
+                if (typedNode.isPresent()) {
+                	fieldOwnerType = typedNode.get().getTypeVariable();
+                	
+                	node.replace(access, (AstNode)typedNode.get());
+                } else {
+                	fieldOwnerType = ownerType;
+                }
+                
             } else {
                 throw new CompilationError(access.getClass() + " Not supported yet");
             }
@@ -1478,7 +1486,7 @@ public class SemanticVisitor extends AbstractScopedVisitor {
 
 
                         MethodInvocationNode transform = new MethodInvocationNode(
-                                m.getPrimary(), 
+                                ensureExpression(m.getPrimary()), 
                                 "map",
                                 arg
                                 // TODO
@@ -1698,8 +1706,19 @@ public class SemanticVisitor extends AbstractScopedVisitor {
                 }
             } else if (access instanceof NameIdentifierNode ) {
 
-                methodOwnerType = typeForName(methodOwnerType, access, ((NameIdentifierNode) access).getName());
-
+      	       TypeVariable ownerType = this.getSemanticContext().currentScope().searchVariable("this").getTypeVariable();
+    	      
+                Optional<TypedNode> typedNode = typeForName(access, ((NameIdentifierNode) access).getName());
+                
+                if (typedNode.isPresent()) {
+                	methodOwnerType = typedNode.get().getTypeVariable();
+                	
+                	node.replace(access, (AstNode)typedNode.get());
+                } else {
+                	methodOwnerType = ownerType;
+                }
+                
+                
             } else if (access instanceof TypedNode) {
                 methodOwnerType = ((TypedNode) access).getTypeVariable();
             } else {
@@ -2058,12 +2077,25 @@ public class SemanticVisitor extends AbstractScopedVisitor {
         } 
     }
 
-    private TypeVariable typeForName(TypeVariable methodOwnerType, AstNode access, String name) {
+    private ExpressionNode ensureExpression(AstNode node) {
+		if (node instanceof IdentifierNode) {
+			throw new RuntimeException(node + " is not an expression");
+		} else if (node instanceof ExpressionNode) {
+			return (ExpressionNode)node;
+		} else {
+			throw new RuntimeException(node + " is not an expression");
+		}
+	}
+
+
+	private Optional<TypedNode> typeForName(AstNode access, String name) {
+		
+
         VariableInfo variable = this.getSemanticContext().currentScope()
                 .searchVariable(name);
 
         if (variable != null){
-            methodOwnerType = variable.getTypeVariable();
+            return Optional.of(new VariableReadNode(name, variable));
         } else {
             
             // can be a field 
@@ -2071,23 +2103,20 @@ public class SemanticVisitor extends AbstractScopedVisitor {
             Optional<Field> field = currentType.getFieldByName(name);
 
             if (field.isPresent()) {
-                methodOwnerType = field.get().getReturningType();
-                
+                return Optional.of(new FieldOrPropertyAccessNode(field.get()));
             } else {
                 
                 // can be a property
                 Optional<Property> property = currentType.getPropertyByName(name);
 
                 if (property.isPresent()) {
-                    methodOwnerType = property.get().getReturningType();
-                    
+                    return Optional.of(new FieldOrPropertyAccessNode(property.get()));
                 } else {
                     throw new CompilationError(access, "Identifier " + name + " was not defined");
                 }
 
             }
         }
-        return methodOwnerType;
     }
 
 
@@ -2210,7 +2239,7 @@ public class SemanticVisitor extends AbstractScopedVisitor {
 
     private TypeDefinition ensureNotFundamental(TypeDefinition type) {
         if (type instanceof FundamentalLenseTypeDefinition){
-            return getSemanticContext().resolveTypeForName(type.getName(), type.getGenericParameters().size()).get();
+            return getSemanticContext().resolveTypeForName(type.getName(), type.getGenericParameters().size()).orElseThrow(() -> new RuntimeException(type.getName() + " has not found"));
         }
         return type;
 

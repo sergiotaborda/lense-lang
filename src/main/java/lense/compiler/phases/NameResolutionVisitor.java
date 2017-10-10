@@ -656,7 +656,21 @@ public class NameResolutionVisitor extends AbstractScopedVisitor {
                     typeNode.getTypeParametersCount());
 
             if (!type.isPresent()) {
-                LenseTypeDefinition defType = new LenseTypeDefinition(typeNode.getName(), null, null);
+            	
+            	
+            	
+                List<IntervalTypeVariable> genericParameters= new ArrayList<>(typeNode.getTypeParametersCount());
+                
+                for (AstNode child : typeNode.getChildren()) {
+                	GenericTypeParameterNode gn = (GenericTypeParameterNode)child;
+                	 Optional<TypeDefinition> gnt = this.getSemanticContext().resolveTypeForName(gn.getTypeNode().getName(),gn.getTypeNode().getTypeParametersCount());
+                	 if (gnt.isPresent()) {
+                			genericParameters.add(new FixedTypeVariable(gnt.get()).toIntervalTypeVariable());
+                	 }
+                
+                }
+                
+				LenseTypeDefinition defType = new LenseTypeDefinition(typeNode.getName(), null, null,genericParameters);
                 type = Optional.of(this.getSemanticContext().registerType(defType, typeNode.getTypeParametersCount()));
             }
             VariableInfo info = this.getSemanticContext().currentScope().defineVariable(variableDeclaration.getName(),

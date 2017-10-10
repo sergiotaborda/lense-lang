@@ -63,7 +63,7 @@ public abstract class AbstractScopedVisitor extends AbstractLenseVisitor  {
             try {
                 type = semanticContext.typeForName(t.getName(),t.getTypeParametersCount());
             } catch (lense.compiler.type.TypeNotFoundException e) {
-                new CompilationError(t.getParent(), e.getMessage());
+             throw new CompilationError(t.getParent(), e.getMessage());
             }
         }
        
@@ -100,7 +100,7 @@ public abstract class AbstractScopedVisitor extends AbstractLenseVisitor  {
         }
 
         t.setTypeVariable(new FixedTypeVariable(type));
-        t.setTypeParameter(  t.getTypeVariable().toIntervalTypeVariable());
+        t.setTypeParameter(t.getTypeVariable().toIntervalTypeVariable());
 
 
         return t.getTypeParameter();

@@ -8,14 +8,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
-import java.util.jar.Manifest;
 import java.util.stream.Collectors;
 
 import lense.compiler.asm.ByteCodeTypeDefinitionReader;
-import lense.compiler.asm.LoadedLenseTypeDefinition;
 import lense.compiler.modules.ModuleIdentifier;
-import lense.compiler.modules.ModulesRepository;
 import lense.compiler.modules.ModuleTypeContents;
+import lense.compiler.modules.ModulesRepository;
 import lense.compiler.type.LenseTypeDefinition;
 import lense.compiler.type.TypeDefinition;
 import lense.compiler.typesystem.TypeSearchParameters;
@@ -35,6 +33,8 @@ public class ClasspathRepository implements TypeRepository, ModulesRepository{
 		
 		
 		try {
+			// TODO handle inter module dependencies
+			
 			for (File jarFile : folder.listFiles(f -> f.isFile() && f.getName().endsWith(".jar"))){
 				ModuleTypeContents moduleRepo = new ModuleTypeContents();
 
@@ -44,16 +44,16 @@ public class ClasspathRepository implements TypeRepository, ModulesRepository{
 				try(java.util.jar.JarFile jar = new java.util.jar.JarFile(jarFile)){
 				  //Manifest manifest = jar.getManifest();
 
-
-	                java.util.Enumeration enumEntries = jar.entries();
+			
+	                java.util.Enumeration<java.util.jar.JarEntry> enumEntries = jar.entries();
 	                while (enumEntries.hasMoreElements()) {
-	                    java.util.jar.JarEntry file = (java.util.jar.JarEntry) enumEntries.nextElement();
+	                    java.util.jar.JarEntry file =  enumEntries.nextElement();
 
 	                    if (file.getName().endsWith(".class")){
 	                        try (java.io.InputStream is = jar.getInputStream(file)){
 	                            LenseTypeDefinition type = reader.readNative(is);
 	                            if (!type.isPlataformSpecific()){
-	                                moduleRepo.registerType(type, type.getGenericParameters().size());
+	                              	moduleRepo.registerType(type, type.getGenericParameters().size());
 	                            }
 	                        }
 	                    } else if (file.getName().equals("module.properties")){
@@ -65,9 +65,13 @@ public class ClasspathRepository implements TypeRepository, ModulesRepository{
 	                        }
 	                    }
 	                }
+	                
 				}
 				moduleRepo.simplify();
 			}
+			
+			
+			
 		} catch (IOException e){
 			throw new RuntimeException(e);
 		}

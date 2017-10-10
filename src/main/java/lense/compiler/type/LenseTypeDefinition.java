@@ -145,8 +145,27 @@ public class LenseTypeDefinition implements TypeDefinition {
             this.kind = other.kind;
             addDifferent(this.members, other.members);
             addDifferent(this.interfaces,other.interfaces); // TODO reset generics 
-            addDifferent(this.genericParameters, other.genericParameters);
-
+         
+            LenseTypeSystem instance = LenseTypeSystem.getInstance();
+            for (IntervalTypeVariable a : other.genericParameters){
+            	
+            	boolean found = false;
+            	int i =0;
+            	for (; i < this.genericParameters.size(); i++){
+            		IntervalTypeVariable b = this.genericParameters.get(i);
+            		
+					if (instance.isAssignableTo(a, b)) {
+						found = true;
+						break;
+					}
+            	}
+            	
+            
+                if (!found){
+                	this.genericParameters.add(a);
+                }
+            }
+            
             genericParametersMapping = new HashMap<>();
 
             int i = 0;

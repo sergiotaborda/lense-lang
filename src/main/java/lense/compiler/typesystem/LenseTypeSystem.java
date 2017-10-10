@@ -32,6 +32,7 @@ import lense.compiler.type.variable.IntervalTypeVariable;
 import lense.compiler.type.variable.RangeTypeVariable;
 import lense.compiler.type.variable.TypeVariable;
 
+
 /**
  * 
  */
@@ -43,6 +44,10 @@ public class LenseTypeSystem {
         return me;
     }
 
+    public static TypeDefinition Type() {
+        return getInstance().getForName("lense.core.lang.Type").get();
+    }
+    
     public static TypeDefinition Any() {
         return getInstance().getForName("lense.core.lang.Any").get();
     }
@@ -377,7 +382,12 @@ public class LenseTypeSystem {
         string.addMethod("plus", string, new MethodParameter(string));
         string.addMethod("plus", string, new MethodParameter(any));
 
-        // any.addMethod("toString", string);
+        LenseTypeDefinition type = register(new FundamentalLenseTypeDefinition("lense.core.lang.reflection.Type", LenseUnitKind.Class, any));
+        
+        any.addMethod("asString", string);
+       // any.addMethod("hashValue", HashValue);
+        any.addMethod("equalsTo", sbool, new MethodParameter(any,"other"));
+        any.addMethod("type", type);
 
         LenseTypeDefinition real = register(
                 new FundamentalLenseTypeDefinition("lense.core.math.Real", LenseUnitKind.Class, number));

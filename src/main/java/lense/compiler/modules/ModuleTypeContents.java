@@ -216,7 +216,18 @@ public class ModuleTypeContents implements UpdatableTypeRepository {
 				
 				Optional<TypeDefinition> op;
 				if (type.getSuperDefinition() == null || LenseTypeSystem.getInstance().isAny(type.getSuperDefinition())){
-					op = Optional.of(LenseTypeSystem.Any());
+					
+					Map<Integer, TypeDefinition> m = types.get(LenseTypeSystem.Any().getName());
+					
+					if (m == null) {
+						op = Optional.of(LenseTypeSystem.Any());
+					} else if (m.size() == 1){
+						op = Optional.of(m.values().iterator().next());
+					} else {
+						op = resolveType(new TypeSearchParameters(type.getSuperDefinition().getName(), type.getSuperDefinition().getGenericParameters().size()));
+					}
+					
+				
 				} else {
 					Map<Integer, TypeDefinition> m = types.get(type.getSuperDefinition().getName());
 					

@@ -3,6 +3,7 @@
  */
 package lense.compiler.ast;
 
+import compiler.parser.IdentifierNode;
 import compiler.syntax.AstNode;
 
 /**
@@ -34,6 +35,7 @@ public class MethodInvocationNode extends NeedTypeCalculationNode {
         setCall(new MethodCallNode(name, new ArgumentListNode(arguments)));
         setAccess(access);
     }
+    
 
     public String toString(){
         return (access != null ? access.toString() : "") + "." + call.toString();

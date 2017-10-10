@@ -4,6 +4,8 @@
 package lense.compiler.ast;
 
 import compiler.syntax.AstNode;
+import lense.compiler.type.Field;
+import lense.compiler.type.Property;
 import lense.compiler.type.variable.TypeVariable;
 
 
@@ -31,6 +33,19 @@ public class FieldOrPropertyAccessNode extends NeedTypeCalculationNode {
 		setName(name);
 		this.kind = FieldKind.FIELD;
 	}
+	
+	public FieldOrPropertyAccessNode(Field field) {
+		setName(field.getName());
+		this.kind = FieldKind.FIELD;
+		this.setTypeVariable(field.getReturningType());
+	}
+	
+	public FieldOrPropertyAccessNode(Property property) {
+		setName(property.getName());
+		this.kind = FieldKind.PROPERTY;
+		this.setTypeVariable(property.getReturningType());
+	}
+	
 	
 	public String toString(){
 	    return (primary != null ? primary.toString() : "") + "." + name;

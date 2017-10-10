@@ -307,8 +307,7 @@ public class DesugarVisitor extends AbstractLenseVisitor {
                     arg.setExpectedType(value.getTypeVariable());
 
                     // is write access
-                    MethodInvocationNode invokeSet = new MethodInvocationNode(n.getPrimary(), "set" + propertyName,
-                            arg);
+                    MethodInvocationNode invokeSet = new MethodInvocationNode(n.getPrimary(), "set" + propertyName, arg);
                     invokeSet.setPropertyDerivedMethod(true);
                     invokeSet.setPropertyDerivedName(propertyName);
                     invokeSet.setPropertyOperation(PropertyOperation.WRITE);

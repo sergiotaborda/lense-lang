@@ -392,8 +392,12 @@ public class ByteCodeReader extends ClassVisitor {
 
                 String[] g = parts[2].contains("&") ? parts[2].split("&") : new String[] { parts[2] };
                 for (String ss : g) {
-                	parseInterfaceSignature(ss, maps, def).ifPresent( type ->  def.addInterface(type));
-                  
+                	Optional<LenseTypeDefinition> type = parseInterfaceSignature(ss, maps, def);
+                	
+                	if (type.isPresent()) {
+                		 def.addInterface(type.get());
+                	}
+
                 }
 
             }
@@ -408,7 +412,6 @@ public class ByteCodeReader extends ClassVisitor {
             LenseTypeDefinition type = resolveTypByNameAndKind(interfaceType, LenseUnitKind.Interface);
             String n = ss.substring(pos + 1, ss.lastIndexOf('>'));
             if (n.contains("<")) {
-
 
                 return parseInterfaceSignature(n, maps, type).map( generic -> LenseTypeSystem.specify(type, generic));
 
