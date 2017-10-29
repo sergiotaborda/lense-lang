@@ -6,5 +6,6 @@ src/main/out/
 .classpath
 .settings/
 *.jar
+*.prefs
 /lense/helloworld/compilation/modules/helloworld/META-INF/MANIFEST.MF
 /lense/helloworld/compilation/modules/helloworld/module.properties
