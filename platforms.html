@@ -20,6 +20,8 @@
 
 	</script>
   
+	<script src="js/jquery-1.11.1.min.js"></script>
+  
 	<script src="js/shCore.js"></script>
 
 	<script src="js/shBrushScala.js"></script>
@@ -27,7 +29,6 @@
 	<script src="js/shBrushDart.js"></script>
 	<script src="js/shBrushJava.js"></script>
 	<script src="js/shBrushLense.js"></script>
-
 
     <!-- Le styles -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
@@ -39,6 +40,12 @@
 	<link rel="stylesheet" type="text/css" href="css/shThemeDefault.css" >
 	<link rel="stylesheet" type="text/css" href="css/site.css" >
 
+	<style>
+		.navbar-toggle{
+			float:left;
+			margin-left:7px;
+		}
+	</style>
 	
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
@@ -48,20 +55,56 @@
     <!-- Fav and touch icons -->
 
     <link rel="shortcut icon" href="icon.png">
+	
+	<script>
+	$(document).ready(function() {
+	  $(".collapsible-menu").on("click", "li > a", function(e) {
+		var p = $(this).parent();
+		if (p.hasClass("has-children")) {
+			p.toggleClass("open").siblings(".open").removeClass("open");
+		}
+	  });
+	  
+	  var url = window.location.pathname;
+		var filename = url.substring(url.lastIndexOf('/')+1);
+		
+	  $(".collapsible-menu a").each(function(){
+		var link = $(this).attr("href");
+		
+		if (filename == link) {
+			var item = $(this).parent();
+			
+			while (!item.hasClass("collapsible-menu")){
+				if (item.hasClass("has-children")) {
+					item.toggleClass("open").siblings(".open").removeClass("open");
+				}
+				item = $(item).parent()
+			}
+		}
+
+	  })
+	  
+	});
+	</script>
   </head>
   <body onload="prettyPrint()">
     <div id="wrap">
 	
 	<!-- Fixed navbar -->
-    <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <nav class="navbar navbar-default navbar-fixed-top" >
       <div class="container">
         <div class="navbar-header">
+		  <button type="button" data-target="#navbar" data-toggle="collapse" class="navbar-toggle"> 
+			  <span class="sr-only">Toggle navigation</span> 
+			  <span class="icon-bar"></span> 
+			  <span class="icon-bar"></span> 
+		  </button>
           <a class="navbar-brand" href="index.html">Lense</a>
         </div>
-        <div class="navbar-collapse collapse">
+        <div id="navbar" class="navbar-collapse collapse">
           <ul class="nav navbar-nav">
             <li class="dropdown">
-				<a href="#" class="dropdown-toggle" data-toggle="dropdown">Get Started<b class="caret"></b></a>
+				<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Get Started<b class="caret"></b></a>
 				<ul class="dropdown-menu">
 					<li class="disabled"><a href="learn.html">Learn Lense</a></li>
 					<li class="disabled"><a href="try.html">Try Lense</a></li>
@@ -69,7 +112,7 @@
 				</ul>
 			</li>
             <li class="dropdown">
-				<a href="#" class="dropdown-toggle" data-toggle="dropdown">Fundamentals<b class="caret"></b></a>
+				<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Fundamentals<b class="caret"></b></a>
 				<ul class="dropdown-menu">
 					<li><a href="tour/tour.html">Language Tour</a></li>
 					<li class="disabled"><a href="guide.html">Programmer's Guide</a></li>
@@ -79,7 +122,7 @@
             </li>
 			
             <li class="dropdown">
-              <a href="#" class="dropdown-toggle" data-toggle="dropdown">Details<b class="caret"></b></a>
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Details<b class="caret"></b></a>
 				<ul class="dropdown-menu">
 					<li><a href="nullability.html">Nullability</a></li>
 					<li><a href="numbers.html">Numbers</a></li>
@@ -113,79 +156,117 @@
           </ul>
         </div><!--/.nav-collapse -->
       </div>
-    </div>
+    </nav>
+	
 	<div class="corner-ribbon top-right sticky shadow"><a href="status.html">Exploration Stage</a></div>
-    <div class="container">
+    
+	<div class="container">
 	<div class="container-fluid">
 		<div class="row row-offcanvas row-offcanvas-right">
 			 <div class="col-xs-12 col-sm-9 col-sm-push-3">
-				<h1>Target Platforms</h1><p>Lense compiles for each target platform in way you an use it directly in that platform.<br/>For this reason some API libraries are only available for a specific platform or a group of platforms.<br/>Only the core Lense module is guaranteed to exist and compile for all platforms.</p><p>For a status on the platform support completion see the <a href="status.html">project status page</a>. </p><h2>Java Virtual Machine</h2><p>Lense can compile to .class files. More specifically to .jar files. Each Lense module corresponds to a .jar file.<br/>This modules are executable directly in a Java Virtual Machine. </p><h2>JavaScript (Embedded in a Browser)</h2><p>Lense can compile to .js files that can be executed inside a browser. Each Lense module corresponds to a .js file.<br/>Possibly in practice would be better to compile to some more hight level script like TypeScript or CoffeScript to better support Object Oriented features.</p><p>Please keep in mind that being able to compile to JavaScript does not mean that's all it is necessary to build a web application. You would still create you application<br/>with your preferred client-side technology (like, Angular, for example) and use Lense where you would use JavaScript.</p><h2>Common Language Runtime (Under consideration)</h2><p>Lense could compile to CRL (the .NET runtime). More specifically to .dll files.<br/>This is a possibility at the moment and care is being taken in the design so feature can be compatible with this runtime, however creating<br/>a backend compiler to CRL will be an effort to pursue in the far future. </p><p>If you are interested in a Lense CRL runtime please, feel free to contribute</p><h2>Android Runtime (Under consideration)</h2><p>Lense could compile to the Android platform. This could be an effort related with compiling to java .class first and then use android's tools to convert from that to .dex files, or<br/>we could compile directly to .dex files without compiling to java. </p><p>If you are interested in a Lense Android runtime please, feel free to contribute</p><h2>Dart Runtime (Under consideration)</h2><p>Lense could compile to the Dart platform. Dart has a higher level language with a concept similar to JavaScript to run in a Dart VM. Dart code can even be translated to javascript so<br/>compiling to Dart can be a way to also compile to javascript.</p><p>If you are interested in a Lense Dart runtime please, feel free to contribute</p>
+				<h1>Target Platforms</h1>
+<p>Lense compiles for each target platform in way you an use it directly in that platform.<br/>For this reason some API libraries are only available for a specific platform or a group of platforms.<br/>Only the core Lense module is guaranteed to exist and compile for all platforms.</p>
+<p>For a status on the platform support completion see the <a href="status.html">project status page</a>. </p>
+<h2>Java Virtual Machine</h2>
+<p>Lense can compile to .class files. More specifically to .jar files. Each Lense module corresponds to a .jar file.<br/>This modules are executable directly in a Java Virtual Machine. </p>
+<h2>JavaScript (Embedded in a Browser)</h2>
+<p>Lense can compile to .js files that can be executed inside a browser. Each Lense module corresponds to a .js file.<br/>Possibly in practice would be better to compile to some more hight level script like TypeScript or CoffeScript to better support Object Oriented features.</p>
+<p>Please keep in mind that being able to compile to JavaScript does not mean that's all it is necessary to build a web application. You would still create you application<br/>with your preferred client-side technology (like, Angular, for example) and use Lense where you would use JavaScript.</p>
+<h2>Common Language Runtime (Under consideration)</h2>
+<p>Lense could compile to CRL (the .NET runtime). More specifically to .dll files.<br/>This is a possibility at the moment and care is being taken in the design so feature can be compatible with this runtime, however creating<br/>a backend compiler to CRL will be an effort to pursue in the far future. </p>
+<p>If you are interested in a Lense CRL runtime please, feel free to contribute</p>
+<h2>Android Runtime (Under consideration)</h2>
+<p>Lense could compile to the Android platform. This could be an effort related with compiling to java .class first and then use android's tools to convert from that to .dex files, or<br/>we could compile directly to .dex files without compiling to java. </p>
+<p>If you are interested in a Lense Android runtime please, feel free to contribute</p>
+<h2>Dart Runtime (Under consideration)</h2>
+<p>Lense could compile to the Dart platform. Dart has a higher level language with a concept similar to JavaScript to run in a Dart VM. Dart code can even be translated to javascript so<br/>compiling to Dart can be a way to also compile to javascript.</p>
+<p>If you are interested in a Lense Dart runtime please, feel free to contribute</p>
 			</div>
 			<div class="col-xs-6 col-sm-3 col-sm-pull-9 sidebar-offcanvas" id="sidebar"">
 
-<ol>
-	<li>Introduction</i>
+<ul class="collapsible-menu">
+	<li><a href="#">Introduction</a></i></i>
 	<li><a href="status.html">Status</a></i>
-	<li>Syntax and Semantics
-		<ol>
+	<li class="has-children">
+		<a href="javascript:void(0)">Syntax and Semantics</a>
+		<ul >
 			<li><a href="identifiers.html">Reserved Words</a></li>
-			<li>Variables</li>
-			<li>Mutability</li>
+			<li><a href="variables.html">Variables and Mutability</a></li>
 			<li><a href="nullability.html">Nullability</a></li>
 			<li>Comments</li>
 			<li>Generics</li>
 			<li>Functions</li>
 			
-			<li>Fundamental Types
-				
+			<li class="has-children">
+				<a href="javascript:void(0)">Fundamental Types</a>
 				<ul>
-					<li><a href="strings.html">Strings</a></li>
-					<li><a href="numbers.html">Numbers</a></li>
-					<li>Ranges</li>
-					<li><a href="interval.html">Intervals</a></li>
-					<li><a href="arrays.html">Arrays</a></li>
-					<li>Tuples</li>
-					<li><a href="containerLiterals.html">Container Literals</a></li>
+					<li><a href="booleans.html">Boolean</a></li>
+					<li><a href="strings.html">String</a></li>
+					<li><a href="numbers.html">Number</a></li>
+					<li><a href="binary.html">Binary</a></li>
+					<li><a href="interval.html">Interval</a></li>
+					<li><a href="iterable.html">Iterable</a></li>
+					<li class="has-children"> 
+						<a href="javascript:void(0)">Containers</a>
+						<ul> 
+							<li><a href="maybe.html">Maybe</a></li>
+							<li><a href="tuples.html">Tuple</a></li>
+							
+							<li>Range</li>
+							<li><a href="sequence.html">Sequence</a></li>
+							<li>Association</li>
+							
+						</ul>
+					</li>
 				</ul>
 			</li>
-			<li>Control Statements
+			<li><a href="containerLiterals.html">Container Literals</a></li>
+			<li><a href="arrays.html">Arrays</a></li>
+			<li class="has-children">
+				<a href="javascript:void(0)">Control Statements</a>
 				<ul>
 					<li>Decision: if</li>
 					<li>Loop : while</li>
 					<li>Iteration : for</li>
-					<li>Selection : switch</li>
+					<li>Selection/Matching : switch</li>
 				</ul>
 			</li>
-			
-			<li><a href="objects.html">Classes and Objects</a>
+			<li class="has-children"> 
+				<a href="javascript:void(0)">Types</a>
+				<ul>	
+					<li><a href="classes.html">Classes</a></li>
+					<li><a href="objects.html">Objects</a></li>
+					<li><a href="interfaces.html">Interfaces</a></li>
+					<li>Enums</li>
+					<li><a href="enhancements.html">Enhancements</a></li>
+				</ul>
+			</li>
+			<li class="has-children"> 
+				<a href="javascript:void(0)">Type Members</a>
 				<ul>
 					<li><a href="constructors.html">Constructors</a></li>
-					<li><a href="properties.html">Properties</a></li>
+					<li><a href="properties.html">Fields and Properties</a></li>
+					<li><a href="indexers.html">Indexed Properties</a></li>
+					<li>Methods</li>
 				</ul>
 			</li>
-			<li>Enums</li>
-			<li><a href="enhancements.html">Enhancements</a></li>
 			<li>Lambdas</li>
 			<li>Casting</li>
 			<li><a href="operators.html">Operator Overloading</a></li>
 			
-		</ol>
+		</ul>
 	</li>
-	<li>Compilation
+	<li class="has-children">
+		<a href="javascript:void(0)">Compilation</a>
 		<ul>
 			<li><a href="platforms.html">Platforms</a></li>
 			<li><a href="erasure.html">Erasure</a></li>
 		</ul>
 	</li>
 	<li><a href="concurrency.html">Concurrency</a>
-		<ol>
-			<li>Promisses</li>
-			<li>Executors</li>
-			<li>Actors</li>
-		</ol>
 	</li>
 
-<ol>			</div>
+<ul>			</div>
 		</div>
 	</div>
 	

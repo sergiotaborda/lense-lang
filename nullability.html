@@ -20,6 +20,8 @@
 
 	</script>
   
+	<script src="js/jquery-1.11.1.min.js"></script>
+  
 	<script src="js/shCore.js"></script>
 
 	<script src="js/shBrushScala.js"></script>
@@ -27,7 +29,6 @@
 	<script src="js/shBrushDart.js"></script>
 	<script src="js/shBrushJava.js"></script>
 	<script src="js/shBrushLense.js"></script>
-
 
     <!-- Le styles -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
@@ -39,6 +40,12 @@
 	<link rel="stylesheet" type="text/css" href="css/shThemeDefault.css" >
 	<link rel="stylesheet" type="text/css" href="css/site.css" >
 
+	<style>
+		.navbar-toggle{
+			float:left;
+			margin-left:7px;
+		}
+	</style>
 	
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
@@ -48,20 +55,56 @@
     <!-- Fav and touch icons -->
 
     <link rel="shortcut icon" href="icon.png">
+	
+	<script>
+	$(document).ready(function() {
+	  $(".collapsible-menu").on("click", "li > a", function(e) {
+		var p = $(this).parent();
+		if (p.hasClass("has-children")) {
+			p.toggleClass("open").siblings(".open").removeClass("open");
+		}
+	  });
+	  
+	  var url = window.location.pathname;
+		var filename = url.substring(url.lastIndexOf('/')+1);
+		
+	  $(".collapsible-menu a").each(function(){
+		var link = $(this).attr("href");
+		
+		if (filename == link) {
+			var item = $(this).parent();
+			
+			while (!item.hasClass("collapsible-menu")){
+				if (item.hasClass("has-children")) {
+					item.toggleClass("open").siblings(".open").removeClass("open");
+				}
+				item = $(item).parent()
+			}
+		}
+
+	  })
+	  
+	});
+	</script>
   </head>
   <body onload="prettyPrint()">
     <div id="wrap">
 	
 	<!-- Fixed navbar -->
-    <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <nav class="navbar navbar-default navbar-fixed-top" >
       <div class="container">
         <div class="navbar-header">
+		  <button type="button" data-target="#navbar" data-toggle="collapse" class="navbar-toggle"> 
+			  <span class="sr-only">Toggle navigation</span> 
+			  <span class="icon-bar"></span> 
+			  <span class="icon-bar"></span> 
+		  </button>
           <a class="navbar-brand" href="index.html">Lense</a>
         </div>
-        <div class="navbar-collapse collapse">
+        <div id="navbar" class="navbar-collapse collapse">
           <ul class="nav navbar-nav">
             <li class="dropdown">
-				<a href="#" class="dropdown-toggle" data-toggle="dropdown">Get Started<b class="caret"></b></a>
+				<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Get Started<b class="caret"></b></a>
 				<ul class="dropdown-menu">
 					<li class="disabled"><a href="learn.html">Learn Lense</a></li>
 					<li class="disabled"><a href="try.html">Try Lense</a></li>
@@ -69,7 +112,7 @@
 				</ul>
 			</li>
             <li class="dropdown">
-				<a href="#" class="dropdown-toggle" data-toggle="dropdown">Fundamentals<b class="caret"></b></a>
+				<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Fundamentals<b class="caret"></b></a>
 				<ul class="dropdown-menu">
 					<li><a href="tour/tour.html">Language Tour</a></li>
 					<li class="disabled"><a href="guide.html">Programmer's Guide</a></li>
@@ -79,7 +122,7 @@
             </li>
 			
             <li class="dropdown">
-              <a href="#" class="dropdown-toggle" data-toggle="dropdown">Details<b class="caret"></b></a>
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Details<b class="caret"></b></a>
 				<ul class="dropdown-menu">
 					<li><a href="nullability.html">Nullability</a></li>
 					<li><a href="numbers.html">Numbers</a></li>
@@ -113,116 +156,162 @@
           </ul>
         </div><!--/.nav-collapse -->
       </div>
-    </div>
+    </nav>
+	
 	<div class="corner-ribbon top-right sticky shadow"><a href="status.html">Exploration Stage</a></div>
-    <div class="container">
+    
+	<div class="container">
 	<div class="container-fluid">
 		<div class="row row-offcanvas row-offcanvas-right">
 			 <div class="col-xs-12 col-sm-9 col-sm-push-3">
-				<h1>Nullability</h1><p>Lense does not allow variable to hold <strong>null</strong>. <strong>null</strong> is used in other languages to indicate the variable has not set. However when trying to dereference the object in the variable (i.e. use the dot operator) an exception is raized. It is easy to overlook the variable may contain null.</p><p>Lense take a more object oriente aproach. Every variable refers to an existing object. No <strong>null</strong>s are allowed, hence, no nulls exist.</p><p>However the concept of an absent value is very usefull. Some data that is not yet calculated or the user as yet to inform. So Lense support the concept of an absent value using the tradiconal Maybe monad.</p>
+				<h1>Nullability</h1>
+<p>Lense does not allow variables to hold <strong>null</strong>. <strong>null</strong> is used in other languages to indicate the variable has not set. However when trying to dereference the object in the variable (i.e. use the dot operator) an exception is raized. It is easy to overlook the variable may contain null.</p>
+<p>Lense take a more object oriented aproach. Every variable refers to an <em>existing</em> object. No <strong>null</strong>s are allowed, hence, no nulls exist.</p>
+<p>However the concept of an absent value is very usefull. Some data that is not yet calculated or the user as yet to inform has no value. So Lense supports the concept of an absent value using the tradiconal <a href="maybe.html">Maybe</a> type. <code>String?</code> is a shorthand notation for <a href="maybe.html">Maybe<String></a> and <code>none</code> is the only instance of type <code>None</code>.</p>
 <pre><code class="brush: lense ">val h : String = &quot;Hello&quot;; 
 val w : String? = none; 
-</code></pre><p>The first line created a variable of type <code>String</code> with value <em>"Hello"</em>. The second line create a possible absent value of a <code>String</code> type and initializes it to <code>none</code>.<br/>Please note that <code>none</code> is an object so the variable really refers to an object. No nulls are allowed.</p><p>String? is a shorthand notation for <a href="monads.html">Maybe<String></a> and <code>none</code> is the only instance of type <code>None</code>.</p><h1>Interoperatibility</h1><p>On Lense world no *null*s exist, but in the underlying platform , like java or .net, they may exist. Any method can return or aceppt null. We can not now if the value returned can be null or not.<br/>Let us take an example in java</p>
+</code></pre>
+<p>The first line created a value of type <code>String</code> with value <em>"Hello"</em>. The second line create a possible absent value of a <code>String</code> type and initializes it to <code>none</code>.<br/>Please note that <code>none</code> is an object so the variable really refers to an object. No nulls are allowed.</p>
+<h1>Interoperatibility</h1>
+<p>In Lense world no *null*s exist, but in the underlying platform , like java, javascript or .net, they may exist. Any method can return or aceppt null. We can not now if the value returned can be null or not. Let us take an example in java</p>
 <pre><code class="brush: java ">string[] names = resolveNames();
 List&lt;Address&gt; addresses = resolveAddressesFor(names);
-</code></pre><p>Has we have no way of knowing if the methods will return null this would be mapped to Lense as:</p>
+</code></pre>
+<p>Has we have no way of knowing if the methods will return null this would be mapped to Lense as:</p>
 <pre><code class="brush: lense ">var names : Array&lt;String&gt;? = resolveNames();
 var addresses : List&lt;Address&gt;? = resolveAddressesFor(names);
-</code></pre><p>At this point we can test if the collections exist, but how about the elements ? Have we certain no nulls exist inside the array or the list ?<br/>This problem is more general and exists everywhere the objets are boxed in other objects. We then have to be sure and write:</p>
+</code></pre>
+<p>At this point we can test if the collections exist, but how about the elements ? Have we certain no nulls exist inside the array or the list ?<br/>This problem is more general and exists everywhere the objets are boxed in other objects. We then have to be sure and write:</p>
 <pre><code class="brush: lense ">var names : Array&lt;String?&gt;? = resolveNames();
 var addresses : List&lt;Address?&gt;? = resolveAddressesFor(names);
 var box : Box&lt;Element?&gt;? = resolveBoxedElements();
-</code></pre><p>This may prove cumbersome in code that tries to use native APIs.</p><h2>Rules of None</h2><h3>When Reading</h3><p>For interop code , i.e. everytime the compiler identifies a native method is being called it let's you apply automatic filters according to the type you write. If no type is defined, the full optional type is used. This works by automaticly matching the type of the native method with the type prefered by the lense program.</p>
+</code></pre>
+<p>This may prove cumbersome in code that tries to use native APIs.</p>
+<h2>Rules of None</h2>
+<h3>When Reading</h3>
+<p>For interop code , i.e. everytime the compiler identifies a native method is being called it let's you apply automatic filters according to the type you write. If no type is defined, the full optional type is used. This works by automaticly matching the type of the native method with the type prefered by the lense program.</p>
 <pre><code class="brush: lense ">var names  = resolveNames();  
 var names : Array&lt;String&gt;? = resolveNames();  // same as  names = new Maybe.of(resolveNames()).map( a -&gt; a.compact());
 var names : Array&lt;String&gt; = resolveNames();  // same as names = new Maybe.of(resolveNames()).map( a -&gt; a.compact()).or(new Array.empty&lt;string&gt;())
 var names : Array&lt;String?&gt; = resolveNames();  // same as names = new Maybe.of(resolveNames()).or(new Array.empty&lt;string&gt;())
-</code></pre><p>In line <strong>(1)</strong> the original native return type is used. The Lense compiler will wrap the native array to a lense array. No special rules are needed.<br/>In line <strong>(2)</strong> the original native type is transformed by removing all possible <code>none</code> values. The equivalent code would be:</p>
+</code></pre>
+<p>In line <strong>(1)</strong> the original native return type is used. The Lense compiler will wrap the native array to a lense array. No special rules are needed.<br/>In line <strong>(2)</strong> the original native type is transformed by removing all possible <code>none</code> values. The equivalent code would be:</p>
 <pre><code class="brush: lense ">var names : Array&lt;String&gt;? = resolveNames().map( a -&gt; a.compact());
-</code></pre><p>In line <strong>(3)</strong> the original native type is further transformed by removing all possible <code>none</code> values and using an empty array in case the original is <em>null</em>. The equivalent code would be:</p>
+</code></pre>
+<p>In line <strong>(3)</strong> the original native type is further transformed by removing all possible <code>none</code> values and using an empty array in case the original is <em>null</em>. The equivalent code would be:</p>
 <pre><code class="brush: lense ">var names : Array&lt;String&gt; = resolveNames().map( a -&gt; a.compact()).or(new Array.empty&lt;string&gt;());
-</code></pre><p>In line <strong>(4)</strong> the original native type is further transformed by using an empty array in case the original is <em>null</em>. The equivalent code would be:</p>
+</code></pre>
+<p>In line <strong>(4)</strong> the original native type is further transformed by using an empty array in case the original is <em>null</em>. The equivalent code would be:</p>
 <pre><code class="brush: lense ">var names : Array&lt;String&gt; = resolveNames().or(new Array.empty&lt;string&gt;());
-</code></pre><p>Lense interop geeration will understand native <code>null</code> as equivalent to <code>none</code> and wrap the array in a possible absent type. </p><p>The above rules apply to all <code>Iterable</code>s, not only arrays. In the general case, for other boxed types that are not <code>Iterable</code>s the options are limited. We have to raise a compilation error for the cases the compiler cannot sort (as it normally would).</p>
+</code></pre>
+<p>Lense interop geeration will understand native <code>null</code> as equivalent to <code>none</code> and wrap the array in a possible absent type. </p>
+<p>The above rules apply to all <code>Iterable</code>s, not only arrays. In the general case, for other boxed types that are not <code>Iterable</code>s the options are limited. We have to raise a compilation error for the cases the compiler cannot sort (as it normally would).</p>
 <pre><code class="brush: lense ">var box  = resolveBoxedElements();  // same as box : Box&lt;Element?&gt;? = resolveBoxedElements()
 var box : Box&lt;Element&gt;? = resolveNames();  // compilation error , cannot verify Element is not null.
 var box : Box&lt;String&gt; = resolveNames();  // compilation error , cannot verify Element is not null.
 var box : Box&lt;String?&gt; = resolveNames(); // compiles to resolveNames().get() to force get the value from the maybe. 
-</code></pre><p>Using the last line, will force the compiler to get the value inside the Maybe. This will raise <code>ValueAbsentException</code> if the box is absent.</p><p>In Java 8, and above, types can be annotated with <code>@NotNull</code> or <code>@Nullable</code>. These type annotations can made it possible to the compiler to determine if its possible to the value to be absent or not.<br/>When the compiler can determine it is safe the more restrict types will be allowed and no compilation errors would be raised. However, at this point in time, most APIs do not use these annotations.</p><p>Even them, the problem will persist for interop with other platforms.</p><h3>When writing</h3><p>When passing a value to a native method the compiler will generate code that transforms the Lense type to the native type. In the case a Maybe is being used a native <code>orNull</code> method will be called. This method does not exist in the Maybe type, is a native enviroment only method. So, for a method implemented in java like </p>
+</code></pre>
+<p>Using the last line, will force the compiler to get the value inside the Maybe. This will raise <code>ValueAbsentException</code> if the box is absent.</p>
+<p>In Java 8, and above, types can be annotated with <code>@NotNull</code> or <code>@Nullable</code>. These type annotations can made it possible to the compiler to determine if its possible to the value to be absent or not.<br/>When the compiler can determine it is safe the more restrict types will be allowed and no compilation errors would be raised. However, at this point in time, most APIs do not use these annotations.</p>
+<p>Even them, the problem will persist for interop with other platforms.</p>
+<h3>When writing</h3>
+<p>When passing a value to a native method the compiler will generate code that transforms the Lense type to the native type. In the case a Maybe is being used a native <code>orNull</code> method will be called. This method does not exist in the Maybe type, is a native enviroment only method. So, for a method implemented in java like </p>
 <pre><code class="brush: java ">public void calculate(List&lt;String&gt; names, String other, int factor) { ... }
-</code></pre><p>It is not relevant what the methods does do, only what the parameters are. Lense will produce an interop code similar to </p>
+</code></pre>
+<p>It is not relevant what the methods does do, only what the parameters are. Lense will produce an interop code similar to </p>
 <pre><code class="brush: lense ">var names : Array&lt;String&gt; = ...
 var other String? = none;
 var factor : Integer? = none;
 
 calculate(asJavaList(names), other.orNull(), asJavaPrimitiveInt(factor.get()) { ... }
-</code></pre><p>Lense will try to use native <code>null</code> values where appliable. For primitives, a <code>get</code> is used to access the value. If the value is absent an excpetion will occur on lense side before calling the native method. This is to garantee native calls are not corrrupted.</p>
+</code></pre>
+<p>Lense will try to use native <code>null</code> values where appliable. For primitives, a <code>get</code> is used to access the value. If the value is absent an excpetion will occur on lense side before calling the native method. This is to garantee native calls are not corrrupted.</p>
 			</div>
 			<div class="col-xs-6 col-sm-3 col-sm-pull-9 sidebar-offcanvas" id="sidebar"">
 
-<ol>
-	<li>Introduction</i>
+<ul class="collapsible-menu">
+	<li><a href="#">Introduction</a></i></i>
 	<li><a href="status.html">Status</a></i>
-	<li>Syntax and Semantics
-		<ol>
+	<li class="has-children">
+		<a href="javascript:void(0)">Syntax and Semantics</a>
+		<ul >
 			<li><a href="identifiers.html">Reserved Words</a></li>
-			<li>Variables</li>
-			<li>Mutability</li>
+			<li><a href="variables.html">Variables and Mutability</a></li>
 			<li><a href="nullability.html">Nullability</a></li>
 			<li>Comments</li>
 			<li>Generics</li>
 			<li>Functions</li>
 			
-			<li>Fundamental Types
-				
+			<li class="has-children">
+				<a href="javascript:void(0)">Fundamental Types</a>
 				<ul>
-					<li><a href="strings.html">Strings</a></li>
-					<li><a href="numbers.html">Numbers</a></li>
-					<li>Ranges</li>
-					<li><a href="interval.html">Intervals</a></li>
-					<li><a href="arrays.html">Arrays</a></li>
-					<li>Tuples</li>
-					<li><a href="containerLiterals.html">Container Literals</a></li>
+					<li><a href="booleans.html">Boolean</a></li>
+					<li><a href="strings.html">String</a></li>
+					<li><a href="numbers.html">Number</a></li>
+					<li><a href="binary.html">Binary</a></li>
+					<li><a href="interval.html">Interval</a></li>
+					<li><a href="iterable.html">Iterable</a></li>
+					<li class="has-children"> 
+						<a href="javascript:void(0)">Containers</a>
+						<ul> 
+							<li><a href="maybe.html">Maybe</a></li>
+							<li><a href="tuples.html">Tuple</a></li>
+							
+							<li>Range</li>
+							<li><a href="sequence.html">Sequence</a></li>
+							<li>Association</li>
+							
+						</ul>
+					</li>
 				</ul>
 			</li>
-			<li>Control Statements
+			<li><a href="containerLiterals.html">Container Literals</a></li>
+			<li><a href="arrays.html">Arrays</a></li>
+			<li class="has-children">
+				<a href="javascript:void(0)">Control Statements</a>
 				<ul>
 					<li>Decision: if</li>
 					<li>Loop : while</li>
 					<li>Iteration : for</li>
-					<li>Selection : switch</li>
+					<li>Selection/Matching : switch</li>
 				</ul>
 			</li>
-			
-			<li><a href="objects.html">Classes and Objects</a>
+			<li class="has-children"> 
+				<a href="javascript:void(0)">Types</a>
+				<ul>	
+					<li><a href="classes.html">Classes</a></li>
+					<li><a href="objects.html">Objects</a></li>
+					<li><a href="interfaces.html">Interfaces</a></li>
+					<li>Enums</li>
+					<li><a href="enhancements.html">Enhancements</a></li>
+				</ul>
+			</li>
+			<li class="has-children"> 
+				<a href="javascript:void(0)">Type Members</a>
 				<ul>
 					<li><a href="constructors.html">Constructors</a></li>
-					<li><a href="properties.html">Properties</a></li>
+					<li><a href="properties.html">Fields and Properties</a></li>
+					<li><a href="indexers.html">Indexed Properties</a></li>
+					<li>Methods</li>
 				</ul>
 			</li>
-			<li>Enums</li>
-			<li><a href="enhancements.html">Enhancements</a></li>
 			<li>Lambdas</li>
 			<li>Casting</li>
 			<li><a href="operators.html">Operator Overloading</a></li>
 			
-		</ol>
+		</ul>
 	</li>
-	<li>Compilation
+	<li class="has-children">
+		<a href="javascript:void(0)">Compilation</a>
 		<ul>
 			<li><a href="platforms.html">Platforms</a></li>
 			<li><a href="erasure.html">Erasure</a></li>
 		</ul>
 	</li>
 	<li><a href="concurrency.html">Concurrency</a>
-		<ol>
-			<li>Promisses</li>
-			<li>Executors</li>
-			<li>Actors</li>
-		</ol>
 	</li>
 
-<ol>			</div>
+<ul>			</div>
 		</div>
 	</div>
 	

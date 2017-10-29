@@ -20,6 +20,8 @@
 
 	</script>
   
+	<script src="js/jquery-1.11.1.min.js"></script>
+  
 	<script src="js/shCore.js"></script>
 
 	<script src="js/shBrushScala.js"></script>
@@ -27,7 +29,6 @@
 	<script src="js/shBrushDart.js"></script>
 	<script src="js/shBrushJava.js"></script>
 	<script src="js/shBrushLense.js"></script>
-
 
     <!-- Le styles -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
@@ -39,6 +40,12 @@
 	<link rel="stylesheet" type="text/css" href="css/shThemeDefault.css" >
 	<link rel="stylesheet" type="text/css" href="css/site.css" >
 
+	<style>
+		.navbar-toggle{
+			float:left;
+			margin-left:7px;
+		}
+	</style>
 	
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
@@ -48,20 +55,56 @@
     <!-- Fav and touch icons -->
 
     <link rel="shortcut icon" href="icon.png">
+	
+	<script>
+	$(document).ready(function() {
+	  $(".collapsible-menu").on("click", "li > a", function(e) {
+		var p = $(this).parent();
+		if (p.hasClass("has-children")) {
+			p.toggleClass("open").siblings(".open").removeClass("open");
+		}
+	  });
+	  
+	  var url = window.location.pathname;
+		var filename = url.substring(url.lastIndexOf('/')+1);
+		
+	  $(".collapsible-menu a").each(function(){
+		var link = $(this).attr("href");
+		
+		if (filename == link) {
+			var item = $(this).parent();
+			
+			while (!item.hasClass("collapsible-menu")){
+				if (item.hasClass("has-children")) {
+					item.toggleClass("open").siblings(".open").removeClass("open");
+				}
+				item = $(item).parent()
+			}
+		}
+
+	  })
+	  
+	});
+	</script>
   </head>
   <body onload="prettyPrint()">
     <div id="wrap">
 	
 	<!-- Fixed navbar -->
-    <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <nav class="navbar navbar-default navbar-fixed-top" >
       <div class="container">
         <div class="navbar-header">
+		  <button type="button" data-target="#navbar" data-toggle="collapse" class="navbar-toggle"> 
+			  <span class="sr-only">Toggle navigation</span> 
+			  <span class="icon-bar"></span> 
+			  <span class="icon-bar"></span> 
+		  </button>
           <a class="navbar-brand" href="index.html">Lense</a>
         </div>
-        <div class="navbar-collapse collapse">
+        <div id="navbar" class="navbar-collapse collapse">
           <ul class="nav navbar-nav">
             <li class="dropdown">
-				<a href="#" class="dropdown-toggle" data-toggle="dropdown">Get Started<b class="caret"></b></a>
+				<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Get Started<b class="caret"></b></a>
 				<ul class="dropdown-menu">
 					<li class="disabled"><a href="learn.html">Learn Lense</a></li>
 					<li class="disabled"><a href="try.html">Try Lense</a></li>
@@ -69,7 +112,7 @@
 				</ul>
 			</li>
             <li class="dropdown">
-				<a href="#" class="dropdown-toggle" data-toggle="dropdown">Fundamentals<b class="caret"></b></a>
+				<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Fundamentals<b class="caret"></b></a>
 				<ul class="dropdown-menu">
 					<li><a href="tour/tour.html">Language Tour</a></li>
 					<li class="disabled"><a href="guide.html">Programmer's Guide</a></li>
@@ -79,7 +122,7 @@
             </li>
 			
             <li class="dropdown">
-              <a href="#" class="dropdown-toggle" data-toggle="dropdown">Details<b class="caret"></b></a>
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Details<b class="caret"></b></a>
 				<ul class="dropdown-menu">
 					<li><a href="nullability.html">Nullability</a></li>
 					<li><a href="numbers.html">Numbers</a></li>
@@ -113,22 +156,29 @@
           </ul>
         </div><!--/.nav-collapse -->
       </div>
-    </div>
+    </nav>
+	
 	<div class="corner-ribbon top-right sticky shadow"><a href="status.html">Exploration Stage</a></div>
-    <div class="container">
+    
+	<div class="container">
 	<div class="container-fluid">
 		<div class="row row-offcanvas row-offcanvas-right">
 			 <div class="col-xs-12 col-sm-9 col-sm-push-3">
-				<h1>Hello, world !</h1><p>This is our version of the quintessential <em>Hello, world</em> program.</p>
+				<h1>Hello, world !</h1>
+<p>This is our version of the quintessential <em>Hello, world</em> program.</p>
 <pre><code class="brush: lense">public class Hello extends ConsoleApplication {
 	
 	public run (){
 		Console.print(&quot;Hello, world!&quot;);
 	}
 }
-</code></pre><p>Prints</p>
-<blockquote><p>Hello, world!</p>
-</blockquote><p>We define a class <code>Hello</code> than extends the <code>ConsoleApplication</code> class provided in the SDK. This makes the Hello class a executable entry point.<br/>The class can have any name. The entry method is run(). The VM will instantiate the class, set the Arguments property according to the platform parameters and execute the run method;<br/>The method makes use of the print method in the Console object. The Console object is a SDK provided object that allows interaction with the console. Note the method does not declare any parameters or return type.<br/>The return type is only needed when the compiler could not infer it. In this case the method run is defined in the ConsoleApplication class so the compiler can infer from the base declaration the return is Void.<br/>There is no "void" reserved word. Void is a type like any other. </p><p>The print method simply print the given String literal to the console. You can see a string is declared enclosing the text in double quotes. String literals preserve line breaks and tabulation</p>
+</code></pre>
+<p>Prints</p>
+<blockquote>
+  <p>Hello, world!</p>
+</blockquote>
+<p>We define a class <code>Hello</code> than extends the <code>ConsoleApplication</code> class provided in the SDK. This makes the Hello class a executable entry point.<br/>The class can have any name. The entry method is run(). The VM will instantiate the class, set the Arguments property according to the platform parameters and execute the run method;<br/>The method makes use of the print method in the Console object. The Console object is a SDK provided object that allows interaction with the console. Note the method does not declare any parameters or return type.<br/>The return type is only needed when the compiler could not infer it. In this case the method run is defined in the ConsoleApplication class so the compiler can infer from the base declaration the return is Void.<br/>There is no "void" reserved word. Void is a type like any other. </p>
+<p>The print method simply print the given String literal to the console. You can see a string is declared enclosing the text in double quotes. String literals preserve line breaks and tabulation</p>
 <pre><code class="brush: lense"><br/>public class Hello extends ConsoleApplication {
 
 	public run () {
@@ -137,10 +187,13 @@
 	}
 }
 
-</code></pre><p>Prints</p>
+</code></pre>
+<p>Prints</p>
 <pre><code class="console">Hello,						
  					world!  
-</code></pre><h3>Escape Sequences</h3><p>Strings support unicode, and unicode characters can be embedded using the { } escape sequence that receives an Hexadecimal value.<br/>Also, Strings can be interpolated using he {{ }} escape sequence. Any expression can be use inside the interpolation sequence and its string representation will be printed (by calling the toString() method on the result of the expression).</p>
+</code></pre>
+<h3>Escape Sequences</h3>
+<p>Strings support unicode, and unicode characters can be embedded using the { } escape sequence that receives an Hexadecimal value.<br/>Also, Strings can be interpolated using he {{ }} escape sequence. Any expression can be use inside the interpolation sequence and its string representation will be printed (by calling the toString() method on the result of the expression).</p>
 <pre><code class="brush: lense">public class Hello extends ConsoleApplication {
 
 	public run () {
@@ -149,9 +202,14 @@
 	}
 }
 
-</code></pre><p>Prints</p>
-<blockquote><p>Hi!, the mathematical constant &pi; is 3.1415</p>
-</blockquote><p>You can notice that #03C0 denotes an hexadecimal number.</p><h2>Nullability</h2><p>Null references are not allowed , but the notion of an absent value is very useful.</p>
+</code></pre>
+<p>Prints</p>
+<blockquote>
+  <p>Hi!, the mathematical constant &pi; is 3.1415</p>
+</blockquote>
+<p>You can notice that #03C0 denotes an hexadecimal number.</p>
+<h2>Nullability</h2>
+<p>Null references are not allowed , but the notion of an absent value is very useful.</p>
 <pre><code class="brush: lense">public class Hello extends ConsoleApplication {
 
 	public run (){
@@ -160,9 +218,13 @@
 	}
 }
 
-</code></pre><p>Prints</p>
-<blockquote><p>Hi!, the first argument is null.</p>
-</blockquote><p>"Arguments" is a read only property of ConsoleAplication that was set with the arguments passed in the console at the momento of running the application.<br/>With can access the first element of the arguments sequence by invoking the first() method. The first argument in arguments might not be present, the arguments sequence may be empty.<br/>So in this case, in other languages, null would be returned and printed. lense does not have null references, but "null" is printed nontheless. How is that ?</p><p>Well, left look closer to the return of <code>first</code></p>
+</code></pre>
+<p>Prints</p>
+<blockquote>
+  <p>Hi!, the first argument is null.</p>
+</blockquote>
+<p>"Arguments" is a read only property of ConsoleAplication that was set with the arguments passed in the console at the momento of running the application.<br/>With can access the first element of the arguments sequence by invoking the first() method. The first argument in arguments might not be present, the arguments sequence may be empty.<br/>So in this case, in other languages, null would be returned and printed. lense does not have null references, but "null" is printed nontheless. How is that ?</p>
+<p>Well, left look closer to the return of <code>first</code></p>
 <pre><code class="brush: lense">public class Hello extends ConsoleApplication {
 	public run () {
 		val String? argument = Arguments.first();
@@ -170,13 +232,17 @@
 	}
 }
 
-</code></pre><p>The type returned by the <code>first</code> method is a <code>Maybe&lt;String&gt;</code>. That why there is a ? after <code>String</code>. String is<br/>the type of elements contained inside the <code>Arguments</code> sequence. <code>Maybe&lt;T&gt;</code> is a generic types class that allows for only two subclasses : <code>Some&lt;T&gt;</code> and <code>None</code>. <code>Some&lt;T&gt;</code> contains some object of type T, and <code>None</code> does not contain any value.</p><p>If a value is present the class <code>Some&lt;T&gt;</code> is instantiated with that value, if not, an instance of None is returned.<br/>However None has only one instance: the <code>none</code> object. The <code>none</code> object itself overrides the <code>toString</code> method to return the word 'null'. Also 'null' is a reserved word in the language<br/>that can used to initialize to an absent value, like: </p>
+</code></pre>
+<p>The type returned by the <code>first</code> method is a <code>Maybe&lt;String&gt;</code>. That why there is a ? after <code>String</code>. String is<br/>the type of elements contained inside the <code>Arguments</code> sequence. <code>Maybe&lt;T&gt;</code> is a generic types class that allows for only two subclasses : <code>Some&lt;T&gt;</code> and <code>None</code>. <code>Some&lt;T&gt;</code> contains some object of type T, and <code>None</code> does not contain any value.</p>
+<p>If a value is present the class <code>Some&lt;T&gt;</code> is instantiated with that value, if not, an instance of None is returned.<br/>However None has only one instance: the <code>none</code> object. The <code>none</code> object itself overrides the <code>toString</code> method to return the word 'null'. Also 'null' is a reserved word in the language<br/>that can used to initialize to an absent value, like: </p>
 <pre><code class="brush: lense">	var String? name = null; // we don&#39;t kown the name yet.
 	name = &quot;The Name&quot;; // now we kown.
-</code></pre><p>The usage is very similar to java and C# and others however is mandatory to declare the variable has maybe absent either explicitly declaring it as <code>Maybe&lt;T&gt;</code> or using the ? suffix abbreviation.<br/>There is a lot of abbreviations and syntax sugar so the transition from other languages is not that rought. We can explicitly write the same has: </p>
+</code></pre>
+<p>The usage is very similar to java and C# and others however is mandatory to declare the variable has maybe absent either explicitly declaring it as <code>Maybe&lt;T&gt;</code> or using the ? suffix abbreviation.<br/>There is a lot of abbreviations and syntax sugar so the transition from other languages is not that rought. We can explicitly write the same has: </p>
 <pre><code class="brush: lense">	var Maybe&lt;String&gt; name = Absent; // we don&#39;t known the name yet.
 	name = new Some(&quot;The Name&quot;); // now we known.
-</code></pre><p>However if we need to have a non absent value we can use the or method, or equivalently the (|) operator</p>
+</code></pre>
+<p>However if we need to have a non absent value we can use the or method, or equivalently the (|) operator</p>
 <pre><code class="brush: lense">public class Main {
 	public Void main(Array&lt;String&gt; args){
 		String? argument = args.first();
@@ -184,37 +250,50 @@
 		Console.print(&quot;Hi!, the first argument is {{ argument }}.&quot;);
 	}
 }
-</code></pre><p>Prints</p>
-<blockquote><p>Hi!, the first argument is world.</p>
-</blockquote><h2>Variables and Values</h2><p>In any scope when can define a value</p>
+</code></pre>
+<p>Prints</p>
+<blockquote>
+  <p>Hi!, the first argument is world.</p>
+</blockquote>
+<h2>Variables and Values</h2>
+<p>In any scope when can define a value</p>
 <pre><code class="brush: lense">	val k = 3;
 	val u: Int;
 	u = 90;
 	u = 80; // error!
-</code></pre><p>Values are immutable and cannot be changed after initialized. All values need to be explicit initialized before they can be read.<br/>Once again the compiler will infer the type of the value from the initialization expression. If there is no initialization, the declarion of the type is required.<br/>A value can be made mutable by using the <code>var</code> annotation instead of <code>val</code>. An mutable value is called a <i>variable</i>.</p>
+</code></pre>
+<p>Values are immutable and cannot be changed after initialized. All values need to be explicit initialized before they can be read.<br/>Once again the compiler will infer the type of the value from the initialization expression. If there is no initialization, the declarion of the type is required.<br/>A value can be made mutable by using the <code>var</code> annotation instead of <code>val</code>. An mutable value is called a <i>variable</i>.</p>
 <pre><code class="brush: lense">	 var Int n = 1; // inicialize
      n = 2; // ok, n is a variable.
-</code></pre><h2>Functions and Methods</h2><p>Functions allow for algorithms to be executed before returning a value.<br/>Normally this algorithms depend on parameters that the function declares explicitly.</p>
+</code></pre>
+<h2>Functions and Methods</h2>
+<p>Functions allow for algorithms to be executed before returning a value.<br/>Normally this algorithms depend on parameters that the function declares explicitly.</p>
 <pre><code class="brush: lense">	 doSomething() : Void { 
 	 	Console.print(&quot;Doing something&quot;);
 	 };
 	 square (Natural x) : Natural { return x*x; }
-</code></pre><p>Functions always return a value. <code>Void</code> is not a keyword is an actual type. <code>Void</code> only has one instance denoted <code>()</code> (the empty tuple). All functions have an implicit return of the instance of <code>Void</code> at the end. This is correct unless the method return other type. You can explicitly write a return of a instance of <code>Void</code>.</p>
+</code></pre>
+<p>Functions always return a value. <code>Void</code> is not a keyword is an actual type. <code>Void</code> only has one instance denoted <code>()</code> (the empty tuple). All functions have an implicit return of the instance of <code>Void</code> at the end. This is correct unless the method return other type. You can explicitly write a return of a instance of <code>Void</code>.</p>
 <pre><code class="brush: lense">	 doSomething() : Void { 
 	 	Console.print(&quot;Doing something&quot;);
 	 	return; // implicitly return the instance of Void.
 	 };
 	 square (Int x) : Int { return x*x; }
-</code></pre><p>Functions are objects of type Function:</p>
+</code></pre>
+<p>Functions are objects of type Function:</p>
 <pre><code class="brush: lense">	 Function&lt;Int, Int&gt; f = x -&gt; x*x; 
 	 Function&lt;Int, Int&gt; g = x -&gt; x*2;
 	 
 	 Console.println(f(3));  
 	 Console.println(g(3));
-</code></pre><p>Prints</p>
+</code></pre>
+<p>Prints</p>
 <pre><code class="console">9						
 6					
-</code></pre><p>When functions are defined in the context of a class we talk about methods. Methods are functions bound to an instance of a class.<br/>Method can make calls to the <code>this</code> variable that implicitly represent the instance the function is bonded to.</p><h3>Trasnforming Methdos to Functions (Under Consideration)</h3><p>Using reflection, methods can be converter to functions if the instance object is passed explicitly </p>
+</code></pre>
+<p>When functions are defined in the context of a class we talk about methods. Methods are functions bound to an instance of a class.<br/>Method can make calls to the <code>this</code> variable that implicitly represent the instance the function is bonded to.</p>
+<h3>Trasnforming Methdos to Functions (Under Consideration)</h3>
+<p>Using reflection, methods can be converter to functions if the instance object is passed explicitly </p>
 <pre><code class="brush: lense">    val Number number = 4;
 
     val two = number.sqrt();
@@ -223,38 +302,48 @@
     val Function&lt;Number,Number&gt; f = number::sqrt(); // f has a parameter of type Number representing the bounded value of sqrt.
 
     val alsoTwo = f(4);
-</code></pre><p>Note the use of the <code>::</code> operator to detach members from object instances. </p><h2>Numbers</h2><p>Numbers are separated in specific algebraic structures that conform to the mathematical rules of the group of elements.<br/>All numbers are descendent types of the <code>Number</code> class.</p>
+</code></pre>
+<p>Note the use of the <code>::</code> operator to detach members from object instances. </p>
+<h2>Numbers</h2>
+<p>Numbers are separated in specific algebraic structures that conform to the mathematical rules of the group of elements.<br/>All numbers are descendent types of the <code>Number</code> class.</p>
 <ul>
   <li>Whole - numbers with no decimal part.
-  <ul>
-    <li>Natural - Represent elements from the mathematical <strong>N</strong> set, i.e. positive only whole values that include zero and range from zero to an arbitrary range limited only by available memory.</li>
-    <li>Integer - Represent elements from the mathematical <strong>Z</strong> set, i.e. negative and positive whole values.
     <ul>
-      <li>Int16 - negative and positive whole values with range from -2<sup>16</sup> to 2<sup>16</sup>-1.</li>
-      <li>Int32 - negative and positive whole values with range from -2<sup>32</sup> to 2<sup>32</sup>-1.</li>
-      <li>Int64 - negative and positive whole values with range from -2<sup>64</sup> to 2<sup>64</sup>-1.</li>
-      <li>BigInt - negative and positive whole values with arbitrary range limited only by available memory</li>
-    </ul></li>
-  </ul></li>
+      <li>Natural - Represent elements from the mathematical <strong>N</strong> set, i.e. positive only whole values that include zero and range from zero to an arbitrary range limited only by available memory.</li>
+      <li>Integer - Represent elements from the mathematical <strong>Z</strong> set, i.e. negative and positive whole values.
+        <ul>
+          <li>Int16 - negative and positive whole values with range from -2<sup>16</sup> to 2<sup>16</sup>-1.</li>
+          <li>Int32 - negative and positive whole values with range from -2<sup>32</sup> to 2<sup>32</sup>-1.</li>
+          <li>Int64 - negative and positive whole values with range from -2<sup>64</sup> to 2<sup>64</sup>-1.</li>
+          <li>BigInt - negative and positive whole values with arbitrary range limited only by available memory</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
   <li>Real - Represent elements from the mathematical <strong>R</strong> set.
-  <ul>
-    <li>Rational - Represent elements from the mathematical <strong>Q</strong> set, i.e. rational numbers defined by a natural numerator and a natural denominator like 2/3 or -5/8. The denominator cannot be zero.</li>
-    <li>Decimal - Represent elements that have a fixed precision and so calculations may incur in loss of precision.
     <ul>
-      <li>Decimal32 - negative and positive decimal values that follow 32 bits IEEE 3744 conventions</li>
-      <li>Decimal64 - negative and positive decimal values that follow 64 bits IEEE 3744 conventions</li>
-      <li>BigDecimal - Represents elements in the <strong>R</strong> set including truncated version of irrational numbers.Negative and positive decimal values with arbitrary precision limited only by available memory.</li>
-    </ul></li>
-  </ul></li>
+      <li>Rational - Represent elements from the mathematical <strong>Q</strong> set, i.e. rational numbers defined by a natural numerator and a natural denominator like 2/3 or -5/8. The denominator cannot be zero.</li>
+      <li>Decimal - Represent elements that have a fixed precision and so calculations may incur in loss of precision.
+        <ul>
+          <li>Decimal32 - negative and positive decimal values that follow 32 bits IEEE 3744 conventions</li>
+          <li>Decimal64 - negative and positive decimal values that follow 64 bits IEEE 3744 conventions</li>
+          <li>BigDecimal - Represents elements in the <strong>R</strong> set including truncated version of irrational numbers.Negative and positive decimal values with arbitrary precision limited only by available memory.</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
   <li>Imaginary -Represent elements from the mathematical <strong>I</strong> set. Numbers with pure imaginary parts of the form <code>bi</code> where <code>i</code> is the square root of -1.
-  <ul>
-    <li>ImaginaryOverReals<T extends Real>; - uses a Real type to store the numeric value</li>
-  </ul></li>
+    <ul>
+      <li>ImaginaryOverReals<T extends Real>; - uses a Real type to store the numeric value</li>
+    </ul>
+  </li>
   <li>Complex - Represent elements from the mathematical <strong>C</strong> set. Complex numbers are of the form <code>a + bi</code> where <code>i</code> it the square root of -1.
-  <ul>
-    <li>ComplexOverReals<T extends Real>; - Use a Real to type to store a numeric value for the real part and a ImaginaryOverReals<T> for the imaginary part.</li>
-  </ul></li>
-</ul><p>Whole number literals are always assumed Natural and transformed to other types as needed. This conversion may rise <code>OverflowException</code> as the Natural type was no max value being limited only by memory available (It's like a BigInt with no sign). Decimal values are always assumed as BigDecimal. BigDecimal constructor only accepts a string representation of the value this is because the BigDecimal representation must be exact.</p>
+    <ul>
+      <li>ComplexOverReals<T extends Real>; - Use a Real to type to store a numeric value for the real part and a ImaginaryOverReals<T> for the imaginary part.</li>
+    </ul>
+  </li>
+</ul>
+<p>Whole number literals are always assumed Natural and transformed to other types as needed. This conversion may rise <code>OverflowException</code> as the Natural type was no max value being limited only by memory available (It's like a BigInt with no sign). Decimal values are always assumed as BigDecimal. BigDecimal constructor only accepts a string representation of the value this is because the BigDecimal representation must be exact.</p>
 <pre><code class="brush: lense">	var Natural n = 1; // equivalent to Natural.valueOf(&quot;1&quot;)
 	var Whole n = 1; // equivalent to Natural.valueOf(&quot;1&quot;)
 	
@@ -301,21 +390,34 @@
 
 	var Complex = 5 + 2i; // equivalent to Natural.valueOf(&quot;5&quot;).plus(Imaginary.valueOf(Natural.valueOf(&quot;2&quot;)))
 	var Complex = 3.9 + 0.2i; // equivalent to BigDecimal.valueOf(&quot;3.9&quot;).plus(Imaginary.valueOf(BigDecimal.valueOf(&quot;0.2&quot;))
-</code></pre><p>In any representation you can use _ to logically separate digits in the value to help readability.</p>
+</code></pre>
+<p>In any representation you can use _ to logically separate digits in the value to help readability.</p>
 <pre><code class="brush: lense">	var Integer = -1_000_000;
-</code></pre><h3>Base for Literal Representations</h3><p>Numeral literals are assumed to be represented in decimal form (base 10) for all types.<br/>For naturals it is also possible to use the hexadecimal (base 16) form.</p><p>The hexadecimal form begins with a # simbol followed by a valid hexadacimal digit (1, 2, 3, 4, 5, 6, 7, 8, A , B, C, D , E , F).<br/>You can also use _ to separate digits.</p>
+</code></pre>
+<h3>Base for Literal Representations</h3>
+<p>Numeral literals are assumed to be represented in decimal form (base 10) for all types.<br/>For naturals it is also possible to use the hexadecimal (base 16) form.</p>
+<p>The hexadecimal form begins with a # simbol followed by a valid hexadacimal digit (1, 2, 3, 4, 5, 6, 7, 8, A , B, C, D , E , F).<br/>You can also use _ to separate digits.</p>
 <pre><code class="brush: lense">	var Natural color = #A3C1_F100; // hexadecimal
-</code></pre><h2>Byte and Binary</h2><p>Lense includes the <code>Binary</code> imutable interface to represent any value that can be understanded as a sequence of bits. Each bit is represented as a Boolean value.</p><p><code>Byte</code> is a special class that implements <code>Binary</code> corresponding to a sequence of 8 bits.<br/><code>Byte</code> is not a number, does not have an assigned numeric value and there is no automatic promotion from <code>Byte</code> to any type of <code>Number</code>.<br/> Also it has no arithemetic operations. It's primarily used for I/O operations.<br/>However, a <code>Byte</code> can be transformed explictitly to a <code>Natural</code> between 0 and 255 or to a Integer between -128 and 127 by means of the <code>ToNatural()</code> and <code>ToInteger()</code> functions.</p>
+</code></pre>
+<h2>Byte and Binary</h2>
+<p>Lense includes the <code>Binary</code> imutable interface to represent any value that can be understanded as a sequence of bits. Each bit is represented as a Boolean value.</p>
+<p><code>Byte</code> is a special class that implements <code>Binary</code> corresponding to a sequence of 8 bits.<br/><code>Byte</code> is not a number, does not have an assigned numeric value and there is no automatic promotion from <code>Byte</code> to any type of <code>Number</code>.<br/> Also it has no arithemetic operations. It's primarily used for I/O operations.<br/>However, a <code>Byte</code> can be transformed explictitly to a <code>Natural</code> between 0 and 255 or to a Integer between -128 and 127 by means of the <code>ToNatural()</code> and <code>ToInteger()</code> functions.</p>
 <pre><code class="brush: lense">	var Byte byte = $1111_0000; 
 	var Natural n = byte.ToNatural(); // equivalent to 240;
 	var Integer i = byte.ToInteger(); // -16
 	
 	var Natural error = byte; // illegal. Byte is not assignable to Natural.
-</code></pre><p><code>Int16</code> , <code>Int32</code> and <code>Int64</code> also implement <code>Binary</code> corresponding to a sequence of 16, 32 and 64 bits respectivly. Because this values have a signed<br/>numeric value one of the bits (the left most bit) is reserved to determine the sign. The rest of the bits represent the value if the value is possitive (left most bit is zero), else represent the Two Complement representation of the value.</p><p><code>BitArray</code> is a mutable implementation of a <code>Binary</code> with variable bit size. </p><p>Lense offers a literal representation for <code>Binary</code>. Like in the decimal and hexadecimal representations you can use _ to separate digits.<br/>All binary literals are assumed to be <code>BitArray</code>s of the given number of bits. It is not possible to have zero bits. </p>
+</code></pre>
+<p><code>Int16</code> , <code>Int32</code> and <code>Int64</code> also implement <code>Binary</code> corresponding to a sequence of 16, 32 and 64 bits respectivly. Because this values have a signed<br/>numeric value one of the bits (the left most bit) is reserved to determine the sign. The rest of the bits represent the value if the value is possitive (left most bit is zero), else represent the Two Complement representation of the value.</p>
+<p><code>BitArray</code> is a mutable implementation of a <code>Binary</code> with variable bit size. </p>
+<p>Lense offers a literal representation for <code>Binary</code>. Like in the decimal and hexadecimal representations you can use _ to separate digits.<br/>All binary literals are assumed to be <code>BitArray</code>s of the given number of bits. It is not possible to have zero bits. </p>
 <pre><code class="brush: lense">	var Byte byte = $1111_0000; // equivalent to Byte.valueOf(BitArray.valueOf(true,true,true,true,false,false,false,false));
 	var Int16 short = $1111_0000_1111_0000; // equivalent to Int16.valueOf(BitArray.valueOf(true,true,true,true,false,false,false,false,true,true,true,true,false,false,false,false));
 	var BitArray flags = $1111_0000_0101_0110_0010_0001_0101_1001; // equivalent to BitArray.valueOf(true,true,true,true,false,false,false,false,true,false,tru,false,true,true,false,false,false,false,false,false,false,false,true,false,true,false,true,true,false,false,true);
-</code></pre><h1>Object Orientation</h1><h2>Classes</h2><p>A class represents a structural template of an object and acts like a factory and protype at the same time.<br/>You can define a class with the <code>class</code> keyword. </p>
+</code></pre>
+<h1>Object Orientation</h1>
+<h2>Classes</h2>
+<p>A class represents a structural template of an object and acts like a factory and protype at the same time.<br/>You can define a class with the <code>class</code> keyword. </p>
 <pre><code class="brush: lense">/**A polar coordinate**/
 public class Polar {
 
@@ -342,13 +444,17 @@ public class Polar {
     } 
 
 }
-</code></pre><p>The values angle and radius are imutable, so the class as a whole is imutable. We can inform the compilr of this fact by adding <code>val</code> to the class definition.</p>
+</code></pre>
+<p>The values angle and radius are imutable, so the class as a whole is imutable. We can inform the compilr of this fact by adding <code>val</code> to the class definition.</p>
 <pre><code class="brush: lense">/**An imutable polar coordinate**/
 public val class Polar {
 
  ...
 }
-</code></pre><p>This will inform the compiler the values in the class are not ment to change and any tentative to do so will rise a compiler error.</p><h3>Property Bags</h3><p>A very common use of a class is to model Property Bag objects. Property Bags are sets of mutable properties. </p>
+</code></pre>
+<p>This will inform the compiler the values in the class are not ment to change and any tentative to do so will rise a compiler error.</p>
+<h3>Property Bags</h3>
+<p>A very common use of a class is to model Property Bag objects. Property Bags are sets of mutable properties. </p>
 <pre><code class="brush: lense">/**An Addres as an example of a property bag**/
 public class Address  {
 
@@ -358,7 +464,8 @@ public class Address  {
 	public var String zipcode;
 	
 }
-</code></pre><p>Bacause those are public properties we can assign values to them, an read those values back, but because variables need to be inicialized before used<br/>and all properties are of type <code>String</code> that inicialization cannot be absent. So that code will not compile. We need to write it like this:</p>
+</code></pre>
+<p>Bacause those are public properties we can assign values to them, an read those values back, but because variables need to be inicialized before used<br/>and all properties are of type <code>String</code> that inicialization cannot be absent. So that code will not compile. We need to write it like this:</p>
 <pre><code class="brush: lense">/**An Addres as an example of a propertybag**/
 public class Address  {
 
@@ -368,7 +475,8 @@ public class Address  {
 	public var String? zipcode;
 	
 }
-</code></pre><p>In the case the value can be absent the compiler will inicialize it like this , automaticly:</p>
+</code></pre>
+<p>In the case the value can be absent the compiler will inicialize it like this , automaticly:</p>
 <pre><code class="brush: lense">/**An Addres as an example of a propertybag**/
 public class Address  {
 
@@ -378,73 +486,94 @@ public class Address  {
 	public var String? zipcode= null;
 	
 }
-</code></pre><p>Remember <code>null</code> is a reserved word that represent <code>None.none</code>.</p>
+</code></pre>
+<p>Remember <code>null</code> is a reserved word that represent <code>None.none</code>.</p>
 			</div>
 			<div class="col-xs-6 col-sm-3 col-sm-pull-9 sidebar-offcanvas" id="sidebar"">
 
-<ol>
-	<li>Introduction</i>
+<ul class="collapsible-menu">
+	<li><a href="#">Introduction</a></i></i>
 	<li><a href="status.html">Status</a></i>
-	<li>Syntax and Semantics
-		<ol>
+	<li class="has-children">
+		<a href="javascript:void(0)">Syntax and Semantics</a>
+		<ul >
 			<li><a href="identifiers.html">Reserved Words</a></li>
-			<li>Variables</li>
-			<li>Mutability</li>
+			<li><a href="variables.html">Variables and Mutability</a></li>
 			<li><a href="nullability.html">Nullability</a></li>
 			<li>Comments</li>
 			<li>Generics</li>
 			<li>Functions</li>
 			
-			<li>Fundamental Types
-				
+			<li class="has-children">
+				<a href="javascript:void(0)">Fundamental Types</a>
 				<ul>
-					<li><a href="strings.html">Strings</a></li>
-					<li><a href="numbers.html">Numbers</a></li>
-					<li>Ranges</li>
-					<li><a href="interval.html">Intervals</a></li>
-					<li><a href="arrays.html">Arrays</a></li>
-					<li>Tuples</li>
-					<li><a href="containerLiterals.html">Container Literals</a></li>
+					<li><a href="booleans.html">Boolean</a></li>
+					<li><a href="strings.html">String</a></li>
+					<li><a href="numbers.html">Number</a></li>
+					<li><a href="binary.html">Binary</a></li>
+					<li><a href="interval.html">Interval</a></li>
+					<li><a href="iterable.html">Iterable</a></li>
+					<li class="has-children"> 
+						<a href="javascript:void(0)">Containers</a>
+						<ul> 
+							<li><a href="maybe.html">Maybe</a></li>
+							<li><a href="tuples.html">Tuple</a></li>
+							
+							<li>Range</li>
+							<li><a href="sequence.html">Sequence</a></li>
+							<li>Association</li>
+							
+						</ul>
+					</li>
 				</ul>
 			</li>
-			<li>Control Statements
+			<li><a href="containerLiterals.html">Container Literals</a></li>
+			<li><a href="arrays.html">Arrays</a></li>
+			<li class="has-children">
+				<a href="javascript:void(0)">Control Statements</a>
 				<ul>
 					<li>Decision: if</li>
 					<li>Loop : while</li>
 					<li>Iteration : for</li>
-					<li>Selection : switch</li>
+					<li>Selection/Matching : switch</li>
 				</ul>
 			</li>
-			
-			<li><a href="objects.html">Classes and Objects</a>
+			<li class="has-children"> 
+				<a href="javascript:void(0)">Types</a>
+				<ul>	
+					<li><a href="classes.html">Classes</a></li>
+					<li><a href="objects.html">Objects</a></li>
+					<li><a href="interfaces.html">Interfaces</a></li>
+					<li>Enums</li>
+					<li><a href="enhancements.html">Enhancements</a></li>
+				</ul>
+			</li>
+			<li class="has-children"> 
+				<a href="javascript:void(0)">Type Members</a>
 				<ul>
 					<li><a href="constructors.html">Constructors</a></li>
-					<li><a href="properties.html">Properties</a></li>
+					<li><a href="properties.html">Fields and Properties</a></li>
+					<li><a href="indexers.html">Indexed Properties</a></li>
+					<li>Methods</li>
 				</ul>
 			</li>
-			<li>Enums</li>
-			<li><a href="enhancements.html">Enhancements</a></li>
 			<li>Lambdas</li>
 			<li>Casting</li>
 			<li><a href="operators.html">Operator Overloading</a></li>
 			
-		</ol>
+		</ul>
 	</li>
-	<li>Compilation
+	<li class="has-children">
+		<a href="javascript:void(0)">Compilation</a>
 		<ul>
 			<li><a href="platforms.html">Platforms</a></li>
 			<li><a href="erasure.html">Erasure</a></li>
 		</ul>
 	</li>
 	<li><a href="concurrency.html">Concurrency</a>
-		<ol>
-			<li>Promisses</li>
-			<li>Executors</li>
-			<li>Actors</li>
-		</ol>
 	</li>
 
-<ol>			</div>
+<ul>			</div>
 		</div>
 	</div>
 	

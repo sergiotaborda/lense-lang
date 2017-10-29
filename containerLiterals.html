@@ -20,6 +20,8 @@
 
 	</script>
   
+	<script src="js/jquery-1.11.1.min.js"></script>
+  
 	<script src="js/shCore.js"></script>
 
 	<script src="js/shBrushScala.js"></script>
@@ -27,7 +29,6 @@
 	<script src="js/shBrushDart.js"></script>
 	<script src="js/shBrushJava.js"></script>
 	<script src="js/shBrushLense.js"></script>
-
 
     <!-- Le styles -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
@@ -39,6 +40,12 @@
 	<link rel="stylesheet" type="text/css" href="css/shThemeDefault.css" >
 	<link rel="stylesheet" type="text/css" href="css/site.css" >
 
+	<style>
+		.navbar-toggle{
+			float:left;
+			margin-left:7px;
+		}
+	</style>
 	
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
@@ -48,20 +55,56 @@
     <!-- Fav and touch icons -->
 
     <link rel="shortcut icon" href="icon.png">
+	
+	<script>
+	$(document).ready(function() {
+	  $(".collapsible-menu").on("click", "li > a", function(e) {
+		var p = $(this).parent();
+		if (p.hasClass("has-children")) {
+			p.toggleClass("open").siblings(".open").removeClass("open");
+		}
+	  });
+	  
+	  var url = window.location.pathname;
+		var filename = url.substring(url.lastIndexOf('/')+1);
+		
+	  $(".collapsible-menu a").each(function(){
+		var link = $(this).attr("href");
+		
+		if (filename == link) {
+			var item = $(this).parent();
+			
+			while (!item.hasClass("collapsible-menu")){
+				if (item.hasClass("has-children")) {
+					item.toggleClass("open").siblings(".open").removeClass("open");
+				}
+				item = $(item).parent()
+			}
+		}
+
+	  })
+	  
+	});
+	</script>
   </head>
   <body onload="prettyPrint()">
     <div id="wrap">
 	
 	<!-- Fixed navbar -->
-    <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <nav class="navbar navbar-default navbar-fixed-top" >
       <div class="container">
         <div class="navbar-header">
+		  <button type="button" data-target="#navbar" data-toggle="collapse" class="navbar-toggle"> 
+			  <span class="sr-only">Toggle navigation</span> 
+			  <span class="icon-bar"></span> 
+			  <span class="icon-bar"></span> 
+		  </button>
           <a class="navbar-brand" href="index.html">Lense</a>
         </div>
-        <div class="navbar-collapse collapse">
+        <div id="navbar" class="navbar-collapse collapse">
           <ul class="nav navbar-nav">
             <li class="dropdown">
-				<a href="#" class="dropdown-toggle" data-toggle="dropdown">Get Started<b class="caret"></b></a>
+				<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Get Started<b class="caret"></b></a>
 				<ul class="dropdown-menu">
 					<li class="disabled"><a href="learn.html">Learn Lense</a></li>
 					<li class="disabled"><a href="try.html">Try Lense</a></li>
@@ -69,7 +112,7 @@
 				</ul>
 			</li>
             <li class="dropdown">
-				<a href="#" class="dropdown-toggle" data-toggle="dropdown">Fundamentals<b class="caret"></b></a>
+				<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Fundamentals<b class="caret"></b></a>
 				<ul class="dropdown-menu">
 					<li><a href="tour/tour.html">Language Tour</a></li>
 					<li class="disabled"><a href="guide.html">Programmer's Guide</a></li>
@@ -79,7 +122,7 @@
             </li>
 			
             <li class="dropdown">
-              <a href="#" class="dropdown-toggle" data-toggle="dropdown">Details<b class="caret"></b></a>
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Details<b class="caret"></b></a>
 				<ul class="dropdown-menu">
 					<li><a href="nullability.html">Nullability</a></li>
 					<li><a href="numbers.html">Numbers</a></li>
@@ -113,32 +156,56 @@
           </ul>
         </div><!--/.nav-collapse -->
       </div>
-    </div>
+    </nav>
+	
 	<div class="corner-ribbon top-right sticky shadow"><a href="status.html">Exploration Stage</a></div>
-    <div class="container">
+    
+	<div class="container">
 	<div class="container-fluid">
 		<div class="row row-offcanvas row-offcanvas-right">
 			 <div class="col-xs-12 col-sm-9 col-sm-push-3">
-				<h1>Container Literals</h1><p>Lense recognizes literals for <code>Sequence</code>s, <code>Association</code>s and <code>Tuple</code>s. As a rule, because Lense has type inference it must be possible to infer the type of literal from the syntax, so we need a diferent sintax for each container type. </p><h2>Sequences</h2><p>In C-familly languages an array is a fundamental type and can be created literally using curly brackets <em>{</em> and <em>}</em>, but in more mathematical oriented languages such as Fortran an Julia common brackets are used. </p>
+				<h1>Container Literals</h1>
+<p>Lense recognizes literals for <code>Sequence</code>s, <code>Association</code>s and <code>Tuple</code>s. As a rule, because Lense has type inference it must be possible to infer the type of literal from the syntax, so we need a diferent sintax for each container type. </p>
+<h2>Sequences</h2>
+<p>In C-familly languages an array is a fundamental type and can be created literally using curly brackets <em>{</em> and <em>}</em>, but in more mathematical oriented languages such as Fortran an Julia common brackets are used. </p>
 <pre><code class="brush: java ">// an example in Java
 int[] array = new int[]{1, 2, 3};
-</code></pre><p>On a closer look we can understand the C-family languages syntax like Java or C# as not having array literals <em>per se</em>, but initializers applied to arrays. So the syntax <code>{1 ,2 , 3}</code> does not denote an array, but an initializer. Initializers do not have type and they are intrinsically understood by the compiler.</p><p>What's happening in that java code is that an array is being constructed with <code>new int[]</code> and then initialized with the values 1, 2 and 3. The JVM will translate this two operations as a single operation, but<br/>conceptually there is a difference.</p><p>In C# the same concept is used to initialize both arrays and lists </p>
+</code></pre>
+<p>On a closer look we can understand the C-family languages syntax like Java or C# as not having array literals <em>per se</em>, but initializers applied to arrays. So the syntax <code>{1 ,2 , 3}</code> does not denote an array, but an initializer. Initializers do not have type and they are intrinsically understood by the compiler.</p>
+<p>What's happening in that java code is that an array is being constructed with <code>new int[]</code> and then initialized with the values 1, 2 and 3. The JVM will translate this two operations as a single operation, but<br/>conceptually there is a difference.</p>
+<p>In C# the same concept is used to initialize both arrays and lists </p>
 <pre><code class="brush: csharp">int[] array = new int[]{1, 2, 3};
 List&lt;int&gt; list = new List(){1, 2, 3};
-</code></pre><p>In Lense the type of the container is fixed by the syntax and a <a href="constructors.html#conversion">conversion constructor</a> is used to copy the values to another type if need be. So no constructor is called. A runtime object is created that depends on the underlying platform. The type inside the container is inferred from the declared value types.</p><p>Lense uses common brackets to represent <code>Sequence</code> literals. Keep in mind arrays are not fundamental types in Lense, sequences are.An array is a special (mutable) sub type of sequence.<br/>(as always types are shown for clarity, they are optional)</p>
+</code></pre>
+<p>In Lense the type of the container is fixed by the syntax and a <a href="constructors.html#conversion">conversion constructor</a> is used to copy the values to another type if need be. So no constructor is called. A runtime object is created that depends on the underlying platform. The type inside the container is inferred from the declared value types.</p>
+<p>Lense uses common brackets to represent <code>Sequence</code> literals. Keep in mind arrays are not fundamental types in Lense, sequences are.An array is a special (mutable) sub type of sequence.<br/>(as always types are shown for clarity, they are optional)</p>
 <pre><code class="brush: lense">val sequence : Sequence&lt;Natural&gt;   = [1, 2, 3];
 var array : Array&lt;Natural&gt;  = [1, 2, 3];
-</code></pre><p>The first line creates a sequence of elements 1, 2 and 3. The second line creates an array of the elements 1, 2 and 3 by first creating a sequence and them promoting it to an Array by calling its <a href="constructors.html#conversion">conversion constructor</a>. In practice the compiler is free to optimize these literal constructions and not really call the conversion constructor on <code>Array&lt;T&gt;</code>.</p><h2>Sets</h2><p>Currently there is no special syntax for sets. A set can be created by using a literal sequence and a constructor.</p>
+</code></pre>
+<p>The first line creates a sequence of elements 1, 2 and 3. The second line creates an array of the elements 1, 2 and 3 by first creating a sequence and them promoting it to an Array by calling its <a href="constructors.html#conversion">conversion constructor</a>. In practice the compiler is free to optimize these literal constructions and not really call the conversion constructor on <code>Array&lt;T&gt;</code>.</p>
+<h2>Sets</h2>
+<p>Currently there is no special syntax for sets. A set can be created by using a literal sequence and a constructor.</p>
 <pre><code class="brush: lense">val sequence : Set&lt;Natural&gt; = new HashSet([1, 2, 2, 3, 4, 3]);
-</code></pre><p>Or, you can use the <code>toSet</code> method in <code>Sequence</code>:</p>
+</code></pre>
+<p>Or, you can use the <code>toSet</code> method in <code>Sequence</code>:</p>
 <pre><code class="brush: lense">val sequence : Set&lt;Natural&gt; = [1, 2, 2, 3, 4, 3].toSet();
-</code></pre><p>The set will only contain the elements 1, 2, 3 and 4 once.</p><h2>Associations</h2><p>Associations are used to maintain pairs of values related to each other. Normally in a <em>key to value</em> relationship. </p>
+</code></pre>
+<p>The set will only contain the elements 1, 2, 3 and 4 once.</p>
+<h2>Associations</h2>
+<p>Associations are used to maintain pairs of values related to each other. Normally in a <em>key to value</em> relationship. </p>
 <pre><code class="brush: lense">val  association : Association&lt;Natural,String&gt; = { 1:&quot;First&quot;, 2:&quot;Second&quot;, 3:&quot;Third&quot; };
 var  map : Map&lt;Natural, String&gt; =  { 1:&quot;First&quot;, 2:&quot;Second&quot;, 3:&quot;Third&quot; };
-</code></pre><p>Like <code>Sequence</code>, <code>Association</code> is a fundamental type in Lense, so it has its own literal type. </p><p>The first line creates an association of elements. The second line creates a map of the same elements by first creating an association and them promoting it to a Map. In Lense, <code>Map</code> is a specific (mutable) implementation of <code>Association</code> and not an interface like in Java. Is equivalent to <code>HashMap</code> in Java.</p><h2>Tuples</h2><p>Tuples are similar to sequences, but each index has its own type. Tuples also are fundamental types in Lense.<br/>Structurally a Tuple is a node in a linked-list kind of structure. But Tuples are not Sequences, eventhought they are <code>Iterable&lt;Any&gt;</code><br/>The syntax is similar to Sequences.</p>
+</code></pre>
+<p>Like <code>Sequence</code>, <code>Association</code> is a fundamental type in Lense, so it has its own literal type. </p>
+<p>The first line creates an association of elements. The second line creates a map of the same elements by first creating an association and them promoting it to a Map. In Lense, <code>Map</code> is a specific (mutable) implementation of <code>Association</code> and not an interface like in Java. Is equivalent to <code>HashMap</code> in Java.</p>
+<h2>Tuples</h2>
+<p>Tuples are similar to sequences, but each index has its own type. Tuples also are fundamental types in Lense.<br/>Structurally a Tuple is a node in a linked-list kind of structure. But Tuples are not Sequences, eventhought they are <code>Iterable&lt;Any&gt;</code><br/>The syntax is similar to Sequences.</p>
 <pre><code class="brush: lense">var tuple : Tuple&lt;Natural , Tuple&lt;String, Tuple&lt; Boolean, Nothing &gt;&gt;&gt; = ( 1 , &quot;2&quot; , true );
 var association : (Natural , String , Boolean) = ( 1 : &quot;2&quot; : true );
-</code></pre><p>The first line creates a tuple of elements. The second line creates the same tuple but uses the tuple short type syntax for representing tuple types. The default form used in the first line can be very long and odd to write and read eventhought is the exact correct type of that tuple. </p><h2>Matrix (Under Consideration)</h2><p>It could be possible to define a specific syntax for a two dimensional<code>Matrix</code>. This is not currently implemented.</p>
+</code></pre>
+<p>The first line creates a tuple of elements. The second line creates the same tuple but uses the tuple short type syntax for representing tuple types. The default form used in the first line can be very long and odd to write and read eventhought is the exact correct type of that tuple. </p>
+<h2>Matrix (Under Consideration)</h2>
+<p>It could be possible to define a specific syntax for a two dimensional<code>Matrix</code>. This is not currently implemented.</p>
 <pre><code class="brush: lense">var matrix :  Matrix&lt;Natural&gt;  = [ 1 ,2 ,3 ; 4, 5, 6 ; 5 6 7];
 
 // also can be written as
@@ -148,7 +215,8 @@ var  matrix : Matrix&lt;Natural&gt; = [
  	4, 5, 6 ; 
  	5, 6, 7
 ];
-</code></pre><p>This would make a lot of sense in order to facilitate using Lense in more math and/or science scenarios.<br/>An alternative is to write sequence of sequences literals an use conversion constructors :</p>
+</code></pre>
+<p>This would make a lot of sense in order to facilitate using Lense in more math and/or science scenarios.<br/>An alternative is to write sequence of sequences literals an use conversion constructors :</p>
 <pre><code class="brush: lense">var  matrix :  Matrix&lt;Natural&gt; = [ [1 ,2 ,3 ], [4, 5, 6 ], [ 5 6 7]];
 
 // also can be written as
@@ -158,7 +226,10 @@ var  matrix : Matrix&lt;Natural&gt; = [
  	[4, 5, 6],
  	[5, 6, 7]
 ];
-</code></pre><p>The support for matrixes is still under consideration and may not be implemented. </p><h2>Records (Under Consideration)</h2><p>Records are a special object that represents a non typed property bag. Records are not currently implemented.<br/>A possible syntax would be similar to an association, but using = instead of ":". The difference is that on an association both sides of the ":" can be variables,<br/>in a record only the right side can be a variable. The left side is interpreted as the name of a property. </p>
+</code></pre>
+<p>The support for matrixes is still under consideration and may not be implemented. </p>
+<h2>Records (Under Consideration)</h2>
+<p>Records are a special object that represents a non typed property bag. Records are not currently implemented.<br/>A possible syntax would be similar to an association, but using = instead of ":". The difference is that on an association both sides of the ":" can be variables,<br/>in a record only the right side can be a variable. The left side is interpreted as the name of a property. </p>
 <pre><code class="brush: lense">var  address : Record = {
 	Street = &quot;Baker Street&quot;,
 	Number = &quot;221B&quot;,
@@ -166,7 +237,8 @@ var  matrix : Matrix&lt;Natural&gt; = [
 	Country = &quot;England&quot;
 }
 
-</code></pre><p>This syntax takes us full circle to the initializer concept discussed at the beginning. We can now use records to initialize other types like so:</p>
+</code></pre>
+<p>This syntax takes us full circle to the initializer concept discussed at the beginning. We can now use records to initialize other types like so:</p>
 <pre><code class="brush: lense">var  address : Address = new Address {
 	Street = &quot;Baker Street&quot;,
 	Number = &quot;221B&quot;,
@@ -174,7 +246,8 @@ var  matrix : Matrix&lt;Natural&gt; = [
 	Country = &quot;England&quot;
 }
 
-</code></pre><p>This a combination of a call to the <a href="constructors.html">primary constructor</a> and a initialization of each property referred in the record literal. This is not a conversion but syntax sugar for:</p>
+</code></pre>
+<p>This a combination of a call to the <a href="constructors.html">primary constructor</a> and a initialization of each property referred in the record literal. This is not a conversion but syntax sugar for:</p>
 <pre><code class="brush: lense">// define a record
 var  tempRecord : Record = {
 	Street = &quot;Baker Street&quot;,
@@ -190,80 +263,102 @@ address.Street = tempRecord.Street;
 address.Number = tempRecord.Number;
 address.City = tempRecord.City;
 address.Country = tempRecord.Country;
-</code></pre><p>That is optimized to:</p>
+</code></pre>
+<p>That is optimized to:</p>
 <pre><code class="brush: lense">var  address : Address = new Address();
 
 address.Street = &quot;Baker Street&quot;;
 address.Number = &quot;221B&quot;;
 address.City = &quot;London&quot;;
 address.Country = &quot;England&quot;;
-</code></pre><p>This feature is similar to the initialization syntax in C# even thought in Lense we would be using the conjunction of two concepts : constructors and record literals.</p>
+</code></pre>
+<p>This feature is similar to the initialization syntax in C# even thought in Lense we would be using the conjunction of two concepts : constructors and record literals.</p>
 			</div>
 			<div class="col-xs-6 col-sm-3 col-sm-pull-9 sidebar-offcanvas" id="sidebar"">
 
-<ol>
-	<li>Introduction</i>
+<ul class="collapsible-menu">
+	<li><a href="#">Introduction</a></i></i>
 	<li><a href="status.html">Status</a></i>
-	<li>Syntax and Semantics
-		<ol>
+	<li class="has-children">
+		<a href="javascript:void(0)">Syntax and Semantics</a>
+		<ul >
 			<li><a href="identifiers.html">Reserved Words</a></li>
-			<li>Variables</li>
-			<li>Mutability</li>
+			<li><a href="variables.html">Variables and Mutability</a></li>
 			<li><a href="nullability.html">Nullability</a></li>
 			<li>Comments</li>
 			<li>Generics</li>
 			<li>Functions</li>
 			
-			<li>Fundamental Types
-				
+			<li class="has-children">
+				<a href="javascript:void(0)">Fundamental Types</a>
 				<ul>
-					<li><a href="strings.html">Strings</a></li>
-					<li><a href="numbers.html">Numbers</a></li>
-					<li>Ranges</li>
-					<li><a href="interval.html">Intervals</a></li>
-					<li><a href="arrays.html">Arrays</a></li>
-					<li>Tuples</li>
-					<li><a href="containerLiterals.html">Container Literals</a></li>
+					<li><a href="booleans.html">Boolean</a></li>
+					<li><a href="strings.html">String</a></li>
+					<li><a href="numbers.html">Number</a></li>
+					<li><a href="binary.html">Binary</a></li>
+					<li><a href="interval.html">Interval</a></li>
+					<li><a href="iterable.html">Iterable</a></li>
+					<li class="has-children"> 
+						<a href="javascript:void(0)">Containers</a>
+						<ul> 
+							<li><a href="maybe.html">Maybe</a></li>
+							<li><a href="tuples.html">Tuple</a></li>
+							
+							<li>Range</li>
+							<li><a href="sequence.html">Sequence</a></li>
+							<li>Association</li>
+							
+						</ul>
+					</li>
 				</ul>
 			</li>
-			<li>Control Statements
+			<li><a href="containerLiterals.html">Container Literals</a></li>
+			<li><a href="arrays.html">Arrays</a></li>
+			<li class="has-children">
+				<a href="javascript:void(0)">Control Statements</a>
 				<ul>
 					<li>Decision: if</li>
 					<li>Loop : while</li>
 					<li>Iteration : for</li>
-					<li>Selection : switch</li>
+					<li>Selection/Matching : switch</li>
 				</ul>
 			</li>
-			
-			<li><a href="objects.html">Classes and Objects</a>
+			<li class="has-children"> 
+				<a href="javascript:void(0)">Types</a>
+				<ul>	
+					<li><a href="classes.html">Classes</a></li>
+					<li><a href="objects.html">Objects</a></li>
+					<li><a href="interfaces.html">Interfaces</a></li>
+					<li>Enums</li>
+					<li><a href="enhancements.html">Enhancements</a></li>
+				</ul>
+			</li>
+			<li class="has-children"> 
+				<a href="javascript:void(0)">Type Members</a>
 				<ul>
 					<li><a href="constructors.html">Constructors</a></li>
-					<li><a href="properties.html">Properties</a></li>
+					<li><a href="properties.html">Fields and Properties</a></li>
+					<li><a href="indexers.html">Indexed Properties</a></li>
+					<li>Methods</li>
 				</ul>
 			</li>
-			<li>Enums</li>
-			<li><a href="enhancements.html">Enhancements</a></li>
 			<li>Lambdas</li>
 			<li>Casting</li>
 			<li><a href="operators.html">Operator Overloading</a></li>
 			
-		</ol>
+		</ul>
 	</li>
-	<li>Compilation
+	<li class="has-children">
+		<a href="javascript:void(0)">Compilation</a>
 		<ul>
 			<li><a href="platforms.html">Platforms</a></li>
 			<li><a href="erasure.html">Erasure</a></li>
 		</ul>
 	</li>
 	<li><a href="concurrency.html">Concurrency</a>
-		<ol>
-			<li>Promisses</li>
-			<li>Executors</li>
-			<li>Actors</li>
-		</ol>
 	</li>
 
-<ol>			</div>
+<ul>			</div>
 		</div>
 	</div>
 	

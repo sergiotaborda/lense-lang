@@ -20,6 +20,8 @@
 
 	</script>
   
+	<script src="js/jquery-1.11.1.min.js"></script>
+  
 	<script src="js/shCore.js"></script>
 
 	<script src="js/shBrushScala.js"></script>
@@ -27,7 +29,6 @@
 	<script src="js/shBrushDart.js"></script>
 	<script src="js/shBrushJava.js"></script>
 	<script src="js/shBrushLense.js"></script>
-
 
     <!-- Le styles -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
@@ -39,6 +40,12 @@
 	<link rel="stylesheet" type="text/css" href="css/shThemeDefault.css" >
 	<link rel="stylesheet" type="text/css" href="css/site.css" >
 
+	<style>
+		.navbar-toggle{
+			float:left;
+			margin-left:7px;
+		}
+	</style>
 	
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
@@ -48,20 +55,56 @@
     <!-- Fav and touch icons -->
 
     <link rel="shortcut icon" href="icon.png">
+	
+	<script>
+	$(document).ready(function() {
+	  $(".collapsible-menu").on("click", "li > a", function(e) {
+		var p = $(this).parent();
+		if (p.hasClass("has-children")) {
+			p.toggleClass("open").siblings(".open").removeClass("open");
+		}
+	  });
+	  
+	  var url = window.location.pathname;
+		var filename = url.substring(url.lastIndexOf('/')+1);
+		
+	  $(".collapsible-menu a").each(function(){
+		var link = $(this).attr("href");
+		
+		if (filename == link) {
+			var item = $(this).parent();
+			
+			while (!item.hasClass("collapsible-menu")){
+				if (item.hasClass("has-children")) {
+					item.toggleClass("open").siblings(".open").removeClass("open");
+				}
+				item = $(item).parent()
+			}
+		}
+
+	  })
+	  
+	});
+	</script>
   </head>
   <body onload="prettyPrint()">
     <div id="wrap">
 	
 	<!-- Fixed navbar -->
-    <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <nav class="navbar navbar-default navbar-fixed-top" >
       <div class="container">
         <div class="navbar-header">
+		  <button type="button" data-target="#navbar" data-toggle="collapse" class="navbar-toggle"> 
+			  <span class="sr-only">Toggle navigation</span> 
+			  <span class="icon-bar"></span> 
+			  <span class="icon-bar"></span> 
+		  </button>
           <a class="navbar-brand" href="index.html">Lense</a>
         </div>
-        <div class="navbar-collapse collapse">
+        <div id="navbar" class="navbar-collapse collapse">
           <ul class="nav navbar-nav">
             <li class="dropdown">
-				<a href="#" class="dropdown-toggle" data-toggle="dropdown">Get Started<b class="caret"></b></a>
+				<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Get Started<b class="caret"></b></a>
 				<ul class="dropdown-menu">
 					<li class="disabled"><a href="learn.html">Learn Lense</a></li>
 					<li class="disabled"><a href="try.html">Try Lense</a></li>
@@ -69,7 +112,7 @@
 				</ul>
 			</li>
             <li class="dropdown">
-				<a href="#" class="dropdown-toggle" data-toggle="dropdown">Fundamentals<b class="caret"></b></a>
+				<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Fundamentals<b class="caret"></b></a>
 				<ul class="dropdown-menu">
 					<li><a href="tour/tour.html">Language Tour</a></li>
 					<li class="disabled"><a href="guide.html">Programmer's Guide</a></li>
@@ -79,7 +122,7 @@
             </li>
 			
             <li class="dropdown">
-              <a href="#" class="dropdown-toggle" data-toggle="dropdown">Details<b class="caret"></b></a>
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Details<b class="caret"></b></a>
 				<ul class="dropdown-menu">
 					<li><a href="nullability.html">Nullability</a></li>
 					<li><a href="numbers.html">Numbers</a></li>
@@ -113,14 +156,21 @@
           </ul>
         </div><!--/.nav-collapse -->
       </div>
-    </div>
+    </nav>
+	
 	<div class="corner-ribbon top-right sticky shadow"><a href="status.html">Exploration Stage</a></div>
-    <div class="container">
+    
+	<div class="container">
 	<div class="container-fluid">
 		<div class="row row-offcanvas row-offcanvas-right">
 			 <div class="col-xs-12 col-sm-9 col-sm-push-3">
-				<h1>Operators</h1><p>Lense supports operators and a special kind of operator overloading we named <em>Operator Interface</em>. Not all operators can be redefined some are intrinsic to the language.</p><h2>Intrinsic Operators</h2><p>Intrinsic operators cannot be redefined and are specially handled by the compiler.</p>
-<table>
+				<h1>Operators</h1>
+<p>Lense supports operators with a special kind of operator overloading. There are two types of operators : intrinsic and redefinable.</p>
+<p>Intrinsic operators are native to the language and their behavior cannot be redefined. On the other hand, the set of available operators for redefinition is limited ( we do not what symbolic noise ) but extended enought to be usefull in a mathematical or engineering context.<br/>Redefinable operators are translated to calls to methods. Intrinsic operators are not translated to method calls.</p>
+<p>Symbols are gathered from differente sources. Lense pays special attention to algebric structures that are related to the operators and symbols, this means, for example, that the symbol implies if the operation is comutable or not. As a rule of thumb, doubled symbols always represent non-comutative operations. For example,we use <code>^^</code> for exponentiation that we now is always non-comutative and <code>^</code> for the XOR operator that is always comutative. On te same token we use <code>+</code> for comutative sum and <code>++</code> for non cumutative concatenation.</p>
+<h2>Intrinsic Operators</h2>
+<p>Intrinsic operators cannot be redefined and are specially handled by the compiler.</p>
+<table class="listing">
 	<tr>
 		<th>Operator</th>
 		<th>Example</th>
@@ -139,7 +189,7 @@
 	</tr>
 		<tr>
 		<td> :: </td>
-		<td> Function &lt;Natural, Natural&gt; plus = Natural::plus; </td>
+		<td> var plusOperator = Natural::plus; </td>
 		<td> Allows for easy reflection of class members </td>
 	</tr>
 	<tr>
@@ -150,20 +200,22 @@
 	<tr>
 		<td> && </td>
 		<td> a && b</td>
-		<td> *a* and *b* must be <code>Boolean</code>. Performs an AND logic operation on the operands but only is *a* is true. Otherwise simply return ``false`` </td>
+		<td> *a* and *b* must be <code>Boolean</code>. Performs an AND logic operation on the operands but only is *a* is true. Otherwise simply return ``false``. Because of the short-circuit behavior this is not a comutative operator. </td>
 	</tr>
 	<tr>
 		<td> || </td>
 		<td> a || b</td>
-		<td> *a* and *b* must be <code>Boolean</code>. Performs an OR logic operation on the operands but only is *a* is false. Otherwise simply return ``true`` </td>
+		<td> *a* and *b* must be <code>Boolean</code>. Performs an OR logic operation on the operands but only is *a* is false. Otherwise simply return ``true``.Because of the short-circuit behavior this is not a comutative operator. </td>
 	</tr>
 		<tr>
 		<td> ! </td>
 		<td> !a</td>
 		<td> *a* must be <code>Boolean</code>. Inverts the logic value of *a*. </td>
 	</tr>
-</table><h2>Definable Operators</h2><p>Lense supports the following overridable operators:</p>
-<table>
+</table>
+<h2>Definable Operators</h2>
+<p>Lense supports the following overridable operators:</p>
+<table class="listing">
 	<tr>
 		<th>Operator</th>
 		<th>Example</th>
@@ -190,93 +242,109 @@
 		<td> a + b </td>
 		<td> a.plus(b) </td>
 		<td> Summable<A,D,S> </td>
-		<td> Sums two values and returns in a third value. The operand values are not changed in any way </td>
+		<td> Sums two values and returns a third value. Prefer the + operator for comutative monoid operations with zero as identity element.</td>
+	</tr>
+	<tr>
+		<td> ++ </td>
+		<td> a ++ b </td>
+		<td> a.concat(b) </td>
+		<td> Concatenatable<A,D,S> </td>
+		<td> Concatenates two values and returns a third value. Prefer the ++ operator for non comutative monoid operations with empty as identity element </td>
 	</tr>
 	<tr>
 		<td> - </td>
 		<td> a - b </td>
-		<td> a.subtract(b) </td>
+		<td> a.minus(b) </td>
 		<td> Subtractable<D,A,S> </td>
-		<td> Substracts two values and returns in a third value. The operand values are not changed in any way </td>
+		<td> Substracts two values and returns in a third value. This operator represents a non-comutative operation.  </td>
 	</tr>
 	<tr>
 		<td> * </td>
 		<td> a * b </td>
 		<td> a.multiply(b) </td>
 		<td> Multiplyable<P,A,B> </td>
-		<td> Multiplies the two values and returns in a third value. The operand values are not changed in any way </td>
+		<td> Multiplies the two values and returns in a third value. Prefer the * operator for comutative monoid operations with one as identity. </td>
 	</tr>
 	<tr>
-		<td> ** </td>
-		<td> a ** b </td>
-		<td> a.raise(b) </td>
+		<td> ^^ </td>
+		<td> a ^^ b </td>
+		<td> a.raiseTo(b) </td>
 		<td> Powerable<P,B,E> </td>
-		<td> Raises the first operand to the power of the second operand and returns the result in a third value. The operand values are not changed in any way </td>
+		<td> Raises the first operand to the power of the second operand and returns the result in a third value. Prefer the ^^ operator for non-comutative monoid operations with one as identity. </td>
 	</tr>
 	<tr>
 		<td> / </td>
 		<td> a / b </td>
 		<td> a.divide(b) </td>
 		<td> Dividable<Q,N,D> </td>
-		<td> Divides the two values and returns in a third value. The operand values are not changed in any way. Note that Whole numbers implement Dividable<Rational, Whole,Whole> and
-			Decimals implement Dividable<Decimals,Decimals,Decimals>
+		<td> Divides the two values and returns a third value. The operand values are not changed in any way. This operator represents a non-comutative operation. Note that Whole numbers implement Dividable&lt;Rational, Whole,Whole&gt; and
+			Decimals implement Dividable&lt;Decimals,Decimals,Decimals&lt;. 
+		</td>
+	</tr>
+	<tr>
+		<td> \ </td>
+		<td> a \ b </td>
+		<td> a.wholeDivide(b) </td>
+		<td> WholeDividable<W> </td>
+		<td> Performs whole division the two values and returns a third value. The operand values are not changed in any way. This operator represents a non-comutative operation. Note that Whole numbers implement WholeDividable&lt;Whole&gt; 
 		</td>
 	</tr>
 	<tr>
 		<td> % </td>
 		<td> a % b </td>
 		<td> a.remainder(b) </td>
-		<td> Remainder<Q,N,D> </td>
-		<td> Divides the two values and returns the remainder in a third value. The operand values are not changed in any way. </td>
+		<td> WholeDividable<W> </td>
+		<td> Divides the two values and returns the remainder of integer devision. This operator represents a non-comutative operation.  Note that it should true that <i>a = a \ b + a % b</i>
+		</td>
 	</tr>
 	<tr>
 		<td> - (infix) </td>
 		<td> -a </td>
 		<td> a.symetric() </td>
-		<td> Symmetric<T> </td>
-		<td> Returns the symmetric value. The Symmetric value of *x* is equivalent to that calculated by *0 - x*</td>
+		<td> Symmetrical<T,R> </td>
+		<td> Returns the symmetric value. Keep in mind the type needs not be closed for subtraction. For `Natural`s, for example the symetric value is an `Integer`. </td> 
 	</tr>
 	<tr>
 		<td> ~ (infix) </td>
 		<td> ~a </td>
-		<td> a.flipAll() </td>
-		<td> Binary<T> </td>
-		<td> Returns a values equivalent to the original with bits reversed (fliped)</td>
+		<td> a.complement() </td>
+		<td> Complementable<T,R> </td>
+		<td> Returns the complement of the value. For Binary values it is equivalent to fliping all bits. For complex numbers is represents the conjugate so that  <i>~(a + ib) = a - ib</i> </td>
 	</tr>
 	<tr>
 		<td> ++ (infix) </td>
 		<td> ++a </td>
-		<td> a.increment() </td>
-		<td> Incrementable<T> </td>
-		<td> Increments the value by one unit</td>
+		<td> a.successor() </td>
+		<td> Ordable<T> </td>
+		<td> Obtain the next value in the enumeration.</td>
 	</tr>
 	<tr>
 		<td> -- (infix) </td>
 		<td> --a </td>
-		<td> a.decrement() </td>
-		<td> Decrementable<T> </td>
-		<td> Decrements the value by one unit</td>
+		<td> a.predecessor() </td>
+		<td> Ordable<T> </td>
+		<td>Obtain the previous value in the enumeration.</td>
 	</tr>
 	<tr>
 		<td> & </td>
 		<td> a & b </td>
 		<td> a.and(b) </td>
 		<td> Injunctable<R,A,B> </td>
-		<td> Injucts the two values and returns a third value. The operand values are not changed in any way. For binary forms, this implements a bitwise AND </td>
+		<td> Injucts the two values and returns a third value. For binary forms, this implements a bitwise AND. For sets this implements intersection</td>
 	</tr>
 	<tr>
 		<td> | </td>
 		<td> a | b </td>
 		<td> a.or(b) </td>
 		<td> Dijunctable<R,A,B> </td>
-		<td> Dijunsts the two values and returns a third value. The operand values are not changed in any way. For binary forms, this implements a bitwise OR </td>
+		<td> Dijuncts the two values and returns a third value. For binary forms, this implements a bitwise OR . For sets this implements union</td>
 	</tr>
 	<tr>
 		<td> ^ </td>
 		<td> a ^ b </td>
 		<td> a.xor(b) </td>
-		<td> ExclusiveDijunctable<R,A,B> </td>
-		<td> Exclusively dijunsts the two values and returns a third value. The operand values are not changed in any way. For binary forms, this implements a bitwise XOR </td>
+		<td> ExclusivelyDijunctable<R,A,B> </td>
+		<td> Exclusively dijunsts the two values and returns a third value. For binary forms, this implements a bitwise XOR </td>
 	</tr>
 	<tr>
 		<td> <=> </td>
@@ -322,99 +390,196 @@
 	</tr>
 	<tr>
 		<td> >> </td>
-		<td> a >> b </td>
-		<td> a.rightShiftBy(b)</td>
+		<td> a >> n </td>
+		<td> a.rightShiftBy(n)</td>
 		<td> Binary<T> </td>
-		<td> Returns a value equivalent to the original with bits moved to the right *b* times. The operand values are not changed in any way.  </td>
+		<td> The arithmetic right shift operator returns a value equivalent to the original with bits moved to the right *n* times. This is equivalent to division by 2 *n* times for positieve numeric values.The operand values are not changed in any way.  </td>
 	</tr>
 	<tr>
 		<td> << </td>
-		<td> a << b </td>
-		<td> a.leftShiftBy(b)</td>
+		<td> a << n </td>
+		<td> a.leftShiftBy(n)</td>
 		<td> Binary<T> </td>
-		<td> Returns a value equivalent to the original with bits moved to the left *b* times. The operand values are not changed in any way.  </td>
+		<td> The arithmetic left shift operator returns a value equivalent to the original with bits moved to the left *n* times. This is equivalent to multiplication by 2 *n* times for positieve numeric values. The operand values are not changed in any way.  </td>
 	</tr>
-</table><h3>A note on Increment and Decrement operators (Under consideration)</h3><p>The infix <code>--a</code> and <code>++b</code> operators are transformed to calls into <code>decrement</code> and <code>increment</code>. For example, this code:</p>
+	<tr>
+		<td> <i>empty space</i> </td>
+		<td>  a b </td>
+		<td> a.juxtapose(b)</td>
+		<td> Juxtaposable<T> </td>
+		<td> (Under consideration) This is an operator with no symbol that means the two operands are simply "put together". This may mean a kind of multiplication like in `2 Kg` , or in matrix multiplication like `A B`. The juxtapose operator is non-comutative in general.  </td>
+	</tr>
+</table>
+<h2>Ternary operators</h2>
+<h3>Ternary Select operator</h3>
+<p>This operator test for the first term to be true. In the positieve case returns the second term. Otherwise returns the third.</p>
+<pre><code class="brush:lense ">val c = (a == b) ? 1 : 4;
+</code></pre>
+<h3>Ternary Comparison operator</h3>
+<p>This operator compares the second term with the other ones according to the comparison operators use in between them an returns true if both sides are true</p>
+<pre><code class="brush:lense ">val isTeenager =  13 &lt;= x &lt;= 19;
+</code></pre>
+<p>This operator is equivalent to </p>
+<pre><code class="brush:lense ">val isTeenager =  13 &lt;= x &amp;&amp; x &lt;= 19
+</code></pre>
+<p>but, we do not need to use the <code>&amp;&amp;</code> operator nor type the variable <code>x</code> twice.<br/>Also this operator is equivalent to</p>
+<pre><code class="brush:lense ">val isTeenager = x in |[ 13 , 19 ]|;
+</code></pre>
+<p>but we do not need to create and interval object to text x agains it.</p>
+<h2>A note on Increment and Decrement operators (Under consideration)</h2>
+<p>The infix <code>--a</code> and <code>++b</code> operators are transformed to calls into <code>predecessor</code> and <code>successor</code>. For example, this code:</p>
 <pre><code class="brush:lense ">val a : Integer= 3;
 val b : Integer = ++a;
-</code></pre><p>At the end of this code, both <em>a</em> and <em>b</em> are 4.<br/>Is equivalent to</p>
+</code></pre>
+<p>At the end of this code, both <em>a</em> and <em>b</em> are 4.<br/>Is equivalent to</p>
 <pre><code class="brush:lense ">var  a : Integer = 3;
-a = a.increment();
+a = a.successor();
 val b :Integer = a;
-</code></pre><p>As you can see the value in the variable is incremented implicitly as you would expect, however a new object is created and the reference is redirected to this new object. </p><p>The suffix operators <code>a--</code> and <code>a++</code> are also transformed to calls into <code>decrement</code> and <code>increment</code> but in another sequence. For example,</p>
+</code></pre>
+<p>As you can see the value in the variable is incremented implicitly as you would expect, however a new object is created and the reference is redirected to this new object. </p>
+<p>The suffix operators <code>a--</code> and <code>a++</code> are also transformed to calls into <code>predecessor</code> and <code>successor</code>, but in a different sequence. For example:</p>
 <pre><code class="brush:lense ">val a : Integer= 3;
 val b : Integer = a++;
-</code></pre><p>At the end of this code, <em>b</em> is 3 and <em>a</em> is 4.<br/>is translated internally to</p>
+</code></pre>
+<p>At the end of this code, <em>b</em> is 3 and <em>a</em> is 4.<br/>is translated internally to</p>
 <pre><code class="brush:lense ">var a : Integer = 3;
 val b : Integer = a;
-a = a.increment();
+a = a.successor();
+</code></pre>
+<h2>Composed assignment operators</h2>
+<p>Consider the following operator statement:</p>
+<pre><code class="brush:lense ">var a : Integer = 3;
+
+a+=5;
+
+</code></pre>
+<p>The <code>+=</code> is a composed assignment operator. Where the <code>a+=5</code> statement is equivalent to:</p>
+<pre><code class="brush:lense ">var a : Integer = 3;
+
+a = a + 5;
+
+</code></pre>
+<p>All composed assignment operator are decomposed by the compiler in an assignment an a call to the root operator. </p>
+<table class="listing">
+	<tr>
+		<td>+=</td>
+		<td>-=</td>
+		<td>*=</td>
+		<td>/=</td>
+		<td>\=</td>
+	</tr>
+	<tr>
+		<td>&=</td>
+		<td>|=</td>
+		<td>^=</td>
+		<td><<=</td>
+		<td>>>=</td>
+	</tr>
+</table>
+<p>Remember that assignments are statemets in Lense, so the following code does not compile:</p>
+<pre><code class="brush:lense ">var a : Integer = 3;
+
+if (a+=5 &gt; 7){
+  // do something
+}
+
+</code></pre>
+<p>This one does:</p>
+<pre><code class="brush:lense ">var a : Integer = 3;
+
+a+=5;
+
+if (a &gt; 7){
+  // do something
+}
+
 </code></pre>
 			</div>
 			<div class="col-xs-6 col-sm-3 col-sm-pull-9 sidebar-offcanvas" id="sidebar"">
 
-<ol>
-	<li>Introduction</i>
+<ul class="collapsible-menu">
+	<li><a href="#">Introduction</a></i></i>
 	<li><a href="status.html">Status</a></i>
-	<li>Syntax and Semantics
-		<ol>
+	<li class="has-children">
+		<a href="javascript:void(0)">Syntax and Semantics</a>
+		<ul >
 			<li><a href="identifiers.html">Reserved Words</a></li>
-			<li>Variables</li>
-			<li>Mutability</li>
+			<li><a href="variables.html">Variables and Mutability</a></li>
 			<li><a href="nullability.html">Nullability</a></li>
 			<li>Comments</li>
 			<li>Generics</li>
 			<li>Functions</li>
 			
-			<li>Fundamental Types
-				
+			<li class="has-children">
+				<a href="javascript:void(0)">Fundamental Types</a>
 				<ul>
-					<li><a href="strings.html">Strings</a></li>
-					<li><a href="numbers.html">Numbers</a></li>
-					<li>Ranges</li>
-					<li><a href="interval.html">Intervals</a></li>
-					<li><a href="arrays.html">Arrays</a></li>
-					<li>Tuples</li>
-					<li><a href="containerLiterals.html">Container Literals</a></li>
+					<li><a href="booleans.html">Boolean</a></li>
+					<li><a href="strings.html">String</a></li>
+					<li><a href="numbers.html">Number</a></li>
+					<li><a href="binary.html">Binary</a></li>
+					<li><a href="interval.html">Interval</a></li>
+					<li><a href="iterable.html">Iterable</a></li>
+					<li class="has-children"> 
+						<a href="javascript:void(0)">Containers</a>
+						<ul> 
+							<li><a href="maybe.html">Maybe</a></li>
+							<li><a href="tuples.html">Tuple</a></li>
+							
+							<li>Range</li>
+							<li><a href="sequence.html">Sequence</a></li>
+							<li>Association</li>
+							
+						</ul>
+					</li>
 				</ul>
 			</li>
-			<li>Control Statements
+			<li><a href="containerLiterals.html">Container Literals</a></li>
+			<li><a href="arrays.html">Arrays</a></li>
+			<li class="has-children">
+				<a href="javascript:void(0)">Control Statements</a>
 				<ul>
 					<li>Decision: if</li>
 					<li>Loop : while</li>
 					<li>Iteration : for</li>
-					<li>Selection : switch</li>
+					<li>Selection/Matching : switch</li>
 				</ul>
 			</li>
-			
-			<li><a href="objects.html">Classes and Objects</a>
+			<li class="has-children"> 
+				<a href="javascript:void(0)">Types</a>
+				<ul>	
+					<li><a href="classes.html">Classes</a></li>
+					<li><a href="objects.html">Objects</a></li>
+					<li><a href="interfaces.html">Interfaces</a></li>
+					<li>Enums</li>
+					<li><a href="enhancements.html">Enhancements</a></li>
+				</ul>
+			</li>
+			<li class="has-children"> 
+				<a href="javascript:void(0)">Type Members</a>
 				<ul>
 					<li><a href="constructors.html">Constructors</a></li>
-					<li><a href="properties.html">Properties</a></li>
+					<li><a href="properties.html">Fields and Properties</a></li>
+					<li><a href="indexers.html">Indexed Properties</a></li>
+					<li>Methods</li>
 				</ul>
 			</li>
-			<li>Enums</li>
-			<li><a href="enhancements.html">Enhancements</a></li>
 			<li>Lambdas</li>
 			<li>Casting</li>
 			<li><a href="operators.html">Operator Overloading</a></li>
 			
-		</ol>
+		</ul>
 	</li>
-	<li>Compilation
+	<li class="has-children">
+		<a href="javascript:void(0)">Compilation</a>
 		<ul>
 			<li><a href="platforms.html">Platforms</a></li>
 			<li><a href="erasure.html">Erasure</a></li>
 		</ul>
 	</li>
 	<li><a href="concurrency.html">Concurrency</a>
-		<ol>
-			<li>Promisses</li>
-			<li>Executors</li>
-			<li>Actors</li>
-		</ol>
 	</li>
 
-<ol>			</div>
+<ul>			</div>
 		</div>
 	</div>
 	

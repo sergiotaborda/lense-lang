@@ -20,6 +20,8 @@
 
 	</script>
   
+	<script src="js/jquery-1.11.1.min.js"></script>
+  
 	<script src="js/shCore.js"></script>
 
 	<script src="js/shBrushScala.js"></script>
@@ -27,7 +29,6 @@
 	<script src="js/shBrushDart.js"></script>
 	<script src="js/shBrushJava.js"></script>
 	<script src="js/shBrushLense.js"></script>
-
 
     <!-- Le styles -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
@@ -39,6 +40,12 @@
 	<link rel="stylesheet" type="text/css" href="css/shThemeDefault.css" >
 	<link rel="stylesheet" type="text/css" href="css/site.css" >
 
+	<style>
+		.navbar-toggle{
+			float:left;
+			margin-left:7px;
+		}
+	</style>
 	
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
@@ -48,20 +55,56 @@
     <!-- Fav and touch icons -->
 
     <link rel="shortcut icon" href="icon.png">
+	
+	<script>
+	$(document).ready(function() {
+	  $(".collapsible-menu").on("click", "li > a", function(e) {
+		var p = $(this).parent();
+		if (p.hasClass("has-children")) {
+			p.toggleClass("open").siblings(".open").removeClass("open");
+		}
+	  });
+	  
+	  var url = window.location.pathname;
+		var filename = url.substring(url.lastIndexOf('/')+1);
+		
+	  $(".collapsible-menu a").each(function(){
+		var link = $(this).attr("href");
+		
+		if (filename == link) {
+			var item = $(this).parent();
+			
+			while (!item.hasClass("collapsible-menu")){
+				if (item.hasClass("has-children")) {
+					item.toggleClass("open").siblings(".open").removeClass("open");
+				}
+				item = $(item).parent()
+			}
+		}
+
+	  })
+	  
+	});
+	</script>
   </head>
   <body onload="prettyPrint()">
     <div id="wrap">
 	
 	<!-- Fixed navbar -->
-    <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <nav class="navbar navbar-default navbar-fixed-top" >
       <div class="container">
         <div class="navbar-header">
+		  <button type="button" data-target="#navbar" data-toggle="collapse" class="navbar-toggle"> 
+			  <span class="sr-only">Toggle navigation</span> 
+			  <span class="icon-bar"></span> 
+			  <span class="icon-bar"></span> 
+		  </button>
           <a class="navbar-brand" href="index.html">Lense</a>
         </div>
-        <div class="navbar-collapse collapse">
+        <div id="navbar" class="navbar-collapse collapse">
           <ul class="nav navbar-nav">
             <li class="dropdown">
-				<a href="#" class="dropdown-toggle" data-toggle="dropdown">Get Started<b class="caret"></b></a>
+				<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Get Started<b class="caret"></b></a>
 				<ul class="dropdown-menu">
 					<li class="disabled"><a href="learn.html">Learn Lense</a></li>
 					<li class="disabled"><a href="try.html">Try Lense</a></li>
@@ -69,7 +112,7 @@
 				</ul>
 			</li>
             <li class="dropdown">
-				<a href="#" class="dropdown-toggle" data-toggle="dropdown">Fundamentals<b class="caret"></b></a>
+				<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Fundamentals<b class="caret"></b></a>
 				<ul class="dropdown-menu">
 					<li><a href="tour/tour.html">Language Tour</a></li>
 					<li class="disabled"><a href="guide.html">Programmer's Guide</a></li>
@@ -79,7 +122,7 @@
             </li>
 			
             <li class="dropdown">
-              <a href="#" class="dropdown-toggle" data-toggle="dropdown">Details<b class="caret"></b></a>
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Details<b class="caret"></b></a>
 				<ul class="dropdown-menu">
 					<li><a href="nullability.html">Nullability</a></li>
 					<li><a href="numbers.html">Numbers</a></li>
@@ -113,19 +156,25 @@
           </ul>
         </div><!--/.nav-collapse -->
       </div>
-    </div>
+    </nav>
+	
 	<div class="corner-ribbon top-right sticky shadow"><a href="status.html">Exploration Stage</a></div>
-    <div class="container">
+    
+	<div class="container">
 	<div class="container-fluid">
 		<div class="row row-offcanvas row-offcanvas-right">
 			 <div class="col-xs-12 col-sm-9 col-sm-push-3">
-				<h1>Enhancements</h1><p>Normally we extend a class by means of inheritance. Inheritance may not be a good solution in some cases.<br/>Sometimes we need to extends the funcionally of a class without adding to the inheritance tree, e.g. when the class we are trying to extend is final.<br/>The standard pattern to do this is via a Decorator. A decorator holds a value of the original class and adds methods to it.<br/>Both class can share the same interface but normally that does not happen. </p><p>Decorator is a solution for the problem and can be implemented in any object oriented language, however is not very practical.</p><p>Other languages like C# and Gosu, enable the use of Extention Methods. Extention Methods are static methods declared<br/>in a special way so they can be called as normal methods (after a dot). Being static methods this methods can also be<br/>called normally using the static method calling syntax. </p>
-<pre><code class="brush:csharp">String greating = &#39;ho&quot;.Repeat(4); // Repeat is not a standard method of type String
+				<h1>Enhancements</h1>
+<p>Normally we extend a class by means of inheritance. Inheritance may not be a good solution in some cases.<br/>Sometimes we need to extends the funcionally of a class without adding to the inheritance tree, e.g. when the class we are trying to extend is final.<br/>The standard pattern to do this is via a Decorator. A decorator holds a value of the original class and adds methods to it.<br/>Both class can share the same interface but normally that does not happen. </p>
+<p>Decorator is a solution for the problem and can be implemented in any object oriented language, however is not very practical.</p>
+<p>Other languages like C# and Gosu, enable the use of Extention Methods. Extention Methods are static methods declared<br/>in a special way so they can be called as normal methods (after a dot). Being static methods this methods can also be<br/>called normally using the static method calling syntax. </p>
+<pre><code class="brush:csharp">String greating = &quot;ho&quot;.repeat(4); // Repeat is not a standard method of type String
 assert(&quot;hohohoho&quot; == greating);
-</code></pre><p>Lense does not have static elements, so extention method must be declared on an object and we apply the methods of that<br/>object to the original instance of the class we want to enhance. </p>
-<pre><code class="brush:lense">public enhancement RepeatableString extends String {
+</code></pre>
+<p>Lense does not have static elements, so extention method must be declared on an object and we apply the methods of that<br/>object to the original instance of the class we want to enhance. </p>
+<pre><code class="brush: lense">public enhancement RepeatableString extends String {
 
-	public Repeat(count : Natural): String {
+	public repeat(count : Natural): String {
 		var result = &quot;&quot;;
 		for ( val i in 1..count){
 			result+= this; // this referes to the enhanced object
@@ -134,10 +183,11 @@ assert(&quot;hohohoho&quot; == greating);
 	}
 }
 
-</code></pre><p>When enhancing a given type we are in fact enhancing all subtypes as well so polimorfism is at work. More generaly we<br/>can enhance types that conform to some generic rules and thus generics support is needed for enhancement.</p>
-<pre><code class="brush:lense">public enhancement MeasureableInterval extends Interval&lt;Natural&gt; {
+</code></pre>
+<p>When enhancing a given type we are in fact enhancing all subtypes as well so polimorfism is at work. More generaly we<br/>can enhance types that conform to some generic rules and thus generics support is needed for enhancement.</p>
+<pre><code class="brush: lense">public enhancement MeasureableInterval extends Interval&lt;Natural&gt; {
 
-	public Length : Natural? {
+	public length : Natural? {
 		get {
 		   return this.start.zip ( this.end , (start, end) -&gt;  end - start);
 		}
@@ -155,73 +205,98 @@ val naturalInterval = |[ 4 , 10 ]|;
 val length = naturalInterval.length; // ok, because we have an enhancement.
 
 assert( 6 == length);
-</code></pre><p>The difference between enhancements and extention methods is that we can add more that just normal methods. We can also<br/>add constructors and calculated properties. The only restriction is that no state can be added.</p><p>The difference between enhancements and traits it that traits are an inheritance base mechanism where we mix the code of the original type with that of the trait</p><p>When compiling to he underlying platform the lense compiler does not really create an object so the methods can be called, the compiler is<br/>free to optmize the calls using static semantics if they are possible in the platform. </p><p>Enhancement implementations can only access public members of the enhanced type.</p><p>Interfaces cannot be fullfiled by adding enhancement methods.</p>
+</code></pre>
+<p>The difference between enhancements and extention methods is that we can add more that just normal methods. We can also<br/>add constructors and calculated properties. The only restriction is that no state can be added.</p>
+<p>The difference between enhancements and traits it that traits are an inheritance base mechanism where we mix the code of the original type with that of the trait</p>
+<p>When compiling to the underlying platform the lense compiler does not really create an object so the methods can be called, the compiler is free to optmize the calls using static semantics if they are possible in the platform. </p>
+<p>Enhancement implementations can only access public members of the enhanced type.</p>
+<p>Interfaces cannot be fullfiled by adding enhancement methods.</p>
 			</div>
 			<div class="col-xs-6 col-sm-3 col-sm-pull-9 sidebar-offcanvas" id="sidebar"">
 
-<ol>
-	<li>Introduction</i>
+<ul class="collapsible-menu">
+	<li><a href="#">Introduction</a></i></i>
 	<li><a href="status.html">Status</a></i>
-	<li>Syntax and Semantics
-		<ol>
+	<li class="has-children">
+		<a href="javascript:void(0)">Syntax and Semantics</a>
+		<ul >
 			<li><a href="identifiers.html">Reserved Words</a></li>
-			<li>Variables</li>
-			<li>Mutability</li>
+			<li><a href="variables.html">Variables and Mutability</a></li>
 			<li><a href="nullability.html">Nullability</a></li>
 			<li>Comments</li>
 			<li>Generics</li>
 			<li>Functions</li>
 			
-			<li>Fundamental Types
-				
+			<li class="has-children">
+				<a href="javascript:void(0)">Fundamental Types</a>
 				<ul>
-					<li><a href="strings.html">Strings</a></li>
-					<li><a href="numbers.html">Numbers</a></li>
-					<li>Ranges</li>
-					<li><a href="interval.html">Intervals</a></li>
-					<li><a href="arrays.html">Arrays</a></li>
-					<li>Tuples</li>
-					<li><a href="containerLiterals.html">Container Literals</a></li>
+					<li><a href="booleans.html">Boolean</a></li>
+					<li><a href="strings.html">String</a></li>
+					<li><a href="numbers.html">Number</a></li>
+					<li><a href="binary.html">Binary</a></li>
+					<li><a href="interval.html">Interval</a></li>
+					<li><a href="iterable.html">Iterable</a></li>
+					<li class="has-children"> 
+						<a href="javascript:void(0)">Containers</a>
+						<ul> 
+							<li><a href="maybe.html">Maybe</a></li>
+							<li><a href="tuples.html">Tuple</a></li>
+							
+							<li>Range</li>
+							<li><a href="sequence.html">Sequence</a></li>
+							<li>Association</li>
+							
+						</ul>
+					</li>
 				</ul>
 			</li>
-			<li>Control Statements
+			<li><a href="containerLiterals.html">Container Literals</a></li>
+			<li><a href="arrays.html">Arrays</a></li>
+			<li class="has-children">
+				<a href="javascript:void(0)">Control Statements</a>
 				<ul>
 					<li>Decision: if</li>
 					<li>Loop : while</li>
 					<li>Iteration : for</li>
-					<li>Selection : switch</li>
+					<li>Selection/Matching : switch</li>
 				</ul>
 			</li>
-			
-			<li><a href="objects.html">Classes and Objects</a>
+			<li class="has-children"> 
+				<a href="javascript:void(0)">Types</a>
+				<ul>	
+					<li><a href="classes.html">Classes</a></li>
+					<li><a href="objects.html">Objects</a></li>
+					<li><a href="interfaces.html">Interfaces</a></li>
+					<li>Enums</li>
+					<li><a href="enhancements.html">Enhancements</a></li>
+				</ul>
+			</li>
+			<li class="has-children"> 
+				<a href="javascript:void(0)">Type Members</a>
 				<ul>
 					<li><a href="constructors.html">Constructors</a></li>
-					<li><a href="properties.html">Properties</a></li>
+					<li><a href="properties.html">Fields and Properties</a></li>
+					<li><a href="indexers.html">Indexed Properties</a></li>
+					<li>Methods</li>
 				</ul>
 			</li>
-			<li>Enums</li>
-			<li><a href="enhancements.html">Enhancements</a></li>
 			<li>Lambdas</li>
 			<li>Casting</li>
 			<li><a href="operators.html">Operator Overloading</a></li>
 			
-		</ol>
+		</ul>
 	</li>
-	<li>Compilation
+	<li class="has-children">
+		<a href="javascript:void(0)">Compilation</a>
 		<ul>
 			<li><a href="platforms.html">Platforms</a></li>
 			<li><a href="erasure.html">Erasure</a></li>
 		</ul>
 	</li>
 	<li><a href="concurrency.html">Concurrency</a>
-		<ol>
-			<li>Promisses</li>
-			<li>Executors</li>
-			<li>Actors</li>
-		</ol>
 	</li>
 
-<ol>			</div>
+<ul>			</div>
 		</div>
 	</div>
 	

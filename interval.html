@@ -20,6 +20,8 @@
 
 	</script>
   
+	<script src="js/jquery-1.11.1.min.js"></script>
+  
 	<script src="js/shCore.js"></script>
 
 	<script src="js/shBrushScala.js"></script>
@@ -27,7 +29,6 @@
 	<script src="js/shBrushDart.js"></script>
 	<script src="js/shBrushJava.js"></script>
 	<script src="js/shBrushLense.js"></script>
-
 
     <!-- Le styles -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
@@ -39,6 +40,12 @@
 	<link rel="stylesheet" type="text/css" href="css/shThemeDefault.css" >
 	<link rel="stylesheet" type="text/css" href="css/site.css" >
 
+	<style>
+		.navbar-toggle{
+			float:left;
+			margin-left:7px;
+		}
+	</style>
 	
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
@@ -48,20 +55,56 @@
     <!-- Fav and touch icons -->
 
     <link rel="shortcut icon" href="icon.png">
+	
+	<script>
+	$(document).ready(function() {
+	  $(".collapsible-menu").on("click", "li > a", function(e) {
+		var p = $(this).parent();
+		if (p.hasClass("has-children")) {
+			p.toggleClass("open").siblings(".open").removeClass("open");
+		}
+	  });
+	  
+	  var url = window.location.pathname;
+		var filename = url.substring(url.lastIndexOf('/')+1);
+		
+	  $(".collapsible-menu a").each(function(){
+		var link = $(this).attr("href");
+		
+		if (filename == link) {
+			var item = $(this).parent();
+			
+			while (!item.hasClass("collapsible-menu")){
+				if (item.hasClass("has-children")) {
+					item.toggleClass("open").siblings(".open").removeClass("open");
+				}
+				item = $(item).parent()
+			}
+		}
+
+	  })
+	  
+	});
+	</script>
   </head>
   <body onload="prettyPrint()">
     <div id="wrap">
 	
 	<!-- Fixed navbar -->
-    <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <nav class="navbar navbar-default navbar-fixed-top" >
       <div class="container">
         <div class="navbar-header">
+		  <button type="button" data-target="#navbar" data-toggle="collapse" class="navbar-toggle"> 
+			  <span class="sr-only">Toggle navigation</span> 
+			  <span class="icon-bar"></span> 
+			  <span class="icon-bar"></span> 
+		  </button>
           <a class="navbar-brand" href="index.html">Lense</a>
         </div>
-        <div class="navbar-collapse collapse">
+        <div id="navbar" class="navbar-collapse collapse">
           <ul class="nav navbar-nav">
             <li class="dropdown">
-				<a href="#" class="dropdown-toggle" data-toggle="dropdown">Get Started<b class="caret"></b></a>
+				<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Get Started<b class="caret"></b></a>
 				<ul class="dropdown-menu">
 					<li class="disabled"><a href="learn.html">Learn Lense</a></li>
 					<li class="disabled"><a href="try.html">Try Lense</a></li>
@@ -69,7 +112,7 @@
 				</ul>
 			</li>
             <li class="dropdown">
-				<a href="#" class="dropdown-toggle" data-toggle="dropdown">Fundamentals<b class="caret"></b></a>
+				<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Fundamentals<b class="caret"></b></a>
 				<ul class="dropdown-menu">
 					<li><a href="tour/tour.html">Language Tour</a></li>
 					<li class="disabled"><a href="guide.html">Programmer's Guide</a></li>
@@ -79,7 +122,7 @@
             </li>
 			
             <li class="dropdown">
-              <a href="#" class="dropdown-toggle" data-toggle="dropdown">Details<b class="caret"></b></a>
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Details<b class="caret"></b></a>
 				<ul class="dropdown-menu">
 					<li><a href="nullability.html">Nullability</a></li>
 					<li><a href="numbers.html">Numbers</a></li>
@@ -113,29 +156,37 @@
           </ul>
         </div><!--/.nav-collapse -->
       </div>
-    </div>
+    </nav>
+	
 	<div class="corner-ribbon top-right sticky shadow"><a href="status.html">Exploration Stage</a></div>
-    <div class="container">
+    
+	<div class="container">
 	<div class="container-fluid">
 		<div class="row row-offcanvas row-offcanvas-right">
 			 <div class="col-xs-12 col-sm-9 col-sm-push-3">
-				<h1>Category</h1><p>A categoy is an assortement of elements that is not iterable and not contable. It defines a <code>contains</code> method that can be invoked directly of by means of the <code>in</code> operator.</p>
+				<h1>Category</h1>
+<p>A categoy is an assortement of elements that is not iterable and not contable. It defines a <code>contains</code> method that can be invoked directly of by means of the <code>in</code> operator.</p>
 <pre><code class="brush: lense">	if (5 in |[2 , 6)|) { 
 	    // 5 is in the interval
 	}
-</code></pre><p>is the same as </p>
+</code></pre>
+<p>is the same as </p>
 <pre><code class="brush: lense">	if ( |[2 , 6)|.contains(5)) { 
 	    // 5 is in the interval
 	}
-</code></pre><h1>Interval</h1><p>Lense support intervals as fundamental types. An <code>Interval</code> forms a ordered <code>Category</code> of <code>Comparable</code> elements that contain values between a start and an end element. So you can test if an element exists in the interval.</p>
+</code></pre>
+<h1>Interval</h1>
+<p>Lense support intervals as fundamental types. An <code>Interval</code> forms a ordered <code>Category</code> of <code>Comparable</code> elements that contain values between a start and an end element. So you can test if an element exists in the interval.</p>
 <pre><code class="brush: lense">	if (5 in |[2 , 6)|) { 
 	    // 5 is in the interval
 	}
-</code></pre><p>However you cannot iterate over the elements.</p>
+</code></pre>
+<p>However you cannot iterate over the elements.</p>
 <pre><code class="brush: lense">	for (i in |[2 , 6)|) { // Compilation error : Interval is not Iterable
 	    
 	}
-</code></pre><p>Interval literals in lense follow the mathematical convention of using square brakets for included values and parentesis for excluded values. So <code>|[2 , 6)|</code> represents an interval between 2 , inclusive, and 6 exlusive; meaning 6 does not belong in the interval. Lense also supports open intervals. For example <code>|( * , 7 ]|</code> represent the open start interval that contains all elements from negative infinity to 7, inclusive. Here are some examples of the possibilities:</p>
+</code></pre>
+<p>Interval literals in lense follow the mathematical convention of using square brakets for included values and parentesis for excluded values. So <code>|[2 , 6)|</code> represents an interval between 2 , inclusive, and 6 exlusive; meaning 6 does not belong in the interval. Lense also supports open intervals. For example <code>|( * , 7 ]|</code> represent the open start interval that contains all elements from negative infinity to 7, inclusive. Here are some examples of the possibilities:</p>
 <pre><code class="brush: lense ">if ( x in |[ 3 , 7]| ){ 
 	// x is &gt;=3 and &lt;= 7
 }
@@ -167,7 +218,8 @@ if ( x in Interval&lt;Natural&gt;.empty() ){
 if ( x in Interval&lt;Natural&gt;.all() ){
 	// always true. the full interval covers all possible values.
 }
-</code></pre><p>Intervals can be used in switch statements as any <code>Category</code> can </p>
+</code></pre>
+<p>Intervals can be used in switch statements as any <code>Category</code> can </p>
 <pre><code class="brush: lense">	val x = 9;
 	switch (x) { 
 	   case (in |[ 0, 9]|) {
@@ -177,93 +229,119 @@ if ( x in Interval&lt;Natural&gt;.all() ){
 		  return &quot;Multidigits number&quot; 
 	   }
 	}
-</code></pre><h1>Ranges</h1><p>Ranges are closely related to intervals. Ranges are also <code>Categories</code>, but of <code>Enumerable</code>s making them <code>Iterable</code>. Ranges can be understood as intervals of <code>Enumerable</code> values as <code>Enumerable</code> types are also <code>Comparable</code>. Because <code>Enumerable</code> values can produce a sequence of value ranges are iterable. Ranges cannot have open ends. Ranges are also fundamental types in Lense and have their own literal.</p>
+</code></pre>
+<h1>Ranges</h1>
+<p>Ranges are closely related to intervals. Ranges are also <code>Categories</code>, but of <code>Enumerable</code>s making them <code>Iterable</code>. Ranges can be understood as intervals of <code>Enumerable</code> values as <code>Enumerable</code> types are also <code>Comparable</code>. Because <code>Enumerable</code> values can produce a sequence of value ranges are iterable. Ranges cannot have open ends. Ranges are also fundamental types in Lense and have their own literal.</p>
 <pre><code class="brush: lense">	if (5 in 2..6) { 
 	    // 5 is in the range from 2, inclusive, to 6, inclusive
 	}
-</code></pre><p>By default both ends of the range are included in the range. We can iterate the values in the range with the for-each directive.</p>
+</code></pre>
+<p>By default both ends of the range are included in the range. We can iterate the values in the range with the for-each directive.</p>
 <pre><code class="brush: lense">	for (i in 2..6) { 
 	    console.println(i);
 	}
-</code></pre><p>this prints:</p>
+</code></pre>
+<p>this prints:</p>
 <pre><code class="console">2
 3
 4
 5
 6
-</code></pre><p>So for an <code>Enumerable</code> type, intervals have a correspondence to ranges </p>
+</code></pre>
+<p>So for an <code>Enumerable</code> type, intervals have a correspondence to ranges </p>
 <ul>
   <li>|[ x, y]| correspondes to x..y</li>
   <li>|( x, y]| correspondes to x&gt;..y</li>
   <li>|( x, y)| correspondes to x&gt;..&lt;y</li>
   <li>|[ x, y)| correspondes to x..&lt;y</li>
-</ul><p>Open intervals like <code>|(*, y]|</code> and <code>|( x, *)|</code> have no correspondence with ranges. The empty interval corresponds to <code>Range&lt;T&gt;.empty()</code> and does not exist a full Range.</p>
+</ul>
+<p>Open intervals like <code>|(*, y]|</code> and <code>|( x, *)|</code> have no correspondence with ranges. The empty interval corresponds to <code>Range&lt;T&gt;.empty()</code> and does not exist a full Range.</p>
 			</div>
 			<div class="col-xs-6 col-sm-3 col-sm-pull-9 sidebar-offcanvas" id="sidebar"">
 
-<ol>
-	<li>Introduction</i>
+<ul class="collapsible-menu">
+	<li><a href="#">Introduction</a></i></i>
 	<li><a href="status.html">Status</a></i>
-	<li>Syntax and Semantics
-		<ol>
+	<li class="has-children">
+		<a href="javascript:void(0)">Syntax and Semantics</a>
+		<ul >
 			<li><a href="identifiers.html">Reserved Words</a></li>
-			<li>Variables</li>
-			<li>Mutability</li>
+			<li><a href="variables.html">Variables and Mutability</a></li>
 			<li><a href="nullability.html">Nullability</a></li>
 			<li>Comments</li>
 			<li>Generics</li>
 			<li>Functions</li>
 			
-			<li>Fundamental Types
-				
+			<li class="has-children">
+				<a href="javascript:void(0)">Fundamental Types</a>
 				<ul>
-					<li><a href="strings.html">Strings</a></li>
-					<li><a href="numbers.html">Numbers</a></li>
-					<li>Ranges</li>
-					<li><a href="interval.html">Intervals</a></li>
-					<li><a href="arrays.html">Arrays</a></li>
-					<li>Tuples</li>
-					<li><a href="containerLiterals.html">Container Literals</a></li>
+					<li><a href="booleans.html">Boolean</a></li>
+					<li><a href="strings.html">String</a></li>
+					<li><a href="numbers.html">Number</a></li>
+					<li><a href="binary.html">Binary</a></li>
+					<li><a href="interval.html">Interval</a></li>
+					<li><a href="iterable.html">Iterable</a></li>
+					<li class="has-children"> 
+						<a href="javascript:void(0)">Containers</a>
+						<ul> 
+							<li><a href="maybe.html">Maybe</a></li>
+							<li><a href="tuples.html">Tuple</a></li>
+							
+							<li>Range</li>
+							<li><a href="sequence.html">Sequence</a></li>
+							<li>Association</li>
+							
+						</ul>
+					</li>
 				</ul>
 			</li>
-			<li>Control Statements
+			<li><a href="containerLiterals.html">Container Literals</a></li>
+			<li><a href="arrays.html">Arrays</a></li>
+			<li class="has-children">
+				<a href="javascript:void(0)">Control Statements</a>
 				<ul>
 					<li>Decision: if</li>
 					<li>Loop : while</li>
 					<li>Iteration : for</li>
-					<li>Selection : switch</li>
+					<li>Selection/Matching : switch</li>
 				</ul>
 			</li>
-			
-			<li><a href="objects.html">Classes and Objects</a>
+			<li class="has-children"> 
+				<a href="javascript:void(0)">Types</a>
+				<ul>	
+					<li><a href="classes.html">Classes</a></li>
+					<li><a href="objects.html">Objects</a></li>
+					<li><a href="interfaces.html">Interfaces</a></li>
+					<li>Enums</li>
+					<li><a href="enhancements.html">Enhancements</a></li>
+				</ul>
+			</li>
+			<li class="has-children"> 
+				<a href="javascript:void(0)">Type Members</a>
 				<ul>
 					<li><a href="constructors.html">Constructors</a></li>
-					<li><a href="properties.html">Properties</a></li>
+					<li><a href="properties.html">Fields and Properties</a></li>
+					<li><a href="indexers.html">Indexed Properties</a></li>
+					<li>Methods</li>
 				</ul>
 			</li>
-			<li>Enums</li>
-			<li><a href="enhancements.html">Enhancements</a></li>
 			<li>Lambdas</li>
 			<li>Casting</li>
 			<li><a href="operators.html">Operator Overloading</a></li>
 			
-		</ol>
+		</ul>
 	</li>
-	<li>Compilation
+	<li class="has-children">
+		<a href="javascript:void(0)">Compilation</a>
 		<ul>
 			<li><a href="platforms.html">Platforms</a></li>
 			<li><a href="erasure.html">Erasure</a></li>
 		</ul>
 	</li>
 	<li><a href="concurrency.html">Concurrency</a>
-		<ol>
-			<li>Promisses</li>
-			<li>Executors</li>
-			<li>Actors</li>
-		</ol>
 	</li>
 
-<ol>			</div>
+<ul>			</div>
 		</div>
 	</div>
 	

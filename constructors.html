@@ -20,6 +20,8 @@
 
 	</script>
   
+	<script src="js/jquery-1.11.1.min.js"></script>
+  
 	<script src="js/shCore.js"></script>
 
 	<script src="js/shBrushScala.js"></script>
@@ -27,7 +29,6 @@
 	<script src="js/shBrushDart.js"></script>
 	<script src="js/shBrushJava.js"></script>
 	<script src="js/shBrushLense.js"></script>
-
 
     <!-- Le styles -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
@@ -39,6 +40,12 @@
 	<link rel="stylesheet" type="text/css" href="css/shThemeDefault.css" >
 	<link rel="stylesheet" type="text/css" href="css/site.css" >
 
+	<style>
+		.navbar-toggle{
+			float:left;
+			margin-left:7px;
+		}
+	</style>
 	
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
@@ -48,20 +55,56 @@
     <!-- Fav and touch icons -->
 
     <link rel="shortcut icon" href="icon.png">
+	
+	<script>
+	$(document).ready(function() {
+	  $(".collapsible-menu").on("click", "li > a", function(e) {
+		var p = $(this).parent();
+		if (p.hasClass("has-children")) {
+			p.toggleClass("open").siblings(".open").removeClass("open");
+		}
+	  });
+	  
+	  var url = window.location.pathname;
+		var filename = url.substring(url.lastIndexOf('/')+1);
+		
+	  $(".collapsible-menu a").each(function(){
+		var link = $(this).attr("href");
+		
+		if (filename == link) {
+			var item = $(this).parent();
+			
+			while (!item.hasClass("collapsible-menu")){
+				if (item.hasClass("has-children")) {
+					item.toggleClass("open").siblings(".open").removeClass("open");
+				}
+				item = $(item).parent()
+			}
+		}
+
+	  })
+	  
+	});
+	</script>
   </head>
   <body onload="prettyPrint()">
     <div id="wrap">
 	
 	<!-- Fixed navbar -->
-    <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <nav class="navbar navbar-default navbar-fixed-top" >
       <div class="container">
         <div class="navbar-header">
+		  <button type="button" data-target="#navbar" data-toggle="collapse" class="navbar-toggle"> 
+			  <span class="sr-only">Toggle navigation</span> 
+			  <span class="icon-bar"></span> 
+			  <span class="icon-bar"></span> 
+		  </button>
           <a class="navbar-brand" href="index.html">Lense</a>
         </div>
-        <div class="navbar-collapse collapse">
+        <div id="navbar" class="navbar-collapse collapse">
           <ul class="nav navbar-nav">
             <li class="dropdown">
-				<a href="#" class="dropdown-toggle" data-toggle="dropdown">Get Started<b class="caret"></b></a>
+				<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Get Started<b class="caret"></b></a>
 				<ul class="dropdown-menu">
 					<li class="disabled"><a href="learn.html">Learn Lense</a></li>
 					<li class="disabled"><a href="try.html">Try Lense</a></li>
@@ -69,7 +112,7 @@
 				</ul>
 			</li>
             <li class="dropdown">
-				<a href="#" class="dropdown-toggle" data-toggle="dropdown">Fundamentals<b class="caret"></b></a>
+				<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Fundamentals<b class="caret"></b></a>
 				<ul class="dropdown-menu">
 					<li><a href="tour/tour.html">Language Tour</a></li>
 					<li class="disabled"><a href="guide.html">Programmer's Guide</a></li>
@@ -79,7 +122,7 @@
             </li>
 			
             <li class="dropdown">
-              <a href="#" class="dropdown-toggle" data-toggle="dropdown">Details<b class="caret"></b></a>
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Details<b class="caret"></b></a>
 				<ul class="dropdown-menu">
 					<li><a href="nullability.html">Nullability</a></li>
 					<li><a href="numbers.html">Numbers</a></li>
@@ -113,13 +156,21 @@
           </ul>
         </div><!--/.nav-collapse -->
       </div>
-    </div>
+    </nav>
+	
 	<div class="corner-ribbon top-right sticky shadow"><a href="status.html">Exploration Stage</a></div>
-    <div class="container">
+    
+	<div class="container">
 	<div class="container-fluid">
 		<div class="row row-offcanvas row-offcanvas-right">
 			 <div class="col-xs-12 col-sm-9 col-sm-push-3">
-				<h1>Constructors</h1><p>In an Object Oriented language there is the innate need to instantiate objects. The instantiation occurs in two phases. First the memory needed to hold the object information is allocated and pointed at by a reference. Then this memory space is filled with initialization information. Only after these two phases are complete the object really exists and can be used by other objects.</p><p>The allocation phase can be manual like in C , Python and Swift or automatic like in C# or Java. Lense opts for an automatic allocation.</p><p>The initialization part is more delicate because the object must always exist in a valid state.<br/>For simple objects whose state is simply a bunch of properties that are initialized with default values, this process is straightforward. However when calculations or other computations are needed this presents a problem.</p><p>So there needs to be a contract between the machinery responsible for allocating and initializing the object and the object class. Some functions must be runned by this machinery in order to guarantee the object is in a valid state before it can be release in the wild.</p><p>This special function invoked by the machinery is called <em>Constructor</em>. Thus, the constructor is often an initialization method and it does not really constructs the object. Because the object already exists when the constructor is called (created in the previous phase of the instantiation process) the constructor has access to it to ensure the properties in the object are correctly set to valid values, however it should not call any polymorphic methods on the object.</p><p>As an example, in Java, we would write something like:</p>
+				<h1>Constructors</h1>
+<p>In an Object Oriented language there is the innate need to instantiate objects. The instantiation occurs in two phases. First the memory needed to hold the object information is allocated and pointed at by a reference. Then this memory space is filled with initialization information. Only after these two phases are complete the object really exists and can be used by other objects.</p>
+<p>The allocation phase can be manual like in C , Python and Swift or automatic like in C# or Java. Lense opts for an automatic allocation.</p>
+<p>The initialization part is more delicate because the object must always exist in a valid state.<br/>For simple objects whose state is simply a bunch of properties that are initialized with default values, this process is straightforward. However when calculations or other computations are needed this presents a problem.</p>
+<p>So there needs to be a contract between the machinery responsible for allocating and initializing the object and the object class. Some functions must be runned by this machinery in order to guarantee the object is in a valid state before it can be release in the wild.</p>
+<p>This special function invoked by the machinery is called <em>Constructor</em>. Thus, the constructor is often an initialization method and it does not really constructs the object. Because the object already exists when the constructor is called (created in the previous phase of the instantiation process) the constructor has access to it to ensure the properties in the object are correctly set to valid values, however it should not call any polymorphic methods on the object.</p>
+<p>As an example, in Java, we would write something like:</p>
 <pre><code class="brush: java">// java
 public class Fraction {
 
@@ -138,7 +189,11 @@ public class Fraction {
 // and can be used like 
 
 Fraction third = new Fraction(1,3);
-</code></pre><p>Pay attention the constructor is vary similar to a method but as no return type and its name is the same as the class.</p><p>Inside the constructor, the <code>this</code> keyword refers to the already allocated object. So, at this point, the object already exists and it is of the class <code>Fraction</code>.The constructor has no means to return an object of another class because the constructor has no return.</p><p>The constructor , being a special kind of method can throw exceptions , however it is considered bad practice to do so[needs references].</p><p>Constructors are usefully to guarantee the object state is correctly initialized but have some limitations, so in practice you would prefer to use a static factory method , like so:</p>
+</code></pre>
+<p>Pay attention the constructor is vary similar to a method but as no return type and its name is the same as the class.</p>
+<p>Inside the constructor, the <code>this</code> keyword refers to the already allocated object. So, at this point, the object already exists and it is of the class <code>Fraction</code>.The constructor has no means to return an object of another class because the constructor has no return.</p>
+<p>The constructor , being a special kind of method can throw exceptions , however it is considered bad practice to do so[needs references].</p>
+<p>Constructors are usefully to guarantee the object state is correctly initialized but have some limitations, so in practice you would prefer to use a static factory method , like so:</p>
 <pre><code class="brush: java">// java
 public class Fraction {
 
@@ -161,12 +216,26 @@ public class Fraction {
 // but now the object is created like 
 
 Fraction third = Fraction.of(1,3);
-</code></pre><p>The validation of parameters is now moved to a method, so exceptions are allowed. The constructor is private so only the class can invoke it, the rest of the world would have to call the <code>of</code> static method.</p><p>The problem with static methods is that they are not inherited so, the static factory method pattern makes sense only for object not intended to be inherited from.<br/>Nevertheless considered a good practice e several API nowadays use this technique to hide the constructor and provide a more fluent instantiation. </p><p>A great thing about this pattern is that it encasuplates the use of <code>new</code> so the class designed can change the parameters of the constructor at will without interfering with the call site.</p><p>People often criticize java for being to verbose. The numerator and denominator names appear 6 times.</p><h2>Types of constructors</h2><p>Other languages come up with new flavors of constructors to try to reduce the problems with constructors. However, because constructors are essentially linked with the concept of object instantiation and state validity they cannot be removed from the languages. Some type of constructor must exist.</p><p><a name="primary"></a> </p><h3>Primary Constructor</h3><p>This is special kind of constructors that only initializes properties in the object. It is functionally equivalent to the private constructor in our second example above. Because it can only set properties, languages try to come up with special (shorter) syntax.</p><p>In Scala, Ceylon and Kotlin, for instance, the primary constructor parameters are declared immediately after the class name and extra code can be added in the class body without any other special delimiters:</p>
+</code></pre>
+<p>The validation of parameters is now moved to a method, so exceptions are allowed. The constructor is private so only the class can invoke it, the rest of the world would have to call the <code>of</code> static method.</p>
+<p>The problem with static methods is that they are not inherited so, the static factory method pattern makes sense only for object not intended to be inherited from.<br/>Nevertheless considered a good practice e several API nowadays use this technique to hide the constructor and provide a more fluent instantiation. </p>
+<p>A great thing about this pattern is that it encasuplates the use of <code>new</code> so the class designed can change the parameters of the constructor at will without interfering with the call site.</p>
+<p>People often criticize java for being to verbose. The numerator and denominator names appear 6 times.</p>
+<h2>Types of constructors</h2>
+<p>Other languages come up with new flavors of constructors to try to reduce the problems with constructors. However, because constructors are essentially linked with the concept of object instantiation and state validity they cannot be removed from the languages. Some type of constructor must exist.</p>
+<a name="primary"></a>
+<h3>Primary Constructor</h3>
+<p>This is special kind of constructors that only initializes properties in the object. It is functionally equivalent to the private constructor in our second example above. Because it can only set properties, languages try to come up with special (shorter) syntax.</p>
+<p>In Scala, Ceylon and Kotlin, for instance, the primary constructor parameters are declared immediately after the class name and extra code can be added in the class body without any other special delimiters:</p>
 <pre><code class="brush: scala">// scala, kotlin, ceylon
 class Fraction (Integer numerator, Integer denominator) {
     // other code goes where
 }
-</code></pre><p>This constructors immediately inform the compiler there must be a <em>numerator</em> and a <em>denominator</em> field in the class and the values of the parameters should be directly assign to those fields. This really reduces the boilerplate but leaves the validation of state problem orphan. </p><p>Scala resolves this by means of companion objects that have methods that act like a static factory methods calling the constructor only after validating the parameters are correct. Other special constructors are possible (called auxiliary constructors) but they action is limited. In scala constructors are pretty much meant only for field initialization, other computations are made in methods on objects.</p><p>In languages with primary constructors implemented like this trade one boilerplate for asymmetry: instead of having a delimited boilerplate inside a method like syntax, they provide a shorter syntax for the primary constructor making the other constructors syntax <em>ad hoc</em> and not symmetric, even to allow code in the class body and require the programmer to conform to special rules for execution of code inside the class body and inside the auxiliary constructors. They remove the boilerplate of having a constructors that sets the fields but have no dedicated place for "advanced" construction code and the class structure. If simple property bags in what you need this strategy really pays off, but it shows some cracks for more complex types that need to isolate construction a little better.</p><p>Dart goes another way.</p>
+</code></pre>
+<p>This constructors immediately inform the compiler there must be a <em>numerator</em> and a <em>denominator</em> field in the class and the values of the parameters should be directly assign to those fields. This really reduces the boilerplate but leaves the validation of state problem orphan. </p>
+<p>Scala resolves this by means of companion objects that have methods that act like a static factory methods calling the constructor only after validating the parameters are correct. Other special constructors are possible (called auxiliary constructors) but they action is limited. In scala constructors are pretty much meant only for field initialization, other computations are made in methods on objects.</p>
+<p>In languages with primary constructors implemented like this trade one boilerplate for asymmetry: instead of having a delimited boilerplate inside a method like syntax, they provide a shorter syntax for the primary constructor making the other constructors syntax <em>ad hoc</em> and not symmetric, even to allow code in the class body and require the programmer to conform to special rules for execution of code inside the class body and inside the auxiliary constructors. They remove the boilerplate of having a constructors that sets the fields but have no dedicated place for "advanced" construction code and the class structure. If simple property bags in what you need this strategy really pays off, but it shows some cracks for more complex types that need to isolate construction a little better.</p>
+<p>Dart goes another way.</p>
 <pre><code class="brush : dart">// dart
 class Fraction  {
 	Integer numerator;
@@ -175,7 +244,9 @@ class Fraction  {
    Fraction (this.numerator, this.denominator)
 }
 
-</code></pre><p>The syntax is different, more in line with the C syntax like Java, but the intent is the same: reducing boilerplate, but maintaining the tradiconal way constructors are represented.<br/>However we are obliged to repeat the class name simply by the convention rule constructors are created this way.<br/>Traditionally the C family languages do not use a keyword for the constructor because it was introduces in the language after de initial design and so create a keyword could conflict with existing names in existing code. So the designed made it so the code for the construtor was not valid code in the previous versions.Them, by historic and similarity reason more modern languages simply copied the syntax like Java and Dart.<br/>The "same name" rule is not always the case. Scala uses <code>def this()</code> and some languages use <code>new</code> in an attempt to not introduce a dedicated keyword. </p><p>In Lense the primary constructor is written :</p>
+</code></pre>
+<p>The syntax is different, more in line with the C syntax like Java, but the intent is the same: reducing boilerplate, but maintaining the tradiconal way constructors are represented.<br/>However we are obliged to repeat the class name simply by the convention rule constructors are created this way.<br/>Traditionally the C family languages do not use a keyword for the constructor because it was introduces in the language after de initial design and so create a keyword could conflict with existing names in existing code. So the designed made it so the code for the construtor was not valid code in the previous versions.Them, by historic and similarity reason more modern languages simply copied the syntax like Java and Dart.<br/>The "same name" rule is not always the case. Scala uses <code>def this()</code> and some languages use <code>new</code> in an attempt to not introduce a dedicated keyword. </p>
+<p>In Lense the primary constructor is written :</p>
 <pre><code class="brush: lense ">public class Fraction {
 
    val Integer numerator;
@@ -187,15 +258,24 @@ class Fraction  {
 // invoke like 
 
 val third : Fraction = new Fraction(1, 3);
-</code></pre><p>A constructor without a body means the parameters should be copied to the fields of the same name.</p><p>All final value fields (the ones with <code>val</code>) must be initialized by all constructors, i.e. the compiler must be able to prove that all <code>val</code> fields have been set by the constructor. If this is not the case a compilation error will be raised.</p><p>There is no repetition of the class name and the keyword clearly states that the instruction is a constructor.<br/>There is no boilerplate. The types on the parameters are needed since the private fields must not have the same types.</p><p><a name="named"></a> </p><h2>Named Constructors</h2><p>All is fine when the class only needs a constructor. But more time than people would realize an object can be created by different forms. Design can argument this other forms should be handled by factory object and the class it self as only a set of parameters. While this can obviously accomplished is not practical. </p><p>If we intend to have a <code>Color</code> type that can be created from RGB or HSL values the two algorithms are different and one or both require calculations before we can set the object private fields. On the other hand we need some practical way of distinguishing between them. Here the static method factory come in handy because it provides a name to the construction form. So in java we could write</p>
+</code></pre>
+<p>A constructor without a body means the parameters should be copied to the fields of the same name.</p>
+<p>All final value fields (the ones with <code>val</code>) must be initialized by all constructors, i.e. the compiler must be able to prove that all <code>val</code> fields have been set by the constructor. If this is not the case a compilation error will be raised.</p>
+<p>There is no repetition of the class name and the keyword clearly states that the instruction is a constructor.<br/>There is no boilerplate. The types on the parameters are needed since the private fields must not have the same types.</p>
+<a name="named"></a>
+<h2>Named Constructors</h2>
+<p>All is fine when the class only needs a constructor. But more time than people would realize an object can be created by different forms. Design can argument this other forms should be handled by factory object and the class it self as only a set of parameters. While this can obviously accomplished is not practical. </p>
+<p>If we intend to have a <code>Color</code> type that can be created from RGB or HSL values the two algorithms are different and one or both require calculations before we can set the object private fields. On the other hand we need some practical way of distinguishing between them. Here the static method factory come in handy because it provides a name to the construction form. So in java we could write</p>
 <pre><code class="brush: java ">// java
 Color a = Color.fromRGB(1.0 , 1.0 , 1.0);
 Color b = Color.fromHSL(60 , 0.5 , 0.5); 
-</code></pre><p>However there is no <code>new</code> keyword being used. Dart provides the same sintax but using <code>new</code>:</p>
+</code></pre>
+<p>However there is no <code>new</code> keyword being used. Dart provides the same sintax but using <code>new</code>:</p>
 <pre><code class="brush: dart ">// dart
 Color a = new Color.fromRGB(1.0 , 1.0 , 1.0);
 Color b = new Color.fromHSL(60 , 0.5 , 0.5); 
-</code></pre><p>In Dart you can provide named constructors like</p>
+</code></pre>
+<p>In Dart you can provide named constructors like</p>
 <pre><code class="brush: dart ">// dart
  class Color {
 
@@ -208,7 +288,8 @@ Color b = new Color.fromHSL(60 , 0.5 , 0.5);
     }
 
 }
-</code></pre><p>Its a little odd to have dots in the name of the constructor , but at least is consistent with the tradiconal constructor syntax. In Lense because we have the <code>constructor</code> key word we simply write the same as:</p>
+</code></pre>
+<p>Its a little odd to have dots in the name of the constructor , but at least is consistent with the tradiconal constructor syntax. In Lense because we have the <code>constructor</code> key word we simply write the same as:</p>
 <pre><code class="brush: lense ">class Color {
 
     constructor fromRGB(Rational red, Rational greee,Rational blue){
@@ -220,10 +301,13 @@ Color b = new Color.fromHSL(60 , 0.5 , 0.5);
     }
 
 }
-</code></pre><p>and invoke them in the same way </p>
+</code></pre>
+<p>and invoke them in the same way </p>
 <pre><code class="brush: lense ">val a = new Color.fromRGB(1.0 , 1.0 , 1.0);
 val b = new Color.fromHSL(60 , 0.5 , 0.5); 
-</code></pre><p>Note the similarity with the anonymous constructor invocation.</p><p>The named constructors must, at some point, directly or indirectly, invoke the primary constructor. So the final code should be something like</p>
+</code></pre>
+<p>Note the similarity with the anonymous constructor invocation.</p>
+<p>The named constructors must, at some point, directly or indirectly, invoke the primary constructor. So the final code should be something like</p>
 <pre><code class="brush: lense ">public class Color {
 
 	 val Natural rgb;
@@ -246,7 +330,11 @@ val b = new Color.fromHSL(60 , 0.5 , 0.5);
     }
 
 }
-</code></pre><p>Notice how the <code>new</code> keyword is used to call the other constructors. In fact constructors in Lense act as factories and can return any object that could be assigned to the class.</p><p><a name="factory"></a> </p><h2>Factory Constructor</h2><p>Constructors in Lense are real factories and can create and return any instance. This means constructors can control the number of instances being created and choose to create specific sub types. For instances the <code>Array</code> constructor is :</p>
+</code></pre>
+<p>Notice how the <code>new</code> keyword is used to call the other constructors. In fact constructors in Lense act as factories and can return any object that could be assigned to the class.</p>
+<a name="factory"></a>
+<h2>Factory Constructor</h2>
+<p>Constructors in Lense are real factories and can create and return any instance. This means constructors can control the number of instances being created and choose to create specific sub types. For instances the <code>Array</code> constructor is :</p>
 <pre><code class="brush: lense ">public class Array&lt;T&gt; implement EditableSequence&lt;T&gt; {
 
         constructor filled(Natural size, T value){
@@ -267,7 +355,8 @@ val b = new Color.fromHSL(60 , 0.5 , 0.5);
 		
 		// other methods
 }
-</code></pre><p>The <code>Natural</code> constructor is equivalent to:</p>
+</code></pre>
+<p>The <code>Natural</code> constructor is equivalent to:</p>
 <pre><code class="brush: lense ">public class Natural extends Whole {
 
 	object cache {
@@ -309,9 +398,14 @@ val b = new Color.fromHSL(60 , 0.5 , 0.5);
     }
 }
 
-</code></pre><p>It uses and <a href="objects.html#object"><code>object</code></a> to hold the cache data. If the given <code>String</code> is not valid the constructor throws a <code>ParseException</code>.<br/>This is valid because a constructors is like a factory, however the compiler will only allow the <code>throw</code> clause on a named constructor.</p><p><a name="conversion"></a> </p><h2>Implicit Conversion Constructor</h2><p>A conversion constructor is used to obtain the state of the object from another object of a different type. For instance:</p>
+</code></pre>
+<p>It uses and <a href="objects.html#object"><code>object</code></a> to hold the cache data. If the given <code>String</code> is not valid the constructor throws a <code>ParseException</code>.<br/>This is valid because a constructors is like a factory, however the compiler will only allow the <code>throw</code> clause on a named constructor.</p>
+<a name="conversion"></a>
+<h2>Implicit Conversion Constructor</h2>
+<p>A conversion constructor is used to obtain the state of the object from another object of a different type. For instance:</p>
 <pre><code class="brush: lense ">val k : Integer = 23;
-</code></pre><p>Because all whole literals are parser by the compiler as <code>Natural</code>s, 23 is really a <code>Natural</code>. On the other hand, because <code>Natural</code>s are not an <code>Integer</code>s the assignment would not be valid. Before a compilation error is risen, the compiler tries to find an constructor in the class Integer that is marked as <code>implicit</code> and has a single parameter of type <code>Natural</code>. </p>
+</code></pre>
+<p>Because all whole literals are parser by the compiler as <code>Natural</code>s, 23 is really a <code>Natural</code>. On the other hand, because <code>Natural</code>s are not an <code>Integer</code>s the assignment would not be valid. Before a compilation error is risen, the compiler tries to find an constructor in the class Integer that is marked as <code>implicit</code> and has a single parameter of type <code>Natural</code>. </p>
 <pre><code class="brush: lense ">public class Integer extends Whole {
 
 	implicit constructor (Natural other){
@@ -319,97 +413,130 @@ val b = new Color.fromHSL(60 , 0.5 , 0.5);
 	}
 }
 
-</code></pre><p>If it exists, the compiler changes the assignment to:</p>
+</code></pre>
+<p>If it exists, the compiler changes the assignment to:</p>
 <pre><code class="brush: lense ">val k : Integer = new Integer(23);
-</code></pre><p>The <code>implicit</code> keyword is necessary because not every constructor with a single parameter is meant to be a conversion constructor.<br/>The <code>List&lt;T&gt;</code> class (used above) has a constructor that receives a <code>Natural</code> to set the array size,but that, without the implicit keyword would mean that:</p>
+</code></pre>
+<p>The <code>implicit</code> keyword is necessary because not every constructor with a single parameter is meant to be a conversion constructor.<br/>The <code>List&lt;T&gt;</code> class (used above) has a constructor that receives a <code>Natural</code> to set the array size,but that, without the implicit keyword would mean that:</p>
 <pre><code class="brush: lense ">val list : List&lt;Integer&gt; = 3;
-</code></pre><p>was really </p>
+</code></pre>
+<p>was really </p>
 <pre><code class="brush: lense ">val list : List&lt;Integer&gt; = new List&lt;Integer&gt;(3);
-</code></pre><p>The instruction would be (wrongly) trying to assign the number 3 to the list but the compiler would try to promote the value.<br/>This would not be a very coherent form to create arrays because can be confused with:</p>
+</code></pre>
+<p>The instruction would be (wrongly) trying to assign the number 3 to the list but the compiler would try to promote the value.<br/>This would not be a very coherent form to create arrays because can be confused with:</p>
 <pre><code class="brush: lense ">val list : List&lt;Integer&gt; = [3];
-</code></pre><p>The programmer may have forgotten to surround the value with brackets. </p><p>Also, this other example could be made to be valid code using an implicit conversion constructor:</p>
+</code></pre>
+<p>The programmer may have forgotten to surround the value with brackets. </p>
+<p>Also, this other example could be made to be valid code using an implicit conversion constructor:</p>
 <pre><code class="brush: lense ">val address : Uri = &quot;http://www.google.com&quot; 
 
 // equivalent to 
 
 val address : Uri = new Uri(&quot;http://www.google.com&quot;);
 
-</code></pre><p>Implicit constructors, like primary constructors, are not recomended for object creation that can throw exceptions (under consideration).<br/>For a parsing operation, or other, that possibly could go wrong, is not suited to a conversion constructor. It is recomemded that a constructor based on a string be a named constructor like <code>parse(String)</code>. Named constructors can throw exceptions.</p><p>As we can see from the above examples, that the conversion constructor is a simple way to promote values of one class to another but only if it is guaranteed that conversion will never fail.</p><p>As a limitation of conversion constructors the process only works if the class on the left side of the assignment accepts the instances of the class on the right side as valid argument. </p><h2>Constructors Enhancement (Under Consideration)</h2><p>If the original designer of the left side class did not added the conversion constructor for some other class we can add one latter by creating an <a href="enhancements.html">enhancement</a>, like so:</p>
+</code></pre>
+<p>Implicit constructors, like primary constructors, are not recomended for object creation that can throw exceptions (under consideration).<br/>For a parsing operation, or other, that possibly could go wrong, is not suited to a conversion constructor. It is recomemded that a constructor based on a string be a named constructor like <code>parse(String)</code>. Named constructors can throw exceptions.</p>
+<p>As we can see from the above examples, that the conversion constructor is a simple way to promote values of one class to another but only if it is guaranteed that conversion will never fail.</p>
+<p>As a limitation of conversion constructors the process only works if the class on the left side of the assignment accepts the instances of the class on the right side as valid argument. </p>
+<h2>Constructors Enhancement (Under Consideration)</h2>
+<p>If the original designer of the left side class did not added the conversion constructor for some other class we can add one latter by creating an <a href="enhancements.html">enhancement</a>, like so:</p>
 <pre><code class="brush: lense ">public enhancement AddNaturalConvertionConstrutorToString extends String { // enhances String
 
 	public implicit constructor (Natural n){
 	       return n.toString();
 	}
 }
-</code></pre><p>With this enchamenent in scope we can write:</p>
+</code></pre>
+<p>With this enchamenent in scope we can write:</p>
 <pre><code class="brush: lense ">val  s : String = 8; // not supported without the enhancement
-</code></pre><p>This is very powerful feature of <a href="enhancements.html">enhancements</a> and can easly be abused, so please design enhancements with care. </p>
+</code></pre>
+<p>This is very powerful feature of <a href="enhancements.html">enhancements</a> and can easly be abused, so please design enhancements with care. </p>
 			</div>
 			<div class="col-xs-6 col-sm-3 col-sm-pull-9 sidebar-offcanvas" id="sidebar"">
 
-<ol>
-	<li>Introduction</i>
+<ul class="collapsible-menu">
+	<li><a href="#">Introduction</a></i></i>
 	<li><a href="status.html">Status</a></i>
-	<li>Syntax and Semantics
-		<ol>
+	<li class="has-children">
+		<a href="javascript:void(0)">Syntax and Semantics</a>
+		<ul >
 			<li><a href="identifiers.html">Reserved Words</a></li>
-			<li>Variables</li>
-			<li>Mutability</li>
+			<li><a href="variables.html">Variables and Mutability</a></li>
 			<li><a href="nullability.html">Nullability</a></li>
 			<li>Comments</li>
 			<li>Generics</li>
 			<li>Functions</li>
 			
-			<li>Fundamental Types
-				
+			<li class="has-children">
+				<a href="javascript:void(0)">Fundamental Types</a>
 				<ul>
-					<li><a href="strings.html">Strings</a></li>
-					<li><a href="numbers.html">Numbers</a></li>
-					<li>Ranges</li>
-					<li><a href="interval.html">Intervals</a></li>
-					<li><a href="arrays.html">Arrays</a></li>
-					<li>Tuples</li>
-					<li><a href="containerLiterals.html">Container Literals</a></li>
+					<li><a href="booleans.html">Boolean</a></li>
+					<li><a href="strings.html">String</a></li>
+					<li><a href="numbers.html">Number</a></li>
+					<li><a href="binary.html">Binary</a></li>
+					<li><a href="interval.html">Interval</a></li>
+					<li><a href="iterable.html">Iterable</a></li>
+					<li class="has-children"> 
+						<a href="javascript:void(0)">Containers</a>
+						<ul> 
+							<li><a href="maybe.html">Maybe</a></li>
+							<li><a href="tuples.html">Tuple</a></li>
+							
+							<li>Range</li>
+							<li><a href="sequence.html">Sequence</a></li>
+							<li>Association</li>
+							
+						</ul>
+					</li>
 				</ul>
 			</li>
-			<li>Control Statements
+			<li><a href="containerLiterals.html">Container Literals</a></li>
+			<li><a href="arrays.html">Arrays</a></li>
+			<li class="has-children">
+				<a href="javascript:void(0)">Control Statements</a>
 				<ul>
 					<li>Decision: if</li>
 					<li>Loop : while</li>
 					<li>Iteration : for</li>
-					<li>Selection : switch</li>
+					<li>Selection/Matching : switch</li>
 				</ul>
 			</li>
-			
-			<li><a href="objects.html">Classes and Objects</a>
+			<li class="has-children"> 
+				<a href="javascript:void(0)">Types</a>
+				<ul>	
+					<li><a href="classes.html">Classes</a></li>
+					<li><a href="objects.html">Objects</a></li>
+					<li><a href="interfaces.html">Interfaces</a></li>
+					<li>Enums</li>
+					<li><a href="enhancements.html">Enhancements</a></li>
+				</ul>
+			</li>
+			<li class="has-children"> 
+				<a href="javascript:void(0)">Type Members</a>
 				<ul>
 					<li><a href="constructors.html">Constructors</a></li>
-					<li><a href="properties.html">Properties</a></li>
+					<li><a href="properties.html">Fields and Properties</a></li>
+					<li><a href="indexers.html">Indexed Properties</a></li>
+					<li>Methods</li>
 				</ul>
 			</li>
-			<li>Enums</li>
-			<li><a href="enhancements.html">Enhancements</a></li>
 			<li>Lambdas</li>
 			<li>Casting</li>
 			<li><a href="operators.html">Operator Overloading</a></li>
 			
-		</ol>
+		</ul>
 	</li>
-	<li>Compilation
+	<li class="has-children">
+		<a href="javascript:void(0)">Compilation</a>
 		<ul>
 			<li><a href="platforms.html">Platforms</a></li>
 			<li><a href="erasure.html">Erasure</a></li>
 		</ul>
 	</li>
 	<li><a href="concurrency.html">Concurrency</a>
-		<ol>
-			<li>Promisses</li>
-			<li>Executors</li>
-			<li>Actors</li>
-		</ol>
 	</li>
 
-<ol>			</div>
+<ul>			</div>
 		</div>
 	</div>
 	

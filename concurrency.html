@@ -20,6 +20,8 @@
 
 	</script>
   
+	<script src="js/jquery-1.11.1.min.js"></script>
+  
 	<script src="js/shCore.js"></script>
 
 	<script src="js/shBrushScala.js"></script>
@@ -27,7 +29,6 @@
 	<script src="js/shBrushDart.js"></script>
 	<script src="js/shBrushJava.js"></script>
 	<script src="js/shBrushLense.js"></script>
-
 
     <!-- Le styles -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
@@ -39,6 +40,12 @@
 	<link rel="stylesheet" type="text/css" href="css/shThemeDefault.css" >
 	<link rel="stylesheet" type="text/css" href="css/site.css" >
 
+	<style>
+		.navbar-toggle{
+			float:left;
+			margin-left:7px;
+		}
+	</style>
 	
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
@@ -48,20 +55,56 @@
     <!-- Fav and touch icons -->
 
     <link rel="shortcut icon" href="icon.png">
+	
+	<script>
+	$(document).ready(function() {
+	  $(".collapsible-menu").on("click", "li > a", function(e) {
+		var p = $(this).parent();
+		if (p.hasClass("has-children")) {
+			p.toggleClass("open").siblings(".open").removeClass("open");
+		}
+	  });
+	  
+	  var url = window.location.pathname;
+		var filename = url.substring(url.lastIndexOf('/')+1);
+		
+	  $(".collapsible-menu a").each(function(){
+		var link = $(this).attr("href");
+		
+		if (filename == link) {
+			var item = $(this).parent();
+			
+			while (!item.hasClass("collapsible-menu")){
+				if (item.hasClass("has-children")) {
+					item.toggleClass("open").siblings(".open").removeClass("open");
+				}
+				item = $(item).parent()
+			}
+		}
+
+	  })
+	  
+	});
+	</script>
   </head>
   <body onload="prettyPrint()">
     <div id="wrap">
 	
 	<!-- Fixed navbar -->
-    <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <nav class="navbar navbar-default navbar-fixed-top" >
       <div class="container">
         <div class="navbar-header">
+		  <button type="button" data-target="#navbar" data-toggle="collapse" class="navbar-toggle"> 
+			  <span class="sr-only">Toggle navigation</span> 
+			  <span class="icon-bar"></span> 
+			  <span class="icon-bar"></span> 
+		  </button>
           <a class="navbar-brand" href="index.html">Lense</a>
         </div>
-        <div class="navbar-collapse collapse">
+        <div id="navbar" class="navbar-collapse collapse">
           <ul class="nav navbar-nav">
             <li class="dropdown">
-				<a href="#" class="dropdown-toggle" data-toggle="dropdown">Get Started<b class="caret"></b></a>
+				<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Get Started<b class="caret"></b></a>
 				<ul class="dropdown-menu">
 					<li class="disabled"><a href="learn.html">Learn Lense</a></li>
 					<li class="disabled"><a href="try.html">Try Lense</a></li>
@@ -69,7 +112,7 @@
 				</ul>
 			</li>
             <li class="dropdown">
-				<a href="#" class="dropdown-toggle" data-toggle="dropdown">Fundamentals<b class="caret"></b></a>
+				<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Fundamentals<b class="caret"></b></a>
 				<ul class="dropdown-menu">
 					<li><a href="tour/tour.html">Language Tour</a></li>
 					<li class="disabled"><a href="guide.html">Programmer's Guide</a></li>
@@ -79,7 +122,7 @@
             </li>
 			
             <li class="dropdown">
-              <a href="#" class="dropdown-toggle" data-toggle="dropdown">Details<b class="caret"></b></a>
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Details<b class="caret"></b></a>
 				<ul class="dropdown-menu">
 					<li><a href="nullability.html">Nullability</a></li>
 					<li><a href="numbers.html">Numbers</a></li>
@@ -113,13 +156,18 @@
           </ul>
         </div><!--/.nav-collapse -->
       </div>
-    </div>
+    </nav>
+	
 	<div class="corner-ribbon top-right sticky shadow"><a href="status.html">Exploration Stage</a></div>
-    <div class="container">
+    
+	<div class="container">
 	<div class="container-fluid">
 		<div class="row row-offcanvas row-offcanvas-right">
 			 <div class="col-xs-12 col-sm-9 col-sm-push-3">
-				<h1>Parallelism and Concurrency</h1><p>Lense chooses not to force any specific memory model or thread model because there is no guarantee it would be available in all platforms.<br/>Instead if defines types and libraries that can be used to take advantege of the platform parallelism, if any exists.<br/>So, concurrency is enabled, not by language constructs, but by means of specific APIs that hide the details of parallelism and concurrency.</p><h2>Promises and Deference</h2><p>A <code>Promise</code> is a monad that can hold functions to be executed once a value is calculated. The promise does not define if the calculation is executed in another thread or not, but conceptually is better to work as if it where. The thread that executes the value also executes the passed functions. A promise holds a function for when the value is calculated sucessufly and a function for when the promise can not be calculated, i.e. the calculation ends in an exception.</p>
+				<h1>Parallelism and Concurrency</h1>
+<p>Lense chooses not to force any specific memory model or thread model because there is no guarantee it would be available in all platforms.<br/>Instead if defines types and libraries that can be used to take advantege of the platform parallelism, if any exists.<br/>So, concurrency is enabled, not by language constructs, but by means of specific APIs that hide the details of parallelism and concurrency.</p>
+<h2>Promises and Deference</h2>
+<p>A <code>Promise</code> is a monad that can hold functions to be executed once a value is calculated. The promise does not define if the calculation is executed in another thread or not, but conceptually is better to work as if it where. The thread that executes the value also executes the passed functions. A promise holds a function for when the value is calculated sucessufly and a function for when the promise can not be calculated, i.e. the calculation ends in an exception.</p>
 <pre><code class="brush: lense">public interface Promise&lt;T&gt; {
 
 	public then ( onSuccess: Action&lt;T&gt;) : Promise&lt;T&gt; ;
@@ -127,7 +175,9 @@
 	
 	public map &lt;R&gt;( transformation: Function&lt;R,T&gt;): Promise&lt;R&gt; ;
 }   
-</code></pre><p>A <code>Deferred</code> is a <code>Promise</code> factory that holds a private relation to the created <code>Promise</code>.<code>Deferred</code> objects also do not define the concurrency model. They are simply a factory that holds control of the internal state of the promise. Is the <code>Deferred</code> object that receives the value after the calculation is executed and triggers the <code>then</code> function, or triggers the <code>catch</code> function after an exception is detected. The calculation itself is handled by a third object. </p><p>A simple example that do not uses concurrency could be something like this:</p>
+</code></pre>
+<p>A <code>Deferred</code> is a <code>Promise</code> factory that holds a private relation to the created <code>Promise</code>.<code>Deferred</code> objects also do not define the concurrency model. They are simply a factory that holds control of the internal state of the promise. Is the <code>Deferred</code> object that receives the value after the calculation is executed and triggers the <code>then</code> function, or triggers the <code>catch</code> function after an exception is detected. The calculation itself is handled by a third object. </p>
+<p>A simple example that do not uses concurrency could be something like this:</p>
 <pre><code class="brush: lense">public object Calculator{
 
     // calculates the n-th element in the fibonacci sequence
@@ -158,7 +208,11 @@
 	
 }
 
-</code></pre><p>This implementation does not use concurrency but the client code calling the <code>fibonacci</code> function has no way of knowing this, so it has to assume the code is calculated concurrently. Later, the implementation can evolve to a concurrent one, or even a distributed version without consequences to the calling code.</p><h2>Executors</h2><p>An <code>Executor</code> is an object that can create another thread of execution to run a given function.<br/>The calling code will continue to run after the executor is called, enabling concurrency.</p><p>There are two principal executors in the standard API: the <code>TimedExecutor</code> and the <code>DeferredExecutor</code>. The <code>TimedExecutor</code> enables code to be run after some time as elapsed. <code>DefferedExecutor</code> allows the code to run immediately (in another thread). </p>
+</code></pre>
+<p>This implementation does not use concurrency but the client code calling the <code>fibonacci</code> function has no way of knowing this, so it has to assume the code is calculated concurrently. Later, the implementation can evolve to a concurrent one, or even a distributed version without consequences to the calling code.</p>
+<h2>Executors</h2>
+<p>An <code>Executor</code> is an object that can create another thread of execution to run a given function.<br/>The calling code will continue to run after the executor is called, enabling concurrency.</p>
+<p>There are two principal executors in the standard API: the <code>TimedExecutor</code> and the <code>DeferredExecutor</code>. The <code>TimedExecutor</code> enables code to be run after some time as elapsed. <code>DefferedExecutor</code> allows the code to run immediately (in another thread). </p>
 <pre><code class="brush: lense ">public object TimedExecutor {
 
 	public runAfter&lt;T&gt;( duration : Duration, calculation : Function&lt;T&gt; ) : Promise&lt;T&gt; ;
@@ -170,7 +224,11 @@ public object DeferredExecutor {
 
 	public run&lt;T&gt;(calculation : Function&lt;T&gt; ) : Promise&lt;T&gt;;
 }
-</code></pre><p><code>Executor</code>s return promises that can then be combined (they are monads) to produce a result. This is equivalent to a wait/notify/join mechanism without all the fuss and without having to be specific about a thread model.</p><p>The <code>TimedExecutor</code> and <code>DeferredExecutor</code> are implemented in java using the Java Executor API. In javascript are implemented using <code>window.setTimeout</code>.<br/><code>Deferred</code> objects are used internally to create and control <code>Promises</code>. </p><h2>Actors (Under Consideration)</h2><p><code>Actor</code>s enable a message based communication between different threads that can be, even, distributed in one or more machines. The Actor model is similar to Java Messaging Service in Java or Web Workers in javascript, in the sense messages are exchanged back and forward but is different as to the endpoints envolved. However the technology that enables the actor to send and receive the messages depends on the <code>ActorEnvironment</code> used. The environment determines how the messages are handled and several different implementations are possible. The actors exist in the scope of a specific environment. For example, in a javascript an environment based on <em>websockets</em> would be a natural choice. But is as not be a raw websocket implementation an other APIs like <em>Stomp</em> can be used. A possible code would be:</p>
+</code></pre>
+<p><code>Executor</code>s return promises that can then be combined (they are monads) to produce a result. This is equivalent to a wait/notify/join mechanism without all the fuss and without having to be specific about a thread model.</p>
+<p>The <code>TimedExecutor</code> and <code>DeferredExecutor</code> are implemented in java using the Java Executor API. In javascript are implemented using <code>window.setTimeout</code>.<br/><code>Deferred</code> objects are used internally to create and control <code>Promises</code>. </p>
+<h2>Actors (Under Consideration)</h2>
+<p><code>Actor</code>s enable a message based communication between different threads that can be, even, distributed in one or more machines. The Actor model is similar to Java Messaging Service in Java or Web Workers in javascript, in the sense messages are exchanged back and forward but is different as to the endpoints envolved. However the technology that enables the actor to send and receive the messages depends on the <code>ActorEnvironment</code> used. The environment determines how the messages are handled and several different implementations are possible. The actors exist in the scope of a specific environment. For example, in a javascript an environment based on <em>websockets</em> would be a natural choice. But is as not be a raw websocket implementation an other APIs like <em>Stomp</em> can be used. A possible code would be:</p>
 <pre><code class="brush: lense ">val env : ActorEnvironment = new StompActorEnvironment(&quot;http://server.side.address.com&quot;);
 
 // register the actor with a name
@@ -180,7 +238,8 @@ env.register(&quot;printActor&quot;, new PrintActor());
 
 //sending values from outside the environment.
 env.sendTo(&quot;myActor&quot; , 4);
-</code></pre><p>The actor it self is a class or object that extends <code>Actor</code>.</p>
+</code></pre>
+<p>The actor it self is a class or object that extends <code>Actor</code>.</p>
 <pre><code class="brush: lense ">public class MyActor extends Actor {
 
        public onMesssage( msg: Message) {
@@ -211,75 +270,101 @@ public class PrintActor extends Actor {
        }
 
 }
-</code></pre><p>This code will create and register two actors. The first calculates the fibonacci sequence; the second, prints the calculated value.<br/>Actors communicate thought messages. Each actor has access to the environment is registered with and can use it to send messages to other actors.<br/>Actors names are only significant in a given environment.</p><p>The communication is normally asynconous whenever the <code>sendTo</code> method is called. The sent message e delivered to the actor's message queue. The message is removed from the queue and<br/>delivered to the <code>onMessage</code> method. </p><h2>Passing the correct data between actors</h2><p>All data passed between actors is not shared, we do not want a shared memory model. This means the objects passed as payloads need to be serializable. If the objects are serializable, we can always serialize the object and deserialize it again to obtain a safe copy. This also is a requirement if we need to transfer the object to another machine (depending on the ActorEnvironment implementation).</p><p>For in memory envoriments the envoriment can opt for not serializing the object for performance reasons. This is only possible if the object is imutable.<br/>If objects are imuable there is no risk in sharing them because they cannot be changed in the first place. </p><p>For these reasons the <code>sendTo</code> method takes a <code>Serializable</code> as its message payload:</p>
+</code></pre>
+<p>This code will create and register two actors. The first calculates the fibonacci sequence; the second, prints the calculated value.<br/>Actors communicate thought messages. Each actor has access to the environment is registered with and can use it to send messages to other actors.<br/>Actors names are only significant in a given environment.</p>
+<p>The communication is normally asynconous whenever the <code>sendTo</code> method is called. The sent message e delivered to the actor's message queue. The message is removed from the queue and<br/>delivered to the <code>onMessage</code> method. </p>
+<h2>Passing the correct data between actors</h2>
+<p>All data passed between actors is not shared, we do not want a shared memory model. This means the objects passed as payloads need to be serializable. If the objects are serializable, we can always serialize the object and deserialize it again to obtain a safe copy. This also is a requirement if we need to transfer the object to another machine (depending on the ActorEnvironment implementation).</p>
+<p>For in memory envoriments the envoriment can opt for not serializing the object for performance reasons. This is only possible if the object is imutable.<br/>If objects are imuable there is no risk in sharing them because they cannot be changed in the first place. </p>
+<p>For these reasons the <code>sendTo</code> method takes a <code>Serializable</code> as its message payload:</p>
 <pre><code class="brush: lense ">public  sendTo( actorId : String,  message: Serializable) : Void
 </code></pre>
 			</div>
 			<div class="col-xs-6 col-sm-3 col-sm-pull-9 sidebar-offcanvas" id="sidebar"">
 
-<ol>
-	<li>Introduction</i>
+<ul class="collapsible-menu">
+	<li><a href="#">Introduction</a></i></i>
 	<li><a href="status.html">Status</a></i>
-	<li>Syntax and Semantics
-		<ol>
+	<li class="has-children">
+		<a href="javascript:void(0)">Syntax and Semantics</a>
+		<ul >
 			<li><a href="identifiers.html">Reserved Words</a></li>
-			<li>Variables</li>
-			<li>Mutability</li>
+			<li><a href="variables.html">Variables and Mutability</a></li>
 			<li><a href="nullability.html">Nullability</a></li>
 			<li>Comments</li>
 			<li>Generics</li>
 			<li>Functions</li>
 			
-			<li>Fundamental Types
-				
+			<li class="has-children">
+				<a href="javascript:void(0)">Fundamental Types</a>
 				<ul>
-					<li><a href="strings.html">Strings</a></li>
-					<li><a href="numbers.html">Numbers</a></li>
-					<li>Ranges</li>
-					<li><a href="interval.html">Intervals</a></li>
-					<li><a href="arrays.html">Arrays</a></li>
-					<li>Tuples</li>
-					<li><a href="containerLiterals.html">Container Literals</a></li>
+					<li><a href="booleans.html">Boolean</a></li>
+					<li><a href="strings.html">String</a></li>
+					<li><a href="numbers.html">Number</a></li>
+					<li><a href="binary.html">Binary</a></li>
+					<li><a href="interval.html">Interval</a></li>
+					<li><a href="iterable.html">Iterable</a></li>
+					<li class="has-children"> 
+						<a href="javascript:void(0)">Containers</a>
+						<ul> 
+							<li><a href="maybe.html">Maybe</a></li>
+							<li><a href="tuples.html">Tuple</a></li>
+							
+							<li>Range</li>
+							<li><a href="sequence.html">Sequence</a></li>
+							<li>Association</li>
+							
+						</ul>
+					</li>
 				</ul>
 			</li>
-			<li>Control Statements
+			<li><a href="containerLiterals.html">Container Literals</a></li>
+			<li><a href="arrays.html">Arrays</a></li>
+			<li class="has-children">
+				<a href="javascript:void(0)">Control Statements</a>
 				<ul>
 					<li>Decision: if</li>
 					<li>Loop : while</li>
 					<li>Iteration : for</li>
-					<li>Selection : switch</li>
+					<li>Selection/Matching : switch</li>
 				</ul>
 			</li>
-			
-			<li><a href="objects.html">Classes and Objects</a>
+			<li class="has-children"> 
+				<a href="javascript:void(0)">Types</a>
+				<ul>	
+					<li><a href="classes.html">Classes</a></li>
+					<li><a href="objects.html">Objects</a></li>
+					<li><a href="interfaces.html">Interfaces</a></li>
+					<li>Enums</li>
+					<li><a href="enhancements.html">Enhancements</a></li>
+				</ul>
+			</li>
+			<li class="has-children"> 
+				<a href="javascript:void(0)">Type Members</a>
 				<ul>
 					<li><a href="constructors.html">Constructors</a></li>
-					<li><a href="properties.html">Properties</a></li>
+					<li><a href="properties.html">Fields and Properties</a></li>
+					<li><a href="indexers.html">Indexed Properties</a></li>
+					<li>Methods</li>
 				</ul>
 			</li>
-			<li>Enums</li>
-			<li><a href="enhancements.html">Enhancements</a></li>
 			<li>Lambdas</li>
 			<li>Casting</li>
 			<li><a href="operators.html">Operator Overloading</a></li>
 			
-		</ol>
+		</ul>
 	</li>
-	<li>Compilation
+	<li class="has-children">
+		<a href="javascript:void(0)">Compilation</a>
 		<ul>
 			<li><a href="platforms.html">Platforms</a></li>
 			<li><a href="erasure.html">Erasure</a></li>
 		</ul>
 	</li>
 	<li><a href="concurrency.html">Concurrency</a>
-		<ol>
-			<li>Promisses</li>
-			<li>Executors</li>
-			<li>Actors</li>
-		</ol>
 	</li>
 
-<ol>			</div>
+<ul>			</div>
 		</div>
 	</div>
 	
