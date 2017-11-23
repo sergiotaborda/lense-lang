@@ -193,18 +193,18 @@ val lengths : Sequence&lt;Natural&gt;  =  cities.map( city -&gt; city.size());
 </code></pre>
 <p>This code simply applies a transformation to all elements of the original container (*cities*) and produces a new <em>Sequence<Natural></em> with the lenghts of the cities names.<br/>The main diference from explicit iteration is that explicit iteration normally involves some kind of mutable object , like <code>List</code> in this example, while implicit iteration does not.</p>
 <p>You can use several other methods like <code>filter</code> that allows you to exclude some values.<br/>For example, if we want to calculate the cubes of only odd numbers between 1 and 100 we can use a <code>Range</code> and write:</p>
-<pre><code class="brush: lense ">var cubes : Sequence&lt;Natural&gt; = 1..100.filter(n -&gt; n.isOdd()).map( n -&gt; n ** 3));
+<pre><code class="brush: lense ">var cubes = 1..100.filter(n -&gt; n.isOdd()).map( n -&gt; n ^^ 3)); // cube is a Sequence&lt;Natural&gt;
 </code></pre>
-<p>This a very simple, readable, code that means the same that: </p>
+<p>This a very simple, readable, code that means the same than this: </p>
 <pre><code class="brush: lense ">val  cubes = new List&lt;Natural&gt;();
 
 for (Natural n in 1..100) {
 	if (n.isOdd()) {
-		lengths.add(n ** 3);
+		lengths.add(n ^^ 3);
 	}
 }
 </code></pre>
-<p>But does not use mutable objects.</p>
+<p>However it does not use mutable objects like <code>List</code>.</p>
 			</div>
 			<div class="col-xs-6 col-sm-3 col-sm-pull-9 sidebar-offcanvas" id="sidebar"">
 
