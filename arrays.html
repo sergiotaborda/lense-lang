@@ -165,10 +165,10 @@
 		<div class="row row-offcanvas row-offcanvas-right">
 			 <div class="col-xs-12 col-sm-9 col-sm-push-3">
 				<h1>Arrays</h1>
-<p>In other languages arrays are normally <a href="glossary.html#primtiveTypes">primitive types</a> or at least <a href="glossary.html#fundamentalTypes">fundamental types</a>. In Lense arrays are simply objects of the <code>Array</code> class. This class belongs to the Collections API and receive no special handling by the language or the compiler. The Collections API is a set of common object structures like hash table and linked list implemented in coherent framework.</p>
-<p>This means you create arrays as you would any other class (i.e invoking the constructor). There is no <code>new someArray[2]</code> sintax for array definition. Arrays in Lense are the default implementation of the <code>EditableSequence</code> interface that behave like arrays in other languages. They have fixed length and values can be edited, but must be pre-initialized. </p>
+<p>In other languages arrays are normally <a href="glossary.html#primtiveTypes">primitive types</a> or at least <a href="glossary.html#fundamentalTypes">fundamental types</a>. In Lense, arrays are simply objects of the <code>Array</code> class. This class belongs to the Collections API and receives no special handling by the language or the compiler. The Collections API is a set of common object structures like hash tables and linked lists implemented in a coherent framework.</p>
+<p>This means you create arrays as you would any other class (i.e invoking the constructor). There is no <code>new someArray[2]</code> sintax for array definition. Arrays in Lense are the default implementation of the <code>EditableSequence</code> interface that behave like arrays in other languages. They have fixed length and values can be edited.However , becasue Lense has no null, arrays always have to be pre-initialized. </p>
 <h1>Inicialization</h1>
-<p>Because Lense does not have the concept of <code>null</code> all arrays must be inicialized correctly to a specified value. There are no default values. If you cannot determine the initialization values you will be better using a <code>List</code>( or any other <code>ResizableSequence</code> like <code>LinkedList</code>) that allows you to start with zero elements in que collection and add the elements as you go. When you use <code>Array</code> you need to supply the elements at creation time. The easiest way to do this is with a literal:</p>
+<p>Because Lense does not have the concept of <code>null</code> all arrays must be inicialized correctly with a specified value. There are no default values. If you cannot determine the initialization values you will be better using a <code>List</code>( or any other <code>ResizableSequence</code> like <code>LinkedList</code>) that allows you to start with zero elements in que collection and add the elements as you go. When you use <code>Array</code> you need to supply the elements at creation time. The easiest way to do this is with a literal:</p>
 <pre><code class="brush: lense">    val numbers : Array&lt;Natural&gt; = [1, 2, 3 , 4 , 5];
 </code></pre>
 <p>Remember <code>Array</code> is not a fundamental type in Lense. That literal above really creates a <code>Sequence</code> object that is read-only by definition. The compiler then uses a <a href="constructors.html#conversion">conversion constructor</a> to create the <code>Array</code> from the <code>Sequence</code>. If you wish to initilize all position in the array to the same value you can use a special <a href="constructors.html#named">named constructor</a>:</p>
@@ -191,7 +191,7 @@
 </code></pre>
 <p>Remember <code>none</code> is the single value of type <code>None</code> that is equivalent to <code>Maybe&lt;Nothing&gt;</code>. You can also use the shorter constructor:</p>
 <pre><code class="brush: lense">    // this code creates an array with 5 elements all equal to none.
-    val numbers : Array&lt;Natural?&gt; = new Array.ofAbsent&lt;Natural?&gt;(5);
+    val numbers : Array&lt;Natural?&gt; = new Array.ofAbsent&lt;Natural&gt;(5);
 </code></pre>
 <h1>Empty Arrays</h1>
 <p>In practice is useful to be able to create an empty array. The empty constructor solves this problem creating an array with no elements at all. </p>
@@ -203,15 +203,15 @@
 </code></pre>
 <p>In this case there is no diference if you use optional types because the arrays have no elements (its size is zero).</p>
 <h1>Indexing</h1>
-<p>Arrays are specially useful because the values of at each position can be access by a second variable : the index. Normally this index is an integer.<br/>In java , for example, you would write:</p>
+<p>Arrays are specially useful because the values at each position can be access by a second variable : the index. Normally, in other languages, this index is an integer.<br/>In java , for example, you would write:</p>
 <pre><code class="brush: java">    int[] array = new int[]{1,2,3};
 	
 	int x = array[1]; // x is 2
 	
 	array[2] = 6; // array position 2 is now 6 instead of 3.
 </code></pre>
-<p>In java, and other languages, the array is a fundamental type and so the language and the compiler have special treatment for the index operator <code>[]</code>. In Lense arrays are not fundamental, but the index operator is.<br/>In reallity is not an operator is the way you use <a href="properties.html#indexed">indexed properties</a>. Indexer properties are a type of member of types that allow to read and write values based on indexes.<br/>In Lense all <code>Sequence</code>s have an indexed property for reading values at a given position in the sequence, and for <code>Array</code>s is also possible to write to that property. </p>
-<p>This means you can still use the <code>array[i]</code> sintax to read from and write to array positions.</p>
+<p>In java, and other languages, the array is a fundamental type and so the language and the compiler have special treatment for the index operator <code>[]</code>. In Lense arrays are not fundamental, but the index operator is.<br/>In reallity is not an operator, is the way you use <a href="properties.html#indexed">indexed properties</a>. Indexer properties are a type of member of types that allow to read and write values based on indexes.<br/>In Lense all <code>Sequence</code>s have an indexed property for reading values at a given position in the sequence, and for <code>Array</code>s is also possible to write to that property. </p>
+<p>This means you can still use the <code>array[i]</code> sintax to read from, and write to, array positions.</p>
 <pre><code class="brush: lense">public updateArray( numbers : Array&lt;Natural&gt; ) {
     numbers[0] = 1;
     numbers[1] = 2;
@@ -236,9 +236,14 @@
 			<li><a href="identifiers.html">Reserved Words</a></li>
 			<li><a href="variables.html">Variables and Mutability</a></li>
 			<li><a href="nullability.html">Nullability</a></li>
+			
+			 <!--
+			
 			<li>Comments</li>
 			<li>Generics</li>
-			<li>Functions</li>
+			<li>Functions and Lambdas</li>
+			
+			-->
 			
 			<li class="has-children">
 				<a href="javascript:void(0)">Fundamental Types</a>
@@ -293,8 +298,7 @@
 					<li>Methods</li>
 				</ul>
 			</li>
-			<li>Lambdas</li>
-			<li>Casting</li>
+			<li><a href="casting.html">Casting</a></li>
 			<li><a href="operators.html">Operator Overloading</a></li>
 			
 		</ul>
@@ -320,7 +324,7 @@
     
     <div id="footer">
       <div class="container">
-        <p class="muted credit">Lense is an open source project and a community driven effort</p>
+        <p class="muted credit">Lense is an open source project </p>
       </div>
     </div>
     
