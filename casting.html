@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8"/>
+    <title>Casting</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <meta name="keywords" content="">
+    <meta name="generator" content="JBake">
+    
+    <script>
+	  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+	  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+	  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+	  ga('create', 'UA-77665803-1', 'auto');
+	  ga('send', 'pageview');
+
+	</script>
+  
+	<script src="js/jquery-1.11.1.min.js"></script>
+  
+	<script src="js/shCore.js"></script>
+
+	<script src="js/shBrushScala.js"></script>
+	<script src="js/shBrushCSharp.js"></script>
+	<script src="js/shBrushDart.js"></script>
+	<script src="js/shBrushJava.js"></script>
+	<script src="js/shBrushLense.js"></script>
+
+    <!-- Le styles -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    
+    <link href="css/base.css" rel="stylesheet">
+    <link href="css/prettify.css" rel="stylesheet">
+  	<link rel="stylesheet" type="text/css" href="css/shCore.css"  >
+	<link rel="stylesheet" type="text/css" href="css/shThemeLense.css" >
+	<link rel="stylesheet" type="text/css" href="css/shThemeDefault.css" >
+	<link rel="stylesheet" type="text/css" href="css/site.css" >
+
+	<style>
+		.navbar-toggle{
+			float:left;
+			margin-left:7px;
+		}
+	</style>
+	
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="js/html5shiv.min.js"></script>
+    <![endif]-->
+
+    <!-- Fav and touch icons -->
+
+    <link rel="shortcut icon" href="icon.png">
+	
+	<script>
+	$(document).ready(function() {
+	  $(".collapsible-menu").on("click", "li > a", function(e) {
+		var p = $(this).parent();
+		if (p.hasClass("has-children")) {
+			p.toggleClass("open").siblings(".open").removeClass("open");
+		}
+	  });
+	  
+	  var url = window.location.pathname;
+		var filename = url.substring(url.lastIndexOf('/')+1);
+		
+	  $(".collapsible-menu a").each(function(){
+		var link = $(this).attr("href");
+		
+		if (filename == link) {
+			var item = $(this).parent();
+			
+			while (!item.hasClass("collapsible-menu")){
+				if (item.hasClass("has-children")) {
+					item.toggleClass("open").siblings(".open").removeClass("open");
+				}
+				item = $(item).parent()
+			}
+		}
+
+	  })
+	  
+	});
+	</script>
+  </head>
+  <body onload="prettyPrint()">
+    <div id="wrap">
+	
+	<!-- Fixed navbar -->
+    <nav class="navbar navbar-default navbar-fixed-top" >
+      <div class="container">
+        <div class="navbar-header">
+		  <button type="button" data-target="#navbar" data-toggle="collapse" class="navbar-toggle"> 
+			  <span class="sr-only">Toggle navigation</span> 
+			  <span class="icon-bar"></span> 
+			  <span class="icon-bar"></span> 
+		  </button>
+          <a class="navbar-brand" href="index.html">Lense</a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li class="dropdown">
+				<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Get Started<b class="caret"></b></a>
+				<ul class="dropdown-menu">
+					<li class="disabled"><a href="learn.html">Learn Lense</a></li>
+					<li class="disabled"><a href="try.html">Try Lense</a></li>
+					<li><a href="https://github.com/sergiotaborda/lense-lang">Download</a></li>
+				</ul>
+			</li>
+            <li class="dropdown">
+				<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Fundamentals<b class="caret"></b></a>
+				<ul class="dropdown-menu">
+					<li><a href="tour/tour.html">Language Tour</a></li>
+					<li class="disabled"><a href="guide.html">Programmer's Guide</a></li>
+					<li><a href="platforms.html">Target Platforms's Guide</a></li>
+						<li><a href="glossary.html">Glossary</a></li>
+				</ul>
+            </li>
+			
+            <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Details<b class="caret"></b></a>
+				<ul class="dropdown-menu">
+					<li><a href="nullability.html">Nullability</a></li>
+					<li><a href="numbers.html">Numbers</a></li>
+					<li><a href="strings.html">Strings</a></li>
+					<li><a href="arrays.html">Arrays</a></li>
+					
+					<li><a href="containerLiterals.html">Container Literals</a></li>
+					<li><a href="objects.html">Classes and Objects</a></li>
+					<li><a href="constructors.html">Constructors</a></li>
+					<li><a href="properties.html">Properties</a></li>
+				
+					<li><a href="operators.html">Operators</a></li>	
+				
+					<li><a href="monads.html">Monads</a></li>
+					<li><a href="concurrency.html">Concurrency</a></li>
+					<li><a href="erasure.html">Type Erasure</a></li>
+					
+					<li><a href="enhancements.html">External Enhancements</a></li>
+					
+				</ul>
+            </li>
+			<li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown">More<b class="caret"></b></a>
+              <ul class="dropdown-menu">
+                <li><a href="https://github.com/sergiotaborda/lense-lang">Source Code</a></li>
+			    <li><a href="https://groups.google.com/forum/#!forum/lense-lang">Discussion Group</a></li>
+				
+				<li><a href="status.html">Roadmap &amp; Status</a></li>
+              </ul>
+            </li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+	
+	<div class="corner-ribbon top-right sticky shadow"><a href="status.html">Exploration Stage</a></div>
+    
+	<div class="container">
+	<div class="container-fluid">
+		<div class="row row-offcanvas row-offcanvas-right">
+			 <div class="col-xs-12 col-sm-9 col-sm-push-3">
+				<h1>Casting</h1>
+<p>Lense does not support an explicit cast operator like C or Java , it supports flow sensitive casting instead. This means the compiler can use flow directives like <code>if</code> or <code>switch</code> to understand the type of the variable.</p>
+<pre><code class="brush: lense ">public collectLeafs( root : Node , leafs : List&lt;Node&gt;) {
+	
+	if ( obj is LeafNode){
+	   leafs.add(obj);
+	} else if (obj is BranchNode){
+		
+		for (var child in obj.Children){
+			collectLeafs(child, leafs);
+		}
+	} else {
+		throw new Exception(&quot;Unrecognised node&quot;);
+	}
+
+}
+</code></pre>
+<p>The <code>is</code> operator returns <code>true</code> if the variable holds an object of the specified type. The compiler then knows that all references to that variable inside the <code>if</code> realy refer to that type, and so all operations on that type are allowed.</p>
+<p>Flow sensitive typing simplifies writing of <em>check and cast</em> idiom, very common when overriding <code>equals</code>. In other languages, like Java you need to test for type and then cast:</p>
+<pre><code class="brush: java">// Java 
+public class Person {
+
+	public long id;
+
+	public equals(Object other){
+		return (other instanceof Person) &amp;&amp; ((Person)other).Id == this.Id;
+	}
+
+}
+</code></pre>
+<p>in Lense the compiler is smart to understand that if tested, then the variable is of that type.</p>
+<pre><code class="brush: lense ">public class Person {
+
+	public var Id : Natural;
+
+	public equals(other : Any){
+		return other is Person &amp;&amp; other.Id == this.Id;
+	}
+
+}
+</code></pre>
+<p>You can also use other flow directives like <code>switch</code> :</p>
+<pre><code class="brush: lense ">public collectLeafs( root : Node , leafs : List&lt;Node&gt;) {
+	
+	switch(obj){
+		case is LeafNode {
+		    leafs.add(obj);
+		}
+		case is BranchNode {
+			for (var child in obj.Children){
+				collectLeafs(child, leafs);
+			}
+		}
+		default{
+		 	throw new Exception(&quot;Unrecognised node&quot;);
+		}
+	}
+}
+</code></pre>
+<p>and <code>assert</code>:</p>
+<pre><code class="brush: lense ">var node : Node  = ... // some node
+
+assert( node is BranchNode);
+
+return node.Children.size; // at this line the compiler kowns node is a BranchNode because otherwise and exception would have been thrown.
+
+</code></pre>
+			</div>
+			<div class="col-xs-6 col-sm-3 col-sm-pull-9 sidebar-offcanvas" id="sidebar"">
+
+<ul class="collapsible-menu">
+	<li><a href="#">Introduction</a></i></i>
+	<li><a href="status.html">Status</a></i>
+	<li class="has-children">
+		<a href="javascript:void(0)">Syntax and Semantics</a>
+		<ul >
+			<li><a href="identifiers.html">Reserved Words</a></li>
+			<li><a href="variables.html">Variables and Mutability</a></li>
+			<li><a href="nullability.html">Nullability</a></li>
+			
+			 <!--
+			
+			<li>Comments</li>
+			<li>Generics</li>
+			<li>Functions and Lambdas</li>
+			
+			-->
+			
+			<li class="has-children">
+				<a href="javascript:void(0)">Fundamental Types</a>
+				<ul>
+					<li><a href="booleans.html">Boolean</a></li>
+					<li><a href="strings.html">String</a></li>
+					<li><a href="numbers.html">Number</a></li>
+					<li><a href="binary.html">Binary</a></li>
+					<li><a href="interval.html">Interval</a></li>
+					<li><a href="iterable.html">Iterable</a></li>
+					<li class="has-children"> 
+						<a href="javascript:void(0)">Containers</a>
+						<ul> 
+							<li><a href="maybe.html">Maybe</a></li>
+							<li><a href="tuples.html">Tuple</a></li>
+							
+							<li>Range</li>
+							<li><a href="sequence.html">Sequence</a></li>
+							<li>Association</li>
+							
+						</ul>
+					</li>
+				</ul>
+			</li>
+			<li><a href="containerLiterals.html">Container Literals</a></li>
+			<li><a href="arrays.html">Arrays</a></li>
+			<li class="has-children">
+				<a href="javascript:void(0)">Control Statements</a>
+				<ul>
+					<li>Decision: if</li>
+					<li>Loop : while</li>
+					<li>Iteration : for</li>
+					<li>Selection/Matching : switch</li>
+				</ul>
+			</li>
+			<li class="has-children"> 
+				<a href="javascript:void(0)">Types</a>
+				<ul>	
+					<li><a href="classes.html">Classes</a></li>
+					<li><a href="objects.html">Objects</a></li>
+					<li><a href="interfaces.html">Interfaces</a></li>
+					<li>Enums</li>
+					<li><a href="enhancements.html">Enhancements</a></li>
+				</ul>
+			</li>
+			<li class="has-children"> 
+				<a href="javascript:void(0)">Type Members</a>
+				<ul>
+					<li><a href="constructors.html">Constructors</a></li>
+					<li><a href="properties.html">Fields and Properties</a></li>
+					<li><a href="indexers.html">Indexed Properties</a></li>
+					<li>Methods</li>
+				</ul>
+			</li>
+			<li><a href="casting.html">Casting</a></li>
+			<li><a href="operators.html">Operator Overloading</a></li>
+			
+		</ul>
+	</li>
+	<li class="has-children">
+		<a href="javascript:void(0)">Compilation</a>
+		<ul>
+			<li><a href="platforms.html">Platforms</a></li>
+			<li><a href="erasure.html">Erasure</a></li>
+		</ul>
+	</li>
+	<li><a href="concurrency.html">Concurrency</a>
+	</li>
+
+<ul>			</div>
+		</div>
+	</div>
+	
+	
+		</div>
+		<div id="push"></div>
+    </div>
+    
+    <div id="footer">
+      <div class="container">
+        <p class="muted credit">Lense is an open source project </p>
+      </div>
+    </div>
+    
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="js/jquery-1.11.1.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/prettify.js"></script>
+    <script>
+    	SyntaxHighlighter.config.tagName = 'code';
+		SyntaxHighlighter.defaults.toolbar = false;
+		SyntaxHighlighter.all();
+    
+    </script>
+  </body>
+</html>
