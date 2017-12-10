@@ -1,0 +1,9 @@
+
+
+import lense.core.lang.String;
+import lense.core.lang.reflection.Type;
+
+public interface ReifiedArguments {
+
+	public  typeByParameterValiableName( name : String) : Type;
+} 

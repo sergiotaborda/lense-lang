@@ -31,6 +31,6 @@ public class Runtime extends Base {
 	
 	@Property(name = "environment")
 	public Maybe/*<Enviroment>*/ getEnvironment(){
-		return Some.constructor(new JavaEnvironment());
+		return Some.constructor(null, new JavaEnvironment());
 	}
 }

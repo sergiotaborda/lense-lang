@@ -6,6 +6,7 @@ import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.MethodVisitor;
 
 import lense.compiler.type.Constructor;
+import lense.compiler.type.ConstructorParameter;
 
 public class ConstructorAnnotVisitor extends MethodVisitor{
 
@@ -28,6 +29,7 @@ public class ConstructorAnnotVisitor extends MethodVisitor{
 
 	public void visitEnd() {
 		if (constructor!= null){
+			
 			byteCodeReader.addConstructor(constructor);
 		}
 	}

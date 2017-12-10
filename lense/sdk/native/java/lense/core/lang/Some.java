@@ -2,6 +2,7 @@ package lense.core.lang;
 
 import lense.core.lang.java.Constructor;
 import lense.core.lang.java.Signature;
+import lense.core.lang.reflection.ReifiedArguments;
 
 @Signature("[=T<lense.core.lang.Any]::")
 public class Some extends Maybe{
@@ -9,7 +10,7 @@ public class Some extends Maybe{
 	private Any value;
 	
 	@Constructor
-	public static Some constructor(Any value){
+	public static Some constructor(ReifiedArguments args, Any value){
 		return new Some(value);
 	}
 	

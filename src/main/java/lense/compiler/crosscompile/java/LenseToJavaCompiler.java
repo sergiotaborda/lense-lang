@@ -34,6 +34,7 @@ import lense.compiler.crosscompile.java.JavaCompilerBackEndFactory.JavaCompilerB
 import lense.compiler.modules.ModulesRepository;
 import lense.compiler.phases.CompositePhase;
 import lense.compiler.phases.DesugarPhase;
+import lense.compiler.phases.ReificationPhase;
 import lense.compiler.repository.UpdatableTypeRepository;
 
 /**
@@ -50,13 +51,13 @@ public class LenseToJavaCompiler extends LenseCompiler{
 
 	protected void initCorePhase(CompositePhase corePhase, Map<String, File> nativeTypes, UpdatableTypeRepository typeContainer){
 	    
-	    DesugarPhase desugarProperties = new DesugarPhase(this.getCompilerListener());
-	    ErasurePhase erasurePhase = new ErasurePhase(this.getCompilerListener());
-       // IntermediatyRepresentationPhase  ir = new IntermediatyRepresentationPhase();
-        JavalizePhase  jv = new JavalizePhase(this.getCompilerListener(),nativeTypes, typeContainer);
-        
-        corePhase.add(desugarProperties).add(erasurePhase).add(jv);//.add(ir);
-  
+		  corePhase
+		  	.add(new DesugarPhase(this.getCompilerListener()))
+		  	.add(new ReificationPhase(this.getCompilerListener()))
+		  	.add(new ErasurePhase(this.getCompilerListener()))
+		  	.add(new JavalizePhase(this.getCompilerListener(),nativeTypes, typeContainer));
+		  //.add(ir);
+      
 	}
 
     protected void createModuleArchive(FileLocations locations, ModuleNode module, File base, Set<String> applications) throws IOException, FileNotFoundException {

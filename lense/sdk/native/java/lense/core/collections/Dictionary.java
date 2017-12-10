@@ -10,11 +10,12 @@ import lense.core.lang.None;
 import lense.core.lang.Some;
 import lense.core.lang.String;
 import lense.core.lang.java.Base;
+import lense.core.lang.reflection.ReifiedArguments;
 import lense.core.math.Natural;
 
 public class Dictionary extends Base implements Association {
 
-	public static Dictionary fromKeyValueArray(KeyValuePair ... pairs){
+	public static Dictionary fromKeyValueArray(ReifiedArguments args, KeyValuePair ... pairs){
 		return new Dictionary(pairs);
 		
 	}
@@ -84,7 +85,7 @@ public class Dictionary extends Base implements Association {
 		if (value == null){
 			return None.NONE;
 		} else {
-			return Some.constructor(value);
+			return Some.constructor(null, value); 
 		}
 	}
 

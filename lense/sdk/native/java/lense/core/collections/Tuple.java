@@ -1,24 +1,22 @@
 package lense.core.collections;
 
 import lense.core.lang.Any;
-import lense.core.lang.Boolean;
 import lense.core.lang.HashValue;
 import lense.core.lang.IllegalIndexException;
 import lense.core.lang.java.Base;
 import lense.core.lang.java.Constructor;
 import lense.core.lang.java.Property;
-import lense.core.math.Int32;
-import lense.core.math.Integer;
+import lense.core.lang.reflection.ReifiedArguments;
 import lense.core.math.Natural;
 
 public class Tuple extends Base implements Any, Iterable {
 
-	public static Tuple valueOf(Any value, Tuple next){
+	public static Tuple valueOf(ReifiedArguments args, Any value, Tuple next){
 		return new Tuple(value, next);
 	}
 	
 	@Constructor(isImplicit = true)
-	public static Tuple valueOf(Any value){
+	public static Tuple valueOf(ReifiedArguments args, Any value){
 		return new Tuple(value, null);
 	}
 

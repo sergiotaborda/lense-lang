@@ -8,6 +8,7 @@ import compiler.trees.VisitorNext;
 import lense.compiler.ast.ArgumentListItemNode;
 import lense.compiler.ast.ArgumentListNode;
 import lense.compiler.ast.AssignmentNode;
+import lense.compiler.ast.CaptureReifiedTypesNode;
 import lense.compiler.ast.ConstructorDeclarationNode;
 import lense.compiler.ast.ExpressionNode;
 import lense.compiler.ast.FieldOrPropertyAccessNode;
@@ -84,6 +85,10 @@ public class BoxingPointClassificationVisitor implements Visitor<AstNode> {
 				}
 			}
 			for (AstNode a  : node.getChildren()){
+				
+				if (a instanceof CaptureReifiedTypesNode) {
+					continue;
+				}
 				 ArgumentListItemNode item  = (ArgumentListItemNode)a;
 				 if (item.getExpectedType() == null){
 					 continue;

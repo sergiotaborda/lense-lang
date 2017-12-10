@@ -23,7 +23,7 @@ public abstract class AbstractAssortment extends Base implements Assortment {
 			
 			Any value = it.current();
 			
-			result = result.plus(value.asString());
+			result = value == null ? result.plus(lense.core.lang.String.valueOfNative("null")) : result.plus(value.asString());
 		
 		}
 		result = result.plus(lense.core.lang.String.valueOfNative("]"));

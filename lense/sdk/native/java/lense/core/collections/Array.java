@@ -6,10 +6,10 @@ import java.util.function.Function;
 import lense.core.lang.Any;
 import lense.core.lang.java.Constructor;
 import lense.core.lang.java.MethodSignature;
-import lense.core.lang.java.Native;
 import lense.core.lang.java.PlatformSpecific;
 import lense.core.lang.java.Property;
 import lense.core.lang.java.Signature;
+import lense.core.lang.reflection.ReifiedArguments;
 import lense.core.math.Natural;
 
 
@@ -17,13 +17,14 @@ import lense.core.math.Natural;
 public abstract class Array extends AbstractAssortment implements EditableSequence{
 
 	@Constructor
-	public static Array constructor (Natural size, Any seed){
+	public static Array constructor (ReifiedArguments args, Natural size, Any seed){
 		// TODO verify natural range
+		// TODO ReifiedArguments args
 		return new NativeObjectArray(size, seed);
 	}
 	
 	@PlatformSpecific
-	public static  Array fromAnyArray (Any ... nativearray){
+	public static  Array fromAnyArray (ReifiedArguments args,Any ... nativearray){
 		// TODO verify natural range
 		return new NativeObjectArray(nativearray);
 	}
@@ -52,7 +53,7 @@ public abstract class Array extends AbstractAssortment implements EditableSequen
 	
 	@Constructor(isImplicit = true)
 	@MethodSignature( returnSignature = "lense.core.collections.Array<T>", paramsSignature = "lense.core.collections.Sequence<T>")
-	public static Array constructor (Sequence seq){
+	public static Array constructor (ReifiedArguments args, Sequence seq){
 		// TODO verify natural range
 		
 		NativeObjectArray array = new NativeObjectArray(seq.getSize());

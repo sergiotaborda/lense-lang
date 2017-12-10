@@ -7,7 +7,15 @@ import lense.compiler.context.SemanticContext;
 public  abstract class AbstractLenseVisitor implements Visitor<AstNode>{
 
 
-   
+	@Override
+	public void startVisit() {
+		// no-op
+	}
+
+	@Override
+	public void endVisit() {
+		// no-op
+	}
 
     protected abstract SemanticContext getSemanticContext();
 }

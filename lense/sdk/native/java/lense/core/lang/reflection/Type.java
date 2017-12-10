@@ -50,8 +50,8 @@ public class Type extends Base {
                 }
             }
         }
-        
-        return Array.fromAnyArray(methods.stream().toArray(lense.core.lang.reflection.Method[]::new));
+        // TODO reification of Property
+        return Array.fromAnyArray(null,methods.stream().toArray(lense.core.lang.reflection.Method[]::new));
 
     }
     
@@ -73,7 +73,8 @@ public class Type extends Base {
             } 
         }
         
-        return Array.fromAnyArray(properties.stream().toArray(Property[]::new));
+        // TODO reification of Property
+        return Array.fromAnyArray(null, properties.stream().toArray(Property[]::new));
     }
     
 

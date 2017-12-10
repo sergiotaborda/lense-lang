@@ -1,7 +1,0 @@
-
-import lense.core.math.Integer;
-
-
-public native class BigInt extends Integer{
-
-}

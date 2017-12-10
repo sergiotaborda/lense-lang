@@ -12,8 +12,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import javax.lang.model.element.QualifiedNameable;
-
 import compiler.parser.IdentifierNode;
 import compiler.syntax.AstNode;
 import compiler.trees.TreeTransverser;
@@ -28,6 +26,7 @@ import lense.compiler.ast.BlockNode;
 import lense.compiler.ast.BooleanOperation;
 import lense.compiler.ast.BooleanOperatorNode;
 import lense.compiler.ast.BooleanValue;
+import lense.compiler.ast.CaptureReifiedTypesNode;
 import lense.compiler.ast.CastNode;
 import lense.compiler.ast.CatchOptionNode;
 import lense.compiler.ast.ClassTypeNode;
@@ -213,6 +212,7 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 				NumericValue n = (NumericValue) node;
 				String name = n.getTypeVariable().getTypeDefinition().getName();
 				if (name.equals("lense.core.lang.Binary")){
+					
 					writer.append("lense.core.lang.BitArray.constructor(lense.core.collections.Array.booleanArrayfromNativeNumberString(\"").append(node.toString()).append("\"))");
 				} else if (name.equals("lense.core.math.Rational") || name.equals("lense.core.math.Real")){
 					// TODO test bounds (number could be to big , should use string
@@ -251,7 +251,7 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 				}
 
 			} else if (node instanceof lense.compiler.ast.LiteralSequenceInstanceCreation){
-				writer.append("lense.core.collections.Array.fromAnyArray(");
+				writer.append("lense.core.collections.Array.fromAnyArray(null"); // TODO generate reification
 
 				Iterator<AstNode> it = ((lense.compiler.ast.LiteralSequenceInstanceCreation) node).getArguments().getChildren().iterator();
 				while (it.hasNext()){
@@ -266,7 +266,7 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 			} else if (node instanceof LiteralTupleInstanceCreation){
 				LiteralTupleInstanceCreation tuple = (LiteralTupleInstanceCreation)node;
 
-				writer.append("lense.core.collections.Tuple.valueOf(");
+				writer.append("lense.core.collections.Tuple.valueOf(null"); // TODO refiication
 
 				Iterator<AstNode> it = tuple.getArguments().getChildren().iterator();
 				while (it.hasNext()){
@@ -280,7 +280,7 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 			} else if (node instanceof lense.compiler.ast.LiteralAssociationInstanceCreation){
 				LiteralAssociationInstanceCreation tuple = (LiteralAssociationInstanceCreation)node;
 
-				writer.append("lense.core.collections.Dictionary.fromKeyValueArray(");
+				writer.append("lense.core.collections.Dictionary.fromKeyValueArray(null"); // TODO refiication
 
 				Iterator<AstNode> it = tuple.getArguments().getChildren().iterator();
 				while (it.hasNext()){
@@ -304,12 +304,12 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 			} else if (node instanceof LiteralIntervalNode) {
 				LiteralIntervalNode interval = (LiteralIntervalNode) node;
 
-				writer.append("lense.core.math.Interval.constructor(");
+				writer.append("lense.core.math.Interval.constructor(null,"); // TODO reification
 
 				if (interval.isStartInf()){
 					writer.append("lense.core.lang.None.None");
 				} else {
-					writer.append("lense.core.lang.Some.constructor(");
+					writer.append("lense.core.lang.Some.constructor(null,"); // TODO reification
 					TreeTransverser.transverse( interval.getStart(), this);
 					writer.append(")");
 				}
@@ -319,7 +319,8 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 				if (interval.isEndInf()){
 					writer.append("lense.core.lang.None.None");
 				} else {
-					writer.append("lense.core.lang.Some.constructor(");
+					writer.append("lense.core.lang.Some.constructor(null,"); // TODO reification
+
 					TreeTransverser.transverse( interval.getEnd(), this);
 					writer.append(")");
 				}
@@ -481,6 +482,7 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 
 				writer.println("{");
 
+				
 				if (t.getKind() == LenseUnitKind.Object){
 					// special singleton object code
 					writer.append(" public static ").append(name).append(" ").append(name).append(" = new ").append(name).append("();").println();
@@ -726,6 +728,14 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 				}
 
 				writer.print("(");
+				
+				StringBuilder reified = buildGenericTypeArguments(n.getTypeNode());
+				
+				if (reified != null) {
+					writer.append(reified).append(',');
+					
+				}
+				
 				TreeTransverser.transverse(n.getArguments(), this);
 				writer.print(")");
 
@@ -756,13 +766,23 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 
 				boolean first = true;
 				for (AstNode a : n.getChildren()) {
-					ArgumentListItemNode item = (ArgumentListItemNode)a;
+					
 					if (!first) {
 						writer.print(",");
 					} else {
 						first = false;
 					}
-					TreeTransverser.transverse(item.getFirstChild(), this);
+					
+					if (a instanceof CaptureReifiedTypesNode) {
+						writer.append("null");
+						
+					} else {
+						ArgumentListItemNode item = (ArgumentListItemNode)a;
+						
+						TreeTransverser.transverse(item.getFirstChild(), this);
+					}
+					
+
 
 				}
 
@@ -975,10 +995,20 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 				}
 
 				writer.print("(");
-
+				
+				boolean isFirst = true;
+				
+//				if (m.getReturnType().getTypeParametersCount() > 0) {
+//					writer.append("ReifiedArguments").append(' ').append("reification");
+//					isFirst = false;
+//				}
+				
+				
 				if (m.getParameters() != null) {
-					boolean isFirst = true;
+					
 					for (AstNode n : m.getParameters().getChildren()) {
+						
+					
 						FormalParameterNode p = (FormalParameterNode) n;
 
 						if (isFirst) {
@@ -1271,6 +1301,32 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 
 	}
 
+	private StringBuilder buildGenericTypeArguments(TypeNode t) {
+		return null;
+//
+//		if (t.getTypeParametersCount() == 0) {
+//			return null;
+//		}
+//		
+//		
+//		StringBuilder builder = new StringBuilder("new lense.core.lang.reflection.JavaReifiedArguments(");
+//
+//		boolean hasTypes = false;
+//		for (TypeVariable g : t.getTypeVariable().getGenericParameters()) {
+//			if (g.getSymbol().isPresent()) {
+//				builder.append("lense.core.lang.reflection.JavaReifiedArguments.pair(").append(g.getSymbol().get()).append(",").append("null").append("),"); // TODO generate Type
+//				hasTypes = true;
+//			}
+//			
+//		}
+//		
+//		if (hasTypes) {
+//			builder.deleteCharAt(builder.length() - 1);
+//		}
+//		
+//		return builder.append(")");
+	}
+
 	private void appendGenerics(StringBuilder generics, LenseTypeDefinition typeDefinition, TypeVariable p) {
 		if (p instanceof DeclaringTypeBoundedTypeVariable){
 			DeclaringTypeBoundedTypeVariable d = (DeclaringTypeBoundedTypeVariable)p;
@@ -1317,7 +1373,9 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 	private void writeType(TypeNode t) {
 		if (t.getName().equals("lense.core.lang.Void")) {
 			writer.print("void");
-
+			
+		} else if (t.getName().equals("lense.core.lang.reflection.ReifiedArguments")){
+			writer.print(t.getName());
 		} else if (t.getName().equals("boolean")){
 			writer.print("boolean");
 		} else {

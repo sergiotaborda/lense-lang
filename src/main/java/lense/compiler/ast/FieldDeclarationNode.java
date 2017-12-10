@@ -22,6 +22,12 @@ public class FieldDeclarationNode extends AnnotadedLenseAstNode implements Scope
 
 	public FieldDeclarationNode (){}
 	
+	public FieldDeclarationNode (String name, TypeNode typeNode){
+		this.name = name;
+		this.imutability = new ImutabilityNode(Imutability.Mutable);
+		this.typeNode = typeNode;
+	}
+	
 	public FieldDeclarationNode (String name, TypeNode typeNode, ExpressionNode inicializer){
 		this.name = name;
 		this.imutability = new ImutabilityNode(Imutability.Mutable);
