@@ -47,6 +47,7 @@ import lense.compiler.crosscompile.PrimitiveBooleanUnbox;
 import lense.compiler.crosscompile.PrimitiveBooleanValue;
 import lense.compiler.ast.ForEachNode;
 import lense.compiler.ast.FormalParameterNode;
+import lense.compiler.ast.GenericTypeParameterNode;
 import lense.compiler.ast.InstanceOfNode;
 import lense.compiler.ast.LiteralAssociationInstanceCreation;
 import lense.compiler.ast.LiteralIntervalNode;
@@ -774,7 +775,27 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 					}
 					
 					if (a instanceof CaptureReifiedTypesNode) {
-						writer.append("null");
+						
+						CaptureReifiedTypesNode capture = (CaptureReifiedTypesNode)a;
+						
+						writer.append("new lense.core.lang.reflection.JavaReifiedArguments(");
+						
+						boolean isFirst = true;
+						for (AstNode c : capture.getTypeParametersListNode().getChildren()) {
+							GenericTypeParameterNode p = (GenericTypeParameterNode)c;
+							
+							if (isFirst) {
+								isFirst = false;
+							} else {
+								writer.append(",");
+							}
+							writer
+							.append("lense.core.lang.reflection.Type.fromName(\"")
+							.append(p.getTypeNode().getName())
+							.append("\")");
+							
+						}
+						writer.append(")");
 						
 					} else {
 						ArgumentListItemNode item = (ArgumentListItemNode)a;

@@ -11,10 +11,16 @@ import lense.core.collections.Sequence;
 import lense.core.lang.Any;
 import lense.core.lang.java.Base;
 import lense.core.lang.java.Constructor;
-import lense.core.lang.java.PlatformSpecific;
 
 public class Type extends Base {
 
+    public static Type fromName (String name){
+    	try {
+			return new Type(Class.forName(name));
+		} catch (ClassNotFoundException e) {
+			throw new RuntimeException(e);
+		}
+    }
     
     private final Class javaType;
 

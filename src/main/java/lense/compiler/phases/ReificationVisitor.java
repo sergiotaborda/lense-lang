@@ -64,14 +64,17 @@ public class ReificationVisitor extends AbstractScopedVisitor {
 		} else if (node instanceof NewInstanceCreationNode) {
 			NewInstanceCreationNode n = (NewInstanceCreationNode)node;
 			
+			
 			if (!n.getTypeVariable().getGenericParameters().isEmpty()) {
-				if (n.getArguments() == null) {
-					n.setArguments(new ArgumentListNode(new CaptureReifiedTypesNode()));
-				} else {
-					n.getArguments().addFirst(new CaptureReifiedTypesNode());
-				}
+				CaptureReifiedTypesNode capture = new CaptureReifiedTypesNode(n.getCreationParameters().getTypeParametersListNode());
 				
+				if (n.getArguments() == null) {
+					n.setArguments(new ArgumentListNode(capture));
+				} else {
+					n.getArguments().addFirst(capture);
+				}
 			}
+			
 		} else if (node instanceof ClassTypeNode) {
 			 
 			ClassTypeNode n = (ClassTypeNode)node;

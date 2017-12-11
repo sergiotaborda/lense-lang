@@ -1,31 +1,23 @@
 package lense.core.lang.reflection;
 
-import java.util.HashMap;
-import java.util.Map;
-import lense.core.lang.reflection.Type;
+import lense.core.math.Natural;
 
 public class JavaReifiedArguments implements ReifiedArguments {
 
-	public static JavaReifiedArgumentsPair pair(String name, lense.core.lang.reflection.Type type) {
-		return new JavaReifiedArgumentsPair( name,  type);
+
+	private lense.core.lang.reflection.Type[] types;
+	
+	public JavaReifiedArguments (lense.core.lang.reflection.Type ... types) {
+		this.types = types;
 	}
 	
-	private Map<String , lense.core.lang.reflection.Type > types = new HashMap<>();
-	
-	public JavaReifiedArguments (JavaReifiedArgumentsPair ... pairs) {
-		for (JavaReifiedArgumentsPair p : pairs) {
-			types.put(p.name, p.type);
-		}
-	}
-	
-	public Type typeByParameterValiableName(lense.core.lang.String name){
+	public Type typeByParameterValiableName(Natural name){
 		
-		Type type = types.get(name.toString());
+		int index = name.toPrimitiveInt();
 		
-		if (type == null) {
+		if (index < 0 || index > types.length - 1) {
 			throw new RuntimeException("Reified type not found for parameter " + name.toString());
 		}
-		
-		return type;
+		return types[index];
 	}
 }

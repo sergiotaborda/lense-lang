@@ -19,6 +19,7 @@ public class NewInstanceCreationNode extends ExpressionNode{
 	private ArgumentListNode argumentList;
 	private String name;
 	private Constructor constructor;
+	private CreationTypeNode creationtype;
 	
 	public static NewInstanceCreationNode of(TypeVariable left) {
 		return new NewInstanceCreationNode(left, new ArgumentListNode());
@@ -27,23 +28,9 @@ public class NewInstanceCreationNode extends ExpressionNode{
 	
 	public static NewInstanceCreationNode of(TypeNode left) {
 		return new NewInstanceCreationNode(left);
-		
 	}
-	private NewInstanceCreationNode (TypeNode t){
-		setTypeNode(t);
+	
 
-		setArguments(new ArgumentListNode());
-	}
-	
-//	public static NewInstanceCreationNode of(TypeVariable left, AstNode param) { // TODO remove
-//		ArgumentListItemNode arg = new ArgumentListItemNode(0, param);
-//
-//		final NewInstanceCreationNode c = new NewInstanceCreationNode(left, ArgumentListNode.of(arg));
-//
-//		return c;
-//
-//	}
-	
 	public static NewInstanceCreationNode of(TypeVariable type, Constructor constructor, AstNode param) {
 		ArgumentListItemNode arg = new ArgumentListItemNode(0, param);
 		arg.setExpectedType(constructor.getParameters().get(0).getType());
@@ -73,33 +60,31 @@ public class NewInstanceCreationNode extends ExpressionNode{
 	
 	public NewInstanceCreationNode (){}
 	
-//	public NewInstanceCreationNode (TypeVariable type, ArgumentListNode list){
-//		TypeNode t = new TypeNode(type);
-//		setTypeNode(t);
-//		setArguments(list);
-//	}
-//	
-//	public NewInstanceCreationNode (String typeName, ArgumentListNode list){
-//		TypeNode t = new TypeNode(new QualifiedNameNode(typeName));
-//		setTypeNode(t);
-//		setArguments(list);
-//	}
-
-	private NewInstanceCreationNode (TypeVariable type, ArgumentListNode args){
-		TypeNode t = new TypeNode(type);
+	private NewInstanceCreationNode (TypeNode t){
+		this(t, new ArgumentListNode());
+	}
+	
+	protected NewInstanceCreationNode (TypeNode t,ArgumentListNode args){
 		setTypeNode(t);
 
-//		ArgumentListNode list = new ArgumentListNode();
-//		
-//		int count = 0;
-//		for(AstNode s : args){
-//			ArgumentListItemNode item = new ArgumentListItemNode(count++, s);
-//			
-//			list.add(s);
-//		}
-//		
+		setArguments(args);
+		
+		CreationTypeNode ct = new CreationTypeNode(t.getName());
+		
+		for( AstNode p : t.getChildren()) {
+			ct.getTypeParametersListNode().add(p);
+		}
+	
+		setCreationParameters(ct);
+	}
+	
+	private NewInstanceCreationNode (TypeVariable type, ArgumentListNode args){
+		this(new TypeNode(type), args);
+
 		setArguments(args);
 	}
+	
+
 	
 
 	/**
@@ -170,12 +155,21 @@ public class NewInstanceCreationNode extends ExpressionNode{
 
 	public void setConstructor(Constructor constructor) {
 
+
 		this.constructor = constructor;
 		this.setConstructorName(constructor.getName());
 	}
 
+	public void setCreationParameters(CreationTypeNode creationtype) {
+		this.creationtype = creationtype;
+		this.add(creationtype);
+	}
 
 
+	public CreationTypeNode getCreationParameters() {
+		return creationtype;
+
+	}
 
 
 }

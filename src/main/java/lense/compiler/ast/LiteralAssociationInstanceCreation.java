@@ -12,9 +12,7 @@ package lense.compiler.ast;
 public class LiteralAssociationInstanceCreation extends NewInstanceCreationNode implements LiteralCreation{
 
 	public LiteralAssociationInstanceCreation (ArgumentListNode list){
-		TypeNode t = new TypeNode(new QualifiedNameNode("lense.core.collections.Association"));
-		setTypeNode(t);
-		setArguments(list);
+		super(new TypeNode(new QualifiedNameNode("lense.core.collections.Association")), list);
 	}
 
 

@@ -41,6 +41,7 @@ import lense.compiler.ast.ComparisonNode.Operation;
 import lense.compiler.ast.ConstructorDeclarationNode;
 import lense.compiler.ast.ConstructorExtentionNode;
 import lense.compiler.ast.ContinueNode;
+import lense.compiler.ast.CreationTypeNode;
 import lense.compiler.ast.DecisionNode;
 import lense.compiler.ast.ExpressionNode;
 import lense.compiler.ast.FieldDeclarationNode;
@@ -2517,6 +2518,36 @@ public class LenseGrammar extends AbstractLenseGrammar {
 
         });
 
+        getNonTerminal("creationType").addSemanticAction((p, r) -> {
+         
+        	if (r.size() == 1) {
+        		
+        		Optional<IdentifierNode> id = r.get(0).getAstNode(IdentifierNode.class);
+        		CreationTypeNode ct;
+        		if (id.isPresent()) {
+        			 ct = new CreationTypeNode(id.get().getName());
+        		} else  {
+        			
+        			 
+        			 if (r.get(0).getAstNode(CreationTypeNode.class).isPresent()) {
+        				 ct = r.get(0).getAstNode(CreationTypeNode.class).get();
+        			 } else {
+        				 ct = new CreationTypeNode(r.get(0).getSemanticAttribute("lexicalValue").get().toString());
+        			 }
+        		}
+
+        		 p.setAstNode(ct);
+        	} else {
+        		
+  
+        		CreationTypeNode ct = new CreationTypeNode(r.get(0).getSemanticAttribute("lexicalValue").get().toString());
+        		
+        		ct.setParameters(r.get(2).getAstNode(TypeParametersListNode.class).get());
+        		
+        		p.setAstNode(ct);
+        	}
+        });
+        
         getNonTerminal("classInstanceCreationExpression").addSemanticAction((p, r) -> {
 
             if (r.size() == 1) {
@@ -2524,8 +2555,12 @@ public class LenseGrammar extends AbstractLenseGrammar {
             } else {
                 NewInstanceCreationNode node = new NewInstanceCreationNode();
 
-                AstNode t = r.get(1).getAstNode().get();
+                CreationTypeNode t = r.get(1).getAstNode(CreationTypeNode.class).get();
 
+                node.setCreationParameters(t);
+                
+
+                
                 node.setTypeNode(ensureTypeNode(t));
 
                 if (r.size() == 5) {
@@ -3108,26 +3143,6 @@ public class LenseGrammar extends AbstractLenseGrammar {
         return prp;
     }
 
-    private void applyModifiers(ClassTypeNode n, Optional<AnnotationListNode> annots) {
-        if (!annots.isPresent()) {
-            return;
-        }
-        for (AstNode a : annots.get().getChildren()) {
-            AnnotationNode in = (AnnotationNode) a;
-            if (in.getName().equals("native")) {
-                n.setAbstract(true);
-                n.setNative(true);
-            } else if (in.getName().equals("abstract")) {
-                n.setAbstract(true);
-            } else if (in.getName().equals("public")) {
-                n.setVisibility(Visibility.Public);
-            } else if (in.getName().equals("protected")) {
-                n.setVisibility(Visibility.Protected);
-            } else if (in.getName().equals("private")) {
-                n.setVisibility(Visibility.Private);
-            } // TODO other , custom or error
-        }
-    }
 
     private void applyAnnotations(InvocableDeclarionNode n, Optional<AnnotationListNode> annots) {
         if (!annots.isPresent()) {
@@ -3208,6 +3223,14 @@ public class LenseGrammar extends AbstractLenseGrammar {
             return (TypeNode) t;
         } else if (t instanceof IdentifierNode){
             return new TypeNode(((IdentifierNode) t).getName());
+        } else if (t instanceof CreationTypeNode) {
+        	TypeNode tn =  new TypeNode(((CreationTypeNode) t).getName());
+        	
+        	for(AstNode c : ((CreationTypeNode) t).getTypeParametersListNode().getChildren()) {
+        		tn.add(c);
+        	}
+
+        	return tn;
         } else {
             return new TypeNode((QualifiedNameNode) t);
         }
