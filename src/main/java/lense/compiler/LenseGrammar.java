@@ -2559,8 +2559,6 @@ public class LenseGrammar extends AbstractLenseGrammar {
 
                 node.setCreationParameters(t);
                 
-
-                
                 node.setTypeNode(ensureTypeNode(t));
 
                 if (r.size() == 5) {

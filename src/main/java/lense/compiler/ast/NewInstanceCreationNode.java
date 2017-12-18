@@ -84,7 +84,10 @@ public class NewInstanceCreationNode extends ExpressionNode{
 		setArguments(args);
 	}
 	
+	public CreationTypeNode getCreationParameters() {
+		return creationtype;
 
+	}
 	
 
 	/**
@@ -166,10 +169,7 @@ public class NewInstanceCreationNode extends ExpressionNode{
 	}
 
 
-	public CreationTypeNode getCreationParameters() {
-		return creationtype;
 
-	}
 
 
 }

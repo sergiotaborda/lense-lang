@@ -28,6 +28,10 @@ public class GenericTypeBoundToDeclaringTypeVariable extends CalculatedTypeVaria
         this.name = name;
         this.variance = variance;
     }
+    
+    public int getParameterIndex() {
+    	return parameterIndex;
+    }
 
     @Override
     public Variance getVariance() {

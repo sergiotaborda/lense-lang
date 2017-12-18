@@ -36,6 +36,7 @@ import lense.compiler.phases.CompositePhase;
 import lense.compiler.phases.DesugarPhase;
 import lense.compiler.phases.ReificationPhase;
 import lense.compiler.repository.UpdatableTypeRepository;
+import lense.core.lang.reflection.JavaReifiedArguments;
 
 /**
  * 
@@ -130,7 +131,7 @@ public class LenseToJavaCompiler extends LenseCompiler{
 				.append("public class Bootstrap {\n")
 				.append("public static void main(String[] args) {\n")
 				.append("		ConsoleApplication app = ").append(applicationType).append(".constructor();\n")
-				.append("		app.setArguments(Array.fromNative(args, s -> lense.core.lang.String.valueOfNative(s)));\n")
+				.append("		app.setArguments(Array.fromNative(lense.core.lang.reflection.JavaReifiedArguments.getInstance().addType(\"lense.core.lang.String\"),args, s -> lense.core.lang.String.valueOfNative(s)));\n")
 				.append("		app.onStart();\n")
 				.append("	}")
 				.append("}");

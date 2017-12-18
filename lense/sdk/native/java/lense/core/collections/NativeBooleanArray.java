@@ -6,10 +6,7 @@ import lense.core.lang.Any;
 import lense.core.lang.Boolean;
 import lense.core.lang.HashValue;
 import lense.core.lang.IllegalIndexException;
-import lense.core.lang.java.Native;
 import lense.core.lang.java.PlatformSpecific;
-import lense.core.math.Int32;
-import lense.core.math.Integer;
 import lense.core.math.Natural;
 
 @PlatformSpecific
@@ -17,14 +14,10 @@ final class NativeBooleanArray extends Array {
 
 	private boolean[] array;
 	
-	public NativeBooleanArray(Natural size){
-		array = new boolean[size.toPrimitiveInt()];
+	public NativeBooleanArray(int size){
+		array = new boolean[size];
 	}
-	
-	public NativeBooleanArray(Natural size, boolean seed){
-		array = new boolean[size.toPrimitiveInt()];
-		Arrays.fill(array,seed);
-	}
+
 	
 	public NativeBooleanArray(boolean[] nativeArray ){
 		array = nativeArray;

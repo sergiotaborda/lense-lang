@@ -6,5 +6,6 @@ import lense.core.math.Natural;
 
 public interface ReifiedArguments {
 
-	public  typeByParameterValiableName( index :  Natural) : Type;
+	public  typeAt( index :  Natural) : Type;
+	public  fromIndex( index: Natural) : ReifiedArguments;
 } 

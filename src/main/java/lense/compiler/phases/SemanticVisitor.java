@@ -30,14 +30,17 @@ import lense.compiler.ast.ArgumentListItemNode;
 import lense.compiler.ast.ArgumentListNode;
 import lense.compiler.ast.ArithmeticNode;
 import lense.compiler.ast.ArithmeticOperation;
+import lense.compiler.ast.AssertNode;
 import lense.compiler.ast.AssignmentNode;
 import lense.compiler.ast.BooleanOperation;
 import lense.compiler.ast.BooleanOperatorNode;
+import lense.compiler.ast.BooleanValue;
 import lense.compiler.ast.CastNode;
 import lense.compiler.ast.CatchOptionNode;
 import lense.compiler.ast.ClassBodyNode;
 import lense.compiler.ast.ClassTypeNode;
 import lense.compiler.ast.ComparisonNode;
+import lense.compiler.ast.ComparisonNode.Operation;
 import lense.compiler.ast.ConditionalStatement;
 import lense.compiler.ast.ConstructorDeclarationNode;
 import lense.compiler.ast.ExpressionNode;
@@ -49,6 +52,7 @@ import lense.compiler.ast.FormalParameterNode;
 import lense.compiler.ast.GenericTypeParameterNode;
 import lense.compiler.ast.IndexedAccessNode;
 import lense.compiler.ast.IndexerPropertyDeclarationNode;
+import lense.compiler.ast.InstanceOfNode;
 import lense.compiler.ast.LambdaExpressionNode;
 import lense.compiler.ast.LenseAstNode;
 import lense.compiler.ast.LiteralAssociationInstanceCreation;
@@ -75,6 +79,7 @@ import lense.compiler.ast.StringConcatenationNode;
 import lense.compiler.ast.SwitchOption;
 import lense.compiler.ast.TernaryConditionalExpressionNode;
 import lense.compiler.ast.TypeNode;
+import lense.compiler.ast.TypeParametersListNode;
 import lense.compiler.ast.TypedNode;
 import lense.compiler.ast.VariableReadNode;
 import lense.compiler.ast.VariableWriteNode;
@@ -554,7 +559,19 @@ public class SemanticVisitor extends AbstractScopedVisitor {
      */
     @Override
     public void doVisitAfterChildren(AstNode node) {
-        if (node instanceof ComparisonNode) {
+    	 if (node instanceof AssertNode){
+			AssertNode r = (AssertNode)node;
+			ExpressionNode val = (ExpressionNode)r.getFirstChild();
+			
+			if (!(val instanceof ComparisonNode) && !(val instanceof InstanceOfNode)) {
+				ComparisonNode n = new ComparisonNode(Operation.EqualTo);
+				n.add(val);
+				n.add(new BooleanValue(true));
+				
+				r.replace(val, n);
+			}
+		
+		} else if (node instanceof ComparisonNode) {
             ComparisonNode n = (ComparisonNode) node;
 
             TypeDefinition comparable = LenseTypeSystem.Comparable();
@@ -608,6 +625,10 @@ public class SemanticVisitor extends AbstractScopedVisitor {
             ListIterator<AstNode> lstIterator = literal.getArguments().listIterator();
 
             FixedTypeVariable maxTypeDef = new FixedTypeVariable(maxType);
+            
+            literal.getCreationParameters().getTypeParametersListNode().add(new GenericTypeParameterNode(new TypeNode(maxTypeDef)));
+    		
+        	
             while (lstIterator.hasNext()) {
                 AstNode n = lstIterator.next().getFirstChild();
                 TypeDefinition type = ((TypedNode) n).getTypeVariable().getTypeDefinition();
@@ -616,7 +637,10 @@ public class SemanticVisitor extends AbstractScopedVisitor {
 
                         Optional<Constructor> op = maxType.getConstructorByParameters(new ConstructorParameter(type));
 
-                        lstIterator.set(NewInstanceCreationNode.of(maxTypeDef,  op.get(), n));
+                        NewInstanceCreationNode cn = NewInstanceCreationNode.of(maxTypeDef,  op.get(), n);
+                        
+                    
+                        lstIterator.set(cn);
 
                     }
                 }
@@ -635,6 +659,21 @@ public class SemanticVisitor extends AbstractScopedVisitor {
             IntervalTypeVariable keyType = keypair.getGenericParameters().get(0);
             IntervalTypeVariable valueType = keypair.getGenericParameters().get(1);
 
+            literal.getCreationParameters().getTypeParametersListNode().add(new GenericTypeParameterNode(new TypeNode(keyType)));
+            literal.getCreationParameters().getTypeParametersListNode().add(new GenericTypeParameterNode(new TypeNode(valueType)));
+    		
+        	
+            for (AstNode a : literal.getArguments().getChildren()) {
+            	NewInstanceCreationNode n = ((NewInstanceCreationNode)((ArgumentListItemNode)a).getFirstChild());
+            	
+            	 TypeParametersListNode typeParametersListNode = n.getCreationParameters().getTypeParametersListNode();
+				 
+            	 typeParametersListNode.add(new GenericTypeParameterNode(new TypeNode(keyType)));
+                 typeParametersListNode.add(new GenericTypeParameterNode(new TypeNode(valueType)));
+         		
+            }
+        	
+            
             // for( int i =1; i <literal.getArguments().getChildren().size();
             // i++){
             // AstNode n =
@@ -683,7 +722,9 @@ public class SemanticVisitor extends AbstractScopedVisitor {
             literal.setTypeVariable(
                     new FixedTypeVariable(LenseTypeSystem.specify(LenseTypeSystem.Association(), keyType, valueType)));
         } else if (node instanceof LiteralTupleInstanceCreation) {
+        	
             LiteralTupleInstanceCreation tuple = ((LiteralTupleInstanceCreation) node);
+            
             TypedNode value = (TypedNode) tuple.getChildren().get(1).getChildren().get(0).getFirstChild();
             TypedNode nextTuple;
             if (tuple.getChildren().get(1).getChildren().size() == 2) {
@@ -695,6 +736,9 @@ public class SemanticVisitor extends AbstractScopedVisitor {
             LenseTypeDefinition tupleType = LenseTypeSystem.specify(LenseTypeSystem.Tuple(), value.getTypeVariable(),
                     nextTuple.getTypeVariable());
 
+            tuple.getCreationParameters().getTypeParametersListNode().add(new GenericTypeParameterNode(new TypeNode(value.getTypeVariable())));
+            tuple.getCreationParameters().getTypeParametersListNode().add(new GenericTypeParameterNode(new TypeNode(nextTuple.getTypeVariable())));
+    		
             //
             // TypeNode typeNode = new TypeNode(new
             // QualifiedNameNode(tuple.getTypeNode().getName()));
@@ -989,9 +1033,16 @@ public class SemanticVisitor extends AbstractScopedVisitor {
                         }
 
                         TypeDefinition someTpe = this.getSemanticContext().resolveTypeForName("lense.core.lang.Some", 1).get();
+                        
+                        someTpe = LenseTypeSystem.specify(someTpe, right);
+                        
                         Optional<Constructor> op = someTpe.getConstructorByPromotableParameters(new ConstructorParameter(right));
+                        
+                        NewInstanceCreationNode  cn =  NewInstanceCreationNode.of(new FixedTypeVariable(someTpe), op.get(), n.getRight());
 
-                        n.replace((AstNode) n.getRight(), NewInstanceCreationNode.of(new FixedTypeVariable(someTpe), op.get(), n.getRight()));
+                		cn.getCreationParameters().getTypeParametersListNode().add(new GenericTypeParameterNode(new TypeNode(right)));
+                		
+                        n.replace((AstNode) n.getRight(), cn );
                     } else {
                         throw new CompilationError(node,right + " is not assignable to " + left);
                     }
@@ -1001,8 +1052,11 @@ public class SemanticVisitor extends AbstractScopedVisitor {
                     // constructor based
                     Optional<Constructor> op = left.getTypeDefinition()
                             .getConstructorByParameters(new ConstructorParameter(right));
-
-                    n.replace((AstNode) n.getRight(), NewInstanceCreationNode.of(left, op.get(), n.getRight()));
+                    
+                    NewInstanceCreationNode  cn = NewInstanceCreationNode.of(left, op.get(), n.getRight());
+                    
+                   
+                    n.replace((AstNode) n.getRight(), cn);
                 }
             }
 
@@ -1098,30 +1152,41 @@ public class SemanticVisitor extends AbstractScopedVisitor {
 
             variableDeclaration.setInfo(info);
 
-
-
             if (init != null) {
 
                 info.setInitialized(true);
                 TypeVariable right = init.getTypeVariable();
-
 
                 if (!LenseTypeSystem.getInstance().isAssignableTo(right, type)) {
                     if (LenseTypeSystem.getInstance().isPromotableTo(right, type)) {
                         // TODO use promote node
                         Optional<Constructor> op = type.getTypeDefinition()
                                 .getConstructorByParameters(new ConstructorParameter(right));
-
-                        variableDeclaration.setInitializer(NewInstanceCreationNode.of(type, op.get(), variableDeclaration.getInitializer()));
+// TODO analise literals for simplification without constructor
+                        
+                        NewInstanceCreationNode cn = NewInstanceCreationNode.of(type, op.get(), variableDeclaration.getInitializer());
+                        
+                        if (!type.getGenericParameters().isEmpty()) {
+                        	
+                        	for ( IntervalTypeVariable variable : type.getGenericParameters()) {
+                        		 cn.getCreationParameters().getTypeParametersListNode().add(new GenericTypeParameterNode(new TypeNode(variable)));
+                        	}
+                        
+                     		
+                        }
+                       
+                        variableDeclaration.setInitializer(cn);
                     } else if (LenseTypeSystem.getInstance().isTuple(type, 1)) { // TODO
                         // better
                         // polimorphism
                         // for
                         // promotion
 
-                        final LiteralTupleInstanceCreation m = new LiteralTupleInstanceCreation(
-                                variableDeclaration.getInitializer());
+                        final LiteralTupleInstanceCreation m = new LiteralTupleInstanceCreation(variableDeclaration.getInitializer());
 
+                        m.getCreationParameters().getTypeParametersListNode().add(new GenericTypeParameterNode(new TypeNode(right)));
+                      //  m.getCreationParameters().getTypeParametersListNode().add(new GenericTypeParameterNode(new TypeNode(nextTuple.getTypeVariable())));
+                		
                         variableDeclaration.setInitializer(m);
                         m.setTypeVariable(type);
 

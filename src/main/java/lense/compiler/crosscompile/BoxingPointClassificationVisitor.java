@@ -7,6 +7,7 @@ import compiler.trees.Visitor;
 import compiler.trees.VisitorNext;
 import lense.compiler.ast.ArgumentListItemNode;
 import lense.compiler.ast.ArgumentListNode;
+import lense.compiler.ast.AssertNode;
 import lense.compiler.ast.AssignmentNode;
 import lense.compiler.ast.CaptureReifiedTypesNode;
 import lense.compiler.ast.ConstructorDeclarationNode;

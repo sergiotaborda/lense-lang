@@ -13,7 +13,10 @@ import lense.compiler.typesystem.LenseTypeSystem;
  */
 public class BooleanValue extends LiteralExpressionNode {
 
-	
+	public BooleanValue() {}
+	public BooleanValue(boolean value) {
+		this.setValue(value);
+	}
 	private boolean value;
 	public TypeVariable getTypeVariable() {
 		return new FixedTypeVariable( LenseTypeSystem.Boolean());

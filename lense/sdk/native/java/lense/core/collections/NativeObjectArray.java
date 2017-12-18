@@ -19,24 +19,13 @@ final class NativeObjectArray extends Array {
 		array = new Any[size.toPrimitiveInt()];
 	}
 	
-	public NativeObjectArray(Natural size, Any seed){
-		array = new Any[size.toPrimitiveInt()];
-		Arrays.fill(array,seed);
-	}
 	
 	public NativeObjectArray(Any[] nativeArray ){
 		array = nativeArray;
 	}
 	
-	public <T> NativeObjectArray(T[] nativeArray , Function<T, Any> transform){
-		array = new Any[nativeArray.length];
 
-		for(int i =0; i< array.length; i++){
-			array[i] = transform.apply(nativeArray[i]);
-		}
-	}
-	
-	public void setPrimitive(int i, Any value){
+	public void setAtPrimitiveIndex(int i, Any value){
 		array[i] = value;
 	}
 

@@ -118,8 +118,8 @@ public class BigNatural extends Natural{
     }
 
     @Override
-    protected boolean isInInt32Range() {
-        return this.value.longValue() < java.lang.Integer.MAX_VALUE;
+    public boolean isInInt32Range() {
+        return this.value.longValue() <= java.lang.Integer.MAX_VALUE;
     }
 
   

@@ -164,8 +164,20 @@ public class Main extends ConsoleApplication {
   		 
   		console.println("position 2 has value {{ array[2] }}");
   		
-  		console.println("literal array is {{ [1 , 2, 3, 4, 5]  }}"); 
+  		console.println("literal sequence is {{ [1 , 2, 3, 4, 5]  }}"); 
   	 	 
+  		var barray : Array<Boolean>= [false, true, true, false];
+  		
+  		console.println("boolean array  is {{ barray }}"); 
+  				
+  		assert(!barray[0]);
+  		assert(barray[1]);
+  		assert(barray[2]);
+  		assert(!barray[3]);
+  		
+  		
+  			
+  		//var bitArray : BitArray = barray;
   	
   	  	var map = { 1 : "a", 2 : "b", 3 : "c" };
   	 

@@ -191,9 +191,10 @@ public class ByteCodeReader extends ClassVisitor {
 				Constructor m = new Constructor(name, params, false, readVisibility(access)); // TODO
 				// read
 				// implicit
-				m.setDeclaringType(def);
 				m.setAbstract(readAbstract(access));
 
+				def.addConstructor(m);
+				
 				return new ConstructorAnnotVisitor(this, m);
 			} else {
 				// instance methods

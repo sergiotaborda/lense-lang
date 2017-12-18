@@ -146,7 +146,7 @@ public abstract class Natural extends Whole  {
         return new BigNatural(this.asJavaBigInteger());
     }
 
-    protected abstract boolean isInInt32Range();
+    public abstract boolean isInInt32Range();
 
     public Rational raiseTo( Integer other){
         if (this.isZero()){

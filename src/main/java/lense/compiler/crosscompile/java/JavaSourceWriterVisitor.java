@@ -72,6 +72,7 @@ import lense.compiler.ast.TernaryConditionalExpressionNode;
 import lense.compiler.ast.ThowNode;
 import lense.compiler.ast.TryStatement;
 import lense.compiler.ast.TypeNode;
+import lense.compiler.ast.TypedNode;
 import lense.compiler.ast.VariableDeclarationNode;
 import lense.compiler.ast.VariableReadNode;
 import lense.compiler.ast.VariableWriteNode;
@@ -145,7 +146,7 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
                 writer.append("if (!(");
                 
                 TreeTransverser.transverse(node.getFirstChild(), this);
-                
+ 
                 writer.append(")){ throw lense.core.lang.AssertionException.constructor(); }").println();
                 
                 return VisitorNext.Siblings;
@@ -252,9 +253,19 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 				}
 
 			} else if (node instanceof lense.compiler.ast.LiteralSequenceInstanceCreation){
-				writer.append("lense.core.collections.Array.fromAnyArray(null"); // TODO generate reification
+				writer.append("lense.core.collections.Array.fromAnyArray("); // TODO generate reification
 
-				Iterator<AstNode> it = ((lense.compiler.ast.LiteralSequenceInstanceCreation) node).getArguments().getChildren().iterator();
+				PrintWriter p = writer;
+				StringWriter s = new StringWriter();
+				writer = new PrintWriter(s);
+				
+				List<AstNode> children = ((lense.compiler.ast.LiteralSequenceInstanceCreation) node).getArguments().getChildren();
+				
+				TreeTransverser.transverse(((ArgumentListItemNode)children.get(0)).getFirstChild(), this);
+				
+				writer.print(",");
+				
+				Iterator<AstNode> it = children.subList(1,children.size()).iterator();
 				while (it.hasNext()){
 					TreeTransverser.transverse(it.next(), this);
 					if (it.hasNext()){
@@ -263,33 +274,44 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 				}
 
 				writer.append(")");
+				
+				writer = p;
+				writer.append(s.toString());
+				
 				return VisitorNext.Siblings;
 			} else if (node instanceof LiteralTupleInstanceCreation){
 				LiteralTupleInstanceCreation tuple = (LiteralTupleInstanceCreation)node;
 
-				writer.append("lense.core.collections.Tuple.valueOf(null"); // TODO refiication
+				writer.append("lense.core.collections.Tuple.valueOf("); 
 
-				Iterator<AstNode> it = tuple.getArguments().getChildren().iterator();
-				while (it.hasNext()){
-					TreeTransverser.transverse(it.next(), this);
-					if (it.hasNext()){
-						writer.print(",");
-					}
-				}
+				TreeTransverser.transverse(tuple.getArguments(), this);
+				
+//				//String reificationArgs = "lense.core.lang.reflection.JavaReifiedArguments.getInstance().addType(\"" + innerType.getTypeDefinition().getName() + "\")";
+//				
+//				//writer.append(reificationArgs);
+//				
+//				Iterator<AstNode> it = tuple.getArguments().getChildren().iterator();
+//				while (it.hasNext()){
+//					TreeTransverser.transverse(it.next(), this);
+//					if (it.hasNext()){
+//						writer.print(",");
+//					}
+//				}
 				writer.append(")");
 				return VisitorNext.Siblings;
 			} else if (node instanceof lense.compiler.ast.LiteralAssociationInstanceCreation){
-				LiteralAssociationInstanceCreation tuple = (LiteralAssociationInstanceCreation)node;
+				
+				writer.append("lense.core.collections.Dictionary.fromKeyValueArray("); 
 
-				writer.append("lense.core.collections.Dictionary.fromKeyValueArray(null"); // TODO refiication
-
-				Iterator<AstNode> it = tuple.getArguments().getChildren().iterator();
-				while (it.hasNext()){
-					TreeTransverser.transverse(it.next(), this);
-					if (it.hasNext()){
-						writer.print(",");
-					}
-				}
+				TreeTransverser.transverse(((lense.compiler.ast.LiteralAssociationInstanceCreation) node).getArguments(), this);
+				
+//				Iterator<AstNode> it = tuple.getArguments().getChildren().iterator();
+//				while (it.hasNext()){
+//					TreeTransverser.transverse(it.next(), this);
+//					if (it.hasNext()){
+//						writer.print(",");
+//					}
+//				}
 				writer.append(")");
 				return VisitorNext.Siblings;
 			} else if (node instanceof TernaryConditionalExpressionNode) {
@@ -305,12 +327,15 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 			} else if (node instanceof LiteralIntervalNode) {
 				LiteralIntervalNode interval = (LiteralIntervalNode) node;
 
-				writer.append("lense.core.math.Interval.constructor(null,"); // TODO reification
+				IntervalTypeVariable innerType = interval.getTypeVariable().getGenericParameters().get(0);
+				
+				String reificationArgs = "lense.core.lang.reflection.JavaReifiedArguments.getInstance().addType(\"" + innerType.getTypeDefinition().getName() + "\")";
+				writer.append("lense.core.math.Interval.constructor(").append(reificationArgs).append(","); 
 
 				if (interval.isStartInf()){
 					writer.append("lense.core.lang.None.None");
 				} else {
-					writer.append("lense.core.lang.Some.constructor(null,"); // TODO reification
+					writer.append("lense.core.lang.Some.constructor(").append(reificationArgs).append(","); 
 					TreeTransverser.transverse( interval.getStart(), this);
 					writer.append(")");
 				}
@@ -320,7 +345,7 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 				if (interval.isEndInf()){
 					writer.append("lense.core.lang.None.None");
 				} else {
-					writer.append("lense.core.lang.Some.constructor(null,"); // TODO reification
+					writer.append("lense.core.lang.Some.constructor(").append(reificationArgs).append(","); 
 
 					TreeTransverser.transverse( interval.getEnd(), this);
 					writer.append(")");
@@ -762,6 +787,22 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 				}
 				writer.print(".toString())");
 				return VisitorNext.Siblings;
+			} else if (node instanceof CaptureReifiedTypesNode) {
+				CaptureReifiedTypesNode capture = (CaptureReifiedTypesNode)node;
+				
+				writer.append("lense.core.lang.reflection.JavaReifiedArguments.getInstance()");
+				
+				
+		
+				for (AstNode c : capture.getTypeParametersListNode().getChildren()) {
+					GenericTypeParameterNode p = (GenericTypeParameterNode)c;
+
+					writer
+					.append(".addType(\"")
+					.append(p.getTypeNode().getName())
+					.append("\")");
+					
+				}
 			} else if (node instanceof ArgumentListNode) {
 				ArgumentListNode n = (ArgumentListNode) node;
 
@@ -774,36 +815,9 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 						first = false;
 					}
 					
-					if (a instanceof CaptureReifiedTypesNode) {
-						
-						CaptureReifiedTypesNode capture = (CaptureReifiedTypesNode)a;
-						
-						writer.append("new lense.core.lang.reflection.JavaReifiedArguments(");
-						
-						boolean isFirst = true;
-						for (AstNode c : capture.getTypeParametersListNode().getChildren()) {
-							GenericTypeParameterNode p = (GenericTypeParameterNode)c;
-							
-							if (isFirst) {
-								isFirst = false;
-							} else {
-								writer.append(",");
-							}
-							writer
-							.append("lense.core.lang.reflection.Type.fromName(\"")
-							.append(p.getTypeNode().getName())
-							.append("\")");
-							
-						}
-						writer.append(")");
-						
-					} else {
-						ArgumentListItemNode item = (ArgumentListItemNode)a;
-						
-						TreeTransverser.transverse(item.getFirstChild(), this);
-					}
+					ArgumentListItemNode item = (ArgumentListItemNode)a;
 					
-
+					TreeTransverser.transverse(item.getFirstChild(), this);
 
 				}
 

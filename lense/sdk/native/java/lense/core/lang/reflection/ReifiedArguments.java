@@ -4,5 +4,6 @@ import lense.core.math.Natural;
 
 public interface ReifiedArguments {
 
-	public lense.core.lang.reflection.Type typeByParameterValiableName(Natural index);
+	public lense.core.lang.reflection.Type typeAt(Natural index);
+	public ReifiedArguments fromIndex(Natural index);
 }

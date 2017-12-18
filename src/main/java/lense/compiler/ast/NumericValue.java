@@ -7,6 +7,7 @@ import java.math.BigDecimal;
 
 import lense.compiler.type.TypeDefinition;
 import lense.compiler.type.variable.FixedTypeVariable;
+import lense.compiler.type.variable.TypeVariable;
 import lense.compiler.typesystem.LenseTypeSystem;
 
 
@@ -28,9 +29,16 @@ public class NumericValue extends LiteralExpressionNode {
 	/**
 	 * @param n
 	 */
-	public void setValue(BigDecimal n, TypeDefinition type) {
+	public NumericValue setValue(BigDecimal n, TypeDefinition type) {
 		this.number = n;
 		this.setTypeVariable(new FixedTypeVariable(type));
+		return this;
+	}
+	
+	public NumericValue setValue(BigDecimal n, TypeVariable type) {
+		this.number = n;
+		this.setTypeVariable(type);
+		return this;
 	}
 	
 	public String toString(){

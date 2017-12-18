@@ -18,15 +18,13 @@ public abstract class Array extends AbstractAssortment implements EditableSequen
 
 	@Constructor
 	public static Array constructor (ReifiedArguments args, Natural size, Any seed){
-		// TODO verify natural range
-		// TODO ReifiedArguments args
-		return new NativeObjectArray(size, seed);
+		
+		return SizeArrayStrategy.resolveSizeStrategy(size).resolveStrategy(args).createArrayFrom(size, seed);
 	}
 	
 	@PlatformSpecific
-	public static  Array fromAnyArray (ReifiedArguments args,Any ... nativearray){
-		// TODO verify natural range
-		return new NativeObjectArray(nativearray);
+	public static  Array fromAnyArray (ReifiedArguments args,Any ... arrayOfAny){
+		return SizeArrayStrategy.resolveStandardSizeStrategy().resolveStrategy(args).createArrayFrom(arrayOfAny);
 	}
 	
 	@PlatformSpecific
@@ -42,27 +40,21 @@ public abstract class Array extends AbstractAssortment implements EditableSequen
 	}
 	
 	@PlatformSpecific
-	public static <T> Array fromNative (T[] nativearray, Function<T, Any> transform){
-		// TODO verify natural range
-		return new NativeObjectArray(nativearray, transform);
+	public static <T> Array fromNative (ReifiedArguments args,T[] nativeArray, Function<T, Any> transform){
+
+		Any[] array = new Any[nativeArray.length];
+
+		for(int i =0; i< array.length; i++){
+			array[i] = transform.apply(nativeArray[i]);
+		}
+		
+		return SizeArrayStrategy.resolveStandardSizeStrategy().resolveStrategy(args).createArrayFrom(array);
 	}
-	
-//	public static Array constructor (Natural size, Function<Natural , Any> init){
-//		
-//	}
 	
 	@Constructor(isImplicit = true)
 	@MethodSignature( returnSignature = "lense.core.collections.Array<T>", paramsSignature = "lense.core.collections.Sequence<T>")
 	public static Array constructor (ReifiedArguments args, Sequence seq){
-		// TODO verify natural range
-		
-		NativeObjectArray array = new NativeObjectArray(seq.getSize());
-		Iterator iterator = seq.getIterator();
-		int i=0;
-		while(iterator.moveNext()){
-			array.setPrimitive(i++, iterator.current());
-		}
-		return array;
+		return SizeArrayStrategy.resolveSizeStrategy(seq.getSize()).resolveStrategy(args).createArrayFrom(seq);
 	}
 
 	@Override @Property(indexed = true ) 

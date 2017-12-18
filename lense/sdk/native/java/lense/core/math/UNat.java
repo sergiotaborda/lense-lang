@@ -144,8 +144,8 @@ public final class UNat extends ScalableNatural{
 	}
 
     @Override
-    protected boolean isInInt32Range() {
-       return this.value < (long)java.lang.Integer.MAX_VALUE;
+    public boolean isInInt32Range() {
+       return this.value <= (long)java.lang.Integer.MAX_VALUE;
     }
 
 
