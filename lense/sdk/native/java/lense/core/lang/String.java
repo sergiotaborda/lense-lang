@@ -16,7 +16,7 @@ public class String extends Base implements Sequence {
 
 	public static final String EMPTY = new String("");
 
-	@Constructor
+    @Constructor(paramsSignature = "")
 	public static String constructor(){
 		return EMPTY;
 	}
@@ -78,7 +78,7 @@ public class String extends Base implements Sequence {
 	}
 
 	@Override
-	public boolean isEmpty() {
+	public boolean getEmpty() {
 		return str.isEmpty();
 	}
 

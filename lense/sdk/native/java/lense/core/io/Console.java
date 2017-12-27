@@ -12,7 +12,7 @@ public final class Console extends Base implements Any {
 
 	private static Console Console = new Console();
 
-	@Constructor
+    @Constructor(paramsSignature = "")
 	public static Console constructor(){
 		return Console;
 	}

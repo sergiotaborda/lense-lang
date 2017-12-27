@@ -6,7 +6,6 @@ package lense.compiler.ast;
 import compiler.syntax.AstNode;
 import lense.compiler.type.TypeDefinition;
 import lense.compiler.type.variable.FixedTypeVariable;
-import lense.compiler.type.variable.IntervalTypeVariable;
 import lense.compiler.type.variable.TypeVariable;
 
 /**
@@ -17,7 +16,7 @@ public class TypeNode extends LenseAstNode implements TypedNode{
 
 	private QualifiedNameNode name;
 	private TypeVariable type;
-	private IntervalTypeVariable typeParameter;
+	private TypeVariable typeParameter;
 	private boolean needsInference = false;
 	
 	protected TypeNode(boolean needsInference) {
@@ -58,7 +57,7 @@ public class TypeNode extends LenseAstNode implements TypedNode{
 		this.name = new QualifiedNameNode(type.getName());
 		this.setTypeVariable(new FixedTypeVariable(type));
 		
-		for(IntervalTypeVariable p : type.getGenericParameters()){
+		for(TypeVariable p : type.getGenericParameters()){
 			if (p.getLowerBound() == null){
 				this.add(new GenericTypeParameterNode(null, p.getVariance()));
 			} else {
@@ -135,11 +134,11 @@ public class TypeNode extends LenseAstNode implements TypedNode{
 		this.name = qualifiedNameNode;
 	}
 
-	public IntervalTypeVariable getTypeParameter() {
+	public TypeVariable getTypeParameter() {
 		return this.typeParameter;
 	}
 	
-	public void setTypeParameter(IntervalTypeVariable typeParameter) {
+	public void setTypeParameter(TypeVariable typeParameter) {
 		this.typeParameter = typeParameter;
 	}
 

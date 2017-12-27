@@ -7,7 +7,7 @@ import lense.core.lang.java.PlatformSpecific;
 
 public abstract class Comparison extends Base  {
 
-	@Constructor // TODO remove
+    @Constructor(paramsSignature = "")// TODO remove
 	public static Comparison constructor (){
 		return Equal.constructor();
 	}

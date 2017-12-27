@@ -7,7 +7,6 @@ import lense.core.lang.java.MethodSignature;
 import lense.core.lang.java.Property;
 import lense.core.lang.java.Signature;
 import lense.core.lang.reflection.ReifiedArguments;
-import lense.core.math.Integer;
 import lense.core.math.Natural;
 
 @Signature("[+T<lense.core.lang.Any]::lense.core.collections.ResizableSequence<T>")
@@ -15,7 +14,7 @@ public class LinkedList extends AbstractAssortment implements ResizableSequence 
 	
 	private java.util.LinkedList<Any> list;
 
-	@Constructor(isImplicit = true)
+	@Constructor(isImplicit = true, paramsSignature = "lense.core.collections.Sequence<T>")
 	public static LinkedList constructor (ReifiedArguments args, Sequence seq){
 		// TODO verify natural range
 		
@@ -27,7 +26,7 @@ public class LinkedList extends AbstractAssortment implements ResizableSequence 
 		return array;
 	}
 	
-	@Constructor
+    @Constructor(paramsSignature = "")
 	public static LinkedList constructor (ReifiedArguments args){
 		return new LinkedList();
 	}
@@ -87,7 +86,7 @@ public class LinkedList extends AbstractAssortment implements ResizableSequence 
 	}
 
 	@Override
-	public boolean isEmpty() {
+	public boolean getEmpty() {
 		return list.isEmpty();
 	}
 

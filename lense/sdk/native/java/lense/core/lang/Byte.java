@@ -2,13 +2,12 @@ package lense.core.lang;
 
 import lense.core.lang.java.Base;
 import lense.core.lang.java.Constructor;
-import lense.core.math.Int32;
 import lense.core.math.Integer;
 import lense.core.math.Natural;
 
 public class Byte extends Base implements Binary{
 
-	@Constructor(isImplicit = true)
+	@Constructor(isImplicit = true, paramsSignature = "lense.core.lang.Binary")
 	public static Byte valueOf (Binary n){
 		// ignoring other bit is equivalent to a % 256 operation
 		int value = 0;

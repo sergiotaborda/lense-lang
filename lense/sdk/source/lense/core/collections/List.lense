@@ -1,8 +1,150 @@
 
 import lense.core.lang.Void;
+import lense.core.lang.Boolean;
 import lense.core.math.Natural;
 import lense.core.collections.ResizableSequence;
+import lense.core.collections.Sequence;
+import lense.core.collections.Array;
+import lense.core.collections.Progression;
+import lense.core.lang.HashValue;
 
-public native class List<T> implements ResizableSequence<T> {
+public  class List<T> implements ResizableSequence<T> {
 
+	private var size : Natural = 0;
+
+	private constructor (var array : Array<T>);
+
+/{ 
+	needs a way to create a T from nothing 1) can use an Array<Maybe<T>> backed with a plataform implementation
+	public constructor (Natural capacity) {
+		return new List<T>(capacity, new Array<T>(capacity, seed));
+	}
+}/
+
+	public constructor() {
+		return new List<T>(new Array<T>.empty());
+	}
+
+	public implicit constructor( other : Sequence<T>) {
+
+		if (other is List){
+			// simply duplicate the inner list
+			return new List<T>(other.array.duplicate());
+		} 
+	/{
+		else if (other is Array){
+			// simply duplicate the array
+			return new List<T>(other.duplicate());
+		} 
+}/
+
+		// else, copy each element
+		var list =  new List<T>(new Array<T>.empty());
+
+		for (val item in other){
+			list.add(item);
+		}
+
+		return list;
+	}
+
+	public size : Natural {
+		get {
+			return  size;
+		}
+	}
+
+	public empty : Boolean {
+		get {
+			return size == 0;
+		}
+	}
+
+// TODO limit to size 
+	public iterator : Iterator<T> {
+		get {
+			return array.iterator;
+		}
+	} 
+
+	public indexes : Progression<Natural> {
+		get {
+			return 0 ..< size;
+		}
+	}
+
+	public add(value : T) {
+		
+		val capacity = array.size; // how many can be
+		if (capacity < size + 1){
+			// increase capacity
+			val newCapacity = 1 + (capacity * 3) \ 2; 
+			val newArray = new Array<T>(newCapacity, value);			
+			this.array.copyTo(newArray);
+			this.array = newArray;
+		}
+
+		array[size] = value;
+		size += 1; // TODO use ++
+	}
+
+	public remove(value : T) {
+// TODO reformat array
+		val index = array.indexOf(value);
+/{
+
+		if (index is none ){ // TODO make into bnf or   if (index exists)
+			// no-op // make use of index at this scope proibited
+		} else {
+			// TODO  make auto boxing of value in index automatic
+		}
+}/
+		size = size.predecessor();
+	}
+
+	public  [index: Natural] : T { 
+		get {
+			if ( index >= size - 1){
+				throw new IllegalIndexException();
+			}
+			return array[index];
+		}
+		set (value){
+			if ( index >= size - 1){
+				throw new IllegalIndexException();
+			}
+			array[index] = value;
+		}
+	}
+
+	public contains( other: Any) : Boolean {
+		return array.contains(other);
+	}
+
+	public containsAll( other: Assortment<T>) : Boolean {
+		return array.containsAll(other);
+	}
+
+	public equalsTo( other: Any) : Boolean {
+		// TODO verify this method should not be necessary
+		return false;
+	}
+
+	public hashValue() : HashValue {
+		// TODO verify this method should not be necessary
+		return new HashValue();
+	}
+
+	public asString(){
+		var s : String = "[";
+		 
+		for (val i in 0 ..< size ){
+			if (i > 0){
+				s += ",";
+			}
+			s += array[i]; 
+		}
+
+		return s + "]";
+	}
 } 

@@ -16,17 +16,13 @@ public class ConstructorParameter implements CallableMemberMember<Constructor> {
 	private TypeVariable type;
 	private Constructor declaringMethod;
 	
-	public ConstructorParameter(TypeDefinition type) {
-		this(new FixedTypeVariable(type), "?");
-	}
-	
-	public ConstructorParameter(TypeDefinition type, String name) {
-		this(new FixedTypeVariable(type), name);
+	public ConstructorParameter(TypeDefinition def) {
+		this(new FixedTypeVariable(def));
 	}
 	
 	
 	public ConstructorParameter(TypeVariable type) {
-		this(type, "?");
+		this(type, "<not supplied>");
 	}
 	
 	public ConstructorParameter(TypeVariable type,String name) {
@@ -109,5 +105,14 @@ public class ConstructorParameter implements CallableMemberMember<Constructor> {
 			((TypeMemberAwareTypeVariable)type).setDeclaringMember(method);
 		}
 	}
-	
+
+	@Override
+	public CallableMemberMember<Constructor> attachTo(Constructor c) {
+		ConstructorParameter p = new ConstructorParameter(type, name);
+		p.declaringMethod = c;
+		return p;
+	}
+
+
+
 }

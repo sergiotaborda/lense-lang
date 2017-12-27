@@ -10,7 +10,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import compiler.lexer.ScanPosition;
 import lense.compiler.ast.ClassTypeNode;
+import lense.compiler.ast.LenseAstNode;
+import lense.compiler.ast.TypeNode;
 import lense.compiler.repository.UpdatableTypeRepository;
 import lense.compiler.type.TypeDefinition;
 import lense.compiler.type.TypeNotFoundException;
@@ -69,12 +72,16 @@ public class SemanticContext {
 		imports.add(importName);
 	}
 
+	public TypeDefinition typeForName(TypeNode typeNode) {
+		return typeForName(typeNode.getScanPosition(), typeNode.getName(), typeNode.getTypeParametersCount());
+	}
+	
 	/**
 	 * @param name
 	 * @param genericParametersCount
 	 * @return
 	 */
-	public TypeDefinition typeForName(String name, int genericParametersCount) {
+	public TypeDefinition typeForName(ScanPosition scanPosition, String name, int genericParametersCount) {
 	
 		SemanticScope scope = this.currentScope();
 		if (scope != null){
@@ -94,9 +101,9 @@ public class SemanticContext {
 			} else if (LenseTypeSystem.Nothing().getName().equals(name)){
 				return LenseTypeSystem.Nothing();
 			} 
-			throw new TypeNotFoundException(name + "'" + genericParametersCount +" is not a recognized type. Did you imported it ?");
+			throw new TypeNotFoundException(name + "'" + genericParametersCount +" is not a recognized type. Did you imported it ? (" + scanPosition.getCompilationUnit().getName() + "@" + scanPosition.getLineNumber() +"," + scanPosition.getColumnNumber() +")" );
 		} else if (type.get().getGenericParameters().size() != genericParametersCount) {
-		    throw new TypeNotFoundException(name + "'" + genericParametersCount +" is not a recognized type. Did you imported it ?");
+		    throw new TypeNotFoundException(name + "'" + genericParametersCount +" is not a recognized type. Did you imported it ? (" + scanPosition.getCompilationUnit().getName() + "@" + scanPosition.getLineNumber() +"," + scanPosition.getColumnNumber() +")");
 		}
 		
 		return type.get();

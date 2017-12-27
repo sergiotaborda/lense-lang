@@ -18,7 +18,7 @@ public class KeyValuePair extends Base {
 	private Any value;
 	private Any key;
 
-	@Constructor
+    @Constructor(paramsSignature = "")
 	public static KeyValuePair constructor (Any key, Any value){
 		return new KeyValuePair(key, value);
 	}

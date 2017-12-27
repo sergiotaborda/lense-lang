@@ -17,7 +17,6 @@ import lense.compiler.ast.FieldDeclarationNode;
 import lense.compiler.ast.GenericTypeParameterNode;
 import lense.compiler.ast.ImutabilityNode;
 import lense.compiler.ast.LiteralCreation;
-import lense.compiler.ast.LiteralSequenceInstanceCreation;
 import lense.compiler.ast.MethodInvocationNode;
 import lense.compiler.ast.NewInstanceCreationNode;
 import lense.compiler.ast.NumericValue;
@@ -29,10 +28,11 @@ import lense.compiler.context.SemanticContext;
 import lense.compiler.context.VariableInfo;
 import lense.compiler.type.LenseTypeDefinition;
 import lense.compiler.type.LenseUnitKind;
+import lense.compiler.type.variable.DeclaringTypeBoundedTypeVariable;
 import lense.compiler.type.variable.FixedTypeVariable;
 import lense.compiler.type.variable.GenericTypeBoundToDeclaringTypeVariable;
-import lense.compiler.type.variable.IntervalTypeVariable;
 import lense.compiler.type.variable.RangeTypeVariable;
+import lense.compiler.type.variable.TypeVariable;
 import lense.compiler.typesystem.Imutability;
 import lense.compiler.typesystem.Visibility;
 
@@ -74,7 +74,7 @@ public class ReificationVisitor extends AbstractScopedVisitor {
 
 			ConstructorDeclarationNode n = (ConstructorDeclarationNode) node;
 
-			List<IntervalTypeVariable> genericParameters = getCurrentType().get().getGenericParameters();
+			List<TypeVariable> genericParameters = getCurrentType().get().getGenericParameters();
 			if (!genericParameters.isEmpty()) {
 				n.getParameters().addFirst(new ReceiveReifiedTypesNodes());
 			}
@@ -112,11 +112,29 @@ public class ReificationVisitor extends AbstractScopedVisitor {
 				
 				for (AstNode a : n.getCreationParameters().getTypeParametersListNode().getChildren()) {
 					GenericTypeParameterNode g = (GenericTypeParameterNode) a;
-					if (g.getTypeVariable().isFixed() || g.getTypeVariable() instanceof RangeTypeVariable) {
+					if (g.getTypeVariable().getSymbol().isPresent()) {
+					
+						Optional<Integer> index = currentType.getGenericParameterIndexBySymbol(g.getTypeVariable().getSymbol().get());
+						
+						VariableInfo variableInfo = this.getSemanticContext().currentScope()
+								.searchVariable(REIFICATION_INFO);
+
+						VariableReadNode vr = new VariableReadNode(REIFICATION_INFO, variableInfo);
+
+						MethodInvocationNode m = new MethodInvocationNode(vr, "fromIndex",
+								new ArgumentListNode(new NumericValue().setValue(new BigDecimal(index.get()),
+										this.getSemanticContext().resolveTypeForName("lense.core.math.Natural", 0)
+												.get())));
+						
+						m.setTypeVariable(new FixedTypeVariable(this.getSemanticContext()
+								.resolveTypeForName("lense.core.lang.reflection.ReifiedArguments", 0).get()));
+
+						capture = m;
+						
+					} else if (g.getTypeVariable().isFixed() || g.getTypeVariable() instanceof RangeTypeVariable) {
 						continue;
 					} else if (g.getTypeVariable() instanceof GenericTypeBoundToDeclaringTypeVariable) {
-						GenericTypeBoundToDeclaringTypeVariable gg = (GenericTypeBoundToDeclaringTypeVariable) g
-								.getTypeVariable();
+						GenericTypeBoundToDeclaringTypeVariable gg = (GenericTypeBoundToDeclaringTypeVariable) g.getTypeVariable();
 
 						VariableInfo variableInfo = this.getSemanticContext().currentScope()
 								.searchVariable(REIFICATION_INFO);
@@ -132,6 +150,22 @@ public class ReificationVisitor extends AbstractScopedVisitor {
 								.resolveTypeForName("lense.core.lang.reflection.ReifiedArguments", 0).get()));
 
 						capture = m;
+					} else if (g.getTypeVariable() instanceof DeclaringTypeBoundedTypeVariable) {
+						DeclaringTypeBoundedTypeVariable gg = (DeclaringTypeBoundedTypeVariable) g.getTypeVariable();
+						
+						VariableInfo variableInfo = this.getSemanticContext().currentScope()
+								.searchVariable(REIFICATION_INFO);
+
+						VariableReadNode vr = new VariableReadNode(REIFICATION_INFO, variableInfo);
+
+						MethodInvocationNode m = new MethodInvocationNode(vr, "fromIndex",
+								new ArgumentListNode(new NumericValue().setValue(new BigDecimal(gg.getParameterIndex()),
+										this.getSemanticContext().resolveTypeForName("lense.core.math.Natural", 0)
+												.get())));
+
+						m.setTypeVariable(new FixedTypeVariable(this.getSemanticContext()
+								.resolveTypeForName("lense.core.lang.reflection.ReifiedArguments", 0).get()));
+						
 					} else {
 						 // TODO 
 						 throw new UnsupportedOperationException("Cannot capture reification");
@@ -152,7 +186,7 @@ public class ReificationVisitor extends AbstractScopedVisitor {
 			ClassTypeNode n = (ClassTypeNode) node;
 
 			if (n.getKind() == LenseUnitKind.Class) {
-				List<IntervalTypeVariable> genericParameters = getCurrentType().get().getGenericParameters();
+				List<TypeVariable> genericParameters = getCurrentType().get().getGenericParameters();
 				if (!genericParameters.isEmpty()) {
 
 					FieldDeclarationNode field = new FieldDeclarationNode(REIFICATION_INFO,

@@ -11,4 +11,6 @@ interface ArrayStrategy {
 
 	public Array createArrayFrom(Sequence seq);
 
+	public Array createEmpty();
+
 }

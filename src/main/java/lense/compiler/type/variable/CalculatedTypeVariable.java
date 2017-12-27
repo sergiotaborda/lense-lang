@@ -6,18 +6,13 @@ import java.util.Optional;
 import lense.compiler.type.TypeDefinition;
 import lense.compiler.typesystem.Variance;
 
-public abstract class CalculatedTypeVariable implements IntervalTypeVariable{
+public abstract class CalculatedTypeVariable implements TypeVariable{
 
 	
-	protected abstract IntervalTypeVariable original();
+	protected abstract TypeVariable original();
 	
 	@Override
-	public IntervalTypeVariable toIntervalTypeVariable() {
-		return this;
-	}
-
-	@Override
-	public List<IntervalTypeVariable> getGenericParameters() {
+	public List<TypeVariable> getGenericParameters() {
 		return original().getGenericParameters();
 	}
 
@@ -42,7 +37,7 @@ public abstract class CalculatedTypeVariable implements IntervalTypeVariable{
 	 * {@inheritDoc}
 	 */
 	@Override
-	public final TypeVariable getUpperBound() {
+	public TypeVariable getUpperBound() {
 		if (this.getVariance() == Variance.ContraVariant){
 			return original().getLowerBound();
 		} else {
@@ -54,7 +49,7 @@ public abstract class CalculatedTypeVariable implements IntervalTypeVariable{
 	 * {@inheritDoc}
 	 */
 	@Override
-	public final TypeVariable getLowerBound() {
+	public TypeVariable getLowerBound() {
 		if (this.getVariance() == Variance.ContraVariant){
 			return original().getUpperBound();
 		} else {
@@ -65,6 +60,11 @@ public abstract class CalculatedTypeVariable implements IntervalTypeVariable{
 	@Override
 	public boolean isFixed() {
 		return false;
+	}
+
+	@Override
+	public boolean isCalculated() {
+		return true;
 	}
 
 	public String toString(){

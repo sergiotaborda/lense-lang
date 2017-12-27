@@ -20,7 +20,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import lense.compiler.type.variable.FixedTypeVariable;
-import lense.compiler.type.variable.IntervalTypeVariable;
 import lense.compiler.type.variable.TypeMemberAwareTypeVariable;
 import lense.compiler.type.variable.TypeVariable;
 import lense.compiler.typesystem.Imutability;
@@ -36,13 +35,14 @@ public class LenseTypeDefinition implements TypeDefinition {
     private TypeKind kind;
     private List<TypeMember> members = new CopyOnWriteArrayList<TypeMember>();
     private List<TypeDefinition> interfaces = new ArrayList<TypeDefinition>();
-    protected List<IntervalTypeVariable> genericParameters = new ArrayList<>();
+    protected List<TypeVariable> genericParameters = new ArrayList<>();
     protected Map<String , Integer> genericParametersMapping = new HashMap<>();
     private TypeDefinition superDefinition;
     private boolean isAbstract;
     private boolean isNative;
     private Visibility visibility;
     private boolean plataformSpecific;
+	private LenseTypeDefinition specificationOrigin = null;
     
 
     public LenseTypeDefinition(String name, TypeKind kind, LenseTypeDefinition superDefinition) {
@@ -57,36 +57,48 @@ public class LenseTypeDefinition implements TypeDefinition {
         }
     }
 
-    public LenseTypeDefinition(String name, TypeKind kind, LenseTypeDefinition superDefinition, List<IntervalTypeVariable> parameters) {
+    public LenseTypeDefinition(String name, TypeKind kind, LenseTypeDefinition superDefinition, List<TypeVariable> parameters) {
         this.name = name;
         this.kind = kind;
         this.superDefinition = superDefinition;
         this.genericParameters = new ArrayList<>(parameters);
 
         int i =0;
-        for (IntervalTypeVariable param : parameters){
-            this.genericParametersMapping.put(param.getSymbol().orElse("_"), i++);
+        for (TypeVariable param : parameters){
+        	if (param.getSymbol().isPresent()) {
+        		this.genericParametersMapping.put(param.getSymbol().get(), i);
+        	}
+        	i++;
         }
     }
 
-    private LenseTypeDefinition(LenseTypeDefinition other) {
-        this.name = other.name;
-        this.kind = other.kind;
-        this.superDefinition = other.superDefinition;
-        this.isAbstract = other.isAbstract;
-        this.isNative = other.isNative;
-        this.visibility = other.visibility;
-        this.plataformSpecific = other.plataformSpecific;
-        // do not copy members or interfaces
+    protected LenseTypeDefinition() {
+    }
+    
+    protected LenseTypeDefinition duplicate() {
+    	return copyTo(new LenseTypeDefinition());
+    }
+    
+    public final LenseTypeDefinition copyTo(LenseTypeDefinition other) {
+    	   other.name = this.name;
+    	   other.kind = this.kind;
+    	   other.superDefinition = this.superDefinition;
+    	   other.isAbstract = this.isAbstract;
+    	   other.isNative = this.isNative;
+    	   other.visibility = this.visibility;
+    	   other.plataformSpecific = this.plataformSpecific;
+           return other;
     }
 
-    public LenseTypeDefinition specify(List<IntervalTypeVariable> genericParameters) {
-        LenseTypeDefinition concrete = new LenseTypeDefinition(this);
+    public LenseTypeDefinition specify(List<TypeVariable> genericParameters) {
+        LenseTypeDefinition concrete = this.duplicate();
 
         if (this.getGenericParameters().size() != genericParameters.size()){
             throw new IllegalArgumentException("Specific parameters count  must match generic parameters count on " + this.name + ". Expected " + this.getGenericParameters().size() + ". Found " + genericParameters.size());
         }
 
+        concrete.specificationOrigin = this;
+        
         concrete.genericParameters = new ArrayList<>(genericParameters);
         concrete.genericParametersMapping = new HashMap<>(this.genericParametersMapping);
 
@@ -95,7 +107,7 @@ public class LenseTypeDefinition implements TypeDefinition {
         for (TypeDefinition interfaceType : this.interfaces) {
 
             if (interfaceType.isGeneric()) {
-                List<IntervalTypeVariable> binded;
+                List<TypeVariable> binded;
                 
                 if ( interfaceType.getGenericParameters().size() == genericParameters.size()){
                     binded = new ArrayList<>(genericParameters);
@@ -105,8 +117,8 @@ public class LenseTypeDefinition implements TypeDefinition {
                     // consider Association<K,V> implements Assortement<KeyValue<K,V>>
                     binded = new ArrayList<>(interfaceType.getGenericParameters().size());
 
-                    for (IntervalTypeVariable p :  interfaceType.getGenericParameters()) {
-                        binded.add(p.changeBaseType(concrete).toIntervalTypeVariable());
+                    for (TypeVariable p :  interfaceType.getGenericParameters()) {
+                        binded.add(p.changeBaseType(concrete));
                     }
                     
                 }
@@ -142,17 +154,20 @@ public class LenseTypeDefinition implements TypeDefinition {
     public void updateFrom(TypeDefinition o){
         if (o != this){
             LenseTypeDefinition other = (LenseTypeDefinition)o;
-            this.kind = other.kind;
+            if (this.kind == null) {
+                this.kind = other.kind;
+            }
+      
             addDifferent(this.members, other.members);
             addDifferent(this.interfaces,other.interfaces); // TODO reset generics 
          
             LenseTypeSystem instance = LenseTypeSystem.getInstance();
-            for (IntervalTypeVariable a : other.genericParameters){
+            for (TypeVariable a : other.genericParameters){
             	
             	boolean found = false;
             	int i =0;
             	for (; i < this.genericParameters.size(); i++){
-            		IntervalTypeVariable b = this.genericParameters.get(i);
+            		TypeVariable b = this.genericParameters.get(i);
             		
 					if (instance.isAssignableTo(a, b)) {
 						found = true;
@@ -168,9 +183,12 @@ public class LenseTypeDefinition implements TypeDefinition {
             
             genericParametersMapping = new HashMap<>();
 
-            int i = 0;
-            for ( IntervalTypeVariable param : this.genericParameters){
-                this.genericParametersMapping.put(param.getSymbol().orElse("_"), i++);
+            int i =0;
+            for (TypeVariable param : genericParameters){
+            	if (param.getSymbol().isPresent()) {
+            		this.genericParametersMapping.put(param.getSymbol().get(), i);
+            	}
+            	i++;
             }
 
             this.superDefinition = other.superDefinition;
@@ -196,7 +214,7 @@ public class LenseTypeDefinition implements TypeDefinition {
         }
 
         StringBuilder builder = new StringBuilder(name).append("<");
-        for (IntervalTypeVariable p : genericParameters) {
+        for (TypeVariable p : genericParameters) {
             builder.append(p.getSymbol().orElse(p.getTypeDefinition().getName())).append(",");
         }
         builder.delete(builder.length() - 1, builder.length());
@@ -262,7 +280,7 @@ public class LenseTypeDefinition implements TypeDefinition {
      * {@inheritDoc}
      */
     @Override
-    public List<IntervalTypeVariable> getGenericParameters() {
+    public List<TypeVariable> getGenericParameters() {
         return Collections.unmodifiableList(genericParameters);
     }
 

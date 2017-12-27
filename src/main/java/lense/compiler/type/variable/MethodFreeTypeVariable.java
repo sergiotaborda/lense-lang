@@ -33,7 +33,7 @@ public class MethodFreeTypeVariable extends CalculatedTypeVariable implements Ty
 		return original().getSymbol();
 	}
 	
-	protected IntervalTypeVariable original(){
+	protected TypeVariable original(){
 		return method.getFreeGenericTypes().get(parameterIndex);
 	}
 	
@@ -62,7 +62,7 @@ public class MethodFreeTypeVariable extends CalculatedTypeVariable implements Ty
 	}
 
 	@Override
-	public IntervalTypeVariable changeBaseType(TypeDefinition concrete) {
+	public TypeVariable changeBaseType(TypeDefinition concrete) {
 		throw new UnsupportedOperationException();
 	}
 
@@ -70,6 +70,7 @@ public class MethodFreeTypeVariable extends CalculatedTypeVariable implements Ty
     public void ensureNotFundamental(Function<TypeDefinition, TypeDefinition> convert) {
         //no-op
     }
+
 
 
 }

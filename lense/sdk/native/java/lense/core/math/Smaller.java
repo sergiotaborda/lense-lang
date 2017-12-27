@@ -12,7 +12,7 @@ public final class Smaller extends Comparison{
 
 	public static Smaller Smaller = new Smaller();
 
-	@Constructor
+	@Constructor(paramsSignature = "")
 	public static Smaller constructor(){
 		return Smaller;
 	}

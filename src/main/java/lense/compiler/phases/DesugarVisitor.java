@@ -304,7 +304,7 @@ public class DesugarVisitor extends AbstractLenseVisitor {
                     ExpressionNode value = ((AssignmentNode) n.getParent()).getRight();
 
                     ArgumentListItemNode arg = new ArgumentListItemNode(0, value);
-                    arg.setExpectedType(value.getTypeVariable());
+                    arg.setExpectedType(n.getTypeVariable());
 
                     // is write access
                     MethodInvocationNode invokeSet = new MethodInvocationNode(n.getPrimary(), "set" + propertyName, arg);
@@ -343,7 +343,7 @@ public class DesugarVisitor extends AbstractLenseVisitor {
                 // is write access
 
                 ArgumentListItemNode arg = new ArgumentListItemNode(n.getArguments().getChildren().size() + 1, value);
-                arg.setExpectedType(((TypedNode) value).getTypeVariable());
+                arg.setExpectedType(n.getTypeVariable());
                 list.add(arg);
 
                 MethodInvocationNode invokeSet = new MethodInvocationNode(n.getAccess(), "set", list);

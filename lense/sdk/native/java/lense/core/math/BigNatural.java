@@ -132,4 +132,11 @@ public class BigNatural extends Natural{
         return new BigNatural(this.value.divide(other.asJavaBigInteger()));
     }
 
+	@Override
+	public boolean isPositive() {
+		return this.value.signum() > 0;
+	}
+
+
+
 }

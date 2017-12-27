@@ -38,4 +38,8 @@ import lense.core.math.Natural;
 		return array;
 	}
 
+	@Override
+	public Array createEmpty() {
+		return new NativeObjectArray(new Any[0]);
+	}
 }

@@ -53,4 +53,10 @@ public class MethodReturn implements MethodMember {
 		return type;
 	}
 
+	@Override
+	public CallableMemberMember<Method> attachTo(Method c) {
+		MethodReturn p = new MethodReturn(type);
+		p.method = c;
+		return p;
+	}
 }

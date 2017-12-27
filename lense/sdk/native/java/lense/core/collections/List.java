@@ -21,12 +21,12 @@ public class List extends AbstractAssortment implements ResizableSequence {
 		list = new java.util.ArrayList<>();
 	}
 
-	@Constructor
+    @Constructor(paramsSignature = "")
 	public static List constructor() {
 		return new List();
 	}
 
-	@Constructor(isImplicit = true)
+	@Constructor(isImplicit = true, paramsSignature = "")
 	public static List constructor(Sequence seq) {
 		// TODO verify natural range
 
@@ -75,7 +75,7 @@ public class List extends AbstractAssortment implements ResizableSequence {
 	}
 
 	@Override
-	public boolean isEmpty() {
+	public boolean getEmpty() {
 		return list.isEmpty();
 	}
 

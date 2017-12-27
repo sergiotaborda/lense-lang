@@ -7,12 +7,12 @@ import lense.core.lang.java.Constructor;
 
 public class Decimal32 extends Decimal{
 
-	@Constructor
+	@Constructor(paramsSignature = "")
 	public static Decimal32 constructor (){
 		return new Decimal32(0f);
 	}
 	
-	@Constructor(isImplicit= true)
+	@Constructor(isImplicit= true, paramsSignature = "lense.core.math.Real")
 	public static Decimal32 valueOf(Real other){
 		if (other instanceof Decimal32){
 			return (Decimal32)other;
@@ -21,7 +21,7 @@ public class Decimal32 extends Decimal{
 		}
 	}
 	
-	@Constructor(isImplicit= true)
+	@Constructor(isImplicit= true, paramsSignature = "lense.core.math.Whole")
 	public static Decimal32 valueOf(Whole other){
 		return new Decimal32(other.asJavaBigInteger().floatValue());
 	}

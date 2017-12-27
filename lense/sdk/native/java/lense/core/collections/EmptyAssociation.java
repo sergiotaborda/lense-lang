@@ -22,7 +22,7 @@ public class EmptyAssociation extends Base implements Association {
 
 	@Override
 	public boolean containsAll(Assortment other) {
-		return other.isEmpty();
+		return other.getEmpty();
 	}
 
 	@Override
@@ -36,7 +36,7 @@ public class EmptyAssociation extends Base implements Association {
 	}
 
 	@Override
-	public boolean isEmpty() {
+	public boolean getEmpty() {
 		return true;
 	}
 

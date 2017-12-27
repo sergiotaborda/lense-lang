@@ -35,13 +35,15 @@ public class Constructor implements CallableMember<Constructor>{
 		}
 	}
 	private Constructor(Constructor other) {
-	    this.parameters = new ArrayList<>(other.parameters);
+	    this.parameters = new ArrayList<>();
 	    this.isImplicit = other.isImplicit;
         this.name = other.name;
         this.visibility = other.visibility;
         
-        for(CallableMemberMember<Constructor> mp : this.parameters){
-            mp.setDeclaringMember(this);
+        for(CallableMemberMember<Constructor> mp : other.parameters){
+            
+        	parameters.add(mp.attachTo(this));
+     
         }
 	    
 	}
@@ -92,6 +94,13 @@ public class Constructor implements CallableMember<Constructor>{
 	public TypeMember changeDeclaringType(TypeDefinition concrete) {
 		Constructor c = new Constructor(this);
 		c.declaringType = concrete;
+		
+		for ( CallableMemberMember<Constructor> p : c.getParameters()) {
+			ConstructorParameter cp = (ConstructorParameter)p;
+			
+			cp.setType(p.getType().changeBaseType(concrete));
+		}
+		
 		return c;
 	}
 

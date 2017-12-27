@@ -11,7 +11,7 @@ public final class Greater extends Comparison{
 
 	public static Greater Greater = new Greater();
 
-	@Constructor
+	@Constructor(paramsSignature = "")
 	public static Greater constructor(){
 		return Greater;
 	}

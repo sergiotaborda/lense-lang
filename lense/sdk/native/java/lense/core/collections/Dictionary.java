@@ -75,7 +75,7 @@ public class Dictionary extends Base implements Association {
 	}
 
 	@Override
-	public boolean isEmpty() {
+	public boolean getEmpty() {
 		return map.isEmpty();
 	}
 

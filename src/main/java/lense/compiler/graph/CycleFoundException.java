@@ -13,6 +13,6 @@ public class CycleFoundException extends GraphException {
 
 	
 	public CycleFoundException (){
-		super("Cycle found in graph");
+		super("Graph as a cycle");
 	}
 }

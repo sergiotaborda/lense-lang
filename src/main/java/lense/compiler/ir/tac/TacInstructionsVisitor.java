@@ -6,6 +6,7 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Optional;
 
+import compiler.lexer.ScanPosition;
 import compiler.syntax.AstNode;
 import compiler.trees.TreeTransverser;
 import compiler.trees.Visitor;
@@ -82,7 +83,7 @@ public class TacInstructionsVisitor implements Visitor<AstNode> {
 	public TacInstructionsVisitor(SemanticContext sc, TypeDefinition classType){
 		this.semanticContext = sc;
 		this.classType = classType;
-		BOOLEAN = sc.typeForName("lense.core.lang.Boolean", 0);
+		BOOLEAN = sc.typeForName(new ScanPosition(),"lense.core.lang.Boolean", 0);
 	}
 
 

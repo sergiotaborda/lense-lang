@@ -8,7 +8,7 @@ public class Property extends Base {
     private final java.lang.reflect.Method javaMethod;
     private final lense.core.lang.java.Property propertyMetadaData;
 
-    @Constructor
+    @Constructor(paramsSignature = "")
     public static Property constructor(){
         throw new IllegalArgumentException("Methods cannot be created directly");
     }

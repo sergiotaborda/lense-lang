@@ -3,6 +3,8 @@
  */
 package lense.compiler.type;
 
+import java.util.Objects;
+
 import lense.compiler.type.variable.TypeMemberAwareTypeVariable;
 import lense.compiler.type.variable.TypeVariable;
 import lense.compiler.typesystem.Visibility;
@@ -12,7 +14,7 @@ import lense.compiler.typesystem.Visibility;
  */
 public class Property  implements TypeMember{
 
-	private TypeVariable type;
+	private final TypeVariable type;
 	private String name;
 	private TypeDefinition declaringType;
 	private boolean canRead;
@@ -27,6 +29,11 @@ public class Property  implements TypeMember{
 	 * @param fromClass
 	 */
 	public Property(TypeDefinition declaringType, String name, TypeVariable type, boolean canRead, boolean canWrite ) {
+		
+		Objects.requireNonNull(declaringType);
+		Objects.requireNonNull(name);
+		Objects.requireNonNull(type);
+
 		this.type = type;
 		this.name = name;
 		this.declaringType = declaringType;

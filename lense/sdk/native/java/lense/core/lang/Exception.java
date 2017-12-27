@@ -1,7 +1,6 @@
 package lense.core.lang;
 
 import lense.core.lang.java.Constructor;
-import lense.core.lang.java.Native;
 import lense.core.lang.java.PlatformSpecific;
 import lense.core.lang.reflection.Type;
 
@@ -10,22 +9,22 @@ public class Exception extends java.lang.RuntimeException implements Any {
 	@PlatformSpecific
     private static final long serialVersionUID = 1L;
 
-    @Constructor
+    @Constructor(paramsSignature = "")
     public static Exception constructor(){
         return new Exception();
     }
 
-    @Constructor
+    @Constructor(paramsSignature = "")
     public static Exception constructor(String message, Exception cause){
         return new Exception(message, cause);
     }
 
-    @Constructor
+    @Constructor(paramsSignature = "")
     public static Exception constructor(String message){
         return new Exception(message);
     }
 
-    @Constructor
+    @Constructor(paramsSignature = "")
     public static Exception constructor(Exception cause){
         return new Exception(cause);
     }

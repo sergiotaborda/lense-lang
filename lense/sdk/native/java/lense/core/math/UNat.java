@@ -166,6 +166,13 @@ public final class UNat extends ScalableNatural{
         }
     }
 
+	@Override
+	public boolean isPositive() {
+		return this.value != 0;
+	}
+
+
+
   
 
 

@@ -24,7 +24,7 @@ public class Type extends Base {
     
     private final Class javaType;
 
-    @Constructor
+    @Constructor(paramsSignature = "")
     public static Type constructor(){
         throw new IllegalArgumentException("Methods cannot be created directly");
     }

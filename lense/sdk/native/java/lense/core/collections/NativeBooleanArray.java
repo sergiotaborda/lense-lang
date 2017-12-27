@@ -6,7 +6,11 @@ import lense.core.lang.Any;
 import lense.core.lang.Boolean;
 import lense.core.lang.HashValue;
 import lense.core.lang.IllegalIndexException;
+import lense.core.lang.Maybe;
+import lense.core.lang.None;
+import lense.core.lang.Some;
 import lense.core.lang.java.PlatformSpecific;
+import lense.core.lang.reflection.JavaReifiedArguments;
 import lense.core.math.Natural;
 
 @PlatformSpecific
@@ -76,7 +80,7 @@ final class NativeBooleanArray extends Array {
 	}
 
 	@Override
-	public boolean isEmpty() {
+	public boolean getEmpty() {
 		return array.length == 0;
 	}
 
@@ -88,5 +92,44 @@ final class NativeBooleanArray extends Array {
 	@Override
 	public HashValue hashValue() {
 		return new HashValue(array.length);
+	}
+
+
+	
+	@Override
+	public Array duplicate() {
+		boolean[] newArray = new boolean[array.length];
+		System.arraycopy(array, 0, newArray, 0, array.length);
+		
+		return new NativeBooleanArray(newArray);
+	}
+
+
+	@Override
+	public void copyTo(Array other) {
+		if (other instanceof NativeBooleanArray) {
+			
+			NativeBooleanArray n = (NativeBooleanArray)other;
+			
+			int length = Math.min(this.array.length, n.array.length);
+			
+			System.arraycopy(this.array, 0, n.array, 0,length);
+			
+		} else {
+			throw new RuntimeException("Array to copy to is not a boolean array");
+		}
+	}
+
+
+	
+	@Override
+	public Maybe indexOf(Any element) {
+		boolean val = ((Boolean)element).toPrimitiveBoolean();
+		for(int i =0; i < array.length; i++){
+			if (array[i] == val){ 
+				return Some.constructor( JavaReifiedArguments.getInstance().addType("lense.core.math.Natural") , Natural.valueOfNative(i));
+			}
+		}
+		return None.NONE;
 	}
 }

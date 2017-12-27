@@ -1,7 +1,6 @@
 package lense.compiler.ast;
 
 import compiler.syntax.AstNode;
-import lense.compiler.type.variable.IntervalTypeVariable;
 import lense.compiler.type.variable.TypeVariable;
 
 public class ArgumentListItemNode extends LenseAstNode{
@@ -34,7 +33,7 @@ public class ArgumentListItemNode extends LenseAstNode{
 		}
 		this.expectedType = expectedType;
 		
-		this.generic = expectedType instanceof IntervalTypeVariable;
+		this.generic = !expectedType.isFixed();
 	}
 	
 

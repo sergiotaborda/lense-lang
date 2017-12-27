@@ -2385,10 +2385,16 @@ public class LenseGrammar extends AbstractLenseGrammar {
             if (r.size() == 1) {
                 p.setAstNode(r.get(0).getAstNode().get());
             } else 	if ("..".equals(r.get(1).getLexicalValue())) {
-                RangeNode exp = new RangeNode();
-                exp.add(ensureExpression(r.get(0).getAstNode().get()));
-                exp.add(ensureExpression(r.get(2).getAstNode().get()));
-                p.setAstNode(exp);
+                RangeNode range = new RangeNode();
+                range.add(ensureExpression(r.get(0).getAstNode().get()));
+                range.add(ensureExpression(r.get(2).getAstNode().get()));
+                p.setAstNode(range);
+            } else if ("..<".equals(r.get(1).getLexicalValue())) {
+                RangeNode range = new RangeNode();
+                range.add(ensureExpression(r.get(0).getAstNode().get()));
+                range.add(ensureExpression(r.get(2).getAstNode().get()));
+                range.setIncludeEnd(false);
+                p.setAstNode(range);
             } else {
                 boolean startInf = "*".equals(r.get(1).getLexicalValue());
                 boolean endInf = "*".equals(r.get(3).getLexicalValue());
@@ -2466,30 +2472,55 @@ public class LenseGrammar extends AbstractLenseGrammar {
 
         });
 
+
         getNonTerminal("assignment").addSemanticAction((p, r) -> {
             if (r.size() == 1) {
                 p.setAstNode(r.get(0).getAstNode().get());
             } else {
-                AssignmentNode node = new AssignmentNode(resolveAssignmentOperation(r.get(1)));
+            	
+            	lense.compiler.ast.AssignmentNode.Operation op = resolveAssignmentOperation(r.get(1));
+            	AssignmentNode node;
+            	
+            	ExpressionNode left = ensureExpression(r.get(0).getAstNode().get());
 
-                AstNode q = r.get(0).getAstNode().get();
-
-                if (q instanceof QualifiedNameNode) {
-                    if (((QualifiedNameNode) q).isComposed()) {
-                        FieldOrPropertyAccessNode f = new FieldOrPropertyAccessNode(
-                                ((QualifiedNameNode) q).getLast().getName());
-                        f.setPrimary(((QualifiedNameNode) q).getPrevious());
-                        q = f;
-                    } else {
-                        FieldOrPropertyAccessNode f = new FieldOrPropertyAccessNode(((QualifiedNameNode) q).getName());
-                        q = f;
-                    }
-
-                }
-                node.setLeft(q);
-                node.setRight(ensureExpression(r.get(2).getAstNode().get()));
-
-                p.setAstNode(node);
+            	
+//                if (left instanceof QualifiedNameNode) {
+//                    if (((QualifiedNameNode) left).isComposed()) {
+//                        FieldOrPropertyAccessNode f = new FieldOrPropertyAccessNode(
+//                                ((QualifiedNameNode) left).getLast().getName());
+//                        f.setPrimary(((QualifiedNameNode) left).getPrevious());
+//                        left = f;
+//                    } else {
+//                        FieldOrPropertyAccessNode f = new FieldOrPropertyAccessNode(((QualifiedNameNode) left).getName());
+//                        left = f;
+//                    }
+//
+//                }
+            	
+            	if (op.isOperateAndAssign()) {
+            		 node = new AssignmentNode(lense.compiler.ast.AssignmentNode.Operation.SimpleAssign);
+            		 
+            		 ArithmeticNode arithm = new ArithmeticNode(op.getArithmeticOperation());
+            		 
+            		 FieldOrPropertyAccessNode f = (FieldOrPropertyAccessNode)left;
+            		 
+            		 f = f.duplicate();
+            		 
+            		 arithm.add(f);
+            		 
+            		 arithm.add(ensureExpression(r.get(2).getAstNode().get()));
+            		 
+            		 node.setRight(arithm);
+            		 
+            	} else {
+            		 node = new AssignmentNode(op);
+                     node.setRight(ensureExpression(r.get(2).getAstNode().get()));
+            	}
+            	
+                
+                node.setLeft(left);
+                
+            	p.setAstNode(node);
             }
 
         });

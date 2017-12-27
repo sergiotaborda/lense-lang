@@ -7,7 +7,7 @@ public final class HashValue extends Base implements ExclusiveDijunctable {
 
     private int code;
     
-    @Constructor
+    @Constructor(paramsSignature = "")
     public static HashValue constructor(){
         return new HashValue(0);
     }

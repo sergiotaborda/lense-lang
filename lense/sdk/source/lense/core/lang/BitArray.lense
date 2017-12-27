@@ -4,6 +4,7 @@ import lense.core.lang.Boolean;
 import lense.core.collections.Array;
 import lense.core.math.Natural;
 import lense.core.lang.Void;
+import lense.core.lang.String;
 import lense.core.math.Integer;
 import lense.core.lang.HashValue;
 
@@ -20,7 +21,17 @@ public class BitArray implements Binary {
 		return new BitArray(new Array<Boolean>(bitCount, seed));
 	}
 	
-	public constructor ( bits: Array<Boolean>);
+	public implicit constructor ( binary: Binary){
+		val array : Array<Boolean> = new Array<Boolean>(binary.size, false);
+		
+		for (val i in 0 ..< binary.size){
+			array[i] = binary.getBitAt(i);
+		}
+		
+		return new BitArray(array);
+	}
+	
+	public implicit constructor ( bits: Array<Boolean>);
 
 	public flip( index: Natural): Void{
 		this.bits[index] = !this.bits[index];
@@ -39,7 +50,7 @@ public class BitArray implements Binary {
 	}
 	
 	public flipAll() : Binary {
-		val  negated : Array<Boolean>= new Array<Boolean>(bits);
+		val  negated : Array<Boolean> = bits.duplicate();
 
 		for (n in negated.indexes){
 			negated[n] = !negated[n];
@@ -76,5 +87,8 @@ public class BitArray implements Binary {
 		return this[index];
 	}
 	
+	public asString() : String {
+		return this.bits.asString();
+	}
 
 }

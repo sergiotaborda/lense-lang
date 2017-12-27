@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import lense.compiler.type.variable.IntervalTypeVariable;
 import lense.compiler.type.variable.TypeVariable;
 import lense.compiler.typesystem.Visibility;
 
@@ -23,10 +22,10 @@ public class Method implements CallableMember<Method> {
 	private MethodReturn returnParameter;
 	private List<CallableMemberMember<Method>> parameters;
 	
-	private List<IntervalTypeVariable> methodFreeGenericTypes = new ArrayList<>();
+	private List<TypeVariable> methodFreeGenericTypes = new ArrayList<>();
     private Visibility visibility;
 	
-	public List<IntervalTypeVariable> getFreeGenericTypes() {
+	public List<TypeVariable> getFreeGenericTypes() {
 		return methodFreeGenericTypes;
 	}
 	
@@ -51,7 +50,7 @@ public class Method implements CallableMember<Method> {
 		this.declaringType = type;
 	}
 	
-	public void add(IntervalTypeVariable parameter){
+	public void add(TypeVariable parameter){
 		methodFreeGenericTypes.add(parameter);
 	}
 	

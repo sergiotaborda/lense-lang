@@ -15,7 +15,7 @@ public class Tuple extends Base implements Any, Iterable {
 		return new Tuple(value, next);
 	}
 	
-	@Constructor(isImplicit = true)
+	@Constructor(isImplicit = true, paramsSignature = "")
 	public static Tuple valueOf(ReifiedArguments args, Any value){
 		return new Tuple(value, null);
 	}

@@ -48,12 +48,7 @@ public class FixedTypeVariable implements TypeVariable {
 	}
 
 	@Override
-	public IntervalTypeVariable toIntervalTypeVariable() {
-		return new RangeTypeVariable(this.getSymbol(), Variance.Invariant, type,type);
-	}
-
-	@Override
-	public List<IntervalTypeVariable> getGenericParameters() {
+	public List<TypeVariable> getGenericParameters() {
 		return type.getGenericParameters();
 	}
 	
@@ -79,4 +74,24 @@ public class FixedTypeVariable implements TypeVariable {
     public void ensureNotFundamental(Function<TypeDefinition, TypeDefinition> convert) {
         this.type = convert.apply(type);
     }
+
+	@Override
+	public boolean isCalculated() {
+		return false;
+	}
+
+	@Override
+	public TypeVariable getLowerBound() {
+		return this;
+	}
+
+	@Override
+	public TypeVariable getUpperBound() {
+		return this;
+	}
+
+	@Override
+	public Variance getVariance() {
+		return Variance.Invariant;
+	}
 }

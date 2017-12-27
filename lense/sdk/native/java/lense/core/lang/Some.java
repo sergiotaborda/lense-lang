@@ -9,7 +9,7 @@ public class Some extends Maybe{
 
 	private Any value;
 	
-	@Constructor
+    @Constructor(paramsSignature = "T")
 	public static Some constructor(ReifiedArguments args, Any value){
 		return new Some(value);
 	}

@@ -39,10 +39,11 @@ import lense.compiler.type.MethodParameter;
 import lense.compiler.type.MethodReturn;
 import lense.compiler.type.TypeDefinition;
 import lense.compiler.type.variable.FixedTypeVariable;
-import lense.compiler.type.variable.IntervalTypeVariable;
+import lense.compiler.type.variable.GenericTypeBoundToDeclaringTypeVariable;
 import lense.compiler.type.variable.TypeMemberDeclaringTypeVariable;
 import lense.compiler.type.variable.TypeVariable;
 import lense.compiler.typesystem.LenseTypeSystem;
+import lense.compiler.typesystem.Variance;
 import lense.compiler.typesystem.Visibility;
 /**
  * Read the classe members and fills a SenseType object
@@ -92,7 +93,7 @@ public class StructureVisitor extends AbstractScopedVisitor {
             if (map.size() == 1){
                 FixedTypeVariable f = new FixedTypeVariable(map.values().iterator().next());
                 typeNode.setTypeVariable(f);
-                typeNode.setTypeParameter(f.toIntervalTypeVariable());
+                typeNode.setTypeParameter(f);
             }
 
             
@@ -204,10 +205,40 @@ public class StructureVisitor extends AbstractScopedVisitor {
 				}
 			}
 
-			IntervalTypeVariable typeParameter = resolveTypeDefinition(m.getReturnType());
+			TypeVariable typeParameter = resolveTypeDefinition(m.getReturnType());
 
 			lense.compiler.type.variable.TypeVariable returnTypeVariable;
-			if (typeParameter.getLowerBound().equals(typeParameter.getUpperBound())){
+			if (!typeParameter.getGenericParameters().isEmpty()) {
+				List<TypeVariable> list = typeParameter.getGenericParameters();
+				
+				if (list.size() == 1) {
+					
+					TypeVariable firstType = list.get(0);
+					
+					if (firstType.isFixed()) {
+						returnTypeVariable = firstType;
+					} else {
+						Optional<String> symbol = firstType.getSymbol();
+						Optional<Integer> opIndex =  symbol.flatMap( n -> currentType.getGenericParameterIndexBySymbol(n));
+
+						if (!opIndex.isPresent()){
+							throw new CompilationError( m.getReturnType(), symbol.get() + " is not a generic type parameter in type " + currentType.getName());
+						}
+						
+						TypeDefinition typeDefinition = typeParameter.getTypeDefinition();
+						if (typeDefinition.getName().equals(this.currentType.getName())) {
+							typeDefinition= this.currentType;
+						}
+						
+						returnTypeVariable = new GenericTypeBoundToDeclaringTypeVariable(typeDefinition, this.currentType, opIndex.get().intValue(),  symbol.get(), Variance.ContraVariant);
+						
+					}
+				
+
+				} else {
+					throw new UnsupportedOperationException("More than one generic parameter is not suppoerted yet");
+				}
+			} else if (typeParameter.getLowerBound().equals(typeParameter.getUpperBound())){
 				returnTypeVariable = typeParameter;
 			} else {
 				String typeName = m.getReturnType().getName();
@@ -218,7 +249,8 @@ public class StructureVisitor extends AbstractScopedVisitor {
 					throw new CompilationError( m.getReturnType(), typeName + " is not a generic type parameter in type " + currentType.getName());
 				}
 
-				returnTypeVariable = new TypeMemberDeclaringTypeVariable(null, opIndex.get());
+				// TODO recover the member
+				returnTypeVariable = new TypeMemberDeclaringTypeVariable(null /*TODO*/, opIndex.get());
 			}
 
 
@@ -266,6 +298,18 @@ public class StructureVisitor extends AbstractScopedVisitor {
 				}
 
 			} else {
+				
+				TypeVariable pp = p.getType().getTypeVariable();
+				
+				if (pp == null) {
+					pp = p.getType().getTypeParameter();
+					
+					if (pp == null) {
+						visitAfterChildren(p.getType());
+						
+						pp = p.getType().getTypeVariable();
+					}
+				}
 				if (p.isIndexed()){
 					lense.compiler.type.variable.TypeVariable[] params = new  lense.compiler.type.variable.TypeVariable[((IndexerPropertyDeclarationNode)p).getIndexes().getChildren().size()];
 					int i =0;
@@ -274,9 +318,9 @@ public class StructureVisitor extends AbstractScopedVisitor {
 						params[i++] = var.getTypeNode().getTypeParameter();
 					}
 
-					currentType.addIndexer(p.getType().getTypeVariable(), p.getAcessor() != null, p.getModifier() != null, params);
+					currentType.addIndexer(pp, p.getAcessor() != null, p.getModifier() != null, params);
 				} else {
-					currentType.addProperty(p.getName(), p.getType().getTypeVariable(), p.getAcessor() != null, p.getModifier() != null);
+					currentType.addProperty(p.getName(), pp, p.getAcessor() != null, p.getModifier() != null);
 				}
 			}
 		}  else if (node instanceof InstanceOfNode) {
@@ -288,7 +332,7 @@ public class StructureVisitor extends AbstractScopedVisitor {
             if (map.size() == 1){
                 FixedTypeVariable f = new FixedTypeVariable(map.values().iterator().next());
                 typeNode.setTypeVariable(f);
-                typeNode.setTypeParameter(f.toIntervalTypeVariable());
+                typeNode.setTypeParameter(f);
             }
 
             if (n.getExpression() instanceof VariableReadNode) {

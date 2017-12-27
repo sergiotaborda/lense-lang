@@ -21,8 +21,6 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
 import lense.compiler.repository.UpdatableTypeRepository;
-import lense.compiler.type.Constructor;
-import lense.compiler.type.ConstructorParameter;
 import lense.compiler.type.IndexerProperty;
 import lense.compiler.type.LenseTypeDefinition;
 import lense.compiler.type.LenseUnitKind;
@@ -34,7 +32,6 @@ import lense.compiler.type.TypeDefinition;
 import lense.compiler.type.TypeMember;
 import lense.compiler.type.variable.DeclaringTypeBoundedTypeVariable;
 import lense.compiler.type.variable.FixedTypeVariable;
-import lense.compiler.type.variable.IntervalTypeVariable;
 import lense.compiler.type.variable.RangeTypeVariable;
 import lense.compiler.type.variable.TypeVariable;
 import lense.compiler.typesystem.LenseTypeSystem;
@@ -71,6 +68,11 @@ public class ByteCodeReader extends ClassVisitor {
 	}
 
 	LenseTypeDefinition resolveTypByNameAndKind(String name, lense.compiler.type.TypeKind kind) {
+		if (name.equals("boolean")) {
+			return (LenseTypeDefinition) LenseTypeSystem.Boolean();
+		}
+
+
 		Map<Integer, TypeDefinition> map = this.typeContainer.resolveTypesMap(name);
 		if (map.isEmpty()) {
 			LoadedLenseTypeDefinition type = new LoadedLenseTypeDefinition(name, kind, null);
@@ -97,7 +99,7 @@ public class ByteCodeReader extends ClassVisitor {
 		Optional<LenseTypeDefinition> existingType = this.typeContainer.resolveType(params)
 				.map(t -> (LenseTypeDefinition) t);
 		if (!existingType.isPresent()) {
-			IntervalTypeVariable[] generics = new IntervalTypeVariable[genericsCount];
+			TypeVariable[] generics = new TypeVariable[genericsCount];
 			for (int i = 0; i < generics.length; i++) {
 				generics[i] = new RangeTypeVariable(Optional.empty(), Variance.Invariant, LenseTypeSystem.Any(),
 						LenseTypeSystem.Nothing());
@@ -124,6 +126,8 @@ public class ByteCodeReader extends ClassVisitor {
 		}
 
 		def = this.resolveTypByNameAndKind(name.replace('/', '.'), kind);
+
+		def.setKind((LenseUnitKind)kind);
 
 		LenseTypeDefinition any = resolveTypByNameAndKind("lense.core.lang.Any", LenseUnitKind.Class);
 		LenseTypeDefinition superDef = any;
@@ -163,39 +167,14 @@ public class ByteCodeReader extends ClassVisitor {
 			return null;
 		}
 		try {
+
+			MethodAsmInfo info = new MethodAsmInfo(name, desc, signature, exceptions, readVisibility(access),readAbstract(access));
+
+
 			if ((access & ACC_STATIC) != 0) {
 				// constructors
-				List<ConstructorParameter> params = new LinkedList<ConstructorParameter>();
 
-				int pos = desc.lastIndexOf(')');
-
-				int a = 1;
-				while (a < pos) {
-					int s = a;
-					char type = desc.charAt(s);
-					if (type == 'L') {
-						a = desc.indexOf(';', s) + 1;
-						TypeDefinition typeName = typeForName(desc.substring(s, a));
-						if (!typeName.getName().equals("lense.core.lang.reflection.ReifiedArguments")) {
-							params.add(new ConstructorParameter(typeName));
-						}
-
-					} else if (type == 'Z') {
-						params.add(new ConstructorParameter(LenseTypeSystem.Boolean()));
-						a = a + 1;
-					} else {
-						return null;
-					}
-				}
-
-				Constructor m = new Constructor(name, params, false, readVisibility(access)); // TODO
-				// read
-				// implicit
-				m.setAbstract(readAbstract(access));
-
-				def.addConstructor(m);
-				
-				return new ConstructorAnnotVisitor(this, m);
+				return new ConstructorAnnotVisitor(this, def, info);
 			} else {
 				// instance methods
 				int pos = desc.lastIndexOf(')');
@@ -247,7 +226,7 @@ public class ByteCodeReader extends ClassVisitor {
 		return Visibility.Undefined;
 	}
 
-	private TypeDefinition typeForName(String name) {
+	TypeDefinition typeForName(String name) {
 
 		if ("V".equals(name)) {
 			return LenseTypeSystem.Void();
@@ -261,7 +240,7 @@ public class ByteCodeReader extends ClassVisitor {
 			}
 			return resolveTypByNameAndKind(qualifiedName, null);
 		} else {
-			throw new IllegalArgumentException(name + " is not a recognized type");
+			throw new IllegalArgumentException(name + " is not a recognized type at " + def.getName());
 		}
 
 	}
@@ -270,9 +249,6 @@ public class ByteCodeReader extends ClassVisitor {
 		def.addMethod(method);
 	}
 
-	public void addConstructor(Constructor method) {
-		def.addConstructor(method);
-	}
 
 	private Map<String, TypeMember> properties = new HashMap<String, TypeMember>();
 
@@ -283,9 +259,16 @@ public class ByteCodeReader extends ClassVisitor {
 			IndexerProperty member = (IndexerProperty) properties.get(key);
 			if (member == null) {
 
-				TypeVariable[] params = method.getParameters().stream().map(p -> p.getType())
+				int size = method.getParameters().size();
+				if (isSetter) {
+					size--;
+				}
+				TypeVariable[] params = method.getParameters().stream().map(p -> p.getType()).limit(size)
 						.collect(Collectors.toList()).toArray(new TypeVariable[0]);
-				member = new IndexerProperty(def, method.getReturningType(), false, false, params);
+				
+				TypeVariable indexType = isSetter ? method.getParameters().get(method.getParameters().size() - 1).getType() : method.getReturningType();
+				
+				member = new IndexerProperty(def, indexType, !isSetter, isSetter, params);
 				properties.put(key, member);
 
 				def.addIndexer(member);
@@ -355,36 +338,46 @@ public class ByteCodeReader extends ClassVisitor {
 					if (def instanceof LoadedLenseTypeDefinition) {
 						LoadedLenseTypeDefinition loadedDef = (LoadedLenseTypeDefinition) def;
 
-						if (loadedDef.getGenericParameters().isEmpty()) {
-							List<IntervalTypeVariable> genericVariables = new ArrayList<>(variables.length);
+						
+						List<TypeVariable> genericVariables = new ArrayList<>(variables.length);
 
-							for (int i = 0; i < variables.length; i++) {
-								String s = variables[i];
-								Variance variance = lense.compiler.typesystem.Variance.Invariant;
-								if (s.startsWith("+")) {
-									variance = lense.compiler.typesystem.Variance.Covariant;
-								} else if (s.startsWith("-")) {
-									variance = lense.compiler.typesystem.Variance.ContraVariant;
-								}
-								pos = s.indexOf('<');
-								String symbol = s.substring(1, pos);
-								String upperBound = s.substring(pos + 1);
+						for (int i = 0; i < variables.length; i++) {
+							String s = variables[i];
 
-								names[i] = symbol;
-								maps.put(symbol, i);
+							pos = s.indexOf('<');
+							String symbol = s.substring(1, pos);
+							String upperBound = s.substring(pos + 1);
 
-								if (upperBound.equals(LenseTypeSystem.Any().getName())) {
-									genericVariables.add(new RangeTypeVariable(symbol, variance, LenseTypeSystem.Any(),
-											LenseTypeSystem.Nothing()));
-								} else {
-									genericVariables.add(new RangeTypeVariable(symbol, variance,
-											resolveTypByNameAndKind(upperBound, null), LenseTypeSystem.Nothing()));
-								}
-
+							Variance variance = lense.compiler.typesystem.Variance.Invariant;
+							if (symbol.charAt(0) == '+') {
+								variance = lense.compiler.typesystem.Variance.Covariant;
+								symbol = symbol.substring(1);
+							} else if (symbol.charAt(0) == '-') {
+								variance = lense.compiler.typesystem.Variance.ContraVariant;
+								symbol = symbol.substring(1);
+							} else if (symbol.charAt(0) == '=') {
+								symbol = symbol.substring(1);
 							}
 
-							loadedDef.setGenericParameters(genericVariables);
+							names[i] = symbol;
+							maps.put(symbol, i);
+							
+							if (LenseTypeSystem.Any().getName().equals(upperBound)) {
+								genericVariables.add(new RangeTypeVariable(symbol, variance, LenseTypeSystem.Any(),
+										LenseTypeSystem.Nothing()));
+							} else {
+								genericVariables.add(new RangeTypeVariable(symbol, variance,
+										resolveTypByNameAndKind(upperBound, null), LenseTypeSystem.Nothing()));
+							}
+
 						}
+
+						if (!loadedDef.getGenericParameters().isEmpty()) {
+							loadedDef = (LoadedLenseTypeDefinition) loadedDef.duplicate();
+						}
+						loadedDef.setGenericParameters(genericVariables);
+
+						def = loadedDef;
 
 					}
 				}
@@ -428,26 +421,36 @@ public class ByteCodeReader extends ClassVisitor {
 					LoadedLenseTypeDefinition loadedDef = (LoadedLenseTypeDefinition) type;
 
 					if (loadedDef.getGenericParameters().isEmpty()) {
-						List<IntervalTypeVariable> variables = new ArrayList<>(g.length);
+						List<TypeVariable> variables = new ArrayList<>(g.length);
 
 						for (String symbol : g) {
 							Integer index = maps.get(symbol);
 
+							lense.compiler.typesystem.Variance variance = lense.compiler.typesystem.Variance.Invariant;
+
+							if (symbol.charAt(0) == '-') {
+								variance = Variance.ContraVariant;
+								symbol = symbol.substring(1);
+							} else if (symbol.charAt(0) == '+') {
+								variance = Variance.Covariant;
+								symbol = symbol.substring(1);
+							}
+
 							if (index != null) {
 								// generic type
-								variables.add(new DeclaringTypeBoundedTypeVariable(parent, index, symbol,
-										lense.compiler.typesystem.Variance.Invariant));
+								variables.add(new DeclaringTypeBoundedTypeVariable(parent, index, symbol,variance));
 
 							} else {
 								// hard bound
-								Optional<String> indexSymbol = type.getGenericParameterSymbolByIndex(i);
+								Optional<String> indexSymbol = parent.getGenericParameterSymbolByIndex(i);
 								if (!indexSymbol.isPresent()) {
 									LenseTypeDefinition t = resolveTypByNameAndKind(symbol, null);
 
-									variables.add(new RangeTypeVariable(symbol,
-											lense.compiler.typesystem.Variance.Invariant, t, t));
+									variables.add(new RangeTypeVariable(symbol,variance, t, t));
 									// tv = new FixedTypeVariable();
 									// variables.addGenericParameter("X" + Integer.toString(i), tv);
+								} else {
+									variables.add(new DeclaringTypeBoundedTypeVariable(parent, i, indexSymbol.get(),variance));
 								}
 
 							}
@@ -481,22 +484,31 @@ public class ByteCodeReader extends ClassVisitor {
 
 				if (type instanceof LoadedLenseTypeDefinition) {
 					LoadedLenseTypeDefinition loadedDef = (LoadedLenseTypeDefinition) type;
-					List<IntervalTypeVariable> variables = new ArrayList<>(g.length);
+					List<TypeVariable> variables = new ArrayList<>(g.length);
 
 					for (String symbol : g) {
 						Integer index = maps.get(symbol);
 
+						lense.compiler.typesystem.Variance variance = lense.compiler.typesystem.Variance.Invariant;
+
+						if (symbol.charAt(0) == '-') {
+							variance = Variance.ContraVariant;
+							symbol = symbol.substring(1);
+						} else if (symbol.charAt(0) == '+') {
+							variance = Variance.Covariant;
+							symbol = symbol.substring(1);
+						}
+
 						if (index != null) {
 							// generic type
-							variables.add(new DeclaringTypeBoundedTypeVariable(parent, index, symbol,
-									lense.compiler.typesystem.Variance.Invariant));
+							variables.add(new DeclaringTypeBoundedTypeVariable(parent, index, symbol,variance));
 						} else {
 							// hard bound
 
 							LenseTypeDefinition t = resolveTypByNameAndKind(symbol, null);
 
 							variables.add(
-									new RangeTypeVariable(symbol, lense.compiler.typesystem.Variance.Invariant, t, t));
+									new RangeTypeVariable(symbol, variance, t, t));
 						}
 					}
 

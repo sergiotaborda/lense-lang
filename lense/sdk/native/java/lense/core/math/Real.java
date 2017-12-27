@@ -8,23 +8,23 @@ public abstract class Real extends Number implements Comparable , SignedNumber {
     public static final Rational ZERO = Rational.constructor(Int32.valueOfNative(0), Integer.ONE);
     public static final Rational ONE = Rational.constructor(Int32.valueOfNative(1), Integer.ONE);
 
-    @Constructor
+    @Constructor(paramsSignature = "")
     public static Real constructor(){
         return Rational.constructor(Int32.valueOfNative(0), Integer.ONE);
     }
 
-    @Constructor(isImplicit = true)
+    @Constructor(isImplicit = true, paramsSignature="lense.core.math.Whole")
     public static Real valueOf(Whole other) {
         return Rational.constructor(other.asInteger(), Integer.ONE);
     }
 
     
-    @Constructor
+    @Constructor(paramsSignature = "")
     public static Real zero(){
         return ZERO;
     }
 
-    @Constructor
+    @Constructor(paramsSignature = "")
     public static Real one(){
         return ONE;
     }

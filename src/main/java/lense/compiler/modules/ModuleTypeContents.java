@@ -201,7 +201,7 @@ public class ModuleTypeContents implements UpdatableTypeRepository {
 		this.moduleName = moduleName;
 	}
 
-	public void simplify() {
+	public void consolidate() {
 
 		for(Map<Integer, TypeDefinition> map : types.values()){
 

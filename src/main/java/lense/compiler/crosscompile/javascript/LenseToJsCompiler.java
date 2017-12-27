@@ -40,7 +40,7 @@ public class LenseToJsCompiler extends LenseCompiler{
     }
 
     @Override
-    protected void compileNative(FileLocations fileLocations, Map<String, File> nativeTypes) throws IOException {
+    protected void compileNative(FileLocations fileLocations, Map<String, File> nativeTypes, UpdatableTypeRepository typeContainer) throws IOException {
         // no-op for now
     }
 

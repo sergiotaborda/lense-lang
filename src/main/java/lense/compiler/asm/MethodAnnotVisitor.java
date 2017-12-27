@@ -14,7 +14,6 @@ import lense.compiler.type.TypeDefinition;
 import lense.compiler.type.variable.DeclaringTypeBoundedTypeVariable;
 import lense.compiler.type.variable.FixedTypeVariable;
 import lense.compiler.type.variable.GenericTypeBoundToDeclaringTypeVariable;
-import lense.compiler.type.variable.RangeTypeVariable;
 import lense.compiler.type.variable.TypeVariable;
 import lense.compiler.typesystem.LenseTypeSystem;
 import lense.compiler.typesystem.Variance;
@@ -101,7 +100,7 @@ public class MethodAnnotVisitor extends MethodVisitor{
                 return new FixedTypeVariable(m);
 
             } else if (typeDefinition.getGenericParameters().isEmpty()){
-                return new DeclaringTypeBoundedTypeVariable(method.getDeclaringType(), 0, returnSignature, lense.compiler.typesystem.Variance.Covariant);
+                return new FixedTypeVariable(typeDefinition);
             } else {
                 return new FixedTypeVariable(byteCodeReader.resolveTypByNameAndKind(returnSignature, null));
 

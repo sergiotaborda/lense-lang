@@ -78,4 +78,5 @@ public class ModuleCompilationScopeTypeRepository implements UpdatableTypeReposi
         return map;
     }
 
+
 }

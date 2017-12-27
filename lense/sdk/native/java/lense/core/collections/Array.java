@@ -4,6 +4,7 @@ import java.math.BigInteger;
 import java.util.function.Function;
 
 import lense.core.lang.Any;
+import lense.core.lang.Maybe;
 import lense.core.lang.java.Constructor;
 import lense.core.lang.java.MethodSignature;
 import lense.core.lang.java.PlatformSpecific;
@@ -16,7 +17,7 @@ import lense.core.math.Natural;
 @Signature("[=T<lense.core.lang.Any]::lense.core.collections.EditableSequence<T>")
 public abstract class Array extends AbstractAssortment implements EditableSequence{
 
-	@Constructor
+    @Constructor(paramsSignature = "lense.core.math.Natural, T")
 	public static Array constructor (ReifiedArguments args, Natural size, Any seed){
 		
 		return SizeArrayStrategy.resolveSizeStrategy(size).resolveStrategy(args).createArrayFrom(size, seed);
@@ -51,12 +52,16 @@ public abstract class Array extends AbstractAssortment implements EditableSequen
 		return SizeArrayStrategy.resolveStandardSizeStrategy().resolveStrategy(args).createArrayFrom(array);
 	}
 	
-	@Constructor(isImplicit = true)
-	@MethodSignature( returnSignature = "lense.core.collections.Array<T>", paramsSignature = "lense.core.collections.Sequence<T>")
+	@Constructor(isImplicit = true, paramsSignature = "lense.core.collections.Sequence<T>")
 	public static Array constructor (ReifiedArguments args, Sequence seq){
 		return SizeArrayStrategy.resolveSizeStrategy(seq.getSize()).resolveStrategy(args).createArrayFrom(seq);
 	}
 
+	@Constructor( paramsSignature = "")
+	public static Array empty (ReifiedArguments args){
+		return SizeArrayStrategy.resolveSizeStrategy(Natural.ZERO).resolveStrategy(args).createEmpty();
+	}
+	
 	@Override @Property(indexed = true ) 
 	@MethodSignature( returnSignature = "T" , paramsSignature = "lense.core.math.Natural")
 	public abstract Any get(Natural index);
@@ -76,12 +81,18 @@ public abstract class Array extends AbstractAssortment implements EditableSequen
 	@MethodSignature( returnSignature = "lense.core.collections.Progression<lense.core.math.Natural>", paramsSignature = "")
 	public abstract Progression getIndexes();
 
+	@Override @Property(name = "empty")
+	@MethodSignature( returnSignature = "lense.core.lang.Boolean", paramsSignature = "")
+	public abstract boolean getEmpty();
 	
 	public abstract boolean contains(Any other);
 	
+	@MethodSignature( returnSignature = "lense.core.lang.Maybe<lense.core.math.Natural>", paramsSignature = "T")
+	public abstract Maybe indexOf(Any element);
+	
 	public boolean containsAll(Assortment other) {
-		if (this.isEmpty()) {
-			return other.isEmpty();
+		if (this.getEmpty()) {
+			return other.getEmpty();
 		}
 		
 		Iterator it = other.getIterator();
@@ -93,4 +104,9 @@ public abstract class Array extends AbstractAssortment implements EditableSequen
 		return true;
 	}
 
+	@MethodSignature( returnSignature = "lense.core.collections.Array<T>", paramsSignature = "")
+	public abstract Array duplicate();
+	
+	@MethodSignature( returnSignature = "", paramsSignature = "lense.core.collections.Array<T>")
+	public abstract void copyTo(Array other);
 }

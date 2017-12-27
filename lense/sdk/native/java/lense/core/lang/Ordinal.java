@@ -3,8 +3,8 @@ package lense.core.lang;
 import lense.core.lang.java.Signature;
 
 @Signature("[=T<lense.core.lang.Any]::")
-public interface Ordinal<T> {
+public interface Ordinal {
 
-    public T successor();
-    public T predecessor();
+    public Any successor();
+    public Any predecessor();
 }

@@ -6,6 +6,8 @@ package lense.compiler.type.variable;
 import java.util.Optional;
 import java.util.function.Function;
 
+import javax.management.RuntimeErrorException;
+
 import lense.compiler.type.TypeDefinition;
 import lense.compiler.typesystem.Variance;
 
@@ -25,9 +27,13 @@ public class DeclaringTypeBoundedTypeVariable extends CalculatedTypeVariable  {
 		this.declaringType = declaringType;
 		this.parameterIndex= parameterIndex;
 		this.symbol = symbol;
+		
+		if (symbol.length() > 1) {
+			throw new IllegalArgumentException("Symbol is illegal " + symbol);
+		}
 	}
 	
-	protected IntervalTypeVariable original(){
+	protected TypeVariable original(){
 		return declaringType.getGenericParameters().get(parameterIndex);
 	}
 	
@@ -44,11 +50,11 @@ public class DeclaringTypeBoundedTypeVariable extends CalculatedTypeVariable  {
 	}
 
 	@Override
-	public IntervalTypeVariable changeBaseType(TypeDefinition concrete) {
+	public TypeVariable changeBaseType(TypeDefinition concrete) {
 		return new DeclaringTypeBoundedTypeVariable(concrete, parameterIndex, symbol, positionVariance);
 	}
 
-	public int getIndex() {
+	public int getParameterIndex() {
 		return parameterIndex;
 	}
 

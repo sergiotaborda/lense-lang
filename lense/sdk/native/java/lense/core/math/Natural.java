@@ -5,21 +5,20 @@ import java.math.BigInteger;
 import lense.core.collections.NativeNaturalProgression;
 import lense.core.collections.Progression;
 import lense.core.lang.java.Constructor;
-import lense.core.lang.java.Native;
 import lense.core.lang.java.NonNull;
 import lense.core.lang.java.PlatformSpecific;
 
-public abstract class Natural extends Whole  {
+public abstract class Natural extends Whole   {
 
     public static final Natural ONE = Natural.valueOfNative(1);
     public static final Natural ZERO = Natural.valueOfNative(0);
 
-    @Constructor
+    @Constructor(paramsSignature = "")
     public static Natural constructor(){
         return Natural.valueOfNative(0);
     }
 
-    @Constructor
+    @Constructor(paramsSignature = "lense.core.lang.String")
     public static Natural parse(lense.core.lang.String text){
         return valueOf(text.toString());
     }
@@ -56,6 +55,10 @@ public abstract class Natural extends Whole  {
 
     public @NonNull Progression upTo(@NonNull Natural other){
         return new NativeNaturalProgression(this, other);
+    }
+    
+    public @NonNull Progression upToExclusive(@NonNull Natural other){
+        return new NativeNaturalProgression(this, other.predecessor());
     }
     
     public abstract Natural wholeDivide (Natural other);
@@ -105,7 +108,13 @@ public abstract class Natural extends Whole  {
     public abstract boolean isZero();
 
     public abstract boolean isOne();
+    
+    public abstract boolean isPositive();
 
+    public boolean isNegative() {
+    	return false;
+    }
+    
     public abstract @NonNull Natural multiply(@NonNull Natural other);
     
     public Real raiseTo( Real other){

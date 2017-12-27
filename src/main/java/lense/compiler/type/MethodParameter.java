@@ -110,4 +110,12 @@ public class MethodParameter implements MethodMember {
 		}
 	}
 	
+	@Override
+	public CallableMemberMember<Method> attachTo(Method c) {
+		MethodParameter p = new MethodParameter(type, name);
+		p.declaringMethod = c;
+		return p;
+	}
+
+
 }

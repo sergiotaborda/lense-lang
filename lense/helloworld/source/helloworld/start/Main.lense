@@ -8,6 +8,7 @@ import lense.core.lang.Any;
 import lense.core.math.Int16;
 import lense.core.collections.Sequence;
 import lense.core.collections.Tuple;
+import lense.core.collections.Array;
 import lense.core.lang.String;
 import lense.core.lang.Binary;
 import lense.core.math.Int32;
@@ -32,7 +33,8 @@ public class Main extends ConsoleApplication {
  
   	 	console.println("Begin " + this.type().name);
   	 	
-  	 	
+		demoList();  	 	
+
   	 	try {
   	 		var f = 4 / 0;
   	 		console.println("f is " + f);
@@ -175,9 +177,10 @@ public class Main extends ConsoleApplication {
   		assert(barray[2]);
   		assert(!barray[3]);
   		
+ 
+  		var bitArray : BitArray = barray;
   		
-  			
-  		//var bitArray : BitArray = barray;
+  		console.println("BitArray is : {{ bitArray }}");
   	
   	  	var map = { 1 : "a", 2 : "b", 3 : "c" };
   	 
@@ -297,6 +300,18 @@ public class Main extends ConsoleApplication {
   		return o;
   	}
 
+	private demoList(){
+		
+		val arr : Array<Natural> = [1,2,3,4,5];
 
+		for (val a in arr){
+			console.println("Element {{ a }}" );
+		}
+
+		val list : List<Natural> = arr; 
+
+		console.println("List size is {{ list.size }}");
+		console.println("List is {{ list }}");
+	}
 }
 

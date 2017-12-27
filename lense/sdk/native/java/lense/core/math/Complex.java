@@ -6,17 +6,17 @@ import lense.core.lang.java.Constructor;
 
 public class Complex extends Number{
 
-    @Constructor
+    @Constructor(paramsSignature = "")
     public static Complex constructor (){
         return new Complex(Real.ZERO, Real.ZERO);
     }
     
-    @Constructor
+    @Constructor(paramsSignature = "lense.core.math.Real")
     public static Complex valueOfReal( Real real){
         return new Complex(real, Real.ZERO);
     }
     
-    @Constructor
+    @Constructor(paramsSignature = "lense.core.math.Real, lense.core.math.Real")
     public static Complex constructor (Real real, Real imginary){
         return new Complex(real, Real.ZERO);
     }

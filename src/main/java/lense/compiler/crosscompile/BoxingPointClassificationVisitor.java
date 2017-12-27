@@ -16,12 +16,14 @@ import lense.compiler.ast.FieldOrPropertyAccessNode;
 import lense.compiler.ast.MethodDeclarationNode;
 import lense.compiler.ast.MethodInvocationNode;
 import lense.compiler.ast.ReturnNode;
+import lense.compiler.ast.TypedNode;
 import lense.compiler.ast.VariableDeclarationNode;
 import lense.compiler.crosscompile.BoxingPointNode.BoxingDirection;
+import lense.compiler.type.variable.CalculatedTypeVariable;
 import lense.compiler.type.variable.TypeVariable;
 import lense.compiler.typesystem.LenseTypeSystem;
 public class BoxingPointClassificationVisitor implements Visitor<AstNode> {
-			 
+
 	private TypeVariable expectedType;
 
 	@Override
@@ -52,57 +54,74 @@ public class BoxingPointClassificationVisitor implements Visitor<AstNode> {
 		if (node instanceof ReturnNode){
 			ReturnNode r = (ReturnNode)node;
 			ExpressionNode val = r.getValue();
-			
+
 			r.replace(val, new BoxingPointNode(val, r, u -> ((ReturnNode)u).getExpectedType(),BoxingDirection.BOXING_OUT) );
 		} else if (node instanceof AssignmentNode){
 			AssignmentNode a = (AssignmentNode)node;
-			
+
 			a.replace(a.getRight(), new BoxingPointNode(a.getRight(), (AstNode)a.getLeft(), BoxingDirection.BOXING_OUT));
-			
+
 		}else if (node instanceof VariableDeclarationNode){
 			VariableDeclarationNode v = (VariableDeclarationNode)node;
-			
+
 			if (v.getInitializer() !=null){
 				v.replace(v.getInitializer(), new BoxingPointNode(v.getInitializer(), v, BoxingDirection.BOXING_OUT));
 			}
-	
+
 		}else if (node instanceof MethodInvocationNode){
 			MethodInvocationNode m = (MethodInvocationNode)node;
-			
+
 			if (!m.getTypeVariable().getTypeDefinition().getName().equals(LenseTypeSystem.Void().getName())){
-				
+				// outbox return 
 				m.getParent().replace(m, new BoxingPointNode(m, m, BoxingDirection.BOXING_OUT));
 			}
-			
+
 		} else if (node instanceof FieldOrPropertyAccessNode){
-			
+
 			FieldOrPropertyAccessNode m = (FieldOrPropertyAccessNode)node;
 			m.getParent().replace(m, new BoxingPointNode(m, m, BoxingDirection.BOXING_OUT));
-		} else if (node instanceof ArgumentListNode){
-			
-			if (node.getParent().getParent() instanceof MethodInvocationNode){
-				if (((MethodInvocationNode)node.getParent().getParent()).isPropertyDerivedMethod()){
-					return;
-				}
-			}
-			for (AstNode a  : node.getChildren()){
-				
-				if (a instanceof CaptureReifiedTypesNode) {
-					continue;
-				}
-				 ArgumentListItemNode item  = (ArgumentListItemNode)a;
-				 if (item.getExpectedType() == null){
-					 continue;
-				 }
+		} else if (node instanceof ArgumentListItemNode){
+			ArgumentListItemNode item  = (ArgumentListItemNode)node;
 
-				 Function<AstNode, TypeVariable> f = i -> ((ArgumentListItemNode)i).getExpectedType();
-				 if (!(item.getFirstChild() instanceof BoxingPointNode)){
-					 item.replace(item.getFirstChild(), new BoxingPointNode((ExpressionNode)item.getFirstChild(), item, f , BoxingDirection.BOXING_IN));
-				 } else {
-					 continue;
-				 }
-				
+			AstNode theItem = item.getFirstChild();
+
+			if (theItem instanceof CaptureReifiedTypesNode) {
+				return;
+			} else if (theItem instanceof ArgumentListNode) {
+
+				for (AstNode a : theItem.getChildren()) {
+					visitAfterChildren(a);
+				}
+				return;
 			}
+
+
+			if (item.getExpectedType() == null){
+				return;
+			}
+
+			if (theItem instanceof BoxingPointNode){
+				BoxingPointNode box = (BoxingPointNode)theItem;
+
+				if (box.isBoxingDirectionOut()) {
+					// trying to box in a box out = no boxing
+					item.replace(box, box.getReferenceNode());
+				} // else is already a box in
+				return;
+			}
+
+			TypeVariable typevar =  item.getExpectedType();
+			
+			Function<AstNode, TypeVariable> f = i -> ((ArgumentListItemNode)i).getExpectedType();
+			
+			BoxingPointNode box = new BoxingPointNode((ExpressionNode)theItem, item, f , BoxingDirection.BOXING_IN);
+			
+			box.setCanElide(!typevar.isCalculated());
+			
+			item.replace(theItem, box);
+
+
+
 		} 
 	}
 

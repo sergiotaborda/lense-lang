@@ -67,7 +67,7 @@ public class ClasspathRepository implements TypeRepository, ModulesRepository{
 	                }
 	                
 				}
-				moduleRepo.simplify();
+				moduleRepo.consolidate();
 			}
 			
 			

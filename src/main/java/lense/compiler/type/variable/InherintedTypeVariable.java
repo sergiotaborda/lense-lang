@@ -24,7 +24,7 @@ public class InherintedTypeVariable extends CalculatedTypeVariable  {
 		this.positionVariance = positionVariance;
 	}
 	
-	protected IntervalTypeVariable original(){
+	protected TypeVariable original(){
 		return declaringClass.getSuperDefinition().getGenericParameters().get(superTypeParameterIndex);
 	}
 	
@@ -39,7 +39,7 @@ public class InherintedTypeVariable extends CalculatedTypeVariable  {
 
 
 	@Override
-	public IntervalTypeVariable changeBaseType(TypeDefinition concrete) {
+	public TypeVariable changeBaseType(TypeDefinition concrete) {
 		return new InherintedTypeVariable(concrete, superTypeParameterIndex,positionVariance );
 	}
 

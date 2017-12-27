@@ -2,7 +2,6 @@ package lense.compiler.crosscompile.javascript;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -75,20 +74,15 @@ import lense.compiler.crosscompile.PrimitiveBooleanOperationsNode;
 import lense.compiler.crosscompile.PrimitiveBooleanUnbox;
 import lense.compiler.crosscompile.PrimitiveBooleanValue;
 import lense.compiler.crosscompile.java.JavaSourceWriterVisitor;
-import lense.compiler.type.LenseTypeDefinition;
 import lense.compiler.type.TypeDefinition;
-import lense.compiler.type.variable.DeclaringTypeBoundedTypeVariable;
 import lense.compiler.type.variable.FixedTypeVariable;
-import lense.compiler.type.variable.IntervalTypeVariable;
 import lense.compiler.type.variable.TypeVariable;
-import lense.compiler.typesystem.LenseTypeSystem;
-import lense.compiler.typesystem.Visibility;
 
 public class Ecma5JavascriptWriterVisitor implements Visitor<AstNode> {
 
     private PrintWriter writer;
-    private String rootNameSpace;
     private File nativeFolder;
+	private String rootNameSpace;
 
     /**
      * Constructor.
@@ -973,47 +967,6 @@ public class Ecma5JavascriptWriterVisitor implements Visitor<AstNode> {
         writer.println("}");
     }
 
-    private void appendGenerics(StringBuilder generics, LenseTypeDefinition typeDefinition, TypeVariable p) {
-        if (p instanceof DeclaringTypeBoundedTypeVariable) {
-            DeclaringTypeBoundedTypeVariable d = (DeclaringTypeBoundedTypeVariable) p;
-            generics.append(typeDefinition.getGenericParameterSymbolByIndex(d.getIndex()));
-        } else if (p instanceof IntervalTypeVariable) {
-            appendGenerics(generics, typeDefinition, ((IntervalTypeVariable) p).getUpperBound());
-        } else {
-            TypeDefinition td = p.getTypeDefinition();
-            generics.append(td.getName());
-            if (td.isGeneric()) {
-                generics.append("<");
-                for (IntervalTypeVariable iv : td.getGenericParameters()) {
-
-                    appendGenerics(generics, typeDefinition, iv);
-                    generics.append(",");
-                }
-                generics.deleteCharAt(generics.length() - 1);
-                generics.append(">");
-            }
-
-        }
-    }
-
-    private void writeVisibility(Visibility visibility) {
-        if (visibility == null) {
-            return;
-        }
-        switch (visibility) {
-        case Public:
-            writer.print("public ");
-            break;
-        case Private:
-            writer.print("private ");
-            break;
-        case Protected:
-            writer.print("protected ");
-            break;
-
-        }
-    }
-
     private void writeType(TypeNode t) {
         if (t.getName().equals("lense.core.lang.Void")) {
             writer.print("void");
@@ -1034,7 +987,7 @@ public class Ecma5JavascriptWriterVisitor implements Visitor<AstNode> {
                 writeGenerics(def);
 
             } else {
-                IntervalTypeVariable interval = ((IntervalTypeVariable) type);
+                TypeVariable interval = ((TypeVariable) type);
                 writer.print(interval.getSymbol());
                 if (!interval.getSymbol().equals(interval.getUpperBound().getSymbol())) {
                     writer.print(" extends ");

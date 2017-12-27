@@ -7,12 +7,12 @@ import lense.core.lang.java.Constructor;
 public class Imaginary extends Number{
 
 	
-	@Constructor
+	@Constructor(paramsSignature = "")
 	public static Imaginary constructor (){
 		return valueOf(Real.ZERO);
 	}
 	
-	@Constructor
+	@Constructor(paramsSignature = "lense.core.math.Real")
 	public static Imaginary valueOf(Real real){
 		return new Imaginary(real);
 	}

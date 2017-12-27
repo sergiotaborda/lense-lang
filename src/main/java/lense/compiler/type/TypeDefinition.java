@@ -7,7 +7,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
-import lense.compiler.type.variable.IntervalTypeVariable;
 import lense.compiler.type.variable.TypeVariable;
 
 /**
@@ -15,7 +14,6 @@ import lense.compiler.type.variable.TypeVariable;
  */
 public interface TypeDefinition {
 
-	
 	public String getName();
 
 	public String getSimpleName();
@@ -36,7 +34,7 @@ public interface TypeDefinition {
 	
 	public TypeDefinition getSuperDefinition();
 
-	public List<IntervalTypeVariable> getGenericParameters();
+	public List<TypeVariable> getGenericParameters();
 
 	public Optional<Constructor> getConstructorByParameters(ConstructorParameter ... parameters);
 		

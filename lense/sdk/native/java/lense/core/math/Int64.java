@@ -14,12 +14,12 @@ import lense.core.lang.java.Property;
 
 public class Int64 extends Integer implements Binary{
 
-	@Constructor
+	@Constructor(paramsSignature = "")
 	public static Int64 constructor (){
 		return new Int64(0);
 	}
 	
-	@Constructor(isImplicit = true)
+	@Constructor(isImplicit = true , paramsSignature = "lense.core.lang.Binary")
 	public static Int64 valueOf (Binary binary){
 		return new Int64(0);
 	}
@@ -34,13 +34,13 @@ public class Int64 extends Integer implements Binary{
 		return new Int64(n);
 	}  
 	
-	@Constructor
+	@Constructor(paramsSignature = "lense.core.math.Natural")
 	public static Int64 valueOf(Natural n){
 		// TODO validate overflow
 		return new Int64(n.toPrimitiveInt());
 	}  
 	
-	@Constructor
+	@Constructor(paramsSignature = "lense.core.lang.String")
 	public static Int64 parse(String s){
 		return new Int64(java.lang.Long.parseLong(s));
 	}

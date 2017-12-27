@@ -8,11 +8,21 @@ import java.util.Optional;
 import java.util.function.Function;
 
 import lense.compiler.type.TypeDefinition;
+import lense.compiler.typesystem.Variance;
 
 /**
  * 
  */
 public interface TypeVariable {
+
+
+
+	TypeVariable getLowerBound();
+
+	TypeVariable getUpperBound();
+
+	Variance getVariance();
+
 
 	/**
 	 * The generic type parameter name, like T or S.
@@ -20,18 +30,17 @@ public interface TypeVariable {
 	 */
 	public Optional<String> getSymbol();
 
-	public IntervalTypeVariable toIntervalTypeVariable();
-
-	public List<IntervalTypeVariable> getGenericParameters();
+	public List<TypeVariable> getGenericParameters();
 
 	public TypeDefinition getTypeDefinition();
-	
 
-    TypeVariable changeBaseType(TypeDefinition concrete);
+
+	TypeVariable changeBaseType(TypeDefinition concrete);
 
 	public boolean isSingleType();
 	public boolean isFixed();
+	public boolean isCalculated();
 
-    public void ensureNotFundamental(Function<TypeDefinition, TypeDefinition> convert);
-    
+	public void ensureNotFundamental(Function<TypeDefinition, TypeDefinition> convert);
+
 }

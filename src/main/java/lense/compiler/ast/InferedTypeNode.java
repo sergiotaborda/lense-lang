@@ -3,7 +3,6 @@ package lense.compiler.ast;
 import java.util.function.Supplier;
 
 import lense.compiler.type.TypeDefinition;
-import lense.compiler.type.variable.IntervalTypeVariable;
 import lense.compiler.type.variable.TypeVariable;
 
 public class InferedTypeNode extends TypeNode {
@@ -31,7 +30,7 @@ public class InferedTypeNode extends TypeNode {
 		return this.originalTypeCalculator.get().getTypeVariable().getGenericParameters().size();
 	}
 	
-	public IntervalTypeVariable getTypeParameter() {
+	public TypeVariable getTypeParameter() {
 		throw new UnsupportedOperationException("Cannot add ParamettricTypes to infered type node");
 	}
 	
@@ -70,7 +69,7 @@ public class InferedTypeNode extends TypeNode {
 
 
 	
-	public void setTypeParameter(IntervalTypeVariable typeParameter) {
+	public void setTypeParameter(TypeVariable typeParameter) {
 		throw new UnsupportedOperationException("Cannot set TypeParameter to infered type node");
 	}
 

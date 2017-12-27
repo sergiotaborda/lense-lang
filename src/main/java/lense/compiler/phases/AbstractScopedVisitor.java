@@ -12,9 +12,9 @@ import lense.compiler.context.SemanticScope;
 import lense.compiler.context.VariableInfo;
 import lense.compiler.type.LenseTypeDefinition;
 import lense.compiler.type.TypeDefinition;
+import lense.compiler.type.variable.DeclaringTypeBoundedTypeVariable;
 import lense.compiler.type.variable.FixedTypeVariable;
 import lense.compiler.type.variable.GenericTypeBoundToDeclaringTypeVariable;
-import lense.compiler.type.variable.IntervalTypeVariable;
 import lense.compiler.type.variable.RangeTypeVariable;
 import lense.compiler.type.variable.TypeVariable;
 import lense.compiler.typesystem.LenseTypeSystem;
@@ -36,7 +36,7 @@ public abstract class AbstractScopedVisitor extends AbstractLenseVisitor  {
 	
 	protected abstract Optional<LenseTypeDefinition> getCurrentType();
 	
-    protected IntervalTypeVariable resolveTypeDefinition(TypeNode t) {
+    protected TypeVariable resolveTypeDefinition(TypeNode t) {
 
         if (t.getTypeParameter() != null){
             return t.getTypeParameter();
@@ -61,7 +61,7 @@ public abstract class AbstractScopedVisitor extends AbstractLenseVisitor  {
             type = this.getCurrentType().get();
         } else {
             try {
-                type = semanticContext.typeForName(t.getName(),t.getTypeParametersCount());
+                type = semanticContext.typeForName(t);
             } catch (lense.compiler.type.TypeNotFoundException e) {
              throw new CompilationError(t.getParent(), e.getMessage());
             }
@@ -80,10 +80,11 @@ public abstract class AbstractScopedVisitor extends AbstractLenseVisitor  {
                         VariableInfo variableInfo = currentScope.searchVariable(typeNode.getName());
                         if (variableInfo.isTypeVariable()){
 
-                            typeVariable = new GenericTypeBoundToDeclaringTypeVariable(type, currentScope.getCurrentType(), index , typeNode.getName(),  Variance.Covariant);
+                          //  typeVariable = new GenericTypeBoundToDeclaringTypeVariable(type, currentScope.getCurrentType(), index , typeNode.getName(),  Variance.Covariant);
+                            typeVariable = new DeclaringTypeBoundedTypeVariable(currentScope.getCurrentType(), index , typeNode.getName(),  Variance.Covariant);
 
                         } else {
-                            typeVariable = new FixedTypeVariable(semanticContext.typeForName(typeNode.getName(),typeNode.getTypeParametersCount()));
+                            typeVariable = new FixedTypeVariable(semanticContext.typeForName(typeNode));
                         }
 
                     }
@@ -100,7 +101,7 @@ public abstract class AbstractScopedVisitor extends AbstractLenseVisitor  {
         }
 
         t.setTypeVariable(new FixedTypeVariable(type));
-        t.setTypeParameter(t.getTypeVariable().toIntervalTypeVariable());
+        t.setTypeParameter(t.getTypeVariable());
 
 
         return t.getTypeParameter();

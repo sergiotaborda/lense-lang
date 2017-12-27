@@ -11,7 +11,7 @@ public final class Equal extends Comparison{
 
 	public static Equal Equal = new Equal();
 
-	@Constructor
+	@Constructor(paramsSignature = "")
 	public static Equal constructor(){
 		return Equal;
 	}

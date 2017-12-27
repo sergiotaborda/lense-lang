@@ -28,6 +28,8 @@ import java.util.jar.Manifest;
 import lense.compiler.CompilationError;
 import lense.compiler.FileLocations;
 import lense.compiler.LenseCompiler;
+import lense.compiler.asm.ByteCodeReader;
+import lense.compiler.asm.ByteCodeTypeDefinitionReader;
 import lense.compiler.ast.ModuleNode;
 import lense.compiler.crosscompile.ErasurePhase;
 import lense.compiler.crosscompile.java.JavaCompilerBackEndFactory.JavaCompilerBackEnd;
@@ -36,6 +38,7 @@ import lense.compiler.phases.CompositePhase;
 import lense.compiler.phases.DesugarPhase;
 import lense.compiler.phases.ReificationPhase;
 import lense.compiler.repository.UpdatableTypeRepository;
+import lense.compiler.type.TypeDefinition;
 import lense.core.lang.reflection.JavaReifiedArguments;
 
 /**
@@ -203,14 +206,16 @@ public class LenseToJavaCompiler extends LenseCompiler{
 		}
 	}
 
-	protected void compileNative(FileLocations fileLocations, Map<String, File> nativeTypes) throws IOException {
+	protected void compileNative(FileLocations fileLocations, Map<String, File> nativeTypes, UpdatableTypeRepository typeContainer) throws IOException {
 
 		if (!fileLocations.getNativeFolder().exists()){
 			return;
 		}
+		
+		ByteCodeTypeDefinitionReader reader = new ByteCodeTypeDefinitionReader(typeContainer);
+		
 		List<File> files = new LinkedList<>();
-
-
+		
 		final Path rootDir = fileLocations.getNativeFolder().toPath();
 
 
@@ -262,6 +267,9 @@ public class LenseToJavaCompiler extends LenseCompiler{
                 } else {
                     Files.move(source.toPath(), target.toPath());
                     nativeTypes.put(packageFile.substring(1).replace(File.separatorChar, '.').replaceAll(".class",""), target);
+                    
+                    TypeDefinition type = reader.readNative(target);
+                    typeContainer.registerType(type, type.getGenericParameters().size());
                 }
 
             }

@@ -7,7 +7,7 @@ public class Method extends Base {
 
     private java.lang.reflect.Method javaMethod;
 
-    @Constructor
+    @Constructor(paramsSignature = "")
     public static Method constructor(){
         throw new IllegalArgumentException("Methods cannot be created directly");
     }

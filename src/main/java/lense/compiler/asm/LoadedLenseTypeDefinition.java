@@ -5,7 +5,7 @@ import java.util.List;
 
 import lense.compiler.type.LenseTypeDefinition;
 import lense.compiler.type.TypeKind;
-import lense.compiler.type.variable.IntervalTypeVariable;
+import lense.compiler.type.variable.TypeVariable;
 import lense.compiler.typesystem.FundamentalLenseTypeDefinition;
 
 public class LoadedLenseTypeDefinition extends FundamentalLenseTypeDefinition {
@@ -15,25 +15,37 @@ public class LoadedLenseTypeDefinition extends FundamentalLenseTypeDefinition {
 		super(name, kind, superDefinition);
 	}
 
-	public LoadedLenseTypeDefinition(String name, TypeKind kind, LenseTypeDefinition superDefinition,IntervalTypeVariable... parameters) {
+	public LoadedLenseTypeDefinition(String name, TypeKind kind, LenseTypeDefinition superDefinition,TypeVariable... parameters) {
 		super(name, kind, superDefinition,parameters);
 	}
 
 
-	public void setGenericParameters(List<IntervalTypeVariable> typeVar) {
+	private LoadedLenseTypeDefinition() {
+		super();
+	}
+
+	public LoadedLenseTypeDefinition(LenseTypeDefinition other) {
+		super();
+		other.copyTo(this);
+	}
+
+	protected LenseTypeDefinition duplicate() {
+		return copyTo(new LoadedLenseTypeDefinition());
+	}
+
+	public void setGenericParameters(List<TypeVariable> typeVar) {
 
 		if (!genericParameters.isEmpty()) {
 			throw new IllegalStateException("Generics already been set");
 		}
-		
-		for(IntervalTypeVariable variable : typeVar){
-			String genericParameterSymbol = variable.getSymbol().orElseThrow(() -> new RuntimeException("Generic parameter symbol is necessary"));
-			if (!genericParametersMapping.containsKey(genericParameterSymbol)){
-				genericParameters.add(variable);
-				genericParametersMapping.put(genericParameterSymbol, genericParameters.size() - 1);
-				
-				
-			}
+
+		for(TypeVariable variable : typeVar){
+			genericParameters.add(variable);
+
+			variable.getSymbol().ifPresent(  symbol -> {
+				genericParametersMapping.put(symbol, genericParameters.size() - 1);
+			});
+
 		}
 
 		genericParameters = Collections.unmodifiableList(genericParameters);

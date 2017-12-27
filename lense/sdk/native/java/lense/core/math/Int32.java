@@ -8,18 +8,17 @@ import lense.core.lang.ExclusiveDijunctable;
 import lense.core.lang.HashValue;
 import lense.core.lang.Injunctable;
 import lense.core.lang.java.Constructor;
-import lense.core.lang.java.Native;
 import lense.core.lang.java.PlatformSpecific;
 import lense.core.lang.java.Property;
 
 public class Int32 extends Integer implements Binary {
 
-	@Constructor
+	@Constructor(paramsSignature = "")
 	public static Int32 constructor (){
 		return new Int32(0);
 	}
 	
-	@Constructor(isImplicit = true)
+	@Constructor(isImplicit = true, paramsSignature = "lense.core.lang.Binary")
 	public static Int32 valueOf (Binary binary){
 		return new Int32(0);
 	}
@@ -29,7 +28,7 @@ public class Int32 extends Integer implements Binary {
 		return new Int32(n);
 	}  
 	
-	@Constructor(isImplicit = true)
+	@Constructor(isImplicit = true, paramsSignature = "lense.core.math.Whole")
 	public static Int32 valueOf(Whole n){
 		if (n instanceof Int32){
 		    return (Int32)n;

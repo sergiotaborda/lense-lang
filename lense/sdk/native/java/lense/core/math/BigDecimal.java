@@ -7,12 +7,12 @@ import lense.core.lang.String;
 
 public class BigDecimal extends Decimal {
 
-    @Constructor
+    @Constructor(paramsSignature = "")
     public static BigDecimal constructor (){
         return new BigDecimal(java.math.BigDecimal.ZERO);
     }
 
-    @Constructor
+    @Constructor(paramsSignature = "lense.core.math.Rational")
     public static BigDecimal constructor (Rational other){
      
         java.math.BigDecimal n = new java.math.BigDecimal( other.getNumerator().asJavaBigInteger());

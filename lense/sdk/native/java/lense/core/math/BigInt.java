@@ -10,7 +10,7 @@ public class BigInt extends Integer {
 
     private BigInteger value;
 
-    @Constructor
+    @Constructor(paramsSignature = "")
     public static BigInt constructor(){
     	return new BigInt(BigInteger.ZERO);
     }

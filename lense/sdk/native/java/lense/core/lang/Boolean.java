@@ -2,10 +2,9 @@ package lense.core.lang;
 
 import lense.core.lang.java.Base;
 import lense.core.lang.java.Constructor;
-import lense.core.lang.java.Native;
 import lense.core.lang.java.PlatformSpecific;
 
-
+// Must be already erased 
 public class Boolean extends Base implements Any{
 
 	public static Boolean TRUE = new Boolean(true);
@@ -18,7 +17,7 @@ public class Boolean extends Base implements Any{
 		return value ? TRUE : FALSE;
 	}
 	
-	@Constructor
+	@Constructor(paramsSignature = "")
 	public static Boolean constructor(){
 		return FALSE;
 	}
@@ -34,12 +33,12 @@ public class Boolean extends Base implements Any{
 	}
 	
 	
-	public Boolean negate(){
-		return this.value ? FALSE : TRUE;
+	public boolean negate(){
+		return !this.value;
 	}
 	
-	public Boolean flipAll(){
-		return this.value ? FALSE : TRUE;
+	public boolean flipAll(){
+		return !this.value;
 	}
 
 	@Override
@@ -57,16 +56,16 @@ public class Boolean extends Base implements Any{
 		return value ? new HashValue(1) : new HashValue(0);
 	}
 
-	public Boolean and(Boolean other) {
-		return this.value && other.value ? TRUE : FALSE;
+	public boolean and(boolean other) {
+		return this.value && other;
 	}
 
-	public Boolean or(Boolean other) {
-		return this.value || other.value ? TRUE : FALSE;
+	public boolean or(boolean other) {
+		return this.value || other;
 	}
 	
-	public Boolean xor(Boolean other) {
-		return this.value ^ other.value ? TRUE : FALSE;
+	public boolean xor(boolean other) {
+		return this.value ^ other;
 	}
 
 

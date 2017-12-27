@@ -8,7 +8,7 @@ import lense.core.lang.reflection.ReifiedArguments;
 @Signature("[=T<lense.core.lang.Any]::")
 public abstract class Maybe extends Base implements Any{
 
-	@Constructor
+    @Constructor(paramsSignature = "")
 	public static Maybe constructor(ReifiedArguments args){
 		return  None.NONE; // TODO
 	}

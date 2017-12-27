@@ -12,23 +12,29 @@ import lense.compiler.type.variable.TypeVariable;
 public class AssignmentNode extends ExpressionNode {
 
 	public enum Operation {
-		SimpleAssign ("="), 
-		MultiplyAndAssign("*="), 
-		DivideAndAssign ("/="), 
-		RemainderAndAssign ("%="), 
-		AddAndAssign("+="), 
-		SubtractAndAssign ("-="), 
-		LeftShiftAndAssign ("<<="),
-		RightShiftAndAssign(">>="), 
-		PositiveRightShiftAndAssign(">>>="), 
-		BitAndAndAssign ("&="),
-		BitXorAndAssign ("^="), 
-		BitOrAndAssign ("|=");
+		SimpleAssign ("=", false, null), 
+		MultiplyAndAssign("*=", true, ArithmeticOperation.Multiplication), 
+		DivideAndAssign ("/=",true, ArithmeticOperation.Division),
+		IntegerDivideAndAssign ("\\=",true, ArithmeticOperation.IntegerDivision), 
+		RemainderAndAssign ("%=",true, ArithmeticOperation.Remainder), 
+		AddAndAssign("+=",true, ArithmeticOperation.Addition), 
+		SubtractAndAssign ("-=",true, ArithmeticOperation.Subtraction), 
+		LeftShiftAndAssign ("<<=",true, ArithmeticOperation.LeftShift),
+		RightShiftAndAssign(">>=",true, ArithmeticOperation.RightShift), 
+		PositiveRightShiftAndAssign(">>>=",true, ArithmeticOperation.SignedRightShift), 
+		BitAndAndAssign ("&=",true, ArithmeticOperation.BitAnd),
+		BitXorAndAssign ("^=",true, ArithmeticOperation.BitXor), 
+		BitOrAndAssign ("|=",true, ArithmeticOperation.BitOr),
+		ComplementAndAssign ("~=",true, ArithmeticOperation.Complement);
 
 		private String symbol;
+		private boolean isOperateAndAssign;
+		private ArithmeticOperation arithmeticOperation;
 
-		private Operation (String symbol){
+		private Operation (String symbol, boolean isOperateAndAssign , ArithmeticOperation arithmeticOperation){
 			this.symbol = symbol;
+			this.isOperateAndAssign = isOperateAndAssign;
+			this.arithmeticOperation = arithmeticOperation;
 		}
 		
 		/**
@@ -37,6 +43,15 @@ public class AssignmentNode extends ExpressionNode {
 		public String symbol() {
 			return symbol;
 		}
+
+		public boolean isOperateAndAssign() {
+			return isOperateAndAssign;
+		}
+
+		public ArithmeticOperation getArithmeticOperation() {
+			return arithmeticOperation;
+		}
+
 	}
 
 	private Operation operation;
@@ -78,6 +93,9 @@ public class AssignmentNode extends ExpressionNode {
 		return (TypedNode)this.left;
 	}
 
+	public String toString() {
+		return this.getLeft().toString() + operation.toString() + this.getRight().toString();
+	}
 	/**
 	 * @return
 	 */

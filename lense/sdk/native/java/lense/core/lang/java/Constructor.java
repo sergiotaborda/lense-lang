@@ -8,4 +8,5 @@ import java.lang.annotation.RetentionPolicy;
 public @interface Constructor {
 
 	boolean isImplicit() default false ;
+	String paramsSignature();
 }

@@ -1,11 +1,10 @@
 package lense.core.math;
 
-import lense.core.lang.Any;
 import lense.core.lang.java.Constructor;
 
 public abstract class Decimal extends Real {
 
-	@Constructor
+	@Constructor(paramsSignature = "")
 	public static Decimal constructor (){
 		return Decimal32.constructor();
 	}

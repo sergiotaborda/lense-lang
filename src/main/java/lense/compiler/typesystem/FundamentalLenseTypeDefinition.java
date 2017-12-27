@@ -4,7 +4,7 @@ import java.util.Arrays;
 
 import lense.compiler.type.LenseTypeDefinition;
 import lense.compiler.type.TypeKind;
-import lense.compiler.type.variable.IntervalTypeVariable;
+import lense.compiler.type.variable.TypeVariable;
 
 public class FundamentalLenseTypeDefinition extends LenseTypeDefinition {
 
@@ -12,7 +12,7 @@ public class FundamentalLenseTypeDefinition extends LenseTypeDefinition {
 		super(name, kind, superDefinition);
 	}
 
-	public FundamentalLenseTypeDefinition(String name, TypeKind kind, LenseTypeDefinition superDefinition,IntervalTypeVariable... parameters) {
+	public FundamentalLenseTypeDefinition(String name, TypeKind kind, LenseTypeDefinition superDefinition,TypeVariable... parameters) {
 		super(name, kind, superDefinition, Arrays.asList(parameters));
 	}
 
@@ -20,4 +20,11 @@ public class FundamentalLenseTypeDefinition extends LenseTypeDefinition {
         return true;
     }
 
+	protected FundamentalLenseTypeDefinition() {
+		super();
+	}
+	
+    protected LenseTypeDefinition duplicate() {
+	   return copyTo(new FundamentalLenseTypeDefinition());
+	}
 }

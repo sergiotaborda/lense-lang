@@ -13,7 +13,7 @@ import lense.compiler.typesystem.Variance;
 /**
  * 
  */
-public class RangeTypeVariable implements IntervalTypeVariable {
+public class RangeTypeVariable implements TypeVariable {
 
 	
 	private Optional<String> symbol;
@@ -41,7 +41,12 @@ public class RangeTypeVariable implements IntervalTypeVariable {
 	}
 	
 	public String toString(){
-		return lower + " < " + upper; 
+		if (symbol.isPresent()) {
+			return lower + " < " + symbol.get() +  " < "  + upper; 
+		} else {
+			return lower + " < " +  upper; 
+		}
+		
 	}
 	
 	/**
@@ -85,18 +90,13 @@ public class RangeTypeVariable implements IntervalTypeVariable {
 
 
 	@Override
-	public IntervalTypeVariable changeBaseType(TypeDefinition concrete) {
+	public TypeVariable changeBaseType(TypeDefinition concrete) {
 		return this;
 	}
 
 
 	@Override
-	public IntervalTypeVariable toIntervalTypeVariable() {
-		return this;
-	}
-
-	@Override
-	public List<IntervalTypeVariable> getGenericParameters() {
+	public List<TypeVariable> getGenericParameters() {
 		return this.getLowerBound().getGenericParameters();
 	}
 	
@@ -136,5 +136,11 @@ public class RangeTypeVariable implements IntervalTypeVariable {
         this.lower.ensureNotFundamental(convert);
         
     }
+
+	@Override
+	public boolean isCalculated() {
+		// TODO Auto-generated method stub
+		return false;
+	}
 
 }

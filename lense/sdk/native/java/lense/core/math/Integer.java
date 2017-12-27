@@ -4,23 +4,22 @@ import java.math.BigInteger;
 
 import lense.core.lang.HashValue;
 import lense.core.lang.java.Constructor;
-import lense.core.lang.java.Native;
 import lense.core.lang.java.NonNull;
 import lense.core.lang.java.PlatformSpecific;
 
 public abstract class Integer extends Whole implements Comparable, SignedNumber{
 
-    @Constructor
+	@Constructor(paramsSignature = "")
 	public static Integer constructor(){
 		return Int32.valueOfNative(0);
 	}
 
-	@Constructor(isImplicit = true)
+	@Constructor(isImplicit = true, paramsSignature = "lense.core.math.Natural")
 	public static Integer valueOf(Natural n){
 		return Int32.valueOfNative(n.toPrimitiveInt());
 	}
 
-	@Constructor(isImplicit = true)
+	@Constructor(isImplicit = true, paramsSignature = "lense.core.math.Whole")
 	public static Integer valueOf(Whole whole) {
 		if (whole instanceof Integer){
 			return (Integer) whole;

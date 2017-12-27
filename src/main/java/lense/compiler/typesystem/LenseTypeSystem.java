@@ -28,7 +28,6 @@ import lense.compiler.type.TypeDefinition;
 import lense.compiler.type.UnionType;
 import lense.compiler.type.variable.DeclaringTypeBoundedTypeVariable;
 import lense.compiler.type.variable.FixedTypeVariable;
-import lense.compiler.type.variable.IntervalTypeVariable;
 import lense.compiler.type.variable.RangeTypeVariable;
 import lense.compiler.type.variable.TypeVariable;
 
@@ -236,7 +235,7 @@ public class LenseTypeSystem {
                 LenseUnitKind.Interface, any, new RangeTypeVariable("R", Variance.Invariant, any, nothing),
                 new RangeTypeVariable("T", Variance.Invariant, any, nothing)));
 
-        LenseTypeDefinition function3 = register(new FundamentalLenseTypeDefinition("lense.core.lang.Function",
+        register(new FundamentalLenseTypeDefinition("lense.core.lang.Function",
                 LenseUnitKind.Interface, any, new RangeTypeVariable("R", Variance.Invariant, any, nothing),
                 new RangeTypeVariable("T", Variance.Invariant, any, nothing),
                 new RangeTypeVariable("T", Variance.Invariant, any, nothing)));
@@ -274,7 +273,7 @@ public class LenseTypeSystem {
         maybe.addConstructor("", new ConstructorParameter(any));
 
         LenseTypeDefinition none = register(new FundamentalLenseTypeDefinition("lense.core.lang.None",
-                LenseUnitKind.Class, specify(maybe, nothing), new IntervalTypeVariable[0]));
+                LenseUnitKind.Class, specify(maybe, nothing), new TypeVariable[0]));
 
         none.addField("None", new FixedTypeVariable(none), Imutability.Imutable); // TODO
                                                                                   // this
@@ -304,7 +303,7 @@ public class LenseTypeSystem {
         tuple.addMethod("head", any); // TODO any -> V
 
         LenseTypeDefinition svoid = register(new FundamentalLenseTypeDefinition("lense.core.lang.Void",
-                LenseUnitKind.Class, specify(tuple, nothing, nothing), new IntervalTypeVariable[0]));
+                LenseUnitKind.Class, specify(tuple, nothing, nothing), new TypeVariable[0]));
 
         LenseTypeDefinition keyValue = register(
                 new FundamentalLenseTypeDefinition("lense.core.collections.KeyValuePair", LenseUnitKind.Interface, any,
@@ -319,7 +318,7 @@ public class LenseTypeSystem {
                 specify(sequence, keyValue), new RangeTypeVariable("K", Variance.ContraVariant, any, nothing),
                 new RangeTypeVariable("V", Variance.Covariant, any, nothing)));
 
-        LenseTypeDefinition binary = register(
+        register(
                 new FundamentalLenseTypeDefinition("lense.core.lang.Binary", LenseUnitKind.Interface, any));
 
         LenseTypeDefinition number = register(
@@ -346,9 +345,9 @@ public class LenseTypeSystem {
                 new FundamentalLenseTypeDefinition("lense.core.math.Integer", LenseUnitKind.Class, whole));
         LenseTypeDefinition sint = register(
                 new FundamentalLenseTypeDefinition("lense.core.math.Int32", LenseUnitKind.Class, integer));
-        LenseTypeDefinition slong = register(
+        register(
                 new FundamentalLenseTypeDefinition("lense.core.math.Int64", LenseUnitKind.Class, integer));
-        LenseTypeDefinition sshort = register(
+        register(
                 new FundamentalLenseTypeDefinition("lense.core.math.Int16", LenseUnitKind.Class, integer));
 
         sint.addConstructor(true, "valueOf", new ConstructorParameter(whole));
@@ -373,7 +372,7 @@ public class LenseTypeSystem {
         sequence.addProperty("size", natural, true, false);
 
         LenseTypeDefinition string = register(new FundamentalLenseTypeDefinition("lense.core.lang.String",
-                LenseUnitKind.Class, any, new IntervalTypeVariable[0]));
+                LenseUnitKind.Class, any, new TypeVariable[0]));
         string.addInterface(specify(sequence, character));
 
         // sint.addConstructor("parse", new ConstructorParameter(string));
@@ -445,7 +444,7 @@ public class LenseTypeSystem {
         return definition;
     }
 
-    public Optional<LenseTypeDefinition> getForName(String name, IntervalTypeVariable... genericTypeParameters) {
+    public Optional<LenseTypeDefinition> getForName(String name, TypeVariable... genericTypeParameters) {
         return Optional.ofNullable(definitions.get(new TypeKey(Arrays.asList(genericTypeParameters), name)));
     }
 
@@ -474,36 +473,31 @@ public class LenseTypeSystem {
         return Optional.empty();
     }
 
-    public boolean isAssignableTo(IntervalTypeVariable type, IntervalTypeVariable target) {
-        if (target.getVariance() == Variance.ContraVariant) {
-            isAssignableTo(target.getUpperBound(), type.getUpperBound());
-        } else if (target.getVariance() == Variance.Covariant) {
-            return isAssignableTo(type.getUpperBound(), target.getUpperBound());
-        }
-
-        return isAssignableTo(type.getUpperBound(), target.getUpperBound())
-                && isAssignableTo(type.getLowerBound(), target.getLowerBound());
-    }
+//    public boolean isAssignableTo(TypeVariable type, TypeVariable target) { // old IntervalTypeVariable
+//        if (target.getVariance() == Variance.ContraVariant) {
+//            isAssignableTo(target.getUpperBound(), type.getUpperBound());
+//        } else if (target.getVariance() == Variance.Covariant) {
+//            return isAssignableTo(type.getUpperBound(), target.getUpperBound());
+//        }
+//
+//        return isAssignableTo(type.getUpperBound(), target.getUpperBound())
+//                && isAssignableTo(type.getLowerBound(), target.getLowerBound());
+//    }
 
     public boolean isAssignableTo(TypeVariable type, TypeVariable target) {
         if (type.isSingleType()) {
             if (target.isSingleType()) {
                 return isAssignableTo(type.getTypeDefinition(), target.getTypeDefinition());
             } else {
-                IntervalTypeVariable interval = (IntervalTypeVariable) target;
+                TypeVariable interval = (TypeVariable) target;
                 // interval contains type ?
                 return isAssignableTo(type, interval.getUpperBound()) && isAssignableTo(interval.getLowerBound(), type);
             }
         } else {
-            IntervalTypeVariable interval = (IntervalTypeVariable) type;
-            if (target instanceof FixedTypeVariable) {
-                return isAssignableTo(interval.getLowerBound(), interval.getUpperBound())
-                        && isAssignableTo(interval.getUpperBound(), target);
-            } else {
-                IntervalTypeVariable other = (IntervalTypeVariable) target;
-                return isAssignableTo(interval.getLowerBound(), other.getLowerBound())
-                        && isAssignableTo(other.getUpperBound(), interval.getUpperBound());
-            }
+       
+                return isAssignableTo(type.getLowerBound(), target.getLowerBound())
+                        && isAssignableTo(target.getUpperBound(), type.getUpperBound());
+            
         }
     }
 
@@ -556,7 +550,7 @@ public class LenseTypeSystem {
         // super type
         if (type.getSuperDefinition() != null) {
             if (!type.getSuperDefinition().getName().equals("lense.core.lang.Any") && type.isGeneric()) {
-                IntervalTypeVariable[] types = new IntervalTypeVariable[type.getGenericParameters().size()];
+                TypeVariable[] types = new TypeVariable[type.getGenericParameters().size()];
                 for (int i = 0; i < types.length; i++) {
                     types[i] = type.getGenericParameters().get(i);
                 }
@@ -585,21 +579,13 @@ public class LenseTypeSystem {
         return specify(definition, new FixedTypeVariable(other));
     }
 
-    public static LenseTypeDefinition specify(TypeDefinition definition, TypeVariable... genericParametersCapture) {
-        IntervalTypeVariable[] defs = new IntervalTypeVariable[genericParametersCapture.length];
-        for (int i = 0; i < genericParametersCapture.length; i++) {
-            defs[i] = genericParametersCapture[i].toIntervalTypeVariable();
-        }
-
-        return specify(definition, defs);
-    }
     
-    public static LenseTypeDefinition specify(TypeDefinition definition, List<IntervalTypeVariable> genericParameters) {
+    public static LenseTypeDefinition specify(TypeDefinition definition, List<TypeVariable> genericParameters) {
 
         return ((LenseTypeDefinition)definition).specify(genericParameters);
     }
     
-    public static LenseTypeDefinition specify(TypeDefinition definition, IntervalTypeVariable... genericParameters) {
+    public static LenseTypeDefinition specify(TypeDefinition definition, TypeVariable... genericParameters) {
         if (definition == null){
             throw new IllegalArgumentException("Definition type is required");
         }
@@ -618,10 +604,10 @@ public class LenseTypeSystem {
             throw new CompilationError("Wrong number of generic arguments for type " + definition + ". Expected "
                     + definition.getGenericParameters().size() + " found " + genericParametersCapture.length);
         }
-        IntervalTypeVariable[] genericParameters = new IntervalTypeVariable[definition.getGenericParameters().size()];
+        TypeVariable[] genericParameters = new TypeVariable[definition.getGenericParameters().size()];
 
         for (int i = 0; i < definition.getGenericParameters().size(); i++) {
-            IntervalTypeVariable gen = definition.getGenericParameters().get(i);
+            TypeVariable gen = definition.getGenericParameters().get(i);
             if (gen.getLowerBound().equals(gen.getUpperBound())) {
                 throw new CompilationError("Cannot specify a non generic type");
             }
@@ -675,10 +661,10 @@ public class LenseTypeSystem {
      */
     public TypeVariable unionOf(TypeVariable a, TypeVariable b) {
         if (a.isSingleType()) {
-            a = a.toIntervalTypeVariable().getUpperBound();
+            a = a.getUpperBound();
         }
         if (b.isSingleType()) {
-            b = b.toIntervalTypeVariable().getUpperBound();
+            b = b.getUpperBound();
         }
 
         if (a == b || a.equals(b)) {

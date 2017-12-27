@@ -7,7 +7,7 @@ import lense.core.lang.java.NonNull;
 
 public class Rational extends Real {
 
-    @Constructor
+	@Constructor(paramsSignature = "")
     public static Rational constructor(Integer n , Integer d){
         return new Rational(n,d);
     }

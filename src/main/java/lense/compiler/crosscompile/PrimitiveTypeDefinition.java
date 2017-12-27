@@ -16,7 +16,6 @@ import lense.compiler.type.Property;
 import lense.compiler.type.TypeDefinition;
 import lense.compiler.type.TypeKind;
 import lense.compiler.type.TypeMember;
-import lense.compiler.type.variable.IntervalTypeVariable;
 import lense.compiler.type.variable.TypeVariable;
 
 public class PrimitiveTypeDefinition implements TypeDefinition {
@@ -54,7 +53,7 @@ public class PrimitiveTypeDefinition implements TypeDefinition {
 	}
 
 	@Override
-	public List<IntervalTypeVariable> getGenericParameters() {
+	public List<TypeVariable> getGenericParameters() {
 		return Collections.emptyList();
 	}
 

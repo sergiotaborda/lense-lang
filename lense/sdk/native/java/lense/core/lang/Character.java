@@ -2,14 +2,14 @@ package lense.core.lang;
 
 import lense.core.lang.java.Base;
 import lense.core.lang.java.Constructor;
-import lense.core.lang.java.Native;
+import lense.core.lang.java.MethodSignature;
 import lense.core.lang.java.PlatformSpecific;
 import lense.core.math.Natural;
 
 
 public final class Character extends Base implements Any, Ordinal{
 
-	@Constructor
+	@Constructor(paramsSignature = "lense.core.math.Natural")
 	public static Character constructor (Natural code){
 		return new Character((char)code.toPrimitiveInt());
 	}
@@ -46,13 +46,15 @@ public final class Character extends Base implements Any, Ordinal{
 	}
 
     @Override     
-    public Object successor() {
+    @MethodSignature(returnSignature = "lense.core.lang.Character" , paramsSignature="")
+    public Character successor() {
      // TODO consider range from 0 to Int16.max
        return new Character(this.code++);
     }
 
     @Override
-    public Object predecessor() {
+    @MethodSignature(returnSignature = "lense.core.lang.Character" , paramsSignature="")
+    public Character predecessor() {
         // TODO consider range from 0 to Int16.max
         return new Character(this.code--);
     }

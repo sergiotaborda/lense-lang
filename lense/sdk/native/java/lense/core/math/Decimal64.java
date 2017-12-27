@@ -7,13 +7,13 @@ import lense.core.lang.java.Constructor;
 
 public class Decimal64 extends Decimal{
 
-	@Constructor
+	@Constructor(paramsSignature = "")
 	public static Decimal64 constructor (){
 		return new Decimal64(0d);
 	}
 	
 	
-	@Constructor(isImplicit= true)
+	@Constructor(isImplicit= true, paramsSignature = "lense.core.math.Real")
 	public static Decimal64 valueOf(Real other){
 		if (other instanceof Decimal64){
 			return (Decimal64)other;
@@ -22,7 +22,7 @@ public class Decimal64 extends Decimal{
 		}
 	}
 	
-	@Constructor(isImplicit= true)
+	@Constructor(isImplicit= true, paramsSignature = "lense.core.math.Whole")
 	public static Decimal64 valueOf(Whole other){
 		return new Decimal64(other.asJavaBigInteger().toString());
 	}

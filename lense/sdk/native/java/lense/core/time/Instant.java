@@ -5,7 +5,7 @@ import lense.core.lang.java.Constructor;
 
 public class Instant extends Base {
 
-	@Constructor
+	@Constructor(paramsSignature = "")
 	public static Instant constructor(){
 		return new Instant();
 	}

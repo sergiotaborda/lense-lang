@@ -8,7 +8,7 @@ public class None extends Maybe {
 
 	public static final None NONE = new None();
 
-	@Constructor
+    @Constructor(paramsSignature = "")
 	public static None constructor(){
 		return NONE;
 	}

@@ -17,7 +17,8 @@ public class BoxingPointNode extends ExpressionNode {
 	private BoxingDirection boxingDirection;
 	private AstNode referenceNode;
 	private Function<AstNode, TypeVariable> read;
-
+	private boolean canElide = true; // can be removed if the value is already of the expected type ?
+	
 	public BoxingPointNode(ExpressionNode expression, AstNode referenceNode, BoxingDirection boxingDirection){
 		this.add(expression);
 		this.referenceNode = referenceNode;
@@ -47,6 +48,14 @@ public class BoxingPointNode extends ExpressionNode {
 
 	public AstNode getReferenceNode() {
 		return referenceNode;
+	}
+
+	public boolean canElide() {
+		return canElide;
+	}
+
+	public void setCanElide(boolean canElide) {
+		this.canElide = canElide;
 	}
 
 

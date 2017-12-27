@@ -93,7 +93,17 @@ public class FieldOrPropertyAccessNode extends NeedTypeCalculationNode {
 	}
 	
 	public FieldKind getKind() {
+
 		return this.kind;
+	}
+
+	public FieldOrPropertyAccessNode duplicate() {
+		FieldOrPropertyAccessNode n = new FieldOrPropertyAccessNode(this.name);
+		
+		n.setKind(this.kind);
+		n.setPrimary(this.primary);
+	
+		return n;
 	}
 
 }

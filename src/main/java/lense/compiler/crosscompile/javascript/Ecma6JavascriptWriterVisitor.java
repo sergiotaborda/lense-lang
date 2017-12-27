@@ -37,11 +37,6 @@ import lense.compiler.ast.FieldAccessNode;
 import lense.compiler.ast.FieldDeclarationNode;
 import lense.compiler.ast.FieldOrPropertyAccessNode;
 import lense.compiler.ast.FieldOrPropertyAccessNode.FieldKind;
-import lense.compiler.crosscompile.PrimitiveBooleanOperationsNode;
-import lense.compiler.crosscompile.BoxingPointNode;
-import lense.compiler.crosscompile.PrimitiveBooleanBox;
-import lense.compiler.crosscompile.PrimitiveBooleanUnbox;
-import lense.compiler.crosscompile.PrimitiveBooleanValue;
 import lense.compiler.ast.ForEachNode;
 import lense.compiler.ast.FormalParameterNode;
 import lense.compiler.ast.InstanceOfNode;
@@ -70,6 +65,11 @@ import lense.compiler.ast.VariableDeclarationNode;
 import lense.compiler.ast.VariableReadNode;
 import lense.compiler.ast.VariableWriteNode;
 import lense.compiler.ast.WhileNode;
+import lense.compiler.crosscompile.BoxingPointNode;
+import lense.compiler.crosscompile.PrimitiveBooleanBox;
+import lense.compiler.crosscompile.PrimitiveBooleanOperationsNode;
+import lense.compiler.crosscompile.PrimitiveBooleanUnbox;
+import lense.compiler.crosscompile.PrimitiveBooleanValue;
 import lense.compiler.type.LenseTypeDefinition;
 import lense.compiler.type.LenseUnitKind;
 import lense.compiler.type.TypeDefinition;
@@ -77,7 +77,6 @@ import lense.compiler.type.variable.CalculatedTypeVariable;
 import lense.compiler.type.variable.DeclaringTypeBoundedTypeVariable;
 import lense.compiler.type.variable.FixedTypeVariable;
 import lense.compiler.type.variable.GenericTypeBoundToDeclaringTypeVariable;
-import lense.compiler.type.variable.IntervalTypeVariable;
 import lense.compiler.type.variable.RangeTypeVariable;
 import lense.compiler.type.variable.TypeVariable;
 import lense.compiler.typesystem.Imutability;
@@ -349,7 +348,7 @@ public class Ecma6JavascriptWriterVisitor implements Visitor<AstNode> {
 					if (t.getSuperType() != null && t.getSuperType().getTypeVariable().getTypeDefinition().getGenericParameters().size() > 0){
 
 						generics.append(t.getSuperType().getTypeVariable().getTypeDefinition().getName()).append("<");
-						for ( IntervalTypeVariable p : t.getSuperType().getTypeVariable().getTypeDefinition().getGenericParameters()){
+						for (TypeVariable p : t.getSuperType().getTypeVariable().getTypeDefinition().getGenericParameters()){
 							generics.append(p.getSymbol().orElse(p.getUpperBound().getTypeDefinition().getName()));
 							generics.append(",");
 						}
@@ -364,7 +363,7 @@ public class Ecma6JavascriptWriterVisitor implements Visitor<AstNode> {
 
 							if (td.isGeneric()){
 								generics.append(td.getName()).append("<");
-								for ( IntervalTypeVariable p : td.getGenericParameters()){
+								for ( TypeVariable p : td.getGenericParameters()){
 
 									appendGenerics(generics, typeDefinition, p);
 									generics.append(",");
@@ -1066,7 +1065,7 @@ public class Ecma6JavascriptWriterVisitor implements Visitor<AstNode> {
 					if (typeVar.getTypeDefinition().isGeneric()){
 						writer.print("<");
 						boolean first = true;
-						for (IntervalTypeVariable a: typeVar.getTypeDefinition().getGenericParameters()){
+						for (TypeVariable a: typeVar.getTypeDefinition().getGenericParameters()){
 							if (!first){
 								writer.print(",");
 							}
@@ -1208,15 +1207,15 @@ public class Ecma6JavascriptWriterVisitor implements Visitor<AstNode> {
 	private void appendGenerics(StringBuilder generics, LenseTypeDefinition typeDefinition, TypeVariable p) {
 		if (p instanceof DeclaringTypeBoundedTypeVariable){
 			DeclaringTypeBoundedTypeVariable d = (DeclaringTypeBoundedTypeVariable)p;
-			generics.append(typeDefinition.getGenericParameterSymbolByIndex(d.getIndex()));
-		} else if (p instanceof IntervalTypeVariable){
-			appendGenerics(generics, typeDefinition, ((IntervalTypeVariable)p).getUpperBound());
+			generics.append(typeDefinition.getGenericParameterSymbolByIndex(d.getParameterIndex()));
+		} else if (p instanceof TypeVariable){
+			appendGenerics(generics, typeDefinition, ((TypeVariable)p).getUpperBound());
 		} else {
 			TypeDefinition td = p.getTypeDefinition();
 			generics.append(td.getName());
 			if (td.isGeneric()){
 				generics.append("<");
-				for ( IntervalTypeVariable iv : td.getGenericParameters()){
+				for ( TypeVariable iv : td.getGenericParameters()){
 
 					appendGenerics(generics, typeDefinition, iv);
 					generics.append(",");
@@ -1261,14 +1260,14 @@ public class Ecma6JavascriptWriterVisitor implements Visitor<AstNode> {
 
 				writer.print(upper.getTypeDefinition().getName());
 
-			} else if (type instanceof FixedTypeVariable) {
+			} else if (type.isFixed()) {
 
 				TypeDefinition def = type.getTypeDefinition();
 				writer.print(def.getName());
 				writeGenerics(def);
 
 			} else {
-				IntervalTypeVariable interval = ((IntervalTypeVariable) type);
+				TypeVariable interval = ((TypeVariable) type);
 				writer.print(interval.getSymbol());
 				if (!interval.getSymbol().equals(interval.getUpperBound().getSymbol())) {
 					writer.print(" extends ");

@@ -37,7 +37,7 @@ public class TypeMemberDeclaringTypeVariable extends CalculatedTypeVariable impl
 	}
 
 	@Override
-	protected IntervalTypeVariable original() {
+	protected TypeVariable original() {
 		if (parameterIndex > member.getDeclaringType().getGenericParameters().size() - 1){
 			throw new IndexOutOfBoundsException("Memebr " + member.getDeclaringType() + " as no generic type index " +  parameterIndex);
 		}
@@ -57,7 +57,7 @@ public class TypeMemberDeclaringTypeVariable extends CalculatedTypeVariable impl
 
 
 	@Override
-	public IntervalTypeVariable changeBaseType(TypeDefinition concrete) {
+	public TypeVariable changeBaseType(TypeDefinition concrete) {
 		return new TypeMemberDeclaringTypeVariable(this.member, parameterIndex);
 	}
 
