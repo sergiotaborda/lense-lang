@@ -256,11 +256,17 @@ public class JavalizeVisitor implements Visitor<AstNode>{
 
 
     private void checkMatch(AstNode node,TypeMember c, TypeMember n) {
-        if (n.isAbstract() && !c.isAbstract()){
-            throw new lense.compiler.CompilationError(node, "Native implementation abstractness does not match for member " + c.getName() + "(found " + n.isAbstract() + ", expected " + c.isAbstract() + ")");
-        } else if (c.getVisibility() != n.getVisibility()){
-            throw new lense.compiler.CompilationError(node, "Native implementation visibility does not match for member " + c.getName() + "(found " + n.getVisibility() + ", expected " + c.getVisibility() + ")");
+        if (c.getVisibility() != n.getVisibility()){
+            throw new lense.compiler.CompilationError(node, "Native implementation visibility does not match for member '" + c.getName() + "'(found " + n.getVisibility() + ", expected " + c.getVisibility() + ")");
         }
+        
+        // allow matching abstractness
+        // allow for the native to be abstract if the source is not
+        // NOT allow for the native to be NOT abstract if the source is 
+        
+        if ( c.getDeclaringType().getKind() != LenseUnitKind.Interface && c.isAbstract() && !n.isAbstract()){
+            throw new lense.compiler.CompilationError(node, "Native implementation of an abstract method must be abstract also'" + c.getName() + "'(found " + n.isAbstract() + ", expected " + c.isAbstract() + ")");
+        } 
     }
 
     private Optional<IndexerProperty> isContainedIn(IndexerProperty c, List<IndexerProperty> nativeIndexers) {

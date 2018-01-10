@@ -43,4 +43,15 @@ public class None extends Maybe {
         return this;
     }
 
+	
+    @Override
+	public Any getValue() {
+		throw new IllegalIndexException();
+	}
+
+	@Override
+	public boolean is(Any content) {
+		return false;
+	}
+
 }

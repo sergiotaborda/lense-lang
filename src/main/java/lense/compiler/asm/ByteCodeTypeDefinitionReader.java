@@ -20,6 +20,9 @@ public class ByteCodeTypeDefinitionReader {
 	}
 	
 	public TypeDefinition readNative(File classFile) throws IOException {	
+		if (classFile == null) {
+			throw new IllegalArgumentException("Class file cannot be null");
+		}
 		return readNative(new FileInputStream(classFile));
 	}
 	
@@ -32,7 +35,7 @@ public class ByteCodeTypeDefinitionReader {
 		cr.accept(cp, 0);
 		
 		
-		return cp.getType();
+		return cp.getBuilder().build();
 
 	}
 	

@@ -818,6 +818,19 @@ public class LenseTypeSystem {
         return type.getName().equals(Any().getName());
     }
 
+	
+    public boolean isMaybe(TypeDefinition type) {
+		
+    	return type.getName().equals("lense.core.lang.None") || type.getName().equals("lense.core.lang.Some") || type.getName().equals("lense.core.lang.Maybe");
+	}
+
+    public boolean isMaybe(TypeVariable typeVar) {
+		if (typeVar.isSingleType()) {
+			TypeDefinition type = typeVar.getTypeDefinition();
+			return type.getName().equals("lense.core.lang.None") || type.getName().equals("lense.core.lang.Some") || type.getName().equals("lense.core.lang.Maybe");
+		}
+    	return false;
+	}
 
 
 }

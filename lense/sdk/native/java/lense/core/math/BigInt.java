@@ -5,6 +5,7 @@ import java.math.BigInteger;
 import lense.core.lang.HashValue;
 import lense.core.lang.java.Constructor;
 import lense.core.lang.java.NonNull;
+import lense.core.lang.java.PlatformSpecific;
 
 public class BigInt extends Integer {
 
@@ -99,6 +100,7 @@ public class BigInt extends Integer {
 		return new BigInt(this.value.negate());
 	}
 
+	@PlatformSpecific
 	@Override
 	public int hashCode() {
 		return value.hashCode();
@@ -125,6 +127,7 @@ public class BigInt extends Integer {
         return new HashValue(this.value.hashCode());
     }
 
+	@PlatformSpecific
     @Override
     public int toPrimitiveInt() {
         return value.intValue();

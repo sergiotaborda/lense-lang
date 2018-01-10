@@ -13,7 +13,7 @@ import lense.core.lang.reflection.JavaReifiedArguments;
 import lense.core.math.Natural;
 
 @PlatformSpecific
-final class NativeObjectArray extends Array {
+final class NativeObjectArray extends Array implements SmallArray{
 
 	private Any[] array;
 	
@@ -40,6 +40,11 @@ final class NativeObjectArray extends Array {
 	}
 	
 	@Override
+	public Any getAtPrimitiveIndex(int index) {
+		return array[index];
+	}
+	
+	@Override
 	public void set(Natural index, Any value) {
 		if (index.toPrimitiveInt() >= array.length){
 			throw IllegalIndexException.constructor(/*"Index from " + size + " on is not available"*/);
@@ -55,7 +60,7 @@ final class NativeObjectArray extends Array {
 
 	@Override
 	public Iterator getIterator() {
-		return new NativeArrayIterator(array);
+		return new ArrayIterator(this, array.length);
 	}
 
 	@Override
@@ -123,4 +128,14 @@ final class NativeObjectArray extends Array {
 		
 
 	}
+
+
+	@Override
+	public int size() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+
+
 }

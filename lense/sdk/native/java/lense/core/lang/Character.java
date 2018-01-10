@@ -25,7 +25,7 @@ public final class Character extends Base implements Any, Ordinal{
 		this.code = code;
 	}
 	
-	
+	@PlatformSpecific
 	public char toPrimitiveChar(){
 		return code;
 	}

@@ -7,7 +7,7 @@ import lense.core.lang.reflection.Type;
 @PlatformSpecific
 public class Base implements Any{
 
-	@Override @Native
+	@Override @PlatformSpecific
 	public java.lang.String toString(){
 		return this.asString().toString();
 	}
@@ -17,7 +17,7 @@ public class Base implements Any{
 		return other instanceof Any && this.equalsTo((Any)other);
 	}
 	
-	@Override @Native
+	@Override @PlatformSpecific
 	public  int hashCode(){
 		return this.hashValue().hashCode();
 	}

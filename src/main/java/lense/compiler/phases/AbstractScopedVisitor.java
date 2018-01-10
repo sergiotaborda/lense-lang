@@ -78,9 +78,27 @@ public abstract class AbstractScopedVisitor extends AbstractLenseVisitor  {
                     typeVariable =  typeNode.getTypeVariable();
                     if (typeVariable == null) {
                         VariableInfo variableInfo = currentScope.searchVariable(typeNode.getName());
-                        if (variableInfo.isTypeVariable()){
+                        if (variableInfo == null) {
+                        	// possible composed generic like Array<Maybe<T>>
+                        	Optional<TypeDefinition> innerType = this.getSemanticContext().resolveTypeForName(typeNode.getName(), 1);
 
-                          //  typeVariable = new GenericTypeBoundToDeclaringTypeVariable(type, currentScope.getCurrentType(), index , typeNode.getName(),  Variance.Covariant);
+                        	if (innerType.isPresent()) {
+                        		
+                        		if (innerType.get().getGenericParameters().isEmpty()) {
+                        			typeVariable = new FixedTypeVariable(LenseTypeSystem.specify(type, new FixedTypeVariable(innerType.get())));
+                        		} else {
+                        			
+                        			Optional<Integer> opIndex = ((LenseTypeDefinition)currentScope.getCurrentType()).getGenericParameterIndexBySymbol(innerType.get().getGenericParameters().get(0).getSymbol().get());
+                        			
+                        		    typeVariable = new GenericTypeBoundToDeclaringTypeVariable(innerType.get(), currentScope.getCurrentType(), opIndex.get() , typeNode.getName(),  Variance.Covariant);
+                        		    typeVariable = new FixedTypeVariable(LenseTypeSystem.specify(type,typeVariable));
+                        		}
+
+                        	} else {
+                        		throw new CompilationError(t, "Type " +  typeNode.getName() + "is not recognized");
+                        	}
+                        	
+                        } else if (variableInfo.isTypeVariable()){
                             typeVariable = new DeclaringTypeBoundedTypeVariable(currentScope.getCurrentType(), index , typeNode.getName(),  Variance.Covariant);
 
                         } else {

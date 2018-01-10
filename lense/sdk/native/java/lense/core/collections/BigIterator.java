@@ -3,8 +3,10 @@ package lense.core.collections;
 import java.math.BigInteger;
 
 import lense.core.lang.Any;
+import lense.core.lang.java.PlatformSpecific;
 import lense.core.math.Natural;
 
+@PlatformSpecific
 public class BigIterator implements Iterator {
 	
 	/**

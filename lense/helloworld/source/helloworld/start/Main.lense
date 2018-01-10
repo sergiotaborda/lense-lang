@@ -32,36 +32,16 @@ public class Main extends ConsoleApplication {
   	public onStart()  {
  
   	 	console.println("Begin " + this.type().name);
-  	 	
+
+		demoMaybeArray();  	 	
+
 		demoList();  	 	
 
-  	 	try {
-  	 		var f = 4 / 0;
-  	 		console.println("f is " + f);
-  	 	} catch (e : ArithmeticException){
-  	 		console.println("try catch worked");
-  	 	}
+  		demoTryCatch();
   	 		
-  	 	var dto = new Dto();
+		demoDto();
   	 	
-  	 	console.println("name is " + dto.name);
-  	 	console.println("age is " + dto.age);
-  	 		
-  	 	dto.name = "dto";
-  	 	dto.age = 51;
-  	 	
-  	 	var address = dto.address;
-  	 	
-  	 	console.println("name is " + dto.name);
-  	 	console.println("age is " + dto.age);
-  	 	
-  		val matrix  = new Matrix<Natural>(3,3, 0);
-  	
-  		matrix[2,2] = 4;
-  	 
-  	    val center = matrix[2,2];
-  		
-  		console.println(center);
+		demoMatrix();
   	 
   		var interval : Interval<Natural> = |[ 2, 19 )|;
 		var interval2 : Interval<Integer> = |[ -2, 19 )|; // TODO better promotions
@@ -312,6 +292,54 @@ public class Main extends ConsoleApplication {
 
 		console.println("List size is {{ list.size }}");
 		console.println("List is {{ list }}");
+	}
+
+	public demoTryCatch(){
+ 		try {
+  	 		var f = 4 / 0;
+  	 		console.println("f is " + f);
+  	 	} catch (e : ArithmeticException){
+  	 		console.println("try catch worked");
+  	 	}
+	}
+
+	public demoDto(){
+
+  	 	var dto = new Dto();
+  	 	
+  	 	console.println("name is " + dto.name);
+  	 	console.println("age is " + dto.age);
+  	 		
+  	 	dto.name = "dto";
+  	 	dto.age = 51;
+  	 	
+  	 	var address = dto.address;
+  	 	
+  	 	console.println("name is " + dto.name);
+  	 	console.println("age is " + dto.age);
+	}
+
+	public demoMatrix(){
+
+  		val matrix  = new Matrix<Natural>(3,3, 0);
+  	
+  		matrix[2,2] = 4;
+  	 
+  	    val center = matrix[2,2];
+  		
+  		console.println(center);
+	}
+
+	public demoMaybeArray (){
+		val array : Array<String?> = ["a", none , "b", "c", none];
+
+ 		console.println("array with none is  " + array);
+
+		val a : String? = "a";
+  
+ 		// TODO transform == to maybe when other side is not a maybe to .is(a)
+		assert (array[0] == a);
+		assert (array[1] == none);
 	}
 }
 

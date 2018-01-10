@@ -453,7 +453,7 @@ public class LenseTypeDefinition implements TypeDefinition {
     public void setSuperTypeDefinition(TypeDefinition superType) {
 
         if (((LenseTypeDefinition)superType).isPlataformSpecific()){
-            throw new RuntimeException("Class cannot be plataform");
+            throw new RuntimeException("Class cannot be plataform specific (" + superType + ")");
         }
 
         if (this == superType || this.equals(superType)){
@@ -461,10 +461,7 @@ public class LenseTypeDefinition implements TypeDefinition {
         }
 
         this.superDefinition = superType;
-        if (this.genericParameters.size() < superType.getGenericParameters().size()) {
-            this.genericParameters = new ArrayList<>(superType.getGenericParameters());
-            this.genericParametersMapping = new HashMap<>(((LenseTypeDefinition)superType).genericParametersMapping);
-        }
+    
 
     }
 
@@ -518,9 +515,9 @@ public class LenseTypeDefinition implements TypeDefinition {
                 .map(m -> (Method) m).collect(Collectors.toList());
 
         if (all.isEmpty() && this.superDefinition != null) {
-            return this.superDefinition.getMethodsByName(name);
+            all = this.superDefinition.getMethodsByName(name);
         }
-
+        
         return all;
     }
 
@@ -640,6 +637,10 @@ public class LenseTypeDefinition implements TypeDefinition {
     }
 
     public void addInterface(TypeDefinition other) {
+    	
+    	if (other.getName().isEmpty()) {
+    		throw new IllegalArgumentException("Types must have a name");
+    	}
         //		if (!other.getKind().equals(LenseUnitKind.Interface)) {
         //			throw new RuntimeException("Type " + other.getName()  +" is not an interface");
         //		}

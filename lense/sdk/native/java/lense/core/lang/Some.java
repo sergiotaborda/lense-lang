@@ -52,4 +52,14 @@ public class Some extends Maybe{
     public Maybe map(Function transformer) {
         return new Some(transformer.apply(this.value));
     }
+
+	@Override
+	public Any getValue() {
+		return value;
+	}
+
+	@Override
+	public boolean is(Any content) {
+		return value.equalsTo(content);
+	}
 }

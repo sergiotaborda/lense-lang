@@ -2602,9 +2602,9 @@ public class LenseGrammar extends AbstractLenseGrammar {
                         node.setArguments(args);
                     }
                 } else if (r.size() == 6) {
-                    node.setConstructorName((String) r.get(3).getSemanticAttribute("lexicalValue").get());
+                    node.setConstructorName((String) r.get(3).getLexicalValue());
                 } else if (r.size() == 7) {
-                    node.setConstructorName((String) r.get(3).getSemanticAttribute("lexicalValue").get());
+                    node.setConstructorName((String) r.get(3).getLexicalValue());
                     AstNode n = r.get(5).getAstNode().get();
                     if (n instanceof ArgumentListNode) {
                         node.setArguments((ArgumentListNode) n);

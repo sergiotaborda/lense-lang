@@ -12,7 +12,7 @@ public  class List<T> implements ResizableSequence<T> {
 
 	private var size : Natural = 0;
 
-	private constructor (var array : Array<T>);
+	private constructor (var array : Array<T?>);
 
 /{ 
 	needs a way to create a T from nothing 1) can use an Array<Maybe<T>> backed with a plataform implementation
@@ -21,25 +21,18 @@ public  class List<T> implements ResizableSequence<T> {
 	}
 }/
 
+	public constructor(capacity : Natural) {
+		return new List<T>(new Array<T?>(capacity, none));
+	}
+
 	public constructor() {
-		return new List<T>(new Array<T>.empty());
+		return new List<T>(new Array<T?>.empty());
 	}
 
 	public implicit constructor( other : Sequence<T>) {
 
-		if (other is List){
-			// simply duplicate the inner list
-			return new List<T>(other.array.duplicate());
-		} 
-	/{
-		else if (other is Array){
-			// simply duplicate the array
-			return new List<T>(other.duplicate());
-		} 
-}/
-
 		// else, copy each element
-		var list =  new List<T>(new Array<T>.empty());
+		var list =  new List<T>(new Array<T?>(other.size, none));
 
 		for (val item in other){
 			list.add(item);
@@ -75,22 +68,24 @@ public  class List<T> implements ResizableSequence<T> {
 
 	public add(value : T) {
 		
-		val capacity = array.size; // how many can be
+		val capacity = array.size; // how many can there be
 		if (capacity < size + 1){
 			// increase capacity
 			val newCapacity = 1 + (capacity * 3) \ 2; 
-			val newArray = new Array<T>(newCapacity, value);			
+			val newArray = new Array<T?>(newCapacity, value);			
 			this.array.copyTo(newArray);
 			this.array = newArray;
 		}
 
-		array[size] = value;
+		array[size] = new Some<T>(value);
 		size += 1; // TODO use ++
 	}
 
 	public remove(value : T) {
+
+		val maybe : T? = value;
 // TODO reformat array
-		val index = array.indexOf(value);
+		val index = array.indexOf(maybe);
 /{
 
 		if (index is none ){ // TODO make into bnf or   if (index exists)
@@ -107,7 +102,13 @@ public  class List<T> implements ResizableSequence<T> {
 			if ( index >= size - 1){
 				throw new IllegalIndexException();
 			}
-			return array[index];
+			val v = array[index];
+			if (v != none){
+				return v;
+			} else {
+				throw new IllegalIndexException();
+			}
+			
 		}
 		set (value){
 			if ( index >= size - 1){

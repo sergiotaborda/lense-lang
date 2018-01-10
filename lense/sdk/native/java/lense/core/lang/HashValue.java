@@ -2,6 +2,7 @@ package lense.core.lang;
 
 import lense.core.lang.java.Base;
 import lense.core.lang.java.Constructor;
+import lense.core.lang.java.PlatformSpecific;
 
 public final class HashValue extends Base implements ExclusiveDijunctable {
 
@@ -12,6 +13,7 @@ public final class HashValue extends Base implements ExclusiveDijunctable {
         return new HashValue(0);
     }
     
+    @PlatformSpecific
     public int hashCode(){
         return code;
     }

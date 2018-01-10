@@ -3,7 +3,6 @@ package lense.core.collections;
 import java.util.Arrays;
 
 import lense.core.lang.Any;
-import lense.core.lang.Boolean;
 import lense.core.lang.HashValue;
 import lense.core.lang.IllegalIndexException;
 import lense.core.lang.Maybe;
@@ -14,35 +13,61 @@ import lense.core.lang.reflection.JavaReifiedArguments;
 import lense.core.math.Natural;
 
 @PlatformSpecific
-final class NativeBooleanArray extends Array implements SmallArray {
+final class NativeMaybeArray extends Array implements SmallArray {
 
-	private boolean[] array;
+	private Any[] array; // array of the object inside the maybe
+	private String innerTypeName;
 	
-	public NativeBooleanArray(int size){
-		array = new boolean[size];
+	public NativeMaybeArray(String innerTypeName, int size){
+		this.array = new Any[size];
+		this.innerTypeName = innerTypeName;
 	}
 
-	
-	public NativeBooleanArray(boolean[] nativeArray ){
-		array = nativeArray;
+	private NativeMaybeArray(String innerTypeName, Any[] stripedArray){
+		this.array = stripedArray;
+		this.innerTypeName = innerTypeName;
 	}
 	
-	public void setAtPrimitiveIndex(int i, Any value){
-		
-		array[i] = ((Boolean)value).toPrimitiveBoolean();
+	@Override
+	public int size() {
+		return array.length;
 	}
+
 
 	@Override
 	public Any getAtPrimitiveIndex(int index) {
-		return Boolean.valueOfNative(array[index]);
+		Any value = array[index];
+		
+		if (value == null) {
+			return None.NONE;
+		}
+		
+		return Some.constructor( JavaReifiedArguments.getInstance().addType(innerTypeName) , value);
+
 	}
 	
+	
+	@Override
+	public void setAtPrimitiveIndex(int i, Any value) {
+		Maybe maybe = ((Maybe)value);
+		
+		if (maybe.isPresent()) {
+			array[i] = maybe.getValue();
+		} else {
+			array[i] = null;
+		}
+	}
+
+
 	@Override
 	public Any get(Natural index) {
-		if (index.toPrimitiveInt() >= array.length){
+		int pIndex = index.toPrimitiveInt();
+		if (pIndex >= array.length){
 			throw IllegalIndexException.constructor(/*"Index from " + size + " on is not available"*/);
 		}
-		return getAtPrimitiveIndex(index.toPrimitiveInt());
+		
+		return getAtPrimitiveIndex(pIndex);
+
 	}
 	
 	@Override
@@ -50,7 +75,8 @@ final class NativeBooleanArray extends Array implements SmallArray {
 		if (index.toPrimitiveInt() >= array.length){
 			throw IllegalIndexException.constructor(/*"Index from " + size + " on is not available"*/);
 		}
-		array[index.toPrimitiveInt()] = ((Boolean)value).toPrimitiveBoolean();
+		
+		setAtPrimitiveIndex(index.toPrimitiveInt(), value);
 	}
 
 	@Override
@@ -70,11 +96,16 @@ final class NativeBooleanArray extends Array implements SmallArray {
 
 	@Override
 	public boolean contains(Any other) {
-		boolean val = ((Boolean)other).toPrimitiveBoolean();
-		for(boolean a : array){
-			if (a == val){ 
+		if (!(other instanceof Maybe)) {
+			return false;
+		}
+		
+		Maybe maybe = (Maybe)other;
+
+		for(Any a : array){
+			if ((a == null && maybe.isAbsent()) || (a != null && maybe.is(a))){ 
 				return true;
-			}
+			} 
 		}
 		return false;
 	}
@@ -91,7 +122,7 @@ final class NativeBooleanArray extends Array implements SmallArray {
 
 	@Override
 	public boolean equalsTo(Any other) {
-		return other instanceof NativeBooleanArray && Arrays.equals(((NativeBooleanArray)other).array,this.array);
+		return other instanceof NativeMaybeArray && Arrays.equals(((NativeMaybeArray)other).array,this.array);
 	}
 
 	@Override
@@ -103,25 +134,25 @@ final class NativeBooleanArray extends Array implements SmallArray {
 	
 	@Override
 	public Array duplicate() {
-		boolean[] newArray = new boolean[array.length];
+		Any[] newArray = new Any[array.length];
 		System.arraycopy(array, 0, newArray, 0, array.length);
 		
-		return new NativeBooleanArray(newArray);
+		return new NativeMaybeArray( innerTypeName,newArray);
 	}
 
 
 	@Override
 	public void copyTo(Array other) {
-		if (other instanceof NativeBooleanArray) {
+		if (other instanceof NativeMaybeArray) {
 			
-			NativeBooleanArray n = (NativeBooleanArray)other;
+			NativeMaybeArray n = (NativeMaybeArray)other;
 			
 			int length = Math.min(this.array.length, n.array.length);
 			
 			System.arraycopy(this.array, 0, n.array, 0,length);
 			
 		} else {
-			throw new RuntimeException("Array to copy to is not a boolean array");
+			throw new RuntimeException("Array to copy to is not a maybe array (" +  other.getClass().getName() +")");
 		}
 	}
 
@@ -129,21 +160,18 @@ final class NativeBooleanArray extends Array implements SmallArray {
 	
 	@Override
 	public Maybe indexOf(Any element) {
-		boolean val = ((Boolean)element).toPrimitiveBoolean();
+		Maybe maybe = (Maybe)element;
+
 		for(int i =0; i < array.length; i++){
-			if (array[i] == val){ 
+			Any a = array[i];
+			if ((a == null && maybe.isAbsent()) || (a != null && maybe.is(a))){ 
 				return Some.constructor( JavaReifiedArguments.getInstance().addType("lense.core.math.Natural") , Natural.valueOfNative(i));
-			}
+			} 
 		}
 		return None.NONE;
 	}
 
 
-	@Override
-	public int size() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
 
 
 

@@ -12,6 +12,8 @@ public class Int32ArrayStrategy extends SizeArrayStrategy{
 		switch (type.getName().toString()){
 		case "lense.core.lang.Boolean":
 			return new NativeBooleanArrayStrategy(type);
+		case "lense.core.lang.Maybe":
+			return new NativeMaybeArrayStrategy(type);
 		default:
 			return new NativeObjectArrayStrategy(type);
 		}

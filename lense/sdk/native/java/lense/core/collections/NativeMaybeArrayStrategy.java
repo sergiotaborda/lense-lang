@@ -1,43 +1,39 @@
 package lense.core.collections;
 
-import java.util.Arrays;
-
 import lense.core.lang.Any;
 import lense.core.lang.reflection.Type;
 import lense.core.math.Natural;
 
- class NativeBooleanArrayStrategy implements ArrayStrategy {
+public class NativeMaybeArrayStrategy implements ArrayStrategy {
 
-	public NativeBooleanArrayStrategy(Type type) {
-		// TODO Auto-generated constructor stub
+	private Type type;
+
+	public NativeMaybeArrayStrategy(Type type) {
+		this.type = type;
+		System.out.println("Created a Maybe array for type " + innerTypeName());
 	}
-
 	
 	@Override
 	public Array createArrayFrom(Natural size, Any seed) {
-		
-		boolean[] array = new boolean[size.toPrimitiveInt()];
-		Arrays.fill(array, ((lense.core.lang.Boolean)seed).toPrimitiveBoolean());
-		
-		return new NativeBooleanArray(array);
+		return new NativeMaybeArray(innerTypeName(),size.toPrimitiveInt());
 	}
 
+	private String innerTypeName() {
+		return type.getName().toString();
+	}
 
-	
 	@Override
 	public Array createArrayFrom(Any[] arrayOfAny) {
-		NativeBooleanArray array = new NativeBooleanArray(arrayOfAny.length);
+		NativeMaybeArray array = new NativeMaybeArray(innerTypeName(),arrayOfAny.length);
 		for(int i =0; i < arrayOfAny.length; i++) {
 			array.setAtPrimitiveIndex(i, arrayOfAny[i]);
 		}
 		return array;
 	}
-	
-
 
 	@Override
 	public Array createArrayFrom(Sequence seq) {
-		NativeBooleanArray array = new NativeBooleanArray(seq.getSize().toPrimitiveInt());
+		NativeMaybeArray array = new NativeMaybeArray(innerTypeName(),seq.getSize().toPrimitiveInt());
 		Iterator iterator = seq.getIterator();
 		int i=0;
 		while(iterator.moveNext()){
@@ -46,11 +42,9 @@ import lense.core.math.Natural;
 		return array;
 	}
 
-
-	
 	@Override
 	public Array createEmpty() {
-		return new NativeBooleanArray(new boolean[0]);
+		return new NativeMaybeArray(innerTypeName(),0);
 	}
 
 }

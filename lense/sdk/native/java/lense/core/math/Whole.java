@@ -3,7 +3,9 @@ package lense.core.math;
 import java.math.BigInteger;
 
 import lense.core.lang.Any;
+import lense.core.lang.java.Signature;
 
+@Signature(":lense.core.math.Number:lense.core.math.Comparable<lense.core.math.Whole>")
 public abstract class Whole extends Number implements Comparable {
 
     public abstract Whole plus (Whole other);
