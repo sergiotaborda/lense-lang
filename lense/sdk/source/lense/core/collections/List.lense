@@ -12,7 +12,7 @@ public  class List<T> implements ResizableSequence<T> {
 
 	private var size : Natural = 0;
 
-	private constructor (var array : Array<T?>);
+	private constructor (private var array : Array<T?>);
 
 /{ 
 	needs a way to create a T from nothing 1) can use an Array<Maybe<T>> backed with a plataform implementation
