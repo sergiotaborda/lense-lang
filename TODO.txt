@@ -19,7 +19,7 @@ Named Parameters and Default Parameters
 Traits
 	interfaces accept default methods. Can be simulated as invocation with static methods or inline in javascript
 	a keyword may be used to deferenciate abstract methods from the ones that are defaults. this correlates to the inheritance structure
-	that shoud be closed/sealed/final by default
+	that shoud be closed/final by default
 Meta Types and meta Interfaces 
 	meta types can be defined explicitly and implements meta interfaces
 	Operators correlate to predefined meta interfaces
@@ -30,7 +30,7 @@ Erase
 	String and String? 
 	Errasue of primitive numbers inside limits (needs limit verification)
 Imutability
-	save flag as an annotation, handle as a type. maybe a meta interface
+	save flag as an annotation, handle as a meta interface
 Generics
  	Add generic signatures to constructors [SYNTAX]
 	Capture generics locally (when calling constructors and methods with free generics)
@@ -39,16 +39,6 @@ Generics
 	resolve generics problem of adding list to a list (and a sequence to a sequence)
 	Generate GenericSignatures (DONE)
 	Need GenericType lock to the classe type or method generic defenition
-	
-	Diferenciate ReferenceType and TypeVar 
-	ReferenceType = ClassOrInterfaceType | ArrayType
-	
-	to
-	
-	ReferenceType = ClassOrInterfaceType | ArrayType | TypeVar
-	TypeVar = Identifier
-	ClassOrInterfaceType = ClassOrInterface { < TypeParameters > }
-	ClassOrInterface = Identifier | ClassOrInterfaceType . Identifier
 Flow Sensitive Typing
 	if (DONE)
 	switch
