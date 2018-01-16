@@ -19,7 +19,7 @@ Named Parameters and Default Parameters
 Traits
 	interfaces accept default methods. Can be simulated as invocation with static methods or inline in javascript
 	a keyword may be used to deferenciate abstract methods from the ones that are defaults. this correlates to the inheritance structure
-	that shoud be closed/sealed/final by default
+	that shoud be closed/final by default
 Meta Types and meta Interfaces 
 	meta types can be defined explicitly and implements meta interfaces
 	Operators correlate to predefined meta interfaces
@@ -30,7 +30,7 @@ Erase
 	String and String? 
 	Errasue of primitive numbers inside limits (needs limit verification)
 Imutability
-	save flag as an annotation, handle as a type. maybe a meta interface
+	save flag as an annotation, handle as a meta interface
 Generics
  	Add generic signatures to constructors [SYNTAX]
 	Capture generics locally (when calling constructors and methods with free generics)
@@ -39,28 +39,23 @@ Generics
 	resolve generics problem of adding list to a list (and a sequence to a sequence)
 	Generate GenericSignatures (DONE)
 	Need GenericType lock to the classe type or method generic defenition
-	
-	Diferenciate ReferenceType and TypeVar 
-	ReferenceType = ClassOrInterfaceType | ArrayType
-	
-	to
-	
-	ReferenceType = ClassOrInterfaceType | ArrayType | TypeVar
-	TypeVar = Identifier
-	ClassOrInterfaceType = ClassOrInterface { < TypeParameters > }
-	ClassOrInterface = Identifier | ClassOrInterfaceType . Identifier
 Flow Sensitive Typing
 	if (DONE)
 	switch
 	assert (DONE)
 Deconstructing
 Difference between val and var [DESIGN]
-	maybe use let and variable
-	maybe use value and mutable value (mutable is an annotation)
+	change val to let maintain var
+	make let the default when not explicit inclusive in method parameters to avoid redefining
+	
 Tuples (BNF) and void
 	() === void
-	call methods on void
+	call methods on void 
+	void inside collections
+	
 Implement Properties 
+	there are n fields in source code 
+	implict get and set
 	in interfaces (DONE)
 	validate all non nullable properties are inicialized
 	do delegation    size {get = list.size}   or size => list.size (DONE)
@@ -69,8 +64,11 @@ Types
 	infere optional ": Void" for methods return (DONE)
 	generic types of generic types T<U>
 Reification
-	Generics
-	Expression
+	Generics in types 
+	generics in methods
+	generics in free methods 
+	generics on enancements
+	Expression<func>
 Reflection
 	Type<T> class (DONE)
 	typeof operator , like Type t =  typeof(T) [SYNTAX]
@@ -115,7 +113,7 @@ Operators
 	+= ,*= (ok, auto  a += n <==> a = a + n and  a *= n <==> a = a * n
     -=, /= (only for some kinds  nat a = 2 , a -= 1 (ok); a-= 1(ok) ; a-= 1 (error);
 	++ , -- (Ordinal) successor() and predecessor() (DONE)
-	&+, &- , &*, &/ ==> these will wrap around silently (java default)
+	&+, &- , &*, &/ ==> these will wrap around silently (java default)^
 	?+, ?- , ?*, ?/ ==> these will return Maybe<T> with None value when overload appends
 	!+ , !- , !*, !/ ==> thee do exact operation and throw OverflowException <=>AddExact, SubtractExact, MultiplyExact.
 	
@@ -125,7 +123,7 @@ Operators
 	equivalent to a = a.sucessor() and a = a.predecessor();
 
 	In32.max.sucessor = In32.max; (warp)
-	In32.max + 1 := Int32.max.plus((Integer)1) -> OverflowException(). this does AddExact
+	In32.max !+ 1 := Int32.max.exactPlus((Integer)1) -> OverflowException(). this does AddExact
 	In32.max &+ 1 := Int32.max.wrapPlus(1) == Int32.min                Int32.wrapPlus(Int32):Int32
 	In32.max ?+ 1 := In32.max.checkPlus(1) == none              Int32.checkPlus(Int32):Maybe<Int32>
 	In32? result = 2 ?+ In32.max ?+ 2   ==>  new Some(2).map( a -> a.checkPlus(Int32.max)).map(b -> b.checkPlus(2) )
