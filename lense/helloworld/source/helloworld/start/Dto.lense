@@ -7,9 +7,11 @@ import helloworld.start.Matrix;
 
 public class Dto {
 
-  	public name : String? {}
-  	public age : Integer {} = 2;
-  	public address : String? {
+	public constante : Integer;
+  	public var name : String?;
+  	public var age : Integer = 2;
+	public var birthDay : Integer? ;  
+  	public var address : String? {
   		get {
   			// direct access to backing field
   			return address;
@@ -19,5 +21,16 @@ public class Dto {
   			this.address = value;
   		}
   	}
-  	public matrix : Matrix<String>? {}
+  	public var matrix : Matrix<String>?;
+
+	public var number : Natural  = 3 {
+		get {
+			// direct access to backing field
+  			return number;
+		}
+	  	set (value) {
+  			// direct access to backing field
+  			this.number = value;
+  		}
+	};
 }

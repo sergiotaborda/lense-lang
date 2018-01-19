@@ -18,7 +18,7 @@ import lense.core.math.Complex;
 import lense.core.math.Real;
 import lense.core.math.Decimal64;
 import lense.core.math.Rational;
-import lense.core.math.Interval;
+import lense.core.math.Interlet;
 import lense.core.math.ArithmeticException;
 import helloworld.start.Matrix;
 
@@ -26,7 +26,7 @@ public class Main extends ConsoleApplication {
 
 	public constructor();
 	
-	public parameter : Integer {} = 99;
+	public parameter : Integer = 99;
 	
 
   	public onStart()  {
@@ -43,13 +43,13 @@ public class Main extends ConsoleApplication {
   	 	
 		demoMatrix();
   	 
-  		var interval : Interval<Natural> = |[ 2, 19 )|;
-		var interval2 : Interval<Integer> = |[ -2, 19 )|; // TODO better promotions
+  		var interlet : Interlet<Natural> = |[ 2, 19 )|;
+		var interlet2 : Interlet<Integer> = |[ -2, 19 )|; // TODO better promotions
 
-		console.println(interval2);
+		console.println(interlet2);
 
-		var a  = interval2.start;
-		var b  = interval2.end;
+		var a  = interlet2.start;
+		var b  = interlet2.end;
 		 
   	 	var im  = 2i; 
   	 	
@@ -144,7 +144,7 @@ public class Main extends ConsoleApplication {
   	
   		console.println("sequence is {{ array }}");
   		 
-  		console.println("position 2 has value {{ array[2] }}");
+  		console.println("position 2 has letue {{ array[2] }}");
   		
   		console.println("literal sequence is {{ [1 , 2, 3, 4, 5]  }}"); 
   	 	 
@@ -169,12 +169,12 @@ public class Main extends ConsoleApplication {
   		var  i  = 23;
   		var  j : Integer = ++i;
   		
-  		console.println("Pre increment of 23 is {{j}} = 24 with value at {{i}} = 24");
+  		console.println("Pre increment of 23 is {{j}} = 24 with letue at {{i}} = 24");
   		
   		i = 23;
   		j = i++;
   			
-  		console.println("Pos increment of 23 is {{j}} = 23 with value at {{i}} = 24");
+  		console.println("Pos increment of 23 is {{j}} = 23 with letue at {{i}} = 24");
   		
   		var  tuple = ("Hello", 6);
   		
@@ -199,7 +199,7 @@ public class Main extends ConsoleApplication {
   		
   	     console.println("{{x}} plus {{j}} is {{ x + j }}");
 
-  	    for(val y in 1..10){
+  	    for(let y in 1..10){
   	     
   	     	console.println(y);
   	     	
@@ -244,19 +244,19 @@ public class Main extends ConsoleApplication {
 	
 	public hypot(x : Real, y : Real) : Real {
 
-		val ax = x.abs();
-		val ay = y.abs();
+		let ax = x.abs();
+		let ay = y.abs();
 		
-		val max = ax >= ay ? ax : ay;
-		val min = ax >= ay ? ay : ax;
+		let max = ax >= ay ? ax : ay;
+		let min = ax >= ay ? ay : ax;
 		
 	   console.println(" max = {{ max }}");
 	   console.println(" min = {{ min }}");
 		
-		val r = min / max ;
+		let r = min / max ;
 		
 		  console.println("r = {{ r }}");
-		  val k = r ^^ 2;
+		  let k = r ^^ 2;
 		    console.println("r ^^ 2 = {{ k }}");
 		 console.println("j = {{ 1.0 + k }}");
 		 
@@ -282,13 +282,13 @@ public class Main extends ConsoleApplication {
 
 	private demoList(){
 		
-		val arr : Array<Natural> = [1,2,3,4,5];
+		let arr : Array<Natural> = [1,2,3,4,5];
 
-		for (val a in arr){
+		for (a in arr){
 			console.println("Element {{ a }}" );
 		}
 
-		val list : List<Natural> = arr; 
+		let list : List<Natural> = arr; 
 
 		console.println("List size is {{ list.size }}");
 		console.println("List is {{ list }}");
@@ -321,21 +321,21 @@ public class Main extends ConsoleApplication {
 
 	public demoMatrix(){
 
-  		val matrix  = new Matrix<Natural>(3,3, 0);
+  		let matrix  = new Matrix<Natural>(3,3, 0);
   	
   		matrix[2,2] = 4;
   	 
-  	    val center = matrix[2,2];
+  	    let center = matrix[2,2];
   		
   		console.println(center);
 	}
 
 	public demoMaybeArray (){
-		val array : Array<String?> = ["a", none , "b", "c", none];
+		let array : Array<String?> = ["a", none , "b", "c", none];
 
  		console.println("array with none is  " + array);
 
-		val a : String? = "a";
+		let a : String? = "a";
   
  		// TODO transform == to maybe when other side is not a maybe to .is(a)
 		assert (array[0] == a);

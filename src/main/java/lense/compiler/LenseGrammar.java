@@ -2938,6 +2938,57 @@ public class LenseGrammar extends AbstractLenseGrammar {
                 p.setAstNode(prp);
             }
         });
+        
+        getNonTerminal("propertyDeclarationInit").addSemanticAction((p, r) -> {
+
+       	if (r.size() == 1 ) {
+        		
+        		if (";".equals(r.get(0).getLexicalValue())) {
+        			PropertyDeclarationNode prp = new PropertyDeclarationNode();
+                    prp.setAcessor(new AccessorNode(true));
+                    prp.setModifier(new ModifierNode(true));
+                    
+                    p.setAstNode(prp);
+        		} else {
+        			PropertyDeclarationNode prp = r.get(0).getAstNode(PropertyDeclarationNode.class).get();
+
+                    p.setAstNode(prp);
+        		}
+        	
+        	} else {
+        		if (r.get(0).getLexicalValue().equals("=")) {
+        			PropertyDeclarationNode prp;
+        			if (r.size() == 3) {
+        				prp = new PropertyDeclarationNode();
+                        prp.setAcessor(new AccessorNode(true));
+                        prp.setModifier(new ModifierNode(true));
+
+        			} else {
+        				prp = r.get(2).getAstNode(PropertyDeclarationNode.class).get();
+
+                       
+        			}
+        			
+        		    Optional<ExpressionNode> exp = r.get(1).getAstNode(ExpressionNode.class);
+
+                    if (exp.isPresent()) {
+
+                        prp.setInitializer(exp.get());
+                    }
+                    
+        			 p.setAstNode(prp);
+        		} else {
+        			PropertyDeclarationNode prp = new PropertyDeclarationNode();
+                    prp.setAcessor(new AccessorNode(true));
+                    prp.setModifier(new ModifierNode(true));
+                    
+                    p.setAstNode(prp);
+        		}
+
+        	}
+        
+
+        });
 
         getNonTerminal("propertyMembers").addSemanticAction((p, r) -> {
 
@@ -3101,22 +3152,27 @@ public class LenseGrammar extends AbstractLenseGrammar {
 
         });
 
+
     }
 
     private PropertyDeclarationNode parsePropertyDeclaration(List<Symbol> r) {
-        Modifiers modifiers = new Modifiers();
+
+    	Modifiers modifiers = new Modifiers();
 
         int nextNodeIndex = readModifiers(r, modifiers, PropertyDeclarationNode.class);
 
         PropertyDeclarationNode prp = r.get(nextNodeIndex).getAstNode(PropertyDeclarationNode.class).get();
 
         nextNodeIndex -= 2;
-
+        
         TypeNode typeNode = null;
         if (":".equals(r.get(nextNodeIndex).getLexicalValue())) {
             typeNode = ensureTypeNode(r.get(nextNodeIndex + 1).getAstNode().get());
             nextNodeIndex--;
         }
+        
+
+
 
         String identifier = r.get(nextNodeIndex).getLexicalValue();
 
