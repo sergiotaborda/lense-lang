@@ -1,6 +1,7 @@
 Lense CLI
 	compile (DONE)
-	run
+	run 
+	test
 	document
 Change Iterator to move + current (DONE)
 Change 
