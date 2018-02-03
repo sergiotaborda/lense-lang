@@ -5,7 +5,7 @@ import lense.core.lang.Any;
 import lense.core.lang.HashValue;
 import lense.core.lang.java.Constructor;
 
-public class Decimal64 extends Decimal{
+public final class Decimal64 extends Decimal{
 
 	@Constructor(paramsSignature = "")
 	public static Decimal64 constructor (){

@@ -176,4 +176,9 @@ public class PrimitiveTypeDefinition implements TypeDefinition {
 		// no-op
 	}
 
+	@Override
+	public boolean isFinal() {
+		return true;
+	}
+
 }

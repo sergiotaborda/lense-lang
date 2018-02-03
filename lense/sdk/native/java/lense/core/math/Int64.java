@@ -8,7 +8,6 @@ import lense.core.lang.ExclusiveDijunctable;
 import lense.core.lang.HashValue;
 import lense.core.lang.Injunctable;
 import lense.core.lang.java.Constructor;
-import lense.core.lang.java.Native;
 import lense.core.lang.java.PlatformSpecific;
 import lense.core.lang.java.Property;
 
@@ -271,14 +270,30 @@ public class Int64 extends Integer implements Binary{
         }
     }
     
+   	public Int64 wrapPlus(Int64 other) {
+    	return new Int64(this.value + other.value);
+   	}
+
+
+   	public Int64 wrapMultiply(Int64 other) {
+    	return new Int64(this.value * other.value);
+   	}
+
+   	public Int64 wrapMinus(Int64 other) {
+    	return new Int64(this.value - other.value);
+   	}
+
 
     @Override
     public boolean isPositive() {
        return this.value > 0;
     }
 
-    @Override
+    @Override @PlatformSpecific
     public int toPrimitiveInt() {
         return (int)this.value;
     }
+    
+
+
 }

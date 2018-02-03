@@ -10,6 +10,7 @@ public abstract class Whole extends Number implements Comparable {
 
     public abstract Whole plus (Whole other);
     public abstract Whole minus (Whole other);
+    
 
     public Rational divide(Whole other){
         if (other.isZero()){
@@ -74,7 +75,6 @@ public abstract class Whole extends Number implements Comparable {
     public abstract Natural abs();
 
     protected abstract Integer asInteger();
-
 
     protected final int compareTo(Whole other){
         return this.asJavaBigInteger().compareTo(other.asJavaBigInteger());

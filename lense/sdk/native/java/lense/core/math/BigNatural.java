@@ -4,7 +4,7 @@ import java.math.BigInteger;
 
 import lense.core.lang.HashValue;
 
-public class BigNatural extends Natural{
+public final class BigNatural extends Natural{
 
     private BigInteger value;
 
@@ -135,6 +135,17 @@ public class BigNatural extends Natural{
 	@Override
 	public boolean isPositive() {
 		return this.value.signum() > 0;
+	}
+
+
+
+	@Override
+	public Natural wrapMinus(Natural other) {
+		BigInteger rest = this.value.subtract(other.asJavaBigInteger());
+		if (rest.signum() <=0) {
+			return ZERO;
+		}
+	    return new BigNatural(rest);
 	}
 
 

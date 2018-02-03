@@ -83,9 +83,18 @@ public abstract class Natural extends Whole   {
 
     @Override
     public final @NonNull Whole minus(@NonNull Whole other) {
-        return this.asInteger().minus(other);
+    	return this.asInteger().minus(other);
     }
+    
+	public Natural wrapPlus(Natural other) {
+		return this.plus(other);
+	}
 
+	public abstract Natural wrapMinus(Natural other);
+	public Natural wrapMultiply(Natural other) {
+		return this.multiply(other);
+	}
+	
     public final @NonNull Integer minus(@NonNull Natural other) {
         return this.asInteger().minus(other.asInteger());
     }

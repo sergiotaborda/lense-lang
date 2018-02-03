@@ -5,7 +5,7 @@ import lense.core.lang.Any;
 import lense.core.lang.HashValue;
 import lense.core.lang.java.Constructor;
 
-public class Decimal32 extends Decimal{
+public final class Decimal32 extends Decimal{
 
 	@Constructor(paramsSignature = "")
 	public static Decimal32 constructor (){
@@ -151,4 +151,6 @@ public class Decimal32 extends Decimal{
     public Real abs() {
         return new Decimal32(Math.abs(this.value));
     }
+
+
 }

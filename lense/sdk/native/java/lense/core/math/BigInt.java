@@ -7,7 +7,7 @@ import lense.core.lang.java.Constructor;
 import lense.core.lang.java.NonNull;
 import lense.core.lang.java.PlatformSpecific;
 
-public class BigInt extends Integer {
+public final class BigInt extends Integer {
 
     private BigInteger value;
 
@@ -132,5 +132,11 @@ public class BigInt extends Integer {
     public int toPrimitiveInt() {
         return value.intValue();
     }
+
+
+
+
+
+
  
 }

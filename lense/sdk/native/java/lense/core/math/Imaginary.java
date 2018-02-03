@@ -4,7 +4,7 @@ import lense.core.lang.Any;
 import lense.core.lang.HashValue;
 import lense.core.lang.java.Constructor;
 
-public class Imaginary extends Number{
+public final class Imaginary extends Number{
 
 	
 	@Constructor(paramsSignature = "")

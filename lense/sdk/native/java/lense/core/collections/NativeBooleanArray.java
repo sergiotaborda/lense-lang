@@ -111,7 +111,7 @@ final class NativeBooleanArray extends Array implements SmallArray {
 
 
 	@Override
-	public void copyTo(Array other) {
+	public Array copyTo(Array other) {
 		if (other instanceof NativeBooleanArray) {
 			
 			NativeBooleanArray n = (NativeBooleanArray)other;
@@ -120,6 +120,7 @@ final class NativeBooleanArray extends Array implements SmallArray {
 			
 			System.arraycopy(this.array, 0, n.array, 0,length);
 			
+			return other;
 		} else {
 			throw new RuntimeException("Array to copy to is not a boolean array");
 		}
@@ -143,6 +144,35 @@ final class NativeBooleanArray extends Array implements SmallArray {
 	public int size() {
 		// TODO Auto-generated method stub
 		return 0;
+	}
+
+
+	@Override
+	public Array copyTo(Array other, Natural sourceIndex, Natural destinationIndex, Natural length) {
+		
+		if (other instanceof NativeBooleanArray) {
+			
+			NativeBooleanArray n = (NativeBooleanArray)other;
+			
+			if (sourceIndex.toPrimitiveInt() < 0 || sourceIndex.toPrimitiveInt() >=  n.array.length  ) {
+				throw new IllegalArgumentException("sourceIndex out of bounds " + sourceIndex.toPrimitiveInt());
+			}
+			
+			if (destinationIndex.toPrimitiveInt() < 0 || destinationIndex.toPrimitiveInt() >=  n.array.length  ) {
+				throw new IllegalArgumentException("destinationIndex out of bounds " + destinationIndex.toPrimitiveInt());
+			}
+			
+			if (length.toPrimitiveInt() < 0 || destinationIndex.toPrimitiveInt() + length.toPrimitiveInt() >  n.array.length  ) {
+				throw new IllegalArgumentException("length out of bounds " + length.toPrimitiveInt());
+			}
+			
+			System.arraycopy(this.array, sourceIndex.toPrimitiveInt(), n.array, destinationIndex.toPrimitiveInt(),length.toPrimitiveInt());
+			
+			return other;
+		} else {
+			throw new RuntimeException("Array to copy to is not a boolean array");
+		}
+		
 	}
 
 

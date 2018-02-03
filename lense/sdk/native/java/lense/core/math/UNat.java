@@ -123,9 +123,9 @@ public final class UNat extends ScalableNatural{
 	@Override
 	protected Integer asInteger() {
 	    if (value < (long)java.lang.Integer.MAX_VALUE){
-            return ScalableInt32.valueOf((int)value);
+            return Int32.valueOfNative(value);
         } else if (value < Long.MAX_VALUE){
-			return ScalableInt64.valueOf(value);
+			return Int64.valueOfNative(value);
 		} 
 		return new BigInt(new BigInteger(this.toString()));
 	}
@@ -169,6 +169,16 @@ public final class UNat extends ScalableNatural{
 	@Override
 	public boolean isPositive() {
 		return this.value != 0;
+	}
+
+	public Natural wrapMinus(Natural other) {
+		 if (other.compareTo(this) >= 0) {
+			 return ZERO;
+		 } else if (other instanceof UNat) {
+			 return new UNat(this.value - ((UNat)other).value);
+		 } else {
+			 return this.promoteNext().wrapMinus(other);
+		 }
 	}
 
 

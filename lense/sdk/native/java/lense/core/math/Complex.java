@@ -4,7 +4,7 @@ import lense.core.lang.Any;
 import lense.core.lang.HashValue;
 import lense.core.lang.java.Constructor;
 
-public class Complex extends Number{
+public final class Complex extends Number{
 
     @Constructor(paramsSignature = "")
     public static Complex constructor (){
@@ -44,7 +44,7 @@ public class Complex extends Number{
                 this.real.multiply(other.imginary).plus(this.imginary.multiply(other.real))
                 );
     }
-
+    
     public Complex divide(Complex other) {
         Real denominator =  other.abs();
         if (denominator.isZero()){

@@ -107,6 +107,9 @@ public abstract class Array extends AbstractAssortment implements EditableSequen
 	@MethodSignature( returnSignature = "lense.core.collections.Array<T>", paramsSignature = "")
 	public abstract Array duplicate();
 	
-	@MethodSignature( returnSignature = "", paramsSignature = "lense.core.collections.Array<T>")
-	public abstract void copyTo(Array other);
+	@MethodSignature( returnSignature = "lense.core.collections.Array<T>", paramsSignature = "lense.core.collections.Array<T>")
+	public abstract Array copyTo(Array other);
+	
+	@MethodSignature( returnSignature = "lense.core.collections.Array<T>", paramsSignature = "lense.core.collections.Array<T>")
+	public abstract Array copyTo(Array other, Natural sourceIndex, Natural destinationIndex, Natural length);
 }

@@ -134,6 +134,7 @@ public abstract class AbstractLenseGrammar extends AbstractGrammar {
 		NonTerminal shiftExpression = addNonTerminal(NonTerminal.of("shiftExpression"));
 		NonTerminal shiftOperator = addNonTerminal(NonTerminal.of("shiftOperator"));
 		NonTerminal additiveExpression = addNonTerminal(NonTerminal.of("additiveExpression"));
+		NonTerminal additiveOperator = addNonTerminal(NonTerminal.of("additiveOperator"));
 		NonTerminal multiplicativeExpression = addNonTerminal(NonTerminal.of("multiplicativeExpression"));
 		NonTerminal multiplicativeOperator = addNonTerminal(NonTerminal.of("multiplicativeOperator"));
 		NonTerminal powerExpression = addNonTerminal(NonTerminal.of("powerExpression"));
@@ -287,9 +288,10 @@ public abstract class AbstractLenseGrammar extends AbstractGrammar {
 		compareOperator.setRule(Terminal.of("<").or(Terminal.of(">").or(Terminal.of("<=").or(Terminal.of(">=")))));
 		shiftExpression.setRule(additiveExpression.or(shiftExpression.add(shiftOperator).add(additiveExpression)));
 		shiftOperator.setRule(Terminal.of("<<").or(Terminal.of(">>").or(Terminal.of(">>>"))));
-		additiveExpression.setRule(multiplicativeExpression.or(additiveExpression.add(Terminal.of("+")).add(multiplicativeExpression).or(additiveExpression.add(Terminal.of("-")).add(multiplicativeExpression))));
+		additiveExpression.setRule(multiplicativeExpression.or(additiveExpression.add(additiveOperator).add(multiplicativeExpression)));
+		additiveOperator.setRule(Terminal.of("+").or(Terminal.of("-").or(Terminal.of("&+").or(Terminal.of("&-")))));
 		multiplicativeExpression.setRule(powerExpression.or(multiplicativeExpression.add(multiplicativeOperator).add(powerExpression)));
-		multiplicativeOperator.setRule(Terminal.of("*").or(Terminal.of("/").or(Terminal.of("\\").or(Terminal.of("%")))));
+		multiplicativeOperator.setRule(Terminal.of("*").or(Terminal.of("&*").or(Terminal.of("/").or(Terminal.of("\\").or(Terminal.of("%"))))));
 		powerExpression.setRule(rangeExpression.or(powerExpression.add(powerOperator).add(rangeExpression)));
 		powerOperator.setRule(Terminal.of("^^"));
 		rangeExpression.setRule(unaryExpression.or(unaryExpression.add(Terminal.of("..")).add(unaryExpression).or(unaryExpression.add(Terminal.of("..<")).add(unaryExpression).or(intervalStart.add(unaryExpression).add(Terminal.of(",")).add(unaryExpression).add(intervalEnd).or(Terminal.of("|(").add(Terminal.of("*")).add(Terminal.of(",")).add(unaryExpression).add(intervalEnd).or(intervalStart.add(unaryExpression).add(Terminal.of(",")).add(Terminal.of("*")).add(Terminal.of(")|"))))))));

@@ -113,7 +113,7 @@ final class NativeObjectArray extends Array implements SmallArray{
 
 
 	@Override
-	public void copyTo(Array other) {
+	public Array copyTo(Array other) {
 		if (other instanceof NativeObjectArray) {
 			
 			NativeObjectArray n = (NativeObjectArray)other;
@@ -122,6 +122,7 @@ final class NativeObjectArray extends Array implements SmallArray{
 			
 			System.arraycopy(this.array, 0, n.array, 0,length);
 			
+			return other;
 		} else {
 			throw new RuntimeException("Array to copy to is not an object array (found " + other.getClass().getName() + ")");
 		}
@@ -134,6 +135,22 @@ final class NativeObjectArray extends Array implements SmallArray{
 	public int size() {
 		// TODO Auto-generated method stub
 		return 0;
+	}
+
+
+	@Override
+	public Array copyTo(Array other, Natural sourceIndex, Natural destinationIndex, Natural length) {
+		if (other instanceof NativeBooleanArray) {
+			
+			NativeObjectArray n = (NativeObjectArray)other;
+			
+			System.arraycopy(this.array, sourceIndex.toPrimitiveInt(), n.array, destinationIndex.toPrimitiveInt(),length.toPrimitiveInt());
+			
+			return other;
+		} else {
+			throw new RuntimeException("Array to copy to is not a boolean array");
+		}
+		
 	}
 
 

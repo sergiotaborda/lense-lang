@@ -37,15 +37,21 @@ public class BitArray implements Binary {
 	}
 	
 	public rightShiftBy( n: Natural): BitArray{
-		let newArray : Array<Boolean> = new Array<Boolean>(n, false); // TODO remove left side typing
+		let newSize = bits.size &- n;
 
-		return new BitArray(newArray); // TODO remove variable
+		let newArray = new Array<Boolean>(newSize, false); 
+
+		this.bits.copyTo(newArray, n, 0, newSize);
+
+		return new BitArray(newArray); 
 	}
 	
 	public leftShiftBy(n : Natural) : BitArray{
-		let newArray : Array<Boolean>  = new Array<Boolean>(n, false); // TODO remove left side typing
+		let newArray = new Array<Boolean>(bits.size + n, false); 
 
-		return new BitArray(newArray); // TODO remove variable
+		this.bits.copyTo(newArray, 0, n, bits.size);
+ 
+		return new BitArray(newArray); 
 	}
 	
 	public flipAll() : Binary {
