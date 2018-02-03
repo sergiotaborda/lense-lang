@@ -5,10 +5,12 @@ import lense.compiler.phases.ScopeDelimiter;
 public class AccessorNode extends InvocableDeclarionNode implements ScopeDelimiter{
 
 	private boolean implicit;
+	private boolean declared;
 	private BlockNode statements;
 	
-	public AccessorNode(boolean implicit) {
+	public AccessorNode(boolean implicit, boolean declared) {
 		this.implicit= implicit;
+		this.declared = declared;
 	}
 
 	
@@ -30,6 +32,9 @@ public class AccessorNode extends InvocableDeclarionNode implements ScopeDelimit
 		return implicit;
 	}
 
+	public boolean isDeclared(){
+		return declared;
+	}
 
 	@Override
 	public String getScopeName() {

@@ -79,7 +79,7 @@ public class TacInstructionsVisitor implements Visitor<AstNode> {
 	private final SemanticContext semanticContext;
 	private final TypeDefinition classType;
 
-	private final TypeDefinition BOOLEAN;
+	private final TypeVariable BOOLEAN;
 	public TacInstructionsVisitor(SemanticContext sc, TypeDefinition classType){
 		this.semanticContext = sc;
 		this.classType = classType;

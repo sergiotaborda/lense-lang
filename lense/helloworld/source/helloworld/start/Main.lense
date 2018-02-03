@@ -18,7 +18,7 @@ import lense.core.math.Complex;
 import lense.core.math.Real;
 import lense.core.math.Decimal64;
 import lense.core.math.Rational;
-import lense.core.math.Interlet;
+import lense.core.math.Interval;
 import lense.core.math.ArithmeticException;
 import helloworld.start.Matrix;
 
@@ -26,7 +26,8 @@ public class Main extends ConsoleApplication {
 
 	public constructor();
 	
-	public parameter : Integer = 99;
+	public let parameter : Integer = 99 {get;};
+	
 	
 
   	public onStart()  {
@@ -43,13 +44,13 @@ public class Main extends ConsoleApplication {
   	 	
 		demoMatrix();
   	 
-  		var interlet : Interlet<Natural> = |[ 2, 19 )|;
-		var interlet2 : Interlet<Integer> = |[ -2, 19 )|; // TODO better promotions
+  		var interval : Interval<Natural> = |[ 2, 19 )|;
+		var interval2 : Interval<Integer> = |[ -2, 19 )|; // TODO better promotions
 
-		console.println(interlet2);
+		console.println(interval2);
 
-		var a  = interlet2.start;
-		var b  = interlet2.end;
+		var a  = interval2.start;
+		var b  = interval2.end;
 		 
   	 	var im  = 2i; 
   	 	
@@ -124,8 +125,6 @@ public class Main extends ConsoleApplication {
   	 	
   	 	console.println("parameter p is 99 : {{ p }}");
   	 	 
-  	 	parameter = 48;
-  	 	
   	 	console.println("parameter is : {{ parameter }}");
   	 	 	
   	 	var binary = $1011_1011_0010; 
@@ -288,7 +287,7 @@ public class Main extends ConsoleApplication {
 			console.println("Element {{ a }}" );
 		}
 
-		let list : List<Natural> = arr; 
+		let list : List<Natural> = arr; // implict copy 
 
 		console.println("List size is {{ list.size }}");
 		console.println("List is {{ list }}");
@@ -307,11 +306,15 @@ public class Main extends ConsoleApplication {
 
   	 	var dto = new Dto();
   	 	
+		assert ( dto.age == dto.constante);
+		assert ( dto.age == 34);
+
+		assert ( dto.name == none);
+
   	 	console.println("name is " + dto.name);
   	 	console.println("age is " + dto.age);
   	 		
-  	 	dto.name = "dto";
-  	 	dto.age = 51;
+  	 	dto.name = "dto"; // directly assign to a optional property
   	 	
   	 	var address = dto.address;
   	 	

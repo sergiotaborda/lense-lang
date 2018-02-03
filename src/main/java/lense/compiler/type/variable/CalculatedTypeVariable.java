@@ -12,49 +12,43 @@ public abstract class CalculatedTypeVariable implements TypeVariable{
 	protected abstract TypeVariable original();
 	
 	@Override
-	public List<TypeVariable> getGenericParameters() {
+	public final List<TypeVariable> getGenericParameters() {
 		return original().getGenericParameters();
 	}
 
 	@Override
-	public TypeDefinition getTypeDefinition() {
+	public final TypeDefinition getTypeDefinition() {
 		return original().getTypeDefinition();
 	}
+
+
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Optional<String> getSymbol() {
-		return original().getSymbol();
+	public final TypeVariable getUpperBound() {
+		if (this.getVariance() == Variance.ContraVariant){
+			return original().getLowerBound();
+		} else {
+			return original().getUpperBound();
+		}
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public final TypeVariable getLowerBound() {
+		if (this.getVariance() == Variance.ContraVariant){
+			return original().getUpperBound();
+		} else {
+			return original().getLowerBound();
+		}
+	}
+	
 	@Override
 	public boolean isSingleType() {
-		return getLowerBound().equals(getUpperBound());
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public TypeVariable getUpperBound() {
-		if (this.getVariance() == Variance.ContraVariant){
-			return original().getLowerBound();
-		} else {
-			return original().getUpperBound();
-		}
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public TypeVariable getLowerBound() {
-		if (this.getVariance() == Variance.ContraVariant){
-			return original().getUpperBound();
-		} else {
-			return original().getLowerBound();
-		}
+		return false;
 	}
 	
 	@Override

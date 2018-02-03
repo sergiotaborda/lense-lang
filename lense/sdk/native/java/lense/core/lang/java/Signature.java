@@ -10,5 +10,5 @@ import java.lang.annotation.Target;
 @PlatformSpecific
 public @interface Signature {
 
-	String value();
+	String value(); //variable_name:super_class_type_bound:interface_type_bounds
 }

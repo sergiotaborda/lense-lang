@@ -29,7 +29,6 @@ import lense.compiler.context.VariableInfo;
 import lense.compiler.type.LenseTypeDefinition;
 import lense.compiler.type.LenseUnitKind;
 import lense.compiler.type.variable.DeclaringTypeBoundedTypeVariable;
-import lense.compiler.type.variable.FixedTypeVariable;
 import lense.compiler.type.variable.GenericTypeBoundToDeclaringTypeVariable;
 import lense.compiler.type.variable.RangeTypeVariable;
 import lense.compiler.type.variable.TypeVariable;
@@ -59,9 +58,11 @@ public class ReificationVisitor extends AbstractScopedVisitor {
 			this.currentType = ((ClassTypeNode) node).getTypeDefinition();
 
 		} else if (node instanceof ClassBodyNode) {
-			this.getSemanticContext().currentScope().defineVariable(REIFICATION_INFO, new FixedTypeVariable(this
-					.getSemanticContext().resolveTypeForName("lense.core.lang.reflection.ReifiedArguments", 0).get()),
-					node);
+			this.getSemanticContext().currentScope().defineVariable(
+					REIFICATION_INFO,
+					this.getSemanticContext().resolveTypeForName("lense.core.lang.reflection.ReifiedArguments", 0).get(),
+					node
+			);
 		}
 
 		return VisitorNext.Children;
@@ -126,8 +127,7 @@ public class ReificationVisitor extends AbstractScopedVisitor {
 										this.getSemanticContext().resolveTypeForName("lense.core.math.Natural", 0)
 												.get())));
 						
-						m.setTypeVariable(new FixedTypeVariable(this.getSemanticContext()
-								.resolveTypeForName("lense.core.lang.reflection.ReifiedArguments", 0).get()));
+						m.setTypeVariable(this.getSemanticContext().resolveTypeForName("lense.core.lang.reflection.ReifiedArguments", 0).get());
 
 						capture = m;
 						
@@ -146,8 +146,8 @@ public class ReificationVisitor extends AbstractScopedVisitor {
 										this.getSemanticContext().resolveTypeForName("lense.core.math.Natural", 0)
 												.get())));
 
-						m.setTypeVariable(new FixedTypeVariable(this.getSemanticContext()
-								.resolveTypeForName("lense.core.lang.reflection.ReifiedArguments", 0).get()));
+						m.setTypeVariable(this.getSemanticContext()
+								.resolveTypeForName("lense.core.lang.reflection.ReifiedArguments", 0).get());
 
 						capture = m;
 					} else if (g.getTypeVariable() instanceof DeclaringTypeBoundedTypeVariable) {
@@ -163,8 +163,8 @@ public class ReificationVisitor extends AbstractScopedVisitor {
 										this.getSemanticContext().resolveTypeForName("lense.core.math.Natural", 0)
 												.get())));
 
-						m.setTypeVariable(new FixedTypeVariable(this.getSemanticContext()
-								.resolveTypeForName("lense.core.lang.reflection.ReifiedArguments", 0).get()));
+						m.setTypeVariable(this.getSemanticContext()
+								.resolveTypeForName("lense.core.lang.reflection.ReifiedArguments", 0).get());
 						
 					} else {
 						 // TODO 

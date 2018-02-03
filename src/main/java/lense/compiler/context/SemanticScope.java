@@ -12,7 +12,6 @@ import compiler.syntax.AstNode;
 import lense.compiler.CompilationError;
 import lense.compiler.TypeAlreadyDefinedException;
 import lense.compiler.type.TypeDefinition;
-import lense.compiler.type.variable.FixedTypeVariable;
 import lense.compiler.type.variable.TypeVariable;
 
 /**
@@ -126,7 +125,7 @@ public class SemanticScope {
 	 */
 	public VariableInfo defineTypeVariable(String name, TypeVariable type, AstNode declaringNode) {
 		if (variables.containsKey(name)){
-			throw new CompilationError("Type varible " + name + " is already defined in this scope.");
+			throw new CompilationError(declaringNode, "Type variable " + name + " is already defined in this scope.");
 		}
 		final VariableInfo variableInfo = new VariableInfo(name, type,declaringNode, true, false);
 		variables.put(name, variableInfo);
@@ -142,7 +141,7 @@ public class SemanticScope {
 	}
 
 	public TypeDefinition getCurrentType() {
-		return ((FixedTypeVariable)searchVariable("this").getTypeVariable()).getTypeDefinition();
+		return searchVariable("this").getTypeVariable().getTypeDefinition();
 	}
 
 

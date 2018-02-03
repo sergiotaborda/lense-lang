@@ -12,12 +12,11 @@ import java.util.Optional;
 
 import compiler.lexer.ScanPosition;
 import lense.compiler.ast.ClassTypeNode;
-import lense.compiler.ast.LenseAstNode;
 import lense.compiler.ast.TypeNode;
 import lense.compiler.repository.UpdatableTypeRepository;
 import lense.compiler.type.TypeDefinition;
 import lense.compiler.type.TypeNotFoundException;
-import lense.compiler.type.variable.FixedTypeVariable;
+import lense.compiler.type.variable.TypeVariable;
 import lense.compiler.typesystem.LenseTypeSystem;
 import lense.compiler.typesystem.TypeSearchParameters;
 
@@ -72,7 +71,7 @@ public class SemanticContext {
 		imports.add(importName);
 	}
 
-	public TypeDefinition typeForName(TypeNode typeNode) {
+	public TypeVariable typeForName(TypeNode typeNode) {
 		return typeForName(typeNode.getScanPosition(), typeNode.getName(), typeNode.getTypeParametersCount());
 	}
 	
@@ -81,19 +80,19 @@ public class SemanticContext {
 	 * @param genericParametersCount
 	 * @return
 	 */
-	public TypeDefinition typeForName(ScanPosition scanPosition, String name, int genericParametersCount) {
+	public TypeVariable typeForName(ScanPosition scanPosition, String name, int genericParametersCount) {
 	
 		SemanticScope scope = this.currentScope();
 		if (scope != null){
 			VariableInfo varThis = scope.searchVariable("this");
 			
 			if (varThis != null && varThis.getTypeVariable().getSymbol().map(s -> s.equals(name)).orElse(false)){
-				return ((FixedTypeVariable)varThis.getTypeVariable()).getTypeDefinition();
+				return varThis.getTypeVariable().getTypeDefinition();
 			}
 			
 		}
 		
-		Optional<TypeDefinition> type = resolveTypeForName(name, genericParametersCount);
+		Optional<TypeVariable> type = resolveTypeForName(name, genericParametersCount);
 		
 		if (!type.isPresent()){
 			if (LenseTypeSystem.Any().getName().equals(name)){
@@ -112,7 +111,7 @@ public class SemanticContext {
 	 * @param name
 	 * @return
 	 */
-	public Optional<TypeDefinition> resolveTypeForName(String name, int genericParametersCount) {
+	public Optional<TypeVariable> resolveTypeForName(String name, int genericParametersCount) {
 
 		if(name.contains(".")){
 			// is qualified
@@ -126,21 +125,21 @@ public class SemanticContext {
 				VariableInfo variableInfo = currentScope.searchVariable(name);
 
 				if (variableInfo != null && variableInfo.isTypeVariable()){
-					return Optional.of(((FixedTypeVariable)variableInfo.getTypeVariable()).getTypeDefinition());
+					return Optional.of(variableInfo.getTypeVariable());
 				}
 
 
 				// not type variable, attach imports and look again
 
 				for (String importPackage : imports){
-					Optional<TypeDefinition> type = typeForQualifiedName(importPackage + "." + name, genericParametersCount);
+					Optional<TypeVariable> type = typeForQualifiedName(importPackage + "." + name, genericParametersCount);
 					if (type.isPresent()){
 						return type;
 					}
 				}
 				for (lense.compiler.Import imp : parentClassTypeNode.imports()){
 					if (imp.getMatchAlias().equals(name)){
-						Optional<TypeDefinition> type = typeForQualifiedName(imp.getTypeName().toString(), genericParametersCount);
+						Optional<TypeVariable> type = typeForQualifiedName(imp.getTypeName().toString(), genericParametersCount);
 						if (type.isPresent()){
 							return type;
 						}
@@ -161,11 +160,11 @@ public class SemanticContext {
 	 * @param name
 	 * @return
 	 */
-	private Optional<TypeDefinition> typeForQualifiedName(String name, int genericParametersCount) {
+	private Optional<TypeVariable> typeForQualifiedName(String name, int genericParametersCount) {
 
 		TypeSearchParameters filter = new TypeSearchParameters(name,  genericParametersCount);
 		
-		return resolver.resolveType(filter);
+		return resolver.resolveType(filter).map(t  -> (TypeVariable)t);
 
 	}
 

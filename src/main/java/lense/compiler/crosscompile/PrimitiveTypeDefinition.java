@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 
 import lense.compiler.crosscompile.java.JavaTypeKind;
 import lense.compiler.type.Constructor;
@@ -17,9 +18,12 @@ import lense.compiler.type.TypeDefinition;
 import lense.compiler.type.TypeKind;
 import lense.compiler.type.TypeMember;
 import lense.compiler.type.variable.TypeVariable;
+import lense.compiler.typesystem.Variance;
+import lense.compiler.typesystem.Visibility;
 
 public class PrimitiveTypeDefinition implements TypeDefinition {
 
+	public static final PrimitiveTypeDefinition BOOLEAN = new PrimitiveTypeDefinition("boolean");
 	
 	private String name;
 
@@ -58,12 +62,12 @@ public class PrimitiveTypeDefinition implements TypeDefinition {
 	}
 
 	@Override
-	public Optional<Constructor> getConstructorByParameters(ConstructorParameter... parameters) {
+	public Optional<Constructor> getConstructorByParameters(Visibility visibility,ConstructorParameter... parameters) {
 		return Optional.empty();
 	}
 
 	@Override
-	public Optional<Constructor> getConstructorByPromotableParameters(ConstructorParameter... parameters) {
+	public Optional<Constructor> getConstructorByPromotableParameters(Visibility visibility, ConstructorParameter... parameters) {
 		return Optional.empty();
 	}
 
@@ -120,6 +124,56 @@ public class PrimitiveTypeDefinition implements TypeDefinition {
 	@Override
 	public Collection<TypeMember> getAllMembers() {
 		return this.getMembers();
+	}
+
+	@Override
+	public TypeVariable getLowerBound() {
+		return this;
+	}
+
+	@Override
+	public TypeVariable getUpperBound() {
+		return this;
+	}
+
+	@Override
+	public Variance getVariance() {
+		return Variance.Invariant;
+	}
+
+	@Override
+	public Optional<String> getSymbol() {
+		return Optional.empty();
+	}
+
+	@Override
+	public TypeDefinition getTypeDefinition() {
+		return this;
+	}
+
+	@Override
+	public TypeVariable changeBaseType(TypeDefinition concrete) {
+		return this;
+	}
+
+	@Override
+	public boolean isSingleType() {
+		return true;
+	}
+
+	@Override
+	public boolean isFixed() {
+		return true;
+	}
+
+	@Override
+	public boolean isCalculated() {
+		return false;
+	}
+
+	@Override
+	public void ensureNotFundamental(Function<TypeDefinition, TypeDefinition> convert) {
+		// no-op
 	}
 
 }

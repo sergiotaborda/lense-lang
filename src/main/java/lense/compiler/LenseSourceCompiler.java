@@ -8,7 +8,7 @@ import compiler.CompilationResultSet;
 import compiler.CompilationUnit;
 import compiler.CompilationUnitSet;
 import lense.compiler.phases.NameResolutionPhase;
-import lense.compiler.phases.SemanticAnaylisisPhase;
+import lense.compiler.phases.SemanticAnalysisPhase;
 import lense.compiler.typesystem.PackageResolver;
 /**
  * 
@@ -36,7 +36,7 @@ public class LenseSourceCompiler extends AstCompiler {
 		};
 		return super.parse(unitSet)
 				.passBy(new NameResolutionPhase(repo, resolver, this.getListener()))
-				.passBy(new SemanticAnaylisisPhase(this.getListener()))
+				.passBy(new SemanticAnalysisPhase(this.getListener()))
 				//.passBy(new IntermediatyRepresentationPhase())
 				;
 	}

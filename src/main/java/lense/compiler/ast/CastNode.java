@@ -1,7 +1,6 @@
 package lense.compiler.ast;
 
 import lense.compiler.type.TypeDefinition;
-import lense.compiler.type.variable.FixedTypeVariable;
 import lense.compiler.type.variable.TypeVariable;
 
 public class CastNode extends ExpressionNode {
@@ -26,7 +25,7 @@ public class CastNode extends ExpressionNode {
 	}
 
 	public TypeVariable getTypeVariable() {
-		return new FixedTypeVariable(type);
+		return type;
 	}
 }
 

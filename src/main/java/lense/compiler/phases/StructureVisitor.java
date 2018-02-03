@@ -38,9 +38,7 @@ import lense.compiler.type.Method;
 import lense.compiler.type.MethodParameter;
 import lense.compiler.type.MethodReturn;
 import lense.compiler.type.TypeDefinition;
-import lense.compiler.type.variable.FixedTypeVariable;
-import lense.compiler.type.variable.GenericTypeBoundToDeclaringTypeVariable;
-import lense.compiler.type.variable.TypeMemberDeclaringTypeVariable;
+import lense.compiler.type.variable.DeclaringTypeBoundedTypeVariable;
 import lense.compiler.type.variable.TypeVariable;
 import lense.compiler.typesystem.LenseTypeSystem;
 import lense.compiler.typesystem.Variance;
@@ -91,7 +89,7 @@ public class StructureVisitor extends AbstractScopedVisitor {
             Map<Integer, TypeDefinition> map = this.getSemanticContext().typeAllForName( typeNode.getName());
 
             if (map.size() == 1){
-                FixedTypeVariable f = new FixedTypeVariable(map.values().iterator().next());
+                TypeVariable f = map.values().iterator().next();
                 typeNode.setTypeVariable(f);
                 typeNode.setTypeParameter(f);
             }
@@ -169,7 +167,7 @@ public class StructureVisitor extends AbstractScopedVisitor {
 				//t = inferType(t);
 				//node.getParent().replace(node, t);
 			} else {
-				resolveTypeDefinition((TypeNode)node);
+				resolveTypeDefinition((TypeNode)node, Variance.Invariant); // TODO read parent node to determine variance
 			}
 
 		} else if (node instanceof ConstructorDeclarationNode){
@@ -182,7 +180,7 @@ public class StructureVisitor extends AbstractScopedVisitor {
 		} else 	if (node instanceof FieldDeclarationNode){
 			FieldDeclarationNode f = (FieldDeclarationNode)node;
 
-			resolveTypeDefinition(f.getTypeNode());
+			resolveTypeDefinition(f.getTypeNode(),Variance.Invariant);
 
 			currentType.addField(f.getName(), f.getTypeNode().getTypeVariable(), f.getImutabilityValue());
 	
@@ -205,53 +203,66 @@ public class StructureVisitor extends AbstractScopedVisitor {
 				}
 			}
 
-			TypeVariable typeParameter = resolveTypeDefinition(m.getReturnType());
-
-			lense.compiler.type.variable.TypeVariable returnTypeVariable;
-			if (!typeParameter.getGenericParameters().isEmpty()) {
-				List<TypeVariable> list = typeParameter.getGenericParameters();
-				
-				if (list.size() == 1) {
-					
-					TypeVariable firstType = list.get(0);
-					
-					if (firstType.isFixed()) {
-						returnTypeVariable = firstType;
-					} else {
-						Optional<String> symbol = firstType.getSymbol();
-						Optional<Integer> opIndex =  symbol.flatMap( n -> currentType.getGenericParameterIndexBySymbol(n));
-
-						if (!opIndex.isPresent()){
-							throw new CompilationError( m.getReturnType(), symbol.get() + " is not a generic type parameter in type " + currentType.getName());
-						}
-						
-						TypeDefinition typeDefinition = typeParameter.getTypeDefinition();
-						if (typeDefinition.getName().equals(this.currentType.getName())) {
-							typeDefinition= this.currentType;
-						}
-						
-						returnTypeVariable = new GenericTypeBoundToDeclaringTypeVariable(typeDefinition, this.currentType, opIndex.get().intValue(),  symbol.get(), Variance.ContraVariant);
-						
-					}
-				
-
-				} else {
-					throw new UnsupportedOperationException("More than one generic parameter is not suppoerted yet");
-				}
-			} else if (typeParameter.getLowerBound().equals(typeParameter.getUpperBound())){
-				returnTypeVariable = typeParameter;
-			} else {
-				String typeName = m.getReturnType().getName();
-				Optional<Integer> opIndex = currentType.getGenericParameterIndexBySymbol(typeName);
-
-
-				if (!opIndex.isPresent()){
-					throw new CompilationError( m.getReturnType(), typeName + " is not a generic type parameter in type " + currentType.getName());
-				}
-
-				// TODO recover the member
-				returnTypeVariable = new TypeMemberDeclaringTypeVariable(null /*TODO*/, opIndex.get());
-			}
+			TypeVariable returnTypeVariable = resolveTypeDefinition(m.getReturnType(), Variance.Covariant);
+//
+//			lense.compiler.type.variable.TypeVariable returnTypeVariable;
+//			if (!typeParameter.getGenericParameters().isEmpty()) {
+//				List<TypeVariable> list = typeParameter.getGenericParameters();
+//				
+//				if (list.size() == 1) {
+//					TypeDefinition typeDefinition = typeParameter.getTypeDefinition();
+//					
+//					if (currentType.getGenericParameters().isEmpty()) {
+//						TypeVariable f = currentType.getGenericParameters().get(0);
+//						
+//						returnTypeVariable = new GenericTypeBoundToDeclaringTypeVariable(typeDefinition, this.currentType, 0,  f.getSymbol().get(), Variance.ContraVariant);
+//						
+//					} else if (currentType.getGenericParameters().size() == 1) {
+//						
+//						TypeVariable f = currentType.getGenericParameters().get(0);
+//						
+//						returnTypeVariable = new GenericTypeBoundToDeclaringTypeVariable(typeDefinition, this.currentType, 0,  f.getSymbol().get(), Variance.ContraVariant);
+//						
+//					} else {
+//						TypeVariable firstType = list.get(0);
+//						
+//						if (firstType.isFixed()) {
+//							returnTypeVariable = firstType;
+//						} else {
+//							Optional<String> symbol = firstType.getSymbol();
+//							Optional<Integer> opIndex =  symbol.flatMap( n -> currentType.getGenericParameterIndexBySymbol(n));
+//
+//							if (!opIndex.isPresent()){
+//								throw new CompilationError( m.getReturnType(), symbol.get() + " is not a generic type parameter in type " + currentType.getName());
+//							}
+//							
+//							
+//							if (typeDefinition.getName().equals(this.currentType.getName())) {
+//								typeDefinition= this.currentType;
+//							}
+//							
+//							returnTypeVariable = new GenericTypeBoundToDeclaringTypeVariable(typeDefinition, this.currentType, opIndex.get().intValue(),  symbol.get(), Variance.ContraVariant);
+//							
+//						}
+//					}
+//
+//				} else {
+//					throw new UnsupportedOperationException("More than one generic parameter is not suppoerted yet");
+//				}
+//			} else if (typeParameter.getLowerBound().equals(typeParameter.getUpperBound())){
+//				returnTypeVariable = typeParameter;
+//			} else {
+//				String typeName = m.getReturnType().getName();
+//				Optional<Integer> opIndex = currentType.getGenericParameterIndexBySymbol(typeName);
+//
+//
+//				if (!opIndex.isPresent()){
+//					throw new CompilationError( m.getReturnType(), typeName + " is not a generic type parameter in type " + currentType.getName());
+//				}
+//
+//				// TODO recover the member
+//				returnTypeVariable = new DeclaringTypeBoundedTypeVariable(currentType, opIndex.get(),typeName,  Variance.Covariant);
+//			}
 
 
 			ParametersListNode parameters = m.getParameters();
@@ -282,7 +293,7 @@ public class StructureVisitor extends AbstractScopedVisitor {
 					throw new CompilationError(node, typeName + " is not a valid type or generic parameter");
 				}
 
-				TypeVariable pp = new TypeMemberDeclaringTypeVariable(null, index.get());
+				TypeVariable pp = new DeclaringTypeBoundedTypeVariable(this.currentType, index.get(),  typeName, Variance.Covariant);
 
 				if (p.isIndexed()){
 					lense.compiler.type.variable.TypeVariable[] params = new  lense.compiler.type.variable.TypeVariable[((IndexerPropertyDeclarationNode)p).getIndexes().getChildren().size()];
@@ -330,7 +341,7 @@ public class StructureVisitor extends AbstractScopedVisitor {
             Map<Integer, TypeDefinition> map = this.getSemanticContext().typeAllForName( typeNode.getName());
 
             if (map.size() == 1){
-                FixedTypeVariable f = new FixedTypeVariable(map.values().iterator().next());
+               TypeVariable f = map.values().iterator().next();
                 typeNode.setTypeVariable(f);
                 typeNode.setTypeParameter(f);
             }
@@ -379,7 +390,7 @@ public class StructureVisitor extends AbstractScopedVisitor {
 
 		for (AstNode p : parameters.getChildren()){
 			FormalParameterNode f = (FormalParameterNode)p;
-			resolveTypeDefinition(f.getTypeNode());
+			resolveTypeDefinition(f.getTypeNode(), Variance.ContraVariant);
 		}
 
 
@@ -395,7 +406,7 @@ public class StructureVisitor extends AbstractScopedVisitor {
 				if (!opIndex.isPresent()){
 					throw new CompilationError(parameters, var.getTypeNode().getTypeParameter().getSymbol() + " is not a generic type parameter in type " + currentType.getName());
 				}
-				lense.compiler.type.variable.TypeVariable tv = new TypeMemberDeclaringTypeVariable(null, opIndex.get());
+				lense.compiler.type.variable.TypeVariable tv = new DeclaringTypeBoundedTypeVariable(currentType, opIndex.get(), var.getTypeNode().getTypeParameter().getSymbol().get(), Variance.ContraVariant);
 
 				params[i] = new MethodParameter(tv, var.getName());
 			} else {

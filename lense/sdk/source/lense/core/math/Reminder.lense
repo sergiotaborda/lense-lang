@@ -1,6 +1,6 @@
 
 
-public interface Summable <D, R> {
+public interface Reminder <D, R> {
 
 	public reminder (divisor: D): R;
 }

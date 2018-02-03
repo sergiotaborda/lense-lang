@@ -46,7 +46,6 @@ import lense.compiler.type.LenseTypeDefinition;
 import lense.compiler.type.LenseUnitKind;
 import lense.compiler.type.Property;
 import lense.compiler.type.TypeDefinition;
-import lense.compiler.type.variable.FixedTypeVariable;
 import lense.compiler.type.variable.RangeTypeVariable;
 import lense.compiler.type.variable.TypeVariable;
 import lense.compiler.typesystem.LenseTypeSystem;
@@ -81,10 +80,8 @@ public class NameResolutionVisitor extends AbstractScopedVisitor {
         if (node instanceof ClassTypeNode) {
             ClassTypeNode n = (ClassTypeNode) node;
 
-            //n.setName(this.getSemanticContext().getCurrentPackageName() + "." + n.getName());
-
             String name = n.getName();
-            Optional<TypeDefinition> type = this.getSemanticContext().resolveTypeForName(name, n.getGenericParametersCount());
+            Optional<TypeVariable> type = this.getSemanticContext().resolveTypeForName(name, n.getGenericParametersCount());
 
             LenseTypeDefinition currentType;
             if (!type.isPresent()){
@@ -101,8 +98,10 @@ public class NameResolutionVisitor extends AbstractScopedVisitor {
 
                         TypeNode tn = g.getTypeNode();
 
-                        genericVariables.add(new RangeTypeVariable(tn.getName(), lense.compiler.typesystem.Variance.Invariant , LenseTypeSystem.Any(), LenseTypeSystem.Nothing()));
+                        RangeTypeVariable r = new RangeTypeVariable(tn.getName(), lense.compiler.typesystem.Variance.Invariant , LenseTypeSystem.Any(), LenseTypeSystem.Nothing());
+						genericVariables.add(r);
 
+                        this.getSemanticContext().currentScope().defineTypeVariable(tn.getName(), r, node);
                     }
 
                 }
@@ -124,7 +123,7 @@ public class NameResolutionVisitor extends AbstractScopedVisitor {
 
                         type = this.getSemanticContext().resolveTypeForName( n.getSuperType().getName(),n.getSuperType().getTypeParametersCount());
 
-                        this.getSemanticContext().currentScope().defineVariable("super", new FixedTypeVariable((LenseTypeDefinition)type.get()), node);
+                        this.getSemanticContext().currentScope().defineVariable("super", type.get(), node);
                     } else {
                         String typeName = match.get().getTypeName().toString();
 
@@ -136,7 +135,7 @@ public class NameResolutionVisitor extends AbstractScopedVisitor {
                         }
 
 
-                        this.getSemanticContext().currentScope().defineVariable("super", new FixedTypeVariable((LenseTypeDefinition)type.get()), node);
+                        this.getSemanticContext().currentScope().defineVariable("super", type.get(), node);
                     }
 
 
@@ -147,7 +146,7 @@ public class NameResolutionVisitor extends AbstractScopedVisitor {
                 currentType = (LenseTypeDefinition) type.get();
             }
 
-            this.getSemanticContext().currentScope().defineVariable("this", new FixedTypeVariable(currentType), node);
+            this.getSemanticContext().currentScope().defineVariable("this", currentType, node);
 
 
         } else if (node instanceof NumericValue){
@@ -201,8 +200,8 @@ public class NameResolutionVisitor extends AbstractScopedVisitor {
                         .get(i).getFirstChild();
                 classInstanceCreation.replace(classInstanceCreation.getTypeNode(), typeNode);
             }
-            TypeDefinition pairType = this.getSemanticContext().resolveTypeForName(typeNode.getName(), 2).get();
-            typeNode.setTypeVariable(new FixedTypeVariable(pairType));
+            TypeVariable pairType = this.getSemanticContext().resolveTypeForName(typeNode.getName(), 2).get();
+            typeNode.setTypeVariable(pairType);
 
             TreeTransverser.transverse(args, this);
 
@@ -219,8 +218,8 @@ public class NameResolutionVisitor extends AbstractScopedVisitor {
                     lense.compiler.typesystem.Variance.Invariant));
             typeNode.addParametricType(new GenericTypeParameterNode(new TypeNode(value.getTypeVariable()),
                     lense.compiler.typesystem.Variance.Invariant));
-            typeNode.setTypeVariable(new FixedTypeVariable(LenseTypeSystem.specify(typeNode.getTypeVariable(),
-                    key.getTypeVariable(), value.getTypeVariable())));
+            typeNode.setTypeVariable(LenseTypeSystem.specify(typeNode.getTypeVariable(),
+                    key.getTypeVariable(), value.getTypeVariable()));
 
             return VisitorNext.Siblings;
         }  else if (node instanceof FieldDeclarationNode) {
@@ -269,11 +268,11 @@ public class NameResolutionVisitor extends AbstractScopedVisitor {
             for (Import i : ct.imports()) {
                 if (i.isContainer()) {
 
-                    Optional<TypeDefinition> libraryType = this.getSemanticContext().resolveTypeForName(
+                    Optional<TypeVariable> libraryType = this.getSemanticContext().resolveTypeForName(
                             i.getTypeName().getName() + "." + typeNode.getName(), typeNode.getTypeParametersCount());
 
                     if (libraryType.isPresent()) {
-                        typeNode.setName(new QualifiedNameNode(libraryType.get().getName()));
+                        typeNode.setName(new QualifiedNameNode(libraryType.get().getTypeDefinition().getName()));
                         final Import implicitType = Import.singleType(new QualifiedNameNode(""), typeNode.getName());
                         implicitType.setUsed(true);
                         ct.addImport(implicitType);
@@ -284,11 +283,10 @@ public class NameResolutionVisitor extends AbstractScopedVisitor {
             }
 
             // match implicit imports
-            Optional<TypeDefinition> libraryType = this.getSemanticContext().resolveTypeForName(typeNode.getName(),
-                    typeNode.getTypeParametersCount());
+            Optional<TypeVariable> libraryType = this.getSemanticContext().resolveTypeForName(typeNode.getName(), typeNode.getTypeParametersCount());
 
             if (libraryType.isPresent()) {
-                typeNode.setName(new QualifiedNameNode(libraryType.get().getName()));
+                typeNode.setName(new QualifiedNameNode(libraryType.get().getTypeDefinition().getName()));
                 final Import implicitType = Import.singleType(new QualifiedNameNode(typeNode.getName()),
                         typeNode.getName());
                 implicitType.setUsed(true);
@@ -348,11 +346,12 @@ public class NameResolutionVisitor extends AbstractScopedVisitor {
         if (def != null && def.isTypeVariable()) {
         	return;
         }
+        
     	
         if (typeNode.getName().equals(name)){
-            Optional<TypeDefinition> libraryType = this.getSemanticContext().resolveTypeForName(name,typeNode.getTypeParametersCount());
+            Optional<TypeVariable> libraryType = this.getSemanticContext().resolveTypeForName(name,typeNode.getTypeParametersCount());
             if (libraryType.isPresent()) {
-                typeNode.setName(new QualifiedNameNode(libraryType.get().getName()));
+                typeNode.setName(new QualifiedNameNode(libraryType.get().getTypeDefinition().getName()));
                 final Import implicitType = Import.singleType(new QualifiedNameNode(name),typeNode.getName());
                 implicitType.setUsed(true);
                 ct.addImport(implicitType);
@@ -372,6 +371,15 @@ public class NameResolutionVisitor extends AbstractScopedVisitor {
         // try to find it in the core
 
         if (!tryDefaultPath(typeNode).isPresent()){
+        	 for( TypeVariable g : this.getSemanticContext().currentScope().getCurrentType().getGenericParameters()) {
+        		 if (g.getSymbol().get().equals(typeNode.getName())) {
+        			 this.getSemanticContext().currentScope().defineTypeVariable(typeNode.getName(), g, node);
+        			 return;
+        		 }
+        	 }
+        	
+        	
+        	
             throw new CompilationError(node, "Type " + typeNode.getName() + " was not imported in " + name);
         }
 
@@ -380,16 +388,16 @@ public class NameResolutionVisitor extends AbstractScopedVisitor {
 
     static final List<String> paths = Arrays.asList("lense.core.collections","lense.core.math","lense.core.lang");
 
-    private Optional<TypeDefinition> tryDefaultPath(TypeNode typeNode){
+    private Optional<TypeVariable> tryDefaultPath(TypeNode typeNode){
 
         for(String path : paths) {
 
             String fullType = path + "." + typeNode.getName();
 
-            Optional<TypeDefinition> libraryType = this.getSemanticContext().resolveTypeForName(fullType,typeNode.getTypeParametersCount());
+            Optional<TypeVariable> libraryType = this.getSemanticContext().resolveTypeForName(fullType,typeNode.getTypeParametersCount());
 
             if (libraryType.isPresent()) {
-                typeNode.setName(new QualifiedNameNode(libraryType.get().getName()));
+                typeNode.setName(new QualifiedNameNode(libraryType.get().getTypeDefinition().getName()));
                 final Import implicitType = Import.singleType(new QualifiedNameNode(fullType),typeNode.getName());
                 implicitType.setUsed(true);
                 ct.addImport(implicitType);
@@ -404,22 +412,6 @@ public class NameResolutionVisitor extends AbstractScopedVisitor {
     private VisitorNext resolveName(ClassTypeNode ct, AstNode parent, AstNode child, QualifiedNameNode original) {
 
         QualifiedNameNode qn = original;
-        // Optional<TypeDefinition> maybeType =
-        // this.getSemanticContext().resolveTypeForName(qn.getName(), 0);
-        //
-        // while(!maybeType.isPresent()){
-        // qn = qn.getPrevious();
-        // if (qn != null){
-        // maybeType = this.getSemanticContext().resolveTypeForName(qn.getName(), 0);
-        // } else {
-        // break;
-        // }
-        // }
-        //
-        // if (maybeType.isPresent()){
-        // return VisitorNext.Children;
-        //
-        // }
 
         Optional<Import> match = matchImports(ct, original.getName());
 
@@ -651,7 +643,7 @@ public class NameResolutionVisitor extends AbstractScopedVisitor {
             if (typeNode.needsInference()){
                 return;
             }
-            Optional<TypeDefinition> type = this.getSemanticContext().resolveTypeForName(typeNode.getName(),
+            Optional<TypeVariable> type = this.getSemanticContext().resolveTypeForName(typeNode.getName(),
                     typeNode.getTypeParametersCount());
 
             if (!type.isPresent()) {
@@ -662,9 +654,9 @@ public class NameResolutionVisitor extends AbstractScopedVisitor {
                 
                 for (AstNode child : typeNode.getChildren()) {
                 	GenericTypeParameterNode gn = (GenericTypeParameterNode)child;
-                	 Optional<TypeDefinition> gnt = this.getSemanticContext().resolveTypeForName(gn.getTypeNode().getName(),gn.getTypeNode().getTypeParametersCount());
+                	 Optional<TypeVariable> gnt = this.getSemanticContext().resolveTypeForName(gn.getTypeNode().getName(),gn.getTypeNode().getTypeParametersCount());
                 	 if (gnt.isPresent()) {
-                			genericParameters.add(new FixedTypeVariable(gnt.get()));
+                			genericParameters.add(gnt.get());
                 	 }
                 
                 }
@@ -672,8 +664,7 @@ public class NameResolutionVisitor extends AbstractScopedVisitor {
 				LenseTypeDefinition defType = new LenseTypeDefinition(typeNode.getName(), null, null,genericParameters);
                 type = Optional.of(this.getSemanticContext().registerType(defType, typeNode.getTypeParametersCount()));
             }
-            VariableInfo info = this.getSemanticContext().currentScope().defineVariable(variableDeclaration.getName(),
-                    new FixedTypeVariable(type.get()), node);
+            VariableInfo info = this.getSemanticContext().currentScope().defineVariable(variableDeclaration.getName(),type.get(), node);
 
             variableDeclaration.setInfo(info);
 
@@ -683,8 +674,7 @@ public class NameResolutionVisitor extends AbstractScopedVisitor {
             TypeNode typeNode = variableDeclaration.getTypeNode();
             if (typeNode != null) {
                 LenseTypeDefinition type = new LenseTypeDefinition(typeNode.getName(), null, null);
-                this.getSemanticContext().currentScope().defineVariable(variableDeclaration.getName(),
-                        new FixedTypeVariable(type), node);
+                this.getSemanticContext().currentScope().defineVariable(variableDeclaration.getName(),type, node);
             }
 
         } else if (node instanceof LiteralTupleInstanceCreation) {

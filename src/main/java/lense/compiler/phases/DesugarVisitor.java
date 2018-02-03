@@ -10,7 +10,6 @@ import lense.compiler.ast.ArgumentListNode;
 import lense.compiler.ast.AssignmentNode;
 import lense.compiler.ast.AssignmentNode.Operation;
 import lense.compiler.ast.BlockNode;
-import lense.compiler.ast.NumericValue;
 import lense.compiler.ast.BooleanOperation;
 import lense.compiler.ast.ComparisonNode;
 import lense.compiler.ast.ExpressionNode;
@@ -25,6 +24,7 @@ import lense.compiler.ast.MethodDeclarationNode;
 import lense.compiler.ast.MethodInvocationNode;
 import lense.compiler.ast.ModifierNode;
 import lense.compiler.ast.NewInstanceCreationNode;
+import lense.compiler.ast.NumericValue;
 import lense.compiler.ast.ObjectReadNode;
 import lense.compiler.ast.ParametersListNode;
 import lense.compiler.ast.PreBooleanUnaryExpression;
@@ -33,11 +33,9 @@ import lense.compiler.ast.PropertyOperation;
 import lense.compiler.ast.QualifiedNameNode;
 import lense.compiler.ast.ReturnNode;
 import lense.compiler.ast.TypeNode;
-import lense.compiler.ast.TypedNode;
 import lense.compiler.ast.VariableReadNode;
 import lense.compiler.context.SemanticContext;
 import lense.compiler.context.VariableInfo;
-import lense.compiler.type.variable.FixedTypeVariable;
 import lense.compiler.type.variable.TypeVariable;
 import lense.compiler.typesystem.Imutability;
 import lense.compiler.typesystem.LenseTypeSystem;
@@ -178,7 +176,7 @@ public class DesugarVisitor extends AbstractLenseVisitor {
             FieldOrPropertyAccessNode backingField = new FieldOrPropertyAccessNode(privateFieldName);
             backingField.setType(typeVariable);
             backingField.setPrimary(new QualifiedNameNode("this"));
-
+            
             boolean shoudlGenerateBackingField = false;
 
             if (prp.getAcessor() != null) {
@@ -279,7 +277,8 @@ public class DesugarVisitor extends AbstractLenseVisitor {
                 FieldDeclarationNode privateField = new FieldDeclarationNode(privateFieldName, prp.getType(),
                         NewInstanceCreationNode.of(prp.getType()));
                 privateField.setTypeNode(prp.getType());
-
+                privateField.setImutability( new ImutabilityNode(prp.getImutability()));
+                
                 if (prp.isInicializedOnConstructor()) {
                     privateField.setImutability(new ImutabilityNode(Imutability.Imutable));
                     privateField.setInitializedOnConstructor(true);
@@ -311,7 +310,7 @@ public class DesugarVisitor extends AbstractLenseVisitor {
                     invokeSet.setPropertyDerivedMethod(true);
                     invokeSet.setPropertyDerivedName(propertyName);
                     invokeSet.setPropertyOperation(PropertyOperation.WRITE);
-                    invokeSet.setTypeVariable(new FixedTypeVariable(LenseTypeSystem.Void()));
+                    invokeSet.setTypeVariable(LenseTypeSystem.Void());
                     invokeSet.setAccess(n.getPrimary());
 
                     n.getParent().getParent().replace(n.getParent(), invokeSet);
@@ -349,7 +348,7 @@ public class DesugarVisitor extends AbstractLenseVisitor {
                 MethodInvocationNode invokeSet = new MethodInvocationNode(n.getAccess(), "set", list);
                 invokeSet.setIndexDerivedMethod(true);
                 invokeSet.setPropertyOperation(PropertyOperation.WRITE);
-                invokeSet.setTypeVariable(new FixedTypeVariable(LenseTypeSystem.Void()));
+                invokeSet.setTypeVariable(LenseTypeSystem.Void());
                 node.getParent().getParent().replace(n.getParent(), invokeSet);
 
             } else {
@@ -416,7 +415,7 @@ public class DesugarVisitor extends AbstractLenseVisitor {
             } else {
 
                 MethodInvocationNode compareTo = new MethodInvocationNode(n.getLeft(), "compareWith", arg);
-                compareTo.setTypeVariable(new FixedTypeVariable(LenseTypeSystem.Natural()));
+                compareTo.setTypeVariable(LenseTypeSystem.Natural());
 
                 if (n.getOperation() == ComparisonNode.Operation.Compare) {
                     node.getParent().replace(node, compareTo);
@@ -498,26 +497,6 @@ public class DesugarVisitor extends AbstractLenseVisitor {
 
             }
         }
-        // else if (node instanceof BooleanOperatorNode) {
-        // BooleanOperatorNode n = (BooleanOperatorNode) node;
-        // // convert to compareTo or equals call
-        //
-        // if (n.getOperation() == BooleanOperation.LogicShortAnd) {
-        // MethodInvocationNode and = new MethodInvocationNode(n.getLeft(),
-        // "and", n.getRight());
-        // and.setTypeVariable(n.getTypeVariable());
-        // node.getParent().replace(node, and);
-        // } else if (n.getOperation() == BooleanOperation.LogicShortOr) {
-        // MethodInvocationNode or = new MethodInvocationNode(n.getLeft(),
-        // "and", n.getRight());
-        // or.setTypeVariable(n.getTypeVariable());
-        // node.getParent().replace(node, or);
-        //
-        // } else {
-        // throw new RuntimeException("Not implemented yet");
-        // }
-        //
-        // }
 
     }
 

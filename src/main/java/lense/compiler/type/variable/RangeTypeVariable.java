@@ -22,11 +22,7 @@ public class RangeTypeVariable implements TypeVariable {
 	private TypeVariable upper;
 	
 	public RangeTypeVariable (String symbol,Variance variance, TypeDefinition upper, TypeDefinition lower ){
-		this(Optional.of(symbol), variance, new FixedTypeVariable(upper), new FixedTypeVariable(lower));
-	}
-	
-	public RangeTypeVariable (Optional<String> symbol,Variance variance, TypeDefinition upper, TypeDefinition lower ){
-		this(symbol, variance, new FixedTypeVariable(upper), new FixedTypeVariable(lower));
+		this(Optional.of(symbol), variance, upper, lower);
 	}
 	
 	public RangeTypeVariable (String symbol,Variance variance, TypeVariable upper, TypeVariable lower ){

@@ -15,7 +15,6 @@ import lense.compiler.type.MethodReturn;
 import lense.compiler.type.Property;
 import lense.compiler.type.TypeDefinition;
 import lense.compiler.type.variable.DeclaringTypeBoundedTypeVariable;
-import lense.compiler.type.variable.FixedTypeVariable;
 import lense.compiler.type.variable.GenericTypeBoundToDeclaringTypeVariable;
 import lense.compiler.type.variable.TypeVariable;
 import lense.compiler.typesystem.LenseTypeSystem;
@@ -55,7 +54,7 @@ public class MethodBuilder {
 			return;
 		}
 		
-		MethodReturn r = new MethodReturn(new FixedTypeVariable(rt));
+		MethodReturn r = new MethodReturn(rt);
 
 		List<MethodParameter> params = new LinkedList<>();
 		int a = 1;
@@ -79,8 +78,8 @@ public class MethodBuilder {
 		m.setAbstract(info.isAbstract());
 
 
-		TypeDefinition returnTypeDefinitio = m.getReturningType().getTypeDefinition(); // TODO this definition is not propertly loaded with genric params
-		;
+		 TypeVariable returnTypeDefinitio = m.getReturningType(); // TODO this definition is not propertly loaded with genric params
+		
 		if (isProperty){
 			if (returnSignature != null && returnSignature.length() > 0){
 				m.setReturn(new MethodReturn(parseReturnSignature((LoadedLenseTypeDefinition) m.getDeclaringType(), returnSignature,returnTypeDefinitio)));
@@ -116,7 +115,7 @@ public class MethodBuilder {
 
 	}
 
-	private lense.compiler.type.variable.TypeVariable parseReturnSignature(LoadedLenseTypeDefinition declaringType, String returnSignature,TypeDefinition returnTypeDefinition ){
+	private lense.compiler.type.variable.TypeVariable parseReturnSignature(LoadedLenseTypeDefinition declaringType, String returnSignature,TypeVariable returnTypeDefinition ){
 		
 		Optional<Integer> symbolIndex = declaringType.getGenericParameterIndexBySymbol(returnSignature);
 
@@ -149,14 +148,12 @@ public class MethodBuilder {
 					}
 				}
 
-				LenseTypeDefinition m =  loadedClassBuilder.resolveTypByNameWithVariables(paramType,variables);
-
-				return new FixedTypeVariable(m);
+				return  loadedClassBuilder.resolveTypByNameWithVariables(paramType,variables);
 
 			} else if (returnTypeDefinition.getGenericParameters().isEmpty()){
-				return new FixedTypeVariable(returnTypeDefinition);
+				return returnTypeDefinition;
 			} else {
-				return new FixedTypeVariable(loadedClassBuilder.resolveTypByNameAndKind(returnSignature, null));
+				return loadedClassBuilder.resolveTypByNameAndKind(returnSignature, null);
 
 
 			}

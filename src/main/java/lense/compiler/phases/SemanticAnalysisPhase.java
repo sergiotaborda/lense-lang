@@ -15,12 +15,12 @@ import lense.compiler.ast.UnitTypes;
 /**
  * 
  */
-public class SemanticAnaylisisPhase implements CompilerPhase {
+public class SemanticAnalysisPhase implements CompilerPhase {
 
 
 	private CompilerListener listener;
 
-	public SemanticAnaylisisPhase(CompilerListener listener){
+	public SemanticAnalysisPhase(CompilerListener listener){
 		this.listener = listener;
 	}
 	
@@ -43,6 +43,7 @@ public class SemanticAnaylisisPhase implements CompilerPhase {
 			// cannot share semantic context among classes
 			try {
 				TreeTransverser.transverse(ct,new SemanticVisitor(ct.getSemanticContext()));
+				TreeTransverser.transverse(ct,new EnsureNotFundamentalTypesVisitor(ct.getSemanticContext()));
 			} catch (CompilationError e){
 				listener.error(new CompilerMessage(e.getMessage()));
 				return new CompilationResult(e);

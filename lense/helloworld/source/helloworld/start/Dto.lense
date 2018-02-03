@@ -7,9 +7,9 @@ import helloworld.start.Matrix;
 
 public class Dto {
 
-	public constante : Integer;
+	public let constante : Integer = 34;
   	public var name : String?;
-  	public var age : Integer = 2;
+  	public var age : Integer => constante;
 	public var birthDay : Integer? ;  
   	public var address : String? {
   		get {

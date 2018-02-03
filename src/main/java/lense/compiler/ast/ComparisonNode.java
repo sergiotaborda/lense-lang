@@ -3,7 +3,6 @@
  */
 package lense.compiler.ast;
 
-import lense.compiler.type.variable.FixedTypeVariable;
 import lense.compiler.type.variable.TypeVariable;
 import lense.compiler.typesystem.LenseTypeSystem;
 
@@ -55,8 +54,8 @@ public class ComparisonNode extends ExpressionNode {
 
 	public TypeVariable getTypeVariable() {
         return  this.operation == Operation.Compare 
-                ? new FixedTypeVariable(LenseTypeSystem.Comparison())
-                : new FixedTypeVariable(LenseTypeSystem.Boolean());
+                ? LenseTypeSystem.Comparison()
+                : LenseTypeSystem.Boolean();
     }
 	
 	/**

@@ -278,7 +278,7 @@ public class LoadedClassBuilder {
 
 		if (n.contains("<")) {
 
-			return parseInterfaceSignature(n, maps, type).map(generic -> LenseTypeSystem.specify(type, generic));
+			return parseInterfaceSignature(n, maps, parent).map(generic -> LenseTypeSystem.specify(type, generic));
 
 		} else if (n.length() > 0){
 			String[] g = n.contains(",") ? n.split(",") : new String[] { n };

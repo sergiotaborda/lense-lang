@@ -3,6 +3,7 @@
  */
 package lense.compiler.type.variable;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 
@@ -70,6 +71,10 @@ public class MethodFreeTypeVariable extends CalculatedTypeVariable implements Ty
     public void ensureNotFundamental(Function<TypeDefinition, TypeDefinition> convert) {
         //no-op
     }
+
+
+
+	
 
 
 
