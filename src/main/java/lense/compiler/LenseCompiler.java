@@ -52,7 +52,7 @@ import lense.compiler.modules.ModulesRepository;
 import lense.compiler.phases.CompositePhase;
 import lense.compiler.phases.ConstructorDesugarPhase;
 import lense.compiler.phases.NameResolutionPhase;
-import lense.compiler.phases.SemanticAnaylisisPhase;
+import lense.compiler.phases.SemanticAnalysisPhase;
 import lense.compiler.repository.ClasspathRepository;
 import lense.compiler.repository.ModuleCompilationScopeTypeRepository;
 import lense.compiler.repository.UpdatableTypeRepository;
@@ -167,7 +167,7 @@ public abstract class LenseCompiler {
         Map<String, File> nativeTypes = new HashMap<>();
 
         ConstructorDesugarPhase constructorDesugar = new ConstructorDesugarPhase(listener);
-        SemanticAnaylisisPhase semantic = new SemanticAnaylisisPhase(listener);
+        SemanticAnalysisPhase semantic = new SemanticAnalysisPhase(listener);
 
         CompositePhase corePhase = new CompositePhase().add(semantic);
 

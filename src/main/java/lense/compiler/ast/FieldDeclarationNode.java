@@ -107,7 +107,7 @@ public class FieldDeclarationNode extends AnnotadedLenseAstNode implements Scope
 	}
 	
 	public Imutability getImutabilityValue() {
-		return this.imutability == null ? Imutability.Mutable : imutability.getImutability();
+		return this.imutability == null ? Imutability.Imutable : imutability.getImutability();
 	}
 
 	public void setVisibility(VisibilityNode visibilityNode) {

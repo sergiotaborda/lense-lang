@@ -5,12 +5,14 @@ import lense.compiler.phases.ScopeDelimiter;
 public class ModifierNode extends InvocableDeclarionNode implements ScopeDelimiter{
 
 	private boolean implicit;
+	private boolean declared;
 	private BlockNode statement;
 	private String valueVariableName = "value";
 
 
-	public ModifierNode(boolean implicit) {
+	public ModifierNode(boolean implicit, boolean  declared) {
 		this.implicit= implicit;
+		this.declared= declared;
 	}
 
 	public void setStatements(BlockNode node) {
@@ -43,4 +45,10 @@ public class ModifierNode extends InvocableDeclarionNode implements ScopeDelimit
 	public String getScopeName() {
 		return "set";
 	}
+
+	public boolean isDeclared() {
+		return declared;
+	}
+
+	
 }

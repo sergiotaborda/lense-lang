@@ -75,7 +75,6 @@ import lense.compiler.crosscompile.PrimitiveBooleanUnbox;
 import lense.compiler.crosscompile.PrimitiveBooleanValue;
 import lense.compiler.crosscompile.java.JavaSourceWriterVisitor;
 import lense.compiler.type.TypeDefinition;
-import lense.compiler.type.variable.FixedTypeVariable;
 import lense.compiler.type.variable.TypeVariable;
 
 public class Ecma5JavascriptWriterVisitor implements Visitor<AstNode> {
@@ -980,7 +979,7 @@ public class Ecma5JavascriptWriterVisitor implements Visitor<AstNode> {
 
                 writer.print(upper.getTypeDefinition().getName());
 
-            } else if (type instanceof FixedTypeVariable) {
+            } else if (type.isFixed() ) {
 
                 TypeDefinition def = type.getTypeDefinition();
                 writer.print(def.getName());

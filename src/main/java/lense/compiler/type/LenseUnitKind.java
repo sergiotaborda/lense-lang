@@ -13,6 +13,10 @@ public enum LenseUnitKind implements TypeKind{
 	Annotation,
 	Enum,
 	Object;
+
+	public boolean isInterface() {
+		return this == Interface;
+	}
 	
 	
 }

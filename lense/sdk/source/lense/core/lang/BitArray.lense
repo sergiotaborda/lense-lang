@@ -10,8 +10,9 @@ import lense.core.lang.HashValue;
 
 public class BitArray implements Binary {
 
-	private val bits: Array<Boolean>;
+	private let bits: Array<Boolean>; // TODO compiler must used this variable for primary constructor and not init it
 
+	public implicit constructor ( private bits: Array<Boolean>); // TODO after removing explicit property , the compiler assumes Array<Array>
 
 	public constructor (bitCount: Natural){
 		return new BitArray(new Array<Boolean>(bitCount, false));
@@ -22,35 +23,33 @@ public class BitArray implements Binary {
 	}
 	
 	public implicit constructor ( binary: Binary){
-		val array : Array<Boolean> = new Array<Boolean>(binary.size, false);
+		let array : Array<Boolean> = new Array<Boolean>(binary.size, false); // TODO remove left side typing
 		
-		for (val i in 0 ..< binary.size){
+		for (i in 0 ..< binary.size){
 			array[i] = binary.getBitAt(i);
 		}
 		
 		return new BitArray(array);
 	}
-	
-	public implicit constructor ( bits: Array<Boolean>);
 
 	public flip( index: Natural): Void{
 		this.bits[index] = !this.bits[index];
 	}
 	
 	public rightShiftBy( n: Natural): BitArray{
-		val newArray : Array<Boolean> = new Array<Boolean>(n, false);
+		let newArray : Array<Boolean> = new Array<Boolean>(n, false); // TODO remove left side typing
 
-		return new BitArray(newArray);
+		return new BitArray(newArray); // TODO remove variable
 	}
 	
 	public leftShiftBy(n : Natural) : BitArray{
-		val newArray : Array<Boolean>  = new Array<Boolean>(n, false);
+		let newArray : Array<Boolean>  = new Array<Boolean>(n, false); // TODO remove left side typing
 
-		return new BitArray(newArray);
+		return new BitArray(newArray); // TODO remove variable
 	}
 	
 	public flipAll() : Binary {
-		val  negated : Array<Boolean> = bits.duplicate();
+		let  negated : Array<Boolean> = bits.duplicate();
 
 		for (n in negated.indexes){
 			negated[n] = !negated[n];

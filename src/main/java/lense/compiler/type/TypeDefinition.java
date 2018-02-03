@@ -8,11 +8,12 @@ import java.util.List;
 import java.util.Optional;
 
 import lense.compiler.type.variable.TypeVariable;
+import lense.compiler.typesystem.Visibility;
 
 /**
  * 
  */
-public interface TypeDefinition {
+public interface TypeDefinition extends TypeVariable {
 
 	public String getName();
 
@@ -36,9 +37,9 @@ public interface TypeDefinition {
 
 	public List<TypeVariable> getGenericParameters();
 
-	public Optional<Constructor> getConstructorByParameters(ConstructorParameter ... parameters);
+	public Optional<Constructor> getConstructorByParameters(Visibility visibility, ConstructorParameter ... parameters);
 		
-	public Optional<Constructor> getConstructorByPromotableParameters(ConstructorParameter ... parameters);
+	public Optional<Constructor> getConstructorByPromotableParameters(Visibility visibility,ConstructorParameter ... parameters);
 	
 	/**
 	 * @param name
@@ -75,6 +76,8 @@ public interface TypeDefinition {
 	public Optional<IndexerProperty> getIndexerPropertyByTypeArray(TypeVariable[] type);
 
 	public boolean isAbstract();
+
+	public boolean isFinal();
 
 
 

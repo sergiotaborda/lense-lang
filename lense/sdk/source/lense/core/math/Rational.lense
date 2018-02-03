@@ -11,7 +11,7 @@ import lense.core.math.ArithmeticException;
 }/
 public class Rational extends Real {
 
-	private constructor ( public val  numerator : Integer , public val denominator : Natural);
+	private constructor ( public  numerator : Integer , public denominator : Natural);
 
 	public constructor (  numerator : Integer ,   denominator : Integer ){
 	
@@ -28,7 +28,7 @@ public class Rational extends Real {
 		}
 		
 		if (denominator != 1 ){
-			val gcd = numerator.gcd(denominator);
+			let gcd = numerator.gcd(denominator);
 			numerator = numerator \ gcd;
             denominator = denominator \ gcd;
 		}
@@ -44,7 +44,7 @@ public class Rational extends Real {
 		} 
 		
 		if (denominator != 1 ){
-			val gcd = numerator.gcd(denominator);
+			let gcd = numerator.gcd(denominator);
 			
 			// TODO log (gcd)
 			numerator = numerator \ gcd;
@@ -189,16 +189,16 @@ public class Rational extends Real {
         } else if ( exponent == 0) {
         	return new Rational(1,1);
         } else if (exponent.isWhole()){
-            val p : Integer = exponent.asInteger();
-            val n : Natural = p.abs();
+            let p : Integer = exponent.asInteger();
+            let n : Natural = p.abs();
             var result : Rational = new Rational(this.numerator ^^ n, this.denominator ^^ n);
             if (p < 0) {
                 result = result.invert();
             } 
             return result;
         } else {
-        	val n = this.numerator ^^ exponent;
-        	val d = this.denominator ^^ exponent;
+        	let n = this.numerator ^^ exponent;
+        	let d = this.denominator ^^ exponent;
         	
         	if (n.isWhole() && d.isWhole()){
         		return new Rational( n.asInteger() , d.asInteger());

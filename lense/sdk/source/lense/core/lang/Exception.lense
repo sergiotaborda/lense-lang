@@ -3,7 +3,7 @@ import lense.core.lang.String;
 
 public native class Exception {
 
-	public native constructor( val message: String ,  val cause: Exception);
+	public native constructor( public message: String ,  public cause: Exception);
 
 	public native constructor();
 	public native constructor(message: String);

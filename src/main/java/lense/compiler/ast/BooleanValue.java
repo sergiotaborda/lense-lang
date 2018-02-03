@@ -3,7 +3,6 @@
  */
 package lense.compiler.ast;
 
-import lense.compiler.type.variable.FixedTypeVariable;
 import lense.compiler.type.variable.TypeVariable;
 import lense.compiler.typesystem.LenseTypeSystem;
 
@@ -19,7 +18,7 @@ public class BooleanValue extends LiteralExpressionNode {
 	}
 	private boolean value;
 	public TypeVariable getTypeVariable() {
-		return new FixedTypeVariable( LenseTypeSystem.Boolean());
+		return LenseTypeSystem.Boolean();
 	}
 	public boolean isValue() {
 		return value;

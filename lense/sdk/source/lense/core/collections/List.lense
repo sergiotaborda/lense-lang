@@ -10,7 +10,7 @@ import lense.core.lang.HashValue;
 
 public  class List<T> implements ResizableSequence<T> {
 
-	private var size : Natural = 0;
+	private var length : Natural = 0;
 
 	private constructor (private var array : Array<T?>);
 
@@ -29,12 +29,12 @@ public  class List<T> implements ResizableSequence<T> {
 		return new List<T>(new Array<T?>.empty());
 	}
 
-	public implicit constructor( other : Sequence<T>) {
+	public implicit constructor( other : Sequence<T>) { // TODO implicit must be public (or acessible)
 
 		// else, copy each element
-		var list =  new List<T>(new Array<T?>(other.size, none));
+		let list =  new List<T>(new Array<T?>(other.size, none));
 
-		for (val item in other){
+		for (item in other){
 			list.add(item);
 		}
 
@@ -43,49 +43,49 @@ public  class List<T> implements ResizableSequence<T> {
 
 	public size : Natural {
 		get {
-			return  size;
+			return  length;
 		}
 	}
 
 	public empty : Boolean {
 		get {
-			return size == 0;
+			return length == 0;
 		}
 	}
 
-// TODO limit to size 
+// TODO limit to length 
 	public iterator : Iterator<T> {
 		get {
-			return array.iterator;
+			return array.iterator; // TODO .limit(length)
 		}
 	} 
 
 	public indexes : Progression<Natural> {
 		get {
-			return 0 ..< size;
+			return 0 ..< length;
 		}
 	}
 
 	public add(value : T) {
 		
-		val capacity = array.size; // how many can there be
-		if (capacity < size + 1){
+		let capacity = array.size; // how many can there be
+		if (capacity < length + 1){
 			// increase capacity
-			val newCapacity = 1 + (capacity * 3) \ 2; 
-			val newArray = new Array<T?>(newCapacity, value);			
+			let newCapacity = 1 + (capacity * 3) \ 2; 
+			let newArray = new Array<T?>(newCapacity, value);			
 			this.array.copyTo(newArray);
 			this.array = newArray;
 		}
 
-		array[size] = new Some<T>(value);
-		size += 1; // TODO use ++
+		array[length] = new Some<T>(value);
+		length += 1; // TODO use ++
 	}
 
 	public remove(value : T) {
 
-		val maybe : T? = value;
+		let maybe : T? = value;
 // TODO reformat array
-		val index = array.indexOf(maybe);
+		let index = array.indexOf(maybe);
 /{
 
 		if (index is none ){ // TODO make into bnf or   if (index exists)
@@ -94,15 +94,15 @@ public  class List<T> implements ResizableSequence<T> {
 			// TODO  make auto boxing of value in index automatic
 		}
 }/
-		size = size.predecessor();
+		length = length.predecessor();
 	}
 
 	public  [index: Natural] : T { 
 		get {
-			if ( index >= size - 1){
+			if ( index >= length - 1){
 				throw new IllegalIndexException();
 			}
-			val v = array[index];
+			let v = array[index];
 			if (v != none){
 				return v;
 			} else {
@@ -111,7 +111,7 @@ public  class List<T> implements ResizableSequence<T> {
 			
 		}
 		set (value){
-			if ( index >= size - 1){
+			if ( index >= length - 1){
 				throw new IllegalIndexException();
 			}
 			array[index] = value;
@@ -139,7 +139,7 @@ public  class List<T> implements ResizableSequence<T> {
 	public asString(){
 		var s : String = "[";
 		 
-		for (val i in 0 ..< size ){
+		for (i in 0 ..< length ){
 			if (i > 0){
 				s += ",";
 			}

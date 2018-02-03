@@ -28,7 +28,6 @@ import lense.compiler.type.Method;
 import lense.compiler.type.Property;
 import lense.compiler.type.TypeDefinition;
 import lense.compiler.type.TypeMember;
-import lense.compiler.type.variable.FixedTypeVariable;
 import lense.compiler.type.variable.TypeVariable;
 import lense.compiler.typesystem.LenseTypeSystem;
 
@@ -113,7 +112,7 @@ public class JavalizeVisitor implements Visitor<AstNode>{
 
 
 
-                    TypeDefinition type = n.getSemanticContext().resolveTypeForName(n.getName(), n.getGenericParametersCount()).get();
+                    TypeDefinition type = n.getSemanticContext().resolveTypeForName(n.getName(), n.getGenericParametersCount()).get().getTypeDefinition();
 
 
                     List<Constructor> construtors = type.getMembers().stream().filter( c -> c.isConstructor()).map(c -> (Constructor)c).collect(Collectors.toList());
@@ -235,7 +234,7 @@ public class JavalizeVisitor implements Visitor<AstNode>{
 
             if (m.getAccess() != null && !((lense.compiler.ast.TypedNode)m.getAccess()).getTypeVariable().getGenericParameters().isEmpty() ){
 
-                if ( m.getTypeVariable() instanceof FixedTypeVariable){
+                if ( m.getTypeVariable().isFixed()){
                     return ;
                 }
                 AstNode parent = m.getParent();

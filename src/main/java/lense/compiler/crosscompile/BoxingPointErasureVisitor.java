@@ -4,25 +4,19 @@ import compiler.syntax.AstNode;
 import compiler.trees.Visitor;
 import compiler.trees.VisitorNext;
 import lense.compiler.ast.ArgumentListItemNode;
-import lense.compiler.ast.AssertNode;
 import lense.compiler.ast.BooleanOperation;
-import lense.compiler.crosscompile.java.JavaTypeKind;
 import lense.compiler.ast.BooleanValue;
-import lense.compiler.ast.ComparisonNode;
-import lense.compiler.ast.ComparisonNode.Operation;
-import lense.compiler.ast.NumericValue;
 import lense.compiler.ast.ExpressionNode;
 import lense.compiler.ast.MethodInvocationNode;
+import lense.compiler.ast.NumericValue;
 import lense.compiler.ast.ReturnNode;
 import lense.compiler.ast.TypedNode;
-import lense.compiler.ast.VariableReadNode;
-import lense.compiler.type.variable.FixedTypeVariable;
+import lense.compiler.crosscompile.java.JavaTypeKind;
 import lense.compiler.type.variable.TypeVariable;
 import lense.compiler.typesystem.LenseTypeSystem;
 
 public class BoxingPointErasureVisitor implements Visitor<AstNode> {
 
-	static FixedTypeVariable primitiveBooleanType = new FixedTypeVariable(new PrimitiveTypeDefinition("boolean"));
 
 	@Override
 	public void startVisit() {}
@@ -38,10 +32,10 @@ public class BoxingPointErasureVisitor implements Visitor<AstNode> {
 
 			TypeVariable tv = r.getExpectedType();
 
-			if (tv != null && tv.isFixed() &&  LenseTypeSystem.Boolean().getName().equals(tv.getTypeDefinition().getName())) {
+			if (tv != null && tv.isFixed() &&  LenseTypeSystem.getInstance().isAssignableTo(tv, LenseTypeSystem.Boolean())) {
 
 
-				r.setExpectedType(primitiveBooleanType);
+				r.setExpectedType(PrimitiveTypeDefinition.BOOLEAN);
 
 			}
 		} else if (node instanceof TypedNode && !(node instanceof BoxingPointNode )) {
@@ -49,10 +43,9 @@ public class BoxingPointErasureVisitor implements Visitor<AstNode> {
 
 			TypeVariable tv = t.getTypeVariable();
 
-			if (tv != null && tv.isFixed() &&  LenseTypeSystem.Boolean().getName().equals(tv.getTypeDefinition().getName())) {
+			if (tv != null && tv.isFixed() &&  LenseTypeSystem.getInstance().isAssignableTo(tv, LenseTypeSystem.Boolean())) {
 
-				FixedTypeVariable f = new FixedTypeVariable(new PrimitiveTypeDefinition("boolean"));
-				t.setTypeVariable(f);
+				t.setTypeVariable(PrimitiveTypeDefinition.BOOLEAN);
 			}
 
 		}  

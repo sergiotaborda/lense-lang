@@ -7,12 +7,10 @@ import lense.core.math.Equal;
 public class Imaginary extends Number implements Comparable<Imaginary> {
 
 
-	var value : Real = new Real.zero();
-	
-	public implicit constructor valueOf ( value : Real);
+	public implicit constructor valueOf ( private value : Real);
 	
 	public constructor (){
-		return new Imaginary(Real.Zero);
+		return new Imaginary.valueOf(new Real.zero());
 	}
 	
 	public real() : Real {

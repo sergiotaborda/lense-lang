@@ -16,14 +16,15 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import lense.compiler.type.variable.FixedTypeVariable;
 import lense.compiler.type.variable.TypeMemberAwareTypeVariable;
 import lense.compiler.type.variable.TypeVariable;
 import lense.compiler.typesystem.Imutability;
 import lense.compiler.typesystem.LenseTypeSystem;
+import lense.compiler.typesystem.Variance;
 import lense.compiler.typesystem.Visibility;
 
 /**
@@ -43,7 +44,7 @@ public class LenseTypeDefinition implements TypeDefinition {
     private Visibility visibility;
     private boolean plataformSpecific;
 	private LenseTypeDefinition specificationOrigin = null;
-    
+    private boolean isFinal = false;
 
     public LenseTypeDefinition(String name, TypeKind kind, LenseTypeDefinition superDefinition) {
         this.name = name;
@@ -320,7 +321,7 @@ public class LenseTypeDefinition implements TypeDefinition {
     }
 
     public void addMethod( String name, TypeDefinition returnType, MethodParameter... parameters) {
-        addMethod(Visibility.Public,name, new MethodReturn(new FixedTypeVariable(returnType)), parameters);
+        addMethod(Visibility.Public,name, new MethodReturn(returnType), parameters);
     }
 
     /**
@@ -329,7 +330,7 @@ public class LenseTypeDefinition implements TypeDefinition {
      * @param parameters
      */
     public void addMethod(Visibility visibility, String name, TypeDefinition returnType, MethodParameter... parameters) {
-        addMethod(visibility,name, new MethodReturn(new FixedTypeVariable(returnType)), parameters);
+        addMethod(visibility,name, new MethodReturn(returnType), parameters);
     }
 
     public void addMethod(Visibility visibility,String name, MethodReturn returnType, MethodParameter... parameters) {
@@ -371,9 +372,6 @@ public class LenseTypeDefinition implements TypeDefinition {
 
     }
 
-    public void addProperty(String name, TypeDefinition type , boolean canRead, boolean canWrite) {
-        addProperty(name, new FixedTypeVariable(type), canRead, canWrite);
-    }
 
     public void addProperty(String name, lense.compiler.type.variable.TypeVariable type , boolean canRead, boolean canWrite) {
 
@@ -415,7 +413,7 @@ public class LenseTypeDefinition implements TypeDefinition {
     }
 
     public void addIndexer(TypeDefinition type , boolean canRead, boolean canWrite, lense.compiler.type.variable.TypeVariable[] params) {
-        addIndexer( new FixedTypeVariable(type), canRead, canWrite,params);
+        addIndexer( type, canRead, canWrite,params);
     }
 
     @Override
@@ -598,11 +596,16 @@ public class LenseTypeDefinition implements TypeDefinition {
     }
 
     @Override
-    public Optional<Constructor> getConstructorByPromotableParameters(ConstructorParameter... parameters) {
+    public Optional<Constructor> getConstructorByPromotableParameters(Visibility visibility,ConstructorParameter... parameters) {
 
         Iterator<Constructor> iterator = members.stream().filter(m -> m.isConstructor()).map(m -> (Constructor)m).iterator();
         while(iterator.hasNext()){
             Constructor constructor = iterator.next();
+            if (visibility != null) {
+            	if (constructor.getVisibility() != visibility) {
+            		continue;
+            	}
+            }
             if (constructor.getParameters().size() == parameters.length) {
                 for (int p = 0; p < parameters.length; p++) {
                     ConstructorParameter mp = parameters[p];
@@ -617,13 +620,13 @@ public class LenseTypeDefinition implements TypeDefinition {
 
 
     @Override
-    public Optional<Constructor> getConstructorByParameters(ConstructorParameter... parameters) {
+    public Optional<Constructor> getConstructorByParameters(Visibility visibility,ConstructorParameter... parameters) {
         // find exact local
 
         List<CallableMemberMember<Constructor>> list = Arrays.asList(parameters);
         return members.stream()
                 .filter(m -> m.isConstructor())
-                .map(m -> (Constructor) m).filter(c -> LenseTypeSystem.getInstance().areSignatureParametersImplementedBy(list, c.getParameters())  ).findAny();
+                .map(m -> (Constructor) m).filter(c -> (visibility == null ? true : visibility == c.getVisibility()) && LenseTypeSystem.getInstance().areSignatureParametersImplementedBy(list, c.getParameters())  ).findAny();
 
     }
 
@@ -715,6 +718,64 @@ public class LenseTypeDefinition implements TypeDefinition {
 
         return members;
     }
+
+	@Override
+	public TypeVariable getLowerBound() {
+		return this;
+	}
+
+	@Override
+	public TypeVariable getUpperBound() {
+		return this;
+	}
+
+	@Override
+	public Variance getVariance() {
+		return Variance.Invariant;
+	}
+
+	@Override
+	public Optional<String> getSymbol() {
+		return Optional.empty();
+	}
+
+	@Override
+	public TypeDefinition getTypeDefinition() {
+		return this;
+	}
+
+	@Override
+	public TypeVariable changeBaseType(TypeDefinition concrete) {
+		return this;
+	}
+
+	@Override
+	public boolean isSingleType() {
+		return true;
+	}
+
+	@Override
+	public boolean isFixed() {
+		return true;
+	}
+
+	@Override
+	public boolean isCalculated() {
+		return false;
+	}
+
+	@Override
+	public void ensureNotFundamental(Function<TypeDefinition, TypeDefinition> convert) {
+		// no-op
+	}
+
+	public boolean isFinal() {
+		return isFinal;
+	}
+
+	public void setFinal(boolean isFinal) {
+		this.isFinal = isFinal;
+	}
 
 
 

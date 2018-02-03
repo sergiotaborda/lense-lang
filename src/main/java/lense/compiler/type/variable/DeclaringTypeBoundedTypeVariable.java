@@ -3,16 +3,16 @@
  */
 package lense.compiler.type.variable;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
-
-import javax.management.RuntimeErrorException;
 
 import lense.compiler.type.TypeDefinition;
 import lense.compiler.typesystem.Variance;
 
 /**
- * 
+ * The type is the parameter type declared in the base class
  */
 public class DeclaringTypeBoundedTypeVariable extends CalculatedTypeVariable  {
 
@@ -29,7 +29,7 @@ public class DeclaringTypeBoundedTypeVariable extends CalculatedTypeVariable  {
 		this.symbol = symbol;
 		
 		if (symbol.length() > 1) {
-			throw new IllegalArgumentException("Symbol is illegal " + symbol);
+			throw new IllegalArgumentException("Possible illegal generic parameter name (" + symbol + ")");
 		}
 	}
 	
@@ -75,6 +75,9 @@ public class DeclaringTypeBoundedTypeVariable extends CalculatedTypeVariable  {
 	public int hashCode(){
 		return parameterIndex ^ declaringType.hashCode();
 	}
+
+
+
 
 
 }

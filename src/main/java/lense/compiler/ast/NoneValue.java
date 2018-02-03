@@ -3,7 +3,6 @@
  */
 package lense.compiler.ast;
 
-import lense.compiler.type.variable.FixedTypeVariable;
 import lense.compiler.type.variable.TypeVariable;
 import lense.compiler.typesystem.LenseTypeSystem;
 
@@ -14,7 +13,7 @@ import lense.compiler.typesystem.LenseTypeSystem;
 public class NoneValue extends LiteralExpressionNode {
 
 	public TypeVariable getTypeVariable() {
-		return new FixedTypeVariable( LenseTypeSystem.None());
+		return LenseTypeSystem.None();
 	}
 
 	/**

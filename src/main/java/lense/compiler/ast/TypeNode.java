@@ -5,8 +5,8 @@ package lense.compiler.ast;
 
 import compiler.syntax.AstNode;
 import lense.compiler.type.TypeDefinition;
-import lense.compiler.type.variable.FixedTypeVariable;
 import lense.compiler.type.variable.TypeVariable;
+import lense.compiler.typesystem.FundamentalLenseTypeDefinition;
 
 /**
  * 
@@ -55,7 +55,7 @@ public class TypeNode extends LenseAstNode implements TypedNode{
 	 */
 	public TypeNode(TypeDefinition  type) {
 		this.name = new QualifiedNameNode(type.getName());
-		this.setTypeVariable(new FixedTypeVariable(type));
+		this.setTypeVariable(type);
 		
 		for(TypeVariable p : type.getGenericParameters()){
 			if (p.getLowerBound() == null){
@@ -105,7 +105,7 @@ public class TypeNode extends LenseAstNode implements TypedNode{
 		this.type = type;
 	}
 	public void setTypeVariable(TypeDefinition type){
-		this.type = new FixedTypeVariable(type);
+		this.type = type;
 	}
 	
 	@Override

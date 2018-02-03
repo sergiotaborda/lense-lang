@@ -3,7 +3,6 @@
  */
 package lense.compiler.ast;
 
-import lense.compiler.type.variable.FixedTypeVariable;
 import lense.compiler.type.variable.TypeVariable;
 import lense.compiler.typesystem.LenseTypeSystem;
 
@@ -36,7 +35,7 @@ public class ReturnNode extends StatementNode implements TypedNode {
 	 */
 	@Override
 	public TypeVariable getTypeVariable() {
-		return this.getChildren().isEmpty() ? new FixedTypeVariable(LenseTypeSystem.Void()) : getValue().getTypeVariable();
+		return this.getChildren().isEmpty() ? LenseTypeSystem.Void() : getValue().getTypeVariable();
 	}
 	
 	@Override

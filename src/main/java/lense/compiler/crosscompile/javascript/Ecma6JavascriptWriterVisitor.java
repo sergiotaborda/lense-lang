@@ -75,7 +75,6 @@ import lense.compiler.type.LenseUnitKind;
 import lense.compiler.type.TypeDefinition;
 import lense.compiler.type.variable.CalculatedTypeVariable;
 import lense.compiler.type.variable.DeclaringTypeBoundedTypeVariable;
-import lense.compiler.type.variable.FixedTypeVariable;
 import lense.compiler.type.variable.GenericTypeBoundToDeclaringTypeVariable;
 import lense.compiler.type.variable.RangeTypeVariable;
 import lense.compiler.type.variable.TypeVariable;
@@ -1060,7 +1059,7 @@ public class Ecma6JavascriptWriterVisitor implements Visitor<AstNode> {
 				TypeVariable typeVar = m.getReturnType().getTypeVariable();
 				if (typeVar == null) {
 					writer.print(m.getReturnType().getName());
-				} else if (typeVar instanceof FixedTypeVariable ){
+				} else if (typeVar.isFixed() ){
 					writer.print(typeVar.getTypeDefinition().getName());
 					if (typeVar.getTypeDefinition().isGeneric()){
 						writer.print("<");

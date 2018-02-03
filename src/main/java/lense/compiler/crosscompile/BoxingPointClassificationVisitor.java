@@ -71,7 +71,7 @@ public class BoxingPointClassificationVisitor implements Visitor<AstNode> {
 		}else if (node instanceof MethodInvocationNode){
 			MethodInvocationNode m = (MethodInvocationNode)node;
 
-			if (!m.getTypeVariable().getTypeDefinition().getName().equals(LenseTypeSystem.Void().getName())){
+			if (!(LenseTypeSystem.getInstance().isAssignableTo(m.getTypeVariable(), LenseTypeSystem.Void()))){
 				// outbox return 
 				m.getParent().replace(m, new BoxingPointNode(m, m, BoxingDirection.BOXING_OUT));
 			}

@@ -1,13 +1,14 @@
 package lense.compiler.ir.tac;
 
 import lense.compiler.type.TypeDefinition;
+import lense.compiler.type.variable.TypeVariable;
 
 public class TemporaryVariable implements Operand{
 
 	private int index;
-	private TypeDefinition type;
+	private TypeVariable type;
 
-	public TemporaryVariable(int index, TypeDefinition type){
+	public TemporaryVariable(int index, TypeVariable type){
 		if (type == null){
 			throw new IllegalArgumentException();
 		}
@@ -24,7 +25,7 @@ public class TemporaryVariable implements Operand{
 	}
 	
 	public TypeDefinition getType(){
-		return type;
+		return type.getTypeDefinition();
 	}
 	
 	public boolean equals(Object other){
@@ -47,6 +48,6 @@ public class TemporaryVariable implements Operand{
 
 	@Override
 	public TypeDefinition getOperandType() {
-		return type;
+		return type.getTypeDefinition();
 	}
 }

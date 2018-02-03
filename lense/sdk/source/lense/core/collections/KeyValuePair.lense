@@ -8,7 +8,7 @@ import lense.core.lang.HashValue;
 
 public class KeyValuePair<K,V> {
 
-	public constructor ( public val key : K,  public val value: V);
+	public constructor ( public key : K,  public value: V);
 
 	
 	public hashValue() : HashValue {

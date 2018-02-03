@@ -3,7 +3,6 @@
  */
 package lense.compiler.ast;
 
-import lense.compiler.type.variable.FixedTypeVariable;
 import lense.compiler.type.variable.TypeVariable;
 import lense.compiler.typesystem.LenseTypeSystem;
 
@@ -22,7 +21,7 @@ public class StringValue extends LiteralExpressionNode {
 	}
 	
 	public TypeVariable getTypeVariable() {
-		return new FixedTypeVariable(LenseTypeSystem.String());
+		return LenseTypeSystem.String();
 	}
 
 	public String getValue() {

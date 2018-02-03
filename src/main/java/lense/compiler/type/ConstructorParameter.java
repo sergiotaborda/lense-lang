@@ -3,9 +3,9 @@
  */
 package lense.compiler.type;
 
-import lense.compiler.type.variable.FixedTypeVariable;
 import lense.compiler.type.variable.TypeMemberAwareTypeVariable;
 import lense.compiler.type.variable.TypeVariable;
+import lense.compiler.typesystem.Visibility;
 
 /**
  * 
@@ -15,10 +15,6 @@ public class ConstructorParameter implements CallableMemberMember<Constructor> {
 	private String name;
 	private TypeVariable type;
 	private Constructor declaringMethod;
-	
-	public ConstructorParameter(TypeDefinition def) {
-		this(new FixedTypeVariable(def));
-	}
 	
 	
 	public ConstructorParameter(TypeVariable type) {
@@ -112,6 +108,8 @@ public class ConstructorParameter implements CallableMemberMember<Constructor> {
 		p.declaringMethod = c;
 		return p;
 	}
+
+
 
 
 

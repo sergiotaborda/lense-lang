@@ -8,9 +8,7 @@ import java.util.Optional;
 import lense.compiler.type.Constructor;
 import lense.compiler.type.ConstructorParameter;
 import lense.compiler.type.LenseTypeDefinition;
-import lense.compiler.type.TypeDefinition;
 import lense.compiler.type.variable.DeclaringTypeBoundedTypeVariable;
-import lense.compiler.type.variable.FixedTypeVariable;
 import lense.compiler.type.variable.TypeVariable;
 import lense.compiler.typesystem.Variance;
 
@@ -70,7 +68,7 @@ public class ConstructorBuilder {
 				paramTypeDef = loadedClassBuilder.resolveTypByNameAndKind(name, null);
 			}
 
-			return new FixedTypeVariable(paramTypeDef);
+			return paramTypeDef;
 		}
 
 	}

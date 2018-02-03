@@ -4,6 +4,7 @@ import java.util.Optional;
 
 import lense.compiler.ir.stack.StackInstructionList;
 import lense.compiler.ir.tac.TacInstructionList;
+import lense.compiler.typesystem.Imutability;
 import lense.compiler.typesystem.Visibility;
 
 public abstract class InvocableDeclarionNode extends AnnotadedLenseAstNode{
@@ -11,6 +12,7 @@ public abstract class InvocableDeclarionNode extends AnnotadedLenseAstNode{
 	private boolean isAbstract;
 	private boolean isNative;
 	private Visibility visibility;
+	private Imutability imutability;
 	
 	public boolean isAbstract() {
 		return isAbstract;
@@ -46,6 +48,12 @@ public abstract class InvocableDeclarionNode extends AnnotadedLenseAstNode{
 	
 	public Optional<TacInstructionList> getTacInstructionsList() {
 		return this.getProperty("instructionsList", TacInstructionList.class);
+	}
+	public Imutability getImutability() {
+		return imutability;
+	}
+	public void setImutability(Imutability imutability) {
+		this.imutability = imutability;
 	}
 	
 }

@@ -72,7 +72,7 @@ public class LiteralsInstanciatorVisitor implements Visitor<AstNode> {
 //		else 
 			if (node instanceof ArithmeticNode){
 			ArithmeticNode a = (ArithmeticNode) node;
-			if (a.getTypeVariable().getTypeDefinition().getName().equals(LenseTypeSystem.String().getName())){
+			if (LenseTypeSystem.getInstance().isAssignableTo(a.getTypeVariable(), LenseTypeSystem.String())){
 				StringConcatenationNode c;
 				if (a.getLeft() instanceof StringConcatenationNode){
 					c = (StringConcatenationNode)a.getLeft();

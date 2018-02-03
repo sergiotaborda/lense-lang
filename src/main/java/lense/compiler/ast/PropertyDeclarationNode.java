@@ -78,7 +78,7 @@ public class PropertyDeclarationNode extends InvocableDeclarionNode implements S
 		return name;
 	}
 
-	public void setInicializedOnConstructor(boolean inicializedOnConstructor) {
+	public void setInitializedOnConstructor(boolean inicializedOnConstructor) {
 		this.inicializedOnConstructor = inicializedOnConstructor;
 	}
 	

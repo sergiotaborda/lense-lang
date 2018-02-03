@@ -3,7 +3,6 @@
  */
 package lense.compiler.type;
 
-import lense.compiler.type.variable.FixedTypeVariable;
 import lense.compiler.type.variable.TypeMemberAwareTypeVariable;
 import lense.compiler.type.variable.TypeVariable;
 
@@ -15,14 +14,6 @@ public class MethodParameter implements MethodMember {
 	private String name;
 	private TypeVariable type;
 	private Method declaringMethod;
-	
-	public MethodParameter(TypeDefinition type) {
-		this(new FixedTypeVariable(type), "?");
-	}
-	
-	public MethodParameter(TypeDefinition type, String name) {
-		this(new FixedTypeVariable(type), name);
-	}
 	
 	
 	public MethodParameter(TypeVariable type) {
