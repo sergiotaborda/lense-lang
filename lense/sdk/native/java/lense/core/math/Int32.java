@@ -11,7 +11,7 @@ import lense.core.lang.java.Constructor;
 import lense.core.lang.java.PlatformSpecific;
 import lense.core.lang.java.Property;
 
-public class Int32 extends Integer implements Binary {
+public final class Int32 extends Integer implements Binary {
 
 	@Constructor(paramsSignature = "")
 	public static Int32 constructor (){
@@ -62,8 +62,6 @@ public class Int32 extends Integer implements Binary {
 	public Integer plus(Integer other) {
 		if (other instanceof Int32){
 			return plus(((Int32)other).value);
-		} else if (other instanceof ScalableInt32){
-			return plus(((ScalableInt32)other).value);
 		} else {
 			return promoteNext().plus(other);
 		}
@@ -95,7 +93,7 @@ public class Int32 extends Integer implements Binary {
 	}
 	
 	protected final Integer  promoteNext(){
-		return ScalableInt64.valueOf(value);
+		return Int64.valueOfNative(value);
 	}
 
 	@Override
@@ -267,6 +265,24 @@ public class Int32 extends Integer implements Binary {
     public int toPrimitiveInt() {
         return value;
     }
+
+	
+
+	public Int32 wrapPlus(Int32 other) {
+		return new Int32(this.value + other.value);
+	}
+
+	public Int32 wrapMultiply(Int32 other) {
+		return new Int32(this.value * other.value);
+	}
+
+	public Int32 wrapMinus(Int32 other) {
+		return new Int32(this.value - other.value);
+	}
+
+
+
+
 
 
 }

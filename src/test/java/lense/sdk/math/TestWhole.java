@@ -12,8 +12,6 @@ import lense.core.math.Int32;
 import lense.core.math.Int64;
 import lense.core.math.Integer;
 import lense.core.math.Natural;
-import lense.core.math.ScalableInt32;
-import lense.core.math.ScalableInt64;
 import lense.core.math.Whole;
 
 public class TestWhole {
@@ -132,7 +130,7 @@ public class TestWhole {
 		
 		assertEquals(Int64.valueOfNative(-1), r);
 		
-		assertTrue(r instanceof ScalableInt64);
+		assertTrue(r instanceof Int64);
 	}
 	
 	@Test
@@ -144,19 +142,19 @@ public class TestWhole {
 		
 		assertEquals(Int64.valueOfNative(1), r);
 		
-		assertTrue(r instanceof ScalableInt64);
+		assertTrue(r instanceof Int64);
 		
 		r = k.plus(m);
 		
 		assertEquals(Int64.valueOfNative(1), r);
 		
-		assertTrue(r instanceof ScalableInt64);
+		assertTrue(r instanceof Int64);
 	}
 	
 	@Test
 	public void testSacalableIn32Limit(){
-		Whole k = ScalableInt32.valueOf(1);
-		Whole m = ScalableInt32.valueOf(java.lang.Integer.MAX_VALUE);
+		Whole k = Int32.valueOfNative(1);
+		Whole m = Int32.valueOfNative(java.lang.Integer.MAX_VALUE);
 		
 		m.plus(k);
 	}

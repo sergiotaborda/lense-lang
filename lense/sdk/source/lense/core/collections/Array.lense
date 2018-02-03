@@ -21,7 +21,9 @@ public native class Array<T> implements EditableSequence<T> {
 
 	public native duplicate () : Array<T>;
 
-	public native copyTo (other : Array<T>): Void;
+	public native copyTo (other : Array<T>): Array<T>;
+
+	public native copyTo (other : Array<T>, sourceindex : Natural, destinationIndex : Natural, length : Natural): Array<T>;
 
 	public native indexOf (element: T): Natural?;
 } 

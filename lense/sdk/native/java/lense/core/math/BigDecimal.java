@@ -5,7 +5,7 @@ import lense.core.lang.HashValue;
 import lense.core.lang.java.Constructor;
 import lense.core.lang.String;
 
-public class BigDecimal extends Decimal {
+public final class BigDecimal extends Decimal {
 
     @Constructor(paramsSignature = "")
     public static BigDecimal constructor (){
@@ -129,5 +129,7 @@ public class BigDecimal extends Decimal {
     public Real abs() {
        return new BigDecimal(this.value.abs());
     }
+
+
 
 }

@@ -47,6 +47,19 @@ public abstract class Real extends Number implements Comparable , SignedNumber {
     public abstract Real plus (Real other);
     public abstract Real minus (Real other);
     public abstract Real multiply(Real other);
+    
+	public Real wrapPlus(Real other) {
+		return this.plus(other);
+	}
+
+	public Real wrapMinus(Real other) {
+		return this.minus(other);
+	}
+
+	public Real wrapMultiply(Real other) {
+		return this.multiply(other);
+	}
+    
     public abstract Real divide(Real other);
     public abstract Real raiseTo(Real other);
     
@@ -61,7 +74,7 @@ public abstract class Real extends Number implements Comparable , SignedNumber {
     public Imaginary multiply(Imaginary other){
         return Imaginary.valueOf(this.multiply(other.real()).symmetric());
     }
-
+    
     public Imaginary divide(Imaginary other){
         return Imaginary.valueOf(this.divide(other.real()));
     }

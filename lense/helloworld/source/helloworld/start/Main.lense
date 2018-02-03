@@ -43,6 +43,8 @@ public class Main extends ConsoleApplication {
 		demoDto();
   	 	
 		demoMatrix();
+
+		demoBitArray();
   	 
   		var interval : Interval<Natural> = |[ 2, 19 )|;
 		var interval2 : Interval<Integer> = |[ -2, 19 )|; // TODO better promotions
@@ -343,6 +345,14 @@ public class Main extends ConsoleApplication {
  		// TODO transform == to maybe when other side is not a maybe to .is(a)
 		assert (array[0] == a);
 		assert (array[1] == none);
+	}
+
+	public demoBitArray(){
+		
+		let bitArray = new BitArray($1100_1101); 
+	
+		assert (new BitArray($1_1001_1010) == bitArray << 1);
+		assert (new BitArray($0110_0110) == bitArray >> 1);
 	}
 }
 

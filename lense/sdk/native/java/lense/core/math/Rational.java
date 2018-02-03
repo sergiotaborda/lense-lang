@@ -5,7 +5,7 @@ import lense.core.lang.HashValue;
 import lense.core.lang.java.Constructor;
 import lense.core.lang.java.NonNull;
 
-public class Rational extends Real {
+public final class Rational extends Real {
 
 	@Constructor(paramsSignature = "")
     public static Rational constructor(Integer n , Integer d){
@@ -200,6 +200,9 @@ public class Rational extends Real {
     public Real abs() {
         return new Rational(this.numerator.abs().asInteger(), this.denominator.abs().asInteger());
     }
+
+	
+
 
 
 

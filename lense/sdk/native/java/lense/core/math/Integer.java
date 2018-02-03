@@ -42,17 +42,21 @@ public abstract class Integer extends Whole implements Comparable, SignedNumber{
 		return this.minus(other.asInteger());
 	}
 	
+	public final Whole wrapMinus(Whole other) {
+		return this.wrapMinus(other.asInteger());
+	}
+	
 	public Rational divide(Integer other){
 		return super.divide(other);
 	}
 	
 	@PlatformSpecific
 	public static Integer valueOfNative(int n) {
-		return ScalableInt32.valueOf(n);
+		return Int32.valueOfNative(n);
 	}
 	@PlatformSpecific
 	public static Integer valueOfNative(long n) {
-		return ScalableInt64.valueOf(n);
+		return Int64.valueOfNative(n);
 	}
 	@PlatformSpecific
 	public static Integer valueOfNative(String n) {
@@ -62,9 +66,9 @@ public abstract class Integer extends Whole implements Comparable, SignedNumber{
 	public static Integer valueOfNative(BigInteger n) {
 
 		if (n.bitLength() <= 32){
-			return ScalableInt32.valueOf(n.intValue());
+			return Int32.valueOfNative(n.intValue());
 		} else if (n.bitLength() <= 64){
-			return ScalableInt64.valueOf(n.longValue());
+			return Int64.valueOfNative(n.longValue());
 		}
 		return new BigInt(n);
 	}
@@ -83,7 +87,6 @@ public abstract class Integer extends Whole implements Comparable, SignedNumber{
 	public Whole plus(Whole other) {
 		return this.plus(other.asInteger());
 	}
-
 
 	@Override
 	protected Integer asInteger() {
