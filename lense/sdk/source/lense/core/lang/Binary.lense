@@ -7,7 +7,7 @@ public interface Binary extends ExclusiveDijunctable<Binary> , Dijunctable<Binar
 	public  size : Natural {get;} // TODO change to bitsCount
 	
 	// ~operator
-	public flipAll() : Binary; // TODO change to return Self
+	public complement() : Binary; // TODO change to return Self
 	
 	// << operator
 	public rightShiftBy( n : Natural) : Binary;

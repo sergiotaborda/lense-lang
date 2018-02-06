@@ -13,71 +13,39 @@ public class Imaginary extends Number implements Comparable<Imaginary> {
 		return new Imaginary.valueOf(new Real.zero());
 	}
 	
-	public real() : Real {
-		return value;
-	}
+	public real() => value;
+
+	public plus( other : Imaginary) => new Imaginary(this.value + other.value);
+
+	public minus( other: Imaginary ) => new Imaginary(this.value - other.value);
 	
-	public  plus( other : Imaginary) : Imaginary {
-		return new Imaginary(this.value + other.value);
-	}
-
-	public  minus( other: Imaginary ) : Imaginary {
-		return new Imaginary(this.value - other.value);
-	}
-
-	public  multiply( other: Imaginary) : Real {
-		return -(this.value * other.value);
-	}
-
-	public  divide( other: Imaginary) : Real {
-		return this.value.divide(other.value);
-	}
+	public multiply( other: Imaginary) => -(this.value * other.value);
 	
-	public plus( other: Whole ) : Complex {
-		return plus(new Real.valueOf(other));
-	}
+	public divide( other: Imaginary) => this.value.divide(other.value);
 
-	public minus( other : Whole) : Complex {
-		return minus(new Real.valueOf(other));
-	}
+	public plus( other: Whole ) =>  plus(new Real.valueOf(other));
 
-	public multiply( other: Whole) : Imaginary {
-		return multiply(new Real.valueOf(other));
-	}
+	public minus( other : Whole) =>  minus(new Real.valueOf(other));
 
-	public divide( other : Whole) : Imaginary{
-		return divide(new Real.valueOf(other));
-	}
+	public multiply( other: Whole) => multiply(new Real.valueOf(other));
+
+	public divide( other : Whole) => divide(new Real.valueOf(other));
+
+	public plus( other: Real) => new Complex(other, this.value);
+
+	public minus( other: Real ) => new Complex(-other, this.value);
+
+	public multiply( other: Real) => new Imaginary(this.value * other);
+
+	public divide( other: Real ) => new Imaginary(this.value / other);
 	
-	public plus( other: Real) : Complex {
-		return new Complex(other, this.value);
-	}
+	public asString() => this.value.asString() ++ "i";
 
-	public minus( other: Real ) : Complex {
-		return new Complex(-other, this.value);
-	}
-
-	public multiply( other: Real) : Imaginary {
-		return new Imaginary(this.value * other);
-	}
-
-	public divide( other: Real ) : Imaginary {
-		return new Imaginary(this.value / other);
-	}
+	public symmetric() => new Imaginary(-this.value);
 	
-	public asString() : String {
-		return this.value.asString() + "i";
-	}
+	public signum() => value.signum();
 	
-	public symmetric() : Imaginary {
-		return new Imaginary(-this.value);
-	}
-	
-	public signum() : Integer{
-		return value.signum();
-	}
-	
-	public equalsTo( other : Any) : Boolean {
+	public equalsTo( other : Any) {
 		if (other is Imaginary){
 			return this.value.equalsTo(other.value);
 		}
@@ -86,13 +54,11 @@ public class Imaginary extends Number implements Comparable<Imaginary> {
 
 	public isZero() : Boolean => this.value.isZero();
 
-	public  hashValue() : HashValue {
-		return value.hashValue();
-	}
+	public  hashValue() => value.hashValue();
 	
-	public compareWith(other : Any) : Comparison {
+	public compareWith(other : Any) {
 		if (other is Imaginary){
-			return this.value <=> other.value; // TODO implement <=> operator
+			return this.value <=> other.value; 
 		} 
 		
 	    throw new Exception(); // TODO create IncorrectTypeException

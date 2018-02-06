@@ -77,6 +77,6 @@ public class Complex extends Number {
 	    if (imaginary.signum() < 0){
 	    	sign = " - ";
 	    }
-		return real.asString() + sign +  imaginary.asString() + "i";
+		return real.asString() ++ sign ++  imaginary.asString() ++ "i";
 	}
 }

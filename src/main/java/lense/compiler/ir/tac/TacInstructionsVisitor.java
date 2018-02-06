@@ -483,7 +483,7 @@ public class TacInstructionsVisitor implements Visitor<AstNode> {
 
 			Operand operand = n.getChildren().get(0).getProperty("tempVal", Operand.class).get();
 
-			Operation op = operationFor(n.getOperation());
+			Operation op = operationFor(n.getOperation().getArithmeticOperation());
 
 			if (op == Operation.DECREMENT || op == Operation.INCREMENT){
 				emit(new AssignAfterUnaryOperation(operand, op, operand));

@@ -11,5 +11,5 @@ public native class Byte implements Binary {
 	
 	public native toNatural() : Natural;
 	
-	public native flipAll() : Byte; // Covariante overload
+	public native complement() : Byte; // Covariante overload
 }

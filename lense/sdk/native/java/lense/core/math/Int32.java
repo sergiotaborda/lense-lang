@@ -159,7 +159,7 @@ public final class Int32 extends Integer implements Binary {
 	}
 
 	@Override
-	public Int32 flipAll() {
+	public Int32 complement() {
 		return new Int32(~value);
 	}
 

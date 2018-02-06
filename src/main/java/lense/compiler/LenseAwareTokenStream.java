@@ -3,9 +3,12 @@
  */
 package lense.compiler;
 
+import java.util.Arrays;
 import java.util.Deque;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Queue;
+import java.util.Set;
 
 import compiler.SymbolBasedToken;
 import compiler.TokenSymbol;
@@ -54,7 +57,7 @@ class LenseAwareTokenStream implements TokenStream {
 			Token previous = original.peekPrevious();
 			if (previous.isOperator() && previous.getText().get().equals(".")){
 				// if keywords are used after a . they are not consider keywords. 
-				// This is to maintain compatability with System.in and System.out
+				// This is to maintain compatibility with System.in and System.out
 				// TODO revise if this is really needed
 				return new SymbolBasedToken(t.getPosition(), t.getText().get(),TokenSymbol.ID );
 			}
@@ -74,11 +77,16 @@ class LenseAwareTokenStream implements TokenStream {
 						return next;
 					}
 				} 
+			} else if (!openClose.isEmpty() && braketscloserss.contains(t.getText().get())){
+				openClose.pop();
+				return t;
 			}
 		}
 		return t;
 
 	}
+	
+	private Set<String> braketscloserss = new HashSet<>(Arrays.asList("(", ")", ";"));
 
 	/**
 	 * {@inheritDoc}

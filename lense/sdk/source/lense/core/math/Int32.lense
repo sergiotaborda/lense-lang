@@ -9,7 +9,7 @@ public native class Int32 extends Integer implements Binary{
 	public native implicit constructor valueOf ( n: Binary);
 	public native implicit constructor valueOf ( n: Whole);
 
-	public native flipAll() : Int32;
+	public native complement() : Int32;
 	
 	public  size : Natural {get { return 32;}}
 

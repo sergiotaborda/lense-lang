@@ -20,6 +20,6 @@ public class KeyValuePair<K,V> {
 	}
 	
 	public asString() : String {
-		return  this.key.asString() + " " + this.value.asString();
+		return  this.key.asString() ++ " " ++ this.value.asString();
 	}
 }

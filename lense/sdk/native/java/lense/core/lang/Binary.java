@@ -9,7 +9,7 @@ public interface Binary extends ExclusiveDijunctable , Dijunctable , Injunctable
 	public Natural getSize ();
 	
 	// ~operator
-	public Binary flipAll();
+	public Binary complement();
 	
 	// << operator
 	public Binary rightShiftBy(Natural n);

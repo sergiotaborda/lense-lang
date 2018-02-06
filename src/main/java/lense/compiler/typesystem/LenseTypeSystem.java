@@ -384,8 +384,8 @@ public class LenseTypeSystem {
 		// sint.addConstructor("parse", new ConstructorParameter(string));
 
 		string.addMethod("get", character, new MethodParameter(natural));
-		string.addMethod("plus", string, new MethodParameter(string));
-		string.addMethod("plus", string, new MethodParameter(any));
+		string.addMethod("concat", string, new MethodParameter(string));
+		string.addMethod("concat", string, new MethodParameter(any));
 
 		LenseTypeDefinition type = register(new FundamentalLenseTypeDefinition("lense.core.lang.reflection.Type", LenseUnitKind.Class, any));
 

@@ -69,16 +69,16 @@ public  class List<T> implements ResizableSequence<T> {
 	public add(value : T) {
 		
 		let capacity = array.size; // how many can there be
-		if (capacity < length + 1){
+		if (capacity < length + 1) {
 			// increase capacity
 			let newCapacity = 1 + (capacity * 3) \ 2; 
-			let newArray = new Array<T?>(newCapacity, value);			
+			let newArray = new Array<T?>(newCapacity, value);		// TODO parse T? as T , ? and not T? Identifier	
 			this.array.copyTo(newArray);
 			this.array = newArray;
 		}
 
 		array[length] = new Some<T>(value);
-		length += 1; // TODO use ++
+		length += 1; 
 	}
 
 	public remove(value : T) {
@@ -141,11 +141,11 @@ public  class List<T> implements ResizableSequence<T> {
 		 
 		for (i in 0 ..< length ){
 			if (i > 0){
-				s += ",";
+				s = s ++ ",";
 			}
-			s += array[i]; 
+			s = s ++ array[i]; 
 		}
 
-		return s + "]";
+		return s ++ "]";
 	}
 } 

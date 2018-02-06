@@ -31,8 +31,8 @@ public class Main extends ConsoleApplication {
 	
 
   	public onStart()  {
- 
-  	 	console.println("Begin " + this.type().name);
+
+  	 	console.println("Begin " ++ this.type().name); // ambiguity a ++ b  or a   ++b
 
 		demoMaybeArray();  	 	
 
@@ -167,16 +167,6 @@ public class Main extends ConsoleApplication {
   	 
   	  	console.println("Map is : {{ map }}");
   	   
-  		var  i  = 23;
-  		var  j : Integer = ++i;
-  		
-  		console.println("Pre increment of 23 is {{j}} = 24 with letue at {{i}} = 24");
-  		
-  		i = 23;
-  		j = i++;
-  			
-  		console.println("Pos increment of 23 is {{j}} = 23 with letue at {{i}} = 24");
-  		
   		var  tuple = ("Hello", 6);
   		
   		console.println(tuple[0]);
@@ -196,9 +186,6 @@ public class Main extends ConsoleApplication {
   		
   		console.println(tuple0);
   
-  		var x  = 8;
-  		
-  	     console.println("{{x}} plus {{j}} is {{ x + j }}");
 
   	    for(let y in 1..10){
   	     
@@ -214,23 +201,6 @@ public class Main extends ConsoleApplication {
   	        
   	     }
   	     
-  	     var k  = 4;
-  	
-  		console.println("k is {{ k }}");
-  	
-  	     var u : Integer = k;
-  	     while (u != 0){
-  	     		console.println("K is {{ k }}");
-  	     		console.println("U is {{ u }}");
-  	     		u = apply(console , --u, --u);
-  	     }
-  	     
-  	     u= k;
-  	     while (u != 0){
-  	     		console.println("K is {{ k }}");
-  	     		console.println("U is {{ u }}");
-  	     		u = apply(console , u--, u--);
-  	     }
   	     
   	     console.println(getlength([1,2]));
   	    
@@ -247,9 +217,11 @@ public class Main extends ConsoleApplication {
 
 		let ax = x.abs();
 		let ay = y.abs();
-		
+
 		let max = ax >= ay ? ax : ay;
 		let min = ax >= ay ? ay : ax;
+
+
 		
 	   console.println(" max = {{ max }}");
 	   console.println(" min = {{ min }}");
@@ -262,6 +234,7 @@ public class Main extends ConsoleApplication {
 		 console.println("j = {{ 1.0 + k }}");
 		 
 		return max * (1.0 + r ^^ 2) ^^ 0.5;
+
 	}
 	
 	public toRational(number : Rational) : Rational => number;
@@ -272,14 +245,6 @@ public class Main extends ConsoleApplication {
 	}
 
   	public getlength ( seq : Sequence<Natural>) => seq.size; 
-  	
-  	public apply (c : Console , k : Integer, o : Integer)  {
-  	
-  		console.println("Arg 1  is {{ k }}");
-  		console.println("Arg 2  is {{ o }}");
-  		
-  		return o;
-  	}
 
 	private demoList(){
 		
@@ -351,6 +316,7 @@ public class Main extends ConsoleApplication {
 		
 		let bitArray = new BitArray($1100_1101); 
 	
+
 		assert (new BitArray($1_1001_1010) == bitArray << 1);
 		assert (new BitArray($0110_0110) == bitArray >> 1);
 	}

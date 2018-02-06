@@ -8,7 +8,7 @@ public native class Int64 extends Integer implements Binary{
 	public native implicit constructor valueOf ( n: Natural);
 	public native implicit constructor valueOf ( n: Binary);
 	
-	public native flipAll() : Int64;
+	public native complement() : Int64;
 	
 	public  size : Natural {get { return 64;}}
 

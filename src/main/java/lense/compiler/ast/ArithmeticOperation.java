@@ -10,6 +10,7 @@ public enum ArithmeticOperation {
 	    Multiplication ("multiply", "*"),
 		Addition("plus", "+"),
 		WrapAddition("wrapPlus", "&+"),
+		Concatenation("concat", "++"),
 		Subtraction("minus","-"),
 		WrapSubtraction("wrapMinus","&-"),
 		Division("divide","/"),
@@ -18,13 +19,18 @@ public enum ArithmeticOperation {
 		RightShift("rightShiftBy", ">>"),
 		SignedRightShift("signedRightShiftBy",">>>"),
 		LeftShift("leftShiftBy","<<"),
-		Increment("successor","++"),
-		Decrement("predecessor","--"),
+
         BitAnd ("and", "&"),
         BitOr ("or", "|"),
         BitXor("xor","^"),
-        Complement("flipAll","~"); // unary
-    
+     // unary
+        Complement("complement","~"),
+        Symmetric("symmetric","-"),
+        Positive("positive","+"),
+		Increment("successor","++"),
+		Decrement("predecessor","--")
+		;
+		
 		private String equivalentMethod;
 		private String symbol;
 		

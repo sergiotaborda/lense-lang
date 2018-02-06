@@ -81,6 +81,7 @@ import lense.compiler.ast.TernaryConditionalExpressionNode;
 import lense.compiler.ast.TypeNode;
 import lense.compiler.ast.TypeParametersListNode;
 import lense.compiler.ast.TypedNode;
+import lense.compiler.ast.UnitaryOperation;
 import lense.compiler.ast.VariableReadNode;
 import lense.compiler.ast.VariableWriteNode;
 import lense.compiler.context.SemanticContext;
@@ -1023,32 +1024,16 @@ public class SemanticVisitor extends AbstractScopedVisitor {
 
 				final TypeDefinition type = ((TypedNode) p.getChildren().get(0)).getTypeVariable().getTypeDefinition();
 
-				if (p.getOperation().equals(ArithmeticOperation.Subtraction)) { /* -a */
-					String methodName = "symmetric";
-					Optional<Method> list = type.getMethodsByName(methodName).stream()
-							.filter(md -> md.getParameters().size() == 0).findAny();
-
-					if (!list.isPresent()) {
-						throw new CompilationError(node,
-								"The method " + methodName + "() is undefined for TypeDefinition " + type);
-					}
-
-					// replace by a method invocation
-					MethodInvocationNode method = new MethodInvocationNode(ensureExpression(node.getChildren().get(0)),
-							methodName);
-
-					method.setTypeVariable(list.get().getReturningType());
-
-					node.getParent().replace(node, method);
-				} else if (p.getOperation().equals(ArithmeticOperation.Addition)) { /* +a */
+				if (p.getOperation().equals(UnitaryOperation.Positive)) { /* +a */
 					// +a is a no-op. replace the node by its content
 					node.getParent().replace(node, node.getChildren().get(0));
-				} else if (p.getOperation().equals(ArithmeticOperation.Decrement)
-						|| p.getOperation().equals(ArithmeticOperation.Increment)) {
+				
+				} else if (p.getOperation().equals(UnitaryOperation.Decrement)
+						|| p.getOperation().equals(UnitaryOperation.Increment)) {
 					String methodName;
-					if (p.getOperation().equals(ArithmeticOperation.Decrement)) { /* --a */
+					if (p.getOperation().equals(UnitaryOperation.Decrement)) { /* --a */
 						methodName = "predecessor";
-					} else if (p.getOperation().equals(ArithmeticOperation.Increment)) { /* ++a */
+					} else if (p.getOperation().equals(UnitaryOperation.Increment)) { /* ++a */
 						methodName = "successor";
 					} else {
 						throw new CompilationError(node, "Unrecognized pos operator");
@@ -1085,10 +1070,24 @@ public class SemanticVisitor extends AbstractScopedVisitor {
 
 						node.getParent().replace(node, assignment);
 					}
+				} else  { /* -a , ~a */
 
-				} else {
-					throw new CompilationError(node,
-							"There is no unary " + p.getOperation().equivalentMethod() + " operation.");
+					String methodName = p.getOperation().getArithmeticOperation().equivalentMethod();
+					Optional<Method> list = type.getMethodsByName(methodName).stream()
+							.filter(md -> md.getParameters().size() == 0).findAny();
+
+					if (!list.isPresent()) {
+						throw new CompilationError(node,
+								"The method " + methodName + "() is undefined for TypeDefinition " + type);
+					}
+
+					// replace by a method invocation
+					MethodInvocationNode method = new MethodInvocationNode(ensureExpression(node.getChildren().get(0)),
+							methodName);
+
+					method.setTypeVariable(list.get().getReturningType());
+
+					node.getParent().replace(node, method);
 				}
 			} else if (node instanceof LiteralExpressionNode) {
 				LiteralExpressionNode n = (LiteralExpressionNode) node;
@@ -1106,7 +1105,7 @@ public class SemanticVisitor extends AbstractScopedVisitor {
 				if (p.getOperation().equals(BooleanOperation.BitNegate)) { /* ~a */
 					// TODO verify operator interface Binary
 					if (LenseTypeSystem.Boolean().equals(type)) {
-						methodName = "flipAll";
+						methodName = ArithmeticOperation.Complement.equivalentMethod();
 					} else {
 						throw new CompilationError(node,
 								"Operator ~ can only be applied to Boolean instances ( found " + type.getName() + ")");
@@ -2310,6 +2309,11 @@ public class SemanticVisitor extends AbstractScopedVisitor {
 		TypeVariable right = ensureNotFundamental(rightExpression.getTypeVariable());
 
 		if (left.equals(right) && left.getTypeDefinition().equals(LenseTypeSystem.String())) {
+			
+			if (operation != ArithmeticOperation.Concatenation) {
+				throw new CompilationError(parent, "Operation " + operation.equivalentMethod() + " is not defined for type String");
+			}
+			
 			parent.setTypeVariable(left);
 
 			StringConcatenationNode c;

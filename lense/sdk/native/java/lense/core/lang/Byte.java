@@ -40,7 +40,7 @@ public class Byte extends Base implements Binary{
 	}
 
 	@Override
-	public Byte flipAll() {
+	public Byte complement() {
 		return new Byte(~value & 0x000000FF);
 	}
 

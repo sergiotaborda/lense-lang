@@ -20,7 +20,7 @@ public class LiteralsInstanciatorVisitor implements Visitor<AstNode> {
 	 */
 	@Override
 	public void startVisit() {
-		
+
 	}
 
 	/**
@@ -28,7 +28,7 @@ public class LiteralsInstanciatorVisitor implements Visitor<AstNode> {
 	 */
 	@Override
 	public void endVisit() {
-		
+
 	}
 
 	/**
@@ -44,33 +44,9 @@ public class LiteralsInstanciatorVisitor implements Visitor<AstNode> {
 	 */
 	@Override
 	public void visitAfterChildren(AstNode node) {
-		
-//		if (node instanceof AssignmentNode){
-//			AssignmentNode n = (AssignmentNode) node;
-//			if (n.getRight() instanceof LiteralExpressionNode){
-//				n.setRight(transformeLiteral((LiteralExpressionNode)n.getRight()));
-//			}
-//		} else if (node instanceof ScopedVariableDefinitionNode){
-//			ScopedVariableDefinitionNode v = (ScopedVariableDefinitionNode)node;
-//			
-//			if (v.getInitializer() instanceof LiteralExpressionNode){
-//				v.setInitializer(transformeLiteral((LiteralExpressionNode)v.getInitializer()));
-//			}
-//			
-//		} 
-//		if (node instanceof LiteralExpressionNode){
-//			AstNode newnode = transformeLiteral((LiteralExpressionNode) node);
-//			
-//			if (node.getParent().getParent() instanceof ClassInstanceCreationNode){
-//				ClassInstanceCreationNode c = (ClassInstanceCreationNode)node.getParent().getParent();
-//				if (c.getTypeVariable().equals(LenseTypeSystem.String())){
-//					return;
-//				}
-//			} 
-//			node.getParent().replace(node, newnode);
-//		}
-//		else 
-			if (node instanceof ArithmeticNode){
+
+
+		if (node instanceof ArithmeticNode){
 			ArithmeticNode a = (ArithmeticNode) node;
 			if (LenseTypeSystem.getInstance().isAssignableTo(a.getTypeVariable(), LenseTypeSystem.String())){
 				StringConcatenationNode c;
@@ -81,38 +57,14 @@ public class LiteralsInstanciatorVisitor implements Visitor<AstNode> {
 					c= new StringConcatenationNode();
 					c.add(a.getLeft());
 					c.add(a.getRight());
-					
+
 				}
 				a.getParent().replace(a, c);		
-				
+
 			}
 		}
-//			else if (node instanceof MethodInvocationNode){
-//			MethodInvocationNode m = (MethodInvocationNode) node;
-//			if (m.getAccess() instanceof NumericValue){
-//				AstNode newnode = transformeLiteral((LiteralExpressionNode) m.getAccess());
-//				m.replace(m.getAccess(), newnode);
-//			}
-//		}
+
 	}
-
-//	private ExpressionNode transformeLiteral(LiteralExpressionNode literal) {
-//	
-//		if (literal instanceof BooleanValue){
-//			return literal;
-//			//new FieldAccessNode(((BooleanValue)literal).isValue()? "True" : "False");
-//		} else if (literal instanceof NoneValue){
-//			ObjectReadNode n = new ObjectReadNode(LenseTypeSystem.None(), "None");
-//			n.setTypeVariable(new FixedTypeVariable(LenseTypeSystem.None()));
-//			return n;
-//		} else if (literal instanceof NumericValue){
-//			return NewInstanceCreationNode.of(literal.getTypeVariable(), NewInstanceCreationNode.of(new FixedTypeVariable(LenseTypeSystem.String()), new StringValue(literal.getLiteralValue())));
-//		} else {
-//			return NewInstanceCreationNode.of(literal.getTypeVariable(), new StringValue(literal.getLiteralValue()));
-//		}
-//	}
-
-
 
 
 }

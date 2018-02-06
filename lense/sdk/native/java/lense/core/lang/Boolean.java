@@ -37,7 +37,7 @@ public class Boolean extends Base implements Any{
 		return !this.value;
 	}
 	
-	public boolean flipAll(){
+	public boolean complement(){
 		return !this.value;
 	}
 

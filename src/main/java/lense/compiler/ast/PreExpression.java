@@ -10,13 +10,13 @@ import lense.compiler.type.variable.TypeVariable;
  */
 public class PreExpression extends ExpressionNode{
 
-	private ArithmeticOperation operation;
+	private UnitaryOperation operation;
 
 	/**
 	 * Constructor.
 	 * @param addition
 	 */
-	public PreExpression(ArithmeticOperation op) {
+	public PreExpression(UnitaryOperation op) {
 		this.operation = op;
 	}
 
@@ -24,7 +24,7 @@ public class PreExpression extends ExpressionNode{
 		return ((ExpressionNode)this.getChildren().get(0)).getTypeVariable();
 	}
 	
-	public ArithmeticOperation getOperation(){
+	public UnitaryOperation getOperation(){
 		return operation;
 	}
 

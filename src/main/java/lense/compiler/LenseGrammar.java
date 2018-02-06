@@ -95,6 +95,7 @@ import lense.compiler.ast.TypeNode;
 import lense.compiler.ast.TypeParametersListNode;
 import lense.compiler.ast.TypesListNode;
 import lense.compiler.ast.UnitTypes;
+import lense.compiler.ast.UnitaryOperation;
 import lense.compiler.ast.VariableDeclarationNode;
 import lense.compiler.ast.VariableReadNode;
 import lense.compiler.ast.VariableWriteNode;
@@ -285,8 +286,6 @@ public class LenseGrammar extends AbstractLenseGrammar {
         this.keywords.add("/**");
         this.keywords.add("//");
         this.keywords.add("*/");
-
-        this.stopCharacters.remove('?');
 
         installSemanticActions();
     }
@@ -2434,7 +2433,7 @@ public class LenseGrammar extends AbstractLenseGrammar {
             if (r.size() == 1) {
                 p.setAstNode(r.get(0).getAstNode().get());
             } else {
-                PreExpression exp = new PreExpression(resolveOperation(r.get(0)));
+                PreExpression exp = new PreExpression(resolveUnaryOperation(r.get(0)));
                 exp.add(ensureExpression(r.get(1).getAstNode().get()));
                 p.setAstNode(exp);
             }
@@ -3429,6 +3428,25 @@ public class LenseGrammar extends AbstractLenseGrammar {
         
         for (ArithmeticOperation val : ArithmeticOperation.values()){
             if (val.symbol().equals(op)){
+                return val;
+            }
+        }
+        
+        throw new CompilationError(op + " is not a recognized arithmetic operator");
+
+    }
+    
+    public static UnitaryOperation resolveUnaryOperation(Symbol symbol) {
+        String op;
+        if (symbol.getSemanticAttribute("lexicalValue").isPresent()) {
+            op = (String) symbol.getSemanticAttribute("lexicalValue").get();
+        } else {
+            op = (String) ((Symbol) symbol.getParserTreeNode().getChildren().get(0))
+                    .getSemanticAttribute("lexicalValue").get();
+        }
+        
+        for (UnitaryOperation val : UnitaryOperation.values()){
+            if (val.getArithmeticOperation().symbol().equals(op)){
                 return val;
             }
         }
