@@ -18,6 +18,7 @@ public class AssignmentNode extends ExpressionNode {
 		IntegerDivideAndAssign ("\\=",true, ArithmeticOperation.IntegerDivision), 
 		RemainderAndAssign ("%=",true, ArithmeticOperation.Remainder), 
 		AddAndAssign("+=",true, ArithmeticOperation.Addition), 
+		ConcatAndAssign("++=",true, ArithmeticOperation.Concatenation), 
 		SubtractAndAssign ("-=",true, ArithmeticOperation.Subtraction), 
 		LeftShiftAndAssign ("<<=",true, ArithmeticOperation.LeftShift),
 		RightShiftAndAssign(">>=",true, ArithmeticOperation.RightShift), 

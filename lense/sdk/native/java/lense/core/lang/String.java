@@ -92,16 +92,16 @@ public class String extends Base implements Sequence {
 		return new HashValue(this.str.hashCode());
 	}
 
-	public String plus(String other){
+	public String concat(String other){
 		return new String(this.str + other.str);
 	}
 	
 	@PlatformSpecific
-	public String plus(java.lang.String other){
+	public String concat(java.lang.String other){
 		return new String(this.str + other);
 	}
 	
-	public String plus(Any other){
+	public String concat(Any other){
 		if (other == null){
 			throw new IllegalArgumentException("argument cannot be null");
 		}

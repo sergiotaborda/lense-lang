@@ -170,7 +170,7 @@ public class Int64 extends Integer implements Binary{
 	}
 
 	@Override
-	public Int64 flipAll() {
+	public Int64 complement() {
 		return new Int64(~value);
 	}
 

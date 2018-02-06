@@ -16,17 +16,17 @@ public abstract class AbstractAssortment extends Base implements Assortment {
 		
 		while(it.moveNext()){
 			if (!isFirst){
-				result= result.plus(lense.core.lang.String.valueOfNative(","));
+				result= result.concat(lense.core.lang.String.valueOfNative(","));
 			} else {
 				isFirst = false;
 			}
 			
 			Any value = it.current();
 			
-			result = value == null ? result.plus(lense.core.lang.String.valueOfNative("null")) : result.plus(value.asString());
+			result = value == null ? result.concat("null") : result.concat(value.asString());
 		
 		}
-		result = result.plus(lense.core.lang.String.valueOfNative("]"));
+		result = result.concat(lense.core.lang.String.valueOfNative("]"));
 		return result;
 	}
 }

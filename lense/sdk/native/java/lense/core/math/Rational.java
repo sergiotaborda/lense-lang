@@ -12,7 +12,6 @@ public final class Rational extends Real {
         return new Rational(n,d);
     }
 
-
     private Integer numerator;
     private Natural denominator;
 
@@ -34,7 +33,6 @@ public final class Rational extends Real {
         return denominator;
     }
 
-
     @Override
     public boolean equalsTo(Any other) {
         return other instanceof Rational &&  equalsTo((Rational)other);
@@ -54,7 +52,7 @@ public final class Rational extends Real {
         if (this.denominator.isOne()){
             return this.numerator.asString();
         } 
-        return this.numerator.asString().plus("/").plus(this.denominator.toString());
+        return this.numerator.asString().concat("/").concat(this.denominator.toString());
     }
 
     private Rational symplify(Integer numerator, Natural denominator) {

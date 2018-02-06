@@ -54,7 +54,7 @@ public class BitArray implements Binary {
 		return new BitArray(newArray); 
 	}
 	
-	public flipAll() : Binary {
+	public complement() : Binary {
 		let  negated : Array<Boolean> = bits.duplicate();
 
 		for (n in negated.indexes){

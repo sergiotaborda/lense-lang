@@ -73,7 +73,7 @@ public final class Imaginary extends Number{
 	}
 	
 	public lense.core.lang.String asString(){
-		return this.value.asString().plus("i");
+		return this.value.asString().concat("i");
 	}
 	
 	@Override

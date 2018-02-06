@@ -70,7 +70,7 @@ public class Rational extends Real {
 		if (this.denominator == 1){
 			return this.numerator.asString();
 		} 
-		return this.numerator.asString() + "/" + this.denominator.asString();
+		return this.numerator.asString() ++ "/" ++ this.denominator.asString();
 	}
 	
 
