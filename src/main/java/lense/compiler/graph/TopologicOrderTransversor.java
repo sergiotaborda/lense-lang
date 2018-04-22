@@ -39,13 +39,13 @@ public class TopologicOrderTransversor<E, V> extends AbstractGraphTransversor<E,
 
 			for (Vertex<V, E> v : all) {
 				for (Edge<V, E> e : v.getOutjacentEdges()) {
-					manager.info(e.getTargetVertex()).scratch++;
+					manager.info(e.getTargetVertex()).incrementScratch();
 				}
 			}
 
 			// enqueue those with ingree zero
 			for (Vertex<V, E> v : all) {
-				if (manager.info(v).scratch == 0) {
+				if (manager.info(v).hasZeroScratch()) {
 					q.add(v);
 				}
 			}
@@ -74,7 +74,8 @@ public class TopologicOrderTransversor<E, V> extends AbstractGraphTransversor<E,
 
 						VertexInfo infoW = manager.info(w);
 
-						if (--infoW.scratch == 0) {
+						infoW.decrementScratch();
+						if (infoW.hasZeroScratch()) {
 							q.add(w);
 						}
 
@@ -99,9 +100,30 @@ public class TopologicOrderTransversor<E, V> extends AbstractGraphTransversor<E,
 					Collection<Vertex<V, E>> remaining = new LinkedList<>(all);
 					remaining.removeAll(visited);
 					// graph contains more than one graph
-
-					q.addAll(remaining);
-					//throw new CycleFoundException();
+					
+					int min = Integer.MAX_VALUE;
+					for (Vertex<V, E> v : remaining) {
+						int scratch = manager.info(v).getScratch();
+						
+						min = Math.min(min,  scratch);
+						if (scratch == 0) {
+							q.add(v);
+						}
+					}
+					
+					if (q.isEmpty() && !remaining.isEmpty()) {
+						if (min == 1) {
+							for (Vertex<V, E> v : remaining) {
+								if ( manager.info(v).getScratch() == min) {
+									q.add(v);
+								}
+							}
+						} else {
+							throw new CycleFoundException();
+						}
+					}
+					
+					
 				} else if (iterations > all.size()) {
 					throw new CycleFoundException();
 				}

@@ -1,7 +1,7 @@
 
 import lense.core.lang.Void;
 import lense.core.math.Natural;
-import lense.core.collections.Sequence;
+import lense.core.collections.EditableSequence;
 
 public interface ResizableSequence<T> extends EditableSequence<T> {
 

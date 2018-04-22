@@ -46,14 +46,14 @@ public final class Character extends Base implements Any, Ordinal{
 	}
 
     @Override     
-    @MethodSignature(returnSignature = "lense.core.lang.Character" , paramsSignature="")
+    @MethodSignature(returnSignature = "lense.core.lang.Character" , paramsSignature="", declaringType = "lense.core.lang.Ordinal" , overloaded = true)
     public Character successor() {
      // TODO consider range from 0 to Int16.max
        return new Character(this.code++);
     }
 
     @Override
-    @MethodSignature(returnSignature = "lense.core.lang.Character" , paramsSignature="")
+    @MethodSignature(returnSignature = "lense.core.lang.Character" , paramsSignature="", declaringType = "lense.core.lang.Ordinal" , overloaded = true)
     public Character predecessor() {
         // TODO consider range from 0 to Int16.max
         return new Character(this.code--);

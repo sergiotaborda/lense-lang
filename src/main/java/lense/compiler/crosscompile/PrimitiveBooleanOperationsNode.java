@@ -13,6 +13,14 @@ public class PrimitiveBooleanOperationsNode extends ExpressionNode {
 		this.operation = operation;
 		this.setTypeVariable( PrimitiveTypeDefinition.BOOLEAN);
 	}
+	
+	public PrimitiveBooleanOperationsNode(AstNode first, AstNode second, BooleanOperation operation){
+		this.add(first);
+		this.add(second);
+		this.operation = operation;
+		this.setTypeVariable( PrimitiveTypeDefinition.BOOLEAN);
+	}
+
 
 	public BooleanOperation getOperation() {
 		return operation;

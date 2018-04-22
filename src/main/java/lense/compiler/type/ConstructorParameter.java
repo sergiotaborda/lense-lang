@@ -109,6 +109,14 @@ public class ConstructorParameter implements CallableMemberMember<Constructor> {
 		return p;
 	}
 
+	@Override
+	public boolean typeEquals(CallableMemberMember<Constructor> other) {
+		
+		return other instanceof ConstructorParameter 
+			&& this.type.equals(((ConstructorParameter)other).type);
+
+	}
+
 
 
 

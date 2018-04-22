@@ -180,5 +180,8 @@ public class PrimitiveTypeDefinition implements TypeDefinition {
 	public boolean isFinal() {
 		return true;
 	}
-
+	@Override
+	public boolean contains(TypeVariable other) {
+		return this.equals(other);
+	}
 }

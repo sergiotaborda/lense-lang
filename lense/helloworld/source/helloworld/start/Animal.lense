@@ -1,0 +1,16 @@
+
+import lense.core.collections.Array;
+import lense.core.lang.Maybe; // auto-import
+import lense.core.lang.String; // auto-import
+import lense.core.math.Integer; // auto-import
+
+public abstract class Animal {
+
+	public abstract abstractMethod();
+
+	//public abstract abstractMethodWithBody(){} // error
+
+	public notOverridable() {}
+	public default overridable() {}
+	public default overridableOnce() {}
+}

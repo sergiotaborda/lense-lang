@@ -11,7 +11,7 @@ public class Interval<T> implements Category<T> { // TODO T extends Comparable
 		return false; // TODO
 	}
 	
-	public asString() : String {
+	public override asString() : String {
 		return start.asString() ++ " to " ++ end.asString(); 
 	}	
 }

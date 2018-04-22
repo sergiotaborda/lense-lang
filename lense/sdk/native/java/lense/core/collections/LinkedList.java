@@ -36,13 +36,13 @@ public class LinkedList extends AbstractAssortment implements ResizableSequence 
 	}
 	
 	@Override @Property(indexed = true , name = "", setter = true)
-	@MethodSignature( returnSignature = "" , paramsSignature = "lense.core.math.Natural,T")
+	@MethodSignature( returnSignature = "" , paramsSignature = "lense.core.math.Natural,T", declaringType = "lense.core.collections.EditableSequence" , overloaded = true)
 	public void set(Natural index, Any element) {
 		list.set(index.toPrimitiveInt(), element);
 	}
 
 	@Override @Property(indexed = true , name = "")
-    @MethodSignature( returnSignature = "T" , paramsSignature = "lense.core.math.Natural")
+    @MethodSignature( returnSignature = "T" , paramsSignature = "lense.core.math.Natural",declaringType = "lense.core.collections.Sequence" , overloaded = true)
 	public Any get(Natural index) {
 		return list.get(index.toPrimitiveInt());
 	}
@@ -53,7 +53,7 @@ public class LinkedList extends AbstractAssortment implements ResizableSequence 
 	}
 
 	@Override @Property(name = "iterator")
-    @MethodSignature( returnSignature = "lense.core.collections.Iterator<T>", paramsSignature = "")
+    @MethodSignature( returnSignature = "lense.core.collections.Iterator<T>", paramsSignature = "",declaringType = "lense.core.collections.Iterable" , overloaded = true)
 	public Iterator getIterator() {
 		return new IteratorAdapter(list.iterator());
 	}
@@ -69,7 +69,7 @@ public class LinkedList extends AbstractAssortment implements ResizableSequence 
 	}
 
     @Override @Property(name = "indexes")
-    @MethodSignature( returnSignature = "lense.core.collections.Progression<lense.core.math.Natural>", paramsSignature = "")
+    @MethodSignature( returnSignature = "lense.core.collections.Progression<lense.core.math.Natural>", paramsSignature = "",declaringType = "lense.core.collections.Sequence" , overloaded = true)
 	public Progression getIndexes() {
 		return new NativeProgression(0, list.size() -1);
 	}

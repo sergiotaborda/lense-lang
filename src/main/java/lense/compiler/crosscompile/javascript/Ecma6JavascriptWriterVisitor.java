@@ -644,12 +644,12 @@ public class Ecma6JavascriptWriterVisitor implements Visitor<AstNode> {
 			} else if (node instanceof CastNode){
 				CastNode n = (CastNode)node;
 
-				if (n.getType().getName().equals(LenseTypeSystem.Any().getName())){
+				if (n.getTypeVariable().getTypeDefinition().getName().equals(LenseTypeSystem.Any().getName())){
 
 					TreeTransverser.transverse(n.getInner(), this);
 
 				} else {
-					writer.append("((").append(n.getType().getName()).append(")");
+					writer.append("((").append(n.getTypeVariable().getTypeDefinition().getName()).append(")");
 
 					TreeTransverser.transverse(n.getInner(), this);
 

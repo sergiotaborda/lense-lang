@@ -1,6 +1,4 @@
 
-import lense.core.math.Integer;
-import lense.core.lang.Boolean;
 
 public interface Injunctable<T> {
 

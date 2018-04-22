@@ -2,11 +2,9 @@ package lense.core.math;
 
 import java.math.BigInteger;
 
+import lense.core.lang.Any;
 import lense.core.lang.Binary;
-import lense.core.lang.Dijunctable;
-import lense.core.lang.ExclusiveDijunctable;
 import lense.core.lang.HashValue;
-import lense.core.lang.Injunctable;
 import lense.core.lang.java.Constructor;
 import lense.core.lang.java.PlatformSpecific;
 import lense.core.lang.java.Property;
@@ -154,7 +152,7 @@ public final class Int32 extends Integer implements Binary {
 
 	@Override
 	@Property(name="size")
-	public final Natural getSize() {
+	public final Natural bitsCount() {
 		return Natural.valueOfNative(32);
 	}
 
@@ -187,7 +185,7 @@ public final class Int32 extends Integer implements Binary {
 	}
 
 	@Override
-	public boolean getBitAt(Natural index) {
+	public boolean bitAt(Natural index) {
 		return rightShiftBy(index).isOdd();
 	}
 
@@ -203,27 +201,33 @@ public final class Int32 extends Integer implements Binary {
     }
 
     @Override
-    public Int32 xor(ExclusiveDijunctable other) {
+    public Int32 xor(Any other) { // Any is binary
         if (other instanceof Int32){
-            return new Int32(this.value ^ ((Int32)other).value);
+            return new Int32(this.value ^ ((Int32)other).value);  
+        } else if (other instanceof Int64){
+            return new Int32((int)(this.value ^ ((Int64)other).value));
         } else {
             throw new IllegalArgumentException("Cannot inject with a diferent class");
         }
     }
 
     @Override
-    public Int32 or(Dijunctable other) {
-        if (other instanceof Int32){
+    public Int32 or(Any other) { // Any is binary
+        if (other instanceof Int32){ 
             return new Int32(this.value | ((Int32)other).value);
+        } else if (other instanceof Int64){
+            return new Int32((int)(this.value | ((Int64)other).value));
         } else {
             throw new IllegalArgumentException("Cannot inject with a diferent class");
         }
     }
 
     @Override
-    public Int32 and(Injunctable other) {
+    public Int32 and(Any other) {
         if (other instanceof Int32){
             return new Int32(this.value & ((Int32)other).value);
+        } else if (other instanceof Int64){
+            return new Int32((int)(this.value & ((Int64)other).value));
         } else {
             throw new IllegalArgumentException("Cannot inject with a diferent class");
         }

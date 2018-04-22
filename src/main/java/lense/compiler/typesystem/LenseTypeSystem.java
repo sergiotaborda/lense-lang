@@ -13,8 +13,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.junit.experimental.theories.internal.SpecificDataPointsSupplier;
-
 import compiler.CompilationError;
 import lense.compiler.type.CallableMember;
 import lense.compiler.type.CallableMemberMember;
@@ -51,7 +49,10 @@ public class LenseTypeSystem {
 	public static TypeDefinition Any() {
 		return getInstance().getForName("lense.core.lang.Any").get();
 	}
-
+	public static TypeDefinition ReifiedArguments() {
+		return getInstance().getForName("lense.core.lang.reflection.ReifiedArguments").get();
+	}
+	
 	public static TypeDefinition Nothing() {
 		return getInstance().getForName("lense.core.lang.Nothing").get();
 	}
@@ -259,13 +260,13 @@ public class LenseTypeSystem {
 
 		iterable.addProperty("iterator", iterator, true, false);
 
-		iterator.addMethod("hasNext", sbool);
-		iterator.addMethod("hasNext", any);
+		iterator.addMethod("hasNext", sbool).setAbstract(true);
+		iterator.addMethod("hasNext", any).setAbstract(true);
 
 		LenseTypeDefinition maybe = register(new FundamentalLenseTypeDefinition("lense.core.lang.Maybe",
 				LenseUnitKind.Class, any, new RangeTypeVariable("T", Variance.Covariant, any, nothing)));
 
-		maybe.addMethod("map", specify(maybe, any), new MethodParameter(function2)); // TODO
+		maybe.addMethod("map", specify(maybe, any), new MethodParameter(function2, "transform")); // TODO
 		// return
 		// must
 		// obey
@@ -389,10 +390,16 @@ public class LenseTypeSystem {
 
 		LenseTypeDefinition type = register(new FundamentalLenseTypeDefinition("lense.core.lang.reflection.Type", LenseUnitKind.Class, any));
 
-		any.addMethod("asString", string);
-		// any.addMethod("hashValue", HashValue);
-		any.addMethod("equalsTo", sbool, new MethodParameter(any,"other"));
-		any.addMethod("type", type);
+		LenseTypeDefinition hashValue = register(new FundamentalLenseTypeDefinition("lense.core.lang.HashValue", LenseUnitKind.Class, any));
+
+		hashValue.addMethod("concat", hashValue, new MethodParameter(hashValue, "other"));
+		
+		any.addMethod("asString", string).setDefault(true);
+		any.addMethod("hashValue", hashValue).setDefault(true);
+		any.addMethod("equalsTo", sbool, new MethodParameter(any,"other")).setDefault(true);
+		any.addMethod("type", type).setDefault(false);
+		
+		
 
 		LenseTypeDefinition real = register(
 				new FundamentalLenseTypeDefinition("lense.core.math.Real", LenseUnitKind.Class, number));
@@ -441,6 +448,13 @@ public class LenseTypeSystem {
 				new FundamentalLenseTypeDefinition("lense.core.lang.List", LenseUnitKind.Interface, sequence));
 		list.addMethod("add", svoid, new MethodParameter(any));
 
+		LenseTypeDefinition refArgs = register(
+				new FundamentalLenseTypeDefinition("lense.core.lang.reflection.ReifiedArguments", LenseUnitKind.Interface, any));
+		
+		refArgs.addMethod("typeAt", type, new MethodParameter(natural, "index"));
+		refArgs.addMethod("fromIndex", refArgs, new MethodParameter(natural, "index"));
+		
+		
 	}
 
 	private Map<TypeKey, LenseTypeDefinition> definitions = new HashMap<>();
@@ -533,6 +547,7 @@ public class LenseTypeSystem {
 				 * && type.getGenericParameters().size() ==
 				 * target.getGenericParameters().size()
 				 */ ) {
+			
 			boolean assignable = true;
 			for (int i = 0; i < type.getGenericParameters().size(); i++) {
 				if (!isAssignableTo(type.getGenericParameters().get(i), target.getGenericParameters().get(i))) {
@@ -780,7 +795,11 @@ public class LenseTypeSystem {
 	}
 
 	public boolean areNomallyEquals(TypeDefinition a, TypeDefinition b) {
-		return a.getName().equals(b.getName());
+		return a == b || a.getName().equals(b.getName());
+	}
+	
+	public boolean areNomallyEquals(TypeVariable a, TypeVariable b) {
+		return  a == b || a.getTypeDefinition().getName().equals(b.getTypeDefinition().getName());
 	}
 
 	public static boolean isNumber(TypeDefinition maxType) {
@@ -816,6 +835,10 @@ public class LenseTypeSystem {
 
 	public boolean isAny(TypeDefinition type) {
 		return type.getName().equals(Any().getName());
+	}
+
+	public boolean isBoolean(TypeVariable type) {
+		return type.getTypeDefinition().getName().equals(Boolean().getName());
 	}
 
 

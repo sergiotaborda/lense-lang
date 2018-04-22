@@ -7,7 +7,6 @@ import compiler.trees.Visitor;
 import compiler.trees.VisitorNext;
 import lense.compiler.ast.ArgumentListItemNode;
 import lense.compiler.ast.ArgumentListNode;
-import lense.compiler.ast.AssertNode;
 import lense.compiler.ast.AssignmentNode;
 import lense.compiler.ast.CaptureReifiedTypesNode;
 import lense.compiler.ast.ConstructorDeclarationNode;
@@ -16,13 +15,16 @@ import lense.compiler.ast.FieldOrPropertyAccessNode;
 import lense.compiler.ast.MethodDeclarationNode;
 import lense.compiler.ast.MethodInvocationNode;
 import lense.compiler.ast.ReturnNode;
-import lense.compiler.ast.TypedNode;
 import lense.compiler.ast.VariableDeclarationNode;
 import lense.compiler.crosscompile.BoxingPointNode.BoxingDirection;
-import lense.compiler.type.variable.CalculatedTypeVariable;
 import lense.compiler.type.variable.TypeVariable;
 import lense.compiler.typesystem.LenseTypeSystem;
-public class BoxingPointClassificationVisitor implements Visitor<AstNode> {
+
+/**
+ * Classifies cuting points as boxing or unboxing regardless of type
+ * 
+ */
+public final class BoxingPointClassificationVisitor implements Visitor<AstNode> {
 
 	private TypeVariable expectedType;
 

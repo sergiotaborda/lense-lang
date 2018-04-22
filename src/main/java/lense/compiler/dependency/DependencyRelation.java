@@ -16,7 +16,9 @@ public class DependencyRelation {
 		this.relationship = relationship;
 	}
 
-
+	public String toString() {
+		return relationship.toString();
+	}
 
 
 	public DependencyRelationship getRelationship() {

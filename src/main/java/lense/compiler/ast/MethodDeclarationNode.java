@@ -4,6 +4,7 @@
 package lense.compiler.ast;
 
 import lense.compiler.phases.ScopeDelimiter;
+import lense.compiler.type.Method;
 
 /**
  * 
@@ -19,6 +20,9 @@ public class MethodDeclarationNode extends InvocableDeclarionNode implements Sco
 	private String propertyName;
 	private boolean isIndexer;
 	private boolean isSetter;
+	
+	private Method method;
+	private Method superMethod;
 	
 	public TypeNode getReturnType() {
 		return returnType;
@@ -76,6 +80,22 @@ public class MethodDeclarationNode extends InvocableDeclarionNode implements Sco
 	public String getScopeName() {
 		return name;
 	}
+	
+	public Method getSuperMethod() {
+		return superMethod;
+	}
+	public void setSuperMethod(Method superMethod) {
+		this.superMethod = superMethod;
+	}
+	public Method getMethod() {
+		return method;
+	}
+	public void setMethod(Method method) {
+		this.method = method;
+	}
+
+	
+
 	
 
 	

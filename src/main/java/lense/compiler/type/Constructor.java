@@ -19,6 +19,7 @@ public class Constructor implements CallableMember<Constructor>{
 	private String name;
     private Visibility visibility;
     private boolean isAbstract;
+	private boolean isNative;
 
 	/**
 	 * Constructor.
@@ -184,4 +185,33 @@ public class Constructor implements CallableMember<Constructor>{
     public void setAbstract(boolean isAbstract) {
         this.isAbstract = isAbstract;
     }
+	@Override
+	public boolean isDefault() {
+		return false;
+	}
+	@Override
+	public void setDefault(boolean isDefault) {
+		// no-op. constructors are nor overridable
+		
+	}
+	@Override
+	public boolean isOverride() {
+		return false;
+	}
+	@Override
+	public void setOverride(boolean isOverride) {
+		// no-op. constructors are nor overridable
+		
+	}
+
+	@Override
+	public boolean isNative() {
+		return isNative;
+	}
+	
+
+	@Override
+	public void setNative(boolean isNative) {
+		this.isNative = isNative;
+	}
 }

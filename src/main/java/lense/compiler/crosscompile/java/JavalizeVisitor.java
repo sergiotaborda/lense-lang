@@ -15,7 +15,13 @@ import lense.compiler.asm.ByteCodeTypeDefinitionReader;
 import lense.compiler.ast.BooleanOperatorNode;
 import lense.compiler.ast.CastNode;
 import lense.compiler.ast.ClassTypeNode;
+import lense.compiler.ast.ExpressionNode;
+import lense.compiler.ast.FormalParameterNode;
+import lense.compiler.ast.ImutabilityNode;
+import lense.compiler.ast.MethodDeclarationNode;
 import lense.compiler.ast.MethodInvocationNode;
+import lense.compiler.ast.VariableDeclarationNode;
+import lense.compiler.ast.VariableReadNode;
 import lense.compiler.context.SemanticContext;
 import lense.compiler.repository.UpdatableTypeRepository;
 import lense.compiler.type.CallableMember;
@@ -25,18 +31,21 @@ import lense.compiler.type.IndexerProperty;
 import lense.compiler.type.LenseTypeDefinition;
 import lense.compiler.type.LenseUnitKind;
 import lense.compiler.type.Method;
+import lense.compiler.type.MethodParameter;
 import lense.compiler.type.Property;
 import lense.compiler.type.TypeDefinition;
 import lense.compiler.type.TypeMember;
 import lense.compiler.type.variable.TypeVariable;
+import lense.compiler.typesystem.Imutability;
 import lense.compiler.typesystem.LenseTypeSystem;
+import lense.compiler.typesystem.Visibility;
 
 /**
  * 
  *  - Verify correct contract of native implementations
  *  - convert arithmetic operators to method calls  
  */
-public class JavalizeVisitor implements Visitor<AstNode>{
+public final class JavalizeVisitor implements Visitor<AstNode>{
 
     private final SemanticContext semanticContext;
     private final Map<String, File> nativeTypes;
@@ -251,20 +260,55 @@ public class JavalizeVisitor implements Visitor<AstNode>{
                 parent.replace(node, cast);
             }
         }
+        else if (node instanceof MethodDeclarationNode){
+        	MethodDeclarationNode m = (MethodDeclarationNode)node;
+        	
+        	if (m.getSuperMethod() != null) {
+        		
+        		Method superMethod = m.getSuperMethod();
+        		
+        		List<CallableMemberMember<Method>> params = superMethod.getParameters();
+        		
+        		for (int i=0; i < params.size(); i++) {
+        			
+        			MethodParameter superParameter = (MethodParameter) params.get(i);
+        			FormalParameterNode n = (FormalParameterNode) m.getParameters().getChildren().get(i);
+        			
+        			
+        			if (!LenseTypeSystem.getInstance().isAssignableTo(superParameter.getType(), n.getTypeVariable())) {
+        				
+        				// no match
+        				
+        				String newName = "_" + n.getName();
+        						
+        				
+        				VariableReadNode read = new VariableReadNode(newName);
+        				VariableDeclarationNode variable = new VariableDeclarationNode(n.getName() ,n.getTypeVariable(),  new CastNode(read, n.getTypeVariable()));
+        				variable.setImutability(new ImutabilityNode(Imutability.Imutable));
+        				
+        				n.setTypeVariable(superParameter.getType());
+        				n.setName(newName);
+        				
+        				m.getBlock().addFirst(variable);
+        			}
+        				
+        		}
+        	}
+        }
     }
 
 
-    private void checkMatch(AstNode node,TypeMember c, TypeMember n) {
-        if (c.getVisibility() != n.getVisibility()){
-            throw new lense.compiler.CompilationError(node, "Native implementation visibility does not match for member '" + c.getName() + "'(found " + n.getVisibility() + ", expected " + c.getVisibility() + ")");
+    private void checkMatch(AstNode node,TypeMember declaredMember, TypeMember nativeMember) {
+        if (declaredMember.getVisibility() != nativeMember.getVisibility()){
+            throw new lense.compiler.CompilationError(node, "Native implementation visibility does not match for member '" + declaredMember.getName() + "'(found " + nativeMember.getVisibility() + ", expected " + declaredMember.getVisibility() + ")");
         }
         
         // allow matching abstractness
         // allow for the native to be abstract if the source is not
         // NOT allow for the native to be NOT abstract if the source is 
         
-        if ( c.getDeclaringType().getKind() != LenseUnitKind.Interface && c.isAbstract() && !n.isAbstract()){
-            throw new lense.compiler.CompilationError(node, "Native implementation of an abstract method must be abstract also'" + c.getName() + "'(found " + n.isAbstract() + ", expected " + c.isAbstract() + ")");
+        if ( declaredMember.getDeclaringType().getKind() != LenseUnitKind.Interface && declaredMember.isAbstract() && !nativeMember.isAbstract()){
+            throw new lense.compiler.CompilationError(node, "Native implementation of an abstract method must also be abstract '" + declaredMember.getName() + "'(found " + nativeMember.isAbstract() + ", expected " + declaredMember.isAbstract() + ")");
         } 
     }
 

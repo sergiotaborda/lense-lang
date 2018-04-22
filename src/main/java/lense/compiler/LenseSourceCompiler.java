@@ -35,8 +35,8 @@ public class LenseSourceCompiler extends AstCompiler {
 			
 		};
 		return super.parse(unitSet)
-				.passBy(new NameResolutionPhase(repo, resolver, this.getListener()))
-				.passBy(new SemanticAnalysisPhase(this.getListener()))
+				.passBy(new NameResolutionPhase(resolver, this.getListener()))
+				.passBy(new SemanticAnalysisPhase(repo,this.getListener()))
 				//.passBy(new IntermediatyRepresentationPhase())
 				;
 	}

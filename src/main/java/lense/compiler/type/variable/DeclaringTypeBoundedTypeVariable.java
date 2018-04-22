@@ -3,8 +3,6 @@
  */
 package lense.compiler.type.variable;
 
-import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 

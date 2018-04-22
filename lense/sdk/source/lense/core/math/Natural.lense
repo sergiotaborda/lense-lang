@@ -5,6 +5,7 @@ import lense.core.math.Integer;
 import lense.core.math.Rational;
 import lense.core.math.Comparable;
 import lense.core.collections.Progression;
+import lense.core.lang.String;
 
 public native class Natural extends Whole implements Progressable<Natural> , Comparable<Natural>{
 

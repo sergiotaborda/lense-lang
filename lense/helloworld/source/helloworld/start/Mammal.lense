@@ -1,0 +1,12 @@
+
+import helloworld.start.Animal;
+
+public class Mammal extends Animal{
+
+	//public notOverridable() {} // error
+	public override default overridable() {}
+	public override overridableOnce() {}
+
+	public abstractMethod() {}
+
+}

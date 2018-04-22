@@ -190,6 +190,12 @@ public class SemanticContext {
 		
 	}
 
+	
+	public SemanticContext withRepository(UpdatableTypeRepository resolver) {
+		this.resolver = resolver;
+		return this;
+	}
+
 
 
 

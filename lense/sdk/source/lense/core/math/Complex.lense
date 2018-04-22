@@ -21,15 +21,11 @@ public class Complex extends Number {
 		return new Complex(new Real.zero(), img.real());
 	}
 
-	public plus( other : Complex) : Complex {
-		return new Complex(this.real.plus(other.real), this.imaginary.plus(other.imaginary));
-	}
+	public plus( other : Complex) => new Complex(this.real.plus(other.real), this.imaginary.plus(other.imaginary));
 
-	public minus( other : Complex) : Complex {
-		return new Complex(this.real. minus(other.real), this.imaginary. minus(other.imaginary));
-	}
+	public minus( other : Complex) => new Complex(this.real. minus(other.real), this.imaginary. minus(other.imaginary));
 
-	public  multiply( other : Complex) : Complex {
+	public  multiply( other : Complex) {
 		return new Complex(
 				this.real.multiply(other.real).minus(this.imaginary.multiply(other.imaginary)) ,
 				this.real.multiply(other.imaginary).plus(this.imaginary.multiply(other.real))
@@ -44,35 +40,19 @@ public class Complex extends Number {
 		return this.multiply(denominator.conjugate()).divide(magnitude);
 	}
 	
-	public divide( denominator: Real ) : Complex {
-		return new Complex(this.real.divide(denominator), this.imaginary.divide(denominator));
-	}
+	public divide( denominator: Real ) => new Complex(this.real.divide(denominator), this.imaginary.divide(denominator));
 
-	public conjugate() : Complex {
-		return new Complex(this.real, -this.imaginary);
-	}
+	public conjugate() =>  new Complex(this.real, -this.imaginary);
 	
-	public isZero() : Boolean {
-		return real == 0 && imaginary == 0;
-	}
-	
-	public abs() : Real {
-		return real.multiply(real).plus(this.imaginary.multiply(this.imaginary));
-	}
-	
-	public equalsTo( other : Any) : Boolean {
-		if (other is Complex){
-			return this.real.equalsTo(other.real) && this.imaginary.equalsTo(other.imaginary);
-		}
-		return false;
-	}
-	
+	public isZero() => real == 0 && imaginary == 0;
 
-	public hashValue() : HashValue {
-		return this.real.hashValue().concat(this.imaginary.hashValue()); 
-	} 
+	public abs() => real.multiply(real).plus(this.imaginary.multiply(this.imaginary));
 
-	public  asString() : String {
+	public override equalsTo( other : Any) =>  other is Complex && this.real.equalsTo(other.real) && this.imaginary.equalsTo(other.imaginary);
+
+	public override hashValue() => this.real.hashValue().concat(this.imaginary.hashValue());
+
+	public override asString() : String {
 	    var sign : String = "+";
 	    if (imaginary.signum() < 0){
 	    	sign = " - ";

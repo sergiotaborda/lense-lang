@@ -1,6 +1,9 @@
 
 import lense.core.lang.Void;
+import lense.core.lang.Some;
+import lense.core.lang.String;
 import lense.core.lang.Boolean;
+import lense.core.collections.IllegalIndexException;
 import lense.core.math.Natural;
 import lense.core.collections.ResizableSequence;
 import lense.core.collections.Sequence;
@@ -126,17 +129,7 @@ public  class List<T> implements ResizableSequence<T> {
 		return array.containsAll(other);
 	}
 
-	public equalsTo( other: Any) : Boolean {
-		// TODO verify this method should not be necessary
-		return false;
-	}
-
-	public hashValue() : HashValue {
-		// TODO verify this method should not be necessary
-		return new HashValue();
-	}
-
-	public asString(){
+	public override asString(){
 		var s : String = "[";
 		 
 		for (i in 0 ..< length ){

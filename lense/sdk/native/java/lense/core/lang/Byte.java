@@ -12,7 +12,7 @@ public class Byte extends Base implements Binary{
 		// ignoring other bit is equivalent to a % 256 operation
 		int value = 0;
 		for (int i =0; i < 8 ; i ++){
-			value += Math.pow(2, i) * (n.getBitAt(Natural.valueOfNative(i)) ? 1 :  0);
+			value += Math.pow(2, i) * (n.bitAt(Natural.valueOfNative(i)) ? 1 :  0);
 		}
 		return new Byte(value);
 	}
@@ -35,7 +35,7 @@ public class Byte extends Base implements Binary{
 	private int value; // positive number 0000_0000_0000_0000_0000_0000_XXXX_XXXX
 	
 	@Override
-	public Natural getSize() {
+	public Natural bitsCount() {
 		return Natural.valueOfNative(8);
 	}
 
@@ -55,7 +55,7 @@ public class Byte extends Base implements Binary{
 	}
 
 	@Override
-	public boolean getBitAt(Natural index) {
+	public boolean bitAt(Natural index) {
 		return rightShiftBy(index).lowerBit();
 	}
 	
@@ -81,19 +81,17 @@ public class Byte extends Base implements Binary{
 	}
 
     @Override
-    public Byte xor(ExclusiveDijunctable other) {
-        // TODO Auto-generated method stub
-        return null;
+    public Byte xor(Any other) { // other is Binary
+       throw new UnsupportedOperationException("Not implement yet");
     }
 
     @Override
-    public Byte or(Dijunctable other) {
-        // TODO Auto-generated method stub
-        return null;
+    public Byte or(Any other) {
+    	   throw new UnsupportedOperationException("Not implement yet");
     }
 
     @Override
-    public Byte and(Injunctable other) {
+    public Byte and(Any other) {
         // TODO Auto-generated method stub
         return null;
     }

@@ -11,6 +11,8 @@ import compiler.trees.TreeTransverser;
 import lense.compiler.CompilationError;
 import lense.compiler.ast.ClassTypeNode;
 import lense.compiler.ast.UnitTypes;
+import lense.compiler.context.SemanticContext;
+import lense.compiler.repository.UpdatableTypeRepository;
 
 /**
  * 
@@ -19,9 +21,11 @@ public class SemanticAnalysisPhase implements CompilerPhase {
 
 
 	private CompilerListener listener;
+	private UpdatableTypeRepository typeRepository;
 
-	public SemanticAnalysisPhase(CompilerListener listener){
+	public SemanticAnalysisPhase(UpdatableTypeRepository typeRepository, CompilerListener listener){
 		this.listener = listener;
+		this.typeRepository = typeRepository;
 	}
 	
 	/**
@@ -41,13 +45,19 @@ public class SemanticAnalysisPhase implements CompilerPhase {
 		}
 		for (ClassTypeNode ct : types.getTypes()){
 			// cannot share semantic context among classes
-			try {
-				TreeTransverser.transverse(ct,new SemanticVisitor(ct.getSemanticContext()));
-				TreeTransverser.transverse(ct,new EnsureNotFundamentalTypesVisitor(ct.getSemanticContext()));
-			} catch (CompilationError e){
-				listener.error(new CompilerMessage(e.getMessage()));
-				return new CompilationResult(e);
-			}
+			if (!ct.isNative()) {
+				
+				// attach the repository with loaded types
+				SemanticContext ctx = ct.getSemanticContext().withRepository(typeRepository);
+				
+				try {
+					TreeTransverser.transverse(ct,new SemanticVisitor(ctx));
+					TreeTransverser.transverse(ct,new EnsureNotFundamentalTypesVisitor(ctx));
+				} catch (CompilationError e){
+					listener.error(new CompilerMessage(e.getMessage()));
+					return new CompilationResult(e);
+				}
+			} 
 		}
 		return result;
 	}

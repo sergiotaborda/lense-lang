@@ -18,6 +18,10 @@ public class ConstructorDeclarationNode extends InvocableDeclarionNode implement
 	private boolean isImplicit = false;
     private ConstructorExtentionNode constructorExtentionNode;
 
+    
+    public ConstructorDeclarationNode () {}
+    
+    
 	public TypeNode getReturnType() {
 		return returnType;
 	}

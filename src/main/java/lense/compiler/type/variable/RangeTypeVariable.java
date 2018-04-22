@@ -8,6 +8,7 @@ import java.util.Optional;
 import java.util.function.Function;
 
 import lense.compiler.type.TypeDefinition;
+import lense.compiler.typesystem.LenseTypeSystem;
 import lense.compiler.typesystem.Variance;
 
 /**
@@ -138,5 +139,7 @@ public class RangeTypeVariable implements TypeVariable {
 		// TODO Auto-generated method stub
 		return false;
 	}
+
+
 
 }

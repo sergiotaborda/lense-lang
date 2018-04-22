@@ -3,6 +3,8 @@ import lense.core.math.Number;
 
 public native abstract class Whole extends Number implements Comparable<Whole> {
 
+	public native abstract isOne() : Boolean;
+
 	public native abstract plus( n : Imaginary) : Complex;
 	public native abstract minus( n : Imaginary) : Complex;
 	public native abstract multiply( n : Imaginary) : Imaginary;

@@ -46,6 +46,10 @@ public class MethodAnnotVisitor extends MethodVisitor{
             	builder.returnSignature = ((String)value);
             } else if (name.equals("paramsSignature")){
             	builder.paramsSignature = ((String)value);
+            } else if (name.equals("overloaded")){
+            	builder.overloaded = ((Boolean)value).booleanValue();
+            } else if (name.equals("declaringType")){
+            	builder.declaringType = ((String)value);
             }
 
         }

@@ -4,8 +4,13 @@ import lense.compiler.phases.ReificationVisitor;
 
 public class ReceiveReifiedTypesNodes extends FormalParameterNode  {
 
+	private static final ReceiveReifiedTypesNodes ME = new ReceiveReifiedTypesNodes();
 	
-	public ReceiveReifiedTypesNodes() {
+	public static ReceiveReifiedTypesNodes getInstance() {
+		return ME;
+	}
+	
+	private ReceiveReifiedTypesNodes() {
 		super(ReificationVisitor.REIFICATION_INFO);
 
 		setTypeNode(new TypeNode("lense.core.lang.reflection.ReifiedArguments"));

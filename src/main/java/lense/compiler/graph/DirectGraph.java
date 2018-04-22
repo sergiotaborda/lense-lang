@@ -257,13 +257,13 @@ public class DirectGraph<E,V> implements Graph<E,V>{
 
 			for (Vertex<V, E> v: all ){
 				for (Edge<V, E> e : v.getOutjacentEdges()){
-					manager.info(e.getTargetVertex()).scratch++;
+					manager.info(e.getTargetVertex()).incrementScratch();
 				}
 			}
 
 			// enqueue those with ingree zero
 			for (Vertex<V, E> v : all){
-				if (manager.info(v).scratch == 0){
+				if (manager.info(v).hasZeroScratch()){
 					q.add(v);
 				}
 			}
@@ -290,7 +290,8 @@ public class DirectGraph<E,V> implements Graph<E,V>{
 
 						VertexInfo infoW = manager.info(w);
 
-						if ( --infoW.scratch == 0 ) {
+						infoW.decrementScratch();
+						if ( infoW.hasZeroScratch() ) {
 							q.add(w);
 						}
 
@@ -374,13 +375,13 @@ public class DirectGraph<E,V> implements Graph<E,V>{
 				
 				for (Vertex<V, E> v: toVisit ){
 					for (Edge<V, E> e : v.getOutjacentEdges()){
-						manager.info(e.getTargetVertex()).scratch++;
+						manager.info(e.getTargetVertex()).incrementScratch();
 					}
 				}
 
 				// enqueue those with ingree zero
 				for (Vertex<V, E> v : toVisit){
-					if (manager.info(v).scratch == 0){
+					if (manager.info(v).hasZeroScratch()){
 						q.add(v);
 					}
 				}
@@ -411,7 +412,8 @@ public class DirectGraph<E,V> implements Graph<E,V>{
 
 							VertexInfo infoW = manager.info(w);
 
-							if ( --infoW.scratch == 0 ) {
+							infoW.decrementScratch();
+							if (infoW.hasZeroScratch()) {
 								q.add(w);
 							}
 
@@ -455,13 +457,13 @@ public class DirectGraph<E,V> implements Graph<E,V>{
 
 			for (Vertex<V, E> v: all ){
 				for (Edge<V, E> e : v.getOutjacentEdges()){
-					manager.info(e.getTargetVertex()).scratch++;
+					manager.info(e.getTargetVertex()).incrementScratch();
 				}
 			}
 
 			// enqueue those with ingree zero
 			for (Vertex<V, E> v : all){
-				if (manager.info(v).scratch == 0){
+				if (manager.info(v).hasZeroScratch()){
 					q.add(v);
 				}
 			}
@@ -495,7 +497,8 @@ public class DirectGraph<E,V> implements Graph<E,V>{
 
 						VertexInfo infoW = manager.info(w);
 
-						if ( --infoW.scratch == 0 ) {
+						infoW.decrementScratch();
+						if ( infoW.hasZeroScratch() ) {
 							q.add(w);
 						}
 

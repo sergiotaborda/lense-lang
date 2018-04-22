@@ -141,7 +141,15 @@ public class SemanticScope {
 	}
 
 	public TypeDefinition getCurrentType() {
-		return searchVariable("this").getTypeVariable().getTypeDefinition();
+		 VariableInfo variable = searchVariable("this");
+		 if (variable == null) {
+			 return null;
+		 }
+		 TypeVariable type = variable.getTypeVariable();
+		 if (type == null) {
+			 return null;
+		 }
+		 return type.getTypeDefinition();
 	}
 
 

@@ -76,8 +76,13 @@ public class LoadedClassBuilder {
 
 	public LenseTypeDefinition build() {
 
-		LoadedLenseTypeDefinition def = (LoadedLenseTypeDefinition)this.resolveTypByNameAndKind(name.replace('/', '.'), kind);
+		LenseTypeDefinition rdef = this.resolveTypByNameAndKind(name.replace('/', '.'), kind);
 
+		if (!(rdef instanceof LoadedLenseTypeDefinition)) {
+			return rdef;
+		}
+		LoadedLenseTypeDefinition def = (LoadedLenseTypeDefinition)rdef;
+		
 		def.setKind(kind);
 		def.setPlataformSpecific(plataformSpecific);
 		def.setNative(isNative);
@@ -102,11 +107,13 @@ public class LoadedClassBuilder {
 		
 		String[] parts = this.plataformSpecific ? new String[] {"","",""} : this.signature.split(":");
 
-		if (parts.length  == 1) {
+		if (parts.length == 0) {
+			parts = new String[] { "", "", "" };
+		} else if (parts.length  == 1) {
 			parts = new String[] { parts[0], "", "" };
 		} else if (parts.length  == 2) {
 			parts = new String[] { parts[0], parts[1], "" };
-		}
+		} 
 
 		Map<String, Integer> maps = new HashMap<>();
 
@@ -166,7 +173,10 @@ public class LoadedClassBuilder {
 //		            this.genericParametersMapping = new HashMap<>(((LenseTypeDefinition)superType).genericParametersMapping);
 //		        }
 			}
-		} 
+		} else if (!def.getName().equals("lense.core.lang.Any")){
+			TypeDefinition sdef = this.resolveTypeByNameWithVariables("lense.core.lang.Any", new ArrayList<>(0));
+			def.setSuperTypeDefinition(sdef);
+		}
 
 		String[] g = parts[2].contains("&") ? parts[2].split("&") : new String[] { parts[2] };
 		for (String ss : g) {
@@ -206,13 +216,13 @@ public class LoadedClassBuilder {
 		}
 		
 		for(MethodBuilder b : this.methods) {
-			b.buildAndAdd(def);
+			b.buildAndAdd(def); // tODO method must correlate to generics 
 		}
 		
 		return def;
 	}
 
-	LenseTypeDefinition resolveTypByNameWithVariables(String name, List<TypeVariable> typeVar) {
+	LenseTypeDefinition resolveTypeByNameWithVariables(String name, List<TypeVariable> typeVar) {
 		
 		LenseTypeDefinition type = resolveTypByNameAndKind(name, null);
 		
@@ -250,8 +260,7 @@ public class LoadedClassBuilder {
 			return type;
 
 		} else if (map.size() == 1) {
-			return (LoadedLenseTypeDefinition) map.values().iterator().next();
-			
+			return (LenseTypeDefinition) map.values().iterator().next();
 			
 		} else {
 			throw new IllegalStateException("More than one type found");
@@ -268,20 +277,20 @@ public class LoadedClassBuilder {
 		
 		int pos = ss.indexOf('<');
 		String interfaceType = ss;
-		String n = "";
+		String genericPart = "";
 		if (pos >= 0) {
 			interfaceType = ss.substring(0, pos);
-		    n  = ss.substring(pos + 1, ss.lastIndexOf('>'));
+			genericPart  = ss.substring(pos + 1, ss.lastIndexOf('>'));
 		}
 		
 		LenseTypeDefinition type = resolveTypByNameAndKind(interfaceType, LenseUnitKind.Interface);
 
-		if (n.contains("<")) {
+		if (genericPart.contains("<")) {
 
-			return parseInterfaceSignature(n, maps, parent).map(generic -> LenseTypeSystem.specify(type, generic));
+			return parseInterfaceSignature(genericPart, maps, parent).map(generic -> LenseTypeSystem.specify(type, generic));
 
-		} else if (n.length() > 0){
-			String[] g = n.contains(",") ? n.split(",") : new String[] { n };
+		} else if (genericPart.length() > 0){
+			String[] g = genericPart.contains(",") ? genericPart.split(",") : new String[] { genericPart };
 			int i = 0;
 
 			if (type instanceof LoadedLenseTypeDefinition) {
