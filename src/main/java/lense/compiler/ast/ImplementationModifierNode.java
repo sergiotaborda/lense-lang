@@ -11,6 +11,9 @@ public class ImplementationModifierNode extends LenseAstNode {
 	private boolean isAbstract;
 	private boolean isNative;
 	private boolean isSealed;
+	private boolean isFinal;
+	private boolean isDefault;
+	private boolean isOverride;
 	
 	/**
 	 * Constructor.
@@ -20,6 +23,19 @@ public class ImplementationModifierNode extends LenseAstNode {
 
 	}
 
+	public ImplementationModifierNode merge(ImplementationModifierNode other) {
+		ImplementationModifierNode n = new ImplementationModifierNode();
+		
+		n.isAbstract = this.isAbstract || other.isAbstract;
+		n.isNative = this.isNative || other.isNative;
+		n.isSealed = this.isSealed || other.isSealed;
+		n.isFinal = this.isFinal || other.isFinal;
+		n.isDefault = this.isDefault || other.isDefault;
+		n.isOverride = this.isOverride || other.isOverride;
+		
+		return n;
+	}
+	
 	public boolean isAbstract(){
 		return isAbstract;
 	}
@@ -44,14 +60,28 @@ public class ImplementationModifierNode extends LenseAstNode {
 		this.isSealed = isSealed;
 	}
 
-	public ImplementationModifierNode and(ImplementationModifierNode other) {
-		ImplementationModifierNode n = new ImplementationModifierNode();
-		
-		n.isAbstract = this.isAbstract || other.isAbstract;
-		n.isNative = this.isNative || other.isNative;
-		n.isSealed = this.isSealed || other .isSealed;
-		
-		return n;
+	public boolean isFinal() {
+		return isFinal;
+	}
+
+	public void setFinal(boolean isFinal) {
+		this.isFinal = isFinal;
+	}
+
+	public boolean isDefault() {
+		return isDefault;
+	}
+
+	public void setDefault(boolean isDefault) {
+		this.isDefault = isDefault;
+	}
+
+	public boolean isOverride() {
+		return isOverride;
+	}
+
+	public void setOverride(boolean isOverride) {
+		this.isOverride = isOverride;
 	}
 
 

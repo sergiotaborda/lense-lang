@@ -10,16 +10,15 @@ public class KeyValuePair<K,V> {
 
 	public constructor ( public key : K,  public value: V);
 
+	public override hashValue() : HashValue {
+		return key.hashValue().concat(value.hashValue()); // TODO allow ++ operator on HashValue
+	} 
 	
-	public hashValue() : HashValue {
-		return key.hashValue().concat(value.hashValue());
-	}
-	
-	public equalsTo(other : Any) : Boolean {
+	public override equalsTo(other : Any) : Boolean {
 		return other is KeyValuePair && other.key == this.key && other.value == this.value;
-	}
+	} 
 	
-	public asString() : String {
-		return  this.key.asString() ++ " " ++ this.value.asString();
+	public override asString() : String {
+		return this.key.asString() ++ " " ++ this.value.asString();
 	}
 }

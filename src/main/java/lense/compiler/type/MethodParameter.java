@@ -108,5 +108,12 @@ public class MethodParameter implements MethodMember {
 		return p;
 	}
 
+	@Override
+	public boolean typeEquals(CallableMemberMember<Method> other) {
+		return other instanceof MethodParameter 
+				&& this.type.equals(((MethodParameter)other).type);
+
+	}
+
 
 }

@@ -13,7 +13,7 @@ import lense.compiler.ast.ClassTypeNode;
 import lense.compiler.ast.UnitTypes;
 import lense.compiler.repository.UpdatableTypeRepository;
 
-public class JavalizePhase implements CompilerPhase {
+public final class JavalizePhase implements CompilerPhase {
 
 	
 	private CompilerListener listener;
@@ -38,12 +38,14 @@ public class JavalizePhase implements CompilerPhase {
 			return new CompilationResult(new RuntimeException("Unexpected Error. Result as no node."));
 		}
 		for (ClassTypeNode ct : types.getTypes()){
-			// cannot share semantic context among classes
-			try {
-				TreeTransverser.transverse(ct,new JavalizeVisitor(ct.getSemanticContext(), this.nativeTypes, typeContainer));
-			} catch (CompilationError e){
-				listener.error(new CompilerMessage(e.getMessage()));
-				return new CompilationResult(e);
+			if (!ct.isNative()) {
+				// cannot share semantic context among classes
+				try {
+					TreeTransverser.transverse(ct,new JavalizeVisitor(ct.getSemanticContext(), this.nativeTypes, typeContainer));
+				} catch (CompilationError e){
+					listener.error(new CompilerMessage(e.getMessage()));
+					return new CompilationResult(e);
+				}
 			}
 		}
 		return result;

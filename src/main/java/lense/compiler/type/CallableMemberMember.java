@@ -9,6 +9,8 @@ public interface CallableMemberMember<M extends CallableMember<?>> {
 	public void  setDeclaringMember(M method);
 	public PositionalVariance getPositionVariance();
 	public CallableMemberMember<M> attachTo(M parent);
+	
+	public boolean typeEquals(CallableMemberMember<M> other);
 
 
 }

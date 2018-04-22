@@ -88,8 +88,9 @@ public class Import {
 		return isMemberCalled;
 	}
 
-	public void setMemberCalled(boolean isMemberCalled) {
+	public Import setMemberCalled(boolean isMemberCalled) {
 		this.isMemberCalled = isMemberCalled;
+		return this;
 	}
 	
 	public void setAlias(String alias) {

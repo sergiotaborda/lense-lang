@@ -35,10 +35,7 @@ public abstract class AbstractScopedVisitor extends AbstractLenseVisitor  {
 		if (t.getTypeParameter() != null){
 			return t.getTypeParameter();
 		}
-
-		SemanticContext semanticContext = this.getSemanticContext();
-
-
+		
 		Optional<TypeVariable> namedType = this.getSemanticContext().resolveTypeForName(t.getName(), t.getTypeParametersCount());
 
 		TypeVariable type;

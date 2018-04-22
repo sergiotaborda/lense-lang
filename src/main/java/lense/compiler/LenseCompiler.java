@@ -28,19 +28,18 @@ import compiler.CompilerMessage;
 import compiler.FolderCompilationUnionSet;
 import compiler.ListCompilationUnitSet;
 import compiler.StringCompilationUnit;
-import compiler.syntax.AstNode;
 import compiler.trees.TreeTransverser;
+import lense.compiler.asm.ByteCodeTypeDefinitionReader;
 import lense.compiler.ast.ClassTypeNode;
-import lense.compiler.ast.GenericTypeParameterNode;
 import lense.compiler.ast.ModuleNode;
 import lense.compiler.ast.QualifiedNameNode;
-import lense.compiler.ast.TypeNode;
 import lense.compiler.ast.UnitTypes;
 import lense.compiler.dependency.DependencyGraph;
 import lense.compiler.dependency.DependencyNode;
 import lense.compiler.dependency.DependencyRelation;
 import lense.compiler.dependency.DependencyRelationship;
 import lense.compiler.graph.EdgeTraversalEvent;
+import lense.compiler.graph.Graph.Vertex;
 import lense.compiler.graph.GraphTransversor;
 import lense.compiler.graph.GraphTranverseListener;
 import lense.compiler.graph.TopologicOrderTransversor;
@@ -57,9 +56,7 @@ import lense.compiler.repository.ClasspathRepository;
 import lense.compiler.repository.ModuleCompilationScopeTypeRepository;
 import lense.compiler.repository.UpdatableTypeRepository;
 import lense.compiler.type.LenseTypeDefinition;
-import lense.compiler.type.TypeNotFoundException;
-import lense.compiler.type.variable.RangeTypeVariable;
-import lense.compiler.type.variable.TypeVariable;
+import lense.compiler.type.TypeDefinition;
 import lense.compiler.typesystem.LenseTypeSystem;
 import lense.compiler.typesystem.TypeSearchParameters;
 
@@ -155,7 +152,7 @@ public abstract class LenseCompiler {
 
     protected abstract void createModuleArchive(FileLocations locations, ModuleNode module, File base, Set<String> applications) throws IOException, FileNotFoundException;
     protected abstract void initCorePhase(CompositePhase corePhase, Map<String, File> nativeTypes, UpdatableTypeRepository typeContainer);
-    protected abstract void compileNative(FileLocations fileLocations, Map<String, File> nativeTypes, UpdatableTypeRepository typeContainer) throws IOException;
+    protected abstract void collectNative(FileLocations fileLocations, Map<String, File> nativeTypes) throws IOException;
 
     /**
      * @param moduleproject
@@ -163,26 +160,25 @@ public abstract class LenseCompiler {
      */
     public void compileModuleFromDirectory(File moduleproject){
 
-
+   
         Map<String, File> nativeTypes = new HashMap<>();
 
-        ConstructorDesugarPhase constructorDesugar = new ConstructorDesugarPhase(listener);
-        SemanticAnalysisPhase semantic = new SemanticAnalysisPhase(listener);
-
-        CompositePhase corePhase = new CompositePhase().add(semantic);
+   
 
 
         listener.start();
         try {
+        	
+         	AstCompiler parser = new AstCompiler(new LenseLanguage());
+
 
             FileLocations locations = this.defineFileLocations(moduleproject);
 
            
             // compile lense files
+            
+            // first, compile the module information
             CompilationUnitSet moduleUnit = new FolderCompilationUnionSet(locations.getSourceFolder() , fileName -> fileName.equals("module.lense"));
-
-            AstCompiler parser = new AstCompiler(new LenseLanguage());
-
 
             final List<CompiledUnit> modulesList = parser.parse(moduleUnit).sendToList();
 
@@ -212,20 +208,18 @@ public abstract class LenseCompiler {
             // Define the repository being mounted
             ModuleCompilationScopeTypeRepository currentModuleRepository =  new ModuleCompilationScopeTypeRepository();
 
-       
-         
+
+            // import dependent modules from local repository
             for(ModuleDescription requiredModule : moduleDescriptor.getRequiredModules()){
 
-                // import dependent modules from local repository
-                // is they are not present , abort
+                
                 Optional<ModuleTypeContents> otherModule = globalRepository.resolveModuleByNameAndVersion(requiredModule.getModuleIdentifier());
 
-
-                if (!otherModule.isPresent()){
-                    throw new CompilationError("Cannot import module " + requiredModule.getName() + " version " + requiredModule.getVersion() + ". Is it in the local repository?");
-                } else {
-                    currentModuleRepository.addRequiredModule(otherModule.get());
-                }
+             // is they are not present , abort
+                currentModuleRepository.addRequiredModule(otherModule.orElseThrow(
+                		() -> new CompilationError("Cannot import module " + requiredModule.getName() + " version " + requiredModule.getVersion() + ". Is it in the local repository?"))
+                );
+                
                 
             }
 
@@ -237,88 +231,102 @@ public abstract class LenseCompiler {
             
             // first compile target language native files
 
-            compileNative(locations, nativeTypes, currentModuleRepository);
+            collectNative(locations, nativeTypes);
    
+            SemanticAnalysisPhase semantic = new SemanticAnalysisPhase(currentModuleRepository, listener);
+
+            CompositePhase corePhase = new CompositePhase().add(semantic);
+
             initCorePhase (corePhase, nativeTypes, currentModuleRepository);
 
+            // create dependency graph
             DependencyGraph graph = new DependencyGraph();
 
+            // the root node is the module itself
             DependencyNode moduleNode = new DependencyNode(modulesList.get(0), module.getName());
 
-            Set<QualifiedNameNode> packages = new HashSet<>(); 
 
+
+            // load source files
             CompilationUnitSet unitSet = new FolderCompilationUnionSet(locations.getSourceFolder() , name -> !name.equals("module.lense") && name.endsWith(".lense"));
 
-
+            Set<QualifiedNameNode> packages = new HashSet<>(); 
             Set<String> foundNames = new HashSet<>();
             Set<String> referencedNames = new HashSet<>();
-
             Set<String> applications = new HashSet<>();
 
+            
+      		ByteCodeTypeDefinitionReader reader = new ByteCodeTypeDefinitionReader(currentModuleRepository);
+      		
+      		if (selfCompilation) {
+                currentModuleRepository.registerType(LenseTypeSystem.Any(), 0);
+                currentModuleRepository.registerType(LenseTypeSystem.Nothing(), 0);
+                currentModuleRepository.registerType(LenseTypeSystem.Void(), 0);
+      		}
+
+
+      		List<TypeDefinition> nativeTypesDefs = new ArrayList<TypeDefinition>(nativeTypes.size());
+      		for( File target : nativeTypes.values()) {
+          		TypeDefinition type = reader.readNative(target);
+          		currentModuleRepository.registerType(type, type.getGenericParameters().size());
+          		
+          		nativeTypesDefs.add(type);
+      		}
+            
+            // init foundnames with nothing because is a non denotable
+            foundNames.add("lense.core.lang.Nothing");
+            
             CompositePhase prePhase = new CompositePhase()
-                    .add(constructorDesugar)
-                    .add(new NameResolutionPhase(currentModuleRepository, new PathPackageResolver(locations.getSourceFolder().toPath()), listener));
+                    .add(new ConstructorDesugarPhase(listener)) // TODO must be here ?
+                    .add(new NameResolutionPhase(new PathPackageResolver(locations.getSourceFolder().toPath()), listener));
 
             trace("Creating dependency graph");
             
+            
+            String ref = "lense.core.lang.reflection.ReifiedArguments";
+            //DependencyNode  reifiedArgumentsDependencyNode = new DependencyNode(null /* unkown at this point*/, ref);
+            
             parser.parse(unitSet)
             .passBy(prePhase)
-            .peek(node -> {
+            .peek(compilationUnit -> {
 
-            	 trace("Analysing unit file " + node);
+            	 trace("Analysing unit file " + compilationUnit);
             	  
                 //String packageName = sources.getAbsoluteFile().toPath().relativize(node.getUnit().getOrigin()).toString();
                 //int pos = packageName.lastIndexOf('\\');
 
                 //packageName = packageName.substring(0, pos).replace('\\', '.');
-                UnitTypes t = (UnitTypes) node.getAstRootNode();
+                UnitTypes t = (UnitTypes) compilationUnit.getAstRootNode();
 
 
                 for(ClassTypeNode type : t.getTypes()){
 
-                	 trace("Analysing type " + type.getName());
+                	trace("Analysing type " + type.getName());
                	  
-
                     foundNames.add(type.getName());
 
                     // the module depends on every type inside
+                    
+                    // check if the type already exists in the graph
                     Optional<DependencyNode> it = graph.findDependencyNode(type.getName());
-                    DependencyNode dn;
+                    DependencyNode dependency;
+                    
                     if (it.isPresent()){
-                        dn = it.get();
-                        dn.setUnit(node);
-                    }else {
-                        dn = new DependencyNode(node, type.getName());
-                    }
-
-                    List<TypeVariable> typeParameters = new ArrayList<>();
-
-                    if (type.getGenerics() != null){
-
-                        for(AstNode n : type.getGenerics().getChildren()){
-                            GenericTypeParameterNode gnode = ((GenericTypeParameterNode)n);
-                            TypeNode tn = gnode.getTypeNode();
-                            typeParameters.add( new RangeTypeVariable(tn.getName(), gnode.getVariance(), LenseTypeSystem.Any() ,  LenseTypeSystem.Nothing() ));
+                        dependency = it.get();
+                        dependency.setUnit(compilationUnit);
+                        
+                        if (type.getName().equals(ref)) {
+                        	dependency.setUnit(compilationUnit);
                         }
-
+                    } else {
+                        dependency = new DependencyNode(compilationUnit, type.getName());
                     }
 
-                    LenseTypeDefinition ltype = null;
-
-                    try {
-                        ltype = (LenseTypeDefinition)type.getSemanticContext().typeForName(type.getScanPosition(), type.getName(), type.getGenericParametersCount());
-
-                    } catch (TypeNotFoundException e) {
-                        ltype = new LenseTypeDefinition(type.getName(), type.getKind(), null,typeParameters);
-                        ltype = (LenseTypeDefinition) currentModuleRepository.registerType(ltype, ltype.getGenericParameters().size());
-                    }
-
-
-
-                    graph.addEdge(new DependencyRelation(DependencyRelationship.Module), dn, moduleNode);
+                    graph.addEdge(new DependencyRelation(DependencyRelationship.Module), dependency, moduleNode);
 
 
                     packages.add(new QualifiedNameNode(type.getSemanticContext().getCurrentPackageName()));
+                    
                     for(Import imp : type.imports()){
                         String name = imp.getTypeName().getName();
                         it = graph.findDependencyNode(name);
@@ -330,23 +338,27 @@ public abstract class LenseCompiler {
                         }
 
                         if (imp.isMemberCalled()){
-                            trace(dn.getName() + " strongly depends on " + imported.getName());
+                            trace(dependency.getName() + " strongly depends on " + imported.getName());
                             if (imported.getName().equals("lense.core.system.ConsoleApplication")){
-                                applications.add(dn.getName());
+                                applications.add(dependency.getName());
                             }
-                            graph.addEdge(new DependencyRelation(DependencyRelationship.Structural),  imported, dn);
-                        } else if (dn.getName().equals(imported.getName())){
-                            trace(dn.getName() + " referes by to it self ");
+                            graph.addEdge(new DependencyRelation(DependencyRelationship.Structural),  imported, dependency);
+                        } else if (dependency.getName().equals(imported.getName())){
+                            trace(dependency.getName() + " referes by to it self ");
                             continue;
                         } else {
-                            // trace(dn.getName() + " referes by name " + imported.getName());
-                            // TODO validate it exists
-                            //graph.addEdge(new DependencyRelation(DependencyRelationship.Name),  imported, dn);
+                           // trace(dependency.getName() + " referes by name " + imported.getName());
+                       
+                          // graph.addEdge(new DependencyRelation(DependencyRelationship.Name),  imported, dependency);
                         }
 
                         referencedNames.add(imported.getName());
 
                     }
+                    
+               
+                    
+                 
                 }
 
 
@@ -367,38 +379,44 @@ public abstract class LenseCompiler {
 
             trace("Compiling graph");
             
-            GraphTransversor<DependencyRelation, DependencyNode> tt = new TopologicOrderTransversor<>();
+         
             final CompilerBackEnd backend = backendFactory.create(locations);
+  
+    		GraphTransversor<DependencyRelation, DependencyNode> tt = new TopologicOrderTransversor<>();
+               
             tt.addListener(new GraphTranverseListener<DependencyNode, DependencyRelation>() {
 
                 @Override
-                public void endVertex(VertexTraversalEvent<DependencyNode, DependencyRelation> e) {
-
-                }
+                public void endVertex(VertexTraversalEvent<DependencyNode, DependencyRelation> e) {}
 
                 @Override
                 public void beginVertex(VertexTraversalEvent<DependencyNode, DependencyRelation> e) {
                     trace("Visiting : " + e.getVertex().getObject().getName());
                     CompiledUnit unit = e.getVertex().getObject().getCompiledUnit();
-                    if (unit != null){
-                        new CompilationResultSet( new CompilationResult(unit))
-                        .passBy(corePhase).sendTo( backend);
-
-                    }
+                    applyCompilation(nativeTypes, corePhase, currentModuleRepository, backend, reader, unit);
 
                     trace("Visited : " + e.getVertex().getObject().getName());
                 }
-                @Override
-                public void endEdgeTraversed(
-                        EdgeTraversalEvent<DependencyRelation, DependencyNode> e) {
 
-                }
+				
                 @Override
-                public void beginEdgeTraversed(
-                        EdgeTraversalEvent<DependencyRelation, DependencyNode> e) {
-
-                }
+                public void endEdgeTraversed(EdgeTraversalEvent<DependencyRelation, DependencyNode> e) {}
+                
+                @Override
+                public void beginEdgeTraversed( EdgeTraversalEvent<DependencyRelation, DependencyNode> e) {}
             });
+            
+           
+            // apply any first
+            Optional<Vertex<DependencyNode, DependencyRelation>> any = graph.getVertices().stream().filter(v -> v.getObject().getName().equals(LenseTypeSystem.Any().getName())).findAny();
+            
+            if (any.isPresent()) {
+                applyCompilation(nativeTypes, corePhase, currentModuleRepository, backend, reader, any.map(v -> v.getObject().getCompiledUnit()).get());
+
+                graph.removeVertex(any.get());
+            }
+
+            
             tt.transverse(graph, moduleNode);
 
             // produce package classes
@@ -414,7 +432,7 @@ public abstract class LenseCompiler {
             }
 
             parser.parse(all)
-            .passBy(new NameResolutionPhase(currentModuleRepository, new PathPackageResolver(locations.getSourceFolder().toPath()), listener))
+            .passBy(new NameResolutionPhase(new PathPackageResolver(locations.getSourceFolder().toPath()), listener))
             .passBy(corePhase)
             .sendTo(backend);
 
@@ -425,7 +443,7 @@ public abstract class LenseCompiler {
             all.add(new StringCompilationUnit(builder.toString(), locations.getSourceFolder().toPath().resolve(module.getName().replace('.', File.separatorChar)).resolve("Module$$Info.lense"))); // TODO specify package
 
             parser.parse(all)
-            .passBy(new NameResolutionPhase(currentModuleRepository, new PathPackageResolver(locations.getSourceFolder().toPath()), listener))
+            .passBy(new NameResolutionPhase(new PathPackageResolver(locations.getSourceFolder().toPath()), listener))
             .passBy(corePhase)
             .sendTo(backend);
 
@@ -444,6 +462,37 @@ public abstract class LenseCompiler {
         }
 
     }
+    
+    private void applyCompilation(Map<String, File> nativeTypes, CompositePhase corePhase,
+			ModuleCompilationScopeTypeRepository currentModuleRepository, final CompilerBackEnd backend,
+			ByteCodeTypeDefinitionReader reader, CompiledUnit unit) {
+		if (unit != null){
+        	UnitTypes types = (UnitTypes)unit.getAstRootNode();
+    		
+        	for (ClassTypeNode type : types.getTypes()) {
+        		
+        		if (type.isNative()) {
+        			
+        			File nativeTypeFile = nativeTypes.get(type.getName());
+                  
+					try {
+						TypeDefinition typeDef = reader.readNative(nativeTypeFile);
+						typeDef = currentModuleRepository.registerType(typeDef, typeDef.getGenericParameters().size());
+						
+						type.setTypeDefinition((LenseTypeDefinition)typeDef);
+
+					} catch (IOException e1) {
+						throw new RuntimeException(e1);
+					}
+           
+        			
+        		}
+        	}
+        	
+            new CompilationResultSet(new CompilationResult(unit)).passBy(corePhase).sendTo(backend);
+
+        }
+	}
 
     private void trace(String message){
         this.listener.trace(new CompilerMessage(message));
@@ -479,10 +528,10 @@ public abstract class LenseCompiler {
 
         builder.append("    return all;");
         builder.append("}\n")
-        .append(" public equalsTo( other : Any) : Boolean {\n")
+        .append(" public override equalsTo( other : Any) : Boolean {\n")
         .append("   return false;\n")
         .append("}\n")
-        .append(" public hashValue() : HashValue {\n")
+        .append(" public override hashValue() : HashValue {\n")
         .append("   return getName().hashValue();\n")
         .append("}\n");
         builder.append("}");
@@ -496,10 +545,10 @@ public abstract class LenseCompiler {
                 .append(" public getName() : String {\n")
                 .append("   return \"").append(pack).append("\" ;\n")
                 .append("}\n")
-                .append(" public equalsTo( other: Any) : Boolean {\n")
+                .append(" public override equalsTo( other: Any) : Boolean {\n")
                 .append("   return false;\n")
                 .append("}\n")
-                .append(" public hashValue() : HashValue {\n")
+                .append(" public override hashValue() : HashValue {\n")
                 .append("   return getName().hashValue();\n")
                 .append("}\n")
                 .append("}\n");

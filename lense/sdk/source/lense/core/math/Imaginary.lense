@@ -37,15 +37,15 @@ public class Imaginary extends Number implements Comparable<Imaginary> {
 
 	public multiply( other: Real) => new Imaginary(this.value * other);
 
-	public divide( other: Real ) => new Imaginary(this.value / other);
+	public divide( other: Real) => new Imaginary(this.value / other);
 	
-	public asString() => this.value.asString() ++ "i";
+	public override asString() => this.value.asString() ++ "i";
 
 	public symmetric() => new Imaginary(-this.value);
 	
 	public signum() => value.signum();
 	
-	public equalsTo( other : Any) {
+	public override equalsTo( other : Any) {
 		if (other is Imaginary){
 			return this.value.equalsTo(other.value);
 		}
@@ -54,7 +54,7 @@ public class Imaginary extends Number implements Comparable<Imaginary> {
 
 	public isZero() : Boolean => this.value.isZero();
 
-	public  hashValue() => value.hashValue();
+	public override hashValue() => value.hashValue();
 	
 	public compareWith(other : Any) {
 		if (other is Imaginary){

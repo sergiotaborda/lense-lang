@@ -5,10 +5,6 @@ import lense.core.lang.Any;
 
 public native class String implements Sequence<Character> {
 
-
-	public native asString() : String;
-	
-	
 	public native concat( other : String): String;
 	public native concat( other : Any) : String;
 } 

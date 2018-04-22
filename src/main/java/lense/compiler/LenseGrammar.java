@@ -6,6 +6,7 @@ package lense.compiler;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
@@ -739,14 +740,12 @@ public class LenseGrammar extends AbstractLenseGrammar {
 
 
                 if (nextNodeIndex < r.size()) {
-                    // implement
+                    // implements
 
-                    Optional<ImplementedInterfacesNode> implement = r.get(nextNodeIndex)
-                            .getAstNode(ImplementedInterfacesNode.class);
-
+                    Optional<ImplementedInterfacesNode> implement = scan(r, nextNodeIndex, ImplementedInterfacesNode.class);
+                    
                     if (implement.isPresent()) {
                         n.setInterfaces(implement.get());
-                        nextNodeIndex++;
                     }
                 }
 
@@ -1199,7 +1198,7 @@ public class LenseGrammar extends AbstractLenseGrammar {
                 ImplementationModifierNode node = r.get(0).getAstNode(ImplementationModifierNode.class).get();
                 ImplementationModifierNode other = r.get(1).getAstNode(ImplementationModifierNode.class).get();
 
-                p.setAstNode(node.and(other));
+                p.setAstNode(node.merge(other));
             }
 
         });
@@ -1214,6 +1213,12 @@ public class LenseGrammar extends AbstractLenseGrammar {
                 node.setNative(true);
             } else if (semanticAttribute.isPresent() && semanticAttribute.get().equals("sealed")) {
                 node.setSealed(true);
+            } else if (semanticAttribute.isPresent() && semanticAttribute.get().equals("final")) {
+                node.setFinal(true);
+            } else if (semanticAttribute.isPresent() && semanticAttribute.get().equals("default")) {
+                node.setDefault(true);
+            } else if (semanticAttribute.isPresent() && semanticAttribute.get().equals("override")) {
+                node.setOverride(true);
             }
             p.setAstNode(node);
         });
@@ -1255,7 +1260,7 @@ public class LenseGrammar extends AbstractLenseGrammar {
                 declarator.setAnnotations(modifiers.getAnnotations());
             }
 
-            declarator.setAbstract(modifiers.getImplementationModifier().isNative());
+            declarator.setAbstract(modifiers.getImplementationModifier().isAbstract());
             declarator.setNative(modifiers.getImplementationModifier().isNative());
             declarator.setVisibility(modifiers.getVisibility().getVisibility(Visibility.Private));
 
@@ -1635,13 +1640,14 @@ public class LenseGrammar extends AbstractLenseGrammar {
 
             if (modifiers.getAnnotations() != null) {
                 n.setAnnotations(modifiers.getAnnotations());
+ 
             }
-
-            n.setVisibility(modifiers.getVisibility().getVisibility(Visibility.Undefined));
-            n.setAbstract(modifiers.getImplementationModifier().isAbstract() || modifiers.getImplementationModifier().isNative());
-            n.setNative(modifiers.getImplementationModifier().isNative());
-
+            
             n.setName((String) r.get(nextNodeIndex - 2).getSemanticAttribute("lexicalValue").get());
+            
+            applyImplementationModifiers(n, modifiers);
+      
+         
             //
             //			int typeIndex = nextNodeIndex + 4;
             //			if (r.get(nextNodeIndex + 3).getSemanticAttribute("node").isPresent()) {
@@ -3131,7 +3137,40 @@ public class LenseGrammar extends AbstractLenseGrammar {
 
     }
 
-    private PropertyDeclarationNode parsePropertyDeclaration(List<Symbol> r) {
+    private <A extends AstNode> Optional<A> scan(List<Symbol> r, int nextNodeIndex,Class<A> nodeType) {
+	
+    	ListIterator<Symbol> listIterator = r.listIterator(nextNodeIndex);
+    	
+    	while (listIterator.hasNext()) {
+    		Optional<A> it = listIterator.next().getAstNode(nodeType);
+    		if (it.isPresent()) {
+    			return it;
+    		}
+    	}
+    	
+    	return Optional.empty();
+    	
+    	
+	}
+
+	private void applyImplementationModifiers(InvocableDeclarionNode n, Modifiers modifiers) {
+        
+        n.setVisibility(modifiers.getVisibility().getVisibility(Visibility.Undefined));
+        
+        ImplementationModifierNode implementationModifier = modifiers.getImplementationModifier();
+        
+		n.setAbstract(implementationModifier.isAbstract());
+        n.setNative(implementationModifier.isNative());
+        n.setOverride((implementationModifier.isOverride()));
+        n.setDefault((implementationModifier.isDefault()));
+
+        if (modifiers.getImutability() != null) {
+          n.setImutability(modifiers.getImutability().getImutability());
+        }
+
+	}
+
+	private PropertyDeclarationNode parsePropertyDeclaration(List<Symbol> r) {
 
     	Modifiers modifiers = new Modifiers();
 
@@ -3158,10 +3197,8 @@ public class LenseGrammar extends AbstractLenseGrammar {
         
         prp.setName(identifier);
         prp.setType(typeNode);
-        prp.setAbstract(modifiers.getImplementationModifier().isNative());
-        prp.setNative(modifiers.getImplementationModifier().isNative());
-        prp.setVisibility(modifiers.getVisibility().getVisibility(Visibility.Private));
-        prp.setImutability(modifiers.getImutability().getImutability());
+        
+        applyImplementationModifiers(prp, modifiers);
         
         if ( prp.getImutability() == Imutability.Imutable) {
         
@@ -3235,8 +3272,7 @@ public class LenseGrammar extends AbstractLenseGrammar {
         }
         for (AstNode a : annots.get().getChildren()) {
             AnnotationNode in = (AnnotationNode) a;
-            if (in.getName().equals("native")) {
-                n.setAbstract(true);
+            if (in.getName().equals("native")) {;
                 n.setNative(true);
             } else if (in.getName().equals("abstract")) {
                 n.setAbstract(true);
@@ -3246,7 +3282,11 @@ public class LenseGrammar extends AbstractLenseGrammar {
                 n.setVisibility(Visibility.Protected);
             } else if (in.getName().equals("private")) {
                 n.setVisibility(Visibility.Private);
-            } // TODO other , custom or error
+            } else if (in.getName().equals("default")) {
+                n.setDefault(true);
+            } else if (in.getName().equals("override")) {
+                n.setOverride(true);
+            }// TODO other , custom or error
         }
     }
 

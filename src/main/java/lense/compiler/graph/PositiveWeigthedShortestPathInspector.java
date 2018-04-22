@@ -107,11 +107,11 @@ public class PositiveWeigthedShortestPathInspector implements ShortestPathInspec
 				Vertex<V, E> v = vrec.targetVertex;
 				
 				VertexInfo infoV = manager.info(v);
-				if (infoV.scratch != 0){
+				if (!infoV.hasZeroScratch()){
 					continue; // already processed
 				}
 				
-				infoV.scratch = 1;
+				infoV.setScratch(1);
 				nodesSeen++;
 				
 				for (Edge<V, E> e : v.getOutjacentEdges() ){

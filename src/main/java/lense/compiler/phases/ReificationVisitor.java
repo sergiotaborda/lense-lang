@@ -33,9 +33,10 @@ import lense.compiler.type.variable.GenericTypeBoundToDeclaringTypeVariable;
 import lense.compiler.type.variable.RangeTypeVariable;
 import lense.compiler.type.variable.TypeVariable;
 import lense.compiler.typesystem.Imutability;
+import lense.compiler.typesystem.LenseTypeSystem;
 import lense.compiler.typesystem.Visibility;
 
-public class ReificationVisitor extends AbstractScopedVisitor {
+public final class ReificationVisitor extends AbstractScopedVisitor {
 
 	public static final String REIFICATION_INFO = "$reificiationInfo";
 
@@ -58,11 +59,16 @@ public class ReificationVisitor extends AbstractScopedVisitor {
 			this.currentType = ((ClassTypeNode) node).getTypeDefinition();
 
 		} else if (node instanceof ClassBodyNode) {
-			this.getSemanticContext().currentScope().defineVariable(
-					REIFICATION_INFO,
-					this.getSemanticContext().resolveTypeForName("lense.core.lang.reflection.ReifiedArguments", 0).get(),
-					node
-			);
+			
+			if (!this.currentType.getKind().isInterface() &&  this.currentType.isGeneric()) {
+				
+				this.getSemanticContext().currentScope().defineVariable(
+						REIFICATION_INFO,
+						LenseTypeSystem.ReifiedArguments(),
+						node
+				);
+				
+			}
 		}
 
 		return VisitorNext.Children;
@@ -76,8 +82,8 @@ public class ReificationVisitor extends AbstractScopedVisitor {
 			ConstructorDeclarationNode n = (ConstructorDeclarationNode) node;
 
 			List<TypeVariable> genericParameters = getCurrentType().get().getGenericParameters();
-			if (!genericParameters.isEmpty()) {
-				n.getParameters().addFirst(new ReceiveReifiedTypesNodes());
+			if (!genericParameters.isEmpty() && !(n.getParameters().getFirstChild() instanceof ReceiveReifiedTypesNodes)) {
+				n.getParameters().addFirst(ReceiveReifiedTypesNodes.getInstance());
 			}
 
 		
@@ -189,13 +195,15 @@ public class ReificationVisitor extends AbstractScopedVisitor {
 				List<TypeVariable> genericParameters = getCurrentType().get().getGenericParameters();
 				if (!genericParameters.isEmpty()) {
 
-					FieldDeclarationNode field = new FieldDeclarationNode(REIFICATION_INFO,
-							new TypeNode("lense.core.lang.reflection.ReifiedArguments"));
+					FieldDeclarationNode field = new FieldDeclarationNode(REIFICATION_INFO, new TypeNode("lense.core.lang.reflection.ReifiedArguments"));
 					field.setInitializedOnConstructor(true);
 					field.setVisibility(new VisibilityNode(Visibility.Private));
 					field.setImutability(new ImutabilityNode(Imutability.Imutable));
 
-					n.getBody().add(field);
+					if(!n.getBody().getChildren().contains(field)) {
+						n.getBody().add(field);
+					}
+		
 				}
 			}
 

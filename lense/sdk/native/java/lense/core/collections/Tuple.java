@@ -6,9 +6,11 @@ import lense.core.lang.IllegalIndexException;
 import lense.core.lang.java.Base;
 import lense.core.lang.java.Constructor;
 import lense.core.lang.java.Property;
+import lense.core.lang.java.Signature;
 import lense.core.lang.reflection.ReifiedArguments;
 import lense.core.math.Natural;
 
+@Signature("[=H<lense.core.lang.Any,=T<lense.core.collections.Tuple ]::lense.core.collections.Iterable<lense.core.lang.Any>")
 public class Tuple extends Base implements Any, Iterable {
 
 	public static Tuple valueOf(ReifiedArguments args, Any value, Tuple next){

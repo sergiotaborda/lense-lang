@@ -23,10 +23,10 @@ public class BitArray implements Binary {
 	}
 	
 	public implicit constructor ( binary: Binary){
-		let array : Array<Boolean> = new Array<Boolean>(binary.size, false); // TODO remove left side typing
+		let array : Array<Boolean> = new Array<Boolean>(binary.bitsCount, false); // TODO remove left side typing
 		
-		for (i in 0 ..< binary.size){
-			array[i] = binary.getBitAt(i);
+		for (i in 0 ..< binary.bitsCount){
+			array[i] = binary.bitAt(i);
 		}
 		
 		return new BitArray(array);
@@ -36,7 +36,47 @@ public class BitArray implements Binary {
 		this.bits[index] = !this.bits[index];
 	}
 	
-	public rightShiftBy( n: Natural): BitArray{
+	public or( other: Binary): BitArray {
+		
+		let maxSize = this.bitsCount > other.bitsCount ? this.bitsCount : other.bitsCount;
+
+		let orArray = new BitArray(maxSize); 
+
+		for (let index in 0 ..< maxSize ){
+			orArray[index] = this.bitAt(index) | other.bitAt(index);
+		}
+	
+		return orArray;
+	}
+
+	public and( other: Binary): BitArray {
+		
+		let maxSize = this.bitsCount > other.bitsCount ? this.bitsCount : other.bitsCount;
+
+		let orArray = new BitArray(maxSize); 
+
+		for (let index in 0 ..< maxSize ){
+			orArray[index] = this.bitAt(index) & other.bitAt(index);
+		}
+	
+		return orArray;
+	}
+
+	public xor( other: Binary): BitArray {
+		
+		let maxSize = this.bitsCount > other.bitsCount ? this.bitsCount : other.bitsCount;
+
+		let orArray = new BitArray(maxSize); 
+
+		for (let index in 0 ..< maxSize ){
+			orArray[index] = this.bitAt(index) ^ other.bitAt(index);
+		}
+	
+		return orArray;
+	}
+
+
+	public rightShiftBy( n: Natural): BitArray { 
 		let newSize = bits.size &- n;
 
 		let newArray = new Array<Boolean>(newSize, false); 
@@ -64,16 +104,7 @@ public class BitArray implements Binary {
 		return new BitArray(negated);
 	}	
 	
-	public equalsTo(other: Any) : Boolean{
-		return other is BitArray && other.bits.equalsTo(this.bits);
-	}
-
-	public hashValue():  HashValue {
-		return bits.size.hashValue();
-	}
-	
-
-	public size : Natural {
+	public bitsCount : Natural {
 		get{
 			return bits.size;
 		}
@@ -88,11 +119,19 @@ public class BitArray implements Binary {
 		}
 	}
 	
-	public getBitAt( index: Natural) : Boolean {
+	public bitAt( index: Natural) : Boolean {
 		return this[index];
 	}
 	
-	public asString() : String {
+	public override equalsTo(other: Any) : Boolean{
+		return other is BitArray && other.bits.equalsTo(this.bits);
+	}
+
+	public override hashValue():  HashValue {
+		return bits.size.hashValue();
+	}
+	
+	public override asString() : String {
 		return this.bits.asString();
 	}
 

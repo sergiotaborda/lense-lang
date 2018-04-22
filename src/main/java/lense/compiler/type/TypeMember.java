@@ -53,4 +53,18 @@ public interface TypeMember {
 	
 	public boolean isAbstract();
 
+	void setAbstract(boolean isAbstract);
+
+	public boolean isDefault();
+
+	void setDefault(boolean isDefault);
+
+
+	public boolean isOverride();
+
+	void setOverride(boolean isOverride);
+
+	public boolean isNative();
+	
+	void setNative(boolean isNative);
 }

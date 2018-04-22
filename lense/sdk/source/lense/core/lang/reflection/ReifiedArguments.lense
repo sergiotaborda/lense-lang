@@ -1,6 +1,5 @@
 
 
-import lense.core.lang.String;
 import lense.core.lang.reflection.Type;
 import lense.core.math.Natural;
 

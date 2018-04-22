@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import lense.compiler.type.variable.TypeVariable;
+import lense.compiler.typesystem.LenseTypeSystem;
 import lense.compiler.typesystem.Visibility;
 
 /**
@@ -18,6 +19,14 @@ public class Method implements CallableMember<Method> {
 	private final String name;
 	private boolean isStatic = false;
 	private boolean isAbstract = false;
+	private boolean isDefault = false;
+	private boolean isOverride = false;
+	private boolean isNative = false;
+	
+	private Method superMethod;
+	
+	private boolean propertyBridge = false;
+	
 	private TypeDefinition declaringType;
 	private MethodReturn returnParameter;
 	private List<CallableMemberMember<Method>> parameters;
@@ -29,13 +38,15 @@ public class Method implements CallableMember<Method> {
 		return methodFreeGenericTypes;
 	}
 	
-	public Method(Visibility visibility,String name, MethodReturn returnParameter, MethodParameter ... parameters){
-		this(visibility,name, returnParameter, Arrays.asList(parameters));
+	public Method(boolean isPropertyBridge, Visibility visibility,String name, MethodReturn returnParameter, MethodParameter ... parameters){
+		this(isPropertyBridge,visibility,name, returnParameter, Arrays.asList(parameters));
 	}
 	
-	public Method(Visibility visibility,String name, MethodReturn returnParameter, List<? extends CallableMemberMember<Method>>  parameters){
+	public Method(boolean isPropertyBridge,Visibility visibility,String name, MethodReturn returnParameter, List<? extends CallableMemberMember<Method>>  parameters){
 		this.name = name;
 		this.visibility = visibility;
+		
+		this.propertyBridge = isPropertyBridge;
 		
 		this.returnParameter = returnParameter;
 		this.returnParameter.setDeclaringMember(this);
@@ -46,6 +57,15 @@ public class Method implements CallableMember<Method> {
 		}
 	}
 	
+	public Method(Method method) {
+		this(method.propertyBridge, method.visibility, method.name, method.returnParameter, method.parameters);
+		this.isAbstract= method.isAbstract;
+		this.isStatic= method.isStatic;
+		this.isDefault= method.isDefault;
+		this.isOverride= method.isOverride;
+		this.isNative= method.isNative;
+	}
+
 	public void setDeclaringType(TypeDefinition type){
 		this.declaringType = type;
 	}
@@ -54,10 +74,9 @@ public class Method implements CallableMember<Method> {
 		methodFreeGenericTypes.add(parameter);
 	}
 	
-	public boolean conformsTo(MethodSignature signature){
-		return false;
+	public MethodSignature getSignature() {
+		return new MethodSignature(name, parameters);
 	}
-	
 	
 	public String toString(){
 	    if (parameters.isEmpty()){
@@ -125,7 +144,7 @@ public class Method implements CallableMember<Method> {
 		if( this.name.equals(other.getName()) && this.parameters.size() == other.parameters.size()){
 			
 			for (int i = 0; i < this.parameters.size(); i++){
-				if (!this.parameters.get(i).equals(other.parameters.get(i))){
+				if (!this.parameters.get(i).typeEquals(other.parameters.get(i))){
 					return false;
 				}
 			}
@@ -178,9 +197,11 @@ public class Method implements CallableMember<Method> {
 	@Override
 	public Method changeDeclaringType(TypeDefinition concrete) {
 		
-		MethodReturn r = new MethodReturn(this.returnParameter.getType().changeBaseType(concrete));
-		Method m = new Method(this.visibility, this.name, r, this.parameters);
+		Method m = new Method(this);
+	
 		m.setDeclaringType(concrete);
+		m.setReturn(new MethodReturn(this.returnParameter.getType().changeBaseType(concrete)));
+		
 		return m;
 	}
 
@@ -213,6 +234,46 @@ public class Method implements CallableMember<Method> {
     public void setVisibility(Visibility visibility){
         this.visibility = visibility;
     }
+
+	public boolean isDefault() {
+		return isDefault;
+	}
+
+	public void setDefault(boolean isDefault) {
+		this.isDefault = isDefault;
+	}
+
+	public boolean isOverride() {
+		return isOverride;
+	}
+
+	public void setOverride(boolean isOverride) {
+		this.isOverride = isOverride;
+	}
+
+	public boolean isNative() {
+		return isNative;
+	}
+
+	public void setNative(boolean isNative) {
+		this.isNative = isNative;
+	}
+
+	public boolean isPropertyBridge() {
+		return propertyBridge;
+	}
+
+	public void setPropertyBridge(boolean propertyBridge) {
+		this.propertyBridge = propertyBridge;
+	}
+
+	public Method getSuperMethod() {
+		return superMethod;
+	}
+
+	public void setSuperMethod(Method superMethod) {
+		this.superMethod = superMethod;
+	}
 
 
 }

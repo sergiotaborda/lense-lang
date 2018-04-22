@@ -320,8 +320,8 @@ public class LenseTypeDefinition implements TypeDefinition {
         this.members.add(m);
     }
 
-    public void addMethod( String name, TypeDefinition returnType, MethodParameter... parameters) {
-        addMethod(Visibility.Public,name, new MethodReturn(returnType), parameters);
+    public Method addMethod( String name, TypeDefinition returnType, MethodParameter... parameters) {
+        return addMethod(Visibility.Public,name, new MethodReturn(returnType), parameters);
     }
 
     /**
@@ -329,12 +329,15 @@ public class LenseTypeDefinition implements TypeDefinition {
      * @param typeDefinition
      * @param parameters
      */
-    public void addMethod(Visibility visibility, String name, TypeDefinition returnType, MethodParameter... parameters) {
-        addMethod(visibility,name, new MethodReturn(returnType), parameters);
+    public Method addMethod(Visibility visibility, String name, TypeDefinition returnType, MethodParameter... parameters) {
+        return addMethod(visibility,name, new MethodReturn(returnType), parameters);
     }
 
-    public void addMethod(Visibility visibility,String name, MethodReturn returnType, MethodParameter... parameters) {
-        addMethod(new Method(visibility, name, returnType, parameters));
+    public Method addMethod(Visibility visibility,String name, MethodReturn returnType, MethodParameter... parameters) {
+        Method m = new Method(false,visibility, name, returnType, parameters);
+    	addMethod(m);
+    	
+    	return m;
 
     }
 
@@ -373,7 +376,7 @@ public class LenseTypeDefinition implements TypeDefinition {
     }
 
 
-    public void addProperty(String name, lense.compiler.type.variable.TypeVariable type , boolean canRead, boolean canWrite) {
+    public Property addProperty(String name, lense.compiler.type.variable.TypeVariable type , boolean canRead, boolean canWrite) {
 
         if ( name == null){
             throw new IllegalArgumentException("Name is mandatory");
@@ -384,6 +387,8 @@ public class LenseTypeDefinition implements TypeDefinition {
             ((TypeMemberAwareTypeVariable)type).setDeclaringMember(property);
         }
         addProperty(property);
+        
+        return property;
     }
 
     public void addProperty(Property property) {
@@ -394,7 +399,7 @@ public class LenseTypeDefinition implements TypeDefinition {
 
 
 
-    public void addIndexer(lense.compiler.type.variable.TypeVariable type , boolean canRead, boolean canWrite , lense.compiler.type.variable.TypeVariable[] params) {
+    public IndexerProperty addIndexer(lense.compiler.type.variable.TypeVariable type , boolean canRead, boolean canWrite , lense.compiler.type.variable.TypeVariable[] params) {
 
         final IndexerProperty property = new IndexerProperty(this, type, canRead, canWrite, params);
 
@@ -403,6 +408,8 @@ public class LenseTypeDefinition implements TypeDefinition {
         }
 
         addIndexer(property);
+        
+        return property;
 
     }
 
@@ -746,7 +753,12 @@ public class LenseTypeDefinition implements TypeDefinition {
 
 	@Override
 	public TypeVariable changeBaseType(TypeDefinition concrete) {
-		return this;
+		if (this.getName().equals(concrete.getName())) {
+			return concrete;
+		} else {
+			return this;
+		}
+	
 	}
 
 	@Override
@@ -775,6 +787,11 @@ public class LenseTypeDefinition implements TypeDefinition {
 
 	public void setFinal(boolean isFinal) {
 		this.isFinal = isFinal;
+	}
+
+	@Override
+	public boolean contains(TypeVariable other) {
+		return this.equals(other);
 	}
 
 

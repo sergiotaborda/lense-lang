@@ -104,9 +104,7 @@ public class TypeNode extends LenseAstNode implements TypedNode{
 	public void setTypeVariable(TypeVariable type){
 		this.type = type;
 	}
-	public void setTypeVariable(TypeDefinition type){
-		this.type = type;
-	}
+
 	
 	@Override
 	protected AstNode prepareAttach(AstNode node){

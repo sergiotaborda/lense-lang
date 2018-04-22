@@ -1,10 +1,13 @@
 
 import lense.core.math.Natural;
 import lense.core.lang.Boolean;
+import lense.core.lang.ExclusiveDijunctable;
+import lense.core.lang.Dijunctable;
+import lense.core.lang.Injunctable;
 
 public interface Binary extends ExclusiveDijunctable<Binary> , Dijunctable<Binary> , Injunctable<Binary>{
 
-	public  size : Natural {get;} // TODO change to bitsCount
+	public  bitsCount : Natural {get;} 
 	
 	// ~operator
 	public complement() : Binary; // TODO change to return Self
@@ -15,5 +18,5 @@ public interface Binary extends ExclusiveDijunctable<Binary> , Dijunctable<Binar
 	// >> operator
 	public leftShiftBy( n: Natural) : Binary;
 	
-	public getBitAt( index: Natural) : Boolean;
+	public bitAt( index: Natural) : Boolean; 
 }

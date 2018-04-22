@@ -21,7 +21,10 @@ public class Property  implements TypeMember{
 	private boolean canWrite;
     private Visibility visibility;
     private boolean isAbstract;
-	 
+	private boolean isDefault;
+	private boolean isOverride;
+	private boolean isNative;
+	
 	/**
 	 * Constructor.
 	 * @param typeAdapter
@@ -134,4 +137,35 @@ public class Property  implements TypeMember{
     public void setAbstract(boolean isAbstract) {
         this.isAbstract = isAbstract;
     }
+
+    @Override
+	public boolean isDefault() {
+		return isDefault;
+	}
+
+	@Override
+	public void setDefault(boolean isDefault) {
+		this.isDefault = isDefault;
+		
+	}
+
+	@Override
+	public boolean isOverride() {
+		return isOverride;
+	}
+
+	@Override
+	public void setOverride(boolean isOverride) {
+		this.isOverride = isOverride;
+	}
+
+	@Override
+	public boolean isNative() {
+		return isNative;
+	}
+
+	@Override
+	public void setNative(boolean isNative) {
+		this.isNative = isNative;
+	}
 }

@@ -126,5 +126,16 @@ public class FieldDeclarationNode extends AnnotadedLenseAstNode implements Scope
 		return this.initializedOnConstructor;
 	}
 	
+	@Override
+	public boolean equals(Object other) {
+		return other instanceof FieldDeclarationNode && equals((FieldDeclarationNode)other);
+	}
 	
+	public boolean equals(FieldDeclarationNode other) {
+		return this.name.equals(other.name); 
+	}
+	
+	public int hashCode() {
+		return this.name.hashCode();
+	}
 }

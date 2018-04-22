@@ -11,6 +11,9 @@ public abstract class InvocableDeclarionNode extends AnnotadedLenseAstNode{
 
 	private boolean isAbstract;
 	private boolean isNative;
+	private boolean isDefault;
+	private boolean isOverride;
+	
 	private Visibility visibility;
 	private Imutability imutability;
 	
@@ -54,6 +57,19 @@ public abstract class InvocableDeclarionNode extends AnnotadedLenseAstNode{
 	}
 	public void setImutability(Imutability imutability) {
 		this.imutability = imutability;
+	}
+
+	public boolean isDefault() {
+		return isDefault;
+	}
+	public void setDefault(boolean isDefault) {
+		this.isDefault = isDefault;
+	}
+	public boolean isOverride() {
+		return isOverride;
+	}
+	public void setOverride(boolean isOverride) {
+		this.isOverride = isOverride;
 	}
 	
 }

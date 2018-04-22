@@ -75,7 +75,7 @@ public class LenseCompilerTool implements LenseTool{
 
             @Override
             public void trace(CompilerMessage error) {
-               //no-op
+            	 System.out.println("[TRACE]:" + error.getMessage());
             }
         });
         compiler.compileModuleFromDirectory(moduleproject);

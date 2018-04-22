@@ -12,7 +12,7 @@ public class VertextInfoManager {
 	public static class VertexInfo { 
 
 
-		protected int scratch =0;
+		private int scratch =0;
 		protected double dist = Double.MAX_VALUE;
 		protected Vertex<? , ?> prev;
 		protected Edge<?,?> connectingEdge;
@@ -41,6 +41,29 @@ public class VertextInfoManager {
 
 		public void setPropery(GraphProperty property){
 			properties.put(property.getName(), property);
+		}
+		
+		public int incrementScratch() {
+			scratch++;
+			return this.scratch;
+		}
+		
+		public int decrementScratch() {
+			scratch--;
+			return this.scratch;
+		}
+		
+		public boolean hasZeroScratch() {
+			return this.scratch == 0;
+		}
+
+		public int getScratch() {
+			return scratch;
+		}
+
+
+		public void setScratch(int scratch) {
+			this.scratch = scratch;
 		}
 	}
 

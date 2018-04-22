@@ -5,6 +5,10 @@ import lense.core.math.Natural;
 import lense.core.lang.String;
 import lense.core.lang.Boolean;
 import lense.core.math.ArithmeticException;
+import lense.core.math.Greater;
+import lense.core.math.Smaller;
+import lense.core.math.Equal;
+import lense.core.math.BigDecimal;
 
 /{
 	A fraction n/d 
@@ -55,18 +59,18 @@ public class Rational extends Real {
 	
 	}
 	
-	public equalsTo(other : Any) : Boolean {
+	public override equalsTo(other : Any) : Boolean {
 		if(other is Rational){
 			return this.numerator == other.numerator && this.denominator == other.denominator;
 		} 
 		return false;
 	}
 
-	public hashValue() : HashValue {
+	public override hashValue() : HashValue {
 		return numerator.hashValue().concat(denominator.hashValue());
 	}
 	
-	public asString() : String {
+	public override asString() : String {
 		if (this.denominator == 1){
 			return this.numerator.asString();
 		} 
@@ -220,4 +224,19 @@ public class Rational extends Real {
 	  
 	  return new Rational(n, this.denominator);
     }
+
+	public override compareWith (other : Real) : Comparison {
+		/{
+		}let diff = this - other;
+		
+	    if (diff >0){
+			return Greater;
+		} else if (diff <0){
+			return Smaller;
+		}
+
+	   return Equal;
+	   }/
+	   throw new Exception("Not implemented yet"); 
+	}  
 }

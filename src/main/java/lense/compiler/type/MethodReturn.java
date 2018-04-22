@@ -59,4 +59,11 @@ public class MethodReturn implements MethodMember {
 		p.method = c;
 		return p;
 	}
+
+	@Override
+	public boolean typeEquals(CallableMemberMember<Method> other) {
+		return other instanceof MethodReturn 
+				&& this.type.equals(((MethodReturn)other).type);
+
+	}
 }

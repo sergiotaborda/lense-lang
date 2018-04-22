@@ -63,26 +63,26 @@ public abstract class Array extends AbstractAssortment implements EditableSequen
 	}
 	
 	@Override @Property(indexed = true ) 
-	@MethodSignature( returnSignature = "T" , paramsSignature = "lense.core.math.Natural")
+	@MethodSignature( returnSignature = "T" , paramsSignature = "lense.core.math.Natural",declaringType = "lense.core.collections.Sequence" , overloaded = true)
 	public abstract Any get(Natural index);
 	
 	@Override  @Property(indexed = true , setter = true)
-	@MethodSignature( returnSignature = "" , paramsSignature = "lense.core.math.Natural,T")
+	@MethodSignature( returnSignature = "" , paramsSignature = "lense.core.math.Natural,T",declaringType = "lense.core.collections.EditableSequence" , overloaded = true)
 	public abstract void  set(Natural index, Any value);
 	
 	@Override @Property(name = "size")
 	public abstract Natural getSize();
 
 	@Override @Property(name = "iterator")
-	@MethodSignature( returnSignature = "lense.core.collections.Iterator<T>", paramsSignature = "")
+	@MethodSignature( returnSignature = "lense.core.collections.Iterator<T>", paramsSignature = "",declaringType = "lense.core.collections.Iterator" , overloaded = true)
 	public abstract Iterator getIterator();
 	
 	@Override @Property(name = "indexes")
-	@MethodSignature( returnSignature = "lense.core.collections.Progression<lense.core.math.Natural>", paramsSignature = "")
+	@MethodSignature( returnSignature = "lense.core.collections.Progression<lense.core.math.Natural>", paramsSignature = "",declaringType = "lense.core.collections.Sequence" , overloaded = true)
 	public abstract Progression getIndexes();
 
 	@Override @Property(name = "empty")
-	@MethodSignature( returnSignature = "lense.core.lang.Boolean", paramsSignature = "")
+	@MethodSignature( returnSignature = "lense.core.lang.Boolean", paramsSignature = "",declaringType = "lense.core.collections.Countable" , overloaded = true)
 	public abstract boolean getEmpty();
 	
 	public abstract boolean contains(Any other);
@@ -110,6 +110,6 @@ public abstract class Array extends AbstractAssortment implements EditableSequen
 	@MethodSignature( returnSignature = "lense.core.collections.Array<T>", paramsSignature = "lense.core.collections.Array<T>")
 	public abstract Array copyTo(Array other);
 	
-	@MethodSignature( returnSignature = "lense.core.collections.Array<T>", paramsSignature = "lense.core.collections.Array<T>")
+	@MethodSignature( returnSignature = "lense.core.collections.Array<T>", paramsSignature = "lense.core.collections.Array<T>,lense.core.math.Natural,lense.core.math.Natural")
 	public abstract Array copyTo(Array other, Natural sourceIndex, Natural destinationIndex, Natural length);
 }

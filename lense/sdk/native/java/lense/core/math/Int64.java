@@ -2,11 +2,9 @@ package lense.core.math;
 
 import java.math.BigInteger;
 
+import lense.core.lang.Any;
 import lense.core.lang.Binary;
-import lense.core.lang.Dijunctable;
-import lense.core.lang.ExclusiveDijunctable;
 import lense.core.lang.HashValue;
-import lense.core.lang.Injunctable;
 import lense.core.lang.java.Constructor;
 import lense.core.lang.java.PlatformSpecific;
 import lense.core.lang.java.Property;
@@ -165,7 +163,7 @@ public class Int64 extends Integer implements Binary{
 
 	@Override
 	@Property(name="size")
-	public final Natural getSize() {
+	public final Natural bitsCount() {
 		return Natural.valueOfNative(64);
 	}
 
@@ -198,7 +196,7 @@ public class Int64 extends Integer implements Binary{
 	}
 
 	@Override
-	public boolean getBitAt(Natural index) {
+	public boolean bitAt(Natural index) {
 		return rightShiftBy(index).isOdd();
 	}
 	
@@ -213,7 +211,7 @@ public class Int64 extends Integer implements Binary{
     }
     
     @Override
-    public Int64 xor(ExclusiveDijunctable other) {
+    public Int64 xor(Any other) {
         if (other instanceof Int64){
             return new Int64(this.value ^ ((Int64)other).value);
         } else {
@@ -222,7 +220,7 @@ public class Int64 extends Integer implements Binary{
     }
 
     @Override
-    public Int64 or(Dijunctable other) {
+    public Int64 or(Any other) {
         if (other instanceof Int64){
             return new Int64(this.value | ((Int64)other).value);
         } else {
@@ -231,7 +229,7 @@ public class Int64 extends Integer implements Binary{
     }
 
     @Override
-    public Int64 and(Injunctable other) {
+    public Int64 and(Any other) {
         if (other instanceof Int64){
             return new Int64(this.value & ((Int64)other).value);
         } else {

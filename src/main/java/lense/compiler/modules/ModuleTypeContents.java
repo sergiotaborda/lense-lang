@@ -4,7 +4,6 @@
 package lense.compiler.modules;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,8 +13,10 @@ import lense.compiler.repository.UpdatableTypeRepository;
 import lense.compiler.repository.Version;
 import lense.compiler.type.LenseTypeDefinition;
 import lense.compiler.type.TypeDefinition;
+import lense.compiler.type.variable.TypeVariable;
 import lense.compiler.typesystem.LenseTypeSystem;
 import lense.compiler.typesystem.TypeSearchParameters;
+import lense.compiler.utils.Collections;
 
 /**
  * Represents a TypeRepository for a given module
@@ -48,7 +49,7 @@ public class ModuleTypeContents implements UpdatableTypeRepository {
 	public Map<Integer, TypeDefinition> resolveTypesMap(String name) {
 		Map<Integer, TypeDefinition> map = types.get(name);
 		if (map == null){
-		    return Collections.emptyMap();
+		    return java.util.Collections.emptyMap();
 		}
 		return map;
 	}
@@ -80,57 +81,7 @@ public class ModuleTypeContents implements UpdatableTypeRepository {
 
 	}
 
-//	/**
-//	 * @param name
-//	 * @return
-//	 */
-//	private String resolveModule(String name) {
-//		if (modules.isEmpty()){
-//			return null;
-//		}
-//
-//		QualifiedNameNode qn = new QualifiedNameNode(name).getPrevious();
-//
-//		while(qn != null){
-//
-//			if (modules.containsKey(qn.getName())){
-//				return qn.getName();
-//			}
-//
-//			qn= qn.getPrevious();
-//		}
-//
-//		return null;
-//	}
 
-//	/**
-//	 * {@inheritDoc}
-//	 */
-//	@Override
-//	public List<ModularTypeRepository> resolveModuleByName(String qualifiedNameNode) {
-//		if (moduleName.equals(qualifiedNameNode)){
-//			return Collections.singletonList(this);
-//		}
-//
-//
-//		List<ModularTypeRepository> list = modules.get(qualifiedNameNode);
-//
-//		if (list == null){
-//			return Collections.emptyList();
-//		} else {
-//			return list;
-//		}
-//	}
-//
-//	/**
-//	 * {@inheritDoc}
-//	 */
-//	@Override
-//	public Optional<ModularTypeRepository> resolveModuleByNameAndVersion(ModuleIdentifier identifier) {
-//		List<ModularTypeRepository> list = resolveModuleByName(identifier.getName());
-//
-//		return list.stream().filter(m -> m.getVersion().equals(version)).findAny();
-//	}
 
 
 	/**
@@ -173,7 +124,21 @@ public class ModuleTypeContents implements UpdatableTypeRepository {
 			    
 			    if (cached != null){
 			        if (cached != type){
-			            cached.updateFrom(type);
+			        	
+			        	if (type.isGeneric()) {
+			        		
+			        		if (isMoreGeneric(type, cached)) {
+			        			cached  = type;
+			        		} else {
+			        			cached.updateFrom(type);
+			        		}
+			        	
+			        		
+			        	} else {
+			        		cached.updateFrom(type);
+			        	}
+			        	
+			            
 			        } // else : they are the same. No need to do an update
 			        
 			        map.clear();
@@ -193,6 +158,20 @@ public class ModuleTypeContents implements UpdatableTypeRepository {
 		}
 
 	}
+	
+	private boolean isMoreGeneric(TypeDefinition type, TypeDefinition cached) {
+		
+		if (type.isGeneric() && !cached.isGeneric()) {
+			return true;
+		}
+		
+		return Collections.zipAny(type.getGenericParameters(), cached.getGenericParameters(), (a, b) -> {
+			
+			return !a.isSingleType() && b.isSingleType();
+			
+		});
+	}
+
 	public void setVersion(Version version) {
 		this.version = version;
 	}

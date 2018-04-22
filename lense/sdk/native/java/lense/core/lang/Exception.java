@@ -14,21 +14,22 @@ public class Exception extends java.lang.RuntimeException implements Any {
         return new Exception();
     }
 
-    @Constructor(paramsSignature = "")
+	@Constructor(paramsSignature = "lense.core.lang.String, lense.core.lang.Exception")
     public static Exception constructor(String message, Exception cause){
         return new Exception(message, cause);
     }
 
-    @Constructor(paramsSignature = "")
+	@Constructor(paramsSignature = "lense.core.lang.String")
     public static Exception constructor(String message){
         return new Exception(message);
     }
 
-    @Constructor(paramsSignature = "")
+	@Constructor(paramsSignature = "lense.core.lang.Exception")
     public static Exception constructor(Exception cause){
         return new Exception(cause);
     }
 
+	@PlatformSpecific
     public Exception(){
         super();
     }

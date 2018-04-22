@@ -12,4 +12,6 @@ public @interface MethodSignature {
 
 	String returnSignature();
 	String paramsSignature();
+	String declaringType() default "";
+	boolean overloaded () default false;
 }

@@ -6,6 +6,7 @@ import compiler.trees.VisitorNext;
 import lense.compiler.ast.ArgumentListItemNode;
 import lense.compiler.ast.BooleanOperation;
 import lense.compiler.ast.BooleanValue;
+import lense.compiler.ast.CastNode;
 import lense.compiler.ast.ExpressionNode;
 import lense.compiler.ast.MethodInvocationNode;
 import lense.compiler.ast.NumericValue;
@@ -64,6 +65,15 @@ public class BoxingPointErasureVisitor implements Visitor<AstNode> {
 				if (m.getCall().getName().equals("negate")){
 
 					m.getParent().replace(m, new PrimitiveBooleanOperationsNode(m.getAccess(), BooleanOperation.LogicNegate));
+				} else if (m.getCall().getName().equals("or")){
+
+					m.getParent().replace(m, new PrimitiveBooleanOperationsNode(m.getAccess(), m.getCall().getFirstChild().getFirstChild(), BooleanOperation.BitOr));
+				} else if (m.getCall().getName().equals("and")){
+
+					m.getParent().replace(m, new PrimitiveBooleanOperationsNode(m.getAccess(), m.getCall().getFirstChild().getFirstChild(), BooleanOperation.BitAnd));
+				} else if (m.getCall().getName().equals("xor")){
+
+					m.getParent().replace(m, new PrimitiveBooleanOperationsNode(m.getAccess(), m.getCall().getFirstChild().getFirstChild(), BooleanOperation.BitXor));
 				} else if (m.getCall().getName().equals("equalsTo")){
 
 					AstNode val = m.getCall().getArgumentListNode().getFirst().getFirstChild();
@@ -124,11 +134,23 @@ public class BoxingPointErasureVisitor implements Visitor<AstNode> {
 					n.setTypeVariable(a.getTypeVariable());
 					a.getParent().replace(a, val);
 				} else if (val.getTypeVariable().getTypeDefinition().getKind() == JavaTypeKind.Primitive){
-					a.getParent().replace(a, new PrimitiveBooleanBox(val));
+					// val is already a primitive boolean
+					if (val instanceof PrimitiveBooleanOperationsNode) {
+						a.getParent().replace(a, val);
+					} else {
+						a.getParent().replace(a, new PrimitiveBooleanBox(val));
+					}
+			
 				} else if (val instanceof MethodInvocationNode) {
 					MethodInvocationNode m = (MethodInvocationNode)val;
 					if (m.getTypeVariable().isSingleType() && m.getTypeVariable().getTypeDefinition().getName().equals(LenseTypeSystem.Boolean().getName())) {
 						a.getParent().replace(a, new PrimitiveBooleanBox(val));
+					}
+				} else if (val instanceof CastNode) {
+					CastNode m = (CastNode)val;
+					
+					if (LenseTypeSystem.getInstance().isBoolean(m.getTypeVariable())){
+						
 					}
 					
 				} else {

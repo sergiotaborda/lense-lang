@@ -94,6 +94,7 @@ public class ConstructorBuilder {
 
 		Constructor m = new Constructor(info.getName(), params, false, info.getVisibility()); 
 
+		m.setDeclaringType(def);
 		m.setAbstract(info.isAbstract());
 		m.setImplicit(isImplicit);
 

@@ -135,7 +135,7 @@ public class ByteCodeReader extends ClassVisitor {
 	}
 
 	private boolean readAbstract(int access) {
-		return (access & Opcodes.ACC_ABSTRACT) == 1;
+		return (access & Opcodes.ACC_ABSTRACT) != 0;
 	}
 
 	private Visibility readVisibility(int access) {

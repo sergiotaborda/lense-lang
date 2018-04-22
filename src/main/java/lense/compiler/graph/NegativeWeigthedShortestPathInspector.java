@@ -42,7 +42,7 @@ public class NegativeWeigthedShortestPathInspector implements ShortestPathInspec
 				
 			
 				VertexInfo infoV = manager.info(v);
-				if (infoV.scratch++ > 2 * vertexCount){
+				if (infoV.incrementScratch() > 2 * vertexCount){
 					throw new IllegalStateException("Negative cycle detected");
 				}
 				
@@ -59,10 +59,10 @@ public class NegativeWeigthedShortestPathInspector implements ShortestPathInspec
 						infoW.prev = v;
 						infoW.connectingEdge = e;
 						// enqueue only if not enqued.
-						if (infoW.scratch++ % 2 == 0){
+						if (infoW.incrementScratch() % 2 == 0){
 							q.add(w);
 						} else {
-							infoW.scratch--;
+							infoW.decrementScratch();
 						}
 					}
 				}

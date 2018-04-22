@@ -8,6 +8,7 @@ import java.util.Optional;
 import java.util.function.Function;
 
 import lense.compiler.type.TypeDefinition;
+import lense.compiler.typesystem.LenseTypeSystem;
 import lense.compiler.typesystem.Variance;
 
 /**
@@ -43,4 +44,7 @@ public interface TypeVariable {
 
 	public void ensureNotFundamental(Function<TypeDefinition, TypeDefinition> convert);
 
+	public default boolean contains(TypeVariable other) {
+		return LenseTypeSystem.getInstance().isAssignableTo(other, this.getUpperBound()) && LenseTypeSystem.getInstance().isAssignableTo(this.getLowerBound(), other);
+	}
 }

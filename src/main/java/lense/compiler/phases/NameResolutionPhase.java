@@ -3,7 +3,10 @@
  */
 package lense.compiler.phases;
 
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
+import java.util.Optional;
 
 import compiler.CompilationResult;
 import compiler.CompilerListener;
@@ -12,6 +15,7 @@ import compiler.CompilerPhase;
 import compiler.syntax.AstNode;
 import compiler.trees.TreeTransverser;
 import lense.compiler.CompilationError;
+import lense.compiler.FundamentalTypesModuleContents;
 import lense.compiler.Import;
 import lense.compiler.ast.ClassTypeNode;
 import lense.compiler.ast.ImportDeclarationsListNode;
@@ -19,14 +23,15 @@ import lense.compiler.ast.SingleImportNode;
 import lense.compiler.ast.UnitTypes;
 import lense.compiler.context.SemanticContext;
 import lense.compiler.repository.UpdatableTypeRepository;
+import lense.compiler.type.TypeDefinition;
 import lense.compiler.typesystem.PackageResolver;
+import lense.compiler.typesystem.TypeSearchParameters;
 
 /**
  * 
  */
 public class NameResolutionPhase implements CompilerPhase {
 
-	private UpdatableTypeRepository typeRepository;
 	private PackageResolver packageResolver;
 	private CompilerListener listener;
 
@@ -34,8 +39,7 @@ public class NameResolutionPhase implements CompilerPhase {
 	 * Constructor.
 	 * @param typeRepo
 	 */
-	public NameResolutionPhase(UpdatableTypeRepository typeRepository, PackageResolver packageResolver, CompilerListener listener) {
-		this.typeRepository = typeRepository;
+	public NameResolutionPhase(PackageResolver packageResolver, CompilerListener listener) {
 		this.packageResolver = packageResolver;
 		this.listener= listener;
 	}
@@ -63,6 +67,8 @@ public class NameResolutionPhase implements CompilerPhase {
 				
 			}
 			
+			UpdatableTypeRepository naming = new NamingTypeRepository();
+			
 			for (ClassTypeNode ct :  t.getTypes()){
 				// cannot share semantic context among classes
 
@@ -70,14 +76,18 @@ public class NameResolutionPhase implements CompilerPhase {
 						
 				ct.setName(packageName + '.' + ct.getName());
 				
-				SemanticContext ctx = new SemanticContext(typeRepository, packageName, ct); 
+				SemanticContext ctx = new SemanticContext(naming, packageName, ct); 
 				
 				ct.setSemanticContext(ctx);
 				
+				boolean anyImported = false;
 				if (imports != null){
 					for(AstNode n : imports.getChildren()){
 						SingleImportNode i = (SingleImportNode)n;
 
+						if (i.getName().toString().equals("lense.core.lang.Any")) {
+							anyImported = true;
+						}
 						ct.addImport(Import.singleType(i.getName(), i.getAlias()));
 						
 					}
@@ -93,6 +103,13 @@ public class NameResolutionPhase implements CompilerPhase {
 					}
 				}
 				
+//			    if (!ct.getKind().isInterface() && ct.getGenericParametersCount() > 0) {
+//			    	 ct.addImport(Import.singleType(new QualifiedNameNode("lense.core.lang.reflection.ReifiedArguments"),  null).setMemberCalled(true));
+//                }
+//			    
+//			    if (!anyImported && !ct.getName().equals("lense.core.lang.Any")) {
+//			    	 ct.addImport(Import.singleType(new QualifiedNameNode("lense.core.lang.Any"),  null).setMemberCalled(true));
+//			    }
 			}
 			
 		} catch (CompilationError e){
@@ -102,5 +119,44 @@ public class NameResolutionPhase implements CompilerPhase {
 		
 	
 		return result;
+	}
+	
+	private static class NamingTypeRepository implements UpdatableTypeRepository{
+
+		private FundamentalTypesModuleContents fundamental = new FundamentalTypesModuleContents();
+		private final Map<String,Map< Integer, TypeDefinition>> types = new HashMap<>();
+
+		@Override
+		public Optional<TypeDefinition> resolveType(TypeSearchParameters filter) {
+			Map<Integer, TypeDefinition> map = types.get(filter.getName());
+			
+			if (map == null) {
+				
+				return fundamental.resolveType(filter);
+				
+			} else {
+				return filter.getGenericParametersCount().map(count -> map.get(count));
+			}
+		}
+
+		@Override
+		public TypeDefinition registerType(TypeDefinition type, int genericParametersCount) {
+			Map<Integer, TypeDefinition> map = types.get(type.getName());
+			
+			if (map == null) {
+				map = new HashMap<>();
+				types.put(type.getName(), map);
+			}
+			
+			map.put(genericParametersCount, type);
+			
+			return type;
+		}
+
+		@Override
+		public Map<Integer, TypeDefinition> resolveTypesMap(String name) {
+			return types.get(name);
+		}
+		
 	}
 }

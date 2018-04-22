@@ -33,6 +33,8 @@ public class ClassTypeNode extends AnnotadedLenseAstNode implements ScopeDelimit
 	
 	private boolean isNative;
 	private boolean isAbstract;
+	private boolean isFinal;
+	private boolean isSealed;
 	private Visibility visibility;
 	
 	public ClassTypeNode (LenseUnitKind kind){
@@ -197,6 +199,22 @@ public class ClassTypeNode extends AnnotadedLenseAstNode implements ScopeDelimit
 	@Override
 	public String getScopeName() {
 		return "#top";
+	}
+
+	public boolean isFinal() {
+		return isFinal;
+	}
+
+	public void setFinal(boolean isFinal) {
+		this.isFinal = isFinal;
+	}
+
+	public boolean isSealed() {
+		return isSealed;
+	}
+
+	public void setSealed(boolean isSealed) {
+		this.isSealed = isSealed;
 	}
 
 
