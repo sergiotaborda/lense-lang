@@ -59,6 +59,7 @@ import lense.compiler.type.LenseTypeDefinition;
 import lense.compiler.type.TypeDefinition;
 import lense.compiler.typesystem.LenseTypeSystem;
 import lense.compiler.typesystem.TypeSearchParameters;
+import lense.compiler.utils.Strings;
 
 public abstract class LenseCompiler {
 
@@ -153,7 +154,8 @@ public abstract class LenseCompiler {
     protected abstract void createModuleArchive(FileLocations locations, ModuleNode module, File base, Set<String> applications) throws IOException, FileNotFoundException;
     protected abstract void initCorePhase(CompositePhase corePhase, Map<String, File> nativeTypes, UpdatableTypeRepository typeContainer);
     protected abstract void collectNative(FileLocations fileLocations, Map<String, File> nativeTypes) throws IOException;
-
+	protected abstract File resolveNativeFile(File folder, String name);
+	
     /**
      * @param moduleproject
      * @throws IOException 
@@ -273,7 +275,7 @@ public abstract class LenseCompiler {
           		nativeTypesDefs.add(type);
       		}
             
-            // init foundnames with nothing because is a non denotable
+            // init foundnames with nothing because it is a non denotable
             foundNames.add("lense.core.lang.Nothing");
             
             CompositePhase prePhase = new CompositePhase()
@@ -393,7 +395,7 @@ public abstract class LenseCompiler {
                 public void beginVertex(VertexTraversalEvent<DependencyNode, DependencyRelation> e) {
                     trace("Visiting : " + e.getVertex().getObject().getName());
                     CompiledUnit unit = e.getVertex().getObject().getCompiledUnit();
-                    applyCompilation(nativeTypes, corePhase, currentModuleRepository, backend, reader, unit);
+                    applyCompilation(nativeTypes, locations, corePhase, currentModuleRepository, backend, reader, unit);
 
                     trace("Visited : " + e.getVertex().getObject().getName());
                 }
@@ -411,7 +413,7 @@ public abstract class LenseCompiler {
             Optional<Vertex<DependencyNode, DependencyRelation>> any = graph.getVertices().stream().filter(v -> v.getObject().getName().equals(LenseTypeSystem.Any().getName())).findAny();
             
             if (any.isPresent()) {
-                applyCompilation(nativeTypes, corePhase, currentModuleRepository, backend, reader, any.map(v -> v.getObject().getCompiledUnit()).get());
+                applyCompilation(nativeTypes, locations, corePhase, currentModuleRepository, backend, reader, any.map(v -> v.getObject().getCompiledUnit()).get());
 
                 graph.removeVertex(any.get());
             }
@@ -463,7 +465,7 @@ public abstract class LenseCompiler {
 
     }
     
-    private void applyCompilation(Map<String, File> nativeTypes, CompositePhase corePhase,
+    private void applyCompilation(Map<String, File> nativeTypes, FileLocations locations, CompositePhase corePhase,
 			ModuleCompilationScopeTypeRepository currentModuleRepository, final CompilerBackEnd backend,
 			ByteCodeTypeDefinitionReader reader, CompiledUnit unit) {
 		if (unit != null){
@@ -475,7 +477,24 @@ public abstract class LenseCompiler {
         			
         			File nativeTypeFile = nativeTypes.get(type.getName());
                   
-					try {
+        			if (nativeTypeFile == null) {
+    					if (type.getKind().isObject()) {
+    						
+    						String[] name = Strings.split(type.getName(), ".");
+    						name[name.length - 1 ] = Strings.cammelToPascalCase(name[name.length - 1 ]);
+    						
+    						
+    						nativeTypeFile =  resolveNativeFile (locations.getTargetFolder(), Strings.join(name, File.separator));
+    					}
+    					else 
+    					{
+    						String[] name = Strings.split(type.getName(), ".");
+    						
+    						nativeTypeFile =  resolveNativeFile (locations.getTargetFolder(), Strings.join(name, File.separator));
+    					}
+        			}
+        			
+        			try {
 						TypeDefinition typeDef = reader.readNative(nativeTypeFile);
 						typeDef = currentModuleRepository.registerType(typeDef, typeDef.getGenericParameters().size());
 						
@@ -484,8 +503,6 @@ public abstract class LenseCompiler {
 					} catch (IOException e1) {
 						throw new RuntimeException(e1);
 					}
-           
-        			
         		}
         	}
         	

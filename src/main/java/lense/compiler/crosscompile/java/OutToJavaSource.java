@@ -7,6 +7,10 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 
 import compiler.CompiledUnit;
 import compiler.CompilerBackEnd;
@@ -14,14 +18,15 @@ import compiler.syntax.AstNode;
 import compiler.trees.TreeTransverser;
 import lense.compiler.FileLocations;
 import lense.compiler.ast.ClassTypeNode;
+import lense.compiler.utils.Strings;
 
 /**
  * 
  */
-public class OutToJavaSource implements CompilerBackEnd {
+public final class OutToJavaSource implements CompilerBackEnd {
 
 	FileLocations out;
-	
+
 	/**
 	 * Constructor.
 	 * @param out
@@ -39,53 +44,64 @@ public class OutToJavaSource implements CompilerBackEnd {
 		toSource(unit);
 	}
 
-	public File toSource(CompiledUnit unit) {
-		
-		//AstNode javaRoot = TreeTransverser.transform(unit.getAstRootNode(), new Lense2JavaTransformer());
-		File target = out.getTargetFolder();
-		File compiled = target;
-		if (target.isDirectory()){
-			AstNode node = unit.getAstRootNode().getChildren().get(0);
-			
-			if (!(node instanceof ClassTypeNode)){
-				return null;
-			}
-			ClassTypeNode t = (ClassTypeNode)node;
-			
-			if (t.isNative()){
-				return null;
-			}
-			
-			String path = t.getName().replace('.', '/');
-			int pos = path.lastIndexOf('/');
-			String filename = path.substring(pos+1) + ".java";
-			File folder;
-			if (pos >=0){
-				path = path.substring(0, pos);
-				folder = new File(target, path );
-			} else {
-				folder = target;
-			}
-			
-			folder.mkdirs();
-			
-			compiled = new File(folder, filename);
-			try {
-				compiled.createNewFile();
+
+	protected List<File> toSource(CompiledUnit unit) {
+
+		List<File> files = new LinkedList<>();
+
+		for (AstNode node : unit.getAstRootNode().getChildren()) {
+
+			File target = out.getTargetFolder();
+			File compiled = target;
+			if (target.isDirectory()){
+
+				if (!(node instanceof ClassTypeNode)){
+					continue;
+				}
+				ClassTypeNode t = (ClassTypeNode)node;
+
+				if (t.isNative()){
+					continue;
+				}
+
+				String[] names = Strings.split(t.getName(), ".");
 				
+				if (t.getKind().isObject()) {
+					names[names.length -1 ] = Strings.cammelToPascalCase(names[names.length - 1]);
+				}
+				
+				String path =  Strings.join(names, "/");
+				int pos = path.lastIndexOf('/');
+				String filename = path.substring(pos+1) + ".java";
+				File folder;
+				if (pos >=0){
+					path = path.substring(0, pos);
+					folder = new File(target, path );
+				} else {
+					folder = target;
+				}
+
+				folder.mkdirs();
+
+				compiled = new File(folder, filename);
+				try {
+					compiled.createNewFile();
+
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+
+			}
+
+			try(PrintWriter writer = new PrintWriter(new FileWriter(compiled))){
+				TreeTransverser.transverse(node, new JavaSourceWriterVisitor(writer));
+				files.add(compiled);
 			} catch (IOException e) {
 				e.printStackTrace();
-			}
-			
-		}
 
-		try(PrintWriter writer = new PrintWriter(new FileWriter(compiled))){
-			TreeTransverser.transverse(unit.getAstRootNode(), new JavaSourceWriterVisitor(writer));
-			return compiled;
-		} catch (IOException e) {
-			e.printStackTrace();
-			return null;
+			}
 		}
+		return files;
 	}
 
 }

@@ -567,6 +567,19 @@ public class NameResolutionVisitor extends AbstractScopedVisitor {
             nameAlias = nameAlias.substring(pos + 1);
             return matchImports(ct, nameAlias);
         }
+        
+        // match other types in the same unit
+        for (AstNode other : ct.getParent().getChildren()) {
+        	if (other != ct && other instanceof ClassTypeNode) {
+        		ClassTypeNode cc = (ClassTypeNode)other;
+        		
+        		 if (cc.getSimpleName().equals(nameAlias)){
+        	         return Optional.of(new Import(new QualifiedNameNode(cc.getName()), nameAlias, false));
+        	     }
+
+        	}
+        }
+        
         return Optional.empty();
     }
 
@@ -724,15 +737,23 @@ public class NameResolutionVisitor extends AbstractScopedVisitor {
             if (match.isPresent() && isNotSelf(match)) {
                 match.get().setMemberCalled(true);
             }
+        } else if (node instanceof FieldOrPropertyAccessNode) {
+        	FieldOrPropertyAccessNode fieldNode = (FieldOrPropertyAccessNode) node;
 
 
+            Optional<Import> match = matchImports(ct, fieldNode.getName());
+
+            if (match.isPresent() && isNotSelf(match)) {
+                match.get().setMemberCalled(true);
+            }
         }
+
 
     }
 
 
 	private void handleTypeParameters(AstNode node, TypeNode type) {
-		 if (!type.getChildren().isEmpty()) {
+		 if (type != null && type.getChildren() != null && !type.getChildren().isEmpty()) {
 			 
 			 for(AstNode n :  type.getChildren()) {
 				 GenericTypeParameterNode g = (GenericTypeParameterNode)n;

@@ -9,11 +9,11 @@ import lense.core.lang.java.SingletonObject;
 @SingletonObject
 public final class Equal extends Comparison{
 
-	public static Equal Equal = new Equal();
+	public static Equal EQUAL = new Equal();
 
 	@Constructor(paramsSignature = "")
 	public static Equal constructor(){
-		return Equal;
+		return EQUAL;
 	}
 
 	@Override

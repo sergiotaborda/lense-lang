@@ -202,6 +202,11 @@ public class LenseToJavaCompiler extends LenseCompiler{
 		}
 	}
 
+	
+	protected File resolveNativeFile(File folder, String name) {
+		return new File( folder, name + ".class");
+	}
+	
 	protected void collectNative(FileLocations fileLocations, Map<String, File> nativeTypes) throws IOException {
 
 		if (!fileLocations.getNativeFolder().exists()){
@@ -255,7 +260,11 @@ public class LenseToJavaCompiler extends LenseCompiler{
                 String packageFile = n.getAbsolutePath().substring(rootDir.toString().length());
                 int pos = packageFile.indexOf(".java");
                 packageFile = packageFile.substring(0, pos) + ".class";
-                File source = new File(n.getParentFile(), n.getName().substring(0,  n.getName().length() - 5) + ".class");
+                
+                File source = resolveNativeFile(n.getParentFile(), n.getName().substring(0,  n.getName().length() - 5));
+                		
+                	
+                
                 File target = new File(fileLocations.getTargetFolder(),packageFile);
 
                 target.getParentFile().mkdirs();

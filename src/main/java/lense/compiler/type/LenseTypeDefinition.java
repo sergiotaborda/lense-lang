@@ -40,11 +40,15 @@ public class LenseTypeDefinition implements TypeDefinition {
     protected Map<String , Integer> genericParametersMapping = new HashMap<>();
     private TypeDefinition superDefinition;
     private boolean isAbstract;
+    private boolean isAlgebric;
     private boolean isNative;
     private Visibility visibility;
     private boolean plataformSpecific;
 	private LenseTypeDefinition specificationOrigin = null;
     private boolean isFinal = false;
+    
+    private List<TypeDefinition> caseValues = Collections.emptyList();
+    private List<TypeDefinition> caseTypes = Collections.emptyList();
 
     public LenseTypeDefinition(String name, TypeKind kind, LenseTypeDefinition superDefinition) {
         this.name = name;
@@ -793,6 +797,32 @@ public class LenseTypeDefinition implements TypeDefinition {
 	public boolean contains(TypeVariable other) {
 		return this.equals(other);
 	}
+
+	public boolean isAlgebric() {
+		return isAlgebric;
+	}
+
+	public void setAlgebric(boolean isAlgebric) {
+		this.isAlgebric = isAlgebric;
+	}
+
+	public List<TypeDefinition> getCaseTypes() {
+		return caseTypes;
+	}
+
+	public void setCaseTypes(List<TypeDefinition> caseTypes) {
+		this.caseTypes = caseTypes;
+	}
+
+	public List<TypeDefinition> getCaseValues() {
+		return caseValues;
+	}
+
+	public void setCaseValues(List<TypeDefinition> caseValues) {
+		this.caseValues = caseValues;
+	}
+
+
 
 
 

@@ -16,6 +16,7 @@ import lense.compiler.type.variable.RangeTypeVariable;
 import lense.compiler.type.variable.TypeVariable;
 import lense.compiler.typesystem.LenseTypeSystem;
 import lense.compiler.typesystem.Variance;
+import lense.compiler.utils.Strings;
 
 public class LoadedClassBuilder {
 
@@ -76,7 +77,12 @@ public class LoadedClassBuilder {
 
 	public LenseTypeDefinition build() {
 
-		LenseTypeDefinition rdef = this.resolveTypByNameAndKind(name.replace('/', '.'), kind);
+		String[] classNames = Strings.split(name,"/");
+		
+		if (kind.isObject()) {
+			classNames[classNames.length - 1] = Strings.pascalToCammelCase(classNames[classNames.length - 1]);
+		}
+		LenseTypeDefinition rdef = this.resolveTypByNameAndKind(Strings.join(classNames, "."), kind);
 
 		if (!(rdef instanceof LoadedLenseTypeDefinition)) {
 			return rdef;

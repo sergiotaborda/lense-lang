@@ -1,6 +1,25 @@
+import lense.core.lang.Boolean;
+import lense.core.lang.HashValue;
 
 
-public native abstract class Comparison {
+public abstract class Comparison is equal, greater, smaller {
 
+	public default isSmaller() => false;
+	public default isEqual() => false;
+	public default isGreater() => false;
 
 }
+
+public object equal extends Comparison {
+	public override isEqual() => true;
+}
+
+public object greater extends Comparison {
+	public override isGreater() => true;
+}
+
+public object smaller extends Comparison {
+	public override isSmaller() => true;
+}
+
+

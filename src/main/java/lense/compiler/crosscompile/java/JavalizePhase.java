@@ -15,6 +15,8 @@ import lense.compiler.repository.UpdatableTypeRepository;
 
 public final class JavalizePhase implements CompilerPhase {
 
+	protected static String AutoGenerateHashCodeAndEquals = "AutoGenerateHashCodeAndEquals";
+	protected static String AutoGenerateAsString = "AutoGenerateAsString";
 	
 	private CompilerListener listener;
 	private Map<String, File> nativeTypes;

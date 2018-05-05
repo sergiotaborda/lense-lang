@@ -12,6 +12,7 @@ import compiler.syntax.AstNode;
 import compiler.trees.Visitor;
 import compiler.trees.VisitorNext;
 import lense.compiler.asm.ByteCodeTypeDefinitionReader;
+import lense.compiler.ast.BlockNode;
 import lense.compiler.ast.BooleanOperatorNode;
 import lense.compiler.ast.CastNode;
 import lense.compiler.ast.ClassTypeNode;
@@ -20,6 +21,7 @@ import lense.compiler.ast.FormalParameterNode;
 import lense.compiler.ast.ImutabilityNode;
 import lense.compiler.ast.MethodDeclarationNode;
 import lense.compiler.ast.MethodInvocationNode;
+import lense.compiler.ast.TypeNode;
 import lense.compiler.ast.VariableDeclarationNode;
 import lense.compiler.ast.VariableReadNode;
 import lense.compiler.context.SemanticContext;
@@ -232,6 +234,29 @@ public final class JavalizeVisitor implements Visitor<AstNode>{
                     }
 
                 }
+            } else if (n.getKind() == lense.compiler.type.LenseUnitKind.Object ){
+            	TypeDefinition type = n.getSemanticContext().resolveTypeForName(n.getName(), n.getGenericParametersCount()).get().getTypeDefinition();
+
+            	 boolean hashValue = type.getAllMembers().stream().filter( c -> c.isMethod()).map(c -> (Method)c).filter(m -> m.isOverride() && m.getName().equals("hashValue")).findFirst().isPresent();
+            	 boolean equals = type.getAllMembers().stream().filter( c -> c.isMethod()).map(c -> (Method)c).filter(m -> m.isOverride() &&m.getName().equals("equalsTo")).findFirst().isPresent();
+            	 boolean asString = type.getAllMembers().stream().filter( c -> c.isMethod()).map(c -> (Method)c).filter(m -> m.isOverride() && m.getName().equals("asString")).findFirst().isPresent();
+            	 
+            	 if (!(hashValue ^ equals) && hashValue !=  equals) {
+            		   throw new lense.compiler.CompilationError(node, "Methods hashValue and equalsTo are corelated. You have to override both or none");
+            	 }
+            	 
+            	 if (!(hashValue && equals)) {
+            		 // both are missing
+            		 node.setProperty(JavalizePhase.AutoGenerateHashCodeAndEquals, true);
+            	 }
+            	 
+            	 if (!asString) {
+            		 // both are missing
+            		 
+            		 node.setProperty(JavalizePhase.AutoGenerateAsString, true);
+            		 
+
+            	 }
             }
 
 

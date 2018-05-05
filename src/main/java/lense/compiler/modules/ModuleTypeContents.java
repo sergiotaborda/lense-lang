@@ -13,7 +13,6 @@ import lense.compiler.repository.UpdatableTypeRepository;
 import lense.compiler.repository.Version;
 import lense.compiler.type.LenseTypeDefinition;
 import lense.compiler.type.TypeDefinition;
-import lense.compiler.type.variable.TypeVariable;
 import lense.compiler.typesystem.LenseTypeSystem;
 import lense.compiler.typesystem.TypeSearchParameters;
 import lense.compiler.utils.Collections;

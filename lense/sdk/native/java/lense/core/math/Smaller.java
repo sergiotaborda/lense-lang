@@ -10,11 +10,11 @@ import lense.core.lang.java.SingletonObject;
 @SingletonObject
 public final class Smaller extends Comparison{
 
-	public static Smaller Smaller = new Smaller();
+	public static Smaller SMALLER = new Smaller();
 
 	@Constructor(paramsSignature = "")
 	public static Smaller constructor(){
-		return Smaller;
+		return SMALLER;
 	}
 
 	@Override

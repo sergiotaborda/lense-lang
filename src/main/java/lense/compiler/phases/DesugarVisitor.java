@@ -443,13 +443,11 @@ public class DesugarVisitor extends AbstractLenseVisitor {
                             // no-op
                         }
 
-                        MethodInvocationNode invocation = new MethodInvocationNode(
-                                rightIsZero ? n.getLeft() : n.getRight(), methodName);
+                        MethodInvocationNode invocation = new MethodInvocationNode( rightIsZero ? n.getLeft() : n.getRight(), methodName);
                         invocation.setTypeVariable(n.getTypeVariable());
 
                         if (negate) {
-                            PreBooleanUnaryExpression not = new PreBooleanUnaryExpression(BooleanOperation.LogicNegate,
-                                    invocation);
+                            PreBooleanUnaryExpression not = new PreBooleanUnaryExpression(BooleanOperation.LogicNegate,invocation);
                             node.getParent().replace(node, not);
                         } else {
                             node.getParent().replace(node, invocation);
@@ -457,31 +455,24 @@ public class DesugarVisitor extends AbstractLenseVisitor {
 
                     } else {
 
-                        ObjectReadNode parameter = new ObjectReadNode(
-                                semanticContext.resolveTypeForName("lense.core.math.Equal", 0).get(), "Equal");
-
-                        boolean negate = false;
-                        switch (n.getOperation()) {
-                        case GreaterOrEqualTo:
-                            negate = true;
-                        case LessThan:
-                            parameter = new ObjectReadNode(
-                                    semanticContext.resolveTypeForName("lense.core.math.Smaller", 0).get(), "Smaller");
-                            break;
-                        case LessOrEqualTo:
-                            negate = true;
-                        case GreaterThan:
-                            parameter = new ObjectReadNode(
-                                    semanticContext.resolveTypeForName("lense.core.math.Greater", 0).get(), "Greater");
-                            break;
-                        default:
-                            // no-op
-                        }
-
-                        ArgumentListItemNode parg = new ArgumentListItemNode(0, parameter);
-                        parg.setExpectedType(parameter.getTypeVariable());
-
-                        MethodInvocationNode equalsTo = new MethodInvocationNode(compareTo, "equalsTo", parg);
+                      boolean negate = false;
+                      String methodName = "isEqual";
+                      switch (n.getOperation()) {
+                      case GreaterOrEqualTo:
+                          negate = true;
+                      case LessThan:
+                    	  methodName = "isSmaller";
+                          break;
+                      case LessOrEqualTo:
+                          negate = true;
+                      case GreaterThan:
+                    	  methodName = "isGreater";
+                          break;
+                      default:
+                          // no-op
+                      }
+                    	
+                    	MethodInvocationNode equalsTo = new MethodInvocationNode(compareTo, methodName);
                         equalsTo.setTypeVariable(n.getTypeVariable());
 
                         if (negate) {

@@ -35,7 +35,9 @@ public class ClassTypeNode extends AnnotadedLenseAstNode implements ScopeDelimit
 	private boolean isAbstract;
 	private boolean isFinal;
 	private boolean isSealed;
+	private boolean isAlgebric;
 	private Visibility visibility;
+	private ChildTypesListNode childTypesListNode;
 	
 	public ClassTypeNode (LenseUnitKind kind){
 		this.kind = kind;
@@ -83,7 +85,7 @@ public class ClassTypeNode extends AnnotadedLenseAstNode implements ScopeDelimit
 		this.superType = upperType;
 		this.add(upperType);
 	}
-
+	
 	/**
 	 * Obtains {@link TypeNode}.
 	 * @return the superType
@@ -91,6 +93,17 @@ public class ClassTypeNode extends AnnotadedLenseAstNode implements ScopeDelimit
 	public TypeNode getSuperType() {
 		return superType;
 	}
+	
+	public void setAlgebricChildren(ChildTypesListNode childTypesListNode) {
+		this.childTypesListNode = childTypesListNode;
+		this.add(childTypesListNode);
+	}
+
+
+	public ChildTypesListNode getAlgebricChildren() {
+		return this.childTypesListNode;
+	}
+
 
 
 	/**
@@ -215,6 +228,14 @@ public class ClassTypeNode extends AnnotadedLenseAstNode implements ScopeDelimit
 
 	public void setSealed(boolean isSealed) {
 		this.isSealed = isSealed;
+	}
+
+	public boolean isAlgebric() {
+		return isAlgebric;
+	}
+
+	public void setAlgebric(boolean isAlgebric) {
+		this.isAlgebric = isAlgebric;
 	}
 
 

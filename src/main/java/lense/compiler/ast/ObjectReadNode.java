@@ -19,7 +19,7 @@ public class ObjectReadNode extends ExpressionNode {
 	 */
 	public ObjectReadNode(TypeVariable type, String objName) {
 		this.type = type;
-		this.objName = objName;
+		this.objName = objName.toUpperCase();
 	}
 	
 	public TypeVariable getTypeVariable(){
