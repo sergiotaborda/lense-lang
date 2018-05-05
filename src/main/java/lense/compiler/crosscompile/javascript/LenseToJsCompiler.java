@@ -44,4 +44,10 @@ public class LenseToJsCompiler extends LenseCompiler{
         // no-op for now
     }
 
+	@Override
+	protected File resolveNativeFile(File folder, String name) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

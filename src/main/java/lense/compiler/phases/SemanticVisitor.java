@@ -36,14 +36,18 @@ import lense.compiler.ast.AssignmentNode;
 import lense.compiler.ast.BooleanOperation;
 import lense.compiler.ast.BooleanOperatorNode;
 import lense.compiler.ast.BooleanValue;
+import lense.compiler.ast.BreakNode;
 import lense.compiler.ast.CastNode;
 import lense.compiler.ast.CatchOptionNode;
+import lense.compiler.ast.ChildTypeNode;
 import lense.compiler.ast.ClassBodyNode;
 import lense.compiler.ast.ClassTypeNode;
 import lense.compiler.ast.ComparisonNode;
 import lense.compiler.ast.ComparisonNode.Operation;
 import lense.compiler.ast.ConditionalStatement;
 import lense.compiler.ast.ConstructorDeclarationNode;
+import lense.compiler.ast.ContinueNode;
+import lense.compiler.ast.DecisionNode;
 import lense.compiler.ast.ExpressionNode;
 import lense.compiler.ast.FieldDeclarationNode;
 import lense.compiler.ast.FieldOrPropertyAccessNode;
@@ -82,9 +86,11 @@ import lense.compiler.ast.TernaryConditionalExpressionNode;
 import lense.compiler.ast.TypeNode;
 import lense.compiler.ast.TypeParametersListNode;
 import lense.compiler.ast.TypedNode;
+import lense.compiler.ast.UnitNode;
 import lense.compiler.ast.UnitaryOperation;
 import lense.compiler.ast.VariableReadNode;
 import lense.compiler.ast.VariableWriteNode;
+import lense.compiler.ast.WhileNode;
 import lense.compiler.context.SemanticContext;
 import lense.compiler.context.VariableInfo;
 import lense.compiler.crosscompile.PrimitiveBooleanValue;
@@ -204,7 +210,19 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 	@Override
 	public VisitorNext doVisitBeforeChildren(AstNode node) {
 
-		if (node instanceof ConstructorDeclarationNode) {
+		if (node instanceof ContinueNode) {
+			// verify is use inside a loop
+			if (!isUsedInLoop(node)) {
+				throw new CompilationError(node,"Cannot use continue directive outside a loop");
+			}
+			
+		} else if (node instanceof BreakNode) {
+			// verify is use inside a loop
+			if (!isUsedInLoop(node)) {
+				throw new CompilationError(node,"Cannot use break directive outside a loop");
+			}
+			
+		} else if (node instanceof ConstructorDeclarationNode) {
 
 			ConstructorDeclarationNode constructorDeclarationNode = (ConstructorDeclarationNode) node;
 
@@ -465,6 +483,34 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 				}
 			}
 
+			
+			// algebric values
+			if (t.isAlgebric()) {
+				
+				myType.setAlgebric(true);
+				
+				List<TypeDefinition> chidlValues = new ArrayList<>(t.getAlgebricChildren().getChildren().size());
+				List<TypeDefinition> chidlTypes = new ArrayList<>(t.getAlgebricChildren().getChildren().size());
+				
+				for ( AstNode n : t.getAlgebricChildren().getChildren()) {
+					ChildTypeNode ctn = (ChildTypeNode)n;
+					
+				
+					TypeDefinition childType = this.getSemanticContext().resolveTypeForName(ctn.getType().getName() , ctn.getType().getTypeParametersCount()).get().getTypeDefinition();
+
+					if (childType.getTypeDefinition().getKind().isObject()) {
+						chidlValues.add(childType);
+					} else {
+						chidlTypes.add(childType);
+					}
+					
+				}
+				
+				myType.setCaseTypes(chidlTypes);
+				myType.setCaseValues(chidlValues);
+			}
+		
+			
 			t.setTypeDefinition(myType);
 
 			this.currentType = myType;
@@ -587,6 +633,22 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 		}
 
 		return VisitorNext.Children;
+	}
+
+	private boolean isUsedInLoop(AstNode node) {
+	
+		if (node == null) {
+			return false;
+		}
+		
+		AstNode parent = node.getParent();
+		if (parent instanceof ForEachNode || parent instanceof WhileNode) {
+			return false;
+		} else if (parent instanceof PropertyDeclarationNode || parent instanceof MethodDeclarationNode || parent instanceof DecisionNode) {
+			return false;
+		} else {
+			return isUsedInLoop(parent);
+		}
 	}
 
 	private void addExpected(String name, Method method) {
@@ -2310,8 +2372,6 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 
 				}
 				
-				
-
 			} else if (node instanceof ClassTypeNode) {
 
 				ClassTypeNode t = (ClassTypeNode) node;
@@ -2321,13 +2381,17 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 						TypeNode tn = (TypeNode) n;
 						TypeDefinition typeVariable = ensureNotFundamental( tn.getTypeVariable().getTypeDefinition());
 						if (typeVariable.getKind() != LenseUnitKind.Interface) {
-							throw new CompilationError(t.getName() + " cannot implement " + typeVariable.getName()
+							throw new CompilationError(t, t.getName() + " cannot implement " + typeVariable.getName()
 							+ " because " + typeVariable.getName() + " it is a " + typeVariable.getKind()
 							+ " and not an interface");
 						}
 					}
-
 				}
+				
+				if (t.isAlgebric() && !t.isAbstract()) {
+					throw new CompilationError(t, t.getName() + " is algebric but is not marked abstract. Make it abstract or remove children types declarations.");
+				}
+				
 			} else if (node instanceof ConditionalStatement) {
 
 				if (!((ConditionalStatement) node).getCondition().getTypeVariable().getTypeDefinition()
@@ -2375,7 +2439,11 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 				if (!s.isDefault()) {
 					boolean literal = s.getValue() instanceof LiteralExpressionNode;
 					if (!literal) {
-						throw new CompilationError("Switch option must be a constant");
+						boolean object = s.getValue() instanceof ObjectReadNode;
+						
+						if (!object) {
+							throw new CompilationError("Switch case option value must be a constant");
+						}
 					}
 				}
 
@@ -2606,8 +2674,19 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 				Optional<Property> property = def.getPropertyByName(name);
 
 				if (!property.isPresent()) {
-					throw new CompilationError(node, "Field " + name + " is not defined in " + fieldOwnerType);
+					
+					// check possible object reference 
+					
+					Optional<TypeVariable> object = this.getSemanticContext().resolveTypeForName(name, 0);
+					
+					if (!object.isPresent()) {
+						throw new CompilationError(node, "Field " + name + " is not defined in " + fieldOwnerType);
+					}
 
+					m.setTypeVariable(object.get());
+
+					m.getParent().replace(m, new ObjectReadNode(object.get(), name));
+					
 				} else {
 					m.setTypeVariable(property.get().getReturningType()); // TODO
 					// use

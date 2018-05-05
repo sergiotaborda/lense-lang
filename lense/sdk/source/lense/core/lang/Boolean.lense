@@ -1,5 +1,5 @@
 
-public native class Boolean /{ is true , false }/ {
+public native class Boolean  is true , false  {
 
 	public native negate() : Boolean;
 	

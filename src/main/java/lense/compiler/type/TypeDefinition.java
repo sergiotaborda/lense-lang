@@ -4,9 +4,11 @@
 package lense.compiler.type;
 
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
+import lense.compiler.ast.ClassTypeNode;
 import lense.compiler.type.variable.TypeVariable;
 import lense.compiler.typesystem.Visibility;
 
@@ -72,6 +74,8 @@ public interface TypeDefinition extends TypeVariable {
 	public void updateFrom(TypeDefinition type);
 
 	public boolean isGeneric();
+	
+	public boolean isAlgebric();
 
 	public Optional<IndexerProperty> getIndexerPropertyByTypeArray(TypeVariable[] type);
 
@@ -79,7 +83,16 @@ public interface TypeDefinition extends TypeVariable {
 
 	public boolean isFinal();
 
+	public List<TypeDefinition> getCaseValues();
 
+	public List<TypeDefinition> getCaseTypes();
+	
+	public default List<TypeDefinition> getAllCases(){
+		LinkedList<TypeDefinition> list = new LinkedList<>(getCaseValues());
+		list.addAll(getCaseTypes());
+		
+		return list;
+	}
 
 
 

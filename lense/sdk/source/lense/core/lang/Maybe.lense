@@ -2,9 +2,14 @@
 
 import lense.core.lang.None;
 
-public native abstract class Maybe<out T> /{ TODO is Some<T> | None }/{
+public native class Maybe<out T> is Some<T> ,  none {
 
-	public constructor (){
-		return none;
-	}
+	// TODO Function<R,T>
+	// TODO generic methods
+	//public abstract map( mapper : Function<R,T>) : Maybe<R>;
+	
+	//public abstract or ( value :T) : T;
+	//public abstract value : T {get;} 
+
 }
+

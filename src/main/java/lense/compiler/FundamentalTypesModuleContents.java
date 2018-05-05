@@ -13,6 +13,7 @@ import lense.compiler.type.LenseTypeDefinition;
 import lense.compiler.type.TypeDefinition;
 import lense.compiler.typesystem.LenseTypeSystem;
 import lense.compiler.typesystem.TypeSearchParameters;
+import lense.compiler.utils.Strings;
 /**
  * 
  */

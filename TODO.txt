@@ -3,10 +3,10 @@ Lense CLI
 	run 
 	test
 	document
-Change Iterator to move + current (DONE)
 Change 
-	+ string operator to ++ => needs resolution on the increment/decrement operator issue [SYNTAX]
-	** operator to ^^ [SYNTAX] (DONE)
+	Iterator methods to move and current (DONE)
+	+ string operator to ++ => needs resolution on the increment/decrement operator issue [SYNTAX]  (DONE)
+	** operator to ^^ [SYNTAX] (DONE) 
 Commons patterns like :
 		"real + imaginary" to "new Complex(real,imaginary)"
 		1/x to x.invert();
@@ -19,8 +19,8 @@ Named Parameters and Default Parameters
 			call as print("hello") or as print("hello", myPrinter);
 Traits
 	interfaces accept default methods. Can be simulated as invocation with static methods or inline in javascript
-	a keyword may be used to deferenciate abstract methods from the ones that are defaults. this correlates to the inheritance structure
-	that shoud be closed/final by default
+	a keyword may be used to deferenciate abstract methods from the ones that are defaults. this correlates to the inheritance structure. use default keyword (DONE)
+	inheritance structure shoud be closed/final by default (DONE)
 Meta Types and meta Interfaces 
 	meta types can be defined explicitly and implements meta interfaces
 	Operators correlate to predefined meta interfaces
@@ -34,8 +34,8 @@ Imutability
 	save flag as an annotation, handle as a meta interface
 Generics
  	Add generic signatures to constructors [SYNTAX]
-	Capture generics locally (when calling constructors and methods with free generics)
-	Pass capture to methods and constructors
+	Capture generics locally (when calling constructors and methods) (DONE)
+	Pass capture to methods and constructors (DONE)
 	T extends X , T super X [SYNTAX]
 	resolve generics problem of adding list to a list (and a sequence to a sequence)
 	Generate GenericSignatures (DONE)
@@ -46,8 +46,8 @@ Flow Sensitive Typing
 	assert (DONE)
 Deconstructing
 Difference between val and var [DESIGN]
-	change val to let maintain var
-	make let the default when not explicit inclusive in method parameters to avoid redefining
+	change val to let maintain var (DONE)
+	make let the default when not explicit inclusive in method parameters to avoid redefining (DONE)
 	
 Tuples (BNF) and void
 	() === void
@@ -56,7 +56,7 @@ Tuples (BNF) and void
 	
 Implement Properties 
 	there are n fields in source code 
-	implict get and set
+	implict get and set (DONE)
 	in interfaces (DONE)
 	validate all non nullable properties are inicialized
 	do delegation    size {get = list.size}   or size => list.size (DONE)
@@ -65,8 +65,8 @@ Types
 	infere optional ": Void" for methods return (DONE)
 	generic types of generic types T<U>
 Reification
-	Generics in types 
-	generics in methods
+	Generics in types (DONE)
+	generics in methods (DONE)
 	generics in free methods 
 	generics on enancements
 	Expression<func>
@@ -110,8 +110,8 @@ Operators
 	/ always return elements of |Q , |R or |C    N/N , Z/Z , N/Z, Z/N , Q,Q -> Q , Q/R, R/Q, R/R -> R, x/C or C/x = C (DONE)
 	>> , << (Binary) (DONE)
 	& , | , ^ (DONE)
-	^^ (Exponenciable) pow() (DNOE)
-	+= ,*= (ok, auto  a += n <==> a = a + n and  a *= n <==> a = a * n
+	^^ (Exponenciable) pow() (DONE)
+	+= ,*= (ok, auto  a += n <==> a = a + n and  a *= n <==> a = a * n  
     -=, /= (only for some kinds  nat a = 2 , a -= 1 (ok); a-= 1(ok) ; a-= 1 (error);
 	++ , -- (Ordinal) successor() and predecessor() (DONE)
 	&+, &- , &*, &/ ==> these will wrap around silently (java default)^
@@ -143,14 +143,14 @@ Native implementations weaving
 	 - native = call to subjacent plataform api
 Case classes and objects
     - Object (DONE)
-    - Enum
+    - Enum (DONE via sealed types)
     - Annotation
     - Enhancements -> usefull for operations on numbers of different types. enhancements can be native
-	- case classes, 
-	- case objects 
+	- case classes,  (DONE via algebric types)
+	- case objects   (DONE via algebric types)
 	- data classes 
 	- value classes
-	- sum types like   Boolean is true | false;
+	- (sealed) sum types like: class Boolean is true | false; (DONE)
 Revisit ordering of elements in class body.
 	- it should not matter
 Revisit Fields  not initialized 
@@ -229,7 +229,7 @@ Maybe<T> cannot be Maybe<Maybe<T>> . What appends if T <: Any and Maybe<T> <: An
 Lambdas
      - how to compile 
      - handle Single Abstract Method types
-     - validate variables used are efectively final
+     - validate variables used are effectively final
 Monads
 	 monads are structural (have filter, map and flatmap) because of unit but can use exentions + Functor<T> interface
 	 Promisses   do (something) then (something) else (otherthing)

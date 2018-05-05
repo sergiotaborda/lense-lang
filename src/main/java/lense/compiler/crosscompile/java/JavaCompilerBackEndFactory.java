@@ -49,8 +49,12 @@ public class JavaCompilerBackEndFactory implements CompilerBackEndFactory {
 
         @Override
         public void use(CompiledUnit unit) {
+        	
             try{
+            	
+            	
                 compile(source.toSource(unit));
+                
             } catch (Exception e){
                 throw new RuntimeException("Error compiling unit " + unit.getUnit().getName(),e);
             }

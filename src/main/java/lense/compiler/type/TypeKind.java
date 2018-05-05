@@ -10,4 +10,6 @@ public interface TypeKind {
 
 	boolean isInterface();
 
+	boolean isObject();
+
 }

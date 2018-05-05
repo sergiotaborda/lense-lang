@@ -17,6 +17,10 @@ public enum LenseUnitKind implements TypeKind{
 	public boolean isInterface() {
 		return this == Interface;
 	}
+
+	public boolean isObject() {
+		return this == Object;
+	}
 	
 	
 }
