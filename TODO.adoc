@@ -1,0 +1,252 @@
+
+= TODO list 
+
+== Lense CLI
+
+- [x] compile
+- [ ] run 
+- [ ] test
+- [ ] document
+
+== Compiler / Language
+
+- [ ] revise reduce-reduce conflicts
+- [x] define variables with `let` and values with `val`. make `let` the default when not expliclity declared
+- [x] Iterator is moveNext/current not next/hasNext
+- [x] Indexes support multiple parameters `array[i]` , `matrix[i,j]` , `cube[i,j,k]`
+
+- [x] Object type 
+- [x] Selaed algebric types like: `class Boolean is true | false; `
+* [x] case classes,  ( via algebric types)
+* [x] case objects   ( via algebric types)
+- [x] Enums (via sealed types)
+- [ ] Annotation
+- [ ] Enhancements -> usefull for operations on numbers of different types. enhancements can be native
+- [ ] data classes 
+- [ ] value classes
+
+- [ ]  memorize declaring type (specially if implementing interface)
+
+
+- [ ] support lambdas 
+- [ ] handle Single Abstract Method types
+- [ ] validate variables used are effectively final ( so they can be used in lambdas)
+     
+- [x] native types 
+- [ ] native peers
+- [ ] native import like :  import native (js) jquery;
+- [ ] native = call to subjacent plataform api
+	 
+- [ ] Revisit ordering of elements in class body. it should not matter
+- [ ] Ensure  fields/properties  not initialized produce compilation erros
+- [ ] allow to place `module.lense` in source root folder
+- [x] allow for package in files to be  optional.
+* [x] if present validate it matches the folder structure
+ 
+- [x] support range literals `1...3` means  `1.upTo(3)` and  `1..<3` means  `1.upToExcluding(3)`
+- [x] support Interval literals `|[ , )|` operators 
+- [x] assume all whole numeric literals are natural numbers 
+- [x] assume all fractional numeric literals are rational numbers 
+- [x] define imaginary unit is 'i' and `2i` means  `Rational("2") * Complex.I`
+- [x] define sequence literals `[1,2,3,4]`
+- [x] define map literals `{ "a": 1, "b": 2 , "c" : 3}`
+- [ ] define  builders like `Window { Size = Size { 20, 40} }}{ equivalente to new : xml alternative + parser
+- [ ] define Property bags as single loadable/parsable file (JSON style) 
+		   
+
+- [ ] Support named parameters so `go ( from: x, to : y)` is the same as go `(to: y ; from: x)`
+- [ ] Support default parameters. define `print ( msg : String : printer : Printer = defaultPrinter)` then call as `print("hello")` or as `print("hello", myPrinter)`. Default can be any object.
+
+- [x] classes are open by default. methods are closed by default. To open methods define them `default`. Abstract methods are marked `abstract`. Methods that implements abstracts or redefines (overrrides) a default method are marked `override`. Compiler verifies correcteness.
+- [ ] allow interfaces to define deault methods. This will allow for using interfaces as traits. 
+
+- [ ] optimize common patterns like  `real + imaginary` to `new Complex(real,imaginary)` or `1/x` to `x.invert()`
+
+- [ ] allow definition and implementation of meta types and meta interfaces. meta interfaces cannot be implemented by objects but can be used as a type in a parameter or generic and in a instanceof (although may be not in auto cast)
+- [ ] use meta interfaces to define operators (currently are special named methods) 		
+- [ ] save imutability as an annotation, handle as a meta interface
+
+- [x] support auto-boxing and auto-unboxing of _native primitives_
+- [x] use auto-boxing to erase `Boolean` with primitive `boolean`  
+- [x] identity bound limits in loops  
+- [ ] erase numeric values to they primitive contertypes when bound limits are kown (like in ranges)
+- [ ] do not erase string. implement string as a lightweight rope
+
+- [x] capture generics locally when calling constructors 
+- [ ] capture generics locally when calling generic methods
+- [ ] capture generics locally when calling generic enhancements
+- [ ] support compiler assisted expressions 
+- [x] pass capture to other methods and constructors
+- [ ] support generic declaration in constructors [SYNTAX]
+- [ ] support inheritance of generics [SYNTAX] like `T extends X` and `T super X` or ` where T extends X`
+- [x] save generic signatures in .class using annotations
+
+- [x] support flow sensitive typing in `if` directives
+- [x] support flow sensitive typing in `&&` expressions (like `other is Human && other.isSlepping()` identifing other is `Human` after `&&`)
+- [ ] support flow sensitive typing in `||` expressions (like `other is Male || other.isPregnant()` identifing other is `Female` )t- [ ] support flow sensitive typing in `assert` directives
+- [ ] support flow sensitive typing in `switch` directives
+
+
+- [ ] support tuples desconstruction `(a, b) = (b, a)` 
+- [ ] identity `()` with the `void` object.
+- [ ] allow declaring objects as return type.
+- [ ] handle void objects inside boxes like  collections 
+
+- [x] support implicit get and set for properties
+- [x] support properties in interfaces
+- [x] support only propeties and not fields. private properties will be optimized to native fields.
+- [x] support simple delegation using `=>` like in  `size {get = list.size}` can be  `size => list.size`
+	- [ ] support optional typing and type inference
+- [x] support void return inference
+- [x] support generics of generics like T<U>
+
+- [x] support `Type` type as base for reflection
+- [ ] support `typeof(T)`operator [SYNTAX]
+- [x] support `is`operator [SYNTAX]
+
+- [x] detect and report non used imports
+- [ ] use only naming to find types. discard parametric type count
+- [x] accept classes in lense.core module automatically
+e
+- [x] support constructors delegation 
+- [ ] support constructors delegation when super constructor returns a different type 
+- [x] auto-declare properties in primary constructor
+- [x] rethink the static stategy. maybe having static things is a goog ideia (if could have static interfaces)
+
+- [ ] support module detection and import 
+- [ ] support module repositories (even remote ones)
+
+- [x] support operator for rational division `/` that always return elements of |Q , |R or |C    N/N , Z/Z , N/Z, Z/N , Q,Q -> Q , Q/R, R/Q, R/R -> R, x/C or C/x = C
+- [x] support operator for integer division `\` , consistent with `%` operator so that `D = d * q + r` where `q = D \ d` and `r = D % d`
+- [ ] support comparison operators, including `<=>`,  based in `Comparable<T>` and `Comparison` objects
+- [ ] support exists x as a flow sensitive way to decapsulate Maybe similar to instanceof 
+		if (exists x) {  x.do()  }  == transforms to ==> if (x.isPresent) { x' = x.Value ; x'.do() } 
+		return exists x;  == transforms to ==> return x.hasValue()
+		OR implement if (x != none) == transforms to ==> if (x.isPresent) { x' = x.Value ; x'.do() } BETTER because as no more keywords
+- [ ] bound comparison operators compositions e.x: `if (2 < x() <= 10)` transforms to `if ( y = x();  2 < y && y <= 10)` simplify if x is not a function `if (2 <x && x < 4)
+		- rewrite `if ( x() in |(2 , 10 ]|)` as `if (2 < x() <= 10)` in the case of numbers
+
+- [x] support non commutable concatenation operator `++`. (`+` would mean is commutable) 
+- [x] support non commutable power operator `^^` (`**` is confusing in formulas with multiplication  operators `x * y ** z` vs `x * y ^^ z` 
+		
+- [ ] support `?.` operator [SYNTAX]
+- [x] support `+` , `-` and `+` operators that scale up to memory limit
+- [x] support `<<` and `>>` operators 
+- [x] support `&` , `|` and `^` injunction operators 
+- [x] support `^^` power operator
+- [x] support `-` symmetric unary  operator.  `Natural.symmetric():Integer`
+- [x] support `+=` and `*=` operators expanding like  `a += n <==> a = a + n` and  `a *= n <==> a = a * n`
+- [x] support `-=` and `-=` operators only for some kinds. for naturals  `a = 2 ; a -= 1` (ok); `a-= 1(ok)` ; `a-= 1` (error);
+- [x] support `++` , `--` (Ordinal) successor() and predecessor() 
+- [ ] support  warp operators (java default) like `&+` , `&-` ,`&*`, `&/` 
+- [ ] support  maybe  operators like `?+` , `?-` ,`?*`, `?/` . they handle all with Maybe and use `none` for overflow operations 
+- [ ] support  exact check operators  like `!+` , `!-` ,`!*`, `!/`. they throw OverflowException on overflow like java's AddExact, SubtractExact, MultiplyExact methods
+
+=== Understanding
+
+==== Operators
+
+	i++ and i-- this operators implies in tree rewrite of on node by a collection of nodes. are statements, not expressions. 
+	equivalent to a = a.sucessor() and a = a.predecessor();
+
+	In32.max.sucessor = In32.max; (warp)
+	In32.max !+ 1 := Int32.max.exactPlus((Integer)1) -> OverflowException(). this does AddExact
+	In32.max &+ 1 := Int32.max.wrapPlus(1) == Int32.min                Int32.wrapPlus(Int32):Int32
+	In32.max ?+ 1 := In32.max.checkPlus(1) == none              Int32.checkPlus(Int32):Maybe<Int32>
+	In32? result = 2 ?+ In32.max ?+ 2   ==>  new Some(2).map( a -> a.checkPlus(Int32.max)).map(b -> b.checkPlus(2) )
+	
+	Super Numbers , BigInt and Natural do not throw exception, nor warp, or overflow. They increase as needed (default) (DONE)
+	
+	BigInt max = Int32.max; // same as BigInt max = BigInt.valueOf(Int32.max)
+	BigInt next = max + 1; // BigInt next = max.plus(BigInt.valueOf(Natural(1)))
+	BigInt aftermax = In64.valueof(Int32.max) + 1  // BigInt.valueOf( In64.valueOf(Int32.max).plus(Natural(1)))
+	Assert.AreEqual(aftermax, next);
+
+
+
+
+	 
+==== Currying 	 
+ Methods are wrappers arround functions because they curry arround 'this'. static types do not curry constructors are curried Actions like constructor.apply(this): Void. 
+
+==== Imutability
+value classes :  public val class Rational , to mean the class is imutable. properties must also be val or only have methods
+ value classes are "primitives" and can be safely shared by actors: actor.send(message). Message must be imutable or seriablizable.
+Mark interfaces Imutable and Serializable and have : class Actor {   Void send<T extends Imutable | Serializable>(T msg)  }
+
+==== Companion objects	 
+ Constructors, companions, and methods vs functions and apply.  Client("A") <=> Client.apply("A") <=> Client.Companion.apply("A")
+	 
+=== Monads
+	 monads are structural (have filter, map and flatmap) because of unit but can use exentions + Functor<T> interface
+	 Promisses   do (something) then (something) else (otherthing)
+	 Maybe
+	 Collection (aka Enumerable)
+	 
+	 Maybe<T> cannot be Maybe<Maybe<T>> . What appends if T <: Any and Maybe<T> <: Any ?
+	Introduce more super types in the hierarchy. Consider renaming  Maybe<T> to Reference<T> 
+			Any 
+				AnyObject : can be any object
+					User defined types inherit from  Object by default unless the programmer explicits otherwise.
+				Maybe<V extends AnyObject>  : can be Some<V> or None. This structure proibits Maybe<Maybe<A>> since Maybe is not an AnyObject
+			Nothing	
+			
+			This structure can poibit to have some methods like, in a Map<AnyObject K, AnyObject V> with method get(K key ): Maybe<V> 
+			is impossible to have  Map<AnyObject K , Maybe<V> > since Maybe is not AnyObject
+			This means the key cannot be present without the valor. If  map.contains(key) is true, then is also true the value exists and is not None. 
+
+
+Ad elvis operator since transparent maybe is no good ?:
+    List<String>? maybeList = ...
+    maybeList.map( a -> a) <---- accessing maybe.map, a is a list
+    maybeList.hasValue
+    maybeList?.map( a -> a) <----- accessing list.map, a is a string
+    maybeList?size <----- accessing list.size
+    maybeList?[1] <----- accessing list[1]
+    
+    or 
+    
+    maybeList@map( a -> a) <---- accessing maybe.map, a is a list
+    maybeList@hasValue
+    
+    maybeList.map( a -> a) <----- accessing list.map, a is a string
+    maybeList.size <----- accessing list.size
+    maybeList[1] <----- accessing list[1]
+    
+    or 
+    
+    maybeList:map( a -> a) <---- accessing maybe.map, a is a list
+    maybeList:hasValue
+    maybeList.map( a -> a) <----- accessing list.map, a is a string
+    maybeList.size <----- accessing list.size
+    maybeList[1] <----- accessing list[1]
+    
+
+
+
+=== Callable
+	Functions<R, T...> are subtypes of Callable<R, Tuple<T, Tuple<T...>>>
+	Have method R call([T...] paramsTuple)
+	Have a method 'after' for composition f o g =>  f.after(g) => f(g(x))
+	Have a method 'then' for composition f o g =>  g.then(f) => f(g(x))
+ 
+
+		
+=== Static reading
+	- Differentiate objects from types
+	- Differentiate methods called on objects (e.x: Console.print) from methods called on companion object, from calls to constructors.
+	Interperter calls like "Console.println" as "Console.Companion.println"
+		in java "Companion" is a static field in "Console". Companion is a singleton but is not a singleton of the given class. it was its own class.
+		Alternativly "Console" is the name of an object. In this case if "console" exists in package lang.io there will be a class named "IO$Package" and
+		static field of type Console on it so "Console.println" would be IO$Package.Console.println" 
+
+
+
+
+=== References
+
+Scala way of "all are functions" collapses the Collections variance intuition becasue functions are contravariant 
+	and collections concepts are covariant the result is an invariant collections api
+	http://www.stackoverflow.dluat.com/questions/676615/why-is-scalas-immutable-set-not-covariant-in-its-type	 
+
+	
