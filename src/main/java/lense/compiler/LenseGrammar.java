@@ -2120,7 +2120,16 @@ public class LenseGrammar extends AbstractLenseGrammar {
         getNonTerminal("switchLabels").addSemanticAction((p, r) -> {
 
             if (r.size() == 1) {
-                p.setAstNode(r.get(0).getAstNode().get());
+            	AstNode a = r.get(0).getAstNode().get();
+            	
+            	if (a instanceof SwitchOptions) {
+            		p.setAstNode(r.get(0).getAstNode().get());
+            	} else {
+                    SwitchOptions node = new SwitchOptions();
+                    node.add(a);
+                    
+                    p.setAstNode(node);
+            	}
             } else {
 
                 AstNode a = r.get(0).getAstNode().get();

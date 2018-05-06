@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import lense.compiler.repository.UpdatableTypeRepository;
 import lense.compiler.type.LenseTypeDefinition;
@@ -27,6 +29,8 @@ public class LoadedClassBuilder {
 	private String[] interfaces;
 	private boolean isNative;
 	private String signature;
+	private String caseValues;
+	private String caseTypes;
 	private final UpdatableTypeRepository typeContainer;
 	
 	Map<String, TypeMember> properties = new HashMap<String, TypeMember>();
@@ -92,6 +96,13 @@ public class LoadedClassBuilder {
 		def.setKind(kind);
 		def.setPlataformSpecific(plataformSpecific);
 		def.setNative(isNative);
+		
+		
+			
+		def.setCaseValues(Stream.of(Strings.split(this.caseValues, ",")).map( c -> this.resolveTypByNameAndKind(c, LenseUnitKind.Object)).collect(Collectors.toList()));
+		def.setCaseTypes(Stream.of(Strings.split(this.caseTypes, ",")).map( c -> this.resolveTypByNameAndKind(c, LenseUnitKind.Class)).collect(Collectors.toList()));
+		
+		def.setAlgebric(!def.getAllCases().isEmpty());
 
 		// parse signature for types
 		if (this.signature == null) {
@@ -412,6 +423,24 @@ public class LoadedClassBuilder {
 		return type;
 
 	}
+
+	public String getCaseTypes() {
+		return caseTypes;
+	}
+
+	public void setCaseTypes(String caseTypes) {
+		this.caseTypes = caseTypes;
+	}
+
+	public String getCaseValues() {
+		return caseValues;
+	}
+
+	public void setCaseValues(String caseValues) {
+		this.caseValues = caseValues;
+	}
+
+	
 
 	
 

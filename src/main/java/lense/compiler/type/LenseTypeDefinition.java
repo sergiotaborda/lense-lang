@@ -90,8 +90,14 @@ public class LenseTypeDefinition implements TypeDefinition {
     	   other.superDefinition = this.superDefinition;
     	   other.isAbstract = this.isAbstract;
     	   other.isNative = this.isNative;
+    	   other.isFinal = this.isFinal;
     	   other.visibility = this.visibility;
     	   other.plataformSpecific = this.plataformSpecific;
+    	   other.isAlgebric = this.isAlgebric;
+    	   other.caseTypes = this.caseTypes;
+    	   other.caseValues = this.caseValues;
+    	 
+    	   
            return other;
     }
 

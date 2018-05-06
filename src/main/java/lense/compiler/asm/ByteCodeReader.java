@@ -150,8 +150,6 @@ public class ByteCodeReader extends ClassVisitor {
 		return Visibility.Undefined;
 	}
 
-	
-
 
 	private class NativeAnnotationVisitor extends AnnotationVisitor {
 
@@ -177,6 +175,10 @@ public class ByteCodeReader extends ClassVisitor {
 
 			if ("value".equals(name)) {
 				loadedClassBuilder.setSignature(value.toString());
+			} else if ("caseValues".equals(name)) {
+				loadedClassBuilder.setCaseValues(value.toString());
+			} else if ("caseTypes".equals(name)) {
+				loadedClassBuilder.setCaseTypes(value.toString());
 			}
 		}
 

@@ -341,9 +341,23 @@ public class Main extends ConsoleApplication {
 			case (smaller){
 				console.println("smaller");
 			}
-			case (greater){
+		    case(greater) {
 				console.println("greater");
 			}
+		}
+
+		let b = true;
+		switch(b){
+			case (true) { console.println("true"); }
+			case (false) { console.println("false"); }
+		}
+
+		let n = 4;
+		switch(n){
+			case (1) {console.println("1");} 
+			case (2) {console.println("2");}
+			case (4) {console.println("4");}
+			default {console.println("8");}    
 		}
 	} 
 }
