@@ -3,8 +3,10 @@ package lense.core.lang;
 import lense.core.lang.java.Base;
 import lense.core.lang.java.Constructor;
 import lense.core.lang.java.PlatformSpecific;
+import lense.core.lang.java.Signature;
 
 // Must be already erased 
+@Signature(value = "::",caseValues="lense.core.lang.true,lense.core.lang.false")
 public class Boolean extends Base implements Any{
 
 	public static Boolean TRUE = new Boolean(true);
@@ -44,6 +46,11 @@ public class Boolean extends Base implements Any{
 	@Override
 	public String asString() {
 		return String.valueOfNative(java.lang.Boolean.toString(value));
+	}
+	
+	@PlatformSpecific
+	public boolean equalsTo(boolean other) {
+		return this.value == other;
 	}
 	
 	@Override

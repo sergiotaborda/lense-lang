@@ -184,4 +184,19 @@ public class PrimitiveTypeDefinition implements TypeDefinition {
 	public boolean contains(TypeVariable other) {
 		return this.equals(other);
 	}
+
+	@Override
+	public boolean isAlgebric() {
+		return false;
+	}
+
+	@Override
+	public List<TypeDefinition> getCaseValues() {
+		return Collections.emptyList();
+	}
+
+	@Override
+	public List<TypeDefinition> getCaseTypes() {
+		return Collections.emptyList();
+	}
 }

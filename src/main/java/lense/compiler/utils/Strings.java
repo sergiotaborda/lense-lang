@@ -7,7 +7,9 @@ public class Strings {
 
 	
 	public static String[] split(String text, String separator) {
-		
+		if (text == null) {
+			return new String[0];
+		}
 		if (text.contains(separator)) {
 			if (separator.equals(".")){
 				return text.split("\\.");

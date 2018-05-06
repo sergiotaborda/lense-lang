@@ -9,12 +9,14 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Deque;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -81,6 +83,7 @@ import lense.compiler.ast.RangeNode;
 import lense.compiler.ast.ReturnNode;
 import lense.compiler.ast.ScopedVariableDefinitionNode;
 import lense.compiler.ast.StringConcatenationNode;
+import lense.compiler.ast.SwitchNode;
 import lense.compiler.ast.SwitchOption;
 import lense.compiler.ast.TernaryConditionalExpressionNode;
 import lense.compiler.ast.TypeNode;
@@ -504,6 +507,8 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 						chidlTypes.add(childType);
 					}
 					
+					ctn.getType().setTypeVariable(childType);
+					
 				}
 				
 				myType.setCaseTypes(chidlTypes);
@@ -760,6 +765,44 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 				r.replace(val, n);
 			}
 
+		} else if (node instanceof SwitchNode) {
+			SwitchNode switchNode = (SwitchNode) node;
+			
+			TypeDefinition type = ensureNotFundamental(switchNode.getCandidate().getTypeVariable().getTypeDefinition());
+			switchNode.getCandidate().setTypeVariable(type);
+			
+			if (type.isAlgebric()) {
+				Set<TypeDefinition> set = new HashSet<>(switchNode.getCandidate().getTypeVariable().getTypeDefinition().getCaseValues());
+				
+				boolean defaultFound = false;
+				for ( AstNode op : switchNode.getOptions().getChildren()) {
+					SwitchOption t = (SwitchOption)op;
+					
+					if (t.isDefault()) {
+						defaultFound = true;
+						continue;
+					}
+					
+					if (t.getValue() instanceof BooleanValue) {
+						set.remove(new FundamentalLenseTypeDefinition("lense.core.lang." + ((BooleanValue)t.getValue()).getLiteralValue(), LenseUnitKind.Object, (LenseTypeDefinition) LenseTypeSystem.Boolean()));
+					} else {
+						set.remove(t.getValue().getTypeVariable().getTypeDefinition());
+					}
+					
+					
+				}
+				
+				if (!set.isEmpty() && !defaultFound) {
+					//check if default option is present
+					throw new CompilationError(node, "Not all cases where covered and no default case was declared. Cover all case values or declare a default case.");
+				}
+			} else {
+				boolean defaultFound = switchNode.getOptions().getChildren().stream().filter(c -> ((SwitchOption)c).isDefault()).findAny().isPresent();
+				if (!defaultFound) {
+					//check if default option is present
+					throw new CompilationError(node, "Candidate type has no declared coverage and default case was not declared. Ddeclare a default case.");
+				}
+			}
 		} else {
 			LenseTypeSystem typeSystem = LenseTypeSystem.getInstance();
 

@@ -11,4 +11,6 @@ import java.lang.annotation.Target;
 public @interface Signature {
 
 	String value(); //variable_name:super_class_type_bound:interface_type_bounds
+	String caseValues() default "";
+	String caseTypes() default "";
 }

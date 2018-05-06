@@ -30,6 +30,7 @@ import lense.compiler.ast.BooleanValue;
 import lense.compiler.ast.CaptureReifiedTypesNode;
 import lense.compiler.ast.CastNode;
 import lense.compiler.ast.CatchOptionNode;
+import lense.compiler.ast.ChildTypeNode;
 import lense.compiler.ast.ClassTypeNode;
 import lense.compiler.ast.ComparisonNode;
 import lense.compiler.ast.ComparisonNode.Operation;
@@ -474,7 +475,40 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 					generics.deleteCharAt(generics.length() - 1);
 				}
 
-				writer.append("@lense.core.lang.java.Signature(\"").append(generics).println("\")");
+				writer.append("@lense.core.lang.java.Signature(value = \"").append(generics).append("\"");
+				
+				if (t.isAlgebric()) {
+					
+					StringBuilder values = new StringBuilder();
+					StringBuilder types = new StringBuilder();
+					
+					for (AstNode a : t.getAlgebricChildren().getChildren()) {
+						ChildTypeNode ctn = (ChildTypeNode)a;
+						
+						if (ctn.getType().getTypeVariable().getTypeDefinition().getKind().isObject()) {
+							if (values.length() != 0) {
+								values.append(",");
+							}
+							values.append(ctn.getType().getTypeVariable().getTypeDefinition().getName());
+						} else {
+							if (types.length() != 0) {
+								types.append(",");
+							}
+							types.append(ctn.getType().getTypeVariable().getTypeDefinition().getName());
+						}
+					}
+					
+					if (values.length() != 0) {
+						writer.append(", caseValues = \"").append(values).append("\"");
+					}
+					
+					if (types.length() != 0) {
+						writer.append(", caseTypes = \"").append(types).append("\"");
+					}
+						
+				}
+				
+				writer.println(")");
 
 				if (t.getKind().isObject()) {
 					writer.append("@lense.core.lang.java.SingletonObject()").println();
