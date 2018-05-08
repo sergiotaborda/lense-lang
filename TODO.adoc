@@ -29,13 +29,12 @@
 
 
 - [ ] support lambdas 
-- [ ] handle Single Abstract Method types
+- [ ] support Single Abstract Method types as lambdas
 - [ ] validate variables used are effectively final ( so they can be used in lambdas)
      
 - [x] native types 
 - [ ] native peers
 - [ ] native import like :  import native (js) jquery;
-- [ ] native = call to subjacent plataform api
 	 
 - [ ] Revisit ordering of elements in class body. it should not matter
 - [ ] Ensure  fields/properties  not initialized produce compilation erros
@@ -48,28 +47,29 @@
 - [x] assume all whole numeric literals are natural numbers 
 - [x] assume all fractional numeric literals are rational numbers 
 - [x] define imaginary unit is 'i' and `2i` means  `Rational("2") * Complex.I`
+- [ ] optimize common patterns like:
+* [ ]  `real + imaginary` to `new Complex(real,imaginary)` 
+* [ ]  `1/x` to `x.invert()`
 - [x] define sequence literals `[1,2,3,4]`
 - [x] define map literals `{ "a": 1, "b": 2 , "c" : 3}`
-- [ ] define  builders like `Window { Size = Size { 20, 40} }}{ equivalente to new : xml alternative + parser
+- [ ] define  builders like `Window { Size = Size { 20, 40} }}`  equivalent to new : xml alternative + parser
 - [ ] define Property bags as single loadable/parsable file (JSON style) 
 		   
 
 - [ ] Support named parameters so `go ( from: x, to : y)` is the same as go `(to: y ; from: x)`
 - [ ] Support default parameters. define `print ( msg : String : printer : Printer = defaultPrinter)` then call as `print("hello")` or as `print("hello", myPrinter)`. Default can be any object.
 
-- [x] classes are open by default. methods are closed by default. To open methods define them `default`. Abstract methods are marked `abstract`. Methods that implements abstracts or redefines (overrrides) a default method are marked `override`. Compiler verifies correcteness.
+- [x] classes are open by default. methods are closed by default. To open methods define them `default`. Abstract methods are marked `abstract`. Methods that implements abstracts or redefines (overrrides) a default method are marked `override`. Compiler verifies correctness.
 - [ ] allow interfaces to define deault methods. This will allow for using interfaces as traits. 
-
-- [ ] optimize common patterns like  `real + imaginary` to `new Complex(real,imaginary)` or `1/x` to `x.invert()`
 
 - [ ] allow definition and implementation of meta types and meta interfaces. meta interfaces cannot be implemented by objects but can be used as a type in a parameter or generic and in a instanceof (although may be not in auto cast)
 - [ ] use meta interfaces to define operators (currently are special named methods) 		
-- [ ] save imutability as an annotation, handle as a meta interface
+- [ ] save immutability as an annotation, handle as a meta interface
 
 - [x] support auto-boxing and auto-unboxing of _native primitives_
 - [x] use auto-boxing to erase `Boolean` with primitive `boolean`  
 - [x] identity bound limits in loops  
-- [ ] erase numeric values to they primitive contertypes when bound limits are kown (like in ranges)
+- [ ] erase numeric values to they primitive conterparts when bound limits are kown (like in ranges)
 - [ ] do not erase string. implement string as a lightweight rope
 
 - [x] capture generics locally when calling constructors 
@@ -83,7 +83,8 @@
 
 - [x] support flow sensitive typing in `if` directives
 - [x] support flow sensitive typing in `&&` expressions (like `other is Human && other.isSlepping()` identifing other is `Human` after `&&`)
-- [ ] support flow sensitive typing in `||` expressions (like `other is Male || other.isPregnant()` identifing other is `Female` )t- [ ] support flow sensitive typing in `assert` directives
+- [ ] support flow sensitive typing in `||` expressions (like `other is Male || other.isPregnant()` identifing other is `Female` )t
+- [ ] support flow sensitive typing in `assert` directives
 - [ ] support flow sensitive typing in `switch` directives
 
 
@@ -96,7 +97,8 @@
 - [x] support properties in interfaces
 - [x] support only propeties and not fields. private properties will be optimized to native fields.
 - [x] support simple delegation using `=>` like in  `size {get = list.size}` can be  `size => list.size`
-	- [ ] support optional typing and type inference
+	
+- [ ] support optional typing and type inference
 - [x] support void return inference
 - [x] support generics of generics like T<U>
 
@@ -107,7 +109,8 @@
 - [x] detect and report non used imports
 - [ ] use only naming to find types. discard parametric type count
 - [x] accept classes in lense.core module automatically
-e
+e
+
 - [x] support constructors delegation 
 - [ ] support constructors delegation when super constructor returns a different type 
 - [x] auto-declare properties in primary constructor
@@ -128,9 +131,8 @@ e
 
 - [x] support non commutable concatenation operator `++`. (`+` would mean is commutable) 
 - [x] support non commutable power operator `^^` (`**` is confusing in formulas with multiplication  operators `x * y ** z` vs `x * y ^^ z` 
-		
 - [ ] support `?.` operator [SYNTAX]
-- [x] support `+` , `-` and `+` operators that scale up to memory limit
+- [x] support `+` , `-` and `*` operators that scale up to memory limit
 - [x] support `<<` and `>>` operators 
 - [x] support `&` , `|` and `^` injunction operators 
 - [x] support `^^` power operator
