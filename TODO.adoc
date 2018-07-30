@@ -84,7 +84,7 @@
 - [x] support flow sensitive typing in `if` directives
 - [x] support flow sensitive typing in `&&` expressions (like `other is Human && other.isSlepping()` identifing other is `Human` after `&&`)
 - [ ] support flow sensitive typing in `||` expressions (like `other is Male || other.isPregnant()` identifing other is `Female` )t
-- [ ] support flow sensitive typing in `assert` directives
+- [x] support flow sensitive typing in `assert` directives
 - [ ] support flow sensitive typing in `switch` directives
 
 
