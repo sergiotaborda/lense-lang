@@ -20,31 +20,31 @@ public class NewInstanceCreationNode extends ExpressionNode{
 	private String name;
 	private Constructor constructor;
 	private CreationTypeNode creationtype;
-	
+
 	public static NewInstanceCreationNode of(TypeVariable left) {
 		return new NewInstanceCreationNode(left, new ArgumentListNode());
-		
+
 	}
-	
+
 	public static NewInstanceCreationNode of(TypeNode left) {
 		return new NewInstanceCreationNode(left);
 	}
-	
+
 
 	public static NewInstanceCreationNode of(TypeVariable type, Constructor constructor, AstNode param) {
 		ArgumentListItemNode arg = new ArgumentListItemNode(0, param);
 		arg.setExpectedType(constructor.getParameters().get(0).getType());
-		
-		
+
+
 		final NewInstanceCreationNode c = new NewInstanceCreationNode(type, ArgumentListNode.of(arg));
 		c.setConstructor(constructor);
-		
+
 		return c;
 
 	}
 
 	public static NewInstanceCreationNode of(TypeVariable type, Constructor constructor,   AstNode ... params) {
-		
+
 		ArgumentListNode list = new ArgumentListNode();
 		int count=0;
 		List<CallableMemberMember<Constructor>> parameters = constructor.getParameters();
@@ -57,38 +57,56 @@ public class NewInstanceCreationNode extends ExpressionNode{
 
 		return new NewInstanceCreationNode(type, list);
 	}
-	
+
+	public static NewInstanceCreationNode of(TypeVariable type, ArgumentListItemNode ... params) {
+
+		ArgumentListNode list = new ArgumentListNode();
+
+		for (ArgumentListItemNode a : params){
+			list.add(a);
+		}
+
+		return new NewInstanceCreationNode(type, list);
+	}
+
 	public NewInstanceCreationNode (){}
-	
+
 	private NewInstanceCreationNode (TypeNode t){
 		this(t, new ArgumentListNode());
 	}
-	
+
 	protected NewInstanceCreationNode (TypeNode t,ArgumentListNode args){
 		setTypeNode(t);
 
 		setArguments(args);
-		
+
 		CreationTypeNode ct = new CreationTypeNode(t.getName());
-		
-		for( AstNode p : t.getChildren()) {
-			ct.getTypeParametersListNode().add(p);
+
+		if (t.getTypeVariable() != null) {
+			for (TypeVariable v : t.getTypeVariable().getGenericParameters()) {
+				ct.getTypeParametersListNode().add(new GenericTypeParameterNode(new TypeNode(v)));
+			}
+			
+		} else {
+			for( GenericTypeParameterNode p : t.getChildren(GenericTypeParameterNode.class)) {
+				ct.getTypeParametersListNode().add(p.duplicate());
+			}
 		}
-	
+
 		setCreationParameters(ct);
 	}
-	
+
 	private NewInstanceCreationNode (TypeVariable type, ArgumentListNode args){
 		this(new TypeNode(type), args);
 
 		setArguments(args);
 	}
-	
+
 	public CreationTypeNode getCreationParameters() {
 		return creationtype;
 
 	}
-	
+
 
 	/**
 	 * @param typeNode
@@ -97,11 +115,11 @@ public class NewInstanceCreationNode extends ExpressionNode{
 		this.typeNode = type;
 		this.add(type);
 	}
-	
+
 	public TypeNode getTypeNode(){
 		return typeNode;
 	}
-	
+
 
 
 	/**
@@ -111,7 +129,7 @@ public class NewInstanceCreationNode extends ExpressionNode{
 		this.argumentList = argumentList;
 		this.add(argumentList);
 	}
-	
+
 	/**
 	 * Obtains {@link ArgumentListNode}.
 	 * @return the argumentList
@@ -127,15 +145,15 @@ public class NewInstanceCreationNode extends ExpressionNode{
 	public TypeVariable getTypeVariable() {
 		return typeNode.getTypeVariable();
 	}
-	
+
 	public void setTypeVariable(TypeVariable type) {
-		 super.setTypeVariable(type);
-		 typeNode.setTypeVariable(type);
+		super.setTypeVariable(type);
+		typeNode.setTypeVariable(type);
 	}
 
 
 	public void replace(AstNode oldNode , AstNode newNode){
-		
+
 		if (oldNode instanceof TypeNode){
 			super.replace(this.typeNode, newNode);
 			this.typeNode = (TypeNode) newNode;
@@ -147,7 +165,7 @@ public class NewInstanceCreationNode extends ExpressionNode{
 	public void setConstructorName(String name) {
 		this.name = name;
 	}
-	
+
 	public String getName(){
 		return name;
 	}

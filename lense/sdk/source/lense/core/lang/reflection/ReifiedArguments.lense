@@ -1,10 +1,10 @@
 
 
-import lense.core.lang.reflection.Type;
+import lense.core.lang.reflection.TypeResolver;
 import lense.core.math.Natural;
 
 public interface ReifiedArguments {
 
-	public  typeAt( index :  Natural) : Type;
-	public  fromIndex( index: Natural) : ReifiedArguments;
+	public  typeAt( index :  Natural) : TypeResolver;
+
 } 

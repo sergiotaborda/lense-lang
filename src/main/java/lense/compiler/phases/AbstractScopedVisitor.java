@@ -5,9 +5,11 @@ import java.util.Optional;
 import compiler.syntax.AstNode;
 import compiler.trees.VisitorNext;
 import lense.compiler.CompilationError;
+import lense.compiler.ast.FormalParameterNode;
 import lense.compiler.ast.GenericTypeParameterNode;
 import lense.compiler.ast.TypeNode;
 import lense.compiler.context.SemanticContext;
+import lense.compiler.context.VariableInfo;
 import lense.compiler.type.LenseTypeDefinition;
 import lense.compiler.type.variable.DeclaringTypeBoundedTypeVariable;
 import lense.compiler.type.variable.TypeVariable;
@@ -53,6 +55,14 @@ public abstract class AbstractScopedVisitor extends AbstractLenseVisitor  {
 
 			if (index.isPresent()) {
 				type = new DeclaringTypeBoundedTypeVariable(this.getCurrentType().get(), index.get(), t.getName(), positionVariance);
+			} else if (t.getParent() instanceof FormalParameterNode) {
+				
+				FormalParameterNode f = (FormalParameterNode)t.getParent();
+				if (!f.isMethodTypeBound()) {
+					throw new CompilationError(t, "Type "  + t.getName() + " is not recognized. Did you imported it?");
+				}
+				
+				type = f.getTypeVariable();
 			} else {
 				throw new CompilationError(t, "Type "  + t.getName() + " is not recognized. Did you imported it?");
 			}

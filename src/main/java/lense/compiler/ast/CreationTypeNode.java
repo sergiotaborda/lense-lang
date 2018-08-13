@@ -6,10 +6,9 @@ public class CreationTypeNode extends LenseAstNode {
 	private TypeParametersListNode typeParametersListNode = new TypeParametersListNode();
 	
 	public CreationTypeNode(String typeName) {
-
 		this.typeName = typeName;
 	}
-
+	
 	public void setParameters(TypeParametersListNode typeParametersListNode) {
 		this.typeParametersListNode = typeParametersListNode;
 	}

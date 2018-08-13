@@ -23,12 +23,21 @@ import lense.compiler.typesystem.Visibility;
 
 public class PrimitiveTypeDefinition implements TypeDefinition {
 
-	public static final PrimitiveTypeDefinition BOOLEAN = new PrimitiveTypeDefinition("boolean");
+	public static final PrimitiveTypeDefinition BOOLEAN = new PrimitiveTypeDefinition("boolean", "Boolean");
+	public static final PrimitiveTypeDefinition CHAR = new PrimitiveTypeDefinition("char", "Character");
+	public static final PrimitiveTypeDefinition INT = new PrimitiveTypeDefinition("int", "Integer");
 	
 	private String name;
 
-	public PrimitiveTypeDefinition(String name){
+	private String wrapperName;
+
+	public PrimitiveTypeDefinition(String name, String wrapperName){
 		this.name = name;
+		this.wrapperName = wrapperName;
+	}
+	
+	public String getWrapperName() {
+		return wrapperName;
 	}
 	
 	@Override

@@ -1,9 +1,11 @@
 package lense.compiler.asm;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import lense.compiler.crosscompile.PrimitiveTypeDefinition;
@@ -34,6 +36,7 @@ public class MethodBuilder {
 	String paramsSignature;
 	public boolean overloaded;
 	public String declaringType;
+	public String boundedTypes;
 
 	public MethodBuilder(LoadedClassBuilder loadedClassBuilder, MethodAsmInfo info) {
 		this.loadedClassBuilder  = loadedClassBuilder;
@@ -123,13 +126,10 @@ public class MethodBuilder {
 		MethodReturn r = new MethodReturn(rt);
 
 		List<MethodParameter> params = new LinkedList<>();
-		String[] signatureParams = paramsSignature == null || paramsSignature.isEmpty() 
-					? new String[0] 
-					: paramsSignature.contains(",") 
-						? paramsSignature.split(",") 
-						: new String[] {paramsSignature};
-						
-						
+		String[] signatureParams = Strings.split(paramsSignature, ",");
+								
+		Set<String> boundedTypesParams = new HashSet<>(Arrays.asList(Strings.split(boundedTypes, ",")));
+					
 		int a = 1;
 		while (a < pos) {
 			int s = a;
@@ -141,7 +141,18 @@ public class MethodBuilder {
 				
 				String sname = signatureParams.length > params.size() ?  signatureParams[params.size()]  : name;
 				
-				params.add(new MethodParameter(resolveRelativeType(def,sname)));
+		
+				
+				if (boundedTypesParams.contains(name)) {
+					MethodParameter mp = new MethodParameter(new RangeTypeVariable(sname, Variance.Invariant, LenseTypeSystem.Any(), LenseTypeSystem.Nothing()));
+					mp.setMethodTypeBound(true);
+					params.add(mp);
+				} else {
+					MethodParameter mp = new MethodParameter(resolveRelativeType(def,sname));
+					params.add(mp);
+				}
+				
+				
 			} else if (type == 'Z') {
 				params.add(new MethodParameter(LenseTypeSystem.Boolean()));
 				a = a + 1;
@@ -181,9 +192,9 @@ public class MethodBuilder {
 		} else if (name.startsWith("Z")) {
 			return LenseTypeSystem.Boolean();
 		} else if ("I".equals(name)) {
-			return new PrimitiveTypeDefinition("int");
+			return PrimitiveTypeDefinition.INT;
 		} else 	if ("C".equals(name)) {
-			return new PrimitiveTypeDefinition("char");
+			return PrimitiveTypeDefinition.CHAR;
 		} else  {
 			String qualifiedName;
 			if (name.startsWith("L")) {

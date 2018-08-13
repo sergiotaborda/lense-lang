@@ -20,6 +20,7 @@ import lense.compiler.ast.DecisionNode;
 import lense.compiler.ast.FieldDeclarationNode;
 import lense.compiler.ast.FieldOrPropertyAccessNode;
 import lense.compiler.ast.FormalParameterNode;
+import lense.compiler.ast.GenericTypeParameterNode;
 import lense.compiler.ast.IndexerPropertyDeclarationNode;
 import lense.compiler.ast.InstanceOfNode;
 import lense.compiler.ast.MethodDeclarationNode;
@@ -40,6 +41,7 @@ import lense.compiler.type.MethodReturn;
 import lense.compiler.type.TypeDefinition;
 import lense.compiler.type.TypeMember;
 import lense.compiler.type.variable.DeclaringTypeBoundedTypeVariable;
+import lense.compiler.type.variable.RangeTypeVariable;
 import lense.compiler.type.variable.TypeVariable;
 import lense.compiler.typesystem.LenseTypeSystem;
 import lense.compiler.typesystem.Variance;
@@ -68,7 +70,7 @@ public class StructureVisitor extends AbstractScopedVisitor {
 	 */
 	@Override
 	public VisitorNext doVisitBeforeChildren(AstNode node) {
-	    if (node instanceof FormalParameterNode) {
+		 if (node instanceof FormalParameterNode) {
 			FormalParameterNode formal = ((FormalParameterNode) node);
 
 			try {
@@ -99,7 +101,18 @@ public class StructureVisitor extends AbstractScopedVisitor {
             
             TreeTransverser.transverse(n.getExpression(), this);
 
-        }   
+        }   else if (node instanceof MethodDeclarationNode) {
+			MethodDeclarationNode n = (MethodDeclarationNode)node;
+			
+        	for(AstNode a : n.getMethodScopeGenerics().getChildren()) {
+				GenericTypeParameterNode g = (GenericTypeParameterNode)a;
+				
+				RangeTypeVariable range = new RangeTypeVariable(g.getTypeNode().getName(), g.getVariance(), LenseTypeSystem.Any(), LenseTypeSystem.Nothing());
+				
+				this.getSemanticContext().currentScope().defineTypeVariable(g.getTypeNode().getName(), range, n);
+
+			}
+        }
 		return VisitorNext.Children;
 	}
 	
@@ -213,6 +226,14 @@ public class StructureVisitor extends AbstractScopedVisitor {
 			ParametersListNode parameters = m.getParameters();
 			MethodParameter[] params = asMethodParameters(parameters);
 
+			for (GenericTypeParameterNode g : m.getMethodScopeGenerics().getChildren(GenericTypeParameterNode.class)) {
+				for (MethodParameter p : params) {
+					if (!p.isMethodTypeBound()) {
+						p.setMethodTypeBound(isMethodTypeBound(g.getTypeVariable(), p.getType()));
+					}
+				}
+			}
+			
 			Visibility visiblity = m.getVisibility();
 			
 			if (visiblity == null){
@@ -324,6 +345,23 @@ public class StructureVisitor extends AbstractScopedVisitor {
 
 
 
+	private boolean isMethodTypeBound(TypeVariable genericParameter, TypeVariable parameterType) {
+		
+		if (parameterType.getSymbol().flatMap( ps ->  genericParameter.getSymbol().map( gs -> gs.equals(ps))).orElse(false)) {
+			return true;
+		}
+		
+		if (!parameterType.getGenericParameters().isEmpty()) {
+			for (TypeVariable t : parameterType.getGenericParameters()) {
+				if (isMethodTypeBound(genericParameter, t)) {
+					return true;
+				}
+			}
+		}
+		
+		return false;
+	}
+
 	private ConstructorParameter[] asConstructorParameters(ParametersListNode parameters) {
 		MethodParameter[] params = asMethodParameters(parameters);
 		ConstructorParameter[] cparams = new ConstructorParameter[params.length];
@@ -357,9 +395,13 @@ public class StructureVisitor extends AbstractScopedVisitor {
 				}
 				lense.compiler.type.variable.TypeVariable tv = new DeclaringTypeBoundedTypeVariable(currentType, opIndex.get(), var.getTypeNode().getTypeParameter().getSymbol().get(), Variance.ContraVariant);
 
-				params[i] = new MethodParameter(tv, var.getName());
+				MethodParameter mp  = new MethodParameter(tv, var.getName());
+				mp.setMethodTypeBound(var.isMethodTypeBound());
+				params[i] = mp;
 			} else {
-				params[i] = new MethodParameter(var.getTypeVariable(), var.getName());
+				MethodParameter mp  = new MethodParameter(var.getTypeVariable(), var.getName());
+				mp.setMethodTypeBound(var.isMethodTypeBound());
+				params[i] = mp;
 			}
 
 		}

@@ -20,6 +20,7 @@ import compiler.trees.Visitor;
 import compiler.trees.VisitorNext;
 import lense.compiler.ast.ArgumentListItemNode;
 import lense.compiler.ast.ArgumentListNode;
+import lense.compiler.ast.ArgumentTypeResolverNode;
 import lense.compiler.ast.ArithmeticNode;
 import lense.compiler.ast.AssertNode;
 import lense.compiler.ast.AssignmentNode;
@@ -51,6 +52,7 @@ import lense.compiler.ast.LiteralTupleInstanceCreation;
 import lense.compiler.ast.MethodDeclarationNode;
 import lense.compiler.ast.MethodInvocationNode;
 import lense.compiler.ast.NewInstanceCreationNode;
+import lense.compiler.ast.NewTypeResolverNode;
 import lense.compiler.ast.NoneValue;
 import lense.compiler.ast.NumericValue;
 import lense.compiler.ast.ObjectReadNode;
@@ -58,6 +60,7 @@ import lense.compiler.ast.ParametersListNode;
 import lense.compiler.ast.PosExpression;
 import lense.compiler.ast.PreBooleanUnaryExpression;
 import lense.compiler.ast.QualifiedNameNode;
+import lense.compiler.ast.ReificationScope;
 import lense.compiler.ast.ReturnNode;
 import lense.compiler.ast.StatementNode;
 import lense.compiler.ast.StringConcatenationNode;
@@ -68,6 +71,8 @@ import lense.compiler.ast.TernaryConditionalExpressionNode;
 import lense.compiler.ast.ThowNode;
 import lense.compiler.ast.TryStatement;
 import lense.compiler.ast.TypeNode;
+import lense.compiler.ast.TypeParameterTypeResolverNode;
+import lense.compiler.ast.TypedNode;
 import lense.compiler.ast.VariableDeclarationNode;
 import lense.compiler.ast.VariableReadNode;
 import lense.compiler.ast.VariableWriteNode;
@@ -77,6 +82,7 @@ import lense.compiler.crosscompile.PrimitiveBooleanBox;
 import lense.compiler.crosscompile.PrimitiveBooleanOperationsNode;
 import lense.compiler.crosscompile.PrimitiveBooleanUnbox;
 import lense.compiler.crosscompile.PrimitiveBooleanValue;
+import lense.compiler.crosscompile.PrimitiveTypeDefinition;
 import lense.compiler.phases.ReificationVisitor;
 import lense.compiler.type.LenseTypeDefinition;
 import lense.compiler.type.LenseUnitKind;
@@ -170,10 +176,10 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 				if (n.getOperation() == BooleanOperation.LogicNegate) {
 					writer.print("!");
 					TreeTransverser.transverse(n.getChildren().get(0), this);
-				} else if (n.getChildren().size() == 2){
-				
+				} else if (n.getChildren().size() == 2) {
+
 					TreeTransverser.transverse(n.getChildren().get(0), this);
-					
+
 					if (n.getOperation() == BooleanOperation.BitOr) {
 						writer.print(" | ");
 					} else if (n.getOperation() == BooleanOperation.BitAnd) {
@@ -181,9 +187,9 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 					} else if (n.getOperation() == BooleanOperation.BitXor) {
 						writer.print(" ^ ");
 					}
-					
+
 					TreeTransverser.transverse(n.getChildren().get(1), this);
-					
+
 				} else {
 					throw new UnsupportedOperationException();
 				}
@@ -254,6 +260,7 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 						if (intPart.equals("0")) {
 							intPart = "";
 						}
+
 						writer.append("lense.core.math.Rational")
 								.append(".constructor(lense.core.math.NativeNumberFactory.newInteger(").append(intPart)
 								.append(decPart).append("),lense.core.math.NativeNumberFactory.newInteger(")
@@ -272,8 +279,20 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 					if (typeName.equals("Whole") || typeName.equals("Any")) {
 						typeName = "Natural";
 					}
-					writer.append("lense.core.math.NativeNumberFactory.new").append(typeName).append("(")
-							.append(n.toString()).append(")");
+
+					if ("Natural".equals(typeName)) {
+						if (n.isZero()) {
+							writer.append("lense.core.math.Natural.ZERO");
+						} else if (n.isOne()) {
+							writer.append("lense.core.math.Natural.ONE");
+						} else {
+							writer.append("lense.core.math.Natural.valueOfNative(").append(n.toString()).append(")");
+						}
+					} else {
+						writer.append("lense.core.math.NativeNumberFactory.new").append(typeName).append("(")
+								.append(n.toString()).append(")");
+					}
+
 				}
 
 			} else if (node instanceof lense.compiler.ast.LiteralSequenceInstanceCreation) {
@@ -357,7 +376,7 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 
 				TypeVariable innerType = interval.getTypeVariable().getGenericParameters().get(0);
 
-				String reificationArgs = "lense.core.lang.reflection.JavaReifiedArguments.getInstance().addType(\""
+				String reificationArgs = "lense.core.lang.reflection.JavaReifiedArguments.getInstance().addTypeByName(\""
 						+ innerType.getTypeDefinition().getName() + "\")";
 				writer.append("lense.core.math.Interval.constructor(").append(reificationArgs).append(",");
 
@@ -476,15 +495,15 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 				}
 
 				writer.append("@lense.core.lang.java.Signature(value = \"").append(generics).append("\"");
-				
+
 				if (t.isAlgebric()) {
-					
+
 					StringBuilder values = new StringBuilder();
 					StringBuilder types = new StringBuilder();
-					
+
 					for (AstNode a : t.getAlgebricChildren().getChildren()) {
-						ChildTypeNode ctn = (ChildTypeNode)a;
-						
+						ChildTypeNode ctn = (ChildTypeNode) a;
+
 						if (ctn.getType().getTypeVariable().getTypeDefinition().getKind().isObject()) {
 							if (values.length() != 0) {
 								values.append(",");
@@ -497,17 +516,17 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 							types.append(ctn.getType().getTypeVariable().getTypeDefinition().getName());
 						}
 					}
-					
+
 					if (values.length() != 0) {
 						writer.append(", caseValues = \"").append(values).append("\"");
 					}
-					
+
 					if (types.length() != 0) {
 						writer.append(", caseTypes = \"").append(types).append("\"");
 					}
-						
+
 				}
-				
+
 				writer.println(")");
 
 				if (t.getKind().isObject()) {
@@ -549,7 +568,6 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 					break;
 				}
 
-			
 				writer.print(className);
 
 				if (t.getKind() != LenseUnitKind.Interface) {
@@ -588,31 +606,35 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 				if (t.getKind().isObject()) {
 					// special singleton object code
 					// singleton instance
-					
+
 					String instanceName = className.toUpperCase();
-					writer.append(" public static ").append(className).append(" ").append(instanceName).append(" = new ")
-							.append(className).append("();").println();
+					writer.append(" public static ").append(className).append(" ").append(instanceName)
+							.append(" = new ").append(className).append("();").println();
 
 					// constructor factory
 					writer.append(" \n@lense.core.lang.java.Constructor(paramsSignature = \"\")").println();
-					writer.append(" public static ").append(className).append(" constructor (){\n return ").append(instanceName)
-							.append(";\n }").println();
+					writer.append(" public static ").append(className).append(" constructor (){\n return ")
+							.append(instanceName).append(";\n }").println();
 
 					// private constructor
 					writer.append(" private ").append(className).append("(){}").println();
-					
+
 					if (t.getProperty(JavalizePhase.AutoGenerateAsString, Boolean.class).orElse(false)) {
-						writer.append("@Override public lense.core.lang.String asString() { return lense.core.lang.String.valueOfNative(\"").append(name).append("\");}").println();
+						writer.append(
+								"@Override public lense.core.lang.String asString() { return lense.core.lang.String.valueOfNative(\"")
+								.append(name).append("\");}").println();
 					}
-					
+
 					if (t.getProperty(JavalizePhase.AutoGenerateHashCodeAndEquals, Boolean.class).orElse(false)) {
-						writer.append("@Override public boolean equalsTo(lense.core.lang.Any other) {return other instanceof ").append(className).append("; }").println();
+						writer.append(
+								"@Override public boolean equalsTo(lense.core.lang.Any other) {return other instanceof ")
+								.append(className).append("; }").println();
 
-						writer.append("@Override public lense.core.lang.HashValue hashValue() { return new lense.core.lang.HashValue(0); }").println();
+						writer.append(
+								"@Override public lense.core.lang.HashValue hashValue() { return new lense.core.lang.HashValue(0); }")
+								.println();
 
-				
 					}
-				
 
 				}
 
@@ -675,8 +697,9 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 				ObjectReadNode n = (ObjectReadNode) node;
 
 				String[] javaClassNames = Strings.split(n.getTypeVariable().getTypeDefinition().getName(), ".");
-				javaClassNames[javaClassNames.length -1 ] = Strings.cammelToPascalCase(javaClassNames[javaClassNames.length -1]); 
-				
+				javaClassNames[javaClassNames.length - 1] = Strings
+						.cammelToPascalCase(javaClassNames[javaClassNames.length - 1]);
+
 				writer.append(Strings.join(javaClassNames, ".")).append(".").append(n.getObjectName());
 			} else if (node instanceof ForEachNode) {
 				ForEachNode f = (ForEachNode) node;
@@ -745,30 +768,30 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 				SwitchNode n = (SwitchNode) node;
 
 				writer.println();
-//				writer.print(" switch (");
-//				TreeTransverser.transverse(n.getCandidate(), this);
-//				writer.println(") { ");
-//
-//				for (AstNode a : n.getOptions().getChildren()) {
-//					SwitchOption op = (SwitchOption) a;
-//					if (op.isDefault()) {
-//						writer.print(" default");
-//					} else {
-//						writer.print(" case ");
-//						TreeTransverser.transverse(op.getValue(), this);
-//						writer.println(":");
-//					}
-//
-//					TreeTransverser.transverse(op.getActions(), this);
-//					writer.println("break;");
-//				}
-//
-//				writer.println("}");
-				
+				// writer.print(" switch (");
+				// TreeTransverser.transverse(n.getCandidate(), this);
+				// writer.println(") { ");
+				//
+				// for (AstNode a : n.getOptions().getChildren()) {
+				// SwitchOption op = (SwitchOption) a;
+				// if (op.isDefault()) {
+				// writer.print(" default");
+				// } else {
+				// writer.print(" case ");
+				// TreeTransverser.transverse(op.getValue(), this);
+				// writer.println(":");
+				// }
+				//
+				// TreeTransverser.transverse(op.getActions(), this);
+				// writer.println("break;");
+				// }
+				//
+				// writer.println("}");
+
 				boolean first = true;
 				Optional<SwitchOption> defaultOption = Optional.empty();
 				for (AstNode a : n.getOptions().getChildren()) {
-					
+
 					SwitchOption op = (SwitchOption) a;
 					if (op.isDefault()) {
 						defaultOption = Optional.of(op);
@@ -784,10 +807,10 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 					writer.append("))").println();
 					TreeTransverser.transverse(op.getActions(), this);
 					writer.println();
-					
+
 					first = false;
-				} 
-				
+				}
+
 				if (defaultOption.isPresent()) {
 					writer.append("else ").println();
 					TreeTransverser.transverse(defaultOption.get().getActions(), this);
@@ -906,8 +929,23 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 						}
 					} else {
 						writer.print(".append(");
+
+						if (n instanceof MethodInvocationNode) {
+							MethodInvocationNode mi = (MethodInvocationNode)n;
+							
+							if (((TypedNode)mi.getAccess()).getTypeVariable() instanceof PrimitiveTypeDefinition) {
+								PrimitiveTypeDefinition primitive = (PrimitiveTypeDefinition)((TypedNode)mi.getAccess()).getTypeVariable();
+								
+								writer.print("java.lang." + primitive.getWrapperName() +  ".toString(");
+								TreeTransverser.transverse(mi.getAccess(), this);
+								writer.print("))");
+								continue;
+							} 
+						}
+							
 						TreeTransverser.transverse(n, this);
 						writer.print(".toString())");
+						
 					}
 
 				}
@@ -916,14 +954,72 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 			} else if (node instanceof CaptureReifiedTypesNode) {
 				CaptureReifiedTypesNode capture = (CaptureReifiedTypesNode) node;
 
-				writer.append("lense.core.lang.reflection.JavaReifiedArguments.getInstance()");
+				if (!capture.getChildren().isEmpty()) {
+					writer.append("lense.core.lang.reflection.JavaReifiedArguments.getInstance()");
 
-				for (AstNode c : capture.getTypeParametersListNode().getChildren()) {
-					GenericTypeParameterNode p = (GenericTypeParameterNode) c;
+					for (AstNode c : capture.getChildren()) {
 
-					writer.append(".addType(\"").append(p.getTypeNode().getName()).append("\")");
+						writer.append(".addType(");
+
+						TreeTransverser.transverse(c, this);
+
+						writer.append(")");
+
+					}
+				}
+
+				return VisitorNext.Siblings;
+			} else if (node instanceof NewTypeResolverNode) {
+				NewTypeResolverNode capture = (NewTypeResolverNode) node;
+
+				writer.append("lense.core.lang.reflection.TypeResolver.byName(\"").append(capture.getTypeName())
+						.append("\")");
+
+				if (capture.hasParameters()) {
+
+					writer.append(".withGenerics(");
+
+					boolean first = true;
+					for (AstNode c : capture.getChildren()) {
+
+						if (first) {
+							first = false;
+						} else {
+							writer.append(",");
+						}
+
+						TreeTransverser.transverse(c, this);
+
+					}
+
+					writer.append(")");
 
 				}
+				return VisitorNext.Siblings;
+
+			} else if (node instanceof TypeParameterTypeResolverNode) {
+
+				TypeParameterTypeResolverNode c = (TypeParameterTypeResolverNode) node;
+
+				writer.append("lense.core.lang.reflection.TypeResolver.byGenericParameter(");
+
+				TreeTransverser.transverse(c.getOriginal(), this);
+
+				writer.append(",");
+				writer.print(c.getIndex());
+				writer.append(")");
+
+			} else if (node instanceof ArgumentTypeResolverNode) {
+				ArgumentTypeResolverNode arg = (ArgumentTypeResolverNode) node;
+
+				List<ArgumentListItemNode> invocation = arg.getArgumentItem().getFirstChild()
+						.getChildren(ArgumentListNode.class).get(0).getChildren(ArgumentListItemNode.class);
+				AstNode base = invocation.get(arg.getArgumentItem().getIndex() + 1).getFirstChild();
+
+				writer.append("lense.core.lang.reflection.TypeResolver.of(");
+				TreeTransverser.transverse(base, this);
+				writer.append(".type())");
+
 			} else if (node instanceof ArgumentListNode) {
 				ArgumentListNode n = (ArgumentListNode) node;
 
@@ -1139,7 +1235,7 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 				for (AstNode p : ctr.getParameters().getChildren()) {
 					FormalParameterNode t = ((FormalParameterNode) p);
 
-					if (t.getName().equals(ReificationVisitor.REIFICATION_INFO)) {
+					if (t.getName().equals(ReificationVisitor.TYPE_REIFICATION_INFO)) {
 						continue;
 					}
 					if (!isFirst) {
@@ -1391,14 +1487,14 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 				writer.append(" instanceof ");
 
 				if (n.getTypeNode().getTypeVariable().getTypeDefinition().getKind().isObject()) {
-					String[] names = Strings.split(n.getTypeNode().getTypeVariable().getTypeDefinition().getName(), ".");
-					names[names.length -1] = Strings.cammelToPascalCase(names[names.length - 1]);
-					
+					String[] names = Strings.split(n.getTypeNode().getTypeVariable().getTypeDefinition().getName(),
+							".");
+					names[names.length - 1] = Strings.cammelToPascalCase(names[names.length - 1]);
+
 					writer.append(Strings.join(names, "."));
 				} else {
 					TreeTransverser.transverse(n.getTypeNode(), this);
 				}
-				
 
 				writer.append(")");
 
@@ -1495,12 +1591,25 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 				RangeTypeVariable c = (RangeTypeVariable) typeVar;
 				writer.print(c.getSymbol().get());
 			} else {
-				writer.print(typeVar.getTypeDefinition().getName()); // TODO, recusrive generic parameters
+				writer.print(typeVar.getTypeDefinition().getName()); // TODO, recursive generic parameters
 			}
 		}
-		
+
 		if (m.getSuperMethod() != null) {
-			writer.append("\" , overloaded = true , declaringType = \"").append(m.getSuperMethod().getDeclaringType().getTypeDefinition().getName());
+			writer.append("\" , overloaded = true , declaringType = \"")
+					.append(m.getSuperMethod().getDeclaringType().getTypeDefinition().getName());
+		}
+
+		if (!m.getMethodScopeGenerics().getChildren().isEmpty()) {
+
+			StringBuilder sb = new StringBuilder();
+
+			for (GenericTypeParameterNode a : m.getMethodScopeGenerics().getChildren(GenericTypeParameterNode.class)) {
+				sb.append(a.getTypeNode().getName()).append(",");
+			}
+			sb.deleteCharAt(sb.length() - 1);
+
+			writer.append("\" , boundedTypes = \"").append(sb);
 		}
 
 		writer.print("\")\n");
@@ -1622,9 +1731,15 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 
 			} else if (type.isFixed()) {
 
-				TypeDefinition def = type.getTypeDefinition();
-				writer.print(def.getName());
-				writeGenerics(def);
+				if (t.getParent() instanceof FormalParameterNode
+						&& ((FormalParameterNode) t.getParent()).isMethodTypeBound()) {
+					writer.print("lense.core.lang.Any");
+				} else {
+					TypeDefinition def = type.getTypeDefinition();
+					writer.print(def.getName());
+					writeGenerics(def);
+				}
+
 			} else if (type instanceof RangeTypeVariable) {
 
 				TypeDefinition def = type.getUpperBound().getTypeDefinition();
