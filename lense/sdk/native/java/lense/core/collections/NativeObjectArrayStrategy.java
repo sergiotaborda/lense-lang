@@ -8,7 +8,7 @@ import lense.core.math.Natural;
 
  class NativeObjectArrayStrategy implements ArrayStrategy {
 
-	private Type argumentType;
+	private final Type argumentType;
 
 	public NativeObjectArrayStrategy(Type argumentType) {
 		this.argumentType = argumentType;
@@ -19,17 +19,17 @@ import lense.core.math.Natural;
 		Any[] array = new Any[size.toPrimitiveInt()];
 		Arrays.fill(array,seed);
 
-		return new NativeObjectArray(array);
+		return new NativeObjectArray(array, argumentType);
 	}
 
 	@Override
 	public Array createArrayFrom(Any[] arrayOfAny) {
-		return new NativeObjectArray(arrayOfAny);
+		return new NativeObjectArray(arrayOfAny,argumentType);
 	}
 
 	@Override
 	public Array createArrayFrom(Sequence seq) {
-		NativeObjectArray array = new NativeObjectArray(seq.getSize());
+		NativeObjectArray array = new NativeObjectArray(seq.getSize(), argumentType);
 		Iterator iterator = seq.getIterator();
 		int i=0;
 		while(iterator.moveNext()){
@@ -40,6 +40,6 @@ import lense.core.math.Natural;
 
 	@Override
 	public Array createEmpty() {
-		return new NativeObjectArray(new Any[0]);
+		return new NativeObjectArray(new Any[0], argumentType);
 	}
 }

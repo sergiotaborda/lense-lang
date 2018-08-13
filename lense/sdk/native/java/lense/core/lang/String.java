@@ -9,13 +9,17 @@ import lense.core.lang.java.Base;
 import lense.core.lang.java.Constructor;
 import lense.core.lang.java.PlatformSpecific;
 import lense.core.lang.java.Signature;
+import lense.core.lang.reflection.Type;
+import lense.core.lang.reflection.TypeResolver;
 import lense.core.math.Natural;
 
 @Signature("::lense.core.collections.Sequence<lense.core.lang.Character>")
 public class String extends Base implements Sequence {
 
 	public static final String EMPTY = new String("");
-
+	
+	public static final TypeResolver TYPE_RESOLVER = TypeResolver.lazy(() -> new Type(String.class));
+	
     @Constructor(paramsSignature = "")
 	public static String constructor(){
 		return EMPTY;
@@ -111,5 +115,8 @@ public class String extends Base implements Sequence {
 		return new String(this.str + other.asString().str);
 	}
 
-
+    @Override
+    public Type type() {
+        return TYPE_RESOLVER.resolveType();
+    }
 }

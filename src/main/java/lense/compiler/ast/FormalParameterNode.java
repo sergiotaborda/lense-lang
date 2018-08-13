@@ -17,14 +17,21 @@ public class FormalParameterNode extends LenseAstNode implements TypedNode {
 	private String name;
 	private ImutabilityNode imutability;
 	private Visibility visibility = Visibility.Undefined;
+	private boolean methodTypeBound;
 	
 	/**
 	 * Constructor.
 	 * @param name
 	 */
+	public FormalParameterNode(String name, TypeVariable type) {
+		this.name = name;
+		this.type = new TypeNode(type);
+	}
+	
 	public FormalParameterNode(String name) {
 		this.name = name;
 	}
+	
 	public FormalParameterNode() {
 	
 	}
@@ -83,4 +90,11 @@ public class FormalParameterNode extends LenseAstNode implements TypedNode {
 		this.visibility = visibility;
 	}
 	
+	public void setMethodTypeBound(boolean methodTypeBound) {
+		this.methodTypeBound = methodTypeBound;
+	}
+	
+	public boolean isMethodTypeBound( ) {
+		return this.methodTypeBound ;
+	}
 }

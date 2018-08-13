@@ -3,8 +3,11 @@
  */
 package lense.compiler.ast;
 
-import compiler.parser.IdentifierNode;
+import java.util.Map;
+
 import compiler.syntax.AstNode;
+import lense.compiler.type.TypeMember;
+import lense.compiler.type.variable.TypeVariable;
 
 /**
  * 
@@ -18,6 +21,8 @@ public class MethodInvocationNode extends NeedTypeCalculationNode {
     private boolean indexDerivedMethod;
     private String propertyName;
     private PropertyOperation propertyOperation;
+	private Map<String, TypeVariable> boundedTypes;
+	private TypeMember member;
 
     public MethodInvocationNode (){}
 
@@ -26,14 +31,26 @@ public class MethodInvocationNode extends NeedTypeCalculationNode {
     //		setAccess(access);
     //	}
 
-    public MethodInvocationNode (AstNode access ,String name, ArgumentListItemNode singleArgument){
+    public MethodInvocationNode (AstNode access , String name, ArgumentListItemNode singleArgument){
         setCall(new MethodCallNode(name, new ArgumentListNode(singleArgument)));
         setAccess(access);
     }
-
-    public MethodInvocationNode (AstNode access ,String name, ArgumentListNode ... arguments){
+    
+    public MethodInvocationNode (TypeMember member,AstNode access , ArgumentListItemNode singleArgument){
+        setCall(new MethodCallNode(member.getName(), new ArgumentListNode(singleArgument)));
+        setAccess(access);
+        this.member = member;
+    }
+    
+    public MethodInvocationNode (AstNode access , String name, ArgumentListNode ... arguments){
         setCall(new MethodCallNode(name, new ArgumentListNode(arguments)));
         setAccess(access);
+    }
+
+    public MethodInvocationNode (TypeMember member, AstNode access , ArgumentListNode ... arguments){
+        setCall(new MethodCallNode(member.getName(), new ArgumentListNode(arguments)));
+        setAccess(access);
+        this.member = member;
     }
     
 
@@ -113,4 +130,21 @@ public class MethodInvocationNode extends NeedTypeCalculationNode {
     public String getPropertyDerivedName() {
         return this.propertyName;
     }
+
+	
+    public void setBoundedTypes(Map<String, TypeVariable> boundedTypes) {
+    	this.boundedTypes= boundedTypes;
+	}
+    
+    public Map<String, TypeVariable> getBoundedTypes() {
+    	return this.boundedTypes;
+	}
+
+	public TypeMember getTypeMember() {
+		return member;
+	}
+	
+	public void setTypeMember(TypeMember member) {
+		this.member = member;
+	}
 }

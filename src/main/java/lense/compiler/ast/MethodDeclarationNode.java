@@ -23,6 +23,7 @@ public class MethodDeclarationNode extends InvocableDeclarionNode implements Sco
 	
 	private Method method;
 	private Method superMethod;
+	private TypeParametersListNode typeParametersListNode;
 	
 	public TypeNode getReturnType() {
 		return returnType;
@@ -93,6 +94,15 @@ public class MethodDeclarationNode extends InvocableDeclarionNode implements Sco
 	public void setMethod(Method method) {
 		this.method = method;
 	}
+	
+	public void setMethodScopeGenerics(TypeParametersListNode typeParametersListNode) {
+		this.typeParametersListNode = typeParametersListNode;
+		this.add(typeParametersListNode);
+	}
+	public TypeParametersListNode getMethodScopeGenerics() {
+		return typeParametersListNode == null ? new TypeParametersListNode():  typeParametersListNode;
+	}
+
 
 	
 

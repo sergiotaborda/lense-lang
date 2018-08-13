@@ -11,11 +11,13 @@ import lense.core.lang.None;
 import lense.core.lang.Some;
 import lense.core.lang.java.PlatformSpecific;
 import lense.core.lang.reflection.JavaReifiedArguments;
+import lense.core.lang.reflection.Type;
 import lense.core.math.Natural;
 
 @PlatformSpecific
 final class NativeBooleanArray extends Array implements SmallArray {
 
+	private final static Type TYPE = Array.RAW_TYPE.withGenerics(Boolean.TYPE);
 	private boolean[] array;
 	
 	public NativeBooleanArray(int size){
@@ -133,7 +135,7 @@ final class NativeBooleanArray extends Array implements SmallArray {
 		boolean val = ((Boolean)element).toPrimitiveBoolean();
 		for(int i =0; i < array.length; i++){
 			if (array[i] == val){ 
-				return Some.constructor( JavaReifiedArguments.getInstance().addType("lense.core.math.Natural") , Natural.valueOfNative(i));
+				return Some.constructor( JavaReifiedArguments.getInstance().addType(lense.core.math.Natural.TYPE_RESOLVER), Natural.valueOfNative(i));
 			}
 		}
 		return None.NONE;
@@ -176,5 +178,7 @@ final class NativeBooleanArray extends Array implements SmallArray {
 	}
 
 
-
+	public Type type() {
+		return TYPE;
+	}
 }

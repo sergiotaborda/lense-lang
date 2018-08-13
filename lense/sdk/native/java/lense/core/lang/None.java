@@ -2,11 +2,14 @@ package lense.core.lang;
 
 import lense.core.lang.java.Constructor;
 import lense.core.lang.java.Signature;
+import lense.core.lang.reflection.Type;
+import lense.core.lang.reflection.TypeResolver;
 
 @Signature(":lense.core.lang.Maybe<lense.core.lang.Nothing>:")
 public class None extends Maybe {
 
 	public static final None NONE = new None();
+	public static final TypeResolver TYPE_RESOLVER = TypeResolver.of(new Type(None.class).withGenerics(Nothing.TYPE_RESOLVER.resolveType()));
 
     @Constructor(paramsSignature = "")
 	public static None constructor(){
@@ -54,4 +57,8 @@ public class None extends Maybe {
 		return false;
 	}
 
+    @Override
+    public Type type() {
+        return TYPE_RESOLVER.resolveType();
+    }
 }

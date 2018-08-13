@@ -10,22 +10,29 @@ import lense.core.lang.None;
 import lense.core.lang.Some;
 import lense.core.lang.java.PlatformSpecific;
 import lense.core.lang.reflection.JavaReifiedArguments;
+import lense.core.lang.reflection.Type;
+import lense.core.lang.reflection.TypeResolver;
 import lense.core.math.Natural;
 
 @PlatformSpecific
 final class NativeMaybeArray extends Array implements SmallArray {
 
-	private Any[] array; // array of the object inside the maybe
-	private String innerTypeName;
+	private final Any[] array; // array of the object inside the maybe
+	private final Type type;
 	
-	public NativeMaybeArray(String innerTypeName, int size){
+	public NativeMaybeArray(Type innerType, int size){
 		this.array = new Any[size];
-		this.innerTypeName = innerTypeName;
+		this.type = Array.RAW_TYPE.withGenerics(innerType);
 	}
 
-	private NativeMaybeArray(String innerTypeName, Any[] stripedArray){
-		this.array = stripedArray;
-		this.innerTypeName = innerTypeName;
+	private NativeMaybeArray(NativeMaybeArray other){
+		this.type = other.type;
+		this.array = new Any[other.array.length];
+		System.arraycopy(other.array, 0, this.array, 0, other.array.length);
+	}
+	
+	public Type type() {
+		return 	type;
 	}
 	
 	@Override
@@ -42,7 +49,7 @@ final class NativeMaybeArray extends Array implements SmallArray {
 			return None.NONE;
 		}
 		
-		return Some.constructor( JavaReifiedArguments.getInstance().addType(innerTypeName) , value);
+		return Some.constructor( JavaReifiedArguments.getInstance().addType(TypeResolver.of(type.getGenericTypeAt(0))) , value);
 
 	}
 	
@@ -134,10 +141,7 @@ final class NativeMaybeArray extends Array implements SmallArray {
 	
 	@Override
 	public Array duplicate() {
-		Any[] newArray = new Any[array.length];
-		System.arraycopy(array, 0, newArray, 0, array.length);
-		
-		return new NativeMaybeArray( innerTypeName,newArray);
+		return new NativeMaybeArray(this);
 	}
 
 
@@ -166,7 +170,7 @@ final class NativeMaybeArray extends Array implements SmallArray {
 		for(int i =0; i < array.length; i++){
 			Any a = array[i];
 			if ((a == null && maybe.isAbsent()) || (a != null && maybe.is(a))){ 
-				return Some.constructor( JavaReifiedArguments.getInstance().addType("lense.core.math.Natural") , Natural.valueOfNative(i));
+				return Some.constructor( JavaReifiedArguments.getInstance().addType(lense.core.math.Natural.TYPE_RESOLVER) , Natural.valueOfNative(i));
 			} 
 		}
 		return None.NONE;

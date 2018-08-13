@@ -14,7 +14,7 @@ public class MethodParameter implements MethodMember {
 	private String name;
 	private TypeVariable type;
 	private Method declaringMethod;
-	
+	private boolean isMethodTypeBound;
 	
 	public MethodParameter(TypeVariable type) {
 		this(type, "?");
@@ -113,6 +113,14 @@ public class MethodParameter implements MethodMember {
 		return other instanceof MethodParameter 
 				&& this.type.equals(((MethodParameter)other).type);
 
+	}
+
+	public boolean isMethodTypeBound() {
+		return isMethodTypeBound;
+	}
+
+	public void setMethodTypeBound(boolean isMethodTypeBound) {
+		this.isMethodTypeBound = isMethodTypeBound;
 	}
 
 

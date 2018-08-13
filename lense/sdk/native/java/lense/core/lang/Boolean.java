@@ -4,11 +4,14 @@ import lense.core.lang.java.Base;
 import lense.core.lang.java.Constructor;
 import lense.core.lang.java.PlatformSpecific;
 import lense.core.lang.java.Signature;
+import lense.core.lang.reflection.Type;
 
 // Must be already erased 
 @Signature(value = "::",caseValues="lense.core.lang.true,lense.core.lang.false")
 public class Boolean extends Base implements Any{
 
+	public static final Type TYPE = new Type(Boolean.class);
+	
 	public static Boolean TRUE = new Boolean(true);
 	public static Boolean FALSE = new Boolean(false);
 	

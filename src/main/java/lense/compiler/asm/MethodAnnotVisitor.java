@@ -50,7 +50,11 @@ public class MethodAnnotVisitor extends MethodVisitor{
             	builder.overloaded = ((Boolean)value).booleanValue();
             } else if (name.equals("declaringType")){
             	builder.declaringType = ((String)value);
+            } else if (name.equals("boundedTypes")){
+            	builder.boundedTypes = ((String)value);
             }
+            
+            
 
         }
 

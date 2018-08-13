@@ -11,13 +11,17 @@ import lense.core.lang.java.PlatformSpecific;
 import lense.core.lang.java.Property;
 import lense.core.lang.java.Signature;
 import lense.core.lang.reflection.ReifiedArguments;
+import lense.core.lang.reflection.Type;
 import lense.core.math.Natural;
 
 
 @Signature("[=T<lense.core.lang.Any]::lense.core.collections.EditableSequence<T>")
 public abstract class Array extends AbstractAssortment implements EditableSequence{
 
-    @Constructor(paramsSignature = "lense.core.math.Natural, T")
+	public final static Type RAW_TYPE = new Type(Array.class);
+	
+
+	@Constructor(paramsSignature = "lense.core.math.Natural, T")
 	public static Array constructor (ReifiedArguments args, Natural size, Any seed){
 		
 		return SizeArrayStrategy.resolveSizeStrategy(size).resolveStrategy(args).createArrayFrom(size, seed);
@@ -112,4 +116,7 @@ public abstract class Array extends AbstractAssortment implements EditableSequen
 	
 	@MethodSignature( returnSignature = "lense.core.collections.Array<T>", paramsSignature = "lense.core.collections.Array<T>,lense.core.math.Natural,lense.core.math.Natural")
 	public abstract Array copyTo(Array other, Natural sourceIndex, Natural destinationIndex, Natural length);
+
+	
+	public abstract Type type();
 }
