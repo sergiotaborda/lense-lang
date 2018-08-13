@@ -48,8 +48,8 @@
 - [x] assume all fractional numeric literals are rational numbers 
 - [x] define imaginary unit is 'i' and `2i` means  `Rational("2") * Complex.I`
 - [ ] optimize common patterns like:
-- [ ]  `real + imaginary` to `new Complex(real,imaginary)` 
-- [ ]  `1/x` to `x.invert()`
+* [ ]  `real + imaginary` to `new Complex(real,imaginary)` 
+* [ ]  `1/x` to `x.invert()`
 - [x] define sequence literals `[1,2,3,4]`
 - [x] define map literals `{ "a": 1, "b": 2 , "c" : 3}`
 - [ ] define  builders like `Window { Size = Size { 20, 40} }}`  equivalent to new : xml alternative + parser
@@ -67,13 +67,13 @@
 - [ ] save immutability as an annotation, handle as a meta interface
 
 - [ ] support auto-boxing and auto-unboxing of _native primitives_
-- [x] use auto-boxing to erase `Boolean` with primitive `boolean`  
-- [x] identity bound limits in loops  
-- [ ] erase numeric values to they primitive conterparts when bound limits are kown (like in ranges)
-- [ ] do not erase string. implement string as a lightweight rope
+* [x] use auto-boxing to erase `Boolean` with primitive `boolean`  
+* [x] identity bound limits in loops  
+* [ ] erase numeric values to they primitive conterparts when bound limits are kown (like in ranges)
+* [ ] do not erase string. implement string as a lightweight rope
 
 - [x] capture generics locally when calling constructors 
-- [ ] capture generics locally when calling generic methods
+- [x] capture generics locally when calling generic methods
 - [ ] capture generics locally when calling generic enhancements
 - [ ] support compiler assisted expressions 
 - [x] pass capture to other methods and constructors
