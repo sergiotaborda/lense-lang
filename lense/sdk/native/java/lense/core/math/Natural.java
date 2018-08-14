@@ -7,12 +7,16 @@ import lense.core.collections.Progression;
 import lense.core.lang.java.Constructor;
 import lense.core.lang.java.NonNull;
 import lense.core.lang.java.PlatformSpecific;
+import lense.core.lang.reflection.Type;
+import lense.core.lang.reflection.TypeResolver;
 
 public abstract class Natural extends Whole   {
 
     public static final Natural ONE = Natural.valueOfNative(1);
     public static final Natural ZERO = Natural.valueOfNative(0);
-
+    
+	public static final TypeResolver TYPE_RESOLVER = TypeResolver.lazy(() -> new Type(Natural.class));
+	
     @Constructor(paramsSignature = "")
     public static Natural constructor(){
         return Natural.valueOfNative(0);
@@ -204,5 +208,10 @@ public abstract class Natural extends Whole   {
     }
     
     public abstract Natural remainder(Natural n);
+    
+    @Override
+    public Type type() {
+        return TYPE_RESOLVER.resolveType();
+    }
 }
 

@@ -7,7 +7,7 @@ import lense.core.math.Natural;
 public class Int32ArrayStrategy extends SizeArrayStrategy{
 
 	ArrayStrategy resolveStrategy(ReifiedArguments args) {
-		Type type = args.typeAt(Natural.valueOfNative(0));
+		Type type = args.typeAt(Natural.ZERO).resolveType();
 		
 		switch (type.getName().toString()){
 		case "lense.core.lang.Boolean":

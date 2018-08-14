@@ -10,23 +10,34 @@ import lense.core.lang.None;
 import lense.core.lang.Some;
 import lense.core.lang.java.PlatformSpecific;
 import lense.core.lang.reflection.JavaReifiedArguments;
+import lense.core.lang.reflection.Type;
 import lense.core.math.Natural;
 
 @PlatformSpecific
 final class NativeObjectArray extends Array implements SmallArray{
 
-	private Any[] array;
+	private final Any[] array;
+	private final Type type;
 	
-	public NativeObjectArray(Natural size){
+	public NativeObjectArray(Natural size, Type innerType){
 		array = new Any[size.toPrimitiveInt()];
+		this.type = Array.RAW_TYPE.withGenerics(innerType);
 	}
 	
 	
-	public NativeObjectArray(Any[] nativeArray ){
-		array = nativeArray;
+	public NativeObjectArray(Any[] nativeArray, Type innerType){
+		this.array = nativeArray;
+		this.type = Array.RAW_TYPE.withGenerics(innerType);
 	}
 	
+	private NativeObjectArray(NativeObjectArray other){
+		
+		this.type = other.type;
+		this.array = new Any[other.array.length];
+		System.arraycopy(other.array, 0, this.array, 0, other.array.length);
 
+	}
+	
 	public void setAtPrimitiveIndex(int i, Any value){
 		array[i] = value;
 	}
@@ -97,7 +108,7 @@ final class NativeObjectArray extends Array implements SmallArray{
 	public Maybe indexOf(Any element) {
 		for(int i =0; i < array.length; i++){
 			if (array[i].equalsTo(element)){ 
-				return Some.constructor( JavaReifiedArguments.getInstance().addType("lense.core.math.Natural") , Natural.valueOfNative(i));
+				return Some.constructor( JavaReifiedArguments.getInstance().addType(lense.core.math.Natural.TYPE_RESOLVER) , Natural.valueOfNative(i));
 			}
 		}
 		return None.NONE;
@@ -105,10 +116,7 @@ final class NativeObjectArray extends Array implements SmallArray{
 	
 	@Override
 	public Array duplicate() {
-		Any[] newArray = new Any[array.length];
-		System.arraycopy(array, 0, newArray, 0, array.length);
-		
-		return new NativeObjectArray(newArray);
+		return new NativeObjectArray(this);
 	}
 
 
@@ -151,6 +159,13 @@ final class NativeObjectArray extends Array implements SmallArray{
 			throw new RuntimeException("Array to copy to is not a boolean array");
 		}
 		
+	}
+
+
+	
+	@Override
+	public Type type() {
+		return type;
 	}
 
 

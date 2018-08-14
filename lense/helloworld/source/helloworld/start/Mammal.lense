@@ -9,4 +9,7 @@ public class Mammal extends Animal{
 
 	public abstractMethod() {}
 
+	public override abstractGenericMethod<A>(other : A ) : A{
+		return other;
+	}
 }

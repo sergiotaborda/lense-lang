@@ -17,6 +17,8 @@ public class GenericTypeParameterNode extends LenseAstNode implements TypedNode 
 	private Variance variance;
 
 	
+	
+	
 	public GenericTypeParameterNode (){}
 	/**
 	 * Constructor.
@@ -69,5 +71,9 @@ public class GenericTypeParameterNode extends LenseAstNode implements TypedNode 
 
 	public void setVariance(Variance variance) {
 		this.variance = variance;
+	}
+
+	public GenericTypeParameterNode duplicate() {
+		return new GenericTypeParameterNode(typeNode, variance);
 	}
 }

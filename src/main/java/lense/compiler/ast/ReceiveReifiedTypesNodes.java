@@ -11,7 +11,7 @@ public class ReceiveReifiedTypesNodes extends FormalParameterNode  {
 	}
 	
 	private ReceiveReifiedTypesNodes() {
-		super(ReificationVisitor.REIFICATION_INFO);
+		super(ReificationVisitor.TYPE_REIFICATION_INFO);
 
 		setTypeNode(new TypeNode("lense.core.lang.reflection.ReifiedArguments"));
 	}

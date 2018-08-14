@@ -23,4 +23,6 @@ public abstract class Maybe extends Base implements Any{
 	public abstract Maybe map(Function transformer);
 
 	public abstract boolean is(Any content);
+	
+
 }

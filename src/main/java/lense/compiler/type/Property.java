@@ -12,7 +12,7 @@ import lense.compiler.typesystem.Visibility;
 /**
  * 
  */
-public class Property  implements TypeMember{
+public class Property  implements TypeMember {
 
 	private final TypeVariable type;
 	private String name;

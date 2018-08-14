@@ -23,6 +23,7 @@ public class Type extends Base {
     }
     
     private final Class javaType;
+	private Type[] generics;
 
     @Constructor(paramsSignature = "")
     public static Type constructor(){
@@ -82,6 +83,27 @@ public class Type extends Base {
         // TODO reification of Property
         return Array.fromAnyArray(null, properties.stream().toArray(Property[]::new));
     }
+
+
+    public Type withGenerics(Type ... types) {
+		
+    	Type t = new Type(this.javaType);
+    	t.generics = types;
+    	
+    	return t;
+	}
+
+	
+    public Type getGenericTypeAt(int parameterIndex) {
+    	if (generics == null) {
+    		throw new ClassCastException("Type " + this.javaType.getName() + " has no generic parameters");
+    	}
+    	
+    	if (parameterIndex > generics.length - 1) {
+    		throw new ClassCastException("Type " + this.javaType.getName() + " has no generic parameters at index " + parameterIndex );
+    	}
+		return generics[parameterIndex];
+	}
     
 
 }
