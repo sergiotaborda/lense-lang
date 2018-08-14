@@ -40,7 +40,7 @@
 - [ ] Ensure  fields/properties  not initialized produce compilation erros
 - [ ] allow to place `module.lense` in source root folder
 - [x] allow for package in files to be  optional.
-* [x] if present validate it matches the folder structure
+- [x] if present validate it matches the folder structure
  
 - [x] support range literals `1...3` means  `1.upTo(3)` and  `1..<3` means  `1.upToExcluding(3)`
 - [x] support Interval literals `|[ , )|` operators 
@@ -66,14 +66,14 @@
 - [ ] use meta interfaces to define operators (currently are special named methods) 		
 - [ ] save immutability as an annotation, handle as a meta interface
 
-- [x] support auto-boxing and auto-unboxing of _native primitives_
-- [x] use auto-boxing to erase `Boolean` with primitive `boolean`  
-- [x] identity bound limits in loops  
-- [ ] erase numeric values to they primitive conterparts when bound limits are kown (like in ranges)
-- [ ] do not erase string. implement string as a lightweight rope
+- [ ] support auto-boxing and auto-unboxing of _native primitives_
+* [x] use auto-boxing to erase `Boolean` with primitive `boolean`  
+* [x] identity bound limits in loops  
+* [ ] erase numeric values to they primitive conterparts when bound limits are kown (like in ranges)
+* [ ] do not erase string. implement string as a lightweight rope
 
 - [x] capture generics locally when calling constructors 
-- [ ] capture generics locally when calling generic methods
+- [x] capture generics locally when calling generic methods
 - [ ] capture generics locally when calling generic enhancements
 - [ ] support compiler assisted expressions 
 - [x] pass capture to other methods and constructors
@@ -84,7 +84,7 @@
 - [x] support flow sensitive typing in `if` directives
 - [x] support flow sensitive typing in `&&` expressions (like `other is Human && other.isSlepping()` identifing other is `Human` after `&&`)
 - [ ] support flow sensitive typing in `||` expressions (like `other is Male || other.isPregnant()` identifing other is `Female` )t
-- [ ] support flow sensitive typing in `assert` directives
+- [x] support flow sensitive typing in `assert` directives
 - [ ] support flow sensitive typing in `switch` directives
 
 
@@ -100,16 +100,16 @@
 	
 - [ ] support optional typing and type inference
 - [x] support void return inference
-- [x] support generics of generics like T<U>
+- [ ] support generics of generics like T<U>
 
 - [x] support `Type` type as base for reflection
-- [ ] support `typeof(T)`operator [SYNTAX]
-- [x] support `is`operator [SYNTAX]
+- [ ] support `typeof(T)`operator 
+- [x] support `is` operator
 
 - [x] detect and report non used imports
 - [ ] use only naming to find types. discard parametric type count
 - [x] accept classes in lense.core module automatically
-e
+
 
 - [x] support constructors delegation 
 - [ ] support constructors delegation when super constructor returns a different type 
@@ -121,7 +121,7 @@ e
 
 - [x] support operator for rational division `/` that always return elements of |Q , |R or |C    N/N , Z/Z , N/Z, Z/N , Q,Q -> Q , Q/R, R/Q, R/R -> R, x/C or C/x = C
 - [x] support operator for integer division `\` , consistent with `%` operator so that `D = d * q + r` where `q = D \ d` and `r = D % d`
-- [ ] support comparison operators, including `<=>`,  based in `Comparable<T>` and `Comparison` objects
+- [x] support comparison operators, including `<=>`,  based in `Comparable<T>` and `Comparison` objects
 - [ ] support exists x as a flow sensitive way to decapsulate Maybe similar to instanceof 
 		if (exists x) {  x.do()  }  == transforms to ==> if (x.isPresent) { x' = x.Value ; x'.do() } 
 		return exists x;  == transforms to ==> return x.hasValue()
@@ -130,7 +130,7 @@ e
 		- rewrite `if ( x() in |(2 , 10 ]|)` as `if (2 < x() <= 10)` in the case of numbers
 
 - [x] support non commutable concatenation operator `++`. (`+` would mean is commutable) 
-- [x] support non commutable power operator `^^` (`**` is confusing in formulas with multiplication  operators `x * y ** z` vs `x * y ^^ z` 
+- [x] support non commutable power operator `^^` (`**` is confusing in formulas with multiplication  operators `x * y \** z` vs `x * y ^^ z` 
 - [ ] support `?.` operator [SYNTAX]
 - [x] support `+` , `-` and `*` operators that scale up to memory limit
 - [x] support `<<` and `>>` operators 
