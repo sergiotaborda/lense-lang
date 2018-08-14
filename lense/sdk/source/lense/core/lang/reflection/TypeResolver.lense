@@ -1,0 +1,8 @@
+import lense.core.lang.reflection.Type;
+import lense.core.math.Natural;
+
+public native class TypeResolver {
+
+	public native resolveType() : Type;
+
+} 

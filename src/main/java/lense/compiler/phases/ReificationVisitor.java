@@ -2,46 +2,61 @@ package lense.compiler.phases;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import compiler.syntax.AstNode;
 import compiler.trees.VisitorNext;
+import lense.compiler.CompilationError;
+import lense.compiler.ast.AbstractTypeResolverNode;
 import lense.compiler.ast.ArgumentListItemNode;
 import lense.compiler.ast.ArgumentListNode;
+import lense.compiler.ast.ArgumentTypeResolverNode;
 import lense.compiler.ast.CaptureReifiedTypesNode;
 import lense.compiler.ast.ClassBodyNode;
 import lense.compiler.ast.ClassTypeNode;
 import lense.compiler.ast.ConstructorDeclarationNode;
 import lense.compiler.ast.CreationTypeNode;
 import lense.compiler.ast.FieldDeclarationNode;
+import lense.compiler.ast.FormalParameterNode;
 import lense.compiler.ast.GenericTypeParameterNode;
 import lense.compiler.ast.ImutabilityNode;
 import lense.compiler.ast.LiteralCreation;
+import lense.compiler.ast.MethodDeclarationNode;
 import lense.compiler.ast.MethodInvocationNode;
 import lense.compiler.ast.NewInstanceCreationNode;
+import lense.compiler.ast.NewTypeResolverNode;
 import lense.compiler.ast.NumericValue;
 import lense.compiler.ast.ReceiveReifiedTypesNodes;
+import lense.compiler.ast.ReificationScope;
 import lense.compiler.ast.TypeNode;
+import lense.compiler.ast.TypeParameterTypeResolverNode;
+import lense.compiler.ast.TypeParametersListNode;
 import lense.compiler.ast.VariableReadNode;
 import lense.compiler.ast.VisibilityNode;
 import lense.compiler.context.SemanticContext;
 import lense.compiler.context.VariableInfo;
+import lense.compiler.type.CallableMemberMember;
 import lense.compiler.type.LenseTypeDefinition;
 import lense.compiler.type.LenseUnitKind;
+import lense.compiler.type.Method;
 import lense.compiler.type.variable.DeclaringTypeBoundedTypeVariable;
 import lense.compiler.type.variable.GenericTypeBoundToDeclaringTypeVariable;
 import lense.compiler.type.variable.RangeTypeVariable;
 import lense.compiler.type.variable.TypeVariable;
 import lense.compiler.typesystem.Imutability;
 import lense.compiler.typesystem.LenseTypeSystem;
+import lense.compiler.typesystem.Variance;
 import lense.compiler.typesystem.Visibility;
 
 public final class ReificationVisitor extends AbstractScopedVisitor {
 
-	public static final String REIFICATION_INFO = "$reificiationInfo";
+	public static final String TYPE_REIFICATION_INFO = "$reificiationInfo$t";
+	public static final String METHOD_REIFICATION_INFO = "$reificiationInfo$m";
 
 	private LenseTypeDefinition currentType;
-
+	private MethodDeclarationNode currentMethod;
+	
 	public ReificationVisitor(SemanticContext semanticContext) {
 		super(semanticContext);
 	}
@@ -63,12 +78,15 @@ public final class ReificationVisitor extends AbstractScopedVisitor {
 			if (!this.currentType.getKind().isInterface() &&  this.currentType.isGeneric()) {
 				
 				this.getSemanticContext().currentScope().defineVariable(
-						REIFICATION_INFO,
+						TYPE_REIFICATION_INFO,
 						LenseTypeSystem.ReifiedArguments(),
 						node
 				);
 				
 			}
+		} else if (node instanceof MethodDeclarationNode) {
+		
+			currentMethod = (MethodDeclarationNode) node;
 		}
 
 		return VisitorNext.Children;
@@ -81,6 +99,7 @@ public final class ReificationVisitor extends AbstractScopedVisitor {
 
 			ConstructorDeclarationNode n = (ConstructorDeclarationNode) node;
 
+			// Add a invisible parameter for the receiver types
 			List<TypeVariable> genericParameters = getCurrentType().get().getGenericParameters();
 			if (!genericParameters.isEmpty() && !(n.getParameters().getFirstChild() instanceof ReceiveReifiedTypesNodes)) {
 				n.getParameters().addFirst(ReceiveReifiedTypesNodes.getInstance());
@@ -111,79 +130,38 @@ public final class ReificationVisitor extends AbstractScopedVisitor {
 					return;
 				}
 				
-				AstNode capture = new CaptureReifiedTypesNode(n.getCreationParameters().getTypeParametersListNode());
+				CaptureReifiedTypesNode capture = new CaptureReifiedTypesNode(ReificationScope.Type, n.getCreationParameters().getTypeParametersListNode());
 
 				if (n.getCreationParameters().getTypeParametersListNode().getChildren().isEmpty()) {
 					throw new RuntimeException("capture is empty");
 				}
 				
+				int count = n.getCreationParameters().getTypeParametersListNode().getChildren().size();
+				
+				int position = 0;
 				for (AstNode a : n.getCreationParameters().getTypeParametersListNode().getChildren()) {
 					GenericTypeParameterNode g = (GenericTypeParameterNode) a;
-					if (g.getTypeVariable().getSymbol().isPresent()) {
 					
-						Optional<Integer> index = currentType.getGenericParameterIndexBySymbol(g.getTypeVariable().getSymbol().get());
-						
-						VariableInfo variableInfo = this.getSemanticContext().currentScope()
-								.searchVariable(REIFICATION_INFO);
-
-						VariableReadNode vr = new VariableReadNode(REIFICATION_INFO, variableInfo);
-
-						MethodInvocationNode m = new MethodInvocationNode(vr, "fromIndex",
-								new ArgumentListNode(new NumericValue().setValue(new BigDecimal(index.get()),
-										this.getSemanticContext().resolveTypeForName("lense.core.math.Natural", 0)
-												.get())));
-						
-						m.setTypeVariable(this.getSemanticContext().resolveTypeForName("lense.core.lang.reflection.ReifiedArguments", 0).get());
-
-						capture = m;
-						
-					} else if (g.getTypeVariable().isFixed() || g.getTypeVariable() instanceof RangeTypeVariable) {
-						continue;
-					} else if (g.getTypeVariable() instanceof GenericTypeBoundToDeclaringTypeVariable) {
-						GenericTypeBoundToDeclaringTypeVariable gg = (GenericTypeBoundToDeclaringTypeVariable) g.getTypeVariable();
-
-						VariableInfo variableInfo = this.getSemanticContext().currentScope()
-								.searchVariable(REIFICATION_INFO);
-
-						VariableReadNode vr = new VariableReadNode(REIFICATION_INFO, variableInfo);
-
-						MethodInvocationNode m = new MethodInvocationNode(vr, "fromIndex",
-								new ArgumentListNode(new NumericValue().setValue(new BigDecimal(gg.getParameterIndex()),
-										this.getSemanticContext().resolveTypeForName("lense.core.math.Natural", 0)
-												.get())));
-
-						m.setTypeVariable(this.getSemanticContext()
-								.resolveTypeForName("lense.core.lang.reflection.ReifiedArguments", 0).get());
-
-						capture = m;
-					} else if (g.getTypeVariable() instanceof DeclaringTypeBoundedTypeVariable) {
-						DeclaringTypeBoundedTypeVariable gg = (DeclaringTypeBoundedTypeVariable) g.getTypeVariable();
-						
-						VariableInfo variableInfo = this.getSemanticContext().currentScope()
-								.searchVariable(REIFICATION_INFO);
-
-						VariableReadNode vr = new VariableReadNode(REIFICATION_INFO, variableInfo);
-
-						MethodInvocationNode m = new MethodInvocationNode(vr, "fromIndex",
-								new ArgumentListNode(new NumericValue().setValue(new BigDecimal(gg.getParameterIndex()),
-										this.getSemanticContext().resolveTypeForName("lense.core.math.Natural", 0)
-												.get())));
-
-						m.setTypeVariable(this.getSemanticContext()
-								.resolveTypeForName("lense.core.lang.reflection.ReifiedArguments", 0).get());
-						
-					} else {
-						 // TODO 
-						 throw new UnsupportedOperationException("Cannot capture reification");
-					}
+					capture.add(resolveCapture(capture, a, position++, g.getTypeVariable(), node));
+					
 				}
 
+				AstNode optimizedCapture = capture;
 				
+				if (count == 0) {
+					// identity read
+					VariableInfo variableInfo = this.getSemanticContext().currentScope()
+							.searchVariable(TYPE_REIFICATION_INFO);
+
+					VariableReadNode vr = new VariableReadNode(TYPE_REIFICATION_INFO, variableInfo);
+
+					optimizedCapture = vr;
+				}
 				
 				if (n.getArguments() == null) {
-					n.setArguments(new ArgumentListNode(new ArgumentListItemNode(0, capture)));
+					n.setArguments(new ArgumentListNode(new ArgumentListItemNode(0, optimizedCapture)));
 				} else {
-					n.getArguments().addFirst(new ArgumentListItemNode(0, capture));
+					n.getArguments().addFirst(new ArgumentListItemNode(0, optimizedCapture));
 				}
 			}
 
@@ -195,7 +173,7 @@ public final class ReificationVisitor extends AbstractScopedVisitor {
 				List<TypeVariable> genericParameters = getCurrentType().get().getGenericParameters();
 				if (!genericParameters.isEmpty()) {
 
-					FieldDeclarationNode field = new FieldDeclarationNode(REIFICATION_INFO, new TypeNode("lense.core.lang.reflection.ReifiedArguments"));
+					FieldDeclarationNode field = new FieldDeclarationNode(TYPE_REIFICATION_INFO, new TypeNode("lense.core.lang.reflection.ReifiedArguments"));
 					field.setInitializedOnConstructor(true);
 					field.setVisibility(new VisibilityNode(Visibility.Private));
 					field.setImutability(new ImutabilityNode(Imutability.Imutable));
@@ -206,8 +184,259 @@ public final class ReificationVisitor extends AbstractScopedVisitor {
 		
 				}
 			}
+		} else if (node instanceof MethodDeclarationNode) {
+			MethodDeclarationNode m = (MethodDeclarationNode)node;
+			
+			if (!m.getMethodScopeGenerics().getChildren().isEmpty()) {
+				m.getParameters().addFirst(new FormalParameterNode(METHOD_REIFICATION_INFO, LenseTypeSystem.ReifiedArguments()));
+			}
+			
+		} else if (node instanceof MethodInvocationNode) {
+			MethodInvocationNode m = (MethodInvocationNode)node;
+			
+			if (m.getBoundedTypes()!= null && !m.getBoundedTypes().isEmpty()) {
+				VariableInfo info = this.getSemanticContext().currentScope().searchVariable(TYPE_REIFICATION_INFO);
 
+				if (info == null) {
+					// the type is not generic, only the method
+					TypeParametersListNode params = new TypeParametersListNode();
+					
+					for (Map.Entry<String, TypeVariable> entry : m.getBoundedTypes().entrySet()) {
+						TypeNode tt = new TypeNode(entry.getValue());
+
+						
+						params.add(new GenericTypeParameterNode(tt, Variance.Invariant));
+					}
+					
+					CaptureReifiedTypesNode capture = new CaptureReifiedTypesNode(ReificationScope.Method, params);
+
+					int position =0;
+					for (AstNode a : params.getChildren()) {
+						GenericTypeParameterNode g = (GenericTypeParameterNode) a;
+						
+						capture.add(resolveCapture(capture, a, position++, g.getTypeVariable(), node));
+						
+					}
+
+
+					ArgumentListItemNode arg = new ArgumentListItemNode(0, capture);
+					arg.setExpectedType(LenseTypeSystem.ReifiedArguments());
+					
+					m.getCall().getArgumentListNode().addFirst(arg);
+					
+					
+				} else {
+					// the type is  generic
+					throw new RuntimeException("Reification of method in generic class not implemented yet");
+				}
+			}
 		}
+	}
+
+	private AstNode resolveCapture(CaptureReifiedTypesNode capture, AstNode a, int position, TypeVariable g, AstNode invocationNode) {
+		if (g.getSymbol().isPresent()) {
+		
+			String symbol = g.getSymbol().get();
+			Optional<Integer> index = currentType.getGenericParameterIndexBySymbol(symbol);
+		
+			Integer indexValue = null;
+			VariableReadNode vr = null;
+			
+			if (index.isPresent()) {
+				
+				indexValue = index.get();
+
+				VariableInfo variableInfo = this.getSemanticContext().currentScope()
+						.searchVariable(TYPE_REIFICATION_INFO);
+
+		
+			   vr = new VariableReadNode(TYPE_REIFICATION_INFO, variableInfo);
+			   capture.count--;
+			   
+			} else {
+				
+				List<GenericTypeParameterNode> freeTypes = this.currentMethod.getMethodScopeGenerics().getChildren(GenericTypeParameterNode.class);
+				
+				for (int i = 0; i< freeTypes.size(); i++) {
+					if ( freeTypes.get(i).getTypeNode().getName().equals(symbol)) {
+						indexValue = i;
+						break;
+					}
+				}
+
+				if (indexValue == null) {
+					
+				
+					if (invocationNode.getParent() instanceof ArgumentListItemNode) {
+						ArgumentListItemNode arg = (ArgumentListItemNode)invocationNode.getParent();
+					
+				
+							VariableInfo argVariable = this.getSemanticContext().currentScope()
+									.searchVariable("");
+							
+							if (arg.isGeneric() && arg.getExpectedType().getSymbol().isPresent() && arg.getExpectedType().getSymbol().get().equals(g.getSymbol().get())) {
+							
+								return new ArgumentTypeResolverNode(arg);
+								
+							} else if(arg.getExpectedType() != null && LenseTypeSystem.getInstance().isAssignableTo(g, arg.getExpectedType())) {
+						
+								return new ArgumentTypeResolverNode(arg);
+						
+							} else if (arg.getExpectedType() != null && !arg.getExpectedType().getGenericParameters().isEmpty()) {
+					
+								// TODO recursive
+								int typeIndex = 0;
+								for (TypeVariable gp : arg.getExpectedType().getGenericParameters()) {
+									if (gp.getSymbol().isPresent()) {
+										if (gp.getSymbol().get().equals(g.getSymbol().get())) {
+											
+											return new TypeParameterTypeResolverNode(new ArgumentTypeResolverNode(arg), typeIndex);
+											
+										}
+									} else {
+										if (typeIndex == position) {
+											return new NewTypeResolverNode(gp);
+										}
+									}
+									
+									typeIndex++;
+								}
+							}
+						
+						
+					} 
+
+			
+					if (invocationNode instanceof MethodInvocationNode) {
+						MethodInvocationNode m = (MethodInvocationNode)invocationNode;
+						
+						Method mm = (Method)m.getTypeMember();
+						
+						// TODO recursive
+						int typeIndex = 0;
+						for ( CallableMemberMember<Method> cc : mm.getParameters()) {
+							TypeVariable gp = cc.getType();
+							Optional<AbstractTypeResolverNode> found = matchFreeType(position, g, m, typeIndex, gp);
+							
+							if (found.isPresent()) {
+								return found.get();
+							}
+							position++;
+						}
+					}
+					
+					throw new CompilationError(invocationNode, "Generic type parameter " + symbol + "  is not defined");
+					
+				} else {
+					vr = new VariableReadNode(METHOD_REIFICATION_INFO, new VariableInfo(
+							METHOD_REIFICATION_INFO, 
+							this.getSemanticContext().resolveTypeForName("lense.core.lang.reflection.ReifiedArguments", 0).get(),
+							this.currentMethod, 
+							false, 
+							true
+						));
+					 capture.count++;
+				}
+				
+
+			}
+			
+
+			MethodInvocationNode m = new MethodInvocationNode( vr, "typeAt",
+					new ArgumentListNode(new NumericValue().setValue(new BigDecimal(indexValue),
+							this.getSemanticContext().resolveTypeForName("lense.core.math.Natural", 0)
+									.get())));
+			
+			m.setTypeVariable(this.getSemanticContext().resolveTypeForName("lense.core.lang.reflection.TypeResolver", 0).get());
+
+			return m;
+			
+		} else if (g.isFixed() || g instanceof RangeTypeVariable) {
+			
+			if (g.getGenericParameters().isEmpty()) {
+				return new NewTypeResolverNode(g);
+			} else {
+		
+				AstNode[] params = new AstNode[g.getGenericParameters().size()];
+				
+				int index = 0;
+				for (TypeVariable tv : g.getGenericParameters()) {
+					params[index] = resolveCapture( capture,  a, index, tv, invocationNode);
+					index++;
+				}
+				
+				return new NewTypeResolverNode(g, params);
+			}
+			
+		} else if (g instanceof GenericTypeBoundToDeclaringTypeVariable) {
+			GenericTypeBoundToDeclaringTypeVariable gg = (GenericTypeBoundToDeclaringTypeVariable) g;
+
+			VariableInfo variableInfo = this.getSemanticContext().currentScope()
+					.searchVariable(TYPE_REIFICATION_INFO);
+
+			VariableReadNode vr = new VariableReadNode(TYPE_REIFICATION_INFO, variableInfo);
+
+
+			MethodInvocationNode m = new MethodInvocationNode(vr, "typeAt",
+					new ArgumentListNode(new NumericValue().setValue(new BigDecimal(gg.getParameterIndex()),
+							this.getSemanticContext().resolveTypeForName("lense.core.math.Natural", 0)
+									.get())));
+
+			m.setTypeVariable(this.getSemanticContext()
+					.resolveTypeForName("lense.core.lang.reflection.TypeResolver", 0).get());
+
+			capture.count--;
+			
+			return m;
+			
+		} else if (g instanceof DeclaringTypeBoundedTypeVariable) {
+			DeclaringTypeBoundedTypeVariable gg = (DeclaringTypeBoundedTypeVariable) g;
+			
+			VariableInfo variableInfo = this.getSemanticContext().currentScope()
+					.searchVariable(TYPE_REIFICATION_INFO);
+
+			VariableReadNode vr = new VariableReadNode(TYPE_REIFICATION_INFO, variableInfo);
+
+			MethodInvocationNode m = new MethodInvocationNode(vr, "typeAt",
+					new ArgumentListNode(new NumericValue().setValue(new BigDecimal(gg.getParameterIndex()),
+							this.getSemanticContext().resolveTypeForName("lense.core.math.Natural", 0)
+									.get())));
+
+			m.setTypeVariable(this.getSemanticContext()
+					.resolveTypeForName("lense.core.lang.reflection.TypeResolver", 0).get());
+			
+			capture.count--;
+			return m;
+		} else {
+			 // TODO 
+			 throw new UnsupportedOperationException("Cannot capture reification");
+		}
+
+	}
+
+	private Optional<AbstractTypeResolverNode> matchFreeType(int position, TypeVariable g, MethodInvocationNode m, int typeIndex, TypeVariable gp) {
+		
+		
+		if (gp.getSymbol().isPresent()) {
+			if (gp.getSymbol().get().equals(g.getSymbol().get())) {
+				ArgumentListItemNode arg = m.getCall().getArgumentListNode().getChildren(ArgumentListItemNode.class).get(typeIndex);
+				return Optional.of(new TypeParameterTypeResolverNode(new ArgumentTypeResolverNode(arg), typeIndex));
+				
+			}
+		} else if (!gp.getGenericParameters().isEmpty()) {
+			for ( TypeVariable t : gp.getGenericParameters()) {
+				Optional<AbstractTypeResolverNode> found = matchFreeType(position, g, m, typeIndex, t);
+				if (found.isPresent()) {
+					return found;
+				}
+			}
+			
+		} else {
+			if (typeIndex == position) {
+				return Optional.of(new NewTypeResolverNode(gp));
+			}
+		}
+		return Optional.empty();
 	}
 
 }

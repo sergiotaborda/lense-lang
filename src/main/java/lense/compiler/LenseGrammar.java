@@ -1350,13 +1350,20 @@ public class LenseGrammar extends AbstractLenseGrammar {
             declarator.setNative(modifiers.getImplementationModifier().isNative());
             declarator.setVisibility(modifiers.getVisibility().getVisibility(Visibility.Private));
 
-            // FormalParameterNode
+            Optional<TypeParametersListNode> generics = r.get(next + 1).getAstNode(TypeParametersListNode.class);
+            
+            if (generics.isPresent()) {
+            	declarator.setMethodScopeGenerics(generics.get());
+            }
+            next++;
+            
+            
             Optional<ParametersListNode> formalParams = r.get(next + 1).getAstNode(ParametersListNode.class);
 
             if (formalParams.isPresent()) {
                 declarator.setParameters(formalParams.get());
             }
-            
+            // FormalParameterNode
             Optional<ConstructorExtentionNode> constructorExtentionNode = r.size() > next + 3 
                     ? r.get(next + 3).getAstNode(ConstructorExtentionNode.class)
                     : Optional.empty();
@@ -1685,9 +1692,16 @@ public class LenseGrammar extends AbstractLenseGrammar {
 
             n.setName((String) r.get(1).getSemanticAttribute("lexicalValue").get());
 
-            int typeIndex = 4;
-            if (r.get(3).getAstNode().isPresent()) {
-                AstNode list = r.get(3).getAstNode().get();
+            Optional<ParametersListNode> formalParams = r.get(2).getAstNode(ParametersListNode.class);
+
+            if (formalParams.isPresent()) {
+                n.setParameters(formalParams.get());
+            }
+            
+            int next = 4;
+            int typeIndex = next + 1;
+            if (r.get(next).getAstNode().isPresent()) {
+                AstNode list = r.get(next).getAstNode().get();
 
                 if (list instanceof ParametersListNode) {
                     n.setParameters((ParametersListNode) list);
@@ -1696,7 +1710,7 @@ public class LenseGrammar extends AbstractLenseGrammar {
                     ln.add(list);
                     n.setParameters(ln);
                 }
-                typeIndex = 5;
+                typeIndex++;
             }
 
             if (":".equals(r.get(typeIndex).getLexicalValue())) {
@@ -1729,7 +1743,13 @@ public class LenseGrammar extends AbstractLenseGrammar {
  
             }
             
-            n.setName((String) r.get(nextNodeIndex - 2).getSemanticAttribute("lexicalValue").get());
+            Optional<TypeParametersListNode> generics = r.get(nextNodeIndex - 2).getAstNode(TypeParametersListNode.class);
+            
+            if (generics.isPresent()) {
+            	n.setMethodScopeGenerics(generics.get());
+            }
+            
+            n.setName((String) r.get(nextNodeIndex - 3).getSemanticAttribute("lexicalValue").get());
             
             applyImplementationModifiers(n, modifiers);
       

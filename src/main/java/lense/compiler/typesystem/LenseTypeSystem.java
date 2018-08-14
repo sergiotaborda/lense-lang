@@ -505,6 +505,15 @@ public class LenseTypeSystem {
 	//    }
 
 	public boolean isAssignableTo(TypeVariable type, TypeVariable target) {
+		
+		if (type == null) {
+			throw new IllegalArgumentException("Type cannot be null");
+		}
+		
+		if (target == null) {
+			throw new IllegalArgumentException("Target cannot be null");
+		}
+		
 		if (type.isSingleType()) {
 			if (target.isSingleType()) {
 				return isAssignableTo(type.getTypeDefinition(), target.getTypeDefinition());

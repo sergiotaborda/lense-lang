@@ -17,6 +17,7 @@ public class ConstructorDeclarationNode extends InvocableDeclarionNode implement
 	private boolean isPrimary= false;
 	private boolean isImplicit = false;
     private ConstructorExtentionNode constructorExtentionNode;
+	private TypeParametersListNode typeParametersListNode;
 
     
     public ConstructorDeclarationNode () {}
@@ -81,6 +82,13 @@ public class ConstructorDeclarationNode extends InvocableDeclarionNode implement
 	    return this.constructorExtentionNode;
 	}
 
-	
+	public void setMethodScopeGenerics(TypeParametersListNode typeParametersListNode) {
+		this.typeParametersListNode = typeParametersListNode;
+		this.add(typeParametersListNode);
+	}
+	public TypeParametersListNode getMethodScopeGenerics() {
+		return typeParametersListNode;
+	}
+
 	
 }

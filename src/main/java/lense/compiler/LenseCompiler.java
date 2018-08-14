@@ -412,7 +412,7 @@ public abstract class LenseCompiler {
             // apply any first
             Optional<Vertex<DependencyNode, DependencyRelation>> any = graph.getVertices().stream().filter(v -> v.getObject().getName().equals(LenseTypeSystem.Any().getName())).findAny();
             
-            if (any.isPresent()) {
+            if (selfCompilation && any.isPresent()) {
                 applyCompilation(nativeTypes, locations, corePhase, currentModuleRepository, backend, reader, any.map(v -> v.getObject().getCompiledUnit()).get());
 
                 graph.removeVertex(any.get());

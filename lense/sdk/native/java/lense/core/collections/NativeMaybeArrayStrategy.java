@@ -15,7 +15,7 @@ public class NativeMaybeArrayStrategy implements ArrayStrategy {
 	
 	@Override
 	public Array createArrayFrom(Natural size, Any seed) {
-		return new NativeMaybeArray(innerTypeName(),size.toPrimitiveInt());
+		return new NativeMaybeArray(type,size.toPrimitiveInt());
 	}
 
 	private String innerTypeName() {
@@ -24,7 +24,7 @@ public class NativeMaybeArrayStrategy implements ArrayStrategy {
 
 	@Override
 	public Array createArrayFrom(Any[] arrayOfAny) {
-		NativeMaybeArray array = new NativeMaybeArray(innerTypeName(),arrayOfAny.length);
+		NativeMaybeArray array = new NativeMaybeArray(type,arrayOfAny.length);
 		for(int i =0; i < arrayOfAny.length; i++) {
 			array.setAtPrimitiveIndex(i, arrayOfAny[i]);
 		}
@@ -33,7 +33,7 @@ public class NativeMaybeArrayStrategy implements ArrayStrategy {
 
 	@Override
 	public Array createArrayFrom(Sequence seq) {
-		NativeMaybeArray array = new NativeMaybeArray(innerTypeName(),seq.getSize().toPrimitiveInt());
+		NativeMaybeArray array = new NativeMaybeArray(type,seq.getSize().toPrimitiveInt());
 		Iterator iterator = seq.getIterator();
 		int i=0;
 		while(iterator.moveNext()){
@@ -44,7 +44,7 @@ public class NativeMaybeArrayStrategy implements ArrayStrategy {
 
 	@Override
 	public Array createEmpty() {
-		return new NativeMaybeArray(innerTypeName(),0);
+		return new NativeMaybeArray(type,0);
 	}
 
 }

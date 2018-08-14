@@ -62,6 +62,11 @@ public class NumericValue extends LiteralExpressionNode {
     public boolean isZero() {
         return number.signum() == 0;
     }
+    
+
+	public boolean isOne() {
+		  return number.compareTo(BigDecimal.ONE) == 0;
+	}
 
 
 }

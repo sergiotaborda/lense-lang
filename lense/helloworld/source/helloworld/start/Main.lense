@@ -37,10 +37,47 @@ public class Main extends ConsoleApplication {
 	public let parameter : Integer = 99 {get;};
 	
 	
+	private applyNames<T, U> ( from : T , to : U) : String {
+
+		let list = new Array<T>();
+		let other = new Array<U>();
+
+		return "";
+	}
+
+	private duplicate<T> ( source : Array<T> ) : Array<T> {
+
+		if (source.size == 0){
+			return new Array<T>.empty();
+		}
+	
+		let other = new Array<T>(source.size, source[0]);
+	
+		for( let i in source.indexes){
+			other[i] = source[i];
+		}		
+
+		return other;
+	}
+
+	private demoReification(){
+	
+		let source = [1,2,3];
+	    let target = duplicate(source);
+
+		let areTheSame = source === target;
+
+  	   	console.println("Copy and original are the same {{ areTheSame }}" );
+
+	}
 
   	public override onStart()  {
 
+
+		
   	 	console.println("Begin " ++ this.type().name); // ambiguity a ++ b  or a   ++b
+
+		demoReification();
 
 		demoMaybeArray();  	 	
 

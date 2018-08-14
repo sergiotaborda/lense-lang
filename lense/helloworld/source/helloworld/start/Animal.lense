@@ -13,4 +13,6 @@ public abstract class Animal {
 	public notOverridable() {}
 	public default overridable() {}
 	public default overridableOnce() {}
+
+	public abstract abstractGenericMethod<T>(other : T ) : T;
 }
