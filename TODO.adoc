@@ -4,7 +4,7 @@
 == Lense CLI
 
 - [x] compile
-- [ ] run 
+- [x] run 
 - [ ] test
 - [ ] document
 
@@ -19,17 +19,21 @@
 - [x] Selaed algebric types like: `class Boolean is true | false; `
 * [x] case classes,  ( via algebric types)
 * [x] case objects   ( via algebric types)
-- [x] Enums (via sealed types)
+- [x] enums (via sealed types)
 - [ ] Annotation
 - [ ] Enhancements -> usefull for operations on numbers of different types. enhancements can be native
-- [ ] data classes 
+* [x] methods
+* [ ] contructors
+* [ ] read only properties
+* [ ] native
+- [ ] data/record classes 
 - [ ] value classes
 
-- [ ]  memorize declaring type (specially if implementing interface)
+- [x]  memorize declaring type in methods (specially if implementing interface)
 
 
 - [ ] support lambdas 
-- [ ] support Single Abstract Method types as lambdas
+* [ ] support Single Abstract Method types as lambdas
 - [ ] validate variables used are effectively final ( so they can be used in lambdas)
      
 - [x] native types 
@@ -114,7 +118,7 @@
 - [x] support constructors delegation 
 - [ ] support constructors delegation when super constructor returns a different type 
 - [x] auto-declare properties in primary constructor
-- [x] rethink the static stategy. maybe having static things is a goog ideia (if could have static interfaces)
+- [ ] rethink the static stategy. maybe having static things is a goog ideia (if could have static interfaces)
 
 - [ ] support module detection and import 
 - [ ] support module repositories (even remote ones)
