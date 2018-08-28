@@ -5,6 +5,7 @@ import compiler.syntax.AstNode;
 import compiler.trees.VisitorNext;
 import lense.compiler.ast.CastNode;
 import lense.compiler.ast.FieldOrPropertyAccessNode;
+import lense.compiler.ast.IndexedAccessNode;
 import lense.compiler.ast.LenseAstNode;
 import lense.compiler.ast.QualifiedNameNode;
 import lense.compiler.ast.VariableReadNode;

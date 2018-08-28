@@ -29,6 +29,8 @@ import lense.core.math.equal;
 import lense.core.math.smaller;
 import lense.core.math.greater;
 import lense.core.math.Comparison;
+import helloworld.start.Sum;
+//import helloworld.start.Sequences;
 
 public class Main extends ConsoleApplication {
 
@@ -78,6 +80,8 @@ public class Main extends ConsoleApplication {
   	 	console.println("Begin " ++ this.type().name); // ambiguity a ++ b  or a   ++b
 
 		demoReification();
+
+		demoEnhacements();
 
 		demoMaybeArray();  	 	
 
@@ -254,6 +258,21 @@ public class Main extends ConsoleApplication {
   	    console.println("End");
   	 
   	}
+
+	public demoEnhacements(){
+
+		var seq = [1,2,3,4,5];
+
+		var sum = seq.sum();
+
+  		assert (sum == 15 ); 
+
+//		var alfa = [ "a", "b", "c"];
+
+//		var a = alfa.first();
+
+//		assert (a == "a" ); 
+	}
 
 
 	public dist(x : Integer, y : Integer) : Real {

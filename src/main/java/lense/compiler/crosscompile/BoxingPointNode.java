@@ -58,6 +58,8 @@ public class BoxingPointNode extends ExpressionNode {
 		this.canElide = canElide;
 	}
 
-
-
+	
+	public String toString() {
+		return "[" +  boxingDirection.name() +  "]" + this.getFirstChild().toString();
+	}
 }
