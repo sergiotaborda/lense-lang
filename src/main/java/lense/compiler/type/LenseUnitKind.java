@@ -12,7 +12,9 @@ public enum LenseUnitKind implements TypeKind{
 	Interface,
 	Annotation,
 	Enum,
-	Object;
+	Enhancement,
+	Object
+	;
 
 	public boolean isInterface() {
 		return this == Interface;
@@ -20,6 +22,10 @@ public enum LenseUnitKind implements TypeKind{
 
 	public boolean isObject() {
 		return this == Object;
+	}
+
+	public boolean isEnhancement() {
+		return this == Enhancement;
 	}
 	
 	
