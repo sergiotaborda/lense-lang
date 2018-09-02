@@ -271,7 +271,7 @@ public final class JavalizeVisitor implements Visitor<AstNode>{
                 }
                 AstNode parent = m.getParent();
                 
-                if (m.getTypeVariable().isFixed()) {
+                if (m.getTypeVariable().isSingleType()) {
                     TypeDefinition typeDefinition = m.getTypeVariable().getTypeDefinition();
                     if (typeDefinition.getName().equals("lense.core.lang.Void")){
                         return;

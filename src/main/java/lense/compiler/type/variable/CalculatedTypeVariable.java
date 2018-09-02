@@ -1,7 +1,6 @@
 package lense.compiler.type.variable;
 
 import java.util.List;
-import java.util.Optional;
 
 import lense.compiler.type.TypeDefinition;
 import lense.compiler.typesystem.Variance;
@@ -48,7 +47,7 @@ public abstract class CalculatedTypeVariable implements TypeVariable{
 	
 	@Override
 	public boolean isSingleType() {
-		return false;
+		return getUpperBound().equals(getLowerBound());
 	}
 	
 	@Override

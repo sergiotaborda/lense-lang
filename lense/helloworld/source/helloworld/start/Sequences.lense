@@ -3,6 +3,7 @@
 import lense.core.collections.Sequence;
 import lense.core.math.Natural;
 
+
 public enhancement Sequences<T> extends Sequence<T> {
 
 	public first() : T? {

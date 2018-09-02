@@ -30,7 +30,7 @@ import lense.core.math.smaller;
 import lense.core.math.greater;
 import lense.core.math.Comparison;
 import helloworld.start.Sum;
-//import helloworld.start.Sequences;
+import helloworld.start.Sequences;
 
 public class Main extends ConsoleApplication {
 
@@ -267,11 +267,13 @@ public class Main extends ConsoleApplication {
 
   		assert (sum == 15 ); 
 
-//		var alfa = [ "a", "b", "c"];
+		var alfa = [ "a", "b", "c"];
 
-//		var a = alfa.first();
+		var a = alfa.first();
 
-//		assert (a == "a" ); 
+		var maybeA : String? = "a";
+
+		assert (a == maybeA ); 
 	}
 
 
