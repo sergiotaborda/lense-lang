@@ -121,7 +121,7 @@ import lense.compiler.typesystem.Visibility;
 
 public final class SemanticVisitor extends AbstractScopedVisitor {
 
-	private Map<String, List<Method>> expected = new HashMap<String, List<Method>>();
+	private Map<String, List<Method>> expectedMethods = new HashMap<String, List<Method>>();
 
 	private LenseTypeDefinition ANY;
 	private LenseTypeDefinition VOID;
@@ -161,10 +161,10 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 
 		if (this.currentType != null && !this.currentType.getKind().isEnhancement()) {
 
-			if (!expected.isEmpty()) {
+			if (!expectedMethods.isEmpty()) {
 
 				if (!this.currentType.isAbstract() && !this.currentType.isNative()) {
-					for (List<Method> list : expected.values()) {
+					for (List<Method> list : expectedMethods.values()) {
 						for (Method m : list) {
 							if (!m.isNative() && !m.isPropertyBridge() && m.isAbstract()) {
 								throw new CompilationError(this.currentType.getName()
@@ -222,7 +222,23 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 	 */
 	@Override
 	public VisitorNext doVisitBeforeChildren(AstNode node) {
-		if (node instanceof ContinueNode) {
+		if (node instanceof AssertNode) {
+			AssertNode r = (AssertNode) node;
+			ExpressionNode val = (ExpressionNode) r.getFirstChild();
+
+			if (val instanceof PreBooleanUnaryExpression) {
+				PreBooleanUnaryExpression exp = (PreBooleanUnaryExpression)val;
+				
+				if (exp.getOperation() == BooleanOperation.LogicNegate) {
+					
+	
+					exp.getParent().replace(val, exp.getFirstChild());
+					
+					r.setReferenceValue(false);
+				}
+			}
+
+		} else if (node instanceof ContinueNode) {
 			// verify is use inside a loop
 			if (!isUsedInLoop(node)) {
 				throw new CompilationError(node, "Cannot use continue directive outside a loop");
@@ -274,7 +290,7 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 							m.getName() + " is abstract but " + this.currentType.getName() + " is not abstract");
 				}
 
-				List<Method> superMethods = expected.get(m.getName());
+				List<Method> superMethods = expectedMethods.get(m.getName());
 
 				if (superMethods == null || superMethods.isEmpty()) {
 					// no supper method exists, so this method cannot declare override
@@ -299,7 +315,10 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 									MethodParameter superParameter = (MethodParameter) ita.next();
 									FormalParameterNode thisParameter = (FormalParameterNode) itb.next();
 
-									if (!superParameter.getType().contains(thisParameter.getTypeVariable())) {
+									 boolean matches =  this.lenseTypeSystem.isAssignableTo(thisParameter.getTypeVariable(), superParameter.getType().getUpperBound()) 
+									 && this.lenseTypeSystem.isAssignableTo(superParameter.getType().getLowerBound(), thisParameter.getTypeVariable());
+									
+									if (!matches) {
 										analiseInheritance = false;
 										break;
 									}
@@ -325,7 +344,7 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 								m.setSuperMethod(superMethod);
 
 								m.getMethod().setSuperMethod(superMethod);
-								expected.remove(m.getName());
+								expectedMethods.remove(m.getName());
 							}
 
 						} // else, not the same number of parameters: is an overload.
@@ -722,11 +741,11 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 		if (method.isPropertyBridge()) {
 			return;
 		}
-		List<Method> list = expected.get(name);
+		List<Method> list = expectedMethods.get(name);
 
 		if (list == null) {
 			list = new ArrayList<>(1);
-			expected.put(name, list);
+			expectedMethods.put(name, list);
 		} else {
 			if (list.contains(method)) {
 				return;
@@ -822,7 +841,7 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 			if (!(val instanceof ComparisonNode) && !(val instanceof InstanceOfNode)) {
 				ComparisonNode n = new ComparisonNode(Operation.EqualTo);
 				n.add(val);
-				n.add(new BooleanValue(true));
+				n.add(new BooleanValue(r.getReferenceValue()));
 
 				r.replace(val, n);
 			}
@@ -1878,7 +1897,10 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 								+ " is defined for type " + methodOwnerType);
 					}
 
+
 					m.setTypeVariable(indexer.get().getReturningType());
+				
+
 				}
 
 			} else if (node instanceof PosExpression) {
@@ -2304,7 +2326,8 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 					method = def.getMethodByPromotableSignature(signature);
 
 					if (method.isPresent()) {
-						m.setTypeVariable(method.get().getReturningType());
+						
+						applyMethodCall(node, m, method.get());
 					} else {
 						
 						// search in enhancements
@@ -2620,6 +2643,7 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 	}
 
 	private void applyMethodCall(AstNode node, MethodInvocationNode m, Method mthd) {
+		
 		m.setTypeMember(mthd);
 		m.setTypeVariable(mthd.getReturningType());
 

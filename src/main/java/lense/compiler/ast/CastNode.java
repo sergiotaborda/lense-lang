@@ -19,5 +19,8 @@ public class CastNode extends ExpressionNode {
 	}
 
 
+	public String toString() {
+		return "((" + this.getTypeVariable().toString() + ")" + getInner().toString() + ")";
+	}
 }
 

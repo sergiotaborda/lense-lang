@@ -85,13 +85,9 @@ public final class BoxingPointClassificationVisitor implements Visitor<AstNode> 
 				// outbox return 
 				BoxingPointNode boxing;
 				
-				if (m.isIndexDerivedMethod()) {
-//					CastNode c = new CastNode(m, m.getTypeVariable());
-//					
-//					m.getParent().replace(m, c);
-				} else {
+
 					m.getParent().replace(m, new BoxingPointNode(m, m, BoxingDirection.BOXING_OUT));
-				}
+				
 				
 				
 			}
