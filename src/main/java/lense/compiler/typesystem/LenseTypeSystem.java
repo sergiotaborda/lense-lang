@@ -697,13 +697,23 @@ public class LenseTypeSystem {
 			return b;
 		} else if (b.getTypeDefinition().getName().equals("lense.core.lang.Nothing")) {
 			return a;
+		} else if (a.getTypeDefinition().getName().equals("lense.core.lang.None")) {
+			if (isMaybe(b)) {
+				return b;
+			} 
+		
+		} else if (b.getTypeDefinition().getName().equals("lense.core.lang.None")) {
+			if (isMaybe(a)) {
+				return a;
+			}
 		} else if (isAssignableTo(a, b)) {
 			return b;
 		} else if (isAssignableTo(b, a)) {
 			return a;
-		} else {
-			return new UnionType(a, b);
-		}
+		} 
+			
+		return new UnionType(a, b);
+		
 	}
 
 	/**

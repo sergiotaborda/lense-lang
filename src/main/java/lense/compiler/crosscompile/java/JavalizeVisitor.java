@@ -12,16 +12,13 @@ import compiler.syntax.AstNode;
 import compiler.trees.Visitor;
 import compiler.trees.VisitorNext;
 import lense.compiler.asm.ByteCodeTypeDefinitionReader;
-import lense.compiler.ast.BlockNode;
 import lense.compiler.ast.BooleanOperatorNode;
 import lense.compiler.ast.CastNode;
 import lense.compiler.ast.ClassTypeNode;
-import lense.compiler.ast.ExpressionNode;
 import lense.compiler.ast.FormalParameterNode;
 import lense.compiler.ast.ImutabilityNode;
 import lense.compiler.ast.MethodDeclarationNode;
 import lense.compiler.ast.MethodInvocationNode;
-import lense.compiler.ast.TypeNode;
 import lense.compiler.ast.VariableDeclarationNode;
 import lense.compiler.ast.VariableReadNode;
 import lense.compiler.context.SemanticContext;
@@ -40,7 +37,6 @@ import lense.compiler.type.TypeMember;
 import lense.compiler.type.variable.TypeVariable;
 import lense.compiler.typesystem.Imutability;
 import lense.compiler.typesystem.LenseTypeSystem;
-import lense.compiler.typesystem.Visibility;
 
 /**
  * 
@@ -266,23 +262,29 @@ public final class JavalizeVisitor implements Visitor<AstNode>{
             MethodInvocationNode m = (MethodInvocationNode)node;
 
 
-            if (m.getAccess() != null && !((lense.compiler.ast.TypedNode)m.getAccess()).getTypeVariable().getGenericParameters().isEmpty() ){
+            if (m.getAccess() != null 
+            		&& ((lense.compiler.ast.TypedNode)m.getAccess()).getTypeVariable() != null
+            		&& !((lense.compiler.ast.TypedNode)m.getAccess()).getTypeVariable().getGenericParameters().isEmpty() ){
 
                 if ( m.getTypeVariable().isFixed()){
                     return ;
                 }
                 AstNode parent = m.getParent();
-                TypeDefinition typeDefinition = m.getTypeVariable().getTypeDefinition();
-                if (typeDefinition.getName().equals("lense.core.lang.Void")){
-                    return;
-                }
+                
+                if (m.getTypeVariable().isSingleType()) {
+                    TypeDefinition typeDefinition = m.getTypeVariable().getTypeDefinition();
+                    if (typeDefinition.getName().equals("lense.core.lang.Void")){
+                        return;
+                    }
 
-                if (parent instanceof BooleanOperatorNode && typeDefinition.getName().equals("lense.core.lang.Boolean")){
-                    // lense.core.lang.Boolean is already been erased inside BooleanOperatorNode
-                    return;
+                    if (parent instanceof BooleanOperatorNode && typeDefinition.getName().equals("lense.core.lang.Boolean")){
+                        // lense.core.lang.Boolean is already been erased inside BooleanOperatorNode
+                        return;
+                    }
+                    CastNode cast = new CastNode(m, typeDefinition);
+                    parent.replace(node, cast);
                 }
-                CastNode cast = new CastNode(m, typeDefinition);
-                parent.replace(node, cast);
+            
             }
         }
         else if (node instanceof MethodDeclarationNode){

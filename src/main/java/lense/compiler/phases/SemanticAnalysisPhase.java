@@ -4,7 +4,10 @@
 package lense.compiler.phases;
 
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import compiler.CompilationResult;
 import compiler.CompilerListener;
@@ -15,9 +18,13 @@ import compiler.trees.TreeTransverser;
 import lense.compiler.CompilationError;
 import lense.compiler.ast.ChildTypeNode;
 import lense.compiler.ast.ClassTypeNode;
+import lense.compiler.ast.SingleImportNode;
 import lense.compiler.ast.UnitTypes;
 import lense.compiler.context.SemanticContext;
 import lense.compiler.repository.UpdatableTypeRepository;
+import lense.compiler.type.TypeDefinition;
+import lense.compiler.type.variable.TypeVariable;
+import lense.compiler.typesystem.TypeSearchParameters;
 
 /**
  * 
@@ -52,6 +59,28 @@ public class SemanticAnalysisPhase implements CompilerPhase {
 		boolean hasAlgebric = false;
 
 		try {
+			
+			Map<TypeVariable, List<TypeDefinition>> enhancements = new HashMap<>();
+			if (types.getImports().isPresent()) {
+				
+				for (SingleImportNode si : types.getImports().get().getChildren(SingleImportNode.class)){
+					
+					Optional<TypeDefinition> using = typeRepository.resolveType(new TypeSearchParameters(si.getName().getName()));
+					
+					if (using.map( t -> t.getKind() != null && t.getKind().isEnhancement()).orElse(false)) {
+						
+						List<TypeDefinition> list = enhancements.get(using.get().getSuperDefinition());
+						
+						if (list == null) {
+							 list = new LinkedList<>();
+							 enhancements.put(using.get().getSuperDefinition(), list);
+						}
+						
+						list.add(using.get());
+					}
+				}
+			}
+			
 			for (ClassTypeNode ct : types.getTypes()){
 				// cannot share semantic context among classes
 				if (!ct.isNative()) {
@@ -59,7 +88,7 @@ public class SemanticAnalysisPhase implements CompilerPhase {
 					// attach the repository with loaded types
 					SemanticContext ctx = ct.getSemanticContext().withRepository(typeRepository);
 
-					TreeTransverser.transverse(ct,new SemanticVisitor(ctx));
+					TreeTransverser.transverse(ct,new SemanticVisitor(ctx, enhancements));
 					TreeTransverser.transverse(ct,new EnsureNotFundamentalTypesVisitor(ctx));
 
 					hasAlgebric = hasAlgebric || ct.isAlgebric();

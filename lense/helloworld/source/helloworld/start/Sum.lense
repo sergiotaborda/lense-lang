@@ -1,0 +1,20 @@
+
+
+import lense.core.collections.Sequence;
+import lense.core.math.Natural;
+
+
+public enhancement Sum extends Sequence<Natural> {
+
+	public sum() : Natural{
+		
+		var sum = 0;
+
+		for ( let n in this){
+			sum += n;
+		} 
+
+		return sum;
+	}
+
+}

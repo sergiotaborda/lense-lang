@@ -21,6 +21,7 @@ import lense.compiler.ast.FieldDeclarationNode;
 import lense.compiler.ast.FormalParameterNode;
 import lense.compiler.ast.GenericTypeParameterNode;
 import lense.compiler.ast.ImutabilityNode;
+import lense.compiler.ast.IndexedAccessNode;
 import lense.compiler.ast.LiteralCreation;
 import lense.compiler.ast.MethodDeclarationNode;
 import lense.compiler.ast.MethodInvocationNode;
@@ -33,6 +34,7 @@ import lense.compiler.ast.TypeNode;
 import lense.compiler.ast.TypeParameterTypeResolverNode;
 import lense.compiler.ast.TypeParametersListNode;
 import lense.compiler.ast.VariableReadNode;
+import lense.compiler.ast.VariableReadTypeResolverNode;
 import lense.compiler.ast.VisibilityNode;
 import lense.compiler.context.SemanticContext;
 import lense.compiler.context.VariableInfo;
@@ -190,7 +192,7 @@ public final class ReificationVisitor extends AbstractScopedVisitor {
 			if (!m.getMethodScopeGenerics().getChildren().isEmpty()) {
 				m.getParameters().addFirst(new FormalParameterNode(METHOD_REIFICATION_INFO, LenseTypeSystem.ReifiedArguments()));
 			}
-			
+
 		} else if (node instanceof MethodInvocationNode) {
 			MethodInvocationNode m = (MethodInvocationNode)node;
 			
@@ -237,22 +239,38 @@ public final class ReificationVisitor extends AbstractScopedVisitor {
 		if (g.getSymbol().isPresent()) {
 		
 			String symbol = g.getSymbol().get();
-			Optional<Integer> index = currentType.getGenericParameterIndexBySymbol(symbol);
+			Optional<Integer> index = currentType.getKind().isEnhancement() 
+					?  ((LenseTypeDefinition)currentType.getSuperDefinition()).getGenericParameterIndexBySymbol(symbol) 
+					:  currentType.getGenericParameterIndexBySymbol(symbol);
 		
 			Integer indexValue = null;
-			VariableReadNode vr = null;
-			
+		
 			if (index.isPresent()) {
 				
 				indexValue = index.get();
 
-				VariableInfo variableInfo = this.getSemanticContext().currentScope()
-						.searchVariable(TYPE_REIFICATION_INFO);
+				AstNode tp = null;
+				if (currentType.getKind().isEnhancement()) {
+					
+					tp =  new TypeParameterTypeResolverNode(new VariableReadTypeResolverNode(EnhancementVisitor.ENHANCED_OBJECT), indexValue);
+				} else {
+					VariableInfo variableInfo = this.getSemanticContext().currentScope()
+							.searchVariable(TYPE_REIFICATION_INFO);
 
+					VariableReadNode vr = new VariableReadNode(TYPE_REIFICATION_INFO, variableInfo);
+				   
+					MethodInvocationNode m = new MethodInvocationNode( vr, "typeAt",
+							new ArgumentListNode(new NumericValue().setValue(new BigDecimal(indexValue),
+									this.getSemanticContext().resolveTypeForName("lense.core.math.Natural", 0)
+											.get())));
+					
+					m.setTypeVariable(this.getSemanticContext().resolveTypeForName("lense.core.lang.reflection.TypeResolver", 0).get());
+					
+					tp = m;
+				}
 		
-			   vr = new VariableReadNode(TYPE_REIFICATION_INFO, variableInfo);
 			   capture.count--;
-			   
+			   return tp;
 			} else {
 				
 				List<GenericTypeParameterNode> freeTypes = this.currentMethod.getMethodScopeGenerics().getChildren(GenericTypeParameterNode.class);
@@ -328,29 +346,33 @@ public final class ReificationVisitor extends AbstractScopedVisitor {
 					throw new CompilationError(invocationNode, "Generic type parameter " + symbol + "  is not defined");
 					
 				} else {
-					vr = new VariableReadNode(METHOD_REIFICATION_INFO, new VariableInfo(
+					VariableReadNode vr = new VariableReadNode(METHOD_REIFICATION_INFO, new VariableInfo(
 							METHOD_REIFICATION_INFO, 
 							this.getSemanticContext().resolveTypeForName("lense.core.lang.reflection.ReifiedArguments", 0).get(),
 							this.currentMethod, 
 							false, 
 							true
 						));
+					
+					MethodInvocationNode m = new MethodInvocationNode( vr, "typeAt",
+							new ArgumentListNode(new NumericValue().setValue(new BigDecimal(indexValue),
+									this.getSemanticContext().resolveTypeForName("lense.core.math.Natural", 0)
+											.get())));
+					
+					m.setTypeVariable(this.getSemanticContext().resolveTypeForName("lense.core.lang.reflection.TypeResolver", 0).get());
+					
 					 capture.count++;
+					 
+					 return m;
 				}
 				
 
 			}
 			
 
-			MethodInvocationNode m = new MethodInvocationNode( vr, "typeAt",
-					new ArgumentListNode(new NumericValue().setValue(new BigDecimal(indexValue),
-							this.getSemanticContext().resolveTypeForName("lense.core.math.Natural", 0)
-									.get())));
-			
-			m.setTypeVariable(this.getSemanticContext().resolveTypeForName("lense.core.lang.reflection.TypeResolver", 0).get());
+		
 
-			return m;
-			
+	
 		} else if (g.isFixed() || g instanceof RangeTypeVariable) {
 			
 			if (g.getGenericParameters().isEmpty()) {
