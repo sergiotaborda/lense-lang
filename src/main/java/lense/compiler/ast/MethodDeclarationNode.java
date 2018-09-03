@@ -21,6 +21,8 @@ public class MethodDeclarationNode extends InvocableDeclarionNode implements Sco
 	private boolean isIndexer;
 	private boolean isSetter;
 	
+	private boolean isStatic;
+	
 	private Method method;
 	private Method superMethod;
 	private TypeParametersListNode typeParametersListNode;
@@ -101,6 +103,12 @@ public class MethodDeclarationNode extends InvocableDeclarionNode implements Sco
 	}
 	public TypeParametersListNode getMethodScopeGenerics() {
 		return typeParametersListNode == null ? new TypeParametersListNode():  typeParametersListNode;
+	}
+	public boolean isStatic() {
+		return isStatic;
+	}
+	public void setStatic(boolean isStatic) {
+		this.isStatic = isStatic;
 	}
 
 

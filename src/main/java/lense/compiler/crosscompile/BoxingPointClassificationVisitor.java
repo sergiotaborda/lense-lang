@@ -9,9 +9,11 @@ import lense.compiler.ast.ArgumentListItemNode;
 import lense.compiler.ast.ArgumentListNode;
 import lense.compiler.ast.AssignmentNode;
 import lense.compiler.ast.CaptureReifiedTypesNode;
+import lense.compiler.ast.CastNode;
 import lense.compiler.ast.ConstructorDeclarationNode;
 import lense.compiler.ast.ExpressionNode;
 import lense.compiler.ast.FieldOrPropertyAccessNode;
+import lense.compiler.ast.IndexedAccessNode;
 import lense.compiler.ast.MethodDeclarationNode;
 import lense.compiler.ast.MethodInvocationNode;
 import lense.compiler.ast.ReturnNode;
@@ -69,15 +71,26 @@ public final class BoxingPointClassificationVisitor implements Visitor<AstNode> 
 			if (v.getInitializer() !=null){
 				v.replace(v.getInitializer(), new BoxingPointNode(v.getInitializer(), v, BoxingDirection.BOXING_OUT));
 			}
+		}else if (node instanceof IndexedAccessNode) {
+			IndexedAccessNode m = (IndexedAccessNode)node;
 
+			if (!(LenseTypeSystem.getInstance().isAssignableTo(m.getTypeVariable(), LenseTypeSystem.Void()))){
+				// outbox return 
+				m.getParent().replace(m, new BoxingPointNode(m, m, BoxingDirection.BOXING_OUT));
+			}	
 		}else if (node instanceof MethodInvocationNode){
 			MethodInvocationNode m = (MethodInvocationNode)node;
 
 			if (!(LenseTypeSystem.getInstance().isAssignableTo(m.getTypeVariable(), LenseTypeSystem.Void()))){
 				// outbox return 
-				m.getParent().replace(m, new BoxingPointNode(m, m, BoxingDirection.BOXING_OUT));
-			}
+				BoxingPointNode boxing;
+				
 
+					m.getParent().replace(m, new BoxingPointNode(m, m, BoxingDirection.BOXING_OUT));
+				
+				
+				
+			}
 		} else if (node instanceof FieldOrPropertyAccessNode){
 
 			FieldOrPropertyAccessNode m = (FieldOrPropertyAccessNode)node;

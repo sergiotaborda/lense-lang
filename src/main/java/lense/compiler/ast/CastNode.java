@@ -5,14 +5,13 @@ import lense.compiler.type.variable.TypeVariable;
 public class CastNode extends ExpressionNode {
 
 	
-	private TypeVariable type;
 
 	public CastNode (LenseAstNode other, TypeVariable type){
 	    if (type == null){
             throw new IllegalArgumentException("Type is necessary");
         }
 		this.add(other);
-		this.type = type;
+		this.setTypeVariable(type);
 	}
 
 	public LenseAstNode getInner(){
@@ -20,9 +19,8 @@ public class CastNode extends ExpressionNode {
 	}
 
 
-
-	public TypeVariable getTypeVariable() {
-		return type;
+	public String toString() {
+		return "((" + this.getTypeVariable().toString() + ")" + getInner().toString() + ")";
 	}
 }
 

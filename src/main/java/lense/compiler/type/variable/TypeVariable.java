@@ -44,7 +44,5 @@ public interface TypeVariable {
 
 	public void ensureNotFundamental(Function<TypeDefinition, TypeDefinition> convert);
 
-	public default boolean contains(TypeVariable other) {
-		return LenseTypeSystem.getInstance().isAssignableTo(other, this.getUpperBound()) && LenseTypeSystem.getInstance().isAssignableTo(this.getLowerBound(), other);
-	}
+
 }

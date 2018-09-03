@@ -238,7 +238,23 @@ public class LenseTypeDefinition implements TypeDefinition {
     }
 
     public boolean equals(LenseTypeDefinition other){
-        return this.getName().equals(other.getName()) && this.genericParameters.size() == other.genericParameters.size();
+        if ( this.getName().equals(other.getName()) && this.genericParameters.size() == other.genericParameters.size()) {
+        	
+        	Iterator<TypeVariable> itA = this.genericParameters.iterator();
+         	Iterator<TypeVariable> itB = other.genericParameters.iterator();
+         	while (itA.hasNext()) {
+         		TypeVariable a = itA.next();
+         		TypeVariable b = itB.next();
+         		
+         		if (!a.equals(b)) {
+         			return false;
+         		}
+         	}
+         	
+         	return true;
+        	
+        }
+        return false;
     }
 
     public int hashCode(){
@@ -586,6 +602,11 @@ public class LenseTypeDefinition implements TypeDefinition {
 
         for (Method mth : this.getMethodsByName(signature.getName())) {
             if (mth.getParameters().size() == signature.getParameters().size()) {
+            	
+            	if (signature.getParameters().isEmpty()) {
+            		   return Optional.of(mth);
+            	}
+            	
                 for (int p = 0; p < signature.getParameters().size(); p++) {
                     CallableMemberMember<Method> mp = signature.getParameters().get(p);
                     if (LenseTypeSystem.getInstance().isPromotableTo(mp.getType(), mth.getParameters().get(p).getType())) {

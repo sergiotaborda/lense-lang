@@ -37,6 +37,15 @@ public class Boolean extends Base implements Any{
 		return value;
 	}
 	
+	@PlatformSpecific
+	public boolean isTrue() {
+		return value;
+	}
+	
+	@PlatformSpecific
+	public boolean isFalse() {
+		return !value;
+	}
 	
 	public boolean negate(){
 		return !this.value;

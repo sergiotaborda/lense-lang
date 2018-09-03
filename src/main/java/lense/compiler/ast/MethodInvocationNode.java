@@ -23,6 +23,7 @@ public class MethodInvocationNode extends NeedTypeCalculationNode {
     private PropertyOperation propertyOperation;
 	private Map<String, TypeVariable> boundedTypes;
 	private TypeMember member;
+	private boolean staticInvocation;
 
     public MethodInvocationNode (){}
 
@@ -146,5 +147,14 @@ public class MethodInvocationNode extends NeedTypeCalculationNode {
 	
 	public void setTypeMember(TypeMember member) {
 		this.member = member;
+	}
+
+	
+	public void setStaticInvocation(boolean staticInvocation) {
+		this.staticInvocation = staticInvocation;
+	}
+	
+	public boolean isStaticInvocation() {
+		return this.staticInvocation;
 	}
 }

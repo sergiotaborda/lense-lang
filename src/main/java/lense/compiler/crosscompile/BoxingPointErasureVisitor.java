@@ -7,6 +7,7 @@ import lense.compiler.ast.ArgumentListItemNode;
 import lense.compiler.ast.BooleanOperation;
 import lense.compiler.ast.BooleanValue;
 import lense.compiler.ast.CastNode;
+import lense.compiler.ast.ComparisonNode;
 import lense.compiler.ast.ExpressionNode;
 import lense.compiler.ast.MethodInvocationNode;
 import lense.compiler.ast.NumericValue;
@@ -60,7 +61,7 @@ public class BoxingPointErasureVisitor implements Visitor<AstNode> {
 			MethodInvocationNode m = (MethodInvocationNode) node;
 
 			TypedNode access = (TypedNode)m.getAccess();
-			if (access != null && access.getTypeVariable().getTypeDefinition().getKind() == JavaTypeKind.Primitive) {
+			if (access != null  && access.getTypeVariable() != null && access.getTypeVariable().getTypeDefinition().getKind() == JavaTypeKind.Primitive) {
 
 				if (m.getCall().getName().equals("negate")){
 
@@ -120,9 +121,7 @@ public class BoxingPointErasureVisitor implements Visitor<AstNode> {
 
 					a.getParent().replace(a, new PrimitiveBooleanUnbox(val));
 					
-
-				} 
-
+				}
 				// TODO StringConcatenationNode, StringValue
 
 			} else {
@@ -147,12 +146,7 @@ public class BoxingPointErasureVisitor implements Visitor<AstNode> {
 						a.getParent().replace(a, new PrimitiveBooleanBox(val));
 					}
 				} else if (val instanceof CastNode) {
-					CastNode m = (CastNode)val;
-					
-					if (LenseTypeSystem.getInstance().isBoolean(m.getTypeVariable())){
-						
-					}
-					
+					// no-op
 				} else {
 					System.out.println(val.getClass().getName());
 				}
