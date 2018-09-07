@@ -8,73 +8,112 @@
 - [ ] test
 - [ ] document
 
-== Compiler / Language
+== Compiler
 
 - [ ] revise reduce-reduce conflicts
+- [x]  memorize declaring type in methods (specially if implementing interface)
+- [ ] Revisit ordering of elements in class body. it should not matter
+- [ ] use only naming to find types. discard parametric type count
+- [x] detect and report non used imports
+- [x] accept classes in lense.core module automatically
+- [x] save generic signatures in .class using annotations (java backend)
+
+== Language Features
+
 - [x] define variables with `let` and values with `val`. make `let` the default when not expliclity declared
 - [x] Iterator is moveNext/current not next/hasNext
 - [x] Indexes support multiple parameters `array[i]` , `matrix[i,j]` , `cube[i,j,k]`
-
-- [x] Object type 
-- [x] Selaed algebric types like: `class Boolean is true | false; `
-* [x] case classes,  ( via algebric types)
-* [x] case objects   ( via algebric types)
-- [x] enums (via sealed types)
-- [ ] Annotation
-- [ ] Enhancements -> usefull for operations on numbers of different types. enhancements can be native
-* [x] methods
-* [ ] contructors
-* [ ] read only properties
-* [ ] native
-- [ ] data/record classes 
-- [ ] value classes
-
-- [x]  memorize declaring type in methods (specially if implementing interface)
-
-
-- [ ] support lambdas 
-* [ ] support Single Abstract Method types as lambdas
-- [ ] validate variables used are effectively final ( so they can be used in lambdas)
-     
-- [x] native types 
-- [ ] native peers
-- [ ] native import like :  import native (js) jquery;
-	 
-- [ ] Revisit ordering of elements in class body. it should not matter
 - [ ] Ensure  fields/properties  not initialized produce compilation erros
 - [ ] allow to place `module.lense` in source root folder
 - [x] allow for package in files to be  optional.
 - [x] if present validate it matches the folder structure
- 
-- [x] support range literals `1...3` means  `1.upTo(3)` and  `1..<3` means  `1.upToExcluding(3)`
-- [x] support Interval literals `|[ , )|` operators 
-- [x] assume all whole numeric literals are natural numbers 
-- [x] assume all fractional numeric literals are rational numbers 
-- [x] define imaginary unit is 'i' and `2i` means  `Rational("2") * Complex.I`
-- [ ] optimize common patterns like:
-* [ ]  `real + imaginary` to `new Complex(real,imaginary)` 
-* [ ]  `1/x` to `x.invert()`
-- [x] define sequence literals `[1,2,3,4]`
-- [x] define map literals `{ "a": 1, "b": 2 , "c" : 3}`
 - [ ] define  builders like `Window { Size = Size { 20, 40} }}`  equivalent to new : xml alternative + parser
-- [ ] define Property bags as single loadable/parsable file (JSON style) 
-		   
-
 - [ ] Support named parameters so `go ( from: x, to : y)` is the same as go `(to: y ; from: x)`
 - [ ] Support default parameters. define `print ( msg : String : printer : Printer = defaultPrinter)` then call as `print("hello")` or as `print("hello", myPrinter)`. Default can be any object.
-
 - [x] classes are open by default. methods are closed by default. To open methods define them `default`. Abstract methods are marked `abstract`. Methods that implements abstracts or redefines (overrrides) a default method are marked `override`. Compiler verifies correctness.
 - [ ] allow interfaces to define deault methods. This will allow for using interfaces as traits. 
-
 - [ ] allow definition and implementation of meta types and meta interfaces. meta interfaces cannot be implemented by objects but can be used as a type in a parameter or generic and in a instanceof (although may be not in auto cast)
 - [ ] use meta interfaces to define operators (currently are special named methods) 		
-- [ ] save immutability as an annotation, handle as a meta interface
+- [ ] allow declaring objects as return type.
+- [ ] handle void objects inside boxes like  collections 
+- [x] support implicit get and set for properties
+- [x] support properties in interfaces
+- [x] support only propeties and not fields. 
+- [x] support simple delegation using `=>` like in  `size {get = list.size}` can be  `size => list.size`
+- [ ] support type inference
+- [x] support void return inference
+- [ ] support generics of generics like T<U>
+- [x] support `Type` type as base for reflection
+- [ ] support `typeof(T)`operator 
+- [x] support `is` operator
+- [x] support constructors delegation 
+- [ ] support constructors delegation when super constructor returns a different type 
+- [x] auto-declare properties in primary constructor
+- [ ] rethink the static stategy. maybe having static things is a goog ideia (if could have static interfaces)
+- [ ] support module detection and import 
+- [ ] support module repositories (even remote ones)
+	
+=== Types
 
-- [ ] support auto-boxing and auto-unboxing of _native primitives_
-* [x] use auto-boxing to erase `Boolean` with primitive `boolean`  
-* [x] identity bound limits in loops  
-* [ ] erase numeric values to they primitive conterparts when bound limits are kown (like in ranges)
-* [ ] do not erase string. implement string as a lightweight rope
+- [x] Define `class` type 
+- [x] Define `object` type 
+- [x] Define Selaed Type Hierarchies types like: `abstract class Boolean is true , false`
+* [x] Define sealed case classes,  
+* [x] Define sealed case objects and enums  
+* [ ] Define sealed interfaces  
+- [ ] Define Annotations
+- [ ] Define Enhancements (usefull for operations on numbers of different types. enhancements can be native)
+* [x] Define enhancement methods
+* [ ] Define enhancement named contructors
+* [ ] Define enhancement read only/calculated properties
+* [ ] Define native enhancement
+- [ ] data/record classes 
+* [ ] define Property bags as single loadable/parsable file (JSON style) 
+- [ ] value classes
+- [ ] imutable classes
+* [ ] save immutability as an annotation, handle as a meta interface
+- [ ] Native Types
+* [x] full native types 
+* [ ] native peers
+* [ ] native import like :  import native (js) jquery;
+
+==== Fundamental Types 
+
+- [x] Support Boolean
+* [ ] Boolean is not Binary but has & , | and ^ operators
+- [x] Support Range
+* [x] support range literals `1...3` means  `1.upTo(3)` and  `1..<3` means  `1.upToExcluding(3)`
+- [ ] Support lambdas 
+* [ ] support Single Abstract Method types as lambdas
+* [ ] validate variables used are effectively final ( so they can be used in lambdas)
+- [x] Support Interval
+* [x] support Interval literals `|[ , )|` operators 
+- [x] Support Numbers : Natural, Integer, Rational, Imaginary and Complex
+* [x] assume all whole numeric literals are natural numbers 
+* [x] assume all fractional numeric literals are rational numbers 
+* [x] define imaginary unit is 'i' and `2i` means  `Rational("2") * Complex.I`
+- [ ] Support Sequence
+* [x] define sequence literals `[1,2,3,4]`
+- [ ] Support Association
+* [x] define map literals `{ "a": 1, "b": 2 , "c" : 3}`
+- [x] Support String
+* [ ] implement string as a lightweight rope
+- [x] Support Tuples
+* [ ] support tuples desconstruction `(a, b) = (b, a)` 
+* [ ] identity `()` with the `void` object.
+
+=== Flow Sensitive Typing
+
+- [x] support flow sensitive typing in `if` directives
+- [x] support flow sensitive typing in `&&` expressions (like `other is Human && other.isSlepping()` identifing other is `Human` after `&&`)
+- [ ] support flow sensitive typing in `||` expressions (like `other is Male || other.isPregnant()` identifing other is `Female` )t
+- [x] support flow sensitive typing in `assert` directives
+- [ ] support flow sensitive typing in `switch` directives
+- [ ] support `exists x` as a flow sensitive way to decapsulate Maybe similar to instanceof 
+		if (exists x) {  x.do()  }  == transforms to ==> if (x.isPresent) { x' = x.Value ; x'.do() } 
+		return exists x;  == transforms to ==> return x.hasValue()
+		OR implement if (x != none) == transforms to ==> if (x.isPresent) { x' = x.Value ; x'.do() } BETTER because as no more keywords
+=== Reification
 
 - [x] capture generics locally when calling constructors 
 - [x] capture generics locally when calling generic methods
@@ -83,53 +122,24 @@
 - [x] pass capture to other methods and constructors
 - [ ] support generic declaration in constructors [SYNTAX]
 - [ ] support inheritance of generics [SYNTAX] like `T extends X` and `T super X` or ` where T extends X`
-- [x] save generic signatures in .class using annotations
 
-- [x] support flow sensitive typing in `if` directives
-- [x] support flow sensitive typing in `&&` expressions (like `other is Human && other.isSlepping()` identifing other is `Human` after `&&`)
-- [ ] support flow sensitive typing in `||` expressions (like `other is Male || other.isPregnant()` identifing other is `Female` )t
-- [x] support flow sensitive typing in `assert` directives
-- [ ] support flow sensitive typing in `switch` directives
+=== Optimization and Erasure
 
+- [ ] optimize private properties to native fields.
+- [ ] optimize common patterns `real + imaginary` to `new Complex(real,imaginary)` 
+- [ ] optimize common patterns `1/x` to `x.invert()`  
+- [ ] support auto-boxing and auto-unboxing of _native primitives_
+* [x] use auto-boxing to erase `Boolean` with primitive `boolean`  
+* [x] identity bound limits in loops  
+* [ ] erase numeric values to they primitive conterparts when bound limits are kown (like in ranges)
+* [ ] erase string to native charSequence. 
 
-- [ ] support tuples desconstruction `(a, b) = (b, a)` 
-- [ ] identity `()` with the `void` object.
-- [ ] allow declaring objects as return type.
-- [ ] handle void objects inside boxes like  collections 
-
-- [x] support implicit get and set for properties
-- [x] support properties in interfaces
-- [x] support only propeties and not fields. private properties will be optimized to native fields.
-- [x] support simple delegation using `=>` like in  `size {get = list.size}` can be  `size => list.size`
-	
-- [ ] support optional typing and type inference
-- [x] support void return inference
-- [ ] support generics of generics like T<U>
-
-- [x] support `Type` type as base for reflection
-- [ ] support `typeof(T)`operator 
-- [x] support `is` operator
-
-- [x] detect and report non used imports
-- [ ] use only naming to find types. discard parametric type count
-- [x] accept classes in lense.core module automatically
-
-
-- [x] support constructors delegation 
-- [ ] support constructors delegation when super constructor returns a different type 
-- [x] auto-declare properties in primary constructor
-- [ ] rethink the static stategy. maybe having static things is a goog ideia (if could have static interfaces)
-
-- [ ] support module detection and import 
-- [ ] support module repositories (even remote ones)
+=== Operators
 
 - [x] support operator for rational division `/` that always return elements of |Q , |R or |C    N/N , Z/Z , N/Z, Z/N , Q,Q -> Q , Q/R, R/Q, R/R -> R, x/C or C/x = C
 - [x] support operator for integer division `\` , consistent with `%` operator so that `D = d * q + r` where `q = D \ d` and `r = D % d`
 - [x] support comparison operators, including `<=>`,  based in `Comparable<T>` and `Comparison` objects
-- [ ] support exists x as a flow sensitive way to decapsulate Maybe similar to instanceof 
-		if (exists x) {  x.do()  }  == transforms to ==> if (x.isPresent) { x' = x.Value ; x'.do() } 
-		return exists x;  == transforms to ==> return x.hasValue()
-		OR implement if (x != none) == transforms to ==> if (x.isPresent) { x' = x.Value ; x'.do() } BETTER because as no more keywords
+
 - [ ] bound comparison operators compositions e.x: `if (2 < x() <= 10)` transforms to `if ( y = x();  2 < y && y <= 10)` simplify if x is not a function `if (2 <x && x < 4)
 		- rewrite `if ( x() in |(2 , 10 ]|)` as `if (2 < x() <= 10)` in the case of numbers
 
@@ -148,7 +158,9 @@
 - [ ] support  maybe  operators like `?+` , `?-` ,`?*`, `?/` . they handle all with Maybe and use `none` for overflow operations 
 - [ ] support  exact check operators  like `!+` , `!-` ,`!*`, `!/`. they throw OverflowException on overflow like java's AddExact, SubtractExact, MultiplyExact methods
 
-=== Understanding
+
+
+=== Needes Better Understanding
 
 ==== Operators
 
@@ -168,10 +180,6 @@
 	BigInt aftermax = In64.valueof(Int32.max) + 1  // BigInt.valueOf( In64.valueOf(Int32.max).plus(Natural(1)))
 	Assert.AreEqual(aftermax, next);
 
-
-
-
-	 
 ==== Currying 	 
  Methods are wrappers arround functions because they curry arround 'this'. static types do not curry constructors are curried Actions like constructor.apply(this): Void. 
 
@@ -181,6 +189,7 @@ value classes :  public val class Rational , to mean the class is imutable. prop
 Mark interfaces Imutable and Serializable and have : class Actor {   Void send<T extends Imutable | Serializable>(T msg)  }
 
 ==== Companion objects	 
+
  Constructors, companions, and methods vs functions and apply.  Client("A") <=> Client.apply("A") <=> Client.Companion.apply("A")
 	 
 === Monads
