@@ -166,6 +166,10 @@ public class LenseTypeSystem {
 	public static TypeDefinition Imaginary() {
 		return getInstance().getForName("lense.core.math.Imaginary").get();
 	}
+	
+	public static TypeDefinition Complex() {
+		return getInstance().getForName("lense.core.math.Complex").get();
+	}
 
 	/**
 	 * @return

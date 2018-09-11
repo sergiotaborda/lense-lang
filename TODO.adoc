@@ -11,12 +11,12 @@
 == Compiler / Language
 
 - [ ] revise reduce-reduce conflicts
-- [x] define variables with `let` and values with `val`. make `let` the default when not expliclity declared
+- [x] define variables with `let` and values with `val`. make `let` the default when not explicitly declared
 - [x] Iterator is moveNext/current not next/hasNext
 - [x] Indexes support multiple parameters `array[i]` , `matrix[i,j]` , `cube[i,j,k]`
 
 - [x] Object type 
-- [x] Selaed algebric types like: `class Boolean is true | false; `
+- [x] Selaed algebric types like: `class Boolean is true , false; `
 * [x] case classes,  ( via algebric types)
 * [x] case objects   ( via algebric types)
 - [x] enums (via sealed types)
@@ -52,8 +52,7 @@
 - [x] assume all fractional numeric literals are rational numbers 
 - [x] define imaginary unit is 'i' and `2i` means  `Rational("2") * Complex.I`
 - [ ] optimize common patterns like:
-* [ ]  `real + imaginary` to `new Complex(real,imaginary)` 
-* [ ]  `1/x` to `x.invert()`
+* [x]  `1/x` to `x.invert()`
 - [x] define sequence literals `[1,2,3,4]`
 - [x] define map literals `{ "a": 1, "b": 2 , "c" : 3}`
 - [ ] define  builders like `Window { Size = Size { 20, 40} }}`  equivalent to new : xml alternative + parser
