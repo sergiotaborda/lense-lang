@@ -49,7 +49,7 @@ public class LenseStringLiteralTokenState extends StringLiteralTokenState {
 				escape = false; // reset flag
 			} else {
 			    
-			    String endTerm = builder.toString().trim();
+			    String endTerm = builder.toString();
 			    
                 Optional<Token> token = grammar.stringLiteralMath(pos, endTerm);
                 if (token.isPresent()){
