@@ -1775,10 +1775,10 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 						// type, p).setInitialized(true);
 					}
 
-					IndexerProperty indexer = currentType.addIndexer(propertyType, p.getAcessor() != null,
-							p.getModifier() != null, params);
+					//IndexerProperty indexer = currentType.addIndexer(propertyType, p.getAcessor() != null,
+					//		p.getModifier() != null, params);
 
-					ArrayList<TypeVariable> listParams = new ArrayList<>(Arrays.asList(params));
+					//ArrayList<TypeVariable> listParams = new ArrayList<>(Arrays.asList(params));
 
 					// if (indexer.canWrite()) {
 					// listParams.add(propertyType);
@@ -2769,14 +2769,18 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 		}
 	}
 
-	private LenseAstNode promoteArithmeticOperatorToMethodCall(ExpressionNode parent, ExpressionNode leftExpression,
-			ExpressionNode rightExpression, ArithmeticOperation operation) {
+	private void promoteArithmeticOperatorToMethodCall(
+			ExpressionNode parent, 
+			ExpressionNode leftExpression,
+			ExpressionNode rightExpression, 
+			ArithmeticOperation operation
+		) {
 
 		TypeVariable left = ensureNotFundamental(leftExpression.getTypeVariable());
 		TypeVariable right = ensureNotFundamental(rightExpression.getTypeVariable());
 
 		if (left.equals(right) && left.getTypeDefinition().equals(LenseTypeSystem.String())) {
-
+			// String concat
 			if (operation != ArithmeticOperation.Concatenation) {
 				throw new CompilationError(parent,
 						"Operation " + operation.equivalentMethod() + " is not defined for type String");
@@ -2797,7 +2801,7 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 			c.setTypeVariable(left);
 			parent.getParent().replace(parent, c);
 
-			return c;
+			parent.getParent().replace(parent, c);
 		} else {
 			// validate division by zero
 
@@ -2806,6 +2810,7 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 
 			if (type.equals(LenseTypeSystem.String())) {
 
+				//String concat
 				Optional<Method> method = type.getMethodBySignature(new MethodSignature("asString"));
 				
 				MethodInvocationNode convert = new MethodInvocationNode(method.get(), rightExpression);
@@ -2817,9 +2822,55 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 				concat.setTypeVariable(left);
 
 				parent.getParent().replace(parent, concat);
+			} else if (operation == ArithmeticOperation.Division && leftExpression instanceof NumericValue
+					&& LenseTypeSystem.getInstance().isAssignableTo(right, LenseTypeSystem.Rational())) {
+				// natural / rational
+				
+				MethodSignature signature = new MethodSignature("invert");
+
+				Optional<Method> method = right.getTypeDefinition().getMethodBySignature(signature);
+
+				MethodInvocationNode invertRational = new MethodInvocationNode( method.get() , rightExpression);
+				
+				TypeVariable t = method.get().getReturningType();
+				if (t == null) {
+					throw new IllegalStateException("Type cannot be null");
+				}
+				invertRational.setTypeVariable(t);
+				
+				
+				if (((NumericValue)leftExpression).isOne() ) {
+					parent.getParent().replace(parent, invertRational);
+					
+				} else {
+					
+					signature = new MethodSignature("multiply", new MethodParameter(right));
+
+					method = right.getTypeDefinition().getMethodBySignature(signature);
+
+					leftExpression.setTypeVariable(right);
+					
+					ArgumentListItemNode arg = new ArgumentListItemNode(0, leftExpression);
+					arg.setExpectedType(right);
+
+					
+					MethodInvocationNode multiply = new MethodInvocationNode( method.get() , invertRational, arg);
+					
+					t = method.get().getReturningType();
+					if (t == null) {
+						throw new IllegalStateException("Type cannot be null");
+					}
+					multiply.setTypeVariable(t);
+					parent.getParent().replace(parent, multiply);
+					
+				}
+			
+			} else if (operation == ArithmeticOperation.Division && rightExpression instanceof NumericValue && ((NumericValue)rightExpression).isOne()) {
+
+				parent.getParent().replace(parent, leftExpression);
+				
 			} else {
-				MethodSignature signature = new MethodSignature(operation.equivalentMethod(),
-						new MethodParameter(right, "text"));
+				MethodSignature signature = new MethodSignature(operation.equivalentMethod(),new MethodParameter(right, "text"));
 
 				Optional<Method> method = type.getMethodBySignature(signature);
 
@@ -2862,10 +2913,9 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 				}
 				invokeOp.setTypeVariable(t);
 
-				return invokeOp;
+				parent.getParent().replace(parent, invokeOp);
 			}
 		}
-		return null;
 	}
 
 	private void promote(LenseAstNode parent, ExpressionNode rightExpression, TypeVariable left, TypeVariable right) {
@@ -2878,8 +2928,11 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 				new ConstructorParameter(right));
 
 		if (!op.isPresent()) {
+			
+			// if they are numbers other option exist
 			throw new CompilationError(parent, "Implicit constructor not found to promote " + right + " to " + left);
 		}
+		
 		if (rightExpression instanceof NumericValue) {
 			NumericValue n = (NumericValue) rightExpression;
 
