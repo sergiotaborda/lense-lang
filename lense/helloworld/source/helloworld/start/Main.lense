@@ -151,9 +151,10 @@ public class Main extends ConsoleApplication {
   	 	var doubleInverted = 2 / ratio;
 		assert( doubleInverted == 3/4);
   	  // TODO correct \ escaping inside string	
-  	 	console.println("8 / 3 = {{ ratio }} and 8 \ 3 ={{wholeDivision }}  so  8 ={{ wholeDivision }} * 3 + {{ remainder }}");
+  	 	console.println("8 / 3 = {{ ratio }} and 8 \\ 3 ={{wholeDivision }}  so  8 ={{ wholeDivision }} * 3 + {{ remainder }}");
   	 	
    // TODO verifiy if a variable was already defined
+ 
   	   var pow : Natural = 4 ^^ 3;
   	   var powNeg : Rational = 4 ^^ -3;
   	   

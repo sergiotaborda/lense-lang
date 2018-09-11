@@ -29,8 +29,8 @@
 - [ ] data/record classes 
 - [ ] value classes
 
-- [x]  memorize declaring type in methods (specially if implementing interface)
-
+- [x] memorize declaring type in methods (specially if implementing interface)
+- [ ] verifiy variable was already defined
 
 - [ ] support lambdas 
 * [ ] support Single Abstract Method types as lambdas
