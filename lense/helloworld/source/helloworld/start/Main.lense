@@ -141,12 +141,20 @@ public class Main extends ConsoleApplication {
   	 	var ratio = 8 / 3;
   	 	var wholeDivision = 8 \ 3;
   	 	var remainder = 8 % 3;
+
+		assert (8 == 8 \ 3 + 8 % 3);
   	 	
-  	 
+		var inverted = 1 / ratio;
+		assert( inverted == 3/8);
+		var fakeInverted = ratio / 1;
+		assert( fakeInverted == ratio);
+  	 	var doubleInverted = 2 / ratio;
+		assert( doubleInverted == 3/4);
   	  // TODO correct \ escaping inside string	
-  	 	console.println("8 / 3 = {{ ratio }} and 8 \ 3 ={{wholeDivision }}  so  8 ={{ wholeDivision }} * 3 + {{ remainder }}");
+  	 	console.println("8 / 3 = {{ ratio }} and 8 \\ 3 ={{wholeDivision }}  so  8 ={{ wholeDivision }} * 3 + {{ remainder }}");
   	 	
    // TODO verifiy if a variable was already defined
+ 
   	   var pow : Natural = 4 ^^ 3;
   	   var powNeg : Rational = 4 ^^ -3;
   	   

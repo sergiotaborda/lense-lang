@@ -11,23 +11,42 @@
 == Compiler
 
 - [ ] revise reduce-reduce conflicts
-- [x]  memorize declaring type in methods (specially if implementing interface)
+- [x] define variables with `let` and values with `val`. make `let` the default when not explicitly declared
+- [x] memorize declaring type in methods (specially if implementing interface)
 - [ ] Revisit ordering of elements in class body. it should not matter
 - [ ] use only naming to find types. discard parametric type count
 - [x] detect and report non used imports
 - [x] accept classes in lense.core module automatically
 - [x] save generic signatures in .class using annotations (java backend)
+- [ ] verifiy variable was already defined
 
 == Language Features
 
 - [x] define variables with `let` and values with `val`. make `let` the default when not expliclity declared
 - [x] Iterator is moveNext/current not next/hasNext
 - [x] Indexes support multiple parameters `array[i]` , `matrix[i,j]` , `cube[i,j,k]`
+
+- [x] Object type 
+- [x] Selaed algebric types like: `class Boolean is true , false; `
+* [x] case classes,  ( via algebric types)
+* [x] case objects   ( via algebric types)
+- [x] enums (via sealed types)
+- [ ] Annotation
+- [ ] Enhancements -> usefull for operations on numbers of different types. enhancements can be native
+* [x] methods
+* [ ] contructors
+* [ ] read only properties
+* [ ] native
+- [ ] data/record classes 
+- [ ] value classes
+
+- [ ] validate variables used are effectively final ( so they can be used in lambdas)
+     
 - [ ] Ensure  fields/properties  not initialized produce compilation erros
 - [ ] allow to place `module.lense` in source root folder
 - [x] allow for package in files to be  optional.
 - [x] if present validate it matches the folder structure
-- [ ] define  builders like `Window { Size = Size { 20, 40} }}`  equivalent to new : xml alternative + parser
+ 
 - [ ] Support named parameters so `go ( from: x, to : y)` is the same as go `(to: y ; from: x)`
 - [ ] Support default parameters. define `print ( msg : String : printer : Printer = defaultPrinter)` then call as `print("hello")` or as `print("hello", myPrinter)`. Default can be any object.
 - [x] classes are open by default. methods are closed by default. To open methods define them `default`. Abstract methods are marked `abstract`. Methods that implements abstracts or redefines (overrrides) a default method are marked `override`. Compiler verifies correctness.
@@ -127,7 +146,7 @@
 
 - [ ] optimize private properties to native fields.
 - [ ] optimize common patterns `real + imaginary` to `new Complex(real,imaginary)` 
-- [ ] optimize common patterns `1/x` to `x.invert()`  
+- [x] optimize common patterns `1/x` to `x.invert()`  
 - [ ] support auto-boxing and auto-unboxing of _native primitives_
 * [x] use auto-boxing to erase `Boolean` with primitive `boolean`  
 * [x] identity bound limits in loops  
