@@ -14,7 +14,7 @@ import lense.core.lang.reflection.TypeResolver;
 import lense.core.math.Natural;
 
 @Signature("::lense.core.collections.Sequence<lense.core.lang.Character>")
-public class String extends Base implements Sequence {
+public class String extends Base implements Sequence , CharSequence {
 
 	public static final String EMPTY = new String("");
 	
@@ -119,4 +119,21 @@ public class String extends Base implements Sequence {
     public Type type() {
         return TYPE_RESOLVER.resolveType();
     }
+
+	
+    @Override
+	public int length() {
+		return this.str.length();
+	}
+
+	@Override
+	public char charAt(int index) {
+		return this.str.charAt(index);
+	}
+	
+
+	@Override
+	public CharSequence subSequence(int start, int end) {
+		return subSequence(start, end);
+	}
 }

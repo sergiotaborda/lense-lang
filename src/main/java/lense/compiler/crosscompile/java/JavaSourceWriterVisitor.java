@@ -966,7 +966,7 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 						}
 							
 						TreeTransverser.transverse(n, this);
-						writer.print(".toString())");
+						writer.print(")");
 						
 					}
 

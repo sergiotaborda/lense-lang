@@ -820,11 +820,6 @@ public class LenseTypeDefinition implements TypeDefinition {
 		this.isFinal = isFinal;
 	}
 
-	@Override
-	public boolean contains(TypeVariable other) {
-		return this.equals(other);
-	}
-
 	public boolean isAlgebric() {
 		return isAlgebric;
 	}
