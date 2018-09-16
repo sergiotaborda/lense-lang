@@ -159,6 +159,7 @@ public abstract class AbstractLenseGrammar extends AbstractGrammar {
 		NonTerminal classInstanceCreationExpression = addNonTerminal(NonTerminal.of("classInstanceCreationExpression"));
 		NonTerminal creationType = addNonTerminal(NonTerminal.of("creationType"));
 		NonTerminal argumentList = addNonTerminal(NonTerminal.of("argumentList"));
+		NonTerminal argument = addNonTerminal(NonTerminal.of("argument"));
 		NonTerminal methodInvocation = addNonTerminal(NonTerminal.of("methodInvocation"));
 		NonTerminal literal = addNonTerminal(NonTerminal.of("literal"));
 		NonTerminal arrayInitializer = addNonTerminal(NonTerminal.of("arrayInitializer"));
@@ -317,7 +318,8 @@ public abstract class AbstractLenseGrammar extends AbstractGrammar {
 		arrayAccess.setRule(primary.add(Terminal.of("[")).add(argumentList).add(Terminal.of("]")).or(primary.add(Terminal.of("[")).add(argumentList).add(Terminal.of("]"))));
 		classInstanceCreationExpression.setRule(Terminal.of("new").add(creationType).add(Terminal.of("(")).add(argumentList).add(Terminal.of(")")).or(Terminal.of("new").add(creationType).add(Terminal.of("(")).add(Terminal.of(")")).or(Terminal.of("new").add(creationType).add(Terminal.of(".")).add(Identifier.instance()).add(Terminal.of("(")).add(argumentList).add(Terminal.of(")")).or(Terminal.of("new").add(creationType).add(Terminal.of(".")).add(Identifier.instance()).add(Terminal.of("(")).add(Terminal.of(")"))))));
 		creationType.setRule(Identifier.instance().or(Identifier.instance().add(Terminal.of("<")).add(parametricTypes).add(Terminal.of(">"))));
-		argumentList.setRule(expression.or(argumentList.add(Terminal.of(",")).add(expression)));
+		argumentList.setRule(argument.or(argumentList.add(Terminal.of(",")).add(argument)));
+		argument.setRule(expression.or(Identifier.instance().add(Terminal.of(":")).add(expression)));
 		methodInvocation.setRule(primary.add(Terminal.of(".")).add(Identifier.instance()).add(Terminal.of("(")).add(argumentList).add(Terminal.of(")")).or(primary.add(Terminal.of(".")).add(Identifier.instance()).add(Terminal.of("(")).add(Terminal.of(")"))).or(Identifier.instance().add(Terminal.of("(")).add(argumentList).add(Terminal.of(")")).or(Identifier.instance().add(Terminal.of("(")).add(Terminal.of(")")))));
 		literal.setRule(numberLiteral.or(booleanLiteral.or(stringLiteral.or(noneLiteral.or(arrayInitializer.or(tupleInitializer.or(mapInitializer)))))));
 		arrayInitializer.setRule(Terminal.of("[").add(arrayInitializerVariables).add(Terminal.of("]")));

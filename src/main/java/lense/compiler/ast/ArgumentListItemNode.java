@@ -1,14 +1,17 @@
 package lense.compiler.ast;
 
+import java.util.Optional;
+
 import compiler.syntax.AstNode;
 import lense.compiler.type.variable.TypeVariable;
 
 public class ArgumentListItemNode extends LenseAstNode{
 
 	
-	private int index;
+	private int index = -1;
 	private TypeVariable expectedType;
 	private boolean generic;
+	private String name;
 	
 	public ArgumentListItemNode(int index , AstNode node){
 		this.add(node);
@@ -43,6 +46,16 @@ public class ArgumentListItemNode extends LenseAstNode{
 	
 	public boolean isGeneric() {
 		return this.generic;	
+	}
+
+	
+	public Optional<String> getName() {
+		return Optional.ofNullable(name);
+	}
+	
+
+	public void setName(String name) {
+		this.name = name;
 	}
 
 	
