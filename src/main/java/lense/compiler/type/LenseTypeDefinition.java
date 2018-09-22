@@ -563,8 +563,8 @@ public class LenseTypeDefinition implements TypeDefinition {
         }
 
         // find exact local
+        LenseTypeSystem typeSystem = LenseTypeSystem.getInstance();
         for (TypeMember m : resolveMembers()) {
-            LenseTypeSystem typeSystem = LenseTypeSystem.getInstance();
             if (m.isMethod() && signature.getName().equals(m.getName())
                     && typeSystem.isSignatureImplementedBy(signature, (CallableMember<Method>) m)) {
                 return Optional.of((Method) m);

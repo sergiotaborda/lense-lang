@@ -13,6 +13,7 @@ import lense.compiler.ast.MethodInvocationNode;
 import lense.compiler.ast.NumericValue;
 import lense.compiler.ast.ReturnNode;
 import lense.compiler.ast.TypedNode;
+import lense.compiler.ast.VariableReadNode;
 import lense.compiler.crosscompile.java.JavaTypeKind;
 import lense.compiler.type.variable.TypeVariable;
 import lense.compiler.typesystem.LenseTypeSystem;
@@ -77,7 +78,7 @@ public class BoxingPointErasureVisitor implements Visitor<AstNode> {
 					m.getParent().replace(m, new PrimitiveBooleanOperationsNode(m.getAccess(), m.getCall().getFirstChild().getFirstChild(), BooleanOperation.BitXor));
 				} else if (m.getCall().getName().equals("equalsTo")){
 
-					AstNode val = m.getCall().getArgumentListNode().getFirst().getFirstChild();
+					AstNode val = m.getCall().getArguments().getFirst().getFirstChild();
 					if ( val instanceof BooleanValue) {
 						// remove call to equals method
 						m.getParent().replace(m, m.getAccess());
@@ -99,11 +100,17 @@ public class BoxingPointErasureVisitor implements Visitor<AstNode> {
 				return;
 			} 
 
+			
 			if (a.canElide() && val.getTypeVariable().equals(a.getTypeVariable())){
-				a.getParent().replace(a, val);
+				if (val instanceof BooleanValue) {
+					a.getParent().replace(a, new PrimitiveBooleanValue(((BooleanValue)val).isValue()));
+				} else {
+					a.getParent().replace(a, val);
+				}
+				
 				return;
 			} 
-
+			
 			if (a.isBoxingDirectionOut()){
 				// OUT BOXING
 
@@ -134,7 +141,7 @@ public class BoxingPointErasureVisitor implements Visitor<AstNode> {
 					a.getParent().replace(a, val);
 				} else if (val.getTypeVariable().getTypeDefinition().getKind() == JavaTypeKind.Primitive){
 					// val is already a primitive boolean
-					if (val instanceof PrimitiveBooleanOperationsNode) {
+					if ((val instanceof VariableReadNode && a.canElide()) || val instanceof PrimitiveBooleanOperationsNode) {
 						a.getParent().replace(a, val);
 					} else {
 						a.getParent().replace(a, new PrimitiveBooleanBox(val));
@@ -152,6 +159,8 @@ public class BoxingPointErasureVisitor implements Visitor<AstNode> {
 				}
 
 			}
+		
+
 		}
 
 	}

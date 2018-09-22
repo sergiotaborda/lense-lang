@@ -2027,7 +2027,8 @@ public class LenseGrammar extends AbstractLenseGrammar {
 			} else {
 				DecisionNode node = new DecisionNode();
 
-				node.setCondition(r.get(2).getAstNode(ExpressionNode.class).get());
+				
+				node.setCondition(r.get(2).getAstNode().map(a -> ensureExpression(a)).get());
 				if (r.get(4).getAstNode(BlockNode.class).isPresent()) {
 					node.setTruePath(r.get(4).getAstNode(BlockNode.class).get());
 				}

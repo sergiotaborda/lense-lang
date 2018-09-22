@@ -99,7 +99,7 @@ public final class ReificationVisitor extends AbstractScopedVisitor {
 
 		if (node instanceof ConstructorDeclarationNode) {
 
-			ConstructorDeclarationNode n = (ConstructorDeclarationNode) node;
+			ConstructorDeclarationNode n = (ConstructorDeclarationNode) node;	
 
 			// Add a invisible parameter for the receiver types
 			List<TypeVariable> genericParameters = getCurrentType().get().getGenericParameters();
@@ -224,7 +224,7 @@ public final class ReificationVisitor extends AbstractScopedVisitor {
 					ArgumentListItemNode arg = new ArgumentListItemNode(0, capture);
 					arg.setExpectedType(LenseTypeSystem.ReifiedArguments());
 					
-					m.getCall().getArgumentListNode().addFirst(arg);
+					m.getCall().getArguments().addFirst(arg);
 					
 					
 				} else {
@@ -441,7 +441,7 @@ public final class ReificationVisitor extends AbstractScopedVisitor {
 		
 		if (gp.getSymbol().isPresent()) {
 			if (gp.getSymbol().get().equals(g.getSymbol().get())) {
-				ArgumentListItemNode arg = m.getCall().getArgumentListNode().getChildren(ArgumentListItemNode.class).get(typeIndex);
+				ArgumentListItemNode arg = m.getCall().getArguments().getChildren(ArgumentListItemNode.class).get(typeIndex);
 				return Optional.of(new TypeParameterTypeResolverNode(new ArgumentTypeResolverNode(arg), typeIndex));
 				
 			}

@@ -852,9 +852,9 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 						TreeTransverser.transverse(n.getAccess(), this);
 					}
 					
-					if (n.getCall().getArgumentListNode() != null  && ! n.getCall().getArgumentListNode().getChildren().isEmpty()) {
+					if (n.getCall().getArguments() != null  && ! n.getCall().getArguments().getChildren().isEmpty()) {
 						writer.print(",");
-						TreeTransverser.transverse(n.getCall().getArgumentListNode(), this);
+						TreeTransverser.transverse(n.getCall().getArguments(), this);
 					}
 
 					writer.print(")");
@@ -866,8 +866,8 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 
 					writer.print(n.getCall().getName());
 					writer.print("(");
-					if (n.getCall().getArgumentListNode() != null) {
-						TreeTransverser.transverse(n.getCall().getArgumentListNode(), this);
+					if (n.getCall().getArguments() != null) {
+						TreeTransverser.transverse(n.getCall().getArguments(), this);
 					}
 
 					writer.print(")");

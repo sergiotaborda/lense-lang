@@ -630,8 +630,8 @@ public class Ecma6JavascriptWriterVisitor implements Visitor<AstNode> {
 
 				writer.print(n.getCall().getName());
 				writer.print("(");
-				if (n.getCall().getArgumentListNode() != null) {
-					TreeTransverser.transverse(n.getCall().getArgumentListNode(), this);
+				if (n.getCall().getArguments() != null) {
+					TreeTransverser.transverse(n.getCall().getArguments(), this);
 				}
 
 				writer.print(")");

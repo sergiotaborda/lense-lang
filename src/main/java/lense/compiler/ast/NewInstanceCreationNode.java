@@ -13,7 +13,7 @@ import lense.compiler.type.variable.TypeVariable;
 /**
  * 
  */
-public class NewInstanceCreationNode extends ExpressionNode{
+public class NewInstanceCreationNode extends ExpressionNode implements ArgumentListHolder{
 
 	private TypeNode typeNode;
 	private ArgumentListNode argumentList;
