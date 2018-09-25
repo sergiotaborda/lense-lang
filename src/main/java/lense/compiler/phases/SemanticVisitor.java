@@ -39,6 +39,7 @@ import lense.compiler.ast.ArithmeticNode;
 import lense.compiler.ast.ArithmeticOperation;
 import lense.compiler.ast.AssertNode;
 import lense.compiler.ast.AssignmentNode;
+import lense.compiler.ast.BlockNode;
 import lense.compiler.ast.BooleanOperation;
 import lense.compiler.ast.BooleanOperatorNode;
 import lense.compiler.ast.BooleanValue;
@@ -94,6 +95,7 @@ import lense.compiler.ast.TypeNode;
 import lense.compiler.ast.TypeParametersListNode;
 import lense.compiler.ast.TypedNode;
 import lense.compiler.ast.UnitaryOperation;
+import lense.compiler.ast.VariableDeclarationNode;
 import lense.compiler.ast.VariableReadNode;
 import lense.compiler.ast.VariableWriteNode;
 import lense.compiler.ast.WhileNode;
@@ -2542,32 +2544,30 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 								} else {
 									// TODO promote
 
-									ReturnNode rn = null;
-									for (AstNode r : m.getBlock().getChildren()) {
-										if (r instanceof ReturnNode) {
-											rn = (ReturnNode) r;
-											break;
-										}
-									}
-
-									if (rn == null) {
+									Collection<ReturnNode> allReturns = m.getBlock().findAllReturnNodes();
+								
+		
+									if (allReturns.isEmpty()) {
 										throw new CompilationError(node,
-												variable.getTypeVariable() + " no return found");
+												variable.getTypeVariable() + " no return instruction found");
 									}
 
 									Optional<Constructor> op = returnType.getTypeDefinition()
 											.getConstructorByParameters(Visibility.Public,
 													new ConstructorParameter(variable.getTypeVariable()));
 
-									NewInstanceCreationNode cn = NewInstanceCreationNode.of(returnType, op.get(),
-											rn.getChildren().get(0));
-									cn.getCreationParameters().getTypeParametersListNode()
-									.add(new GenericTypeParameterNode(new TypeNode(returnType)));
+									for (ReturnNode rn : allReturns) {
+										NewInstanceCreationNode cn = NewInstanceCreationNode.of(returnType, op.get(),
+												rn.getChildren().get(0));
+										cn.getCreationParameters().getTypeParametersListNode()
+										.add(new GenericTypeParameterNode(new TypeNode(returnType)));
 
-									ReturnNode nr = new ReturnNode();
-									nr.add(cn);
+										ReturnNode nr = new ReturnNode();
+										nr.add(cn);
 
-									m.getBlock().replace(rn, nr);
+										rn.getParent().replace(rn, nr);
+									}
+									
 								}
 							}
 
@@ -2679,7 +2679,8 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 
 		Set<String> mamedParams = new HashSet<>();
 
-		for ( ArgumentListItemNode arg : args.getChildren(ArgumentListItemNode.class)) {
+		List<ArgumentListItemNode> arguments = args.getChildren(ArgumentListItemNode.class);
+		for ( ArgumentListItemNode arg : arguments) {
 			if (arg.getName().isPresent()) {
 				if (!mamedParams.add(arg.getName().get())) {
 					throw new CompilationError(arg, "Duplicated named parameter '" +  arg.getName().get() +"'. Each parameter can only be set once.");
@@ -2719,10 +2720,23 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 				Map<String, Integer> orderedParamNames = new LinkedHashMap<>();
 
 				int index = 0;
-				for (CallableMemberMember<Method> param : m.getParameters()) {
-					MethodParameter p = (MethodParameter)param;
+				
+				Iterator<CallableMemberMember<Method>> itParams = m.getParameters().iterator();
+				Iterator<ArgumentListItemNode> itArgs = args.getChildren(ArgumentListItemNode.class).iterator();
+				while ( itParams.hasNext()) {
+					ArgumentListItemNode arg = itArgs.next();
+					MethodParameter p = (MethodParameter)itParams.next();
 					set.add(p.getName());
 					orderedParamNames.put(p.getName(), index++);
+					
+					if (!arg.getName().isPresent()) {
+						// positional. must match parameter
+						if (!LenseTypeSystem.isAssignableTo(((TypedNode)arg.getFirstChild()).getTypeVariable(), p.getType()) 
+								&& !lenseTypeSystem.isPromotableTo(((TypedNode)arg.getFirstChild()).getTypeVariable(), p.getType()) 
+							){
+							continue outter;
+						}
+					}
 				}
 
 				for (String name : mamedParams) {
@@ -2732,7 +2746,32 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 				}
 
 				// compatible method
-
+				//TODO generate function calls in source call order before reordering
+				
+				AstNode topNode = resolveTopNode((AstNode)holder);
+				
+				ListIterator<ArgumentListItemNode> iterator = arguments.listIterator(arguments.size());
+				while (iterator.hasPrevious()) {
+					ArgumentListItemNode arg = iterator.previous(); 
+					
+					ExpressionNode exp = (ExpressionNode) arg.getFirstChild();
+					
+					if (arg.getName().isPresent() && !(exp instanceof LiteralExpressionNode)) {
+						
+						String variableName = "$" + arg.getScanPosition().getLineNumber()+ "$" + arg.getName().get();
+						
+						VariableDeclarationNode declare = new VariableDeclarationNode(variableName, exp.getTypeVariable(), exp);
+						
+						VariableInfo varDef = this.getSemanticContext().currentScope().defineVariable(variableName, exp.getTypeVariable(), topNode.getParent().getParent());
+						
+						VariableReadNode read = new VariableReadNode(variableName, varDef);
+						
+						arg.replace(exp, read);
+						
+						topNode.getParent().addBefore(topNode, declare);
+					}
+				}
+				
 				ReorderArguments(holder, orderedParamNames);
 
 				return Optional.of(m);
@@ -2743,6 +2782,15 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 
 
 
+	}
+
+	private AstNode resolveTopNode(AstNode holder) {
+		 
+		if (holder.getParent() instanceof BlockNode) {
+			return holder;
+		}
+		
+		return resolveTopNode(holder.getParent());
 	}
 
 	private void applyMethodCall(AstNode node, MethodInvocationNode m, Method mthd) {
@@ -2857,7 +2905,7 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 					if (!names.add(arg.getName().get())) {
 						throw new CompilationError(arg, "Duplicated named parameter '" +  arg.getName().get() +"'. Each parameter can only be set once.");
 					} else if (positons.contains(orderedParamNames.get(arg.getName().get()))) {
-						throw new CompilationError(arg, "Name paremter '" +  arg.getName().get() +"' refers to an already set positional parameter. Each parameter can only be set once.");
+						throw new CompilationError(arg, "Name parameter '" +  arg.getName().get() +"' refers to an already set positional parameter. Each parameter can only be set once.");
 					}
 				} else {
 					positons.add(positon++);

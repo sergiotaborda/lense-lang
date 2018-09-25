@@ -162,7 +162,7 @@ public class LoadedClassBuilder {
 				names[i] = symbol;
 				maps.put(symbol, i);
 
-				if (LenseTypeSystem.Any().getName().equals(upperBound)) {
+				if (upperBound.equals("lense.core.lang.Any")) {
 					genericVariables.add(new RangeTypeVariable(symbol, variance, LenseTypeSystem.Any(),
 							LenseTypeSystem.Nothing()));
 				} else {
