@@ -38,6 +38,7 @@ import lense.compiler.type.LenseUnitKind;
 import lense.compiler.type.Method;
 import lense.compiler.type.MethodParameter;
 import lense.compiler.type.MethodReturn;
+import lense.compiler.type.MethodSignature;
 import lense.compiler.type.TypeDefinition;
 import lense.compiler.type.TypeMember;
 import lense.compiler.type.variable.DeclaringTypeBoundedTypeVariable;
@@ -234,6 +235,12 @@ public class StructureVisitor extends AbstractScopedVisitor {
 				}
 			}
 			
+			MethodSignature signature = new MethodSignature(m.getName(), params);
+			
+			if (currentType.getDeclaredMethodBySignature(signature).isPresent()){
+				throw new CompilationError(m, "Method "  + signature + " is already defined in " + currentType.getName());
+			}
+						
 			Visibility visiblity = m.getVisibility();
 			
 			if (visiblity == null){

@@ -80,16 +80,36 @@ public class Main extends ConsoleApplication {
 
 		let a = range(2, 5, t);
 		let b = range(from : 2, to : 5, negated : true);
-		let c = range(to : 2, negated: true, from : 5);
+		let c = range(to : int2(), negated: bool(), from : int1());
 		let d = range( 2, negated: true, to : 5);
+		let f = range( false,  to : 5, from : 2);
 
 		assert ( a == 3);
 		assert ( b == -3);
 		assert ( c == 3);
 		assert ( d == -3);
-	
+		assert ( f == 3);
 	}
 
+	private bool() {
+		return false;
+	}
+
+	private int2() : Natural {
+		return 2;
+	}
+
+	private int1() : Natural {
+		return 5;
+	}
+
+	private  range(negated : Boolean,  from : Natural, to : Integer) : Integer{
+		if (negated){
+			return to - from;
+		} else {
+			return from - to;
+		}
+	} 
 
 	private  range( from : Integer, to : Integer , negated : Boolean) : Integer{
 		if (negated){

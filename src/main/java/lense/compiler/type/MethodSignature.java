@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import lense.compiler.utils.Strings;
+
 /**
  * 
  */
@@ -27,7 +29,7 @@ public class MethodSignature implements CallableMemberSignature<Method>{
 	}
 
 	public String toString() {
-		return name + "(" + parameters.toString() + ")";
+		return name + "(" + Strings.join(parameters.stream(), ",") + ")";
 	}
 
 	/**

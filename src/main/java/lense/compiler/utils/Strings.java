@@ -2,6 +2,7 @@ package lense.compiler.utils;
 
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 public class Strings {
 
@@ -31,6 +32,12 @@ public class Strings {
 	public static String join(String[] name, String delimiter) {
 		return Stream.of(name).collect(Collectors.joining(delimiter));
 	}
+	
+	public static String join(Iterable<Object> names, String delimiter) {
+		return StreamSupport.stream(names.spliterator(), false).map(obj -> obj.toString()).collect(Collectors.joining(delimiter));
+	}
 
-
+	public static String join(Stream<? extends Object> names, String delimiter) {
+		return names.map(obj -> obj.toString()).collect(Collectors.joining(delimiter));
+	}
 }

@@ -29,7 +29,7 @@ public class MethodParameter implements MethodMember {
 	}
 	
 	public String toString(){
-		return type.getTypeDefinition().getName() + ":" + type.toString();
+		return type.toString();
 	}
 	
 	/**
