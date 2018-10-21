@@ -8,9 +8,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
-import lense.compiler.ast.ClassTypeNode;
 import lense.compiler.type.variable.TypeVariable;
-import lense.compiler.typesystem.Visibility;
 
 /**
  * 
@@ -39,9 +37,16 @@ public interface TypeDefinition extends TypeVariable {
 
 	public List<TypeVariable> getGenericParameters();
 
-	public Optional<Constructor> getConstructorByParameters(Visibility visibility, ConstructorParameter ... parameters);
+	public Optional<Constructor> getConstructorByParameters(ConstructorParameter ... parameters);
 		
-	public Optional<Constructor> getConstructorByPromotableParameters(Visibility visibility,ConstructorParameter ... parameters);
+	public Optional<Constructor> getConstructorByPromotableParameters(ConstructorParameter ... parameters);
+	
+	public Optional<Constructor> getConstructorByName(String name, ConstructorParameter ... parameters);
+	
+	public Optional<Constructor> getConstructorByNameAndPromotableParameters(String name,ConstructorParameter ... parameters);
+	
+	public Optional<Constructor> getConstructorByImplicitAndPromotableParameters(boolean implicit, ConstructorParameter ... parameters);
+	
 	
 	/**
 	 * @param name
@@ -93,6 +98,8 @@ public interface TypeDefinition extends TypeVariable {
 		
 		return list;
 	}
+
+
 
 
 

@@ -5,6 +5,7 @@ package lense.compiler.type;
 
 import lense.compiler.type.variable.TypeMemberAwareTypeVariable;
 import lense.compiler.type.variable.TypeVariable;
+import lense.compiler.typesystem.Variance;
 
 /**
  * 
@@ -15,6 +16,15 @@ public class MethodParameter implements MethodMember {
 	private TypeVariable type;
 	private Method declaringMethod;
 	private boolean isMethodTypeBound;
+	private Variance variance = Variance.Invariant;
+	
+	public MethodParameter (MethodParameter other, TypeVariable newType) {
+		this(newType, other.name);
+		
+		this.declaringMethod = other.declaringMethod;
+		this.isMethodTypeBound = other.isMethodTypeBound;
+		this.variance = other.variance;
+	}
 	
 	public MethodParameter(TypeVariable type) {
 		this(type, "?");
@@ -122,6 +132,16 @@ public class MethodParameter implements MethodMember {
 	public void setMethodTypeBound(boolean isMethodTypeBound) {
 		this.isMethodTypeBound = isMethodTypeBound;
 	}
+
+	public Variance getVariance() {
+		return variance;
+	}
+
+	public void setVariance(Variance variance) {
+		this.variance = variance;
+	}
+
+
 
 
 }

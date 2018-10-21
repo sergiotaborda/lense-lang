@@ -5,4 +5,5 @@ public class AssertionException extends Exception {
 
 	public constructor ();
 
+	public constructor (message : String) extends super (message); 
 }

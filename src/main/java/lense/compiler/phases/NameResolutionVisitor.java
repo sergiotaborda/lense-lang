@@ -402,12 +402,18 @@ public class NameResolutionVisitor extends AbstractScopedVisitor {
 
 		if (!tryDefaultPath(typeNode).isPresent()){
 			TypeDefinition currentType = this.getSemanticContext().currentScope().getCurrentType();
-			if (currentType!=null) {
+			if (currentType != null) {
 				for( TypeVariable g : currentType.getGenericParameters()) {
 					if (g.getSymbol().get().equals(typeNode.getName())) {
 						this.getSemanticContext().currentScope().defineTypeVariable(typeNode.getName(), g, node);
 						return Optional.empty();
 					}
+				}
+				
+				if (node instanceof FormalParameterNode) {
+					 MethodDeclarationNode method = (MethodDeclarationNode)node.getParent().getParent();
+					 
+					 
 				}
 
 				throw new CompilationError(node, "Type " + typeNode.getName() + " was not imported in " + name);
@@ -431,8 +437,9 @@ public class NameResolutionVisitor extends AbstractScopedVisitor {
 			Optional<TypeVariable> libraryType = this.getSemanticContext().resolveTypeForName(fullType,typeNode.getTypeParametersCount());
 
 			if (libraryType.isPresent()) {
-				typeNode.setName(new QualifiedNameNode(libraryType.get().getTypeDefinition().getName()));
-				final Import implicitType = Import.singleType(new QualifiedNameNode(fullType),typeNode.getName());
+				QualifiedNameNode qualifiedNameNode = new QualifiedNameNode(libraryType.get().getTypeDefinition().getName());
+				typeNode.setName(qualifiedNameNode);
+				final Import implicitType = Import.singleType(qualifiedNameNode,typeNode.getName());
 				implicitType.setUsed(true);
 				ct.addImport(implicitType);
 				return libraryType;

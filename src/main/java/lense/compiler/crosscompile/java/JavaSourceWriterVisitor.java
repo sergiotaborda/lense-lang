@@ -88,6 +88,7 @@ import lense.compiler.type.LenseTypeDefinition;
 import lense.compiler.type.LenseUnitKind;
 import lense.compiler.type.TypeDefinition;
 import lense.compiler.type.variable.CalculatedTypeVariable;
+import lense.compiler.type.variable.ContraVariantTypeVariable;
 import lense.compiler.type.variable.DeclaringTypeBoundedTypeVariable;
 import lense.compiler.type.variable.GenericTypeBoundToDeclaringTypeVariable;
 import lense.compiler.type.variable.RangeTypeVariable;
@@ -151,11 +152,22 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 				writer.print("throw ");
 			} else if (node instanceof AssertNode) {
 
+				AssertNode a = (AssertNode)node;
+				
 				writer.append("if (!(");
 
-				TreeTransverser.transverse(node.getFirstChild(), this);
+				TreeTransverser.transverse(a.getCheck(), this);
 
-				writer.append(")){ throw lense.core.lang.AssertionException.constructor(); }").println();
+				if (a.getText().isPresent()) {
+					writer.append(")){ throw lense.core.lang.AssertionException.constructor(");
+					
+					TreeTransverser.transverse(a.getText().get(), this);
+
+					writer.append(".asString()); }").println();
+				} else {
+					writer.append(")){ throw lense.core.lang.AssertionException.constructor(); }").println();
+				}
+			
 
 				return VisitorNext.Siblings;
 			} else if (node instanceof StringValue) {
@@ -271,8 +283,8 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 
 					} else {
 						writer.append("lense.core.math.Rational")
-								.append(".constructor(lense.core.math.NativeNumberFactory.newInteger(")
-								.append(n.toString()).append("), lense.core.math.NativeNumberFactory.newInteger(1))");
+								.append(".valueOf(lense.core.math.NativeNumberFactory.newInteger(")
+								.append(n.toString()).append("))");
 					}
 				} else {
 					// TODO test bounds (number could be to big , should use string
@@ -882,8 +894,6 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 			} else if (node instanceof CastNode) {
 				CastNode n = (CastNode) node;
 
-				System.out.println("Cast to : " + n.getTypeVariable());
-
 				if (n.getTypeVariable().getTypeDefinition().getName().equals(LenseTypeSystem.Any().getName())) {
 
 					TreeTransverser.transverse(n.getInner(), this);
@@ -1076,9 +1086,11 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 			} else if (node instanceof TypeNode) {
 
 				TypeNode t = (TypeNode) node;
+				
 				writeType(t);
 
 				writer.print(" ");
+				
 				return VisitorNext.Siblings;
 			} else if (node instanceof VariableDeclarationNode) {
 				VariableDeclarationNode t = (VariableDeclarationNode) node;
@@ -1489,9 +1501,14 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 						} else {
 							writer.print(", ");
 						}
+						
+						if (p.getTypeVariable() instanceof ContraVariantTypeVariable) {
+							writer.print(LenseTypeSystem.Any().getName());
+						} else {
+							TreeTransverser.transverse(p.getTypeNode(), this);
+						}
 
-						TreeTransverser.transverse(p.getTypeNode(), this);
-
+						
 						writer.print(" ");
 						writer.print(p.getName());
 

@@ -55,10 +55,12 @@ public class StructureVisitor extends AbstractScopedVisitor {
 
 
 	private LenseTypeDefinition currentType;
+	private boolean secondPass;
 
-	public StructureVisitor (LenseTypeDefinition currentType, SemanticContext semanticContext){
+	public StructureVisitor (LenseTypeDefinition currentType, SemanticContext semanticContext , boolean secondPass){
 		super(semanticContext);
 		this.currentType = currentType;
+		this.secondPass = secondPass;
 	}
 	
     @Override
@@ -235,11 +237,7 @@ public class StructureVisitor extends AbstractScopedVisitor {
 				}
 			}
 			
-			MethodSignature signature = new MethodSignature(m.getName(), params);
-			
-			if (currentType.getDeclaredMethodBySignature(signature).isPresent()){
-				throw new CompilationError(m, "Method "  + signature + " is already defined in " + currentType.getName());
-			}
+		
 						
 			Visibility visiblity = m.getVisibility();
 			
@@ -250,16 +248,30 @@ public class StructureVisitor extends AbstractScopedVisitor {
 			        visiblity = Visibility.Protected;
 			    }
 			}
+			
+			MethodSignature signature = new MethodSignature(m.getName(), params);
+			
 			Method method = new Method(m.isProperty(), visiblity, m.getName(), new MethodReturn(returnTypeVariable), params);
 			
-			method.setAbstract(m.isAbstract());
-			method.setDefault(m.isDefault());
-			method.setOverride(m.isOverride());
-			method.setNative(m.isNative());
-			
+			Optional<Method> declaredMethodBySignature = currentType.getDeclaredMethodBySignature(signature);
+			if (declaredMethodBySignature.isPresent()){
+				if (secondPass) {
+					method = declaredMethodBySignature.get();
+				} else {
+					throw new CompilationError(m, "Method "  + signature + " is already defined in " + currentType.getName());
+				}
+			} else {
+				method.setAbstract(m.isAbstract());
+				method.setDefault(m.isDefault());
+				method.setOverride(m.isOverride());
+				method.setNative(m.isNative());
+				
+				currentType.addMethod(method);
+			}
+
 			m.setMethod(method);
 			
-			currentType.addMethod(method);
+	
 			
 		} else if (node instanceof PropertyDeclarationNode){
 			PropertyDeclarationNode p = (PropertyDeclarationNode)node;

@@ -1,0 +1,10 @@
+/{
+	Bindable with the expression writed before this
+	
+	If x is a PreBindable then `a x` is the same as `x.preBindWith(a)` 
+	 
+}/
+public interface PreBindable<T,R> {
+
+	public preBindWith( other : T ) : R;
+}

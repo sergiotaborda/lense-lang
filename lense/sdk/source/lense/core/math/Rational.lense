@@ -17,6 +17,10 @@ public class Rational extends Real {
 
 	private constructor ( public  numerator : Integer , public denominator : Natural);
 
+	public implicit constructor valueOf(other : Integer) {
+		return new Rational(other , 1);
+	}
+
 	public constructor (  numerator : Integer ,   denominator : Integer ){
 	
 		if (denominator == 0){
@@ -60,10 +64,18 @@ public class Rational extends Real {
 	}
 	
 	public override equalsTo(other : Any) : Boolean {
-		if(other is Rational){
+
+		if ( other is Whole && this.denominator == 1){
+			return this.numerator == other;
+		} else if(other is Rational){
 			return this.numerator == other.numerator && this.denominator == other.denominator;
-		} 
-		return false;
+		} else if(other is Decimal){
+			//other real values will only be equal if reduce to the same fraction
+			let reduction = other.asRational();
+			return this.numerator == reduction.numerator && this.denominator == reduction.denominator;
+		}
+		// otherwise is not a comparable number
+		return false; 
 	}
 
 	public override hashValue() : HashValue {
@@ -213,7 +225,12 @@ public class Rational extends Real {
     }
 
 	public invert () : Rational {
-		return new Rational(this.denominator * 1Z, this.numerator.abs());
+		if (this.isZero()){
+            throw new ArithmeticException("Cannot invert zero");
+        }
+
+		let sign = this.numerator.signum();
+		return new Rational( this.denominator * sign, this.numerator.abs());
 	}
 	
 	public abs() : Real {

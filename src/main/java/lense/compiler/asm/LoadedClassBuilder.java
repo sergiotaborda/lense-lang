@@ -86,7 +86,7 @@ public class LoadedClassBuilder {
 		if (kind.isObject()) {
 			classNames[classNames.length - 1] = Strings.pascalToCammelCase(classNames[classNames.length - 1]);
 		}
-		LenseTypeDefinition rdef = this.resolveTypByNameAndKind(Strings.join(classNames, "."), kind);
+		LenseTypeDefinition rdef = this.resolveTypeByNameAndKind(Strings.join(classNames, "."), kind);
 
 		if (!(rdef instanceof LoadedLenseTypeDefinition)) {
 			return rdef;
@@ -99,8 +99,8 @@ public class LoadedClassBuilder {
 
 
 
-		def.setCaseValues(Stream.of(Strings.split(this.caseValues, ",")).map( c -> this.resolveTypByNameAndKind(c, LenseUnitKind.Object)).collect(Collectors.toList()));
-		def.setCaseTypes(Stream.of(Strings.split(this.caseTypes, ",")).map( c -> this.resolveTypByNameAndKind(c, LenseUnitKind.Class)).collect(Collectors.toList()));
+		def.setCaseValues(Stream.of(Strings.split(this.caseValues, ",")).map( c -> this.resolveTypeByNameAndKind(c, LenseUnitKind.Object)).collect(Collectors.toList()));
+		def.setCaseTypes(Stream.of(Strings.split(this.caseTypes, ",")).map( c -> this.resolveTypeByNameAndKind(c, LenseUnitKind.Class)).collect(Collectors.toList()));
 
 		def.setAlgebric(!def.getAllCases().isEmpty());
 
@@ -167,7 +167,7 @@ public class LoadedClassBuilder {
 							LenseTypeSystem.Nothing()));
 				} else {
 					genericVariables.add(new RangeTypeVariable(symbol, variance,
-							resolveTypByNameAndKind(upperBound, null), LenseTypeSystem.Nothing()));
+							resolveTypeByNameAndKind(upperBound, null), LenseTypeSystem.Nothing()));
 				}
 
 			}
@@ -205,29 +205,6 @@ public class LoadedClassBuilder {
 
 		}
 
-
-		//		// super type
-		//		if (superName != null && !superName.startsWith("java/")) {
-		//			superName = superName.replace('/', '.');
-		//
-		//			superDef = resolveTypByNameAndKind(superName, LenseUnitKind.Class);
-		//			if (!superDef.isPlataformSpecific()) {
-		//				def.setSuperTypeDefinition(superDef);
-		//			} else {
-		//				def.setSuperTypeDefinition(any);
-		//			}
-		//
-		//		}
-		//
-		//		// interfaces
-		//		if (interfaces.length > 0) {
-		//			for (String f : interfaces) {
-		//				if (f != null && !f.startsWith("java/")) {
-		//					def.addInterface(resolveTypByNameAndKind(f.replace('/', '.'), LenseUnitKind.Interface));
-		//				}
-		//			}
-		//		}
-		//		
 		for(ConstructorBuilder b : this.constructors) {
 			b.buildAndAdd(def);
 		}
@@ -241,7 +218,7 @@ public class LoadedClassBuilder {
 
 	LenseTypeDefinition resolveTypeByNameWithVariables(String name, List<TypeVariable> typeVar) {
 
-		LenseTypeDefinition type = resolveTypByNameAndKind(name, null);
+		LenseTypeDefinition type = resolveTypeByNameAndKind(name, null);
 
 		if (!typeVar.isEmpty() && type.getGenericParameters().size() < typeVar.size()) {
 
@@ -255,11 +232,12 @@ public class LoadedClassBuilder {
 		return type;
 	}
 
-	LenseTypeDefinition resolveTypByNameAndKind(String name, lense.compiler.type.TypeKind kind) {
+	LenseTypeDefinition resolveTypeByNameAndKind(String name, lense.compiler.type.TypeKind kind) {
+		
+	
 		if (name.equals("boolean")) {
 			return (LenseTypeDefinition) LenseTypeSystem.Boolean();
 		}
-
 
 		Map<Integer, TypeDefinition> map = this.typeContainer.resolveTypesMap(name);
 		if (map.isEmpty()) {
@@ -297,7 +275,7 @@ public class LoadedClassBuilder {
 			genericPart  = ss.substring(pos + 1, ss.lastIndexOf('>'));
 		}
 
-		LenseTypeDefinition type = resolveTypByNameAndKind(interfaceType, LenseUnitKind.Interface);
+		LenseTypeDefinition type = resolveTypeByNameAndKind(interfaceType, LenseUnitKind.Interface);
 
 		if (genericPart.contains("<")) {
 
@@ -310,44 +288,54 @@ public class LoadedClassBuilder {
 			if (type instanceof LoadedLenseTypeDefinition) {
 				LoadedLenseTypeDefinition loadedDef = (LoadedLenseTypeDefinition) type;
 
-				if (loadedDef.getGenericParameters().isEmpty()) {
-					List<TypeVariable> variables = new ArrayList<>(g.length);
 
-					for (String symbol : g) {
-						Integer index = maps.get(symbol);
+				List<TypeVariable> variables = new ArrayList<>(g.length);
 
-						lense.compiler.typesystem.Variance variance = lense.compiler.typesystem.Variance.Invariant;
+				for (String symbol : g) {
+					Integer index = maps.get(symbol);
 
-						if (symbol.charAt(0) == '-') {
-							variance = Variance.ContraVariant;
-							symbol = symbol.substring(1);
-						} else if (symbol.charAt(0) == '+') {
-							variance = Variance.Covariant;
-							symbol = symbol.substring(1);
-						}
+					lense.compiler.typesystem.Variance variance = lense.compiler.typesystem.Variance.Invariant;
 
-						if (index != null) {
-							// generic type
-							variables.add(new DeclaringTypeBoundedTypeVariable(parent, index, symbol,variance));
-
-						} else {
-							// hard bound
-							Optional<String> indexSymbol = parent.getGenericParameterSymbolByIndex(i);
-							if (!indexSymbol.isPresent()) {
-								LenseTypeDefinition t = resolveTypByNameAndKind(symbol, null);
-
-								variables.add(new RangeTypeVariable(symbol,variance, t, t));
-								// tv = new FixedTypeVariable();
-								// variables.addGenericParameter("X" + Integer.toString(i), tv);
-							} else {
-								variables.add(new DeclaringTypeBoundedTypeVariable(parent, i, indexSymbol.get(),variance));
-							}
-
-						}
-						i++;
+					if (symbol.charAt(0) == '-') {
+						variance = Variance.ContraVariant;
+						symbol = symbol.substring(1);
+					} else if (symbol.charAt(0) == '+') {
+						variance = Variance.Covariant;
+						symbol = symbol.substring(1);
 					}
 
+					if (index != null) {
+						// generic type
+						variables.add(new DeclaringTypeBoundedTypeVariable(parent, index, symbol,variance));
+
+					} else {
+						// hard bound
+						Optional<String> indexSymbol = parent.getGenericParameterSymbolByIndex(i);
+						if (!indexSymbol.isPresent()) {
+							
+							if (name.replace('/', '.').equals(parent.getName())) {
+								variables.add(new RangeTypeVariable(symbol,variance, parent,parent));
+							} else {
+								LenseTypeDefinition t = resolveTypeByNameAndKind(symbol, null);
+
+								variables.add(new RangeTypeVariable(symbol,variance, t, t));
+							}
+							
+						} else {
+							variables.add(new DeclaringTypeBoundedTypeVariable(parent, i, indexSymbol.get(),variance));
+						}
+
+					}
+					i++;
+				}
+
+
+
+				if (loadedDef.getGenericParameters().isEmpty()) {
 					loadedDef.setGenericParameters(variables);
+				} else {
+					// specify
+					return Optional.of(LenseTypeSystem.specify(loadedDef, variables));
 				}
 
 			}
@@ -366,7 +354,7 @@ public class LoadedClassBuilder {
 			n  = ss.substring(pos + 1, ss.lastIndexOf('>'));
 		}
 
-		LenseTypeDefinition type = resolveTypByNameAndKind(superTypeName, LenseUnitKind.Interface);
+		LenseTypeDefinition type = resolveTypeByNameAndKind(superTypeName, LenseUnitKind.Interface);
 
 		if (n.contains("<")) {
 
@@ -400,7 +388,7 @@ public class LoadedClassBuilder {
 					} else {
 						// hard bound
 
-						LenseTypeDefinition t = resolveTypByNameAndKind(symbol, null);
+						LenseTypeDefinition t = resolveTypeByNameAndKind(symbol, null);
 
 						variables.add(
 								new RangeTypeVariable(symbol, variance, t, t));
