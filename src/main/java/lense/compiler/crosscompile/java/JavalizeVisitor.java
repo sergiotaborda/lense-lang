@@ -3,7 +3,9 @@ package lense.compiler.crosscompile.java;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -19,6 +21,7 @@ import lense.compiler.ast.FormalParameterNode;
 import lense.compiler.ast.ImutabilityNode;
 import lense.compiler.ast.MethodDeclarationNode;
 import lense.compiler.ast.MethodInvocationNode;
+import lense.compiler.ast.TypeNode;
 import lense.compiler.ast.VariableDeclarationNode;
 import lense.compiler.ast.VariableReadNode;
 import lense.compiler.context.SemanticContext;
@@ -34,9 +37,11 @@ import lense.compiler.type.MethodParameter;
 import lense.compiler.type.Property;
 import lense.compiler.type.TypeDefinition;
 import lense.compiler.type.TypeMember;
+import lense.compiler.type.variable.ContraVariantTypeVariable;
 import lense.compiler.type.variable.TypeVariable;
 import lense.compiler.typesystem.Imutability;
 import lense.compiler.typesystem.LenseTypeSystem;
+import lense.compiler.typesystem.Variance;
 
 /**
  * 
@@ -321,6 +326,40 @@ public final class JavalizeVisitor implements Visitor<AstNode>{
         				
         		}
         	}
+        	
+        	if (m.getMethod() != null) {
+            	ListIterator<FormalParameterNode> itFormal = m.getParameters().getChildren(FormalParameterNode.class).listIterator(m.getParameters().getChildren().size());
+            	ListIterator<CallableMemberMember<Method>> itMethod = m.getMethod().getParameters().listIterator( m.getMethod().getParameters().size());
+            	
+            	// iterate in reverse because formal parameters may have special parameters like reification types
+            	while (itMethod.hasPrevious()) {
+            		FormalParameterNode f = itFormal.previous();
+            		MethodParameter p = (MethodParameter)itMethod.previous();
+            		
+            		if (p.getVariance() == Variance.ContraVariant && !(f.getTypeVariable() instanceof ContraVariantTypeVariable)) {
+            			
+            			TypeVariable originalType = f.getTypeVariable();
+            			
+            			
+            			f.setTypeVariable(new ContraVariantTypeVariable(originalType));
+            			
+            			if (!m.isAbstract()) {
+            				String paramName = f.getName();
+                			String newName = "$$" + paramName;
+                			f.setName(newName);
+                			
+                			// newName will be Any , so a cast is needed
+                			
+                			CastNode cast = new CastNode(new VariableReadNode(newName), originalType);
+                			VariableDeclarationNode variable =  new VariableDeclarationNode(paramName, originalType, cast);
+                			m.getBlock().addFirst(variable);
+                		
+            			}
+            		
+            		}
+            	}
+        	}
+
         }
     }
 

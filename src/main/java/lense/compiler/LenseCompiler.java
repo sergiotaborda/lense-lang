@@ -348,18 +348,11 @@ public abstract class LenseCompiler {
                         } else if (dependency.getName().equals(imported.getName())){
                             trace(dependency.getName() + " referes by to it self ");
                             continue;
-                        } else {
-                           // trace(dependency.getName() + " referes by name " + imported.getName());
-                       
-                          // graph.addEdge(new DependencyRelation(DependencyRelationship.Name),  imported, dependency);
-                        }
+                        } 
 
                         referencedNames.add(imported.getName());
 
                     }
-                    
-               
-                    
                  
                 }
 
@@ -376,7 +369,7 @@ public abstract class LenseCompiler {
             }
 
             if (!referencedNames.isEmpty()){
-                throw new CompilationError("Type " + referencedNames.stream().filter(r -> r.length() > 0).findFirst().get() + " was not found");
+                throw new CompilationError( "Type " + referencedNames.stream().filter(r -> r.length() > 0).findFirst().get() + " was not found");
             }
 
             trace("Compiling graph");
@@ -395,8 +388,10 @@ public abstract class LenseCompiler {
                 public void beginVertex(VertexTraversalEvent<DependencyNode, DependencyRelation> e) {
                     trace("Visiting : " + e.getVertex().getObject().getName());
                     CompiledUnit unit = e.getVertex().getObject().getCompiledUnit();
+
                     applyCompilation(nativeTypes, locations, corePhase, currentModuleRepository, backend, reader, unit);
 
+  
                     trace("Visited : " + e.getVertex().getObject().getName());
                 }
 

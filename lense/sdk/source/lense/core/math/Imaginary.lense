@@ -56,11 +56,7 @@ public class Imaginary extends Number implements Comparable<Imaginary> {
 
 	public override hashValue() => value.hashValue();
 	
-	public compareWith(other : Any) {
-		if (other is Imaginary){
-			return this.value <=> other.value; 
-		} 
-		
-	    throw new Exception(); // TODO create IncorrectTypeException
+	public compareWith(other : Imaginary) {
+		return this.value <=> other.value; 
 	}
 }

@@ -54,7 +54,13 @@ public abstract class Whole extends Number implements Comparable {
 
     @Override
     public boolean equalsTo(Any other) {
-        return other instanceof Whole && ((Whole)other).asJavaBigInteger().compareTo(this.asJavaBigInteger()) == 0;
+    	if (other instanceof Whole) {
+    		return ((Whole)other).asJavaBigInteger().compareTo(this.asJavaBigInteger()) == 0;
+    	} else if (other instanceof Real) {
+    		return ((Real)other).equalsTo(Real.valueOf(this));
+    	} 
+    	return false;
+      
     }
 
 

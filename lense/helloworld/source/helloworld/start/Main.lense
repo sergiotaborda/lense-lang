@@ -31,6 +31,10 @@ import lense.core.math.greater;
 import lense.core.math.Comparison;
 import helloworld.start.Sum;
 import helloworld.start.Sequences;
+import helloworld.start.Kilometer;
+import helloworld.start.Quaternion;
+import helloworld.start.j;
+import helloworld.start.k;
 
 public class Main extends ConsoleApplication {
 
@@ -120,11 +124,25 @@ public class Main extends ConsoleApplication {
 		
 	} 
 
+	private demoBinding() {
+		let km = new Kilometer();
+ 
+
+		let c = 1 km;
+
+		let q : Quaternion = 4k + 3j + 2i + 1;
+
+		assert (  new Quaternion(1,2,3,4) == q );
+
+	}
+
   	public override onStart()  {
 
-		
-		
-  	 	console.println("Begin " ++ this.type().name); // ambiguity a ++ b  or a   ++b
+	
+
+  	 	console.println("Begin " ++ this.type().name); 
+
+		demoBinding();
 
 		demoReification();
 
@@ -182,21 +200,31 @@ public class Main extends ConsoleApplication {
   	 	   
   	 	assert ( 3/4 == 3/4);
   	 	
-  	 	assert(  8 / 3 is Rational);
-  	 	assert(  8 \ 3 is Whole);
+  	 	assert(  8 / 3 is Rational , "8/3 is not Rational");
+  	 	assert(  8 \ 3 is Whole , "8 \ 3 is not Whole");
   	 	
   	 	var ratio = 8 / 3;
   	 	var wholeDivision = 8 \ 3;
   	 	var remainder = 8 % 3;
 
-		assert (8 == 3 * wholeDivision + remainder);
+		assert (8 == 3 * wholeDivision + remainder , " Q = d * q + r is wrong");
   	 	
 		var inverted = 1 / ratio;
-		assert( inverted == 3/8);
+	
+		assert( 1 ==  ratio.signum() , " Sign of {{ ratio }} is not 1");
+
+		assert( inverted ==  ratio.invert() , " 1 / x is not the same as x.invert()");
+
+		assert( inverted == 3/8 , " Inversion is wrong");
+
 		var fakeInverted = ratio / 1;
-		assert( fakeInverted == ratio);
+
+		assert( fakeInverted == ratio , "Fake invert is wrong");
+
   	 	var doubleInverted = 2 / ratio;
-		assert( doubleInverted == 3/4);
+
+		assert( doubleInverted == 3/4 , "Double Inverter is wrong");
+
   	  // TODO correct \ escaping inside string	
   	 	console.println("8 / 3 = {{ ratio }} and 8 \ 3 ={{wholeDivision }}  so  8 ={{ wholeDivision }} * 3 + {{ remainder }}");
   	 	
@@ -205,11 +233,15 @@ public class Main extends ConsoleApplication {
   	   var pow : Natural = 4 ^^ 3;
   	   var powNeg : Rational = 4 ^^ -3;
   	   
-  	    console.println(" 4 ^^ 3 = {{ pow }} (64)");
-  	    console.println(" 4 ^^ -3 = {{ powNeg }} (1/64)");
+		assert ( 64 == pow , "  4 ^^ 3 is not 64 ");
+
+		assert ( 1/ 64 == powNeg , "  4 ^^ -3 is not 1/64 ");
   	  
-  	     var distance = dist(3, 4); 
+  	    var distance = dist(3, 4); 
   	 	
+	// TODO natural == decimal
+		assert ( 5.0 == distance, "Distance is not 5, is {{ distance }}");
+
   	 	console.println(" distance srqt(3x3 + 4x4) = {{ distance }}");
   	 	console.println(" distance srqt(3x3 + 4x4) = {{ hypot(3, 4) }}");
   	 	
@@ -224,17 +256,15 @@ public class Main extends ConsoleApplication {
   	    
   	 	var dc = 0.5 + 4i;
   	 	
-  	 	console.println("Complex is : {{ dc }} "); 
-  
-  	 	   
+		assert ( new Complex(0.5, 4)  == dc , " Complex is not 0.5+4i");
+
   	 	var n = #EFA2;
   	 	
   	 	var p : Integer = parameter; 
   	 	
-  	 	console.println("parameter p is 99 : {{ p }}");
-  	 	 
-  	 	console.println("parameter is : {{ parameter }}");
-  	 	 	
+		assert ( 99 == parameter, " Parameter is not 99");
+		assert ( 99 == p);
+  
   	 	var binary = $1011_1011_0010; 
   	 	
   	 	var byte : Byte = $1011_0110; 
@@ -249,25 +279,30 @@ public class Main extends ConsoleApplication {
   	  	 
   		var  array = [1 , 2, -3, 4, 5];
   	
-  		console.println("sequence is {{ array }}");
+  		//console.println("sequence is {{ array }}");
   		 
-  		console.println("position 2 has letue {{ array[2] }}");
+  		//console.println("position 2 has value {{ array[2] }}");
   		
-  		console.println("literal sequence is {{ [1 , 2, 3, 4, 5]  }}"); 
+  		//console.println("literal sequence is {{ [1 , 2, 3, 4, 5]  }}"); 
   	 	 
   		var barray : Array<Boolean>= [false, true, true, false];
   		
-  		console.println("boolean array  is {{ barray }}"); 
-  				
   		assert(!barray[0]);
   		assert(barray[1]);
   		assert(barray[2]);
   		assert(!barray[3]);
   		
  
-  		var bitArray : BitArray = barray;
-  		
-  		console.println("BitArray is : {{ bitArray }}");
+  		var convertedBitArray : BitArray = barray;
+  		var bitArray :  BitArray = new BitArray(4);
+		
+		bitArray[0] = false;
+		bitArray[1] = true;
+		bitArray[2] = true;
+		bitArray[3] = false;
+
+		assert ( bitArray == convertedBitArray , " BitArray created from array of booleans is not equal to fixed bit array");
+
   	
   	  	var map = { 1 : "a", 2 : "b", 3 : "c" };
   	 
@@ -275,23 +310,23 @@ public class Main extends ConsoleApplication {
   	   
   		var  tuple = ("Hello", 6);
   		
-  		console.println(tuple[0]);
-  		console.println(tuple[1]);
+		assert ( "Hello" == tuple[0] , " Tuple first value is not `Hello` ");
+		assert ( 6 == tuple[1] , " Tuple second value is not 6 ");
+
+  		var  tuple3 = ("Hi", 3, true); // TODO use true in the last value
   		
-  		var  tuple3 = ("Hello", 6, "ha!");
-  		
-  		console.println(tuple3[0]);
-  		console.println(tuple3[1]);
-  	    console.println(tuple3[2]);
-  	    
+		assert ( "Hi" == tuple3[0] , " Tuple first value is not `Hi` ");
+		assert ( 3 == tuple3[1] , " Tuple second value is not 3 ");
+		assert ( true == tuple3[2] , " Tuple second value is not 4.0 ");
+  	
   	    var tuple1 : (String) = ("Hello single expression to tuple");
   		
-  		console.println(tuple1[0]);
+		assert ( "Hello single expression to tuple" == tuple1[0] , " Tuple first value is not `Hello single expression to tuple` ");
 
     	var  tuple0 : String = ("Hello single expression");
   		
-  		console.println(tuple0);
-  
+		assert ( "Hello single expression" == tuple0 , " Tuple first value is not `Hello single expression` ");
+
 
   	    for(let y in 1..10){
   	     

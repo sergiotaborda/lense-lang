@@ -52,9 +52,7 @@ public class ByteCodeReader extends ClassVisitor {
 
 	}
 
-
-
-	LenseTypeDefinition resolveTypByNameAndKind(String name, lense.compiler.type.TypeKind kind, int genericsCount) {
+	LenseTypeDefinition resolveTypeByNameAndKind(String name, lense.compiler.type.TypeKind kind, int genericsCount) {
 
 		TypeSearchParameters params = new TypeSearchParameters(name, genericsCount);
 

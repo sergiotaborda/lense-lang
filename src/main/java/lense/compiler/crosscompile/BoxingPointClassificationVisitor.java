@@ -81,7 +81,7 @@ public final class BoxingPointClassificationVisitor implements Visitor<AstNode> 
 		}else if (node instanceof MethodInvocationNode){
 			MethodInvocationNode m = (MethodInvocationNode)node;
 
-			if (!(LenseTypeSystem.getInstance().isAssignableTo(m.getTypeVariable(), LenseTypeSystem.Void()))){
+			if (!m.isTupleAccessMethod() && !(LenseTypeSystem.getInstance().isAssignableTo(m.getTypeVariable(), LenseTypeSystem.Void()))){
 				// outbox return 
 
 				m.getParent().replace(m, new BoxingPointNode(m, m, BoxingDirection.BOXING_OUT));
@@ -98,7 +98,11 @@ public final class BoxingPointClassificationVisitor implements Visitor<AstNode> 
 
 			if (theItem instanceof CaptureReifiedTypesNode) {
 				return;
-			} else if (theItem instanceof ArgumentListNode) {
+			} else if (theItem instanceof CastNode) {
+				 if(((CastNode) theItem).isTupleAccessMethod() || theItem.getFirstChild() instanceof MethodInvocationNode && ((MethodInvocationNode)theItem.getFirstChild()).isTupleAccessMethod()) {
+					 return;
+				 }
+			}else if (theItem instanceof ArgumentListNode) {
 
 				for (AstNode a : theItem.getChildren()) {
 					visitAfterChildren(a);

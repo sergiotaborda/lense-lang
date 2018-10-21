@@ -675,9 +675,7 @@ public class LenseTypeSystem {
 		} 
 
 		if (b.isFixed()) {
-			Optional<Constructor> op = b.getTypeDefinition().getConstructorByParameters(Visibility.Public,new ConstructorParameter(a));
-
-			return op.filter(c -> c.isImplicit() && c.getVisibility() == Visibility.Public).isPresent();
+			return b.getTypeDefinition().getConstructorByImplicitAndPromotableParameters(true, new ConstructorParameter(a)).isPresent();
 		}
 		return false;
 	}
