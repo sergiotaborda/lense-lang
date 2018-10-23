@@ -152,7 +152,7 @@ public class Constructor implements CallableMember<Constructor>{
 	}
 
 	public int hashCode (){
-		return this.name.hashCode();
+		return this.name == null ? 0 : this.name.hashCode();
 	}
 	
 	public boolean equals(Object other){

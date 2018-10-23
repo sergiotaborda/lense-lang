@@ -27,14 +27,14 @@
 - [x] Indexes support multiple parameters `array[i]` , `matrix[i,j]` , `cube[i,j,k]`
 
 - [x] Object type 
-- [x] Selaed algebric types like: `class Boolean is true , false; `
+- [x] Sealed algebric types like: `class Boolean is true , false; `
 * [x] case classes,  ( via algebric types)
 * [x] case objects   ( via algebric types)
 - [x] enums (via sealed types)
 - [ ] Annotation
-- [ ] Enhancements -> usefull for operations on numbers of different types. enhancements can be native
+- [ ] Enhancements -> useful for operations on numbers of different types. enhancements can be native
 * [x] methods
-* [ ] contructors
+* [ ] constructors
 * [ ] read only properties
 * [ ] native
 - [ ] data/record classes 
@@ -47,8 +47,8 @@
 - [x] allow for package in files to be  optional.
 - [x] if present validate it matches the folder structure
  
-- [ ] Support named parameters so `go ( from: x, to : y)` is the same as go `(to: y ; from: x)`
-- [ ] Support default parameters. define `print ( msg : String : printer : Printer = defaultPrinter)` then call as `print("hello")` or as `print("hello", myPrinter)`. Default can be any object.
+- [x] Support named parameters so `go ( from: x, to : y)` is the same as go `(to: y ; from: x)`
+- [ ] Support default parameters. define `print ( msg : String , printer : Printer = defaultPrinter)` then call as `print("hello")` or as `print("hello", myPrinter)`. Default can be any object as it is not set in the call site.
 - [x] classes are open by default. methods are closed by default. To open methods define them `default`. Abstract methods are marked `abstract`. Methods that implements abstracts or redefines (overrrides) a default method are marked `override`. Compiler verifies correctness.
 - [ ] allow interfaces to define deault methods. This will allow for using interfaces as traits. 
 - [ ] allow definition and implementation of meta types and meta interfaces. meta interfaces cannot be implemented by objects but can be used as a type in a parameter or generic and in a instanceof (although may be not in auto cast)
@@ -144,11 +144,10 @@
 
 === Optimization and Erasure
 
-- [ ] optimize private properties to native fields.
-- [ ] optimize common patterns `real + imaginary` to `new Complex(real,imaginary)` 
-- [x] optimize common patterns `1/x` to `x.invert()`  
+- [x] optimize private properties to native fields.
+- [x] optimize common pattern `1/x` to `x.invert()`  
 - [ ] support auto-boxing and auto-unboxing of _native primitives_
-* [x] use auto-boxing to erase `Boolean` with primitive `boolean`  
+* [x] use auto-boxing to erase `Boolean` with primitive `boolean`  (java back-end) 
 * [x] identity bound limits in loops  
 * [ ] erase numeric values to they primitive conterparts when bound limits are kown (like in ranges)
 * [ ] erase string to native charSequence. 
@@ -158,24 +157,22 @@
 - [x] support operator for rational division `/` that always return elements of |Q , |R or |C    N/N , Z/Z , N/Z, Z/N , Q,Q -> Q , Q/R, R/Q, R/R -> R, x/C or C/x = C
 - [x] support operator for integer division `\` , consistent with `%` operator so that `D = d * q + r` where `q = D \ d` and `r = D % d`
 - [x] support comparison operators, including `<=>`,  based in `Comparable<T>` and `Comparison` objects
-
-- [ ] bound comparison operators compositions e.x: `if (2 < x() <= 10)` transforms to `if ( y = x();  2 < y && y <= 10)` simplify if x is not a function `if (2 <x && x < 4)
-		- rewrite `if ( x() in |(2 , 10 ]|)` as `if (2 < x() <= 10)` in the case of numbers
-
 - [x] support non commutable concatenation operator `++`. (`+` would mean is commutable) 
 - [x] support non commutable power operator `^^` (`**` is confusing in formulas with multiplication  operators `x * y \** z` vs `x * y ^^ z` 
-- [ ] support `?.` operator [SYNTAX]
 - [x] support `+` , `-` and `*` operators that scale up to memory limit
 - [x] support `<<` and `>>` operators 
 - [x] support `&` , `|` and `^` injunction operators 
 - [x] support `^^` power operator
 - [x] support `-` symmetric unary  operator.  `Natural.symmetric():Integer`
 - [x] support `+=` and `*=` operators expanding like  `a += n <==> a = a + n` and  `a *= n <==> a = a * n`
-- [x] support `-=` and `-=` operators only for some kinds. for naturals  `a = 2 ; a -= 1` (ok); `a-= 1(ok)` ; `a-= 1` (error);
-- [x] support `++` , `--` (Ordinal) successor() and predecessor() 
+- [x] support `-=` and `-=` operators only for some kinds. for naturals  `a = 2 ; a -= 1` (ok); `a-= 1` (ok) ; `a-= 1` (error);
+- [x] remove support `++` , `--` but maintain (Ordinal) successor() and predecessor().  Use `-=` and `+=` operators instead
+- [ ] support `?.` operator [SYNTAX]
 - [ ] support  warp operators (java default) like `&+` , `&-` ,`&*`, `&/` 
 - [ ] support  maybe  operators like `?+` , `?-` ,`?*`, `?/` . they handle all with Maybe and use `none` for overflow operations 
 - [ ] support  exact check operators  like `!+` , `!-` ,`!*`, `!/`. they throw OverflowException on overflow like java's AddExact, SubtractExact, MultiplyExact methods
+- [ ] bound comparison operators compositions e.x: `if (2 < x() <= 10)` transforms to `if ( y = x();  2 < y && y <= 10)` simplify if x is not a function `if (2 <x && x < 4)
+		- rewrite `if ( x() in |(2 , 10 ]|)` as `if (2 < x() <= 10)` in the case of numbers
 
 
 

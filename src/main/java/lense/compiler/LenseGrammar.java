@@ -23,6 +23,7 @@ import compiler.syntax.AstNode;
 import lense.compiler.ast.AccessorNode;
 import lense.compiler.ast.AnnotationListNode;
 import lense.compiler.ast.AnnotationNode;
+import lense.compiler.ast.ArgumentListItemNode;
 import lense.compiler.ast.ArgumentListNode;
 import lense.compiler.ast.ArithmeticNode;
 import lense.compiler.ast.ArithmeticOperation;
@@ -2026,7 +2027,8 @@ public class LenseGrammar extends AbstractLenseGrammar {
 			} else {
 				DecisionNode node = new DecisionNode();
 
-				node.setCondition(r.get(2).getAstNode(ExpressionNode.class).get());
+				
+				node.setCondition(r.get(2).getAstNode().map(a -> ensureExpression(a)).get());
 				if (r.get(4).getAstNode(BlockNode.class).isPresent()) {
 					node.setTruePath(r.get(4).getAstNode(BlockNode.class).get());
 				}
@@ -2828,6 +2830,22 @@ public class LenseGrammar extends AbstractLenseGrammar {
 
 		});
 
+		getNonTerminal("argument").addSemanticAction((p, r) -> {
+			if (r.size() == 1 && (r.get(0).getAstNode().get() instanceof ArgumentListItemNode)) {
+				p.setAstNode(r.get(0).getAstNode().get());
+			} else if (r.size() == 1) {
+				ArgumentListItemNode arg = new ArgumentListItemNode(-1, r.get(0).getAstNode().get());
+				p.setAstNode(arg);
+			} else {
+				ArgumentListItemNode arg = new ArgumentListItemNode(-1, r.get(2).getAstNode().get());
+				
+				arg.setName(r.get(0).getLexicalValue());
+				
+				p.setAstNode(arg);
+			}
+		});
+		
+		
 		getNonTerminal("methodInvocation").addSemanticAction((p, r) -> {
 			if (r.size() == 1 && (r.get(0).getAstNode().get() instanceof MethodInvocationNode)) {
 				p.setAstNode(r.get(0).getAstNode().get());

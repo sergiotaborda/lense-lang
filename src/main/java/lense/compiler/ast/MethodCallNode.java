@@ -11,7 +11,7 @@ import compiler.syntax.AstNode;
 /**
  * 
  */
-public class MethodCallNode extends StatementNode {
+public class MethodCallNode extends StatementNode implements ArgumentListHolder {
 
 	private String name;
 	private ArgumentListNode arguments;
@@ -30,7 +30,7 @@ public class MethodCallNode extends StatementNode {
 	 */
 	public MethodCallNode(String name, ArgumentListNode arguments) {
 		this(name);
-		setArgumentListNode(arguments);
+		setArguments(arguments);
 	}
 
     public String toString(){
@@ -40,7 +40,7 @@ public class MethodCallNode extends StatementNode {
 	/**
 	 * @param argumentListNode
 	 */
-	public void setArgumentListNode(ArgumentListNode arguments) {
+	public void setArguments(ArgumentListNode arguments) {
 		this.arguments = arguments;
 		this.add(arguments);
 	}
@@ -52,7 +52,7 @@ public class MethodCallNode extends StatementNode {
 		return name;
 	}
 	
-	public ArgumentListNode getArgumentListNode(){
+	public ArgumentListNode getArguments(){
 		return arguments;
 	}
 	

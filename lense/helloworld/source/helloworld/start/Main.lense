@@ -38,7 +38,7 @@ public class Main extends ConsoleApplication {
 	
 	public let parameter : Integer = 99 {get;};
 	
-	
+	@teste @teste2
 	private applyNames<T, U> ( from : T , to : U) : String {
 
 		let list = new Array<T>();
@@ -73,9 +73,56 @@ public class Main extends ConsoleApplication {
 
 	}
 
+
+	private demoNamedArguments (){
+
+		let t = true;
+
+		let a = range(2, 5, t);
+		let b = range(from : 2, to : 5, negated : true);
+		let c = range(to : int2(), negated: bool(), from : int1());
+		let d = range( 2, negated: true, to : 5);
+		let f = range( false,  to : 5, from : 2);
+
+		assert ( a == 3);
+		assert ( b == -3);
+		assert ( c == 3);
+		assert ( d == -3);
+		assert ( f == 3);
+	}
+
+	private bool() {
+		return false;
+	}
+
+	private int2() : Natural {
+		return 2;
+	}
+
+	private int1() : Natural {
+		return 5;
+	}
+
+	private  range(negated : Boolean,  from : Natural, to : Integer) : Integer{
+		if (negated){
+			return to - from;
+		} else {
+			return from - to;
+		}
+	} 
+
+	private  range( from : Integer, to : Integer , negated : Boolean) : Integer{
+		if (negated){
+			return to - from;
+		} else {
+			return from - to;
+		}
+		
+	} 
+
   	public override onStart()  {
 
-
+		
 		
   	 	console.println("Begin " ++ this.type().name); // ambiguity a ++ b  or a   ++b
 
@@ -108,7 +155,7 @@ public class Main extends ConsoleApplication {
   	 	var im  = 2i; 
   	 	
   	 	var cx = 3 + 4i;
-  	 
+
   	    var r = cx.abs();
   	 
   	 	console.println("Complex is : {{ cx }} with magnitude :{{ r }} "); 
@@ -142,7 +189,7 @@ public class Main extends ConsoleApplication {
   	 	var wholeDivision = 8 \ 3;
   	 	var remainder = 8 % 3;
 
-		assert (8 == 8 \ 3 + 8 % 3);
+		assert (8 == 3 * wholeDivision + remainder);
   	 	
 		var inverted = 1 / ratio;
 		assert( inverted == 3/8);
@@ -151,7 +198,7 @@ public class Main extends ConsoleApplication {
   	 	var doubleInverted = 2 / ratio;
 		assert( doubleInverted == 3/4);
   	  // TODO correct \ escaping inside string	
-  	 	console.println("8 / 3 = {{ ratio }} and 8 \\ 3 ={{wholeDivision }}  so  8 ={{ wholeDivision }} * 3 + {{ remainder }}");
+  	 	console.println("8 / 3 = {{ ratio }} and 8 \ 3 ={{wholeDivision }}  so  8 ={{ wholeDivision }} * 3 + {{ remainder }}");
   	 	
    // TODO verifiy if a variable was already defined
  
@@ -367,7 +414,7 @@ public class Main extends ConsoleApplication {
 
 	public demoMatrix(){
 
-  		let matrix  = new Matrix<Natural>(3,3, 0);
+  		let matrix  = new Matrix<Natural>(rowsCount: 3, columnsCount: 3, seed: 0);
   	
   		matrix[2,2] = 4;
   	 

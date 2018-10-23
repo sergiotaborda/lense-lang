@@ -11,6 +11,7 @@ import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
@@ -19,6 +20,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import org.omg.DynamicAny.NameDynAnyPair;
 
 import compiler.parser.IdentifierNode;
 import compiler.parser.NameIdentifierNode;
@@ -29,12 +32,14 @@ import lense.compiler.CompilationError;
 import lense.compiler.TypeAlreadyDefinedException;
 import lense.compiler.asm.LoadedLenseTypeDefinition;
 import lense.compiler.ast.AccessorNode;
+import lense.compiler.ast.ArgumentListHolder;
 import lense.compiler.ast.ArgumentListItemNode;
 import lense.compiler.ast.ArgumentListNode;
 import lense.compiler.ast.ArithmeticNode;
 import lense.compiler.ast.ArithmeticOperation;
 import lense.compiler.ast.AssertNode;
 import lense.compiler.ast.AssignmentNode;
+import lense.compiler.ast.BlockNode;
 import lense.compiler.ast.BooleanOperation;
 import lense.compiler.ast.BooleanOperatorNode;
 import lense.compiler.ast.BooleanValue;
@@ -90,6 +95,7 @@ import lense.compiler.ast.TypeNode;
 import lense.compiler.ast.TypeParametersListNode;
 import lense.compiler.ast.TypedNode;
 import lense.compiler.ast.UnitaryOperation;
+import lense.compiler.ast.VariableDeclarationNode;
 import lense.compiler.ast.VariableReadNode;
 import lense.compiler.ast.VariableWriteNode;
 import lense.compiler.ast.WhileNode;
@@ -131,18 +137,18 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 	private Map<TypeVariable, List<TypeDefinition>> enhancements = new HashMap<>();
 
 	private final LenseTypeSystem lenseTypeSystem;
-	
+
 	public SemanticVisitor(SemanticContext sc) {
 		super(sc);
-		
+
 		lenseTypeSystem = LenseTypeSystem.getInstance();
-		
+
 		ANY = (LenseTypeDefinition) sc.resolveTypeForName("lense.core.lang.Any", 0).get();
 		VOID = (LenseTypeDefinition) sc.resolveTypeForName("lense.core.lang.Void", 0).get();
 		// NOTHING = (LenseTypeDefinition)
 		// sc.resolveTypeForName("lense.core.lang.Nothing", 0).get();
 	}
-	
+
 	public SemanticVisitor(SemanticContext sc, Map<TypeVariable, List<TypeDefinition>> enhancements) {
 		this(sc);
 		this.enhancements = enhancements;
@@ -227,13 +233,12 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 			ExpressionNode val = (ExpressionNode) r.getFirstChild();
 
 			if (val instanceof PreBooleanUnaryExpression) {
-				PreBooleanUnaryExpression exp = (PreBooleanUnaryExpression)val;
-				
+				PreBooleanUnaryExpression exp = (PreBooleanUnaryExpression) val;
+
 				if (exp.getOperation() == BooleanOperation.LogicNegate) {
-					
-	
+
 					exp.getParent().replace(val, exp.getFirstChild());
-					
+
 					r.setReferenceValue(false);
 				}
 			}
@@ -315,9 +320,12 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 									MethodParameter superParameter = (MethodParameter) ita.next();
 									FormalParameterNode thisParameter = (FormalParameterNode) itb.next();
 
-									 boolean matches =  this.lenseTypeSystem.isAssignableTo(thisParameter.getTypeVariable(), superParameter.getType().getUpperBound()) 
-									 && this.lenseTypeSystem.isAssignableTo(superParameter.getType().getLowerBound(), thisParameter.getTypeVariable());
-									
+									boolean matches = this.lenseTypeSystem.isAssignableTo(
+											thisParameter.getTypeVariable(), superParameter.getType().getUpperBound())
+											&& this.lenseTypeSystem.isAssignableTo(
+													superParameter.getType().getLowerBound(),
+													thisParameter.getTypeVariable());
+
 									if (!matches) {
 										analiseInheritance = false;
 										break;
@@ -414,7 +422,7 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 					genericParametersCount);
 
 			TypeNode superTypeNode = t.getSuperType();
-			
+
 			LenseTypeDefinition myType;
 			if (maybeMyType.isPresent()) {
 				myType = (LenseTypeDefinition) maybeMyType.get();
@@ -437,9 +445,7 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 					}
 
 				}
-				
 
-				
 				myType = new LenseTypeDefinition(t.getName(), t.getKind(), ANY, genericVariables);
 				myType = (LenseTypeDefinition) this.getSemanticContext().registerType(myType, genericParametersCount);
 			}
@@ -468,22 +474,21 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 				if (superType.isGeneric()) {
 
 					if (t.getKind().isEnhancement()) {
-						
+
 						List<TypeVariable> params = new ArrayList<>(superTypeNode.getChildren().size());
 						for (AstNode n : superTypeNode.getChildren()) {
 							if (n instanceof GenericTypeParameterNode) {
-								GenericTypeParameterNode g = (GenericTypeParameterNode)n;
-								
+								GenericTypeParameterNode g = (GenericTypeParameterNode) n;
+
 								params.add(this.getSemanticContext().typeForName(g.getTypeNode()));
-								
-								
+
 							} else {
 								throw new UnsupportedOperationException();
 							}
 						}
-						
+
 						superType = LenseTypeSystem.specify(superType, params);
-						
+
 					} else {
 						for (AstNode n : superTypeNode.getChildren()) {
 							if (n instanceof GenericTypeParameterNode) {
@@ -519,21 +524,20 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 
 						}
 					}
-					
 
 				}
 
-				
-				if (!t.getKind().isEnhancement() &&  superType.getKind() == LenseUnitKind.Interface && !lenseTypeSystem.isAny(superType)) {
+				if (!t.getKind().isEnhancement() && superType.getKind() == LenseUnitKind.Interface
+						&& !lenseTypeSystem.isAny(superType)) {
 					throw new CompilationError(node, t.getName() + " cannot extend interface " + superType.getName()
 					+ ". Did you meant to use 'implements' instead of 'extends' ?.");
 				}
 
 				superTypeNode.setTypeVariable(superType);
 
-			} else if (t.getKind().isEnhancement()){
+			} else if (t.getKind().isEnhancement()) {
 				throw new CompilationError(node, t.getName() + " enhancement must define a type for extention");
-				
+
 			}
 
 			if (superType.equals(myType)) {
@@ -586,14 +590,10 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 
 			t.setTypeDefinition(myType);
 
-			
-			
 			this.currentType = myType;
-			
-		
 
 			if (t.getKind().isEnhancement()) {
-				
+
 				this.getSemanticContext().currentScope().defineVariable("this", superType, node).setInitialized(true);
 
 			} else {
@@ -602,8 +602,7 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 				this.getSemanticContext().currentScope().defineVariable("super", superType, node).setInitialized(true);
 
 			}
-			
-			
+
 			TreeTransverser.transverse(t, new StructureVisitor(myType, this.getSemanticContext()));
 
 			if (t.getInterfaces() != null) {
@@ -652,8 +651,10 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 			if (n.getContainer() instanceof RangeNode) {
 				RangeNode range = (RangeNode) n.getContainer();
 
-				if (lenseTypeSystem.isAssignableTo(iterationVariable.getTypeVariable(),
-						LenseTypeSystem.Natural())) { // TODO change to .Number()
+				if (lenseTypeSystem.isAssignableTo(iterationVariable.getTypeVariable(), LenseTypeSystem.Natural())) { // TODO
+					// change
+					// to
+					// .Number()
 					// is a number
 					// try to determine limits
 
@@ -845,6 +846,8 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 
 				r.replace(val, n);
 			}
+
+
 
 		} else if (node instanceof SwitchNode) {
 			SwitchNode switchNode = (SwitchNode) node;
@@ -1097,7 +1100,8 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 				for (ArgumentListItemNode a : literal.getArguments().getChildren(ArgumentListItemNode.class)) {
 					NewInstanceCreationNode n = ((NewInstanceCreationNode) a.getFirstChild());
 
-					TypeParametersListNode typeParametersListNode = n.getCreationParameters().getTypeParametersListNode();
+					TypeParametersListNode typeParametersListNode = n.getCreationParameters()
+							.getTypeParametersListNode();
 
 					typeParametersListNode.add(new GenericTypeParameterNode(new TypeNode(keyType)));
 					typeParametersListNode.add(new GenericTypeParameterNode(new TypeNode(valueType)));
@@ -1166,10 +1170,10 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 				if (!r.isIncludeEnd()) {
 					name = "upToExclusive";
 				}
-				
 
-				MethodInvocationNode create = new MethodInvocationNode( r.getStart(),name, arg);
-				create.setTypeVariable(LenseTypeSystem.specify(LenseTypeSystem.Progression(), r.getStart().getTypeVariable()));
+				MethodInvocationNode create = new MethodInvocationNode(r.getStart(), name, arg);
+				create.setTypeVariable(
+						LenseTypeSystem.specify(LenseTypeSystem.Progression(), r.getStart().getTypeVariable()));
 
 				r.getParent().replace(r, create);
 
@@ -1198,29 +1202,33 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 						finalType = right;
 
 						// cast left to right
+						
+						promoteNodeType(r.getStart(), finalType);
 
-						Optional<Constructor> op = rightDef.getConstructorByParameters(Visibility.Public,
-								new ConstructorParameter(left));
-
-						NewInstanceCreationNode cast = NewInstanceCreationNode.of(finalType, op.get(), r.getStart());
-						cast.getCreationParameters().getTypeParametersListNode()
-						.add(new GenericTypeParameterNode(new TypeNode(finalType)));
-
-						r.replace(r.getStart(), cast);
+//						Optional<Constructor> op = rightDef.getConstructorByParameters(Visibility.Public,
+//								new ConstructorParameter(left));
+//
+//						NewInstanceCreationNode cast = NewInstanceCreationNode.of(finalType, op.get(), r.getStart());
+//						cast.getCreationParameters().getTypeParametersListNode()
+//						.add(new GenericTypeParameterNode(new TypeNode(finalType)));
+//
+//						r.replace(r.getStart(), cast);
 
 					} else if (typeSystem.isPromotableTo(rightDef, leftDef)) {
 						finalType = left;
 
 						// cast right to left
 
-						Optional<Constructor> op = leftDef.getConstructorByParameters(Visibility.Public,
-								new ConstructorParameter(right));
-
-						NewInstanceCreationNode cast = NewInstanceCreationNode.of(finalType, op.get(), r.getEnd());
-						cast.getCreationParameters().getTypeParametersListNode()
-						.add(new GenericTypeParameterNode(new TypeNode(finalType)));
-
-						r.replace(r.getEnd(), cast);
+						promoteNodeType(r.getEnd(), finalType);
+						
+//						Optional<Constructor> op = leftDef.getConstructorByParameters(Visibility.Public,
+//								new ConstructorParameter(right));
+//
+//						NewInstanceCreationNode cast = NewInstanceCreationNode.of(finalType, op.get(), r.getEnd());
+//						cast.getCreationParameters().getTypeParametersListNode()
+//						.add(new GenericTypeParameterNode(new TypeNode(finalType)));
+//
+//						r.replace(r.getEnd(), cast);
 					} else {
 						throw new CompilationError(node, "Cannot create interval from " + left + " to " + right);
 					}
@@ -1292,7 +1300,8 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 				}
 
 				// replace by a method invocation
-				MethodInvocationNode method = new MethodInvocationNode(list.get(), ensureExpression(node.getChildren().get(0)));
+				MethodInvocationNode method = new MethodInvocationNode(list.get(),
+						ensureExpression(node.getChildren().get(0)));
 				method.setTypeVariable(list.get().getReturningType());
 
 				if (node.getParent() instanceof ReturnNode) {
@@ -1341,7 +1350,8 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 					}
 
 					// replace by a method invocation
-					MethodInvocationNode method = new MethodInvocationNode(list.get(), ensureExpression(node.getChildren().get(0)));
+					MethodInvocationNode method = new MethodInvocationNode(list.get(),
+							ensureExpression(node.getChildren().get(0)));
 					method.setTypeVariable(list.get().getReturningType());
 
 					if (node.getParent() instanceof ReturnNode) {
@@ -1374,7 +1384,8 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 					}
 
 					// replace by a method invocation
-					MethodInvocationNode method = new MethodInvocationNode(list.get(), ensureExpression(node.getChildren().get(0)));
+					MethodInvocationNode method = new MethodInvocationNode(list.get(),
+							ensureExpression(node.getChildren().get(0)));
 
 					method.setTypeVariable(list.get().getReturningType());
 
@@ -1395,8 +1406,7 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 				PreBooleanUnaryExpression p = (PreBooleanUnaryExpression) node;
 
 				final TypeDefinition type = ((TypedNode) p.getChildren().get(0)).getTypeVariable().getTypeDefinition();
-				
-				
+
 				String methodName;
 				if (p.getOperation().equals(BooleanOperation.BitNegate)) { /* ~a */
 					// TODO verify operator interface Binary
@@ -1455,14 +1465,17 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 
 							someTpe = LenseTypeSystem.specify(someTpe, right);
 
-							Optional<Constructor> op = someTpe.getConstructorByPromotableParameters(Visibility.Public,
-									new ConstructorParameter(right));
-
-							NewInstanceCreationNode cn = NewInstanceCreationNode.of(someTpe, op.get(), n.getRight());
-							cn.getCreationParameters().getTypeParametersListNode()
-							.add(new GenericTypeParameterNode(new TypeNode(right)));
-
-							n.replace((AstNode) n.getRight(), cn);
+							
+							promoteNodeType(n.getRight(), someTpe);
+//							
+//							Optional<Constructor> op = someTpe.getConstructorByPromotableParameters(Visibility.Public,
+//									new ConstructorParameter(right));
+//
+//							NewInstanceCreationNode cn = NewInstanceCreationNode.of(someTpe, op.get(), n.getRight());
+//							cn.getCreationParameters().getTypeParametersListNode()
+//							.add(new GenericTypeParameterNode(new TypeNode(right)));
+//
+//							n.replace((AstNode) n.getRight(), cn);
 						} else {
 							throw new CompilationError(node, right + " is not assignable to " + left);
 						}
@@ -1655,10 +1668,9 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 							LenseTypeDefinition someTypeOfRight = LenseTypeSystem.specify(someType, right);
 
 							Optional<Constructor> op = someType.getMembers().stream()
-									.filter( m -> m.isConstructor() && m.getVisibility() == Visibility.Public)
-									.map( c -> (Constructor)c)
-									.findAny();
-									
+									.filter(m -> m.isConstructor() && m.getVisibility() == Visibility.Public)
+									.map(c -> (Constructor) c).findAny();
+
 							TypeVariable someTypeSpec = someTypeOfRight;
 
 							NewInstanceCreationNode cn = NewInstanceCreationNode.of(someTypeSpec, op.get(),
@@ -1705,14 +1717,17 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 							throw new CompilationError(node,
 									expType + " is not assignable to " + propType + " in property " + p.getName());
 						} else {
-							Optional<Constructor> op = propType.getTypeDefinition()
-									.getConstructorByParameters(Visibility.Public, new ConstructorParameter(expType));
-
-							NewInstanceCreationNode cn = NewInstanceCreationNode.of(propType, op.get(), exp);
-							cn.getCreationParameters().getTypeParametersListNode()
-							.add(new GenericTypeParameterNode(new TypeNode(propType)));
-
-							p.replace(exp, cn);
+							
+							promoteNodeType(exp, propType);
+//							
+//							Optional<Constructor> op = propType.getTypeDefinition()
+//									.getConstructorByParameters(Visibility.Public, new ConstructorParameter(expType));
+//
+//							NewInstanceCreationNode cn = NewInstanceCreationNode.of(propType, op.get(), exp);
+//							cn.getCreationParameters().getTypeParametersListNode()
+//							.add(new GenericTypeParameterNode(new TypeNode(propType)));
+//
+//							p.replace(exp, cn);
 						}
 					}
 				}
@@ -1775,10 +1790,11 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 						// type, p).setInitialized(true);
 					}
 
-					//IndexerProperty indexer = currentType.addIndexer(propertyType, p.getAcessor() != null,
-					//		p.getModifier() != null, params);
+					// IndexerProperty indexer = currentType.addIndexer(propertyType, p.getAcessor()
+					// != null,
+					// p.getModifier() != null, params);
 
-					//ArrayList<TypeVariable> listParams = new ArrayList<>(Arrays.asList(params));
+					// ArrayList<TypeVariable> listParams = new ArrayList<>(Arrays.asList(params));
 
 					// if (indexer.canWrite()) {
 					// listParams.add(propertyType);
@@ -1839,17 +1855,21 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 
 						int max = countTupleSize(methodOwnerType);
 
-						Optional<Method> headMethod = LenseTypeSystem.Tuple().getMethodBySignature(new MethodSignature("head"));
-						Optional<Method> tailMethod = LenseTypeSystem.Tuple().getMethodBySignature(new MethodSignature("tail"));
-						
+						Optional<Method> headMethod = LenseTypeSystem.Tuple()
+								.getMethodBySignature(new MethodSignature("head"));
+						Optional<Method> tailMethod = LenseTypeSystem.Tuple()
+								.getMethodBySignature(new MethodSignature("tail"));
+
 						if (index.get().intValue() == 0) {
-							MethodInvocationNode invoke = new MethodInvocationNode(headMethod.get(), ensureExpression(m.getAccess()));
+							MethodInvocationNode invoke = new MethodInvocationNode(headMethod.get(),
+									ensureExpression(m.getAccess()));
 
 							node.getParent().replace(node, invoke);
 							invoke.setTypeVariable(methodOwnerType.getGenericParameters().get(0));
 							return;
 						} else if (index.get() < max) {
-							MethodInvocationNode previous = new MethodInvocationNode(tailMethod.get(), ensureExpression(m.getAccess()));
+							MethodInvocationNode previous = new MethodInvocationNode(tailMethod.get(),
+									ensureExpression(m.getAccess()));
 							previous.setTypeVariable(methodOwnerType.getGenericParameters().get(1));
 
 							for (int i = 0; i < index.get() - 1; i++) {
@@ -1897,9 +1917,7 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 								+ " is defined for type " + methodOwnerType);
 					}
 
-
 					m.setTypeVariable(indexer.get().getReturningType());
-				
 
 				}
 
@@ -2057,17 +2075,19 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 
 							TypeVariable type = mappingFunction;
 							NewInstanceCreationNode newObject = NewInstanceCreationNode.of(type);
-							
-							newObject.getCreationParameters().getTypeParametersListNode().add(new GenericTypeParameterNode(new TypeNode(type)));
+
+							newObject.getCreationParameters().getTypeParametersListNode()
+							.add(new GenericTypeParameterNode(new TypeNode(type)));
 
 							ArgumentListItemNode arg = new ArgumentListItemNode(0, newObject);
 							arg.setExpectedType(newObject.getTypeVariable());
 
 							// TODO this will resolve the correct m
-							Optional<Method> method = finalType.getTypeDefinition().getMethodBySignature(new MethodSignature("map", new MethodParameter(newObject.getTypeVariable())));
-							
-							MethodInvocationNode transform = new MethodInvocationNode(method.get(), ensureExpression(m.getPrimary()),
-									 arg
+							Optional<Method> method = finalType.getTypeDefinition().getMethodBySignature(
+									new MethodSignature("map", new MethodParameter(newObject.getTypeVariable())));
+
+							MethodInvocationNode transform = new MethodInvocationNode(method.get(),
+									ensureExpression(m.getPrimary()), arg
 									// TODO
 									// lambda
 									);
@@ -2129,8 +2149,6 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 							VariableReadNode r = new VariableReadNode(id.getName(), info);
 							it.set(new ArgumentListItemNode(it.nextIndex() - 1, r));
 						}
-					} else {
-						continue;
 					}
 				}
 
@@ -2151,37 +2169,38 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 
 				if (access == null) {
 					// access to self
-					MethodParameter[] parameters = asMethodParameters(m.getCall().getArgumentListNode());
-					MethodSignature signature = new MethodSignature(name, parameters);
 
-					Optional<Method> method = currentType.getMethodBySignature(signature);
-
-					if (!method.isPresent()) {
-
-						method = currentType.getMethodByPromotableSignature(signature);
-
-						if (!method.isPresent()) {
-							throw new CompilationError(node, "Method " + signature + " is not defined in "
-									+ methodOwnerType + " or its super classes");
-						} else {
-
-							List<CallableMemberMember<Method>> parameteres = method.get().getParameters();
-
-							for (int i = 0; i < parameteres.size(); i++) {
-
-								ArgumentListItemNode parent = ((ArgumentListItemNode) m.getCall().getArgumentListNode()
-										.getChildren().get(i));
-								ExpressionNode rightExpression = (ExpressionNode) parent.getFirstChild();
-
-								promote(parent, rightExpression, parameteres.get(i).getType(),
-										rightExpression.getTypeVariable());
-							}
-
-						}
-					}
-
-					m.setTypeVariable(method.get().getReturningType());
-
+					methodOwnerType = currentType;
+					//					MethodParameter[] parameters = asMethodParameters(m.getCall().getArguments());
+					//					MethodSignature signature = new MethodSignature(name, parameters);
+					//
+					//					Optional<Method> method = currentType.getMethodBySignature(signature);
+					//
+					//					if (!method.isPresent()) {
+					//
+					//						method = currentType.getMethodByPromotableSignature(signature);
+					//
+					//						if (!method.isPresent()) {
+					//							throw new CompilationError(node, "Method " + signature + " is not defined in "
+					//									+ methodOwnerType + " or its super classes");
+					//						} else {
+					//
+					//							List<CallableMemberMember<Method>> parameteres = method.get().getParameters();
+					//
+					//							for (int i = 0; i < parameteres.size(); i++) {
+					//
+					//								ArgumentListItemNode parent = ((ArgumentListItemNode) m.getCall().getArguments()
+					//										.getChildren().get(i));
+					//								ExpressionNode rightExpression = (ExpressionNode) parent.getFirstChild();
+					//
+					//								promote(parent, rightExpression, parameteres.get(i).getType(),
+					//										rightExpression.getTypeVariable());
+					//							}
+					//
+					//						}
+					//					}
+					//
+					//					m.setTypeVariable(method.get().getReturningType());
 
 				} else if (access instanceof QualifiedNameNode) {
 					QualifiedNameNode qn = ((QualifiedNameNode) access);
@@ -2286,7 +2305,7 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 						}
 
 					}
-					
+
 				} else if (access instanceof NameIdentifierNode) {
 
 					TypeVariable ownerType = this.getSemanticContext().currentScope().searchVariable("this")
@@ -2310,73 +2329,69 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 
 				TypeDefinition def = ensureNotFundamental(methodOwnerType.getTypeDefinition());
 
-				// if (def.getAllMembers().isEmpty()) {
-				// def = this.getSemanticContext().resolveTypeForName(def.getName(),
-				// def.getGenericParameters().size()).get();
-				// }
 
-				MethodParameter[] parameters = asMethodParameters(m.getCall().getArgumentListNode());
 
-				MethodSignature signature = new MethodSignature(name, parameters);
 
-				Optional<Method> method = def.getMethodBySignature(signature);
 
-				if (!method.isPresent()) {
 
-					method = def.getMethodByPromotableSignature(signature);
+				Optional<Method> method = resolveMethod(name, def, m.getCall());
 
-					if (method.isPresent()) {
-						
-						applyMethodCall(node, m, method.get());
-					} else {
-						
-						// search in enhancements
-						
-						if (!this.enhancements.isEmpty()) {
-						
-							List<Method> found = new LinkedList<>();
-							
-							for( Map.Entry<TypeVariable, List<TypeDefinition>> entry : this.enhancements.entrySet()) {
-								
-								if (lenseTypeSystem.isAssignableTo(methodOwnerType, entry.getKey())) {
-									
-									for (TypeDefinition enhancement : entry.getValue()) {
-										method = enhancement.getMethodByPromotableSignature(signature);
-										if (method.isPresent()) {
-											found.add(method.get());
-										}
+
+				if (method.isPresent()) {
+
+					applyMethodCall(node, m, method.get());
+				} else {
+
+					// TODO consider named parameters for enhancements
+
+					MethodParameter[] parameters = asMethodParameters(m.getCall().getArguments());
+
+					MethodSignature signature = new MethodSignature(name, parameters);
+
+					// search in enhancements
+
+					if (!this.enhancements.isEmpty()) {
+
+						List<Method> found = new LinkedList<>();
+
+						for (Map.Entry<TypeVariable, List<TypeDefinition>> entry : this.enhancements.entrySet()) {
+
+							if (lenseTypeSystem.isAssignableTo(methodOwnerType, entry.getKey())) {
+
+								for (TypeDefinition enhancement : entry.getValue()) {
+									method = enhancement.getMethodByPromotableSignature(signature);
+									if (method.isPresent()) {
+										found.add(method.get());
 									}
-
 								}
-							}
-							
-							if(found.size() == 1) {
-								// set method return type
-								
-								applyMethodCall(node, m, found.get(0));
-								
-								m.setStaticInvocation(true);
-								
 
-								return;
-							} else if (found.size() > 1) {
-								throw new CompilationError(node, "More than one enhancement matches call to '" + name + "' in type '"
-										+ def.getName() + "' with arguments " + Arrays.toString(parameters) + ". Please, desambiguate");
 							}
-						
 						}
-							
-						throw new CompilationError(node, "There is no method named '" + name + "' in type '"
-									+ def.getName() + "' with arguments " + Arrays.toString(parameters) + " nor an enchament matches");
-			
+
+						if (found.size() == 1) {
+							// set method return type
+
+							applyMethodCall(node, m, found.get(0));
+
+							m.setStaticInvocation(true);
+
+							return;
+						} else if (found.size() > 1) {
+							throw new CompilationError(node,
+									"More than one enhancement matches call to '" + name + "' in type '"
+											+ def.getName() + "' with arguments " + Arrays.toString(parameters)
+											+ ". Please, desambiguate");
+						}
+
 					}
 
-				} else {
-					Method mthd = method.get();
-					
-					applyMethodCall(node, m, mthd);
+					throw new CompilationError(node,
+							"There is no method named '" + name + "' in type '" + def.getName()
+							+ "' with arguments " + Arrays.toString(parameters)
+							+ " nor an enchament matches");
 
 				}
+
 
 			} else if (node instanceof NewInstanceCreationNode) {
 
@@ -2384,6 +2399,7 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 					return;
 				}
 				NewInstanceCreationNode n = (NewInstanceCreationNode) node;
+
 
 				TypeDefinition def = n.getTypeNode().getTypeVariable().getTypeDefinition();
 
@@ -2404,12 +2420,26 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 
 				n.setConstructor(constructor.get());
 
+
+
 				if (n.getArguments() != null) {
-					List<CallableMemberMember<Constructor>> methodParameters = constructor.get().getParameters();
+
+
+					List<CallableMemberMember<Constructor>> methodParameters = n.getConstructor().getParameters();
 
 					if (methodParameters.size() != n.getArguments().getChildren().size()) {
 						throw new CompilationError(node, "Argument count does not match parameters count");
 					}
+
+					Map<String, Integer> orderedParamNames = new LinkedHashMap<>();
+
+					for (int i = 0; i < methodParameters.size(); i++) {
+						ConstructorParameter param = (ConstructorParameter) methodParameters.get(i);
+						orderedParamNames.put(param.getName(), i);
+					}
+
+
+					ReorderArguments(n, orderedParamNames);
 
 					for (int i = 0; i < methodParameters.size(); i++) {
 						ConstructorParameter param = (ConstructorParameter) methodParameters.get(i);
@@ -2434,10 +2464,11 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 				}
 
 				// mark variable in the method scope.
-				VariableInfo returnVariable = this.getSemanticContext().currentScope().searchVariable("@returnOfMethod");
-				
-			    TypeVariable union = typeSystem.unionOf(returnVariable.getTypeVariable(), n.getTypeVariable());
-				
+				VariableInfo returnVariable = this.getSemanticContext().currentScope()
+						.searchVariable("@returnOfMethod");
+
+				TypeVariable union = typeSystem.unionOf(returnVariable.getTypeVariable(), n.getTypeVariable());
+
 				returnVariable.setTypeVariable(union);
 
 			} else if (node instanceof AccessorNode) {
@@ -2513,32 +2544,30 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 								} else {
 									// TODO promote
 
-									ReturnNode rn = null;
-									for (AstNode r : m.getBlock().getChildren()) {
-										if (r instanceof ReturnNode) {
-											rn = (ReturnNode) r;
-											break;
-										}
-									}
-
-									if (rn == null) {
+									Collection<ReturnNode> allReturns = m.getBlock().findAllReturnNodes();
+								
+		
+									if (allReturns.isEmpty()) {
 										throw new CompilationError(node,
-												variable.getTypeVariable() + " no return found");
+												variable.getTypeVariable() + " no return instruction found");
 									}
 
 									Optional<Constructor> op = returnType.getTypeDefinition()
 											.getConstructorByParameters(Visibility.Public,
 													new ConstructorParameter(variable.getTypeVariable()));
 
-									NewInstanceCreationNode cn = NewInstanceCreationNode.of(returnType, op.get(),
-											rn.getChildren().get(0));
-									cn.getCreationParameters().getTypeParametersListNode()
-									.add(new GenericTypeParameterNode(new TypeNode(returnType)));
+									for (ReturnNode rn : allReturns) {
+										NewInstanceCreationNode cn = NewInstanceCreationNode.of(returnType, op.get(),
+												rn.getChildren().get(0));
+										cn.getCreationParameters().getTypeParametersListNode()
+										.add(new GenericTypeParameterNode(new TypeNode(returnType)));
 
-									ReturnNode nr = new ReturnNode();
-									nr.add(cn);
+										ReturnNode nr = new ReturnNode();
+										nr.add(cn);
 
-									m.getBlock().replace(rn, nr);
+										rn.getParent().replace(rn, nr);
+									}
+									
 								}
 							}
 
@@ -2590,13 +2619,15 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 
 				if (!typeSystem.isAssignableTo(n.getContainer().getTypeVariable(), LenseTypeSystem.Iterable())) {
 
-					//verify correct type loading 
-					
+					// verify correct type loading
+
 					TypeDefinition def = n.getContainer().getTypeVariable().getTypeDefinition();
-					TypeVariable g = this.getSemanticContext().resolveTypeForName(def.getName(), def.getGenericParameters().size()).get();
-					
+					TypeVariable g = this.getSemanticContext()
+							.resolveTypeForName(def.getName(), def.getGenericParameters().size()).get();
+
 					if (!typeSystem.isAssignableTo(g, LenseTypeSystem.Iterable())) {
-						throw new CompilationError(node, "Can only iterate over an instance of " + LenseTypeSystem.Iterable());
+						throw new CompilationError(node,
+								"Can only iterate over an instance of " + LenseTypeSystem.Iterable());
 					}
 
 				}
@@ -2642,13 +2673,133 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 		}
 	}
 
-	private void applyMethodCall(AstNode node, MethodInvocationNode m, Method mthd) {
+	private Optional<Method> resolveMethod(String methodName, TypeDefinition def, ArgumentListHolder holder) {
+
+		ArgumentListNode args = holder.getArguments();
+
+		Set<String> mamedParams = new HashSet<>();
+
+		List<ArgumentListItemNode> arguments = args.getChildren(ArgumentListItemNode.class);
+		for ( ArgumentListItemNode arg : arguments) {
+			if (arg.getName().isPresent()) {
+				if (!mamedParams.add(arg.getName().get())) {
+					throw new CompilationError(arg, "Duplicated named parameter '" +  arg.getName().get() +"'. Each parameter can only be set once.");
+				}
+			} else if (!mamedParams.isEmpty()){
+				throw new CompilationError(arg, "All named parameters must be set after positional parameter. Parameter '" +  arg.getName().get() +"' cannot be set at this position.");
+			}
+		}
+
+		if (mamedParams.isEmpty()) {
+			// purely positional
+
+			MethodParameter[] parameters = asMethodParameters(args);
+
+			MethodSignature signature = new MethodSignature(methodName, parameters);
+
+			Optional<Method> method = def.getMethodBySignature(signature);
+
+			if (method.isPresent()) {
+				return method;
+			}
+
+			return def.getMethodByPromotableSignature(signature);
+
+		} else {
+			List<Method> possibleMethods = def.getAllMembers().stream()
+					.filter(it -> it.isMethod())
+					.map( it -> (Method)it)
+					.filter(it -> it.getName().equals(methodName))
+					.filter(it -> it.getParameters().size() == args.getChildren().size())
+					.collect(Collectors.toList());
+
+
+			outter:for (Method m : possibleMethods) {
+
+				Set<String> set = new HashSet<>();
+				Map<String, Integer> orderedParamNames = new LinkedHashMap<>();
+
+				int index = 0;
+				
+				Iterator<CallableMemberMember<Method>> itParams = m.getParameters().iterator();
+				Iterator<ArgumentListItemNode> itArgs = args.getChildren(ArgumentListItemNode.class).iterator();
+				while ( itParams.hasNext()) {
+					ArgumentListItemNode arg = itArgs.next();
+					MethodParameter p = (MethodParameter)itParams.next();
+					set.add(p.getName());
+					orderedParamNames.put(p.getName(), index++);
+					
+					if (!arg.getName().isPresent()) {
+						// positional. must match parameter
+						if (!LenseTypeSystem.isAssignableTo(((TypedNode)arg.getFirstChild()).getTypeVariable(), p.getType()) 
+								&& !lenseTypeSystem.isPromotableTo(((TypedNode)arg.getFirstChild()).getTypeVariable(), p.getType()) 
+							){
+							continue outter;
+						}
+					}
+				}
+
+				for (String name : mamedParams) {
+					if (!set.contains(name)) {
+						continue outter;
+					}
+				}
+
+				// compatible method
+				//TODO generate function calls in source call order before reordering
+				
+				AstNode topNode = resolveTopNode((AstNode)holder);
+				
+				ListIterator<ArgumentListItemNode> iterator = arguments.listIterator(arguments.size());
+				while (iterator.hasPrevious()) {
+					ArgumentListItemNode arg = iterator.previous(); 
+					
+					ExpressionNode exp = (ExpressionNode) arg.getFirstChild();
+					
+					if (arg.getName().isPresent() && !(exp instanceof LiteralExpressionNode)) {
+						
+						String variableName = "$" + arg.getScanPosition().getLineNumber()+ "$" + arg.getName().get();
+						
+						VariableDeclarationNode declare = new VariableDeclarationNode(variableName, exp.getTypeVariable(), exp);
+						
+						VariableInfo varDef = this.getSemanticContext().currentScope().defineVariable(variableName, exp.getTypeVariable(), topNode.getParent().getParent());
+						
+						VariableReadNode read = new VariableReadNode(variableName, varDef);
+						
+						arg.replace(exp, read);
+						
+						topNode.getParent().addBefore(topNode, declare);
+					}
+				}
+				
+				ReorderArguments(holder, orderedParamNames);
+
+				return Optional.of(m);
+			}
+
+			return Optional.empty();
+		}
+
+
+
+	}
+
+	private AstNode resolveTopNode(AstNode holder) {
+		 
+		if (holder.getParent() instanceof BlockNode) {
+			return holder;
+		}
 		
+		return resolveTopNode(holder.getParent());
+	}
+
+	private void applyMethodCall(AstNode node, MethodInvocationNode m, Method mthd) {
+
 		m.setTypeMember(mthd);
 		m.setTypeVariable(mthd.getReturningType());
 
 		List<CallableMemberMember<Method>> methodParameters = mthd.getParameters();
-		if (methodParameters.size() != m.getCall().getArgumentListNode().getChildren().size()) {
+		if (methodParameters.size() != m.getCall().getArguments().getChildren().size()) {
 			throw new CompilationError(m.getCall(), "Argument count does not match parameters count");
 		}
 
@@ -2656,16 +2807,24 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 
 		for (int i = 0; i < methodParameters.size(); i++) {
 			MethodParameter param = (MethodParameter) methodParameters.get(i);
-			
-			// math expected argument with method parameter type 
-			ArgumentListItemNode arg = (ArgumentListItemNode) m.getCall().getArgumentListNode().getChildren().get(i);
+
+			// math expected argument with method parameter type
+			ArgumentListItemNode arg = m.getCall().getArguments().getChildren(ArgumentListItemNode.class).get(i);
 			arg.setExpectedType(param.getType());
 
-			TypedNode value = (TypedNode)arg.getChildren().get(0);
+			TypedNode value = (TypedNode) arg.getChildren().get(0);
 
 			// check assignability
 			if (!lenseTypeSystem.isAssignableTo(value.getTypeVariable(), param.getType())) {
-				throw new CompilationError(node, "Cannot assign " + value.getTypeVariable().getTypeDefinition().getName() + " to " + param.getType().getTypeDefinition().getName());
+
+
+				if (!lenseTypeSystem.isPromotableTo(value.getTypeVariable(), param.getType())) {
+					throw new CompilationError(node,
+							"Cannot assign " + value.getTypeVariable().getTypeDefinition().getName() + " to "
+									+ param.getType().getTypeDefinition().getName());
+				} 
+
+				promoteNodeType(arg.getChildren().get(0), param.getType());
 			}
 
 			if (param.isMethodTypeBound()) {
@@ -2679,17 +2838,20 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 		for (Map.Entry<String, List<ArgumentListItemNode>> entry : freeArguments.entrySet()) {
 
 			if (entry.getValue().size() > 1) {
-				TypeVariable previous = ((TypedNode)entry.getValue().get(0).getFirstChild()).getTypeVariable();
+				TypeVariable previous = ((TypedNode) entry.getValue().get(0).getFirstChild()).getTypeVariable();
 
 				for (int i = 1; i < entry.getValue().size(); i++) {
-					TypeVariable current = ((TypedNode)entry.getValue().get(i).getFirstChild()).getTypeVariable();
+					TypeVariable current = ((TypedNode) entry.getValue().get(i).getFirstChild()).getTypeVariable();
 
 					if (!lenseTypeSystem.isPromotableTo(current, previous)) {
 
 						if (lenseTypeSystem.isPromotableTo(previous, current)) {
 							previous = current;
 						} else {
-							throw new CompilationError(node, "Types " + previous.getTypeDefinition().getName() + " and " + current.getTypeDefinition().getName() + " cannot be bound to free type " + entry.getKey());
+							throw new CompilationError(node,
+									"Types " + previous.getTypeDefinition().getName() + " and "
+											+ current.getTypeDefinition().getName() + " cannot be bound to free type "
+											+ entry.getKey());
 						}
 
 					}
@@ -2698,7 +2860,7 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 				boundedTypes.put(entry.getKey(), previous);
 
 			} else {
-				TypeVariable previous = ((TypedNode)entry.getValue().get(0).getFirstChild()).getTypeVariable();
+				TypeVariable previous = ((TypedNode) entry.getValue().get(0).getFirstChild()).getTypeVariable();
 				boundedTypes.put(entry.getKey(), previous);
 			}
 		}
@@ -2706,25 +2868,69 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 		m.setBoundedTypes(boundedTypes);
 	}
 
-	private void addFreeTypes(
-			List<CallableMemberMember<Method>> methodParameters,
-			Map<String, List<ArgumentListItemNode>> freeArguments, 
-			TypeVariable paramType,
-			ArgumentListItemNode arg
-			) {
-		
+	private void ReorderArguments(ArgumentListHolder m, Map<String, Integer> orderedParamNames) {
+		List<ArgumentListItemNode> argList = new ArrayList<>(m.getArguments().getChildren(ArgumentListItemNode.class));
+
+		if (argList.size() > 1) {
+			Collections.sort(argList, (a,b) -> { 
+
+				if (!a.getName().isPresent() && !b.getName().isPresent()){
+					return 0;
+				} else if (!a.getName().isPresent()) {
+					throw new CompilationError(a, "All named parameters must be set after positional parameter. Parameter '" +  b.getName().get() +"' cannot be set at this position.");
+				} else if (!b.getName().isPresent()) {
+					return 1;
+				}
+
+				Integer apos = orderedParamNames.get(a.getName().get());
+
+				if (apos == null) {
+					throw new CompilationError(a, "Parameter '" +  a.getName().get() +"' does not match any of the expected parameters");
+				}
+
+				Integer bpos = orderedParamNames.get(b.getName().get());
+
+				if (bpos == null) {
+					throw new CompilationError(a, "Parameter '" +  b.getName().get() +"' does not match any of the expected parameters");
+				}
+
+				return apos.compareTo(bpos);
+			});
+
+			Set<String> names = new HashSet<>();
+			Set<Integer> positons = new HashSet<>();
+			int positon = 0;
+			for (ArgumentListItemNode arg : argList) {
+				if (arg.getName().isPresent()) {
+					if (!names.add(arg.getName().get())) {
+						throw new CompilationError(arg, "Duplicated named parameter '" +  arg.getName().get() +"'. Each parameter can only be set once.");
+					} else if (positons.contains(orderedParamNames.get(arg.getName().get()))) {
+						throw new CompilationError(arg, "Name parameter '" +  arg.getName().get() +"' refers to an already set positional parameter. Each parameter can only be set once.");
+					}
+				} else {
+					positons.add(positon++);
+				}
+			}
+
+			m.setArguments(ArgumentListNode.of(argList));
+		}
+	}
+
+	private void addFreeTypes(List<CallableMemberMember<Method>> methodParameters,
+			Map<String, List<ArgumentListItemNode>> freeArguments, TypeVariable paramType, ArgumentListItemNode arg) {
+
 		if (paramType.getSymbol().isPresent()) {
 			String symbol = paramType.getSymbol().get();
 			List<ArgumentListItemNode> freeType = freeArguments.get(symbol);
 
 			if (freeType == null) {
-				freeType= new ArrayList<>(methodParameters.size());
+				freeType = new ArrayList<>(methodParameters.size());
 				freeArguments.put(symbol, freeType);
 			}
 
 			freeType.add(arg);
-		} else if(!paramType.getGenericParameters().isEmpty()){
-			for(TypeVariable g : paramType.getGenericParameters()) {
+		} else if (!paramType.getGenericParameters().isEmpty()) {
+			for (TypeVariable g : paramType.getGenericParameters()) {
 				addFreeTypes(methodParameters, freeArguments, g, arg);
 			}
 		}
@@ -2769,12 +2975,8 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 		}
 	}
 
-	private void promoteArithmeticOperatorToMethodCall(
-			ExpressionNode parent, 
-			ExpressionNode leftExpression,
-			ExpressionNode rightExpression, 
-			ArithmeticOperation operation
-		) {
+	private void promoteArithmeticOperatorToMethodCall(ExpressionNode parent, ExpressionNode leftExpression,
+			ExpressionNode rightExpression, ArithmeticOperation operation) {
 
 		TypeVariable left = ensureNotFundamental(leftExpression.getTypeVariable());
 		TypeVariable right = ensureNotFundamental(rightExpression.getTypeVariable());
@@ -2810,9 +3012,9 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 
 			if (type.equals(LenseTypeSystem.String())) {
 
-				//String concat
+				// String concat
 				Optional<Method> method = type.getMethodBySignature(new MethodSignature("asString"));
-				
+
 				MethodInvocationNode convert = new MethodInvocationNode(method.get(), rightExpression);
 				convert.setTypeVariable(left);
 
@@ -2825,52 +3027,52 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 			} else if (operation == ArithmeticOperation.Division && leftExpression instanceof NumericValue
 					&& LenseTypeSystem.getInstance().isAssignableTo(right, LenseTypeSystem.Rational())) {
 				// natural / rational
-				
+
 				MethodSignature signature = new MethodSignature("invert");
 
 				Optional<Method> method = right.getTypeDefinition().getMethodBySignature(signature);
 
-				MethodInvocationNode invertRational = new MethodInvocationNode( method.get() , rightExpression);
-				
+				MethodInvocationNode invertRational = new MethodInvocationNode(method.get(), rightExpression);
+
 				TypeVariable t = method.get().getReturningType();
 				if (t == null) {
 					throw new IllegalStateException("Type cannot be null");
 				}
 				invertRational.setTypeVariable(t);
-				
-				
-				if (((NumericValue)leftExpression).isOne() ) {
+
+				if (((NumericValue) leftExpression).isOne()) {
 					parent.getParent().replace(parent, invertRational);
-					
+
 				} else {
-					
+
 					signature = new MethodSignature("multiply", new MethodParameter(right));
 
 					method = right.getTypeDefinition().getMethodBySignature(signature);
 
 					leftExpression.setTypeVariable(right);
-					
+
 					ArgumentListItemNode arg = new ArgumentListItemNode(0, leftExpression);
 					arg.setExpectedType(right);
 
-					
-					MethodInvocationNode multiply = new MethodInvocationNode( method.get() , invertRational, arg);
-					
+					MethodInvocationNode multiply = new MethodInvocationNode(method.get(), invertRational, arg);
+
 					t = method.get().getReturningType();
 					if (t == null) {
 						throw new IllegalStateException("Type cannot be null");
 					}
 					multiply.setTypeVariable(t);
 					parent.getParent().replace(parent, multiply);
-					
+
 				}
-			
-			} else if (operation == ArithmeticOperation.Division && rightExpression instanceof NumericValue && ((NumericValue)rightExpression).isOne()) {
+
+			} else if (operation == ArithmeticOperation.Division && rightExpression instanceof NumericValue
+					&& ((NumericValue) rightExpression).isOne()) {
 
 				parent.getParent().replace(parent, leftExpression);
-				
+
 			} else {
-				MethodSignature signature = new MethodSignature(operation.equivalentMethod(),new MethodParameter(right, "text"));
+				MethodSignature signature = new MethodSignature(operation.equivalentMethod(),
+						new MethodParameter(right, "text"));
 
 				Optional<Method> method = type.getMethodBySignature(signature);
 
@@ -2891,16 +3093,16 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 				ArgumentListItemNode arg = new ArgumentListItemNode(0, rightExpression);
 				arg.setExpectedType(rightExpression.getTypeVariable());
 
-				MethodInvocationNode invokeOp = new MethodInvocationNode(method.get(),leftExpression,arg);
+				MethodInvocationNode invokeOp = new MethodInvocationNode(method.get(), leftExpression, arg);
 
 				List<CallableMemberMember<Method>> methodParameters = method.get().getParameters();
-				if (methodParameters.size() != invokeOp.getCall().getArgumentListNode().getChildren().size()) {
+				if (methodParameters.size() != invokeOp.getCall().getArguments().getChildren().size()) {
 					throw new CompilationError(parent, "Argument count does not match parameters count");
 				}
 
 				for (int i = 0; i < methodParameters.size(); i++) {
 					MethodParameter param = (MethodParameter) methodParameters.get(i);
-					ArgumentListItemNode a = (ArgumentListItemNode) invokeOp.getCall().getArgumentListNode()
+					ArgumentListItemNode a = (ArgumentListItemNode) invokeOp.getCall().getArguments()
 							.getChildren().get(i);
 					a.setExpectedType(param.getType());
 				}
@@ -2918,6 +3120,64 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 		}
 	}
 
+	private AstNode promoteNodeType(AstNode node, TypeVariable targetType) {
+
+		TypeVariable nodeType = ((TypedNode)node).getTypeVariable();
+		if (lenseTypeSystem.isAssignableTo(nodeType, targetType)) {
+			return node;
+		}
+
+		if (lenseTypeSystem.isMaybe(targetType)) {
+			
+			TypeVariable innerType = targetType.getGenericParameters().get(0);
+			
+			AstNode promoted = promoteNodeType( node,  innerType);
+			
+			Optional<Constructor> op = getSemanticContext().resolveTypeForName("lense.core.lang.Some", 1)
+					.flatMap(t -> t.getTypeDefinition().getConstructorByParameters(Visibility.Public, new ConstructorParameter(innerType)));
+
+			// read parent before adding to new node (parent will change)
+			AstNode parent = node.getParent();
+						
+			NewInstanceCreationNode cn = NewInstanceCreationNode.of(targetType, op.get(), promoted);
+			cn.getCreationParameters().getTypeParametersListNode()
+			.add(new GenericTypeParameterNode(new TypeNode(targetType)));
+
+			parent.replace(node, cn);
+						
+			return cn;
+		}
+
+		
+		if (!lenseTypeSystem.isPromotableTo(nodeType, targetType)) {
+
+			// TODO promote using extension
+			throw new CompilationError(node, nodeType + " is not assignable to " + targetType);
+		}
+
+		if (node instanceof NumericValue && LenseTypeSystem.isNumber(targetType.getTypeDefinition())) {
+			((NumericValue)node).setTypeVariable(targetType);
+			return node;
+		} else {
+			Optional<Constructor> op = targetType.getTypeDefinition()
+					.getConstructorByParameters(Visibility.Public, new ConstructorParameter(nodeType));
+
+			// read parent before adding to new node (parent will change)
+			AstNode parent = node.getParent();
+			
+			NewInstanceCreationNode cn = NewInstanceCreationNode.of(targetType, op.get(), node);
+			cn.getCreationParameters().getTypeParametersListNode()
+			.add(new GenericTypeParameterNode(new TypeNode(targetType)));
+
+			parent.replace(node, cn);
+			
+			return cn;
+		}
+
+
+
+	}
+
 	private void promote(LenseAstNode parent, ExpressionNode rightExpression, TypeVariable left, TypeVariable right) {
 
 		if (lenseTypeSystem.isAssignableTo(left, right)) {
@@ -2928,11 +3188,11 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 				new ConstructorParameter(right));
 
 		if (!op.isPresent()) {
-			
+
 			// if they are numbers other option exist
 			throw new CompilationError(parent, "Implicit constructor not found to promote " + right + " to " + left);
 		}
-		
+
 		if (rightExpression instanceof NumericValue) {
 			NumericValue n = (NumericValue) rightExpression;
 
