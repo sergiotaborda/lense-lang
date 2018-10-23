@@ -68,5 +68,11 @@ public class NumericValue extends LiteralExpressionNode {
 		  return number.compareTo(BigDecimal.ONE) == 0;
 	}
 
-
+	@Override
+	public void setTypeVariable(TypeVariable type) {
+		TypeDefinition def = type.getTypeDefinition();
+		if (this.getTypeVariable() == null || ( def != null && !def.getName().equals("lense.core.math.Number"))) {
+			super.setTypeVariable(type);
+		}
+	} 
 }

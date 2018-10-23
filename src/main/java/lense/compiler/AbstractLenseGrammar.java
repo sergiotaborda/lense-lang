@@ -153,6 +153,7 @@ public abstract class AbstractLenseGrammar extends AbstractGrammar {
 		NonTerminal unaryAditiveOperator = addNonTerminal(NonTerminal.of("unaryAditiveOperator"));
 		NonTerminal unaryExpressionNotPlusMinus = addNonTerminal(NonTerminal.of("unaryExpressionNotPlusMinus"));
 		NonTerminal unaryMultiplicativeOperator = addNonTerminal(NonTerminal.of("unaryMultiplicativeOperator"));
+		NonTerminal juxpositionExpression = addNonTerminal(NonTerminal.of("juxpositionExpression"));
 		NonTerminal primary = addNonTerminal(NonTerminal.of("primary"));
 		NonTerminal fieldAccess = addNonTerminal(NonTerminal.of("fieldAccess"));
 		NonTerminal arrayAccess = addNonTerminal(NonTerminal.of("arrayAccess"));
@@ -259,7 +260,7 @@ public abstract class AbstractLenseGrammar extends AbstractGrammar {
 		statement.setRule(expressionStatement.or(whileStatement.or(forStatement.or(ifThenStatement.or(switchStatement.or(returnStatement.or(breakStatement.or(continueStatement.or(tryStatement.or(throwsStatement.or(assertStatement)))))))))));
 		returnStatement.setRule(Terminal.of("return").add(expression).add(Terminal.of(";")).or(Terminal.of("return").add(Terminal.of(";"))));
 		throwsStatement.setRule(Terminal.of("throw").add(expression).add(Terminal.of(";")));
-		assertStatement.setRule(Terminal.of("assert").add(Terminal.of("(")).add(expression).add(Terminal.of(")")).add(Terminal.of(";")));
+		assertStatement.setRule(Terminal.of("assert").add(Terminal.of("(")).add(expression).add(Terminal.of(")")).add(Terminal.of(";")).or(Terminal.of("assert").add(Terminal.of("(")).add(expression).add(Terminal.of(",")).add(expression).add(Terminal.of(")")).add(Terminal.of(";"))));
 		breakStatement.setRule(Terminal.of("break").add(Identifier.instance()).add(Terminal.of(";")).or(Terminal.of("break").add(Terminal.of(";"))));
 		continueStatement.setRule(Terminal.of("continue").add(Identifier.instance()).add(Terminal.of(";")).or(Terminal.of("continue").add(Terminal.of(";"))));
 		tryStatement.setRule(Terminal.of("try").add(resource).add(block).add(catches).add(ntfinally).or(Terminal.of("try").add(resource).add(block).add(catches)).or(Terminal.of("try").add(resource).add(block).add(ntfinally)).or(Terminal.of("try").add(resource).add(block)).or(Terminal.of("try").add(block).add(catches).add(ntfinally)).or(Terminal.of("try").add(block).add(catches)).or(Terminal.of("try").add(block).add(ntfinally)).or(Terminal.of("try").add(block)));
@@ -311,8 +312,9 @@ public abstract class AbstractLenseGrammar extends AbstractGrammar {
 		intervalEnd.setRule(Terminal.of(")|").or(Terminal.of("]|")));
 		unaryExpression.setRule(unaryExpressionNotPlusMinus.or(unaryAditiveOperator.add(unaryExpression)));
 		unaryAditiveOperator.setRule(Terminal.of("+").or(Terminal.of("-")));
-		unaryExpressionNotPlusMinus.setRule(primary.or(unaryMultiplicativeOperator.add(unaryExpression)));
+		unaryExpressionNotPlusMinus.setRule(juxpositionExpression.or(unaryMultiplicativeOperator.add(unaryExpression)));
 		unaryMultiplicativeOperator.setRule(Terminal.of("~").or(Terminal.of("!")));
+		juxpositionExpression.setRule(primary.or(primary.add(Identifier.instance())));
 		primary.setRule(literal.or(Terminal.of("this").or(Terminal.of("super").or(Terminal.of("(").add(expression).add(Terminal.of(")")).or(classInstanceCreationExpression.or(fieldAccess.or(arrayAccess.or(methodInvocation))))))));
 		fieldAccess.setRule(primary.add(Terminal.of(".")).add(Identifier.instance()).or(Identifier.instance()));
 		arrayAccess.setRule(primary.add(Terminal.of("[")).add(argumentList).add(Terminal.of("]")).or(primary.add(Terminal.of("[")).add(argumentList).add(Terminal.of("]"))));

@@ -86,7 +86,7 @@ public final class Int32 extends Integer implements Binary {
 		try {
 			return new Int32(Math.multiplyExact(this.value , ((Int32)other).value));
 		} catch (ClassCastException e ){
-			return promoteNext().plus(other);
+			return promoteNext().multiply(other);
 		}
 	}
 	

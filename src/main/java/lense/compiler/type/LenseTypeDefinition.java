@@ -372,16 +372,11 @@ public class LenseTypeDefinition implements TypeDefinition {
         if (this.kind == LenseUnitKind.Interface){
             m.setAbstract(true);
         }
-        m.setDeclaringType(this);
-
-//        if (!members.isEmpty()) {
-//        	MethodSignature signature = new MethodSignature(m.getName(), m.getParameters());
-//            Optional<Method> previous = getMethodBySignature(signature);
-//            if (previous.isPresent()) {
-//                this.members.remove(previous.get());
-//            }
-//        }
-
+        
+        if (m.getDeclaringType() == null) {
+        	m.setDeclaringType(this);
+        } 
+        
         this.members.add(m);
     }
 
@@ -651,10 +646,43 @@ public class LenseTypeDefinition implements TypeDefinition {
         return Optional.empty();
     }
 
-    @Override
-    public Optional<Constructor> getConstructorByPromotableParameters(Visibility visibility,ConstructorParameter... parameters) {
+	@Override
+	public Optional<Constructor> getConstructorByName(String name , ConstructorParameter... parameters) {
+        // find exact local
 
-        Iterator<Constructor> iterator = members.stream().filter(m -> m.isConstructor()).map(m -> (Constructor)m).iterator();
+        List<CallableMemberMember<Constructor>> list = Arrays.asList(parameters);
+        Stream<Constructor> map = members.stream()
+                .filter(m -> m.isConstructor())
+                .map(m -> (Constructor) m);
+        
+    	if (name != null) {
+			map = map.filter(c -> c.getName().equals(name));
+		}
+    	
+		return map.filter(c -> LenseTypeSystem.areSignatureParametersImplementedBy(list, c.getParameters())  ).findAny();
+	}
+	
+    @Override
+    public Optional<Constructor> getConstructorByParameters(ConstructorParameter... parameters) {
+    	return getConstructorByName(null, parameters);
+    }
+	
+	@Override
+	public Optional<Constructor> getConstructorByNameAndPromotableParameters(String name , ConstructorParameter... parameters) {
+		return searchConstructorWithPromotableParameters(name, null, parameters);
+	}
+	
+	private Optional<Constructor> searchConstructorWithPromotableParameters(String name , Boolean implicit, ConstructorParameter... parameters) {
+		
+		Stream<Constructor> map = members.stream().filter(m -> m.isConstructor()).map(m -> (Constructor)m);
+		if (name != null) {
+			map = map.filter(c -> c.getName().equals(name));
+		}
+		
+		if (implicit != null) {
+			map = map.filter(c -> c.isImplicit() == implicit.booleanValue());
+		}
+		Iterator<Constructor> iterator = map.iterator();
         while(iterator.hasNext()){
             Constructor constructor = iterator.next();
             if (visibility != null) {
@@ -672,19 +700,18 @@ public class LenseTypeDefinition implements TypeDefinition {
             }
         }
         return Optional.empty();
-    }
-
-
+	}
+	
     @Override
-    public Optional<Constructor> getConstructorByParameters(Visibility visibility,ConstructorParameter... parameters) {
-        // find exact local
-
-        List<CallableMemberMember<Constructor>> list = Arrays.asList(parameters);
-        return members.stream()
-                .filter(m -> m.isConstructor())
-                .map(m -> (Constructor) m).filter(c -> (visibility == null ? true : visibility == c.getVisibility()) && LenseTypeSystem.getInstance().areSignatureParametersImplementedBy(list, c.getParameters())  ).findAny();
-
+    public Optional<Constructor> getConstructorByPromotableParameters(ConstructorParameter... parameters) {
+    	return getConstructorByNameAndPromotableParameters(null, parameters);
     }
+
+	@Override
+	public Optional<Constructor> getConstructorByImplicitAndPromotableParameters(boolean implicit, ConstructorParameter... parameters) {
+		return searchConstructorWithPromotableParameters(null, implicit, parameters);
+	}
+
 
     /**
      * 
@@ -861,6 +888,12 @@ public class LenseTypeDefinition implements TypeDefinition {
 	public void setCaseValues(List<TypeDefinition> caseValues) {
 		this.caseValues = caseValues;
 	}
+
+
+
+
+
+
 
 
 

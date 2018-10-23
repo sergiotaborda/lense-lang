@@ -21,6 +21,12 @@ public final class BigDecimal extends Decimal {
         return new BigDecimal(n.divide(d));
     }
 
+    
+  
+    public static BigDecimal valueOfNative (java.lang.String value){
+        return new BigDecimal(new java.math.BigDecimal(value));
+    }
+    
     final java.math.BigDecimal value;
 
     BigDecimal(java.math.BigInteger value){
@@ -38,7 +44,14 @@ public final class BigDecimal extends Decimal {
 
     @Override
     public boolean equalsTo(Any other) {
-        return other instanceof Int64 && ((BigDecimal)other).value.compareTo(this.value) == 0;
+    	if (other instanceof BigDecimal) {
+    		return ((BigDecimal)other).value.compareTo(this.value) == 0;
+    	} else if (other instanceof Whole) {
+    		return new java.math.BigDecimal(((Whole)other).asJavaBigInteger()).compareTo(this.value) == 0;
+    	} else if (other instanceof Real) {
+    		return equalsTo(((Real)other).promoteToBigDecimal());
+    	}
+        return false;
     }
 
     @Override
@@ -129,6 +142,24 @@ public final class BigDecimal extends Decimal {
     public Real abs() {
        return new BigDecimal(this.value.abs());
     }
+
+	
+    @Override
+	public Rational asRational() {
+		 java.lang.String full = this.value.toPlainString();
+		 int pos = full.indexOf(".");
+		 if (pos < 0) {
+			 // no decimal part
+			 return Rational.constructor(Integer.valueOfNative(full), Integer.ONE);
+		 } else {
+			 full = full.replace(".", "");
+			 int i =0;
+			 while(full.charAt(i) == '0') {
+				 i++;
+			 }
+			 return Rational.constructor(Integer.valueOfNative(full.substring(i)), Integer.valueOfNative(10).raiseTo(Natural.valueOfNative(full.length() - pos)));
+		 }
+	}
 
 
 

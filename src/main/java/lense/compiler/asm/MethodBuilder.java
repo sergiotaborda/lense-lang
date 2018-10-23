@@ -206,7 +206,7 @@ public class MethodBuilder {
 			if (declaringType != null && qualifiedName.equals(declaringType.getName())) {
 				return declaringType;
 			}
-			return loadedClassBuilder.resolveTypByNameAndKind(qualifiedName, null);
+			return loadedClassBuilder.resolveTypeByNameAndKind(qualifiedName, null);
 		}
 
 	}

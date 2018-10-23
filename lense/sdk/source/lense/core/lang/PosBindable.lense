@@ -1,0 +1,10 @@
+/{
+	Bindable with the expression writed before this
+	
+	If x is a PosBindable then `x a` is the same as `x.posBindWith(a)` 
+	 
+}/
+public interface PosBindable<T,R> {
+
+	public posBindWith( other : T ) : R;
+}

@@ -5,8 +5,6 @@ import lense.core.math.Real;
 
 public class Complex extends Number {
 
-
-
  	public constructor ( private real : Real, private imaginary: Real);
 	
 	public constructor (){
@@ -20,6 +18,10 @@ public class Complex extends Number {
    	public implicit constructor valueOfImaginary( img : Imaginary){
 		return new Complex(new Real.zero(), img.real());
 	}
+
+	public real() => real;
+
+	public imaginary() => imaginary;
 
 	public plus( other : Complex) => new Complex(this.real.plus(other.real), this.imaginary.plus(other.imaginary));
 
