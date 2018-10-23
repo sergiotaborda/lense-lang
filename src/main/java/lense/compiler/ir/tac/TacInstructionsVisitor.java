@@ -541,7 +541,7 @@ public class TacInstructionsVisitor implements Visitor<AstNode> {
 				emit(new PrepareParameter(target));
 			}
 
-			for( AstNode paramNode : n.getCall().getArgumentListNode().getChildren()){
+			for( AstNode paramNode : n.getCall().getArguments().getChildren()){
 				Operand param = paramNode.getProperty("tempVal", Operand.class).get();
 				emit(new PrepareParameter(param));
 			}

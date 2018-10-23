@@ -83,13 +83,9 @@ public final class BoxingPointClassificationVisitor implements Visitor<AstNode> 
 
 			if (!(LenseTypeSystem.getInstance().isAssignableTo(m.getTypeVariable(), LenseTypeSystem.Void()))){
 				// outbox return 
-				BoxingPointNode boxing;
-				
 
-					m.getParent().replace(m, new BoxingPointNode(m, m, BoxingDirection.BOXING_OUT));
-				
-				
-				
+				m.getParent().replace(m, new BoxingPointNode(m, m, BoxingDirection.BOXING_OUT));
+
 			}
 		} else if (node instanceof FieldOrPropertyAccessNode){
 

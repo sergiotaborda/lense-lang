@@ -38,10 +38,20 @@ public class TestNatural {
 		assertEquals( maxULongPlus4,  maxULong.successor().successor().successor().successor());
 	}
 
-	@Test(expected = ArithmeticException.class)
+	@Test(expected = lense.core.math.ArithmeticException.class)
 	public void testNegative() {
 		Natural.valueOfNative(-4);
 	}
 	
-
+	@Test
+	public void testRemainder () {
+		
+		Natural D = Natural.valueOfNative(8);
+		Natural d = Natural.valueOfNative(3);
+		
+		Natural q = D.wholeDivide(d);
+		Natural r = D.remainder(d);
+		
+		assertEquals(D, d.multiply(q).plus(r));
+	}
 }

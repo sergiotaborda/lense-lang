@@ -3,6 +3,9 @@
  */
 package lense.compiler.ast;
 
+import java.util.Arrays;
+import java.util.List;
+
 import compiler.syntax.AstNode;
 
 
@@ -17,12 +20,22 @@ public class ArgumentListNode extends LenseAstNode {
 		return new ArgumentListNode(args);
 	}
 	
+	public static ArgumentListNode of(List<ArgumentListItemNode> args) {
+		return new ArgumentListNode(args);
+	}
+	
 	public ArgumentListNode (AstNode... params){
 		for(AstNode n : params){
 			this.add(n);
 		}
 	}
 
+	private ArgumentListNode (List<ArgumentListItemNode> params){
+		for(AstNode n : params){
+			this.add(n);
+		}
+	}
+	
 	public int indexOf(AstNode node) {
 		return this.getChildren().indexOf(node);
 	}

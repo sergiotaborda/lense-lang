@@ -374,12 +374,13 @@ public class LenseTypeDefinition implements TypeDefinition {
         }
         m.setDeclaringType(this);
 
-        if (!members.isEmpty()) {
-            Optional<Method> previous = getMethodBySignature(new MethodSignature(name, m.getParameters()));
-            if (previous.isPresent()) {
-                this.members.remove(previous.get());
-            }
-        }
+//        if (!members.isEmpty()) {
+//        	MethodSignature signature = new MethodSignature(m.getName(), m.getParameters());
+//            Optional<Method> previous = getMethodBySignature(signature);
+//            if (previous.isPresent()) {
+//                this.members.remove(previous.get());
+//            }
+//        }
 
         this.members.add(m);
     }
@@ -552,6 +553,23 @@ public class LenseTypeDefinition implements TypeDefinition {
         return all;
     }
 
+    
+    public Optional<Method> getDeclaredMethodBySignature(MethodSignature signature) {
+    	
+        if (signature.getName() == null) {
+            throw new IllegalArgumentException("Signature must have a name");
+        }
+
+        // find exact local
+        LenseTypeSystem typeSystem = LenseTypeSystem.getInstance();
+        for (TypeMember m : resolveMembers()) {
+            if (m.isMethod() && signature.getName().equals(m.getName()) && LenseTypeSystem.isSignatureImplementedBy(signature, (CallableMember<Method>) m) ) {
+            	return Optional.of((Method) m);
+            }
+        }
+        
+        return Optional.empty();
+    }
     /**
      * {@inheritDoc}
      */
@@ -563,21 +581,19 @@ public class LenseTypeDefinition implements TypeDefinition {
         }
 
         // find exact local
-        for (TypeMember m : resolveMembers()) {
-            LenseTypeSystem typeSystem = LenseTypeSystem.getInstance();
-            if (m.isMethod() && signature.getName().equals(m.getName())
-                    && typeSystem.isSignatureImplementedBy(signature, (CallableMember<Method>) m)) {
-                return Optional.of((Method) m);
-            }
+        Optional<Method> method = getDeclaredMethodBySignature(signature);
+        
+        if (method.isPresent()) {
+        	return method;
         }
 
         // find exact upper class
         if (this.superDefinition != null && !this.superDefinition.equals(this)) {
-            Optional<Method> method = this.superDefinition.getMethodBySignature(signature);
+           method = this.superDefinition.getMethodBySignature(signature);
 
             if (method.isPresent()){
                 Method myMethod = method.get().changeDeclaringType(this);
-                this.addMethod(myMethod);
+               // this.addMethod(myMethod);
 
                 return Optional.of(myMethod);
             }
@@ -587,7 +603,7 @@ public class LenseTypeDefinition implements TypeDefinition {
             Optional<Method> m =  i.getMethodByPromotableSignature(signature);
             if (m.isPresent()){
                 Method myMethod = m.get().changeDeclaringType(this);
-                this.addMethod(myMethod);
+              //  this.addMethod(myMethod);
 
                 return Optional.of(myMethod);
             }
@@ -600,7 +616,7 @@ public class LenseTypeDefinition implements TypeDefinition {
     public Optional<Method> getMethodByPromotableSignature(MethodSignature signature) {
         // find promotable
 
-        for (Method mth : this.getMethodsByName(signature.getName())) {
+    	outter: for (Method mth : this.getMethodsByName(signature.getName())) {
             if (mth.getParameters().size() == signature.getParameters().size()) {
             	
             	if (signature.getParameters().isEmpty()) {
@@ -609,10 +625,12 @@ public class LenseTypeDefinition implements TypeDefinition {
             	
                 for (int p = 0; p < signature.getParameters().size(); p++) {
                     CallableMemberMember<Method> mp = signature.getParameters().get(p);
-                    if (LenseTypeSystem.getInstance().isPromotableTo(mp.getType(), mth.getParameters().get(p).getType())) {
-                        return Optional.of(mth);
+                    if (!LenseTypeSystem.getInstance().isPromotableTo(mp.getType(), mth.getParameters().get(p).getType())) {
+                    	continue outter;
                     }
                 }
+                
+                return Optional.of(mth);
             }
         }
 

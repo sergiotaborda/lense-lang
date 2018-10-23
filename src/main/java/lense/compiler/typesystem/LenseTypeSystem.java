@@ -264,8 +264,8 @@ public class LenseTypeSystem {
 
 		iterable.addProperty("iterator", iterator, true, false);
 
-		iterator.addMethod("hasNext", sbool).setAbstract(true);
-		iterator.addMethod("hasNext", any).setAbstract(true);
+		iterator.addMethod("moveNext", sbool).setAbstract(true);
+		iterator.addMethod("current", any ).setAbstract(true);
 
 		LenseTypeDefinition maybe = register(new FundamentalLenseTypeDefinition("lense.core.lang.Maybe",
 				LenseUnitKind.Class, any, new RangeTypeVariable("T", Variance.Covariant, any, nothing)));
@@ -508,7 +508,7 @@ public class LenseTypeSystem {
 	//                && isAssignableTo(type.getLowerBound(), target.getLowerBound());
 	//    }
 
-	public boolean isAssignableTo(TypeVariable type, TypeVariable target) {
+	public static boolean isAssignableTo(TypeVariable type, TypeVariable target) {
 		
 		if (type == null) {
 			throw new IllegalArgumentException("Type cannot be null");
@@ -533,7 +533,7 @@ public class LenseTypeSystem {
 		}
 	}
 
-	public boolean isAssignableTo(TypeDefinition type, TypeDefinition target) {
+	public static boolean isAssignableTo(TypeDefinition type, TypeDefinition target) {
 
 		if (type == null || target == null) {
 			return false;
@@ -720,12 +720,8 @@ public class LenseTypeSystem {
 		
 	}
 
-	/**
-	 * @param constructorSignature
-	 * @param m
-	 * @return
-	 */
-	public <M extends CallableMember<M>> boolean isSignatureImplementedBy(CallableMemberSignature<M> signature,
+
+	public static <M extends CallableMember<M>> boolean isSignatureImplementedBy(CallableMemberSignature<M> signature,
 			CallableMember<M> m) {
 		final List<CallableMemberMember<M>> memberParameters = m.getParameters();
 		final List<CallableMemberMember<M>> signatureParameters = signature.getParameters();
@@ -734,8 +730,8 @@ public class LenseTypeSystem {
 				&& areSignatureParametersImplementedBy(signatureParameters, memberParameters);
 
 	}
-
-	public <M extends CallableMember<M>> boolean areSignatureParametersImplementedBy(
+	
+	public static <M extends CallableMember<M>> boolean areSignatureParametersImplementedBy(
 			List<CallableMemberMember<M>> signatureParameters, List<CallableMemberMember<M>> memberParameters) {
 
 		if (signatureParameters.size() == memberParameters.size()) {
