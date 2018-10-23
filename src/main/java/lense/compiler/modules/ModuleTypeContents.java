@@ -15,7 +15,7 @@ import lense.compiler.type.LenseTypeDefinition;
 import lense.compiler.type.TypeDefinition;
 import lense.compiler.typesystem.LenseTypeSystem;
 import lense.compiler.typesystem.TypeSearchParameters;
-import lense.compiler.utils.Collections;
+import lense.compiler.utils.Sequences;
 
 /**
  * Represents a TypeRepository for a given module
@@ -164,7 +164,7 @@ public class ModuleTypeContents implements UpdatableTypeRepository {
 			return true;
 		}
 		
-		return Collections.zipAny(type.getGenericParameters(), cached.getGenericParameters(), (a, b) -> {
+		return Sequences.zipAny(type.getGenericParameters(), cached.getGenericParameters(), (a, b) -> {
 			
 			return !a.isSingleType() && b.isSingleType();
 			

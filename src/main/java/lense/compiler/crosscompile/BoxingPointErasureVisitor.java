@@ -46,13 +46,22 @@ public class BoxingPointErasureVisitor implements Visitor<AstNode> {
 
 			TypeVariable tv = t.getTypeVariable();
 
-			if (tv != null && tv.isFixed() &&  LenseTypeSystem.getInstance().isAssignableTo(tv, LenseTypeSystem.Boolean())) {
+			if (tv != null && tv.isFixed() && !isTupleAccess(node) && LenseTypeSystem.getInstance().isAssignableTo(tv, LenseTypeSystem.Boolean())) {
 
 				t.setTypeVariable(PrimitiveTypeDefinition.BOOLEAN);
 			}
 
 		}  
 		return VisitorNext.Children;
+	}
+
+	private boolean isTupleAccess(AstNode node) {
+		if (node instanceof CastNode) {
+			return ((CastNode) node).isTupleAccessMethod();
+		} else if (node instanceof MethodInvocationNode) {
+			return ((MethodInvocationNode) node).isTupleAccessMethod();
+		}
+		return false;
 	}
 
 	@Override
@@ -149,11 +158,12 @@ public class BoxingPointErasureVisitor implements Visitor<AstNode> {
 			
 				} else if (val instanceof MethodInvocationNode) {
 					MethodInvocationNode m = (MethodInvocationNode)val;
-					if (m.getTypeVariable().isSingleType() && m.getTypeVariable().getTypeDefinition().getName().equals(LenseTypeSystem.Boolean().getName())) {
+					if ( m.getTypeVariable().isSingleType() && m.getTypeVariable().getTypeDefinition().getName().equals(LenseTypeSystem.Boolean().getName())) {
 						a.getParent().replace(a, new PrimitiveBooleanBox(val));
 					}
 				} else if (val instanceof CastNode) {
 					// no-op
+					
 				} else {
 					System.out.println(val.getClass().getName());
 				}

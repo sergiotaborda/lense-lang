@@ -6,6 +6,7 @@ package lense.compiler.type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import lense.compiler.type.variable.TypeVariable;
 import lense.compiler.typesystem.LenseTypeSystem;
@@ -201,6 +202,7 @@ public class Method implements CallableMember<Method> {
 	
 		m.setDeclaringType(concrete);
 		m.setReturn(new MethodReturn(this.returnParameter.getType().changeBaseType(concrete)));
+		m.parameters = m.parameters.stream().map( p -> new MethodParameter((MethodParameter)p, p.getType().changeBaseType(concrete))).collect(Collectors.toList());
 		
 		return m;
 	}

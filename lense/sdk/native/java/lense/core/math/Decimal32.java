@@ -40,13 +40,15 @@ public final class Decimal32 extends Decimal{
 	protected BigDecimal promoteToBigDecimal() {   
 		return new BigDecimal(java.math.BigDecimal.valueOf(value));
 	}
-	
 
 	@Override
 	public boolean equalsTo(Any other) {
-		return other instanceof Decimal32 && Float.compare(((Decimal32)other).value ,this.value) == 0;
+	    if (other instanceof Decimal32) {
+			 return Float.compare(((Decimal32)other).value ,this.value) == 0;
+		}
+		return super.equalsTo(other);
 	}
-
+	
 	@Override
 	public HashValue hashValue() {
 		return new HashValue(Float.hashCode(value));
@@ -151,6 +153,8 @@ public final class Decimal32 extends Decimal{
     public Real abs() {
         return new Decimal32(Math.abs(this.value));
     }
+
+
 
 
 }

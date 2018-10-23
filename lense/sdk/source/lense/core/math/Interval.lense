@@ -7,7 +7,7 @@ public class Interval<T> implements Category<T> { // TODO T extends Comparable
 
 	public constructor (public start : Maybe<T> , public end : Maybe<T> );
 
-	public contains ( other : T)  {
+	public override contains ( other : T)  {
 		return false; // TODO
 	}
 	

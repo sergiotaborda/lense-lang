@@ -44,7 +44,10 @@ public final class Decimal64 extends Decimal{
 	
 	@Override
 	public boolean equalsTo(Any other) {
-		return other instanceof Decimal64 && Double.compare(((Decimal64)other).value ,this.value) == 0;
+	    if (other instanceof Decimal64) {
+			 return Double.compare(((Decimal64)other).value ,this.value) == 0;
+		}
+		return super.equalsTo(other);
 	}
 
 	@Override

@@ -211,8 +211,12 @@ public class LenseGrammar extends AbstractLenseGrammar {
 	}
 
 	public boolean isDigit(char c) {
-		return isNumberStarter(c) || c == '0' || c == '_' || c == '.' || c == 'e' || c == 'E' || c == 'x' || c == 'N'
-				|| c == 'S' || c == 'Z' || c == 'L' || c == 'd' || c == 'f' || c == 'k' || c == 'm' || c == 'i';
+		return isNumberStarter(c) || c == '_' || c == '.' 
+//				|| c == 'N' || c == 'S' || c == 'Z' || c == 'L' 
+//				|| c == 'd' || c == 'f' || c == 'm' 
+				|| c == 'e' || c == 'E' // scientific notation
+				|| c == 'i' // imaginary unit
+				;
 	}
 
 	public boolean isNumberStarter(char c) {
@@ -972,8 +976,7 @@ public class LenseGrammar extends AbstractLenseGrammar {
 					}
 				}
 
-				nextNodeIndex++ ;
-
+			
 				if (nextNodeIndex< r.size()){
 
 					// implement
@@ -1732,7 +1735,6 @@ public class LenseGrammar extends AbstractLenseGrammar {
 		getNonTerminal("mapInitializerPair").addSemanticAction((p, r) -> {
 
 			Optional<Constructor> op = LenseTypeSystem.KeyValuePair().getConstructorByParameters(
-					Visibility.Public,
 					new ConstructorParameter(LenseTypeSystem.Any()),
 					new ConstructorParameter(LenseTypeSystem.Any())
 					);
@@ -1755,36 +1757,41 @@ public class LenseGrammar extends AbstractLenseGrammar {
 
 			MethodDeclarationNode n = new MethodDeclarationNode();
 
-			Optional<AnnotationListNode> annots = r.get(0).getAstNode(AnnotationListNode.class);
+			Modifiers modifiers = new Modifiers();
 
-			if (annots.isPresent()) {
-				n.setAnnotations(annots.get());
+			int nextNodeIndex = readModifiers(r, modifiers, ParametersListNode.class);
 
-				applyAnnotations(n, annots);
-			}
-
-			n.setName((String) r.get(1).getSemanticAttribute("lexicalValue").get());
-
-			Optional<ParametersListNode> formalParams = r.get(2).getAstNode(ParametersListNode.class);
-
-			if (formalParams.isPresent()) {
-				n.setParameters(formalParams.get());
-			}
-
-			int next = 4;
-			int typeIndex = next + 1;
-			if (r.get(next).getAstNode().isPresent()) {
-				AstNode list = r.get(next).getAstNode().get();
-
-				if (list instanceof ParametersListNode) {
-					n.setParameters((ParametersListNode) list);
-				} else {
-					ParametersListNode ln = new ParametersListNode();
-					ln.add(list);
-					n.setParameters(ln);
+			int typeIndex = nextNodeIndex + 2;
+			if (nextNodeIndex < 0){
+				nextNodeIndex = 0;
+				for (int i = 0; i < r.size(); i++) {
+					if (")".equals(r.get(i).getLexicalValue())) {
+						nextNodeIndex = i;
+						break;
+					}
 				}
-				typeIndex++;
+			    typeIndex = nextNodeIndex + 1;
+			} else {
+				n.setParameters(r.get(nextNodeIndex).getAstNode(ParametersListNode.class).get());
 			}
+
+			if (modifiers.getAnnotations() != null) {
+				n.setAnnotations(modifiers.getAnnotations());
+
+			}
+
+			Optional<TypeParametersListNode> generics = r.get(nextNodeIndex - 2).getAstNode(TypeParametersListNode.class);
+
+			if (generics.isPresent()) {
+				n.setMethodScopeGenerics(generics.get());
+			}
+
+			n.setName((String) r.get(nextNodeIndex - 3).getSemanticAttribute("lexicalValue").get());
+
+			applyImplementationModifiers(n, modifiers);
+			
+
+			
 
 			if (":".equals(r.get(typeIndex).getLexicalValue())) {
 				TypeNode type = r.get(typeIndex + 1).getAstNode(TypeNode.class).get();
@@ -1880,6 +1887,10 @@ public class LenseGrammar extends AbstractLenseGrammar {
 
 			AssertNode node = new AssertNode(ensureExpression(r.get(2).getAstNode().get()));
 
+			if (r.size() > 5) {
+				node.setText(ensureExpression(r.get(4).getAstNode().get()));
+			}
+			
 			p.setAstNode(node);
 		});
 
@@ -2542,7 +2553,19 @@ public class LenseGrammar extends AbstractLenseGrammar {
 		getNonTerminal("shiftExpression").addSemanticAction(arithmetics);
 		getNonTerminal("multiplicativeExpression").addSemanticAction(arithmetics);
 		getNonTerminal("powerExpression").addSemanticAction(arithmetics);
+		
+		getNonTerminal("juxpositionExpression").addSemanticAction((p, r) -> {
+			if (r.size() == 1) {
+				p.setAstNode(r.get(0).getAstNode().get());
+			} else {
 
+				JuxpositionNode exp = new JuxpositionNode();
+				exp.add(ensureExpression(r.get(0).getAstNode().get()));
+				exp.add(r.get(1).getAstNode().map(n -> ensureExpression(n)).orElseGet(() -> new FieldOrPropertyAccessNode(r.get(1).getLexicalValue())));
+				p.setAstNode(exp);
+			}
+		});
+		
 		getNonTerminal("additiveExpression").addSemanticAction((p, r) -> {
 			if (r.size() == 1) {
 				p.setAstNode(r.get(0).getAstNode().get());

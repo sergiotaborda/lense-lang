@@ -1,0 +1,12 @@
+
+import lense.core.lang.PreBindable;
+import helloworld.start.Unit;
+
+public class Kilometer implements PreBindable<Number,Unit> {
+
+
+	public override preBindWith( other : Number ) : Unit {
+		return new Unit( other, "km");
+
+	}
+}

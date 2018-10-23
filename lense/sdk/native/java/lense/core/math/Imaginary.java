@@ -3,7 +3,9 @@ package lense.core.math;
 import lense.core.lang.Any;
 import lense.core.lang.HashValue;
 import lense.core.lang.java.Constructor;
+import lense.core.lang.java.PlatformSpecific;
 
+@PlatformSpecific
 public final class Imaginary extends Number{
 
 	

@@ -2,9 +2,12 @@ package lense.sdk.math;
 
 import static org.junit.Assert.*;
 
+import java.math.BigDecimal;
+
 import org.junit.Test;
 
 import lense.core.math.Natural;
+import lense.core.math.Rational;
 
 public class TestFactorial {
 
@@ -32,4 +35,22 @@ public class TestFactorial {
 		 return value.multiply(factorial(value.predecessor()));
 	}
 
+	@Test
+	public void testAsRational() {
+		
+		assertEquals(Rational.constructor(
+				lense.core.math.Integer.valueOfNative(3415500),
+				lense.core.math.Integer.valueOfNative(10000)
+		),
+		lense.core.math.BigDecimal.valueOfNative("341.5500").asRational()
+		);
+		
+		
+		assertEquals(Rational.constructor(
+				lense.core.math.Integer.valueOfNative(1),
+				lense.core.math.Integer.valueOfNative(100)
+		),
+		lense.core.math.BigDecimal.valueOfNative("0.01").asRational()
+		);
+	}
 }

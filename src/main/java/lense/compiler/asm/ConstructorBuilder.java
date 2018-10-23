@@ -42,7 +42,7 @@ public class ConstructorBuilder {
 
 			if (pos >=0) {
 				// is generic type
-				paramTypeDef = loadedClassBuilder.resolveTypByNameAndKind(name.substring(0,pos), null);
+				paramTypeDef = loadedClassBuilder.resolveTypeByNameAndKind(name.substring(0,pos), null);
 
 				if (paramTypeDef.getGenericParameters().isEmpty()) {
 					
@@ -65,7 +65,7 @@ public class ConstructorBuilder {
 				
 
 			} else {
-				paramTypeDef = loadedClassBuilder.resolveTypByNameAndKind(name, null);
+				paramTypeDef = loadedClassBuilder.resolveTypeByNameAndKind(name, null);
 			}
 
 			return paramTypeDef;

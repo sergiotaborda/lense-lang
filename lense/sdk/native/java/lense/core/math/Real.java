@@ -4,7 +4,11 @@ import lense.core.lang.Any;
 import lense.core.lang.java.Constructor;
 import lense.core.lang.java.MethodSignature;
 import lense.core.lang.java.PlatformSpecific;
+import lense.core.lang.java.Signature;
 
+
+@Signature(":lense.core.math.Number:lense.core.math.Comparable<lense.core.math.Real>&lense.core.math.SignedNumber")
+@PlatformSpecific
 public abstract class Real extends Number implements Comparable , SignedNumber {
 
 	public static final Rational ZERO = Rational.constructor(Int32.valueOfNative(0), Integer.ONE);

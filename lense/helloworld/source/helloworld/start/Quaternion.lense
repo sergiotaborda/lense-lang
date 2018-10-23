@@ -1,0 +1,87 @@
+
+import lense.core.lang.PreBindable;
+import lense.core.lang.AssertionException;
+
+public class Quaternion {
+
+	public constructor ( real : Real, i : Real, j : Real, k : Real);
+
+	public implicit constructor valueOfReal(r : Real){
+		return new Quaternion(r, 0,0,0);
+	}
+
+	public implicit constructor valueOfImaginary( img : Imaginary){
+		return new Quaternion(0, img.real() ,0,0);
+	}
+
+	public implicit constructor valueOfComplex( c : Complex){
+		return new Quaternion(c.real(), c.imaginary() ,0,0);
+	}
+
+	public constructor valueOfI(r : Real){
+		return new Quaternion(0, r,0,0);
+	}
+
+	public constructor valueOfJ(r : Real){
+		return new Quaternion(0, 0, r,0);
+	}
+
+	public constructor valueOfK(r : Real){
+		return new Quaternion(0, 0, 0, r);
+	}
+
+	public plus(other : Complex ) : Quaternion {
+
+		return new Quaternion( this.real + other.real() , this.i + other.imaginary(), this.j, this.k);
+	}
+
+	public plus(other : Real ) : Quaternion {
+
+		return new Quaternion( this.real + other , this.i , this.j, this.k);
+	}
+
+	public plus(other : Whole ) : Quaternion {
+
+		return new Quaternion( this.real + new Real.valueOf(other) , this.i , this.j, this.k);
+	}
+
+	public plus(other : Imaginary ) : Quaternion {
+
+		return new Quaternion( this.real  , this.i + other.real(), this.j, this.k);
+	}
+
+	public plus(other : Quaternion ) : Quaternion {
+
+		return new Quaternion( this.real + other.real , this.i + other.i, this.j + other.j, this.k + other.k);
+	}
+
+	public override asString() {
+		return "[" ++ this.real ++ "," ++ this.i ++ "," ++ this.j ++  "," ++ this.k ++ "]";
+	}
+
+	public override equalsTo(other : Any) : Boolean {
+		return other is Quaternion 
+			&& this.real == other.real 
+			&& this.i == other.i 
+			&& this.j == other.j
+			&& this.k == other.k;
+	}
+
+	public override hashValue() {
+		return new HashValue().concat(this.real.hashValue()).concat(this.i.hashValue()).concat(this.j.hashValue()).concat(this.k.hashValue());
+	}
+}
+
+public object j implements PreBindable<Real, Quaternion>{
+
+	public override preBindWith(other : Real) : Quaternion {
+		return new Quaternion.valueOfJ(other);
+	}
+}
+
+public object k implements PreBindable<Real, Quaternion>{
+
+	public override preBindWith(other : Real) : Quaternion {
+		return new Quaternion.valueOfK(other);
+	}
+}

@@ -19,7 +19,6 @@ import lense.compiler.type.TypeKind;
 import lense.compiler.type.TypeMember;
 import lense.compiler.type.variable.TypeVariable;
 import lense.compiler.typesystem.Variance;
-import lense.compiler.typesystem.Visibility;
 
 public class PrimitiveTypeDefinition implements TypeDefinition {
 
@@ -71,12 +70,12 @@ public class PrimitiveTypeDefinition implements TypeDefinition {
 	}
 
 	@Override
-	public Optional<Constructor> getConstructorByParameters(Visibility visibility,ConstructorParameter... parameters) {
+	public Optional<Constructor> getConstructorByParameters(ConstructorParameter... parameters) {
 		return Optional.empty();
 	}
 
 	@Override
-	public Optional<Constructor> getConstructorByPromotableParameters(Visibility visibility, ConstructorParameter... parameters) {
+	public Optional<Constructor> getConstructorByPromotableParameters(ConstructorParameter... parameters) {
 		return Optional.empty();
 	}
 
@@ -204,5 +203,22 @@ public class PrimitiveTypeDefinition implements TypeDefinition {
 	@Override
 	public List<TypeDefinition> getCaseTypes() {
 		return Collections.emptyList();
+	}
+
+	@Override
+	public Optional<Constructor> getConstructorByName(String name, ConstructorParameter... parameters) {
+		return Optional.empty();
+	}
+
+	@Override
+	public Optional<Constructor> getConstructorByNameAndPromotableParameters(String name,
+			ConstructorParameter... parameters) {
+		return Optional.empty();
+	}
+
+	@Override
+	public Optional<Constructor> getConstructorByImplicitAndPromotableParameters(boolean implicit,
+			ConstructorParameter... parameters) {
+		return Optional.empty();
 	}
 }
