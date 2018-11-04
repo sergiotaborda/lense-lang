@@ -36,20 +36,19 @@ public class BoxingPointErasureVisitor implements Visitor<AstNode> {
 			TypeVariable tv = r.getExpectedType();
 
 			if (tv != null && tv.isFixed() &&  LenseTypeSystem.getInstance().isAssignableTo(tv, LenseTypeSystem.Boolean())) {
-
-
 				r.setExpectedType(PrimitiveTypeDefinition.BOOLEAN);
-
+			} else if (tv != null && tv.isFixed() &&  LenseTypeSystem.getInstance().isAssignableTo(tv, LenseTypeSystem.Int())) {
+				r.setExpectedType(PrimitiveTypeDefinition.INT);
 			}
+			
 		} else if (node instanceof TypedNode && !(node instanceof BoxingPointNode )) {
 			TypedNode t = (TypedNode) node;
 
 			TypeVariable tv = t.getTypeVariable();
 
 			if (tv != null && tv.isFixed() && !isTupleAccess(node) && LenseTypeSystem.getInstance().isAssignableTo(tv, LenseTypeSystem.Boolean())) {
-
 				t.setTypeVariable(PrimitiveTypeDefinition.BOOLEAN);
-			}
+			} 
 
 		}  
 		return VisitorNext.Children;
@@ -134,7 +133,8 @@ public class BoxingPointErasureVisitor implements Visitor<AstNode> {
 
 					a.getParent().replace(a, new PrimitiveBooleanValue(((BooleanValue)val).isValue()));
 				} else if (a.getTypeVariable() != null && !val.getTypeVariable().isFixed() && a.getTypeVariable().getTypeDefinition().getKind() == JavaTypeKind.Primitive){
-
+					
+					// TODO check which primitive , it may be other than boolean
 					a.getParent().replace(a, new PrimitiveBooleanUnbox(val));
 					
 				}

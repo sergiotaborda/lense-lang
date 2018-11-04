@@ -4,6 +4,7 @@ package lense.core.math;
 import lense.core.lang.Any;
 import lense.core.lang.HashValue;
 import lense.core.lang.java.Constructor;
+import lense.core.lang.java.PlatformSpecific;
 
 public final class Decimal64 extends Decimal{
 
@@ -25,6 +26,11 @@ public final class Decimal64 extends Decimal{
 	@Constructor(isImplicit= true, paramsSignature = "lense.core.math.Whole")
 	public static Decimal64 valueOf(Whole other){
 		return new Decimal64(other.asJavaBigInteger().toString());
+	}
+	
+	@PlatformSpecific
+	public static Decimal64 valueOfNative(double other){
+		return new Decimal64(other);
 	}
 	
 	private double value;

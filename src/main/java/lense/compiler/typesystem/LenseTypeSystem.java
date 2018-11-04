@@ -17,7 +17,6 @@ import compiler.CompilationError;
 import lense.compiler.type.CallableMember;
 import lense.compiler.type.CallableMemberMember;
 import lense.compiler.type.CallableMemberSignature;
-import lense.compiler.type.Constructor;
 import lense.compiler.type.ConstructorParameter;
 import lense.compiler.type.LenseTypeDefinition;
 import lense.compiler.type.LenseUnitKind;
@@ -133,6 +132,10 @@ public class LenseTypeSystem {
 		return getInstance().getForName("lense.core.lang.String").get();
 	}
 
+	public static TypeDefinition Number() {
+		return getInstance().getForName("lense.core.math.Number").get();
+	}
+	
 	public static TypeDefinition Natural() {
 		return getInstance().getForName("lense.core.math.Natural").get();
 	}
@@ -820,8 +823,12 @@ public class LenseTypeSystem {
 	}
 
 	public static boolean isNumber(TypeDefinition maxType) {
-		return maxType.getName().startsWith("lense.core.math") && (maxType.getName().endsWith("Natural")
-				|| maxType.getName().endsWith("Integer") || maxType.getName().endsWith("Decimal"));
+		return maxType.getName().startsWith("lense.core.math") && (
+				maxType.getName().endsWith("Natural")
+				|| maxType.getName().endsWith("Integer") 
+				|| maxType.getName().endsWith("Decimal")
+				|| isAssignableTo(maxType, Number())
+	    );
 	}
 
 	public boolean isTuple(TypeVariable type, int count) {

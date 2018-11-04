@@ -24,7 +24,8 @@ public class PrimitiveTypeDefinition implements TypeDefinition {
 
 	public static final PrimitiveTypeDefinition BOOLEAN = new PrimitiveTypeDefinition("boolean", "Boolean");
 	public static final PrimitiveTypeDefinition CHAR = new PrimitiveTypeDefinition("char", "Character");
-	public static final PrimitiveTypeDefinition INT = new PrimitiveTypeDefinition("int", "Integer");
+	public static final PrimitiveTypeDefinition INT = new PrimitiveTypeDefinition("int", "Int32");
+	public static final PrimitiveTypeDefinition LONG = new PrimitiveTypeDefinition("long", "Int64");
 	
 	private String name;
 
