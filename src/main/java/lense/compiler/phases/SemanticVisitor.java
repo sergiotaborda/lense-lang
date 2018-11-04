@@ -1535,6 +1535,12 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 			} else if (node instanceof AssignmentNode) {
 				AssignmentNode n = (AssignmentNode) node;
 
+				// the left side cannot be a cast
+				if (n.getLeft() instanceof CastNode) {
+					 AstNode lft = ((CastNode)n.getLeft()).getFirstChild();
+					node.replace((AstNode)n.getLeft(), lft);
+				}
+				
 				TypeVariable left = n.getLeft().getTypeVariable();
 				TypeVariable right = n.getRight().getTypeVariable();
 
@@ -1716,23 +1722,28 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 					if (!LenseTypeSystem.isAssignableTo(right, type)) {
 						if (typeSystem.isPromotableTo(right, type)) {
 			
-							Optional<Constructor> op = type.getTypeDefinition()
-									.getConstructorByImplicitAndPromotableParameters(true, new ConstructorParameter(right));
-							// TODO analyze literals for simplification without constructor
+							if (LenseTypeSystem.isNumber(type.getTypeDefinition()) && init instanceof NumericValue) {
+								((NumericValue)init).setTypeVariable(type);
+							} else {
+								Optional<Constructor> op = type.getTypeDefinition()
+										.getConstructorByImplicitAndPromotableParameters(true, new ConstructorParameter(right));
+								
+								NewInstanceCreationNode cn = NewInstanceCreationNode.of(type, op.get(),
+										variableDeclaration.getInitializer());
 
-							NewInstanceCreationNode cn = NewInstanceCreationNode.of(type, op.get(),
-									variableDeclaration.getInitializer());
+								if (!type.getGenericParameters().isEmpty()) {
 
-							if (!type.getGenericParameters().isEmpty()) {
+									for (TypeVariable variable : type.getGenericParameters()) {
+										cn.getCreationParameters().getTypeParametersListNode()
+										.add(new GenericTypeParameterNode(new TypeNode(variable)));
+									}
 
-								for (TypeVariable variable : type.getGenericParameters()) {
-									cn.getCreationParameters().getTypeParametersListNode()
-									.add(new GenericTypeParameterNode(new TypeNode(variable)));
 								}
 
+								variableDeclaration.setInitializer(cn);
 							}
-
-							variableDeclaration.setInitializer(cn);
+							
+							
 						} else if (typeSystem.isTuple(type, 1)) { // TODO
 							// better
 							// polimorphism

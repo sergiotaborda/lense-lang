@@ -77,6 +77,31 @@ public class Main extends ConsoleApplication {
 
 	}
 
+	private demoLongAndIntErrasure(){
+
+		let a : Int32 = 4;
+		let b : Int32 = 5;
+
+		let c = a + b;
+		let d = a &+ b;
+
+		let f = a * b;
+		let g = a &* b;
+	
+		assert (9 == c , "c is not 9, is {{ c }}");
+		assert (9 == d , "d is not 9, is {{ d }}");
+		assert (20 == f, "f is not 9, is {{ f }}");
+		assert (20 == g, "g is not 9, is {{ g }}");
+
+		assert (c is Int32, "c is not Int32");
+		assert (d is Int32, "d is not Int32");
+
+		for (let i in 0..5){
+			a += i;
+		}
+
+		assert (19 == a, "a is not 1004, is {{ a }}");
+	}
 
 	private demoNamedArguments (){
 
@@ -93,6 +118,7 @@ public class Main extends ConsoleApplication {
 		assert ( c == 3);
 		assert ( d == -3);
 		assert ( f == 3);
+
 	}
 
 	private bool() {
@@ -141,6 +167,8 @@ public class Main extends ConsoleApplication {
 	
 
   	 	console.println("Begin " ++ this.type().name); 
+
+		demoLongAndIntErrasure();
 
 		demoBinding();
 
