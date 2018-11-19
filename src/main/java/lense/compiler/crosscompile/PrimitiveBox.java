@@ -4,14 +4,17 @@ import compiler.syntax.AstNode;
 import lense.compiler.ast.ExpressionNode;
 import lense.compiler.type.variable.TypeVariable;
 
-public class PrimitiveBooleanBox extends ExpressionNode {
+public class PrimitiveBox extends ExpressionNode {
 
-	public PrimitiveBooleanBox(AstNode other) {
+    private PrimitiveTypeDefinition type;
+    
+	public PrimitiveBox(PrimitiveTypeDefinition type, AstNode other) {
 		this.add(other);
+		this.type = type;
 	}
 	
 	public TypeVariable getTypeVariable() {
-		return PrimitiveTypeDefinition.BOOLEAN;
+		return type;
 	}
 
 }

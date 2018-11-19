@@ -32,7 +32,8 @@ public final class ErasurePhase implements CompilerPhase{
         	if (!ct.isNative()) {
                 try {
                     TreeTransverser.transverse(ct,new BoxingPointClassificationVisitor());
-                    TreeTransverser.transverse(ct,new BoxingPointErasureVisitor());
+                    TreeTransverser.transverse(ct,new BooleanErasureVisitor());
+                    TreeTransverser.transverse(ct,new Int32ErasureVisitor());
                 } catch (CompilationError e){
                     listener.error(new CompilerMessage(e.getMessage()));
                     return new CompilationResult(e);

@@ -15,7 +15,7 @@ import lense.compiler.typesystem.LenseTypeSystem;
  */
 public class NumericValue extends LiteralExpressionNode {
 
-	private BigDecimal number;
+	protected BigDecimal number;
 
 	public NumericValue (){};
 	
