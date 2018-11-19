@@ -22,6 +22,7 @@ import lense.compiler.ast.ArgumentListItemNode;
 import lense.compiler.ast.ArgumentListNode;
 import lense.compiler.ast.ArgumentTypeResolverNode;
 import lense.compiler.ast.ArithmeticNode;
+import lense.compiler.ast.ArithmeticOperation;
 import lense.compiler.ast.AssertNode;
 import lense.compiler.ast.AssignmentNode;
 import lense.compiler.ast.BlockNode;
@@ -78,9 +79,11 @@ import lense.compiler.ast.VariableReadTypeResolverNode;
 import lense.compiler.ast.VariableWriteNode;
 import lense.compiler.ast.WhileNode;
 import lense.compiler.crosscompile.BoxingPointNode;
-import lense.compiler.crosscompile.PrimitiveBooleanBox;
+import lense.compiler.crosscompile.MethodInvocationOnPrimitiveNode;
+import lense.compiler.crosscompile.PrimitiveArithmeticOperationsNode;
+import lense.compiler.crosscompile.PrimitiveBox;
 import lense.compiler.crosscompile.PrimitiveBooleanOperationsNode;
-import lense.compiler.crosscompile.PrimitiveBooleanUnbox;
+import lense.compiler.crosscompile.PrimitiveUnbox;
 import lense.compiler.crosscompile.PrimitiveBooleanValue;
 import lense.compiler.crosscompile.PrimitiveTypeDefinition;
 import lense.compiler.phases.ReificationVisitor;
@@ -206,9 +209,85 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 					throw new UnsupportedOperationException();
 				}
 				return VisitorNext.Siblings;
-			} else if (node instanceof PrimitiveBooleanUnbox) {
+			} else if (node instanceof PrimitiveArithmeticOperationsNode){
+			    PrimitiveArithmeticOperationsNode n = (PrimitiveArithmeticOperationsNode) node;
+			 
 
-				AstNode n = node.getChildren().get(0);
+			    switch (n.getOperation()){
+			    case Addition:
+			    case Power:
+			    case Subtraction:
+			    case Multiplication:
+			    case Division:
+			    case IntegerDivision:
+			        applyReboxOperator(writer, n.getOperation() , node);
+                    break;
+		        case Symmetric:
+		            applyPrePrimitiveOperator(writer, "-", node);
+                    break;
+			    case Decrement:
+			        applyPrePrimitiveOperator(writer, "--", node);
+                    break;
+			    case Increment:
+			        applyPrePrimitiveOperator(writer, "++", node);
+                    break;
+			    case Complement:
+			        applyPrePrimitiveOperator(writer, "~", node);
+                    break;
+			    case BitAnd:
+			        applyPrimitiveOperator(writer, "&", node);
+                    break;
+                case BitOr:
+                    applyPrimitiveOperator(writer, "|", node);
+                    break;
+                case BitXor:
+                    applyPrimitiveOperator(writer, "^", node);
+                    break;
+			    case Remainder:
+			        applyPrimitiveOperator(writer, "%", node);
+                    break;
+			    case LeftShift:
+			        applyPrimitiveOperator(writer, "<<", node);
+                    break;
+			    case RightShift:
+			        applyPrimitiveOperator(writer, ">>", node);
+                    break;
+			    case SignedRightShift:
+			        applyPrimitiveOperator(writer, ">>>", node);
+                    break;
+			    case WrapAddition:
+			        applyPrimitiveOperator(writer, "+", node);
+                    break;
+			    case WrapMultiplication:
+			        applyPrimitiveOperator(writer, "*", node);
+                    break;
+			    case WrapSubtraction:
+			        applyPrimitiveOperator(writer, "-", node);
+			        break;
+			    case Positive:
+			     case Concatenation:
+			        //no-op
+			    }
+			    
+			     return VisitorNext.Siblings;
+			    
+			} else if (node instanceof MethodInvocationOnPrimitiveNode){
+			    MethodInvocationOnPrimitiveNode p = (MethodInvocationOnPrimitiveNode)node;
+			    MethodInvocationNode m = p.getMethodInvocation();
+                
+			    if (m.getCall().getName().equals("asString")){
+			        writer.print("Primitives.asString(");
+			        TreeTransverser.transverse(m.getAccess(), this);
+			        writer.print(")");
+			    }
+			    
+			    return VisitorNext.Siblings;
+			    
+			} else if (node instanceof PrimitiveUnbox) {
+
+			    PrimitiveUnbox pu = (PrimitiveUnbox)node;
+			    
+				AstNode n = pu.getChildren().get(0);
 
 				if (n instanceof MethodInvocationNode) {
 					MethodInvocationNode m = (MethodInvocationNode) n;
@@ -220,14 +299,29 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 
 				writer.print("/* BOXING OUT */(");
 				TreeTransverser.transverse(n, this);
-				writer.print(").toPrimitiveBoolean()");
+				
+				if (pu.getTypeVariable().equals(PrimitiveTypeDefinition.BOOLEAN)){
+				    writer.print(").toPrimitiveBoolean()");
+				} else {
+				    throw new UnsupportedOperationException("not implemented yet ");
+				}
+				
+			
 
 				return VisitorNext.Siblings;
-			} else if (node instanceof PrimitiveBooleanBox) {
+			} else if (node instanceof PrimitiveBox) {
+			    PrimitiveBox pu = (PrimitiveBox)node;
+                
 
-				writer.print("/* BOXING IN */ lense.core.lang.Boolean.valueOfNative(");
-				TreeTransverser.transverse(node.getChildren().get(0), this);
-				writer.print(")");
+                if (pu.getTypeVariable().equals(PrimitiveTypeDefinition.BOOLEAN)){
+                    writer.print("/* BOXING IN */ lense.core.lang.Boolean.valueOfNative(");
+                    TreeTransverser.transverse(node.getChildren().get(0), this);
+                    writer.print(")");
+                } else {
+                    throw new UnsupportedOperationException("not implemented yet ");
+                }
+                
+			
 
 				return VisitorNext.Siblings;
 			} else if (node instanceof BoxingPointNode) {
@@ -253,63 +347,72 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 			} else if (node instanceof QualifiedNameNode) {
 				writer.print(sanitize(((QualifiedNameNode) node).getName()));
 			} else if (node instanceof NumericValue) {
+			    
+			    
 				NumericValue n = (NumericValue) node;
-				String name = n.getTypeVariable().getTypeDefinition().getName();
-				if (name.equals("lense.core.lang.Binary")) {
-
-					writer.append(
-							"lense.core.lang.BitArray.constructor(lense.core.collections.Array.booleanArrayfromNativeNumberString(\"")
-							.append(node.toString()).append("\"))");
-				} else if (name.equals("lense.core.math.Rational") || name.equals("lense.core.math.Real")) {
-					// TODO test bounds (number could be to big , should use string
-					int pos = n.getLiteralValue().indexOf('.');
-					if (pos >= 0) {
-						String intPart = n.getLiteralValue().substring(0, pos);
-						String decPart = n.getLiteralValue().substring(pos + 1);
-
-						int decPos = decPart.length();
-						StringBuilder decimalPart = new StringBuilder("1");
-						for (int i = 0; i < decPos; i++) {
-							decimalPart.append("0");
-						}
-						if (intPart.equals("0")) {
-							intPart = "";
-						}
-
-						writer.append("lense.core.math.Rational")
-								.append(".constructor(lense.core.math.NativeNumberFactory.newInteger(").append(intPart)
-								.append(decPart).append("),lense.core.math.NativeNumberFactory.newInteger(")
-								.append(decimalPart).append("))");
-
-					} else {
-						writer.append("lense.core.math.Rational")
-								.append(".valueOf(lense.core.math.NativeNumberFactory.newInteger(")
-								.append(n.toString()).append("))");
-					}
+				
+				if (n.getTypeVariable() instanceof PrimitiveTypeDefinition){
+				    writer.append(n.getValue().toString());
 				} else {
-					// TODO test bounds (number could be to big , should use string
+				    String name = n.getTypeVariable().getTypeDefinition().getName();
+	                if (name.equals("lense.core.lang.Binary")) {
 
-					QualifiedNameNode qn = new QualifiedNameNode(n.getTypeVariable().getTypeDefinition().getName());
-					String typeName = qn.getLast().getName();
-					if (typeName.equals("Whole") || typeName.equals("Any")) {
-						typeName = "Natural";
-					}
+	                    writer.append(
+	                            "lense.core.lang.BitArray.constructor(lense.core.collections.Array.booleanArrayfromNativeNumberString(\"")
+	                            .append(node.toString()).append("\"))");
+	                } else if (name.equals("lense.core.math.Rational") || name.equals("lense.core.math.Real")) {
+	                    // TODO test bounds (number could be to big , should use string
+	                    int pos = n.getLiteralValue().indexOf('.');
+	                    if (pos >= 0) {
+	                        String intPart = n.getLiteralValue().substring(0, pos);
+	                        String decPart = n.getLiteralValue().substring(pos + 1);
 
-					if ("Natural".equals(typeName)) {
-						if (n.isZero()) {
-							writer.append("lense.core.math.Natural.ZERO");
-						} else if (n.isOne()) {
-							writer.append("lense.core.math.Natural.ONE");
-						} else {
-							writer.append("lense.core.math.Natural.valueOfNative(").append(n.toString()).append(")");
-						}
-					} else {
-						writer.append("lense.core.math.NativeNumberFactory.new").append(typeName).append("(")
-								.append(n.toString()).append(")");
-					}
+	                        int decPos = decPart.length();
+	                        StringBuilder decimalPart = new StringBuilder("1");
+	                        for (int i = 0; i < decPos; i++) {
+	                            decimalPart.append("0");
+	                        }
+	                        if (intPart.equals("0")) {
+	                            intPart = "";
+	                        }
+
+	                        writer.append("lense.core.math.Rational")
+	                                .append(".constructor(lense.core.math.NativeNumberFactory.newInteger(").append(intPart)
+	                                .append(decPart).append("),lense.core.math.NativeNumberFactory.newInteger(")
+	                                .append(decimalPart).append("))");
+
+	                    } else {
+	                        writer.append("lense.core.math.Rational")
+	                                .append(".valueOf(lense.core.math.NativeNumberFactory.newInteger(")
+	                                .append(n.toString()).append("))");
+	                    }
+	                } else {
+	                    // TODO test bounds (number could be to big , should use string
+
+	                    QualifiedNameNode qn = new QualifiedNameNode(n.getTypeVariable().getTypeDefinition().getName());
+	                    String typeName = qn.getLast().getName();
+	                    if (typeName.equals("Whole") || typeName.equals("Any")) {
+	                        typeName = "Natural";
+	                    }
+
+	                    if ("Natural".equals(typeName)) {
+	                        if (n.isZero()) {
+	                            writer.append("lense.core.math.Natural.ZERO");
+	                        } else if (n.isOne()) {
+	                            writer.append("lense.core.math.Natural.ONE");
+	                        } else {
+	                            writer.append("lense.core.math.Natural.valueOfNative(").append(n.toString()).append(")");
+	                        }
+	                    } else {
+	                        writer.append("lense.core.math.NativeNumberFactory.new").append(typeName).append("(")
+	                                .append(n.toString()).append(")");
+	                    }
+
+	                }
 
 				}
-
+				
+				
 			} else if (node instanceof lense.compiler.ast.LiteralSequenceInstanceCreation) {
 				writer.append("lense.core.collections.Array.fromAnyArray("); // TODO generate reification
 
@@ -1585,7 +1688,29 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 
 	}
 
-	private void writeMethodSignature(MethodDeclarationNode m) {
+	private void applyReboxOperator(PrintWriter writer, ArithmeticOperation operation, AstNode node) {
+        
+	    writer.append("lense.core.math.NativeNumberFactory.newInteger(");
+	    
+	    TreeTransverser.transverse(node.getChildren().get(0), this);
+	   
+        writer.append(").").append(operation.equivalentMethod()).append("(");
+        TreeTransverser.transverse(node.getChildren().get(1), this);
+        writer.append(")");
+    }
+
+    private void applyPrePrimitiveOperator(PrintWriter writer, String operator, AstNode node) {
+        writer.append(" ").append(operator);
+        TreeTransverser.transverse(node.getChildren().get(0), this);
+    }
+	
+	private void applyPrimitiveOperator(PrintWriter writer, String operator, AstNode node) {
+	        TreeTransverser.transverse(node.getChildren().get(0), this);
+	        writer.append(" ").append(operator).append(" ");
+	        TreeTransverser.transverse(node.getChildren().get(1), this);
+    }
+
+    private void writeMethodSignature(MethodDeclarationNode m) {
 		writer.print("@lense.core.lang.java.MethodSignature( returnSignature = \"");
 
 		// signature is type<A,B>

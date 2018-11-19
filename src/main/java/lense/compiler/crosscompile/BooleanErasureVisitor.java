@@ -18,7 +18,7 @@ import lense.compiler.crosscompile.java.JavaTypeKind;
 import lense.compiler.type.variable.TypeVariable;
 import lense.compiler.typesystem.LenseTypeSystem;
 
-public class BoxingPointErasureVisitor implements Visitor<AstNode> {
+public class BooleanErasureVisitor implements Visitor<AstNode> {
 
 
 	@Override
@@ -126,7 +126,7 @@ public class BoxingPointErasureVisitor implements Visitor<AstNode> {
 					if(a.getReferenceNode() instanceof ArgumentListItemNode){
 						ArgumentListItemNode ref = (ArgumentListItemNode)a.getReferenceNode();
 						if (ref.isGeneric()){
-							a.getParent().replace(a, new PrimitiveBooleanBox(val));
+							a.getParent().replace(a, new PrimitiveBox(PrimitiveTypeDefinition.BOOLEAN, val));
 							return;
 						}
 					} 
@@ -135,7 +135,7 @@ public class BoxingPointErasureVisitor implements Visitor<AstNode> {
 				} else if (a.getTypeVariable() != null && !val.getTypeVariable().isFixed() && a.getTypeVariable().getTypeDefinition().getKind() == JavaTypeKind.Primitive){
 					
 					// TODO check which primitive , it may be other than boolean
-					a.getParent().replace(a, new PrimitiveBooleanUnbox(val));
+					a.getParent().replace(a, new PrimitiveUnbox( PrimitiveTypeDefinition.BOOLEAN, val));
 					
 				}
 				// TODO StringConcatenationNode, StringValue
@@ -153,13 +153,13 @@ public class BoxingPointErasureVisitor implements Visitor<AstNode> {
 					if ((val instanceof VariableReadNode && a.canElide()) || val instanceof PrimitiveBooleanOperationsNode) {
 						a.getParent().replace(a, val);
 					} else {
-						a.getParent().replace(a, new PrimitiveBooleanBox(val));
+						a.getParent().replace(a, new PrimitiveBox(PrimitiveTypeDefinition.BOOLEAN, val));
 					}
 			
 				} else if (val instanceof MethodInvocationNode) {
 					MethodInvocationNode m = (MethodInvocationNode)val;
 					if ( m.getTypeVariable().isSingleType() && m.getTypeVariable().getTypeDefinition().getName().equals(LenseTypeSystem.Boolean().getName())) {
-						a.getParent().replace(a, new PrimitiveBooleanBox(val));
+						a.getParent().replace(a, new PrimitiveBox(PrimitiveTypeDefinition.BOOLEAN, val));
 					}
 				} else if (val instanceof CastNode) {
 					// no-op

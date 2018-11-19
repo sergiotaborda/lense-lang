@@ -69,9 +69,9 @@ import lense.compiler.ast.VariableReadNode;
 import lense.compiler.ast.VariableWriteNode;
 import lense.compiler.ast.WhileNode;
 import lense.compiler.crosscompile.BoxingPointNode;
-import lense.compiler.crosscompile.PrimitiveBooleanBox;
+import lense.compiler.crosscompile.PrimitiveBox;
 import lense.compiler.crosscompile.PrimitiveBooleanOperationsNode;
-import lense.compiler.crosscompile.PrimitiveBooleanUnbox;
+import lense.compiler.crosscompile.PrimitiveUnbox;
 import lense.compiler.crosscompile.PrimitiveBooleanValue;
 import lense.compiler.crosscompile.java.JavaSourceWriterVisitor;
 import lense.compiler.type.TypeDefinition;
@@ -156,14 +156,14 @@ public class Ecma5JavascriptWriterVisitor implements Visitor<AstNode> {
                     throw new UnsupportedOperationException();
                 }
                 return VisitorNext.Siblings;
-            } else if (node instanceof PrimitiveBooleanUnbox) {
+            } else if (node instanceof PrimitiveUnbox) {
 
                 writer.print("/* BOXING OUT */(");
                 TreeTransverser.transverse(node.getChildren().get(0), this);
                 writer.print(").toPrimitiveBoolean()");
 
                 return VisitorNext.Siblings;
-            } else if (node instanceof PrimitiveBooleanBox) {
+            } else if (node instanceof PrimitiveBox) {
 
                 writer.print("/* BOXING IN */ lense.core.lang.Boolean.valueOfNative(");
                 TreeTransverser.transverse(node.getChildren().get(0), this);
