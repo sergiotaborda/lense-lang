@@ -3,6 +3,8 @@
  */
 package lense.compiler.ast;
 
+import java.util.Optional;
+
 import lense.compiler.type.variable.TypeVariable;
 import lense.compiler.typesystem.LenseTypeSystem;
 
@@ -23,12 +25,21 @@ public class ComparisonNode extends ExpressionNode {
 		InstanceOf("is"),
 		Compare("<=>");
 	    
-		private String symbol;
+		private final String symbol;
 
 		Operation(String symbol){
 			this.symbol = symbol;
 		}
 
+		public Optional<String> getEquivalentMethodName(){
+		    if (this == Operation.EqualTo){
+		        return Optional.of("equalsTo");
+		    } else  if (this == Operation.Compare){
+                return Optional.of("compareWith");
+            } 
+		    
+		    return Optional.empty();
+		}
 		/**
 		 * @return
 		 */
@@ -47,6 +58,37 @@ public class ComparisonNode extends ExpressionNode {
                default :
                   return false;
            }
+        }
+
+        public boolean isNegatable(){
+            if (this == Compare || this == Operation.InstanceOf){
+                return false;
+            }
+            return true;
+        }
+        public Operation negate() {
+            switch (this) {
+            case Different:
+                return EqualTo;
+            case EqualTo:
+                return Different;
+            case GreaterOrEqualTo:
+                return LessThan;
+            case GreaterThan:
+                return LessOrEqualTo;
+            case LessOrEqualTo:
+                return GreaterThan;
+            case LessThan:
+                return GreaterOrEqualTo;
+            case ReferenceDifferent:
+                return ReferenceEquals;
+            case ReferenceEquals:
+                return ReferenceDifferent;
+            case Compare:
+            case InstanceOf:
+            default:
+                throw new IllegalStateException("Can not negate operation " + this);
+            }
         }
 	}
 	

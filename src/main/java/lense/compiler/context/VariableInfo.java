@@ -25,6 +25,7 @@ public class VariableInfo {
 	private AstNode declaringNode;
     private BigDecimal min;
     private BigDecimal max;
+    private boolean includeMaximum;
 
 	/**
 	 * Constructor.
@@ -130,5 +131,15 @@ public class VariableInfo {
     public Optional<BigDecimal> getMaximum(){
         return Optional.ofNullable(this.max);
     }
+
+    public boolean isIncludeMaximum() {
+        return includeMaximum;
+    }
+
+    public void setIncludeMaximum(boolean includeMaximum) {
+        this.includeMaximum = includeMaximum;
+    }
+
+ 
 	
 }

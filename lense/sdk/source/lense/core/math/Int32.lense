@@ -7,7 +7,9 @@ import lense.core.math.Whole;
 public native class Int32 extends Integer implements Binary{
 
 	public native implicit constructor valueOf ( n: Binary);
-	public native implicit constructor valueOf ( n: Whole);
+	public native implicit constructor valueOf ( n: Natural);
+	
+	public native constructor valueOf ( n: Whole);
 
 	public native complement() : Int32;
 	
@@ -16,4 +18,12 @@ public native class Int32 extends Integer implements Binary{
 	public native rightShiftBy( n:Natural) : Int32;
 	
 	public native leftShiftBy( n:Natural) : Int32;
+	
+    public native wrapPlus( other : Int32) : Int32;
+
+    public native wrapMultiply( other : Int32) : Int32;
+    
+    public native wrapMinus( other : Int32) : Int32;
+        
+
 }

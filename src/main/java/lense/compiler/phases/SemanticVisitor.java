@@ -101,6 +101,7 @@ import lense.compiler.ast.WhileNode;
 import lense.compiler.context.SemanticContext;
 import lense.compiler.context.VariableInfo;
 import lense.compiler.crosscompile.PrimitiveBooleanValue;
+import lense.compiler.crosscompile.VariableRange;
 import lense.compiler.type.CallableMemberMember;
 import lense.compiler.type.Constructor;
 import lense.compiler.type.ConstructorParameter;
@@ -674,24 +675,20 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 
 			iterationVariable.setInitialized(true);
 
-			if (n.getContainer() instanceof RangeNode) {
-				RangeNode range = (RangeNode) n.getContainer();
-
-				if (lenseTypeSystem.isAssignableTo(iterationVariable.getTypeVariable(), LenseTypeSystem.Natural())) { // TODO
+			if (LenseTypeSystem.isAssignableTo(n.getContainer().getTypeVariable(), LenseTypeSystem.Progression())) {
+				
+				if (LenseTypeSystem.isAssignableTo(iterationVariable.getTypeVariable(), LenseTypeSystem.Number())) { // TODO Orderable with successor
 					// change
 					// to
 					// .Number()
 					// is a number
 					// try to determine limits
-
-					if (range.getStart() instanceof NumericValue) {
-						iterationVariable.setMininumValue(((NumericValue) range.getStart()).getValue());
-					}
-
-					if (range.getEnd() instanceof NumericValue) {
-						iterationVariable.setMaximumValue(((NumericValue) range.getEnd()).getValue());
-					}
-
+				    
+				    VariableRange r = VariableRange.extractFrom(n.getContainer());
+				        
+				    r.getMin().ifPresent(v -> iterationVariable.setMininumValue(v));
+                    r.getMax().ifPresent(v -> iterationVariable.setMaximumValue(v));
+                    iterationVariable.setIncludeMaximum(r.isIncludeMax());
 				}
 
 			}
@@ -869,7 +866,7 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 			ExpressionNode val = (ExpressionNode) r.getFirstChild();
 
 			if (!(val instanceof ComparisonNode) && !(val instanceof InstanceOfNode)) {
-				ComparisonNode n = new ComparisonNode(Operation.EqualTo);
+				ComparisonNode n = new ComparisonNode( r.getReferenceValue() ? Operation.EqualTo : Operation.Different);
 				n.add(val);
 				n.add(new BooleanValue(r.getReferenceValue()));
 
@@ -1255,10 +1252,17 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 					name = "upToExclusive";
 				}
 
+				VariableRange limits = VariableRange.extractFrom(r); 
+				
 				MethodInvocationNode create = new MethodInvocationNode(r.getStart(), name, arg);
-				create.setTypeVariable(
-						LenseTypeSystem.specify(LenseTypeSystem.Progression(), r.getStart().getTypeVariable()));
+				create.setTypeVariable(LenseTypeSystem.specify(LenseTypeSystem.Progression(), r.getStart().getTypeVariable()));
 
+				limits.getMin().ifPresent( m -> create.setProperty("minimum",m));
+				limits.getMax().ifPresent( m -> create.setProperty("maximum",m));
+	            
+			    create.setProperty("includeMaximum",r.isIncludeEnd());
+                
+				
 				r.getParent().replace(r, create);
 
 			} else if (node instanceof LiteralIntervalNode) {

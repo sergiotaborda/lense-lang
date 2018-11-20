@@ -5,8 +5,10 @@ import lense.core.math.Natural;
 
 public native class Int64 extends Integer implements Binary{
 
-	public native implicit constructor valueOf ( n: Natural);
 	public native implicit constructor valueOf ( n: Binary);
+	public native implicit constructor valueOf ( n: Natural);
+	
+	public native constructor valueOf ( n: Whole);
 	
 	public native complement() : Int64;
 	
@@ -15,4 +17,10 @@ public native class Int64 extends Integer implements Binary{
 	public native rightShiftBy( n:Natural) : Int64;
 	
 	public native leftShiftBy( n:Natural) : Int64;
+	
+    public native wrapPlus( other : Int64) : Int32;
+
+    public native wrapMultiply( other : Int64) : Int32;
+    
+    public native wrapMinus( other : Int64) : Int32;
 }

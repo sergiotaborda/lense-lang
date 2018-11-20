@@ -12,6 +12,7 @@ public native class Natural extends Whole implements Progressable<Natural> , Com
 
 	public constructor parse(text :String); 
 
+	public native minus ( other: Integer)  : Integer;
 	public native minus ( other: Natural)  : Integer;
 	public native plus ( other: Natural) : Natural;
 	public native multiply ( other: Natural) : Natural;

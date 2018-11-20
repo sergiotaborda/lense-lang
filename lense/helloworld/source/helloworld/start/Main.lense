@@ -93,15 +93,32 @@ public class Main extends ConsoleApplication {
 		assert (20 == f, "f is not 9, is {{ f }}");
 		assert (20 == g, "g is not 9, is {{ g }}");
 
-		assert (c is Int32, "c is not Int32");
-		assert (d is Int32, "d is not Int32");
-
-		for (let i in 0..5){
-			a += i;
+		assert (c is Int32, "c is Int32");
+		assert (f is Int32, "f is Int32");
+		
+		assert (g is Int32, "g is not an Int32");
+		assert (d is Int32, "d is not an Int32");
+		assert (!(d is Int64), "d is an Int64");
+		assert (d is Integer, "d is not an Integer");
+		
+		let min : Int32 = 0;
+		let max : Int32 = 5;
+		
+		for (let i in min .. max){
+			a = a &+ i;
 		}
 
-		assert (19 == a, "a is not 1004, is {{ a }}");
+		assert (19 == a, "a is not 19, is {{ a }}");
 	}
+	
+	private  sum ( a : Int32 , b: Int32) : Int32{
+		return a &+ b;
+	}
+	
+	private  isum ( a : Int32 , b: Int32) : Integer {
+		return a + b;
+	}
+	
 
 	private demoNamedArguments (){
 
@@ -315,10 +332,12 @@ public class Main extends ConsoleApplication {
   	 	 
   		var barray : Array<Boolean>= [false, true, true, false];
   		
-  		assert(!barray[0]);
-  		assert(barray[1]);
-  		assert(barray[2]);
-  		assert(!barray[3]);
+  		console.println(barray);
+  		
+  		assert(!barray[0], "barray[0] is not false");
+  		assert(barray[1], "barray[1] is not true");
+  		assert(barray[2], "barray[2] is not true");
+  		assert(!barray[3], "barray[3] is not false");
   		
  
   		var convertedBitArray : BitArray = barray;
