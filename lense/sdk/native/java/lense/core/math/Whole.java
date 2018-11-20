@@ -3,14 +3,11 @@ package lense.core.math;
 import java.math.BigInteger;
 
 import lense.core.lang.Any;
+import lense.core.lang.java.JavaOrdinal;
 import lense.core.lang.java.Signature;
 
 @Signature(":lense.core.math.Number:lense.core.math.Comparable<lense.core.math.Whole>")
-public abstract class Whole extends Number implements Comparable {
-
-    public abstract Whole plus (Whole other);
-    public abstract Whole minus (Whole other);
-    
+public abstract class Whole extends Number implements Comparable , JavaOrdinal<Whole>{
 
     public Rational divide(Whole other){
         if (other.isZero()){

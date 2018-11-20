@@ -38,9 +38,6 @@ public abstract class Integer extends Whole implements Comparable, SignedNumber{
 
 	public abstract Integer minus(Integer other);
 	
-	public final Whole minus(Whole other) {
-		return this.minus(other.asInteger());
-	}
 	
 	public final Whole wrapMinus(Whole other) {
 		return this.wrapMinus(other.asInteger());
@@ -81,12 +78,6 @@ public abstract class Integer extends Whole implements Comparable, SignedNumber{
     public final boolean isLessOrEqualTo(@NonNull Integer other) {
         return  compareTo(other) <= 0;
     }
-
-	
-	@Override
-	public Whole plus(Whole other) {
-		return this.plus(other.asInteger());
-	}
 
 	@Override
 	protected Integer asInteger() {

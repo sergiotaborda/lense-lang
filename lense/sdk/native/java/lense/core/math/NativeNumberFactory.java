@@ -32,5 +32,52 @@ public final class NativeNumberFactory {
         return Decimal64.valueOfNative(nativeValue);
     }
     
+    public static Integer plusAndCreateInteger(int a, int b){
+        try {
+            return newInt32(Math.addExact(a, b));
+        } catch (ArithmeticException e){
+            return newInt64(a).plus(newInt64(b));
+        }
+    }
     
+    public static Integer plusAndCreateInteger(long a, long b){
+        try {
+            return newInt64(Math.addExact(a, b));
+        } catch (ArithmeticException e){
+            return BigInt.valueOfNative(a).plus(BigInt.valueOfNative(b));
+        }
+    }
+    
+    
+    public static Integer minusAndCreateInteger(int a, int b){
+        try {
+            return newInt32(Math.subtractExact(a, b));
+        } catch (ArithmeticException e){
+            return newInt64(a).plus(newInt64(b));
+        }
+    }
+    
+    public static Integer minusAndCreateInteger(long a, long b){
+        try {
+            return newInt64(Math.subtractExact(a, b));
+        } catch (ArithmeticException e){
+            return BigInt.valueOfNative(a).plus(BigInt.valueOfNative(b));
+        }
+    }
+    
+    public static Integer multiplyAndCreateInteger(int a, int b){
+        try {
+            return newInt32(Math.multiplyExact(a, b));
+        } catch (ArithmeticException e){
+            return newInt64(a).plus(newInt64(b));
+        }
+    }
+    
+    public static Integer multiplyAndCreateInteger(long a, long b){
+        try {
+            return newInt64(Math.multiplyExact(a, b));
+        } catch (ArithmeticException e){
+            return BigInt.valueOfNative(a).plus(BigInt.valueOfNative(b));
+        }
+    }
 }

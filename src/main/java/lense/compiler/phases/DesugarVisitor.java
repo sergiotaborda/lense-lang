@@ -404,7 +404,7 @@ public class DesugarVisitor extends AbstractLenseVisitor {
 //                         invocation.setTypeVariable(n.getTypeVariable());
 //                	}
                 } else {
-                    invocation = new MethodInvocationNode(n.getLeft(), "equalsTo", arg);
+                    invocation = new MethodInvocationNode(n.getLeft(), ComparisonNode.Operation.EqualTo.getEquivalentMethodName().get(), arg);
                     invocation.setTypeVariable(n.getTypeVariable());
                 }
 
@@ -440,7 +440,7 @@ public class DesugarVisitor extends AbstractLenseVisitor {
 //                         invocation.setTypeVariable(n.getTypeVariable());
 //                	}
                 } else {
-                    invocation = new MethodInvocationNode(n.getLeft(), "equalsTo", arg);
+                    invocation = new MethodInvocationNode(n.getLeft(),ComparisonNode.Operation.EqualTo.getEquivalentMethodName().get(), arg);
                     invocation.setTypeVariable(n.getTypeVariable());
                 }
 
@@ -454,7 +454,7 @@ public class DesugarVisitor extends AbstractLenseVisitor {
                 // no-op
             } else {
 
-                MethodInvocationNode compareTo = new MethodInvocationNode(n.getLeft(), "compareWith", arg);
+                MethodInvocationNode compareTo = new MethodInvocationNode(n.getLeft(), ComparisonNode.Operation.Compare.getEquivalentMethodName().get() , arg);
                 compareTo.setTypeVariable(LenseTypeSystem.Natural());
 
                 if (n.getOperation() == ComparisonNode.Operation.Compare) {
