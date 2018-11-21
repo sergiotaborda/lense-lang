@@ -26,7 +26,7 @@ public final class Int32 extends Integer implements Binary  {
         return new Int32(n);
     }  
 
-    @Constructor(paramsSignature = "lense.core.math.Whole")
+    @Constructor(isImplicit = true, paramsSignature = "lense.core.math.Whole")
     public static Int32 valueOf(Whole n){
         if (n instanceof Int32){
             return (Int32)n;
@@ -45,19 +45,19 @@ public final class Int32 extends Integer implements Binary  {
 
     }  
 
-    @Constructor(isImplicit = true, paramsSignature = "lense.core.math.Natural")
-    public static Int32 valueOf(Natural n){
-        BigInteger max = BigInteger.valueOf(java.lang.Integer.MAX_VALUE);
-        BigInteger min = BigInteger.valueOf(java.lang.Integer.MIN_VALUE);
-        BigInteger val = n.asJavaBigInteger();
-
-        if (val.compareTo(min) >=0 && val.compareTo(max) <=0 ){
-            // in range of a int32
-            return new Int32(val.intValue());
-        } else {
-            throw ArithmeticException.constructor();
-        }
-    }  
+//    @Constructor(paramsSignature = "lense.core.math.Natural")
+//    public static Int32 valueOf(Natural n){
+//        BigInteger max = BigInteger.valueOf(java.lang.Integer.MAX_VALUE);
+//        BigInteger min = BigInteger.valueOf(java.lang.Integer.MIN_VALUE);
+//        BigInteger val = n.asJavaBigInteger();
+//
+//        if (val.compareTo(min) >=0 && val.compareTo(max) <=0 ){
+//            // in range of a int32
+//            return new Int32(val.intValue());
+//        } else {
+//            throw ArithmeticException.constructor();
+//        }
+//    }  
 
     //	@Constructor
     //    public static Int32 parse(lense.core.lang.String s){

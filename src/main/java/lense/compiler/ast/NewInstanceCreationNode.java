@@ -75,6 +75,10 @@ public class NewInstanceCreationNode extends ExpressionNode implements ArgumentL
 		this(t, new ArgumentListNode());
 	}
 
+	public String toString(){
+	    return "new " + typeNode.getName() +  "(" + argumentList + ")";
+	}
+	
 	protected NewInstanceCreationNode (TypeNode t,ArgumentListNode args){
 		setTypeNode(t);
 

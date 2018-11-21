@@ -6,9 +6,8 @@ import lense.core.math.Natural;
 public native class Int64 extends Integer implements Binary{
 
 	public native implicit constructor valueOf ( n: Binary);
-	public native implicit constructor valueOf ( n: Natural);
-	
-	public native constructor valueOf ( n: Whole);
+
+	public native implicit constructor valueOf ( n: Whole);
 	
 	public native complement() : Int64;
 	

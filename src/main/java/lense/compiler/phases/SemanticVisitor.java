@@ -873,6 +873,17 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 				r.replace(val, n);
 			}
 
+		} else if (node instanceof InstanceOfNode){
+		    InstanceOfNode n = (InstanceOfNode)node;
+		    
+		    if (!LenseTypeSystem.isAssignableTo(n.getExpression().getTypeVariable() , n.getTypeNode().getTypeVariable()) 
+		            && !LenseTypeSystem.isAssignableTo( n.getTypeNode().getTypeVariable(), n.getExpression().getTypeVariable() ) ){
+		        
+		        // is mandatory false
+		        
+		        node.getParent().replace(node, new PrimitiveBooleanValue(false));
+		    }
+		    
 		} else if (node instanceof JuxpositionNode) {
 			JuxpositionNode jn = (JuxpositionNode) node;
 
@@ -3234,7 +3245,7 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 								"Method " + operation.equivalentMethod() + "(" + right + ") is not defined in " + left);
 					} else {
 						// Promote
-						promote(parent, rightExpression, left, right);
+					    rightExpression = promote(parent, rightExpression, left, right);
 					}
 				}
 
@@ -3322,10 +3333,10 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 
 	}
 
-	private void promote(LenseAstNode parent, ExpressionNode rightExpression, TypeVariable left, TypeVariable right) {
+	private ExpressionNode promote(LenseAstNode parent, ExpressionNode rightExpression, TypeVariable left, TypeVariable right) {
 
 		if (LenseTypeSystem.isAssignableTo(left, right)) {
-			return;
+			return rightExpression;
 		}
 
 		Optional<Constructor> op = left.getTypeDefinition().getConstructorByParameters(new ConstructorParameter(right));
@@ -3340,14 +3351,19 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 			NumericValue n = (NumericValue) rightExpression;
 
 			n.setTypeVariable(left);
+			
+
 		} else {
 			NewInstanceCreationNode cn = NewInstanceCreationNode.of(left, op.get(), rightExpression);
 			cn.getCreationParameters().getTypeParametersListNode()
 			.add(new GenericTypeParameterNode(new TypeNode(left)));
 
 			parent.replace(rightExpression, cn);
+			
+			return cn;
 		}
 
+        return rightExpression;
 	}
 
 	private TypeDefinition ensureNotFundamental(TypeDefinition type) {

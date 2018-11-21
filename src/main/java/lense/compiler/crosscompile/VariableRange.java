@@ -7,6 +7,7 @@ import java.util.Optional;
 import compiler.syntax.AstNode;
 import lense.compiler.ast.ArithmeticOperation;
 import lense.compiler.ast.MethodInvocationNode;
+import lense.compiler.ast.NewInstanceCreationNode;
 import lense.compiler.ast.NumericValue;
 import lense.compiler.ast.RangeNode;
 import lense.compiler.ast.TypeNode;
@@ -73,6 +74,13 @@ public class VariableRange {
             return new VariableRange (min, max, range.isIncludeEnd());
         } else if (node instanceof TypeNode){
             return forType(((TypeNode) node).getTypeVariable().getTypeDefinition());
+        } else if (node instanceof BoxingPointNode){
+            return extractFrom(node.getFirstChild());
+        } else if (node instanceof NewInstanceCreationNode
+                && ((NewInstanceCreationNode) node).getArguments() != null 
+                && ((NewInstanceCreationNode) node).getArguments().getChildren().size() == 1
+                ){
+            return extractFrom(((NewInstanceCreationNode) node).getArguments().getFirstChild().getFirstChild());
         }
 
         return EMPTY;

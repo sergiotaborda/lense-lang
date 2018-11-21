@@ -263,9 +263,9 @@ public class LenseGrammar extends AbstractLenseGrammar {
 			} else if (end == 'S') {
 				return LenseTypeSystem.Short();
 			} else if (end == 'Z') {
-				return LenseTypeSystem.Int();
+				return LenseTypeSystem.Int32();
 			} else if (end == 'L') {
-				return LenseTypeSystem.Long();
+				return LenseTypeSystem.Int64();
 			} else if (end == 'd') {
 				return LenseTypeSystem.Decimal64();
 			} else if (end == 'f') {
