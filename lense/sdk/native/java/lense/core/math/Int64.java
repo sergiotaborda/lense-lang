@@ -21,7 +21,7 @@ public class Int64 extends Integer implements Binary{
         return new Int64(0);
     }
 
-    @Constructor(paramsSignature = "lense.core.math.Whole")
+    @Constructor(isImplicit = true , paramsSignature = "lense.core.math.Whole")
     public static Int64 valueOf(Whole n){
         if (n instanceof Int64){
             return (Int64)n;
@@ -42,20 +42,20 @@ public class Int64 extends Integer implements Binary{
 
     }  
     
-    @Constructor(isImplicit = true, paramsSignature = "lense.core.math.Natural")
-    public static Int64 valueOf(Natural n){
-        BigInteger max = BigInteger.valueOf(java.lang.Long.MAX_VALUE);
-        BigInteger min = BigInteger.valueOf(java.lang.Long.MIN_VALUE);
-        BigInteger val = n.asJavaBigInteger();
-       
-        if (val.compareTo(min) >=0 && val.compareTo(max) <=0 ){
-            // in range of a int32
-            return new Int64(val.intValue());
-        } else {
-            throw ArithmeticException.constructor();
-        }
-    }  
-    
+//    @Constructor(isImplicit = true, paramsSignature = "lense.core.math.Natural")
+//    public static Int64 valueOf(Natural n){
+//        BigInteger max = BigInteger.valueOf(java.lang.Long.MAX_VALUE);
+//        BigInteger min = BigInteger.valueOf(java.lang.Long.MIN_VALUE);
+//        BigInteger val = n.asJavaBigInteger();
+//       
+//        if (val.compareTo(min) >=0 && val.compareTo(max) <=0 ){
+//            // in range of a int32
+//            return new Int64(val.intValue());
+//        } else {
+//            throw ArithmeticException.constructor();
+//        }
+//    }  
+//    
     @PlatformSpecific
     public static Int64 valueOfNative(long n){
         return new Int64(n);

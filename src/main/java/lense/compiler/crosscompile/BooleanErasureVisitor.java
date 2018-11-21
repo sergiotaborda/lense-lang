@@ -7,7 +7,6 @@ import lense.compiler.ast.ArgumentListItemNode;
 import lense.compiler.ast.BooleanOperation;
 import lense.compiler.ast.BooleanValue;
 import lense.compiler.ast.CastNode;
-import lense.compiler.ast.ComparisonNode;
 import lense.compiler.ast.ExpressionNode;
 import lense.compiler.ast.MethodInvocationNode;
 import lense.compiler.ast.NumericValue;
@@ -37,7 +36,7 @@ public class BooleanErasureVisitor implements Visitor<AstNode> {
 
 			if (tv != null && tv.isFixed() &&  LenseTypeSystem.getInstance().isAssignableTo(tv, LenseTypeSystem.Boolean())) {
 				r.setExpectedType(PrimitiveTypeDefinition.BOOLEAN);
-			} else if (tv != null && tv.isFixed() &&  LenseTypeSystem.getInstance().isAssignableTo(tv, LenseTypeSystem.Int())) {
+			} else if (tv != null && tv.isFixed() &&  LenseTypeSystem.getInstance().isAssignableTo(tv, LenseTypeSystem.Int32())) {
 				r.setExpectedType(PrimitiveTypeDefinition.INT);
 			}
 			

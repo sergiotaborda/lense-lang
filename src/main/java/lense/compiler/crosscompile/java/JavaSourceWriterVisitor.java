@@ -1889,6 +1889,8 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
         if (typeVar.getSymbol().isPresent()) {
             writer.print(typeVar.getSymbol().get());
         } else if (typeVar.isSingleType()) {
+            
+   
             writer.print(typeVar.getTypeDefinition().getName());
 
             if (typeVar.getTypeDefinition().isGeneric()) {

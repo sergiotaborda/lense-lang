@@ -36,7 +36,7 @@ public class Int32ErasureVisitor implements Visitor<AstNode> {
     private Map<String, ArithmeticOperation> ops = new HashMap<>();
     
     public Int32ErasureVisitor (){
-        type = LenseTypeSystem.Int();
+        type = LenseTypeSystem.Int32();
         primitiveType = PrimitiveTypeDefinition.INT;
         
         for (ArithmeticOperation op : ArithmeticOperation.values()){
@@ -150,15 +150,14 @@ public class Int32ErasureVisitor implements Visitor<AstNode> {
 	    } else if (node instanceof NewInstanceCreationNode) {
 	        NewInstanceCreationNode constructor = (NewInstanceCreationNode)node;
 	        
-	        if (constructor.getConstructor() != null && constructor.getConstructor().isImplicit() && constructor.getTypeNode().getTypeVariable().getTypeDefinition().equals(primitiveType)){
+	        if (constructor.getConstructor() != null && constructor.getTypeNode().getTypeVariable().getTypeDefinition().equals(primitiveType)){
 	           
-	            if ( ((ExpressionNode)constructor.getArguments().getFirst().getFirstChild()).getTypeVariable().equals(primitiveType)){
-	                // remove the conversion constrcutor
-	                constructor.getParent().replace(constructor, constructor.getArguments().getFirst().getFirstChild());
-	            } else {
-	                // revert typing 
-	                constructor.setTypeVariable(type);
+	            if (constructor.getConstructor().isImplicit() && ((ExpressionNode)constructor.getArguments().getFirst().getFirstChild()).getTypeVariable().equals(primitiveType)){
+	                    // remove the conversion constrcutor
+	                    constructor.getParent().replace(constructor, constructor.getArguments().getFirst().getFirstChild());
 	            }
+	            // revert typing 
+                constructor.setTypeVariable(type);
 	        }
 	    } else if (node instanceof MethodInvocationNode) {
 			MethodInvocationNode m = (MethodInvocationNode) node;
@@ -169,19 +168,19 @@ public class Int32ErasureVisitor implements Visitor<AstNode> {
 			    
 			    if (access.getTypeVariable().getTypeDefinition().equals(primitiveType)){
 			        ArithmeticOperation op = this.ops.get(m.getCall().getName());
-	                
-	                if (op != null){
-	                    if (isPrimitiveOperation(op) && ((TypedNode)m.getCall().getFirstChild().getFirstChild().getFirstChild()).getTypeVariable().getTypeDefinition().equals(primitiveType) ){
-	                        m.getParent().replace(m, new PrimitiveArithmeticOperationsNode(primitiveType,m.getAccess(), m.getCall().getFirstChild().getFirstChild(), op));
-	                    } else {
-	                       
-	                        // determine if the other part is a compatible number
-	                        AstNode right = m.getCall().getArguments().getFirst().getFirstChild();
-	                        
+
+                    if (op != null){
+                        if (isPrimitiveOperation(op) && ((TypedNode)m.getCall().getFirstChild().getFirstChild().getFirstChild()).getTypeVariable().getTypeDefinition().equals(primitiveType) ){
+                            m.getParent().replace(m, new PrimitiveArithmeticOperationsNode(primitiveType,m.getAccess(), m.getCall().getFirstChild().getFirstChild(), op));
+                        } else {
+                           
+                            // determine if the other part is a compatible number
+                            AstNode right = m.getCall().getArguments().getFirst().getFirstChild();
+                            
 	                        if (right instanceof BoxingPointNode && ((BoxingPointNode) right).canElide()){
 	                            right = right.getFirstChild();
 	                        }
-	                       
+	                        
 	                        VariableRange leftRange = VariableRange.extractFrom((AstNode) access);
 	                        
 	                        VariableRange rightRange = VariableRange.extractFrom(right);

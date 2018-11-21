@@ -184,14 +184,14 @@ public class LenseTypeSystem {
 	/**
 	 * @return
 	 */
-	public static TypeDefinition Int() {
+	public static TypeDefinition Int32() {
 		return getInstance().getForName("lense.core.math.Int32").get();
 	}
 
 	/**
 	 * @return
 	 */
-	public static TypeDefinition Long() {
+	public static TypeDefinition Int64() {
 		return getInstance().getForName("lense.core.math.Int64").get();
 	}
 
