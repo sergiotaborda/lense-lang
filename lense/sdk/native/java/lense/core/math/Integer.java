@@ -16,7 +16,7 @@ public abstract class Integer extends Whole implements Comparable, SignedNumber{
 
 	@Constructor(isImplicit = true, paramsSignature = "lense.core.math.Natural")
 	public static Integer valueOf(Natural n){
-		return Int32.valueOfNative(n.toPrimitiveInt());
+		return new BigInt(n.asJavaBigInteger());
 	}
 
 	@Constructor(isImplicit = true, paramsSignature = "lense.core.math.Whole")
