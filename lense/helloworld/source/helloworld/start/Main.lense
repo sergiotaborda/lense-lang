@@ -90,8 +90,8 @@ public class Main extends ConsoleApplication {
 	
 		assert (9 == c , "c is not 9, is {{ c }}");
 		assert (9 == d , "d is not 9, is {{ d }}");
-		assert (20 == f, "f is not 9, is {{ f }}");
-		assert (20 == g, "g is not 9, is {{ g }}");
+		assert (20 == f, "f is not 20, is {{ f }}");
+		assert (20 == g, "g is not 20, is {{ g }}");
 
 		assert (c is Int32, "c is Int32");
 		assert (f is Int32, "f is Int32");
@@ -104,7 +104,7 @@ public class Main extends ConsoleApplication {
 		let min : Int32 = 0;
 		let max : Int32 = 5;
 		
-		for (let i in min .. max){
+		for (let i in 0 .. 5){
 			a = a &+ i;
 		}
 

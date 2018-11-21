@@ -1721,6 +1721,17 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 				if (init != null) {
 
 					info.setInitialized(true);
+					
+					VariableRange limits = VariableRange.extractFrom((AstNode) init);
+					
+					if(limits.getMin().isPresent()) {
+						 info.setMininumValue(limits.getMin().get());
+					} 
+					if(limits.getMax().isPresent()) {
+						 info.setMininumValue(limits.getMax().get());
+					}
+					info.setIncludeMaximum(limits.isIncludeMax());
+					
 					TypeVariable right = init.getTypeVariable();
 
 					if (!LenseTypeSystem.isAssignableTo(right, type)) {

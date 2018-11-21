@@ -385,8 +385,6 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 
                 TypeVariable typeVariable = box.getTypeVariable();
 
-                System.out.println("Boxing " + (box.isBoxingDirectionOut() ? "OUT " : "IN ") + typeVariable);
-
                 if (typeVariable != null) {
                     writer.print("/* =BOXING " + (box.isBoxingDirectionOut() ? "OUT" : "IN") + " to "
                             + typeVariable.getTypeDefinition().getName() + "*/");

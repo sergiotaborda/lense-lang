@@ -153,7 +153,7 @@ public class Int32ErasureVisitor implements Visitor<AstNode> {
 	        if (constructor.getConstructor() != null && constructor.getConstructor().isImplicit() && constructor.getTypeNode().getTypeVariable().getTypeDefinition().equals(primitiveType)){
 	           
 	            if ( ((ExpressionNode)constructor.getArguments().getFirst().getFirstChild()).getTypeVariable().equals(primitiveType)){
-	                // remove the conversion contrcutor
+	                // remove the conversion constrcutor
 	                constructor.getParent().replace(constructor, constructor.getArguments().getFirst().getFirstChild());
 	            } else {
 	                // revert typing 
@@ -171,7 +171,7 @@ public class Int32ErasureVisitor implements Visitor<AstNode> {
 			        ArithmeticOperation op = this.ops.get(m.getCall().getName());
 	                
 	                if (op != null){
-	                    if (isPrimitiveOperation(op)){
+	                    if (isPrimitiveOperation(op) && ((TypedNode)m.getCall().getFirstChild().getFirstChild().getFirstChild()).getTypeVariable().getTypeDefinition().equals(primitiveType) ){
 	                        m.getParent().replace(m, new PrimitiveArithmeticOperationsNode(primitiveType,m.getAccess(), m.getCall().getFirstChild().getFirstChild(), op));
 	                    } else {
 	                       
