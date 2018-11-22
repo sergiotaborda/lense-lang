@@ -22,6 +22,9 @@
 
 == Language Features
 
+- [ ] understand that -0.0 may be a different thing than 0.0 if the taget is Float. Also 0.0.symetric() == -0.0 in Float and that -0.0 = new Float32(0.0).symetric()  but not  -0.0 =/= new Float32(new Rational(0.0)); 
+- [ ] validade literal number range at compile time.
+- [ ] consider target typing and/or mapping literals to objects with special `Literal` (not instanciable) object and implicit constructors 
 - [x] define variables with `let` and values with `val`. make `let` the default when not expliclity declared
 - [x] Iterator is moveNext/current not next/hasNext
 - [x] Indexes support multiple parameters `array[i]` , `matrix[i,j]` , `cube[i,j,k]`
@@ -149,8 +152,9 @@
 - [ ] support auto-boxing and auto-unboxing of _native primitives_
 * [x] use auto-boxing to erase `Boolean` with primitive `boolean`  (java back-end) 
 * [x] identity bound limits in loops  
-* [ ] erase numeric values to they primitive conterparts when bound limits are kown (like in ranges)
+* [/] erase numeric values to they primitive conterparts when bound limits are kown (like in ranges). Done for int
 * [ ] erase string to native charSequence. 
+* [ ] erase Maybe to native `null`. This would improve interoperability with native code
 
 === Operators
 
