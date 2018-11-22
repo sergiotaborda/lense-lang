@@ -115,8 +115,8 @@ public class Main extends ConsoleApplication {
 		return a &+ b;
 	}
 	
-	private  isum ( a : Int32 , b: Int32) : Integer {
-		return a + b;
+	private  isum ( x : Int32 , y: Int32) : Integer {
+		return x + y;
 	}
 	
 
