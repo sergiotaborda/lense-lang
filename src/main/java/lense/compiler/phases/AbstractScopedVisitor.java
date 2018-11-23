@@ -31,6 +31,7 @@ public abstract class AbstractScopedVisitor extends AbstractLenseVisitor  {
 
 	protected abstract Optional<LenseTypeDefinition> getCurrentType();
 
+	
 	protected TypeVariable resolveTypeDefinition(TypeNode t, Variance positionVariance) {
 
 		if (t.getTypeParameter() != null){

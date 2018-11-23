@@ -56,7 +56,7 @@ public class VariableRange {
             return new VariableRange (
                     v.getVariableInfo().getMinimum().orElse(typeRange.min),
                     v.getVariableInfo().getMaximum().orElse(typeRange.max),
-                    v.getVariableInfo().isIncludeMaximum());
+                    v.getVariableInfo().getMaximum().isPresent() ? v.getVariableInfo().isIncludeMaximum() : true);
 
         } else if (node instanceof RangeNode){
             RangeNode range = (RangeNode) node;

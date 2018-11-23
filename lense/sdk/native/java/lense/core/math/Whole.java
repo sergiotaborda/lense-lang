@@ -2,6 +2,8 @@ package lense.core.math;
 
 import java.math.BigInteger;
 
+import lense.core.collections.NativeOrdinalProgression;
+import lense.core.collections.Progression;
 import lense.core.lang.Any;
 import lense.core.lang.java.JavaOrdinal;
 import lense.core.lang.java.Signature;
@@ -73,6 +75,14 @@ public abstract class Whole extends Number implements Comparable , JavaOrdinal<W
         }
     }
 
+    public Progression upTo(Whole other){
+        return new NativeOrdinalProgression(this, other, true);
+    }
+    
+    public Progression upToExclusive(Whole other){
+        return new NativeOrdinalProgression(this, other, false);
+    }
+    
     protected abstract BigInteger asJavaBigInteger();
 
     public abstract Natural abs();

@@ -860,6 +860,11 @@ public class LenseTypeSystem {
 	public boolean isAny(TypeDefinition type) {
 		return type.getName().equals(Any().getName());
 	}
+	
+	public boolean isNothing(TypeVariable type) {
+	        return type.getTypeDefinition().getName().equals(Nothing().getName());
+	}
+
 
 	public boolean isBoolean(TypeVariable type) {
 		return type.getTypeDefinition().getName().equals(Boolean().getName());

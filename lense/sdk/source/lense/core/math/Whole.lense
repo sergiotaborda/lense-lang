@@ -1,7 +1,9 @@
 
 import lense.core.math.Number;
+import lense.core.lang.Ordinal;
+import lense.core.math.Progressable;
 
-public native abstract class Whole extends Number implements Comparable<Whole> {
+public native abstract class Whole extends Number implements Comparable<Whole>, Ordinal<Whole> , Progressable<Whole> {
 
 	public native abstract isOne() : Boolean;
 

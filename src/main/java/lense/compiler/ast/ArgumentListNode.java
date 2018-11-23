@@ -51,7 +51,7 @@ public class ArgumentListNode extends LenseAstNode {
 	}
 	
 	
-	public ArgumentListItemNode getFirst(){
+	public ArgumentListItemNode getFirstArgument(){
 
 		return (ArgumentListItemNode)super.getFirstChild();
 	}

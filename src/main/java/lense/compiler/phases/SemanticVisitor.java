@@ -1038,7 +1038,7 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 			} else if (node instanceof LiteralSequenceInstanceCreation) {
 				LiteralSequenceInstanceCreation literal = (LiteralSequenceInstanceCreation) node;
 
-				TypeDefinition maxType = ((TypedNode) literal.getArguments().getFirst().getFirstChild())
+				TypeDefinition maxType = ((TypedNode) literal.getArguments().getFirstArgument().getFirstChild())
 						.getTypeVariable().getTypeDefinition();
 
 				maxType = this.getSemanticContext()
@@ -1179,7 +1179,7 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 			} else if (node instanceof LiteralAssociationInstanceCreation) {
 				LiteralAssociationInstanceCreation literal = (LiteralAssociationInstanceCreation) node;
 
-				TypeDefinition keypair = ((TypedNode) literal.getArguments().getFirst().getFirstChild())
+				TypeDefinition keypair = ((TypedNode) literal.getArguments().getFirstArgument().getFirstChild())
 						.getTypeVariable().getTypeDefinition();
 				TypeVariable keyType = keypair.getGenericParameters().get(0);
 				TypeVariable valueType = keypair.getGenericParameters().get(1);
@@ -1239,21 +1239,14 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 			} else if (node instanceof RangeNode) {
 				RangeNode r = (RangeNode) node;
 
-				TypeVariable left = ((TypedNode) r.getChildren().get(0)).getTypeVariable();
-				TypeVariable right = ((TypedNode) r.getChildren().get(1)).getTypeVariable();
 
-				TypeVariable finalType;
-				if (left.equals(right)) {
-					finalType = left;
-				} else if (typeSystem.isPromotableTo(left, right)) {
-					finalType = right;
-				} else if (typeSystem.isPromotableTo(right, left)) {
-					finalType = left;
-				} else {
-					throw new CompilationError(node, "Cannot create range from " + left + " to " + right);
-				}
+				final ExpressionNode left = (ExpressionNode)r.getChildren().get(0);
+                final ExpressionNode right = (ExpressionNode)r.getChildren().get(1);
+                TypeVariable innerType = tryPromoteEnds(node, typeSystem, left, right)
+				        .orElseThrow(() ->  new CompilationError(node, "Cannot create range from " + left.getTypeVariable() + " to " + right.getTypeVariable()));
 
-				r.setTypeVariable(LenseTypeSystem.specify(LenseTypeSystem.Progression(), finalType));
+			
+				r.setTypeVariable(LenseTypeSystem.specify(LenseTypeSystem.Progression(), innerType));
 
 				ArgumentListItemNode arg = new ArgumentListItemNode(0, r.getEnd());
 				arg.setExpectedType(r.getEnd().getTypeVariable());
@@ -1272,6 +1265,7 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 				limits.getMax().ifPresent( m -> create.setProperty("maximum",m));
 	            
 			    create.setProperty("includeMaximum",r.isIncludeEnd());
+			    create.setProperty("isRange", "true");
                 
 				
 				r.getParent().replace(r, create);
@@ -1279,73 +1273,16 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 			} else if (node instanceof LiteralIntervalNode) {
 				LiteralIntervalNode r = (LiteralIntervalNode) node;
 
-				Optional<TypeVariable> oleft = Optional.ofNullable(r.getStart()).map(s -> s.getTypeVariable());
-				Optional<TypeVariable> oright = Optional.ofNullable(r.getEnd()).map(s -> s.getTypeVariable());
 
-				TypeVariable finalType = null;
-				if (oleft.isPresent() && oright.isPresent()) {
-					TypeVariable left = oleft.get();
-					TypeVariable right = oright.get();
-
-					TypeDefinition leftDef = this.getSemanticContext()
-							.resolveTypeForName(left.getTypeDefinition().getName(), left.getGenericParameters().size())
-							.get().getTypeDefinition();
-					TypeDefinition rightDef = this.getSemanticContext()
-							.resolveTypeForName(right.getTypeDefinition().getName(),
-									right.getGenericParameters().size())
-							.get().getTypeDefinition();
-
-					if (left.equals(right)) {
-						finalType = left;
-					} else if (typeSystem.isPromotableTo(leftDef, rightDef)) {
-						finalType = right;
-
-						// cast left to right
-
-						promoteNodeType(r.getStart(), finalType);
-
-						// Optional<Constructor> op =
-						// rightDef.getConstructorByParameters(Visibility.Public,
-						// new ConstructorParameter(left));
-						//
-						// NewInstanceCreationNode cast = NewInstanceCreationNode.of(finalType,
-						// op.get(), r.getStart());
-						// cast.getCreationParameters().getTypeParametersListNode()
-						// .add(new GenericTypeParameterNode(new TypeNode(finalType)));
-						//
-						// r.replace(r.getStart(), cast);
-
-					} else if (typeSystem.isPromotableTo(rightDef, leftDef)) {
-						finalType = left;
-
-						// cast right to left
-
-						promoteNodeType(r.getEnd(), finalType);
-
-						// Optional<Constructor> op =
-						// leftDef.getConstructorByParameters(Visibility.Public,
-						// new ConstructorParameter(right));
-						//
-						// NewInstanceCreationNode cast = NewInstanceCreationNode.of(finalType,
-						// op.get(), r.getEnd());
-						// cast.getCreationParameters().getTypeParametersListNode()
-						// .add(new GenericTypeParameterNode(new TypeNode(finalType)));
-						//
-						// r.replace(r.getEnd(), cast);
-					} else {
-						throw new CompilationError(node, "Cannot create interval from " + left + " to " + right);
-					}
-				} else if (oleft.isPresent()) {
-					finalType = oleft.get();
-				} else if (oright.isPresent()) {
-					finalType = oright.get();
-				} else {
-					throw new CompilationError(node, "Cannot create interval");
-				}
+                final ExpressionNode left = (ExpressionNode)r.getChildren().get(0);
+                final ExpressionNode right = (ExpressionNode)r.getChildren().get(1);
+                
+                TypeVariable innerType = tryPromoteEnds(node, typeSystem, left, right)
+                        .orElseThrow(() ->  new CompilationError(node, "Cannot create interval from " + left.getTypeVariable() + " to " + right.getTypeVariable()));
 
 				TypeVariable type = this.getSemanticContext().resolveTypeForName("lense.core.math.Interval", 1).get();
 
-				r.setTypeVariable(LenseTypeSystem.specify(type, finalType));
+				r.setTypeVariable(LenseTypeSystem.specify(type, innerType));
 
 			} else if (node instanceof LambdaExpressionNode) {
 				LambdaExpressionNode n = (LambdaExpressionNode) node;
@@ -1970,7 +1907,7 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 						throw new CompilationError(node, "Tuples only accept one index");
 					}
 
-					ExpressionNode indexArgument = (ExpressionNode) m.getArguments().getFirst().getFirstChild();
+					ExpressionNode indexArgument = (ExpressionNode) m.getArguments().getFirstArgument().getFirstChild();
 					Optional<Integer> index = asConstantNumber(indexArgument);
 					if (index.isPresent()) {
 
@@ -2681,13 +2618,12 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 							VariableInfo variable = this.getSemanticContext().currentScope()
 									.searchVariable("@returnOfMethod");
 
-							if (!m.isNative() && variable == null) {
+							if (!m.isNative() && (variable == null || lenseTypeSystem.isNothing(variable.getTypeVariable()))) {
 
 								TypeDefinition currentType = this.getSemanticContext().currentScope().getCurrentType();
 								if (currentType.getKind() == LenseUnitKind.Class) {
 									throw new CompilationError(node,
-											"Method " + m.getName() + " must return a result of " + returnType
-											+ ". Found type " + currentType.getName());
+											"Method " + m.getName() + " must return a result of " + returnType);
 								}
 							}
 
@@ -2826,6 +2762,58 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 			}
 		}
 	}
+
+    private Optional<TypeVariable> tryPromoteEnds(
+            AstNode node, 
+            LenseTypeSystem typeSystem,
+            ExpressionNode left,
+            ExpressionNode right
+           ) {
+        
+        Optional<TypeVariable> oleft = Optional.ofNullable(left).map(s -> s.getTypeVariable());
+        Optional<TypeVariable> oright = Optional.ofNullable(right).map(s -> s.getTypeVariable());
+
+        if (oleft.isPresent() && oright.isPresent()) {
+        	TypeVariable tleft = oleft.get();
+        	TypeVariable tright = oright.get();
+
+        	TypeDefinition leftDef = this.getSemanticContext()
+        			.resolveTypeForName(tleft.getTypeDefinition().getName(), tleft.getGenericParameters().size())
+        			.get().getTypeDefinition();
+        	TypeDefinition rightDef = this.getSemanticContext()
+        			.resolveTypeForName(tright.getTypeDefinition().getName(),
+        					tright.getGenericParameters().size())
+        			.get().getTypeDefinition();
+
+      
+            if (oleft.equals(oright)) {
+        		return oleft;
+        	} else if (typeSystem.isPromotableTo(leftDef, rightDef)) {
+        
+        		// cast left to right
+
+        		promoteNodeType(left, tright);
+
+        		return Optional.of(tright);
+        	} else if (typeSystem.isPromotableTo(rightDef, leftDef)) {
+        		// cast right to left
+
+        		promoteNodeType(right, tleft);
+
+        		return Optional.of(tleft);
+        	} else {
+        	    return Optional.empty();
+        		//throw new CompilationError(node, "Cannot create interval from " + left + " to " + right);
+        	}
+        } else if (oleft.isPresent()) {
+            return oleft;
+        } else if (oright.isPresent()) {
+        	return oright;
+        } else {
+        	return Optional.empty();
+        }
+
+    }
 
 	private Optional<Method> resolveMethod(String methodName, TypeDefinition def, ArgumentListHolder holder) {
 

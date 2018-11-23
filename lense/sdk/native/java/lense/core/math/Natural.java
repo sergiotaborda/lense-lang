@@ -2,7 +2,7 @@ package lense.core.math;
 
 import java.math.BigInteger;
 
-import lense.core.collections.NativeNaturalProgression;
+import lense.core.collections.NativeOrdinalProgression;
 import lense.core.collections.Progression;
 import lense.core.lang.java.Constructor;
 import lense.core.lang.java.NonNull;
@@ -58,11 +58,11 @@ public abstract class Natural extends Whole   {
     }
 
     public @NonNull Progression upTo(@NonNull Natural other){
-        return new NativeNaturalProgression(this, other);
+        return new NativeOrdinalProgression(this, other, true);
     }
     
     public @NonNull Progression upToExclusive(@NonNull Natural other){
-        return new NativeNaturalProgression(this, other.predecessor());
+        return new NativeOrdinalProgression(this, other, false);
     }
     
     public abstract Natural wholeDivide (Natural other);

@@ -181,7 +181,7 @@ public class NameResolutionVisitor extends AbstractScopedVisitor {
 
 			TreeTransverser.transverse(args, this);
 
-			TypedNode type = (TypedNode) args.getFirst().getFirstChild();
+			TypedNode type = (TypedNode) args.getFirstArgument().getFirstChild();
 			array.getTypeNode().addParametricType(
 					new GenericTypeParameterNode(
 							new TypeNode(type.getTypeVariable()),
