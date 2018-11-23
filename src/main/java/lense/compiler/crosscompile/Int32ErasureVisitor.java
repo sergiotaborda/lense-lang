@@ -12,6 +12,7 @@ import lense.compiler.ast.BooleanValue;
 import lense.compiler.ast.CastNode;
 import lense.compiler.ast.ComparisonNode.Operation;
 import lense.compiler.ast.ExpressionNode;
+import lense.compiler.ast.ForEachNode;
 import lense.compiler.ast.InstanceOfNode;
 import lense.compiler.ast.MethodInvocationNode;
 import lense.compiler.ast.NewInstanceCreationNode;
@@ -152,13 +153,38 @@ public class Int32ErasureVisitor implements Visitor<AstNode> {
 
             if (constructor.getConstructor() != null && constructor.getTypeNode().getTypeVariable().getTypeDefinition().equals(primitiveType)){
 
-                if (constructor.getConstructor().isImplicit() && ((ExpressionNode)constructor.getArguments().getFirst().getFirstChild()).getTypeVariable().equals(primitiveType)){
+                if (constructor.getConstructor().isImplicit() && ((ExpressionNode)constructor.getArguments().getFirstArgument().getFirstChild()).getTypeVariable().equals(primitiveType)){
                     // remove the conversion constrcutor
-                    constructor.getParent().replace(constructor, constructor.getArguments().getFirst().getFirstChild());
+                    constructor.getParent().replace(constructor, constructor.getArguments().getFirstArgument().getFirstChild());
                 }
                 // revert typing 
                 constructor.setTypeVariable(type);
             }
+        } else if (node instanceof ForEachNode) {
+            ForEachNode f = (ForEachNode)node;
+            VariableInfo varInfo = f.getVariableDeclarationNode().getInfo();
+            
+            if (varInfo.getTypeVariable().equals(primitiveType)){
+                
+                if (!varInfo.getMaximum().isPresent() || !varInfo.getMinimum().isPresent()){
+                    // revert to  type
+                    varInfo.setTypeVariable(type);
+                } else if(f.getContainer() instanceof MethodInvocationNode /*&& f.getContainer().getProperty("isRange", Boolean.class).orElse(false)*/){
+                    MethodInvocationNode m = (MethodInvocationNode) f.getContainer();
+                    
+                    AstNode unboxAccess = promoteNodeType(primitiveType, m.getAccess());
+                    AstNode unboxArgument = promoteNodeType(primitiveType,  m.getCall().getArguments().getFirstArgument().getFirstChild());
+                    
+                    MethodInvocationNode inv = new MethodInvocationNode(unboxAccess , m.getCall().getName() ,new ArgumentListItemNode(1, unboxArgument));
+                    inv.setTypeMember(m.getTypeMember());
+                    inv.setTypeVariable(m.getTypeVariable());
+                    inv.setScanPosition(inv.getScanPosition());
+
+                    m.getParent().replace(m, inv);
+                    
+                }
+            }
+            
         } else if (node instanceof MethodInvocationNode) {
             MethodInvocationNode m = (MethodInvocationNode) node;
 
@@ -177,16 +203,15 @@ public class Int32ErasureVisitor implements Visitor<AstNode> {
                         //                        } else {
 
                         // determine if the other part is a compatible number
-                        AstNode right = m.getCall().getArguments().getFirst().getFirstChild();
+                        AstNode right = m.getCall().getArguments().getFirstArgument().getFirstChild();
 
-
+                        VariableRange maxRange = VariableRange.forType(primitiveType);
+                        
                         VariableRange leftRange = VariableRange.extractFrom((AstNode) access);
 
                         VariableRange rightRange = VariableRange.extractFrom(right);
 
                         VariableRange range = leftRange.operate(rightRange, op);
-
-                        VariableRange maxRange = VariableRange.forType(primitiveType);
 
                         TypeDefinition opType = m.getTypeVariable().getTypeDefinition();
 
@@ -209,17 +234,21 @@ public class Int32ErasureVisitor implements Visitor<AstNode> {
                             if (right instanceof VariableReadNode){
                                 VariableReadNode v = (VariableReadNode)right;
 
-
-                                v.getVariableInfo().setTypeVariable(primitiveType);
+                                final VariableInfo varInfo = v.getVariableInfo();
+                                rightRange.getMin().ifPresent( it -> varInfo.setMininumValue(it));
+                                rightRange.getMax().ifPresent( it -> varInfo.setMaximumValue(it));
+                                
+                                varInfo.setTypeVariable(primitiveType);
                                 v.setTypeVariable(primitiveType);
 
+                                
                                 op = coerseToPrimitiveOperation(op);
                                 opType = primitiveType;
 
 
                                 m.getParent().replace(m, new PrimitiveArithmeticOperationsNode(opType,m.getAccess(), right, op));
                             } else if (right instanceof NumericValue){
-                                m.getCall().getArguments().getFirst().replace(m.getCall().getArguments().getFirst().getFirstChild(), right);
+                                m.getCall().getArguments().getFirstArgument().replace(m.getCall().getArguments().getFirstArgument().getFirstChild(), right);
                             }
                         } else if (((TypedNode)right).getTypeVariable().getTypeDefinition().equals(primitiveType)){
                             // arguments are still primitive
@@ -232,7 +261,7 @@ public class Int32ErasureVisitor implements Visitor<AstNode> {
                     } else {
                         // box then again
                         PrimitiveBox boxAccess = new PrimitiveBox(primitiveType, m.getAccess());
-                        PrimitiveBox boxArgument = new PrimitiveBox(primitiveType, m.getCall().getFirstChild().getFirstChild());
+                        PrimitiveBox boxArgument = new PrimitiveBox(primitiveType, m.getCall().getArguments().getFirstArgument().getFirstChild());
 
                         // m.replace(m.getAccess(), boxAccess);
                         // m.getCall().getFirstChild().getFirstChild().replace(m.getCall().getFirstChild().getFirstChild().getFirstChild() ,boxArgument );
@@ -247,7 +276,7 @@ public class Int32ErasureVisitor implements Visitor<AstNode> {
                 } else if (access instanceof NumericValue && m.getCall().getArguments().getChildren().size() == 1){
                     NumericValue n = (NumericValue)access;
 
-                    AstNode right = m.getCall().getArguments().getFirst().getFirstChild();
+                    AstNode right = m.getCall().getArguments().getFirstArgument().getFirstChild();
 
 
                     if (right instanceof TypedNode &&  ((TypedNode) right).getTypeVariable().getTypeDefinition().equals(primitiveType) && isInRange(n.getValue(), primitiveType)){
@@ -348,6 +377,27 @@ public class Int32ErasureVisitor implements Visitor<AstNode> {
 
         }
 
+    }
+
+    private AstNode promoteNodeType(PrimitiveTypeDefinition primitiveType, AstNode node) {
+      
+        if (node instanceof NumericValue){
+            return new PrimitiveNumericValue(primitiveType, ((NumericValue) node));
+        } else if (node instanceof NewInstanceCreationNode){
+            NewInstanceCreationNode constructor  = (NewInstanceCreationNode)node;
+            if (constructor.getConstructor() != null && constructor.getConstructor().isImplicit() ){
+
+                if (constructor.getTypeNode().getTypeVariable().getTypeDefinition().equals(primitiveType) && ((ExpressionNode)constructor.getArguments().getFirstArgument().getFirstChild()).getTypeVariable().equals(primitiveType)){
+                    // remove the conversion constrcutor
+                   return constructor.getArguments().getFirstArgument().getFirstChild();
+                } 
+            }
+        }  else if (node instanceof PrimitiveBox ){
+            return promoteNodeType(primitiveType, node.getFirstChild());
+        }
+        
+        return node;
+           
     }
 
     private boolean isNodePromotableToPrimitive(AstNode node) {

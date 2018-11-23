@@ -62,6 +62,7 @@ import lense.compiler.ast.ParametersListNode;
 import lense.compiler.ast.PosExpression;
 import lense.compiler.ast.PreBooleanUnaryExpression;
 import lense.compiler.ast.QualifiedNameNode;
+import lense.compiler.ast.RangeNode;
 import lense.compiler.ast.ReturnNode;
 import lense.compiler.ast.StatementNode;
 import lense.compiler.ast.StringConcatenationNode;
@@ -345,12 +346,34 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
                     }
                 }
 
-                writer.print("/* BOXING OUT */(");
-                TreeTransverser.transverse(n, this);
+                writer.print("/* BOXING OUT */");
+    
 
                 if (pu.getTypeVariable().equals(PrimitiveTypeDefinition.BOOLEAN)){
+                    writer.print("(");
+                    TreeTransverser.transverse(n, this);
                     writer.print(").toPrimitiveBoolean()");
-                } else {
+                } else if (pu.getTypeVariable().equals(PrimitiveTypeDefinition.INT)){
+                    
+                    if (n instanceof NumericValue){
+                        writer.print(((NumericValue) n).getValue().toString());
+                    } else {
+                        writer.print("(");
+                        TreeTransverser.transverse(n, this);
+                        writer.print(").toPrimitiveInt()");
+                    }
+                    
+                } else if (pu.getTypeVariable().equals(PrimitiveTypeDefinition.LONG)){
+                    
+                    if (n instanceof NumericValue){
+                        writer.print(((NumericValue) n).getValue().toString());
+                    } else {
+                        writer.print("(");
+                        TreeTransverser.transverse(n, this);
+                        writer.print(").toPrimitiveLong()");
+                    }
+                    
+                }  else {
                     throw new UnsupportedOperationException("not implemented yet ");
                 }
 
@@ -879,10 +902,19 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 
                 if (varInfo.getTypeVariable().getTypeDefinition().getKind() == JavaTypeKind.Primitive && varInfo.getMaximum().isPresent() && varInfo.getMinimum().isPresent()){
                     // use a count for each
+                    
+                    MethodInvocationNode range = (MethodInvocationNode)f.getContainer();
+                    
                     String varName = f.getVariableDeclarationNode().getName();
-                    writer.println("for ( " + typeName + " "+  varName + " = " + varInfo.getMinimum().get().toString() + "; " 
-                            + varName + "<"  + (varInfo.isIncludeMaximum() ? "=" : "") +  varInfo.getMaximum().get().toString() + "; "
-                            + varName + "++ ) {");
+                    writer.append("for ( ").append(typeName).append(" ").append(varName).append(" = ");
+                    
+                    TreeTransverser.transverse(range.getAccess(), this);
+                    
+                    writer.append("; ").append(varName).append("<").append((varInfo.isIncludeMaximum() ? "=" : ""));
+                   
+                    TreeTransverser.transverse(range.getCall().getArguments().getFirstArgument().getFirstChild(), this);
+    
+                    writer.append("; ").append(varName).append("++ ) {");
 
                     StringWriter w = new StringWriter();
                     PrintWriter sp = new PrintWriter(w);

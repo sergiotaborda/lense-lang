@@ -101,9 +101,6 @@ public class Main extends ConsoleApplication {
 		assert (!(d is Int64), "d is an Int64");
 		assert (d is Integer, "d is not an Integer");
 		
-		let min : Int32 = 0;
-		let max : Int32 = 5;
-		
 		for (let i in 0 .. 5){
 			a = a &+ i;
 		}
@@ -119,6 +116,19 @@ public class Main extends ConsoleApplication {
 		return x + y;
 	}
 	
+	private  increment ( a : Int32) : Int32 {
+		for (let i in 0 .. 5){
+			a = a &+ i;
+		}
+		return a;
+	}
+	
+	private  incrementTo ( a : Int32, m : Int32) : Int32 {
+		for (let j in 0 .. m){
+			a = a &+ j;
+		}
+		return a;
+	}
 
 	private demoNamedArguments (){
 

@@ -85,7 +85,7 @@ public class BooleanErasureVisitor implements Visitor<AstNode> {
 					m.getParent().replace(m, new PrimitiveBooleanOperationsNode(m.getAccess(), m.getCall().getFirstChild().getFirstChild(), BooleanOperation.BitXor));
 				} else if (m.getCall().getName().equals("equalsTo")){
 
-					AstNode val = m.getCall().getArguments().getFirst().getFirstChild();
+					AstNode val = m.getCall().getArguments().getFirstArgument().getFirstChild();
 					if ( val instanceof BooleanValue) {
 						// remove call to equals method
 						m.getParent().replace(m, m.getAccess());
