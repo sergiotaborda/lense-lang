@@ -129,6 +129,14 @@ public class Main extends ConsoleApplication {
 		}
 		return a;
 	}
+	
+	private  incrementTo ( a : Integer, m : Int32) : Integer {
+		for (let j in 0 .. m){
+			a = a + j;
+		}
+		return a;
+	}
+	
 
 	private demoNamedArguments (){
 
