@@ -18,6 +18,7 @@ import compiler.syntax.AstNode;
 import compiler.trees.TreeTransverser;
 import compiler.trees.Visitor;
 import compiler.trees.VisitorNext;
+import lense.compiler.ast.IndexedAccessNode;
 import lense.compiler.ast.ArgumentListItemNode;
 import lense.compiler.ast.ArgumentListNode;
 import lense.compiler.ast.ArgumentTypeResolverNode;
@@ -350,7 +351,7 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
     
 
                 if (pu.getTypeVariable().equals(PrimitiveTypeDefinition.BOOLEAN)){
-                    writer.print("(");
+                    writer.print("((lense.core.lang.Boolean)");
                     TreeTransverser.transverse(n, this);
                     writer.print(").toPrimitiveBoolean()");
                 } else if (pu.getTypeVariable().equals(PrimitiveTypeDefinition.INT)){
@@ -358,7 +359,7 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
                     if (n instanceof NumericValue){
                         writer.print(((NumericValue) n).getValue().toString());
                     } else {
-                        writer.print("(");
+                        writer.print("((lense.core.math.Int32)");
                         TreeTransverser.transverse(n, this);
                         writer.print(").toPrimitiveInt()");
                     }
@@ -368,7 +369,7 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
                     if (n instanceof NumericValue){
                         writer.print(((NumericValue) n).getValue().toString());
                     } else {
-                        writer.print("(");
+                        writer.print("((lense.core.math.Int64)");
                         TreeTransverser.transverse(n, this);
                         writer.print(").toPrimitiveLong()");
                     }
@@ -771,9 +772,7 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
                     } else {
                         writer.print("lense.core.lang.java.Base");
                     }
-                }
-
-                ;
+                } 
 
                 if (t.getInterfaces() != null) {
                     if (t.getKind() == LenseUnitKind.Interface) {
@@ -792,6 +791,8 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
                         }
                     }
                     writer.print("lense.core.lang.Any");
+                } else if (t.getKind().isInterface()){
+                    writer.print(" extends lense.core.lang.Any");
                 }
 
                 writer.println("{");
@@ -1464,15 +1465,27 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
                     writer.print(sanitize(n.getName()));
                 } else {
 
-                    writer.print(sanitize(n.getName()));
-
                     String propertyName = n.getName().substring(0, 1).toUpperCase() + n.getName().substring(1);
-                    writer.append(".get").append(propertyName).append("(").append(")");
+                    writer.append("get").append(propertyName).append("(").append(")");
 
                 }
 
                 return VisitorNext.Siblings;
+            } else if (node instanceof lense.compiler.ast.IndexedAccessNode){
+                IndexedAccessNode n = (IndexedAccessNode)node;
+                
+                if (n.getAccess() != null) {
+                    TreeTransverser.transverse(n.getAccess(), this);
+                    writer.print('.');
+                }
 
+                writer.append("get(");
+                
+                TreeTransverser.transverse(n.getArguments(), this);
+                
+                writer.append(")");
+                
+                return VisitorNext.Siblings;
             } else if (node instanceof ConstructorDeclarationNode) {
                 ConstructorDeclarationNode ctr = (ConstructorDeclarationNode) node;
 
@@ -1745,22 +1758,27 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
             } else if (node instanceof InstanceOfNode) {
                 InstanceOfNode n = (InstanceOfNode) node;
 
-                writer.append("(");
-
-                TreeTransverser.transverse(n.getExpression(), this);
-                writer.append(" instanceof ");
-
-                if (n.getTypeNode().getTypeVariable().getTypeDefinition().getKind().isObject()) {
-                    String[] names = Strings.split(n.getTypeNode().getTypeVariable().getTypeDefinition().getName(),
-                            ".");
-                    names[names.length - 1] = Strings.cammelToPascalCase(names[names.length - 1]);
-
-                    writer.append(Strings.join(names, "."));
+                if (n.getMandatoryEvaluation().isPresent()){
+                    writer.append( n.getMandatoryEvaluation().get().toString());
                 } else {
-                    TreeTransverser.transverse(n.getTypeNode(), this);
+                    writer.append("(");
+
+                    TreeTransverser.transverse(n.getExpression(), this);
+                    writer.append(" instanceof ");
+
+                    if (n.getTypeNode().getTypeVariable().getTypeDefinition().getKind().isObject()) {
+                        String[] names = Strings.split(n.getTypeNode().getTypeVariable().getTypeDefinition().getName(),
+                                ".");
+                        names[names.length - 1] = Strings.cammelToPascalCase(names[names.length - 1]);
+
+                        writer.append(Strings.join(names, "."));
+                    } else {
+                        TreeTransverser.transverse(n.getTypeNode(), this);
+                    }
+
+                    writer.append(")");
                 }
 
-                writer.append(")");
 
                 return VisitorNext.Siblings;
             } else if (node instanceof FieldDeclarationNode) {
@@ -1843,7 +1861,7 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
         // signature is type<A,B>
         TypeVariable typeVar = m.getReturnType().getTypeVariable();
         if (typeVar == null) {
-            writer.print(m.getReturnType().getName());
+            writer.print(signatureNameOf(m.getReturnType().getName()));
         } else if (typeVar.isFixed()) {
             writer.print(typeVar.getTypeDefinition().getName());
             if (typeVar.getTypeDefinition().isGeneric()) {
@@ -1856,20 +1874,20 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
                     first = false;
 
                     if (a instanceof GenericTypeBoundToDeclaringTypeVariable) {
-                        writer.print(a.getSymbol().get());
+                        writer.print(signatureNameOf(a.getSymbol().get()));
                     } else {
-                        writer.print(
-                                a.getUpperBound().getSymbol().orElse(a.getUpperBound().getTypeDefinition().getName()));
+                        writer.print(signatureNameOf(
+                                a.getUpperBound().getSymbol().orElse(a.getUpperBound().getTypeDefinition().getName())));
                     }
                 }
                 writer.print(">");
             }
         } else if (typeVar instanceof CalculatedTypeVariable) {
             CalculatedTypeVariable c = (CalculatedTypeVariable) typeVar;
-            writer.print(c.getSymbol().get());
+            writer.print(signatureNameOf(c.getSymbol().get()));
         } else if (typeVar instanceof RangeTypeVariable) {
             RangeTypeVariable c = (RangeTypeVariable) typeVar;
-            writer.print(c.getSymbol().get());
+            writer.print(signatureNameOf(c.getSymbol().get()));
         } else {
             throw new RuntimeException(
                     "Type signature is not defined for type variable " + typeVar.getClass().getName());
@@ -1888,18 +1906,18 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
             typeVar = t.getTypeVariable();
             if (typeVar instanceof CalculatedTypeVariable) {
                 CalculatedTypeVariable c = (CalculatedTypeVariable) typeVar;
-                writer.print(c.getSymbol().get());
+                writer.print(signatureNameOf(c.getSymbol().get()));
             } else if (typeVar instanceof RangeTypeVariable) {
                 RangeTypeVariable c = (RangeTypeVariable) typeVar;
-                writer.print(c.getSymbol().get());
+                writer.print(signatureNameOf(c.getSymbol().get()));
             } else {
-                writer.print(typeVar.getTypeDefinition().getName()); // TODO, recursive generic parameters
+                writer.print(signatureNameOf(typeVar.getTypeDefinition().getName())); // TODO, recursive generic parameters
             }
         }
 
         if (m.getSuperMethod() != null) {
             writer.append("\" , overloaded = true , declaringType = \"")
-            .append(m.getSuperMethod().getDeclaringType().getTypeDefinition().getName());
+            .append(signatureNameOf(m.getSuperMethod().getDeclaringType().getTypeDefinition().getName()));
         }
 
         if (!m.getMethodScopeGenerics().getChildren().isEmpty()) {
@@ -1907,7 +1925,7 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
             StringBuilder sb = new StringBuilder();
 
             for (GenericTypeParameterNode a : m.getMethodScopeGenerics().getChildren(GenericTypeParameterNode.class)) {
-                sb.append(a.getTypeNode().getName()).append(",");
+                sb.append(signatureNameOf(a.getTypeNode().getName())).append(",");
             }
             sb.deleteCharAt(sb.length() - 1);
 
@@ -1915,6 +1933,17 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
         }
 
         writer.print("\")\n");
+    }
+
+    private String signatureNameOf(String name) {
+        if ( "int".equals(name)){
+            return "lense.core.lang.Int32";
+        } else  if ( "long".equals(name)){
+            return "lense.core.lang.Int64";
+        } else  if ( "boolean".equals(name)){
+            return "lense.core.lang.Boolean";
+        }
+        return name;
     }
 
     private void printTypeSignature(Appendable pwriter, TypeVariable typeVar) {

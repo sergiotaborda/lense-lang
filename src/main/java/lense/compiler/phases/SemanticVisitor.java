@@ -101,6 +101,7 @@ import lense.compiler.ast.WhileNode;
 import lense.compiler.context.SemanticContext;
 import lense.compiler.context.VariableInfo;
 import lense.compiler.crosscompile.PrimitiveBooleanValue;
+import lense.compiler.crosscompile.PrimitiveTypeDefinition;
 import lense.compiler.crosscompile.VariableRange;
 import lense.compiler.type.CallableMemberMember;
 import lense.compiler.type.Constructor;
@@ -237,9 +238,15 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 
 				if (exp.getOperation() == BooleanOperation.LogicNegate) {
 
-					exp.getParent().replace(val, exp.getFirstChild());
-
-					r.setReferenceValue(false);
+//					exp.getParent().replace(val, exp.getFirstChild());
+//
+//					r.setReferenceValue(false);
+//					
+					  AssertNode a = new AssertNode( (ExpressionNode) exp.getFirstChild() );
+	                  a.setReferenceValue(false);
+	                  r.getText().ifPresent( text -> a.setText(text));
+	                    
+	                  r.getParent().replace(r, a);
 				}
 			}
 
@@ -880,8 +887,8 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 		            && !LenseTypeSystem.isAssignableTo( n.getTypeNode().getTypeVariable(), n.getExpression().getTypeVariable() ) ){
 		        
 		        // is mandatory false
-		        
-		        node.getParent().replace(node, new PrimitiveBooleanValue(false));
+		        n.setMandatoryEvaluation(false);
+	
 		    }
 		    
 		} else if (node instanceof JuxpositionNode) {
@@ -2627,7 +2634,7 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 								}
 							}
 
-							if (!typeSystem.isAssignableTo(variable.getTypeVariable(), returnType)) {
+							if (!LenseTypeSystem.isAssignableTo(variable.getTypeVariable(), returnType)) {
 
 								if (!typeSystem.isPromotableTo(variable.getTypeVariable(), returnType)) {
 									throw new CompilationError(node,
@@ -2698,8 +2705,9 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 
 			} else if (node instanceof ConditionalStatement) {
 
-				if (!((ConditionalStatement) node).getCondition().getTypeVariable().getTypeDefinition()
-						.equals(LenseTypeSystem.Boolean())) {
+				if (!((ConditionalStatement) node).getCondition().getTypeVariable().getTypeDefinition().equals(LenseTypeSystem.Boolean())
+				        && !((ConditionalStatement) node).getCondition().getTypeVariable().getTypeDefinition().equals(PrimitiveTypeDefinition.BOOLEAN)
+				        ) {
 					throw new CompilationError(
 							"Condition must be a Boolean value, found " + ((ConditionalStatement) node).getCondition()
 							.getTypeVariable().getTypeDefinition().getName());

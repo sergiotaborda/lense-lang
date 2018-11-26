@@ -521,7 +521,12 @@ public class LenseTypeSystem {
 			throw new IllegalArgumentException("Target cannot be null");
 		}
 		
-		if (type.isSingleType()) {
+		if (type instanceof UnionType){
+		    UnionType union = (UnionType)type;
+		    
+		    return isAssignableTo(union.getLeft(), target) && isAssignableTo(union.getRight(), target);
+
+		} else if (type.isSingleType()) {
 			if (target.isSingleType()) {
 				return isAssignableTo(type.getTypeDefinition(), target.getTypeDefinition());
 			} else {

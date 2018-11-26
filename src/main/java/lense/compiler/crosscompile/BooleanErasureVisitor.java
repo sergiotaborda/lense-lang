@@ -4,10 +4,12 @@ import compiler.syntax.AstNode;
 import compiler.trees.Visitor;
 import compiler.trees.VisitorNext;
 import lense.compiler.ast.ArgumentListItemNode;
+import lense.compiler.ast.AssertNode;
 import lense.compiler.ast.BooleanOperation;
 import lense.compiler.ast.BooleanValue;
 import lense.compiler.ast.CastNode;
 import lense.compiler.ast.ExpressionNode;
+import lense.compiler.ast.InstanceOfNode;
 import lense.compiler.ast.MethodInvocationNode;
 import lense.compiler.ast.NumericValue;
 import lense.compiler.ast.ReturnNode;
@@ -29,7 +31,9 @@ public class BooleanErasureVisitor implements Visitor<AstNode> {
 	@Override
 	public VisitorNext visitBeforeChildren(AstNode node) {
 
-		if (node instanceof ReturnNode){
+	    if (node instanceof InstanceOfNode){
+	        ((InstanceOfNode) node).setTypeVariable(PrimitiveTypeDefinition.BOOLEAN);
+	    } else if (node instanceof ReturnNode){
 			ReturnNode r = (ReturnNode)node;
 
 			TypeVariable tv = r.getExpectedType();
@@ -65,7 +69,15 @@ public class BooleanErasureVisitor implements Visitor<AstNode> {
 	@Override
 	public void visitAfterChildren(AstNode node) {
 
-		if (node instanceof MethodInvocationNode) {
+	    if (node instanceof AssertNode){
+	        AssertNode a = (AssertNode)node;
+	        
+	        if (!a.getCheck().getTypeVariable().equals(PrimitiveTypeDefinition.BOOLEAN)){
+	            
+	            a.replace(a.getCheck(), new PrimitiveUnbox(PrimitiveTypeDefinition.BOOLEAN, a.getCheck()));
+	        }
+
+	    } else if (node instanceof MethodInvocationNode) {
 			MethodInvocationNode m = (MethodInvocationNode) node;
 
 			TypedNode access = (TypedNode)m.getAccess();
