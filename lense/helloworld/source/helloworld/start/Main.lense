@@ -106,6 +106,24 @@ public class Main extends ConsoleApplication {
 		}
 
 		assert (19 == a, "a is not 19, is {{ a }}");
+		
+		let list = new List<Int32>();
+		
+		list.add(a);
+		
+		console.println(list);
+		console.println(list.size);
+		//console.println(list.empty); // TODO needs boolean boxing
+		
+		assert(1 == list.size, "List size is not 1");
+		assert(!list.empty, "List size is empty");
+		
+		let x : Int32 = list[0];
+		
+		let y : Int32 = x; // &+ 1;
+		
+		assert (20 == y, "y is not 20, is {{ y }}");
+		
 	}
 	
 	private  sum ( a : Int32 , b: Int32) : Int32{
@@ -131,8 +149,8 @@ public class Main extends ConsoleApplication {
 	}
 	
 	private  incrementTo ( a : Integer, m : Int32) : Integer {
-		for (let j in 0 .. m){
-			a = a + j;
+		for (let k in 0 .. m){
+			a = a + k;
 		}
 		return a;
 	}

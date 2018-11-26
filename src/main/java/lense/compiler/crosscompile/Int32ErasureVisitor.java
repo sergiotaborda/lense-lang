@@ -13,6 +13,8 @@ import lense.compiler.ast.CastNode;
 import lense.compiler.ast.ComparisonNode.Operation;
 import lense.compiler.ast.ExpressionNode;
 import lense.compiler.ast.ForEachNode;
+import lense.compiler.ast.FormalParameterNode;
+import lense.compiler.ast.GenericTypeParameterNode;
 import lense.compiler.ast.InstanceOfNode;
 import lense.compiler.ast.MethodInvocationNode;
 import lense.compiler.ast.NewInstanceCreationNode;
@@ -59,7 +61,7 @@ public class Int32ErasureVisitor implements Visitor<AstNode> {
 
             TypeVariable tv = r.getExpectedType();
 
-            if (tv != null && tv.isFixed() &&  LenseTypeSystem.getInstance().isAssignableTo(tv, type)) {
+            if (tv != null && tv.isFixed() &&  LenseTypeSystem.isAssignableTo(tv, type)) {
 
 
                 r.setExpectedType(primitiveType);
@@ -70,26 +72,33 @@ public class Int32ErasureVisitor implements Visitor<AstNode> {
         } else if (node instanceof NumericValue){
             NumericValue n = (NumericValue) node;
 
-            if (LenseTypeSystem.getInstance().isAssignableTo(n.getTypeVariable(), type)){
+            if (LenseTypeSystem.isAssignableTo(n.getTypeVariable(), type)){
                 n.setTypeVariable(primitiveType);
             }
 
         } else if (node instanceof TypedNode
                 && !(node instanceof BoxingPointNode )
                 && !(node.getParent() instanceof VariableDeclarationNode )
-                && !(node.getParent() instanceof InstanceOfNode )
+                && !(node.getParent() instanceof InstanceOfNode)
+                && !(node.getParent() instanceof GenericTypeParameterNode )
+                && !(node instanceof GenericTypeParameterNode )
                 ) {
             TypedNode t = (TypedNode) node;
 
             TypeVariable tv = t.getTypeVariable();
 
-            if (tv != null && tv.isFixed() && !isTupleAccess(node) && LenseTypeSystem.getInstance().isAssignableTo(tv, type)) {
+            if (tv != null && tv.isFixed() && !isTupleAccess(node) && LenseTypeSystem.isAssignableTo(tv, type)) {
 
                 if (node instanceof CastNode){
                     CastNode c = (CastNode)node;
 
                     node.getParent().replace(node, c.getFirstChild());
 
+                } else if (node instanceof VariableReadNode){
+                    if (((VariableReadNode) node).getVariableInfo().getDeclaringNode() instanceof FormalParameterNode){
+                        t.setTypeVariable(primitiveType);
+                    }
+                  
                 } else {
                     t.setTypeVariable(primitiveType);
                 }
@@ -236,7 +245,12 @@ public class Int32ErasureVisitor implements Visitor<AstNode> {
 
                                 final VariableInfo varInfo = v.getVariableInfo();
                                 rightRange.getMin().ifPresent( it -> varInfo.setMininumValue(it));
-                                rightRange.getMax().ifPresent( it -> varInfo.setMaximumValue(it));
+                                
+                                if (rightRange.getMax().isPresent()){
+                                    rightRange.getMax().ifPresent( it -> varInfo.setMaximumValue(it));
+                                } else {
+                                    maxRange.getMax().ifPresent( it -> varInfo.setMaximumValue(it));
+                                }
                                 
                                 varInfo.setTypeVariable(primitiveType);
                                 v.setTypeVariable(primitiveType);
@@ -248,6 +262,7 @@ public class Int32ErasureVisitor implements Visitor<AstNode> {
 
                                 m.getParent().replace(m, new PrimitiveArithmeticOperationsNode(opType,m.getAccess(), right, op));
                             } else if (right instanceof NumericValue){
+                                ((NumericValue) right).setTypeVariable(type);
                                 m.getCall().getArguments().getFirstArgument().replace(m.getCall().getArguments().getFirstArgument().getFirstChild(), right);
                             }
                         } else if (((TypedNode)right).getTypeVariable().getTypeDefinition().equals(primitiveType)){
@@ -255,7 +270,7 @@ public class Int32ErasureVisitor implements Visitor<AstNode> {
                             m.getParent().replace(m, new PrimitiveArithmeticOperationsNode(primitiveType,m.getAccess(), m.getCall().getFirstChild().getFirstChild(), op));
                         }
 
-                        //	                    }
+            
                     } else if (m.getCall().getName().equals("asString")) {
                         m.getParent().replace(m, new MethodInvocationOnPrimitiveNode(primitiveType, m));
                     } else {
@@ -279,18 +294,18 @@ public class Int32ErasureVisitor implements Visitor<AstNode> {
                     AstNode right = m.getCall().getArguments().getFirstArgument().getFirstChild();
 
 
-                    if (right instanceof TypedNode &&  ((TypedNode) right).getTypeVariable().getTypeDefinition().equals(primitiveType) && isInRange(n.getValue(), primitiveType)){
+                    if (right instanceof TypedNode 
+                            &&  ((TypedNode) right).getTypeVariable().getTypeDefinition().equals(primitiveType) 
+                            && isInRange(n.getValue(), primitiveType)){
                         for (Operation op : Operation.values()){
                             if (op.getEquivalentMethodName().map( a -> a.equalsIgnoreCase(m.getCall().getName())).orElse(false)){
 
 
                                 PrimitiveComparisonNode c = new PrimitiveComparisonNode(op);
                                 c.add(new PrimitiveNumericValue(primitiveType, n));
-                                c.add( m.getCall().getFirstChild().getFirstChild().getFirstChild());
-
+                                c.add(right);
 
                                 node.getParent().replace(node, c);
-
 
                                 break;
                             }

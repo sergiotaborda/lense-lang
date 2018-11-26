@@ -243,17 +243,16 @@ public class Rational extends Real {
     }
 
 	public override compareWith (other : Real) : Comparison {
-		/{
-		}let diff = this - other;
+		
+		let diff = this - other;
 		
 	    if (diff >0){
-			return Greater;
+			return greater;
 		} else if (diff <0){
-			return Smaller;
+			return smaller;
 		}
 
-	   return Equal;
-	   }/
-	   throw new Exception("Not implemented yet"); 
+	   return equal;
+
 	}  
 }

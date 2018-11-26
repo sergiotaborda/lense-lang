@@ -86,7 +86,13 @@ public class List extends AbstractAssortment implements ResizableSequence {
 
 	@Override
 	public boolean containsAll(Assortment other) {
-		throw new UnsupportedOperationException();
+	   Iterator it = other.getIterator();
+	   while (it.moveNext()){
+	       if (contains(it.current())){
+	           return true;
+	       }
+	   }
+	   return false;
 	}
 
 	@Override
