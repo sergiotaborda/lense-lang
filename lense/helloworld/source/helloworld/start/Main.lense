@@ -1,6 +1,7 @@
 import lense.core.io.Console;
 import lense.core.lang.Void;
 import lense.core.lang.Boolean;
+import lense.core.lang.Some;
 import lense.core.lang.BitArray;
 import lense.core.math.Interval;
 import lense.core.math.Natural;
@@ -42,7 +43,19 @@ public class Main extends ConsoleApplication {
 	
 	public let parameter : Integer = 99 {get;};
 	
-	@teste @teste2
+	private demoListOfMaybe() {
+
+		let list = new List<Int32?>();
+		
+		let s : Int32? = 1;
+		
+		list.add(s);
+		
+		let r = list[0];
+		
+		assert (r is Some, "r is not Some");
+	}
+	
 	private applyNames<T, U> ( from : T , to : U) : String {
 
 		let list = new Array<T>();

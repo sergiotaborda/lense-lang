@@ -40,6 +40,10 @@ public class PrimitiveTypeDefinition implements TypeDefinition {
 		return wrapperName;
 	}
 	
+	public String toString(){
+	    return name;
+	}
+	
 	@Override
 	public String getName() {
 		return name;
