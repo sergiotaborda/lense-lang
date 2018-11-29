@@ -13,7 +13,7 @@ import lense.core.math.BigDecimal;
 /{
 	A fraction n/d 
 }/
-public class Rational extends Real {
+public value class Rational implements Real {
 
 	private constructor ( public  numerator : Integer , public denominator : Natural);
 

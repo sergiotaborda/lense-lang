@@ -490,6 +490,10 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 			TypeDefinition superType = ANY;
 			if (superTypeNode != null) {
 
+				if (t.isValueClass()) {
+					throw new CompilationError(t, "Value classes cannot inherit from other types. They can only implement interfaces");
+				}
+				
 				superType = this.getSemanticContext().typeForName(superTypeNode).getTypeDefinition();
 
 				if (superType.isGeneric()) {
@@ -581,7 +585,7 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 			}
 
 			// algebric values
-			if (t.isAlgebric()) {
+			if (t.isAlgebric() && !t.isNative()) {
 
 				myType.setAlgebric(true);
 
@@ -591,8 +595,10 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 				for (AstNode n : t.getAlgebricChildren().getChildren()) {
 					ChildTypeNode ctn = (ChildTypeNode) n;
 
+					
+					
 					TypeDefinition childType = this.getSemanticContext()
-							.resolveTypeForName(ctn.getType().getName(), ctn.getType().getTypeParametersCount()).get()
+							.resolveTypeForName(ctn.getType().getName(), ctn.getType().getTypeParametersCount()).orElseThrow(() ->  new CompilationError(ctn, "No type defined"))
 							.getTypeDefinition();
 
 					if (childType.getTypeDefinition().getKind().isObject()) {

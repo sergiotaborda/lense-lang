@@ -4,7 +4,7 @@ import lense.core.math.Real;
 import lense.core.math.Whole;
 import lense.core.math.Equal;
 
-public class Imaginary extends Number implements Comparable<Imaginary> {
+public value class Imaginary implements Number , Comparable<Imaginary> {
 
 
 	public implicit constructor valueOf ( private value : Real);

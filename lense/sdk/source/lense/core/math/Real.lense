@@ -3,35 +3,35 @@ import lense.core.math.Number;
 import lense.core.lang.Boolean;
 import lense.core.math.SignedNumber;
 
-public native abstract class Real extends Number implements Comparable<Real>, SignedNumber {
+public interface Real extends Number , Comparable<Real>, SignedNumber {
 
-	public native constructor zero();
-	public native constructor one();
+	//public native constructor zero();
+	//public native constructor one();
 
-	public native implicit constructor valueOf(whole : Whole);
+	//public native implicit constructor valueOf(whole : Whole);
 
-	public native abs(): Real;
+	public abs(): Real;
 	
-	public native symmetric() : Real;
+	public symmetric() : Real;
 	
-	public native isZero() : Boolean;
-	public native isNegative() : Boolean;
-	public native isPositive() : Boolean;
+	public isZero() : Boolean;
+	public isNegative() : Boolean;
+	public isPositive() : Boolean;
 	
-	public native signum() : Integer;
-	public native plus (other: Real): Real;
-	public native minus (other: Real): Real;
-	public native multiply (other: Real): Real;
-	public native divide (other: Real): Real;
+	public signum() : Integer;
+	public plus (other: Real): Real;
+	public minus (other: Real): Real;
+	public multiply (other: Real): Real;
+	public divide (other: Real): Real;
 	
-	public native plus (other: Imaginary): Complex;
-	public native minus (other: Imaginary): Complex;
-	public native multiply (other: Imaginary): Imaginary;
-	public native divide (other: Imaginary): Imaginary;
+	public plus (other: Imaginary): Complex;
+	public minus (other: Imaginary): Complex;
+	public multiply (other: Imaginary): Imaginary;
+	public divide (other: Imaginary): Imaginary;
 	
-	public native raiseTo(other : Real) : Real;
+	public raiseTo(other : Real) : Real;
 	
-	public native asInteger() : Integer;
+	public asInteger() : Integer;
 
-    public native isWhole() : Boolean;
+    public isWhole() : Boolean;
 }

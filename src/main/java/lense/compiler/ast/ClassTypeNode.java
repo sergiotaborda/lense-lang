@@ -36,6 +36,8 @@ public class ClassTypeNode extends AnnotadedLenseAstNode implements ScopeDelimit
 	private boolean isFinal;
 	private boolean isSealed;
 	private boolean isAlgebric;
+	private boolean isValueClass;
+	
 	private Visibility visibility;
 	private ChildTypesListNode childTypesListNode;
 	
@@ -236,6 +238,14 @@ public class ClassTypeNode extends AnnotadedLenseAstNode implements ScopeDelimit
 
 	public void setAlgebric(boolean isAlgebric) {
 		this.isAlgebric = isAlgebric;
+	}
+
+	public boolean isValueClass() {
+		return isValueClass;
+	}
+
+	public void setValueClass(boolean isValueClass) {
+		this.isValueClass = isValueClass;
 	}
 
 
