@@ -4,30 +4,25 @@ import lense.core.math.Rational;
 import lense.core.math.Natural;
 import lense.core.lang.Ordinal;
 
-public native abstract class Integer extends Whole implements Ordinal<Integer>{
+public interface Integer extends Whole , SignedNumber,  Ordinal<Integer>{
 
 
-		public native implicit constructor valueOf( n :Natural);
+		// public implicit constructor valueOf( n :Natural);
 		
-		public native plus( n : Integer) : Integer;
-		public native minus( n : Integer) : Integer;
-		public native multiply( n : Integer) : Integer;
-		public native divide( n : Integer) : Rational;
+		public abs(): Integer;
+	
+		public plus( n : Integer) : Integer;
+		public minus( n : Integer) : Integer;
+		public multiply( n : Integer) : Integer;
+		public divide( n : Integer) : Rational;
 		
-		public native wholeDivide (other : Integer) : Integer; 
-		public native wholeDivide (other : Natural) : Integer; 
-		public native remainder (other : Integer) : Integer; 
+		public wholeDivide (other : Integer) : Integer; 
+		public wholeDivide (other : Natural) : Integer; 
+		public remainder (other : Integer) : Integer; 
 		
-		public native raiseTo (other : Natural) : Integer; 
-		public native raiseTo (other : Real) : Real; 
+		public raiseTo (other : Natural) : Integer; 
+		public raiseTo (other : Real) : Real; 
 		
-		public native symmetric() : Integer;
-		
-
-		/{
-			Return 0 if the value is zero, -1 if the value if less than zero and 1 if greater
-		}/
-		public native signum() : Integer;
-		
+		public symmetric() : Integer;
 	
 }

@@ -7,24 +7,24 @@ import lense.core.math.Comparable;
 import lense.core.collections.Progression;
 import lense.core.lang.String;
 
-public native class Natural extends Whole implements Progressable<Natural> , Comparable<Natural>{
+public interface Natural extends Whole , Progressable<Natural> , Comparable<Natural>{
 
 
-	public constructor parse(text :String); 
+	//public constructor parse(text :String); 
 
-	public native minus ( other: Natural)  : Integer;
-	public native plus ( other: Natural) : Natural;
-	public native multiply ( other: Natural) : Natural;
+	public minus ( other: Natural)  : Integer;
+	public plus ( other: Natural) : Natural;
+	public multiply ( other: Natural) : Natural;
 		
-	public native multiply ( other: Integer) : Integer;
+	public multiply ( other: Integer) : Integer;
 			
-	public native raiseTo( other: Natural) : Natural;
-	public native raiseTo( other: Integer) : Rational;
-	public native raiseTo( other: Real) : Real;
-	public native remainder (other : Natural) : Natural; 	
-	public native wholeDivide (other : Natural) : Natural; 	
-	public native wholeDivide (other : Integer) : Integer; 	
+	public raiseTo( other: Natural) : Natural;
+	public raiseTo( other: Integer) : Rational;
+	public raiseTo( other: Real) : Real;
+	public remainder (other : Natural) : Natural; 	
+	public wholeDivide (other : Natural) : Natural; 	
+	public wholeDivide (other : Integer) : Integer; 	
 	
-	public native upTo( other: Natural) : Progression<Natural>;
+	public upTo( other: Natural) : Progression<Natural>;
 
 }

@@ -23,6 +23,11 @@ public interface SignedNumber  {
 		Note that 0.isPositive() returns false;
 	}/
     public isPositive() : Boolean;
-    
+ 
+	/{
+		Return 0 if the value is zero, -1 if the value if less than zero and 1 if greater
+	}/
     public signum(): Integer;
+
+	// TODO public symmetric() : self;
 }

@@ -187,7 +187,7 @@ public class LenseGrammar extends AbstractLenseGrammar {
 			return Optional.of(new SymbolBasedToken(pos, text, TokenSymbol.LiteralDecimalNumber));
 		} else if (isVersionLiteral(text)) {
 			return Optional.of(new VersionLiteralToken(pos, text));
-		}
+		} 
 
 		return super.terminalMatch(pos, text);
 
@@ -732,6 +732,7 @@ public class LenseGrammar extends AbstractLenseGrammar {
 					n.setAnnotations(modifiers.getAnnotations());
 				}
 
+				n.setValueClass(modifiers.getImplementationModifier().isValueClass());
 				n.setNative(modifiers.getImplementationModifier().isNative());
 				n.setVisibility(modifiers.getVisibility().getVisibility(Visibility.Private));
 
@@ -797,6 +798,7 @@ public class LenseGrammar extends AbstractLenseGrammar {
 					n.setAnnotations(modifiers.getAnnotations());
 				}
 
+				n.setValueClass(modifiers.getImplementationModifier().isValueClass());
 				n.setAbstract(modifiers.getImplementationModifier().isAbstract());
 				n.setNative(modifiers.getImplementationModifier().isNative());
 				n.setVisibility(modifiers.getVisibility().getVisibility(Visibility.Private));
@@ -889,6 +891,7 @@ public class LenseGrammar extends AbstractLenseGrammar {
 
 				n.setAbstract(true);
 				n.setNative(false);
+				n.setValueClass(false);
 				n.setVisibility(modifiers.getVisibility().getVisibility(Visibility.Private));
 
 
@@ -948,7 +951,8 @@ public class LenseGrammar extends AbstractLenseGrammar {
 				if (modifiers.getAnnotations() != null) {
 					n.setAnnotations(modifiers.getAnnotations());
 				}
-
+				
+				n.setValueClass(modifiers.getImplementationModifier().isValueClass());
 				n.setAbstract(modifiers.getImplementationModifier().isAbstract());
 				n.setNative(modifiers.getImplementationModifier().isNative());
 				n.setVisibility(modifiers.getVisibility().getVisibility(Visibility.Private));
@@ -1381,6 +1385,8 @@ public class LenseGrammar extends AbstractLenseGrammar {
 				node.setDefault(true);
 			} else if (semanticAttribute.isPresent() && semanticAttribute.get().equals("override")) {
 				node.setOverride(true);
+			} else if (semanticAttribute.isPresent() && semanticAttribute.get().equals("value")) {
+				node.setValueClass(true);
 			}
 			p.setAstNode(node);
 		});

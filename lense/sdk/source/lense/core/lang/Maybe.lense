@@ -2,7 +2,7 @@
 
 import lense.core.lang.None;
 
-public native class Maybe<out T> is Some<T> ,  none {
+public native abstract class Maybe<out T> is Some<T> ,  none {
 
 	// TODO Function<R,T>
 	// TODO generic methods
@@ -13,3 +13,8 @@ public native class Maybe<out T> is Some<T> ,  none {
 
 }
 
+public native class Some<T> extends Maybe<T> {
+
+	public native constructor (value : T);
+	
+} 
