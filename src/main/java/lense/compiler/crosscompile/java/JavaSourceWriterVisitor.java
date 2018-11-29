@@ -407,13 +407,18 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
             } else if (node instanceof BoxingPointNode) {
                 BoxingPointNode box = ((BoxingPointNode) node);
 
+         
                 TypeVariable typeVariable = box.getTypeVariable();
 
                 if (typeVariable != null) {
-                    writer.print("/* =BOXING " + (box.isBoxingDirectionOut() ? "OUT" : "IN") + " to "
-                            + typeVariable.getTypeDefinition().getName() + "*/");
+                    writer.append("/*BOXING " + (box.isBoxingDirectionOut() ? "OUT" : "IN") + " to " + typeVariable.getTypeDefinition().getName() + "*/ ");
+                    TypedNode inner = (TypedNode)node.getChildren().get(0);
+                    
+                    if (typeVariable.getTypeDefinition().getKind() != JavaTypeKind.Primitive){
+                        writer.append("(").append(typeVariable.getTypeDefinition().getName()).append(")");
+                    }
                 } else {
-                    writer.print("/* =BOXING " + (box.isBoxingDirectionOut() ? "OUT" : "IN") + " to ?  */");
+                    writer.append("/*BOXING " + (box.isBoxingDirectionOut() ? "OUT" : "IN") + " to ?  */");
                 }
 
                 TreeTransverser.transverse(node.getChildren().get(0), this);
