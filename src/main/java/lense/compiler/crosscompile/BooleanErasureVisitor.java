@@ -10,18 +10,23 @@ import lense.compiler.ast.BooleanValue;
 import lense.compiler.ast.CastNode;
 import lense.compiler.ast.ExpressionNode;
 import lense.compiler.ast.InstanceOfNode;
+import lense.compiler.ast.LenseAstNode;
 import lense.compiler.ast.MethodInvocationNode;
 import lense.compiler.ast.NumericValue;
 import lense.compiler.ast.ReturnNode;
 import lense.compiler.ast.TypedNode;
 import lense.compiler.ast.VariableReadNode;
 import lense.compiler.crosscompile.java.JavaTypeKind;
+import lense.compiler.type.TypeDefinition;
 import lense.compiler.type.variable.TypeVariable;
 import lense.compiler.typesystem.LenseTypeSystem;
 
 public class BooleanErasureVisitor implements Visitor<AstNode> {
 
 
+    private static final PrimitiveTypeDefinition primitiveType = PrimitiveTypeDefinition.BOOLEAN;
+    private static final TypeDefinition type = LenseTypeSystem.Boolean();
+    
 	@Override
 	public void startVisit() {}
 
@@ -32,25 +37,23 @@ public class BooleanErasureVisitor implements Visitor<AstNode> {
 	public VisitorNext visitBeforeChildren(AstNode node) {
 
 	    if (node instanceof InstanceOfNode){
-	        ((InstanceOfNode) node).setTypeVariable(PrimitiveTypeDefinition.BOOLEAN);
+	        ((InstanceOfNode) node).setTypeVariable(primitiveType);
 	    } else if (node instanceof ReturnNode){
 			ReturnNode r = (ReturnNode)node;
 
 			TypeVariable tv = r.getExpectedType();
 
-			if (tv != null && tv.isFixed() &&  LenseTypeSystem.getInstance().isAssignableTo(tv, LenseTypeSystem.Boolean())) {
-				r.setExpectedType(PrimitiveTypeDefinition.BOOLEAN);
-			} else if (tv != null && tv.isFixed() &&  LenseTypeSystem.getInstance().isAssignableTo(tv, LenseTypeSystem.Int32())) {
-				r.setExpectedType(PrimitiveTypeDefinition.INT);
-			}
+			if (tv != null && tv.isFixed() &&  LenseTypeSystem.isAssignableTo(tv, type)) {
+				r.setExpectedType(primitiveType);
+			} 
 			
 		} else if (node instanceof TypedNode && !(node instanceof BoxingPointNode )) {
 			TypedNode t = (TypedNode) node;
 
 			TypeVariable tv = t.getTypeVariable();
 
-			if (tv != null && tv.isFixed() && !isTupleAccess(node) && LenseTypeSystem.getInstance().isAssignableTo(tv, LenseTypeSystem.Boolean())) {
-				t.setTypeVariable(PrimitiveTypeDefinition.BOOLEAN);
+			if (tv != null && tv.isFixed() && !isTupleAccess(node) && LenseTypeSystem.isAssignableTo(tv, type)) {
+				t.setTypeVariable(primitiveType);
 			} 
 
 		}  
@@ -72,18 +75,18 @@ public class BooleanErasureVisitor implements Visitor<AstNode> {
 	    if (node instanceof AssertNode){
 	        AssertNode a = (AssertNode)node;
 	        
-	        if (!a.getCheck().getTypeVariable().equals(PrimitiveTypeDefinition.BOOLEAN)){
+	        if (!a.getCheck().getTypeVariable().equals(primitiveType)){
 	            
-	            a.replace(a.getCheck(), new PrimitiveUnbox(PrimitiveTypeDefinition.BOOLEAN, a.getCheck()));
+	            a.replace(a.getCheck(), new PrimitiveUnbox(primitiveType, a.getCheck()));
 	        }
 
 	    } else if (node instanceof MethodInvocationNode) {
 			MethodInvocationNode m = (MethodInvocationNode) node;
 
 			TypedNode access = (TypedNode)m.getAccess();
-			if (access != null  && access.getTypeVariable() != null && access.getTypeVariable().getTypeDefinition().getKind() == JavaTypeKind.Primitive) {
+			if (access != null  && access.getTypeVariable() != null && access.getTypeVariable().getTypeDefinition().equals(primitiveType)) {
 
-				if (m.getCall().getName().equals("negate")){
+                if (m.getCall().getName().equals("negate")){
 
 					m.getParent().replace(m, new PrimitiveBooleanOperationsNode(m.getAccess(), BooleanOperation.LogicNegate));
 				} else if (m.getCall().getName().equals("or")){
@@ -110,6 +113,9 @@ public class BooleanErasureVisitor implements Visitor<AstNode> {
 					}
 					
 				}
+			} else if (access != null  && access.getTypeVariable() != null && access.getTypeVariable().getTypeDefinition().equals(type)){
+			    CastNode cast = new CastNode((LenseAstNode) access , type);
+			    m.replace((AstNode) access, cast);
 			}
 		} else if (node instanceof BoxingPointNode){
 			BoxingPointNode a = (BoxingPointNode)node;
@@ -119,7 +125,6 @@ public class BooleanErasureVisitor implements Visitor<AstNode> {
 				return;
 			} 
 
-			
 			if (a.canElide() && val.getTypeVariable().equals(a.getTypeVariable())){
 				if (val instanceof BooleanValue) {
 					a.getParent().replace(a, new PrimitiveBooleanValue(((BooleanValue)val).isValue()));
@@ -137,16 +142,16 @@ public class BooleanErasureVisitor implements Visitor<AstNode> {
 					if(a.getReferenceNode() instanceof ArgumentListItemNode){
 						ArgumentListItemNode ref = (ArgumentListItemNode)a.getReferenceNode();
 						if (ref.isGeneric()){
-							a.getParent().replace(a, new PrimitiveBox(PrimitiveTypeDefinition.BOOLEAN, val));
+							a.getParent().replace(a, new PrimitiveBox(primitiveType, val));
 							return;
 						}
 					} 
 
 					a.getParent().replace(a, new PrimitiveBooleanValue(((BooleanValue)val).isValue()));
-				} else if (a.getTypeVariable() != null && !val.getTypeVariable().isFixed() && a.getTypeVariable().getTypeDefinition().getKind() == JavaTypeKind.Primitive){
+				} else if (a.getTypeVariable() != null && !val.getTypeVariable().isFixed() && a.getTypeVariable().getTypeDefinition().equals(primitiveType)){
 					
-					// TODO check which primitive , it may be other than boolean
-					a.getParent().replace(a, new PrimitiveUnbox( PrimitiveTypeDefinition.BOOLEAN, val));
+
+					a.getParent().replace(a, new PrimitiveUnbox(primitiveType, val));
 					
 				}
 				// TODO StringConcatenationNode, StringValue
@@ -164,13 +169,13 @@ public class BooleanErasureVisitor implements Visitor<AstNode> {
 					if ((val instanceof VariableReadNode && a.canElide()) || val instanceof PrimitiveBooleanOperationsNode) {
 						a.getParent().replace(a, val);
 					} else {
-						a.getParent().replace(a, new PrimitiveBox(PrimitiveTypeDefinition.BOOLEAN, val));
+						a.getParent().replace(a, new PrimitiveBox(primitiveType, val));
 					}
 			
 				} else if (val instanceof MethodInvocationNode) {
 					MethodInvocationNode m = (MethodInvocationNode)val;
-					if ( m.getTypeVariable().isSingleType() && m.getTypeVariable().getTypeDefinition().getName().equals(LenseTypeSystem.Boolean().getName())) {
-						a.getParent().replace(a, new PrimitiveBox(PrimitiveTypeDefinition.BOOLEAN, val));
+					if ( m.getTypeVariable().isSingleType() && m.getTypeVariable().getTypeDefinition().getName().equals(type.getName())) {
+						a.getParent().replace(a, new PrimitiveBox(primitiveType, val));
 					}
 				} else if (val instanceof CastNode) {
 					// no-op
