@@ -1148,7 +1148,7 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
                     while (lstIterator.hasNext()) {
                         AstNode n = lstIterator.next().getFirstChild();
                         TypeDefinition type = ((TypedNode) n).getTypeVariable().getTypeDefinition();
-                        if (!typeSystem.isAssignableTo(type, maxType)) {
+                        if (!LenseTypeSystem.isAssignableTo(type, maxType)) {
                             if (typeSystem.isPromotableTo(type, maxType)) {
 
 								Optional<Constructor> op = maxType.getConstructorByParameters(new ConstructorParameter(type));
@@ -2027,6 +2027,10 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 
                     m.setTypeVariable( new RangeTypeVariable (rawReturnType.getSymbol(), rawReturnType.getVariance(),  rawReturnType.getTypeDefinition(), LenseTypeSystem.Nothing() ));
 
+                   // m.setTypeVariable(rawReturnType);
+                    
+//                    CastNode cast = new CastNode(m , rawReturnType);
+//                    m.getParent().replace(m, cast);
                 }
 
             } else if (node instanceof PosExpression) {
@@ -3379,8 +3383,9 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 
     private TypeVariable ensureNotFundamental(TypeVariable type) {
 
-        type.ensureNotFundamental(t -> getSemanticContext()
-                .resolveTypeForName(t.getName(), t.getGenericParameters().size()).get().getTypeDefinition());
+        type.ensureNotFundamental(t -> {
+         return getSemanticContext().resolveTypeForName(t.getName(), t.getGenericParameters() == null ? 0 : t.getGenericParameters().size()).get().getTypeDefinition();   
+        });
 
         return type;
 
