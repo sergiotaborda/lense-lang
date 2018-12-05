@@ -18,7 +18,7 @@ import compiler.syntax.AstNode;
 import compiler.trees.TreeTransverser;
 import compiler.trees.Visitor;
 import compiler.trees.VisitorNext;
-import lense.compiler.ast.IndexedAccessNode;
+import lense.compiler.ast.IndexedPropertyReadNode;
 import lense.compiler.ast.ArgumentListItemNode;
 import lense.compiler.ast.ArgumentListNode;
 import lense.compiler.ast.ArgumentTypeResolverNode;
@@ -1078,6 +1078,15 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 
                     writer.print(")");
                 } else {
+                    
+                    final TypeDefinition type = n.getTypeVariable().getUpperBound().getTypeDefinition();
+                    boolean needsCast = n.isIndexDerivedMethod() && !LenseTypeSystem.getInstance().isVoid(type) && !LenseTypeSystem.getInstance().isAny(type);
+                    
+                    if (needsCast){
+                     
+                        writer.append("((").append(type.getName()).append(")");
+                            
+                    }
                     if (n.getAccess() != null) {
                         TreeTransverser.transverse(n.getAccess(), this);
                         writer.print(".");
@@ -1090,7 +1099,10 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
                     }
 
                     writer.print(")");
-
+                    
+                    if (needsCast){
+                        writer.print(")");
+                    }
                 }
 
                 if (node.getParent() instanceof BlockNode) {
@@ -1463,9 +1475,10 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
                 }
 
                 return VisitorNext.Siblings;
-            } else if (node instanceof lense.compiler.ast.IndexedAccessNode){
-                IndexedAccessNode n = (IndexedAccessNode)node;
+            } else if (node instanceof lense.compiler.ast.IndexedPropertyReadNode){
+                IndexedPropertyReadNode n = (IndexedPropertyReadNode)node;
                 
+              
                 if (n.getAccess() != null) {
                     TreeTransverser.transverse(n.getAccess(), this);
                     writer.print('.');
@@ -1944,7 +1957,7 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
         } else if (typeVar.isSingleType()) {
             
    
-            writer.print(typeVar.getTypeDefinition().getName());
+            writer.print(signatureNameOf(typeVar.getTypeDefinition().getName()));
 
             if (typeVar.getTypeDefinition().isGeneric()) {
                 writer.append("<");

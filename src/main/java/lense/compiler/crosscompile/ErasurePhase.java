@@ -8,6 +8,7 @@ import compiler.trees.TreeTransverser;
 import lense.compiler.CompilationError;
 import lense.compiler.ast.ClassTypeNode;
 import lense.compiler.ast.UnitTypes;
+import lense.compiler.context.SemanticContext;
 
 public final class ErasurePhase implements CompilerPhase{
    
@@ -30,9 +31,12 @@ public final class ErasurePhase implements CompilerPhase{
         }
         for (ClassTypeNode ct : types.getTypes()){
         	if (!ct.isNative()) {
+        	    
+        	    SemanticContext ctx = ct.getSemanticContext();
+
                 try {
                     TreeTransverser.transverse(ct,new BoxingPointClassificationVisitor());
-                    TreeTransverser.transverse(ct,new BooleanErasureVisitor());
+                    TreeTransverser.transverse(ct,new BooleanErasureVisitor(ctx));
                     TreeTransverser.transverse(ct,new Int32ErasureVisitor());
                 } catch (CompilationError e){
                     listener.error(new CompilerMessage(e.getMessage()));

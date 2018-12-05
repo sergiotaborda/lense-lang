@@ -182,8 +182,9 @@ public abstract class AbstractScopedVisitor extends AbstractLenseVisitor  {
 		if (node instanceof ScopeDelimiter){
 			ScopeDelimiter scopeDelimiter = (ScopeDelimiter) node;
 			this.getSemanticContext().beginScope(scopeDelimiter.getScopeName());
-
 		}
+		
+		// TODO capture corrent type here
 		return doVisitBeforeChildren(node);
 
 	}

@@ -19,7 +19,7 @@ import lense.compiler.ast.FieldOrPropertyAccessNode;
 import lense.compiler.ast.FieldOrPropertyAccessNode.FieldKind;
 import lense.compiler.ast.FormalParameterNode;
 import lense.compiler.ast.ImutabilityNode;
-import lense.compiler.ast.IndexedAccessNode;
+import lense.compiler.ast.IndexedPropertyReadNode;
 import lense.compiler.ast.IndexerPropertyDeclarationNode;
 import lense.compiler.ast.MethodDeclarationNode;
 import lense.compiler.ast.MethodInvocationNode;
@@ -329,8 +329,8 @@ public class DesugarVisitor extends AbstractLenseVisitor {
                     n.getParent().replace(node, invokeGet);
                 }
             }
-        } else if (node instanceof IndexedAccessNode) {
-            IndexedAccessNode n = (IndexedAccessNode) node;
+        } else if (node instanceof IndexedPropertyReadNode) {
+            IndexedPropertyReadNode n = (IndexedPropertyReadNode) node;
 
             ArgumentListNode list = new ArgumentListNode();
             for (AstNode a : n.getArguments().getChildren()) {

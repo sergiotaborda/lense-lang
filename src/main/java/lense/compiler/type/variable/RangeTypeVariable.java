@@ -136,7 +136,6 @@ public class RangeTypeVariable implements TypeVariable {
 
 	@Override
 	public boolean isCalculated() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 

@@ -9,12 +9,12 @@ import compiler.syntax.AstNode;
 /**
  * 
  */
-public class IndexedAccessNode extends NeedTypeCalculationNode{
+public class IndexedPropertyReadNode extends NeedTypeCalculationNode{
 	
 	private ArgumentListNode arguments;
 	private AstNode access;
 
-
+	public IndexedPropertyReadNode(){}
 
 	/**
 	 * @param astNode

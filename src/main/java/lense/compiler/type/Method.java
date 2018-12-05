@@ -24,6 +24,7 @@ public class Method implements CallableMember<Method> {
 	private boolean isOverride = false;
 	private boolean isNative = false;
 	
+	private boolean errased = false;
 	private Method superMethod;
 	
 	private boolean propertyBridge = false;
@@ -276,6 +277,14 @@ public class Method implements CallableMember<Method> {
 	public void setSuperMethod(Method superMethod) {
 		this.superMethod = superMethod;
 	}
+
+    public boolean isErrased() {
+        return errased;
+    }
+
+    public void setErased(boolean errased) {
+        this.errased = errased;
+    }
 
 
 }
