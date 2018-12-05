@@ -1,13 +1,15 @@
 package lense.compiler.crosscompile;
 
+import java.util.Optional;
+
 import compiler.syntax.AstNode;
-import compiler.trees.Visitor;
 import compiler.trees.VisitorNext;
 import lense.compiler.ast.ArgumentListItemNode;
 import lense.compiler.ast.AssertNode;
 import lense.compiler.ast.BooleanOperation;
 import lense.compiler.ast.BooleanValue;
 import lense.compiler.ast.CastNode;
+import lense.compiler.ast.ClassTypeNode;
 import lense.compiler.ast.ExpressionNode;
 import lense.compiler.ast.InstanceOfNode;
 import lense.compiler.ast.LenseAstNode;
@@ -16,27 +18,40 @@ import lense.compiler.ast.NumericValue;
 import lense.compiler.ast.ReturnNode;
 import lense.compiler.ast.TypedNode;
 import lense.compiler.ast.VariableReadNode;
-import lense.compiler.crosscompile.java.JavaTypeKind;
+import lense.compiler.context.SemanticContext;
+import lense.compiler.phases.AbstractScopedVisitor;
+import lense.compiler.type.LenseTypeDefinition;
+import lense.compiler.type.Method;
 import lense.compiler.type.TypeDefinition;
 import lense.compiler.type.variable.TypeVariable;
 import lense.compiler.typesystem.LenseTypeSystem;
 
-public class BooleanErasureVisitor implements Visitor<AstNode> {
+public class BooleanErasureVisitor extends AbstractScopedVisitor {
+
+
 
 
     private static final PrimitiveTypeDefinition primitiveType = PrimitiveTypeDefinition.BOOLEAN;
     private static final TypeDefinition type = LenseTypeSystem.Boolean();
+    private LenseTypeDefinition currentType;
     
-	@Override
-	public void startVisit() {}
+    public BooleanErasureVisitor(SemanticContext context) {
+        super(context);
+    }
+    
+    @Override
+    protected Optional<LenseTypeDefinition> getCurrentType() {
+
+        return Optional.ofNullable(currentType);
+    }
 
 	@Override
-	public void endVisit() {}
+	public VisitorNext doVisitBeforeChildren(AstNode node) {
+	    if (node instanceof ClassTypeNode) {
 
-	@Override
-	public VisitorNext visitBeforeChildren(AstNode node) {
+            this.currentType = ((ClassTypeNode) node).getTypeDefinition();
 
-	    if (node instanceof InstanceOfNode){
+        } else if (node instanceof InstanceOfNode){
 	        ((InstanceOfNode) node).setTypeVariable(primitiveType);
 	    } else if (node instanceof ReturnNode){
 			ReturnNode r = (ReturnNode)node;
@@ -70,7 +85,7 @@ public class BooleanErasureVisitor implements Visitor<AstNode> {
 	}
 
 	@Override
-	public void visitAfterChildren(AstNode node) {
+	public void doVisitAfterChildren(AstNode node) {
 
 	    if (node instanceof AssertNode){
 	        AssertNode a = (AssertNode)node;
@@ -116,72 +131,102 @@ public class BooleanErasureVisitor implements Visitor<AstNode> {
 			} else if (access != null  && access.getTypeVariable() != null && access.getTypeVariable().getTypeDefinition().equals(type)){
 			    CastNode cast = new CastNode((LenseAstNode) access , type);
 			    m.replace((AstNode) access, cast);
+			} else if (access != null  &&  access.getTypeVariable() != null //&& access.getTypeVariable().equals(currentType)
+			        && m.getCall().getName().equals("bitAt")){
+		         
+    	           if (m.getTypeVariable().getTypeDefinition().equals(primitiveType) && ((Method)m.getTypeMember()).getReturningType().equals(type)){
+    	               // was errased 
+    	               System.out.println("Errased: "+  m.getParent().getParent());
+    	               
+    	               if (m.getParent() instanceof BoxingPointNode){
+    	                   
+    	               }
+    	           }
+	         
+	            
 			}
 		} else if (node instanceof BoxingPointNode){
-			BoxingPointNode a = (BoxingPointNode)node;
-			ExpressionNode val = a.getValue();
+			BoxingPointNode boxingPoint = (BoxingPointNode)node;
+			ExpressionNode inner = boxingPoint.getValue();
 
-			if (val.getTypeVariable() == null){
+			if (inner.getTypeVariable() == null){
 				return;
 			} 
 
-			if (a.canElide() && val.getTypeVariable().equals(a.getTypeVariable())){
-				if (val instanceof BooleanValue) {
-					a.getParent().replace(a, new PrimitiveBooleanValue(((BooleanValue)val).isValue()));
+			if (boxingPoint.canElide() && inner.getTypeVariable().equals(boxingPoint.getTypeVariable())){
+				if (inner instanceof BooleanValue) {
+					boxingPoint.getParent().replace(boxingPoint, new PrimitiveBooleanValue(((BooleanValue)inner).isValue()));
 				} else {
-					a.getParent().replace(a, val);
+					boxingPoint.getParent().replace(boxingPoint, inner);
+					
 				}
 				
 				return;
 			} 
 			
-			if (a.isBoxingDirectionOut()){
+			if (boxingPoint.isBoxingDirectionOut()){
 				// OUT BOXING
-
-			    if ( val instanceof BooleanValue) {
-					if(a.getReferenceNode() instanceof ArgumentListItemNode){
-						ArgumentListItemNode ref = (ArgumentListItemNode)a.getReferenceNode();
+			    if (inner instanceof BoxingPointNode){
+                    BoxingPointNode other = (BoxingPointNode)inner;
+                    
+                    if (!other.isBoxingDirectionOut()){
+                        boxingPoint.getParent().replace(boxingPoint, other.getFirstChild());
+                    }
+                    
+                } 
+			    if ( inner instanceof BooleanValue) {
+					if(boxingPoint.getReferenceNode() instanceof ArgumentListItemNode){
+						ArgumentListItemNode ref = (ArgumentListItemNode)boxingPoint.getReferenceNode();
 						if (ref.isGeneric()){
-							a.getParent().replace(a, new PrimitiveBox(primitiveType, val));
+							boxingPoint.getParent().replace(boxingPoint, new PrimitiveBox(primitiveType, inner));
 							return;
 						}
 					} 
 
-					a.getParent().replace(a, new PrimitiveBooleanValue(((BooleanValue)val).isValue()));
-				} else if (a.getTypeVariable() != null && !val.getTypeVariable().isFixed() && a.getTypeVariable().getTypeDefinition().equals(primitiveType)){
+					boxingPoint.getParent().replace(boxingPoint, new PrimitiveBooleanValue(((BooleanValue)inner).isValue()));
+				} else if (boxingPoint.getTypeVariable() != null && !inner.getTypeVariable().isFixed() && boxingPoint.getTypeVariable().getTypeDefinition().equals(primitiveType)){
 					
 
-					a.getParent().replace(a, new PrimitiveUnbox(primitiveType, val));
+					boxingPoint.getParent().replace(boxingPoint, new PrimitiveUnbox(primitiveType, inner));
 					
 				}
 				// TODO StringConcatenationNode, StringValue
 
 			} else {
 				// IN BOXING
-				if (val instanceof BooleanValue){
-					a.getParent().replace(a, val);
-				} else if (val instanceof NumericValue){
-					NumericValue n = (NumericValue)val;
-					n.setTypeVariable(a.getTypeVariable());
-					a.getParent().replace(a, val);
-				} else if (val.getTypeVariable().getTypeDefinition().getKind() == JavaTypeKind.Primitive){
+			    if (inner instanceof BoxingPointNode){
+			        BoxingPointNode other = (BoxingPointNode)inner;
+			        
+			        if (other.isBoxingDirectionOut()){
+			            boxingPoint.getParent().replace(boxingPoint, other.getFirstChild());
+			        }
+			        
+                } else if (inner instanceof BooleanValue){
+					boxingPoint.getParent().replace(boxingPoint, inner);
+				} else if (inner instanceof NumericValue){
+					NumericValue n = (NumericValue)inner;
+					n.setTypeVariable(boxingPoint.getTypeVariable());
+					boxingPoint.getParent().replace(boxingPoint, inner);
+				} else if (inner.getTypeVariable().getTypeDefinition().equals(primitiveType)){
 					// val is already a primitive boolean
-					if ((val instanceof VariableReadNode && a.canElide()) || val instanceof PrimitiveBooleanOperationsNode) {
-						a.getParent().replace(a, val);
+					if ((inner instanceof VariableReadNode && boxingPoint.canElide()) || inner instanceof PrimitiveBooleanOperationsNode) {
+						boxingPoint.getParent().replace(boxingPoint, inner);
 					} else {
-						a.getParent().replace(a, new PrimitiveBox(primitiveType, val));
+						boxingPoint.getParent().replace(boxingPoint, new PrimitiveBox(primitiveType, inner));
 					}
-			
-				} else if (val instanceof MethodInvocationNode) {
-					MethodInvocationNode m = (MethodInvocationNode)val;
+				} else if (inner instanceof MethodInvocationNode) {
+					MethodInvocationNode m = (MethodInvocationNode)inner;
+					
+					
+					
 					if ( m.getTypeVariable().isSingleType() && m.getTypeVariable().getTypeDefinition().getName().equals(type.getName())) {
-						a.getParent().replace(a, new PrimitiveBox(primitiveType, val));
+						boxingPoint.getParent().replace(boxingPoint, new PrimitiveBox(primitiveType, inner));
 					}
-				} else if (val instanceof CastNode) {
+				} else if (inner instanceof CastNode) {
 					// no-op
 					
 				} else {
-					System.out.println(val.getClass().getName());
+					System.out.println(inner.getClass().getName());
 				}
 
 			}
@@ -190,5 +235,6 @@ public class BooleanErasureVisitor implements Visitor<AstNode> {
 		}
 
 	}
+
 
 }

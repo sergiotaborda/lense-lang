@@ -61,7 +61,7 @@ import lense.compiler.ast.FieldOrPropertyAccessNode.FieldKind;
 import lense.compiler.ast.ForEachNode;
 import lense.compiler.ast.FormalParameterNode;
 import lense.compiler.ast.GenericTypeParameterNode;
-import lense.compiler.ast.IndexedAccessNode;
+import lense.compiler.ast.IndexedPropertyReadNode;
 import lense.compiler.ast.IndexerPropertyDeclarationNode;
 import lense.compiler.ast.InstanceOfNode;
 import lense.compiler.ast.LambdaExpressionNode;
@@ -100,6 +100,8 @@ import lense.compiler.ast.VariableWriteNode;
 import lense.compiler.ast.WhileNode;
 import lense.compiler.context.SemanticContext;
 import lense.compiler.context.VariableInfo;
+import lense.compiler.crosscompile.BoxingPointNode;
+import lense.compiler.crosscompile.BoxingPointNode.BoxingDirection;
 import lense.compiler.crosscompile.PrimitiveBooleanValue;
 import lense.compiler.crosscompile.PrimitiveTypeDefinition;
 import lense.compiler.crosscompile.VariableRange;
@@ -684,11 +686,6 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
             if (LenseTypeSystem.isAssignableTo(n.getContainer().getTypeVariable(), LenseTypeSystem.Progression())) {
 
 				if (LenseTypeSystem.isAssignableTo(iterationVariable.getTypeVariable(), LenseTypeSystem.Number())) { // TODO Orderable with successor
-                    // change
-                    // to
-                    // .Number()
-                    // is a number
-                    // try to determine limits
 
                     VariableRange r = VariableRange.extractFrom(n.getContainer());
 
@@ -1491,15 +1488,17 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
                 AssignmentNode n = (AssignmentNode) node;
 
                 // the left side cannot be a cast
-                if (n.getLeft() instanceof CastNode) {
-					 AstNode lft = ((CastNode)n.getLeft()).getFirstChild();
-					node.replace((AstNode)n.getLeft(), lft);
+                final TypedNode leftNode = n.getLeft();
+                if (leftNode instanceof CastNode) {
+					 AstNode lft = ((CastNode)leftNode).getFirstChild();
+					node.replace((AstNode)leftNode, lft);
 				}
 				
-                TypeVariable left = n.getLeft().getTypeVariable();
-                TypeVariable right = n.getRight().getTypeVariable();
+                TypeVariable left = leftNode.getTypeVariable();
+                final ExpressionNode rightNode = n.getRight();
+                TypeVariable right = rightNode.getTypeVariable();
 
-                if (!typeSystem.isAssignableTo(right, left)) {
+                if (!LenseTypeSystem.isAssignableTo(right, left)) {
 
                     if (!typeSystem.isPromotableTo(right, left)) {
                         if (left.getTypeDefinition().getName().equals(LenseTypeSystem.Maybe().getName())) {
@@ -1514,18 +1513,8 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 
                             someTpe = LenseTypeSystem.specify(someTpe, right);
 
-                            promoteNodeType(n.getRight(), someTpe);
-							//
-							// Optional<Constructor> op =
-							// someTpe.getConstructorByPromotableParameters(Visibility.Public,
-							// new ConstructorParameter(right));
-							//
-							// NewInstanceCreationNode cn = NewInstanceCreationNode.of(someTpe, op.get(),
-							// n.getRight());
-							// cn.getCreationParameters().getTypeParametersListNode()
-							// .add(new GenericTypeParameterNode(new TypeNode(right)));
-							//
-							// n.replace((AstNode) n.getRight(), cn);
+                            promoteNodeType(rightNode, someTpe);
+
                         } else {
                             throw new CompilationError(node, right + " is not assignable to " + left);
                         }
@@ -1536,38 +1525,38 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
                         Optional<Constructor> op = left.getTypeDefinition()
                                 .getConstructorByParameters(new ConstructorParameter(right));
 
-                        NewInstanceCreationNode cn = NewInstanceCreationNode.of(left, op.get(), n.getRight());
+                        NewInstanceCreationNode cn = NewInstanceCreationNode.of(left, op.get(), rightNode);
                         cn.getCreationParameters().getTypeParametersListNode()
                                 .add(new GenericTypeParameterNode(new TypeNode(left)));
 
-                        n.replace((AstNode) n.getRight(), cn);
+                        n.replace((AstNode) rightNode, cn);
                     }
                 }
 
-                if (n.getLeft() instanceof VariableWriteNode) {
+                if (leftNode instanceof VariableWriteNode) {
                     VariableInfo info = this.getSemanticContext().currentScope()
-                            .searchVariable(((VariableWriteNode) n.getLeft()).getName());
+                            .searchVariable(((VariableWriteNode) leftNode).getName());
 
                     if (info.isImutable() && info.isInitialized()) {
                         throw new CompilationError(node,
                                 "Cannot modify the value of an imutable variable or field (" + info.getName() + ")");
                     }
                     info.setInitialized(true);
-                } else if (n.getLeft() instanceof FieldOrPropertyAccessNode) {
+                } else if (leftNode instanceof FieldOrPropertyAccessNode) {
 
-                    FieldOrPropertyAccessNode fp = (FieldOrPropertyAccessNode) n.getLeft();
+                    FieldOrPropertyAccessNode fp = (FieldOrPropertyAccessNode) leftNode;
 
                     if (fp.getKind() == FieldKind.FIELD) {
                         VariableInfo info = this.getSemanticContext().currentScope()
-                                .searchVariable(((FieldOrPropertyAccessNode) n.getLeft()).getName());
+                                .searchVariable(((FieldOrPropertyAccessNode) leftNode).getName());
 
                         if (info == null) {
                             throw new CompilationError(node, "Variable or field "
-                                    + ((FieldOrPropertyAccessNode) n.getLeft()).getName() + " is not defined");
+                                    + ((FieldOrPropertyAccessNode) leftNode).getName() + " is not defined");
                         }
                         if (info.isImutable() && info.isInitialized()) {
 
-                            AstNode parent = ((LenseAstNode) n.getLeft()).getParent().getParent().getParent();
+                            AstNode parent = ((LenseAstNode) leftNode).getParent().getParent().getParent();
                             if (!(parent instanceof ConstructorDeclarationNode)) {
                                 throw new CompilationError(node,
                                         "Cannot modify the value of an imutable variable or field (" + info.getName()
@@ -1592,17 +1581,32 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 
                             if (!property.get().canWrite()) {
                                 throw new CompilationError(node,
-                                        "Property " + ((FieldOrPropertyAccessNode) n.getLeft()).getName()
+                                        "Property " + ((FieldOrPropertyAccessNode) leftNode).getName()
                                                 + " is read only and it cannot be asigned to");
                             }
 
                         } else {
                             throw new CompilationError(node, "Property "
-                                    + ((FieldOrPropertyAccessNode) n.getLeft()).getName() + " is not defined in type "
+                                    + ((FieldOrPropertyAccessNode) leftNode).getName() + " is not defined in type "
                                     + ((TypedNode) fp.getPrimary()).getTypeVariable().getTypeDefinition().getName());
                         }
-                    }
+                    } 
 
+                } else if (leftNode instanceof IndexedPropertyReadNode){
+                    IndexedPropertyReadNode a = (IndexedPropertyReadNode)leftNode;
+                    
+                    ArgumentListNode list = new ArgumentListNode(a.getArguments());
+                    final BoxingPointNode box = new BoxingPointNode(rightNode, rightNode, BoxingDirection.BOXING_IN);
+                    box.setCanElide(false);
+                    list.add(box);
+                    
+                    
+                    MethodInvocationNode mth = new MethodInvocationNode(a.getAccess(), "set", list);
+                    mth.setIndexDerivedMethod(true);
+                    mth.setScanPosition(node.getScanPosition());
+                    mth.setTypeVariable(LenseTypeSystem.Void());
+                    
+                    node.getParent().replace(node, mth);
                 }
 
             } else if (node instanceof TernaryConditionalExpressionNode) {
@@ -1894,8 +1898,8 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
                     // }
                 }
 
-            } else if (node instanceof IndexedAccessNode) {
-                IndexedAccessNode m = (IndexedAccessNode) node;
+            } else if (node instanceof IndexedPropertyReadNode) {
+                IndexedPropertyReadNode m = (IndexedPropertyReadNode) node;
 
                 TypedNode a = (TypedNode) m.getAccess();
 
@@ -2025,11 +2029,12 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
                     TypeVariable rawReturnType = indexer.get().getReturningType();
                     
 
-                    m.setTypeVariable( new RangeTypeVariable (rawReturnType.getSymbol(), rawReturnType.getVariance(),  rawReturnType.getTypeDefinition(), LenseTypeSystem.Nothing() ));
+                    final RangeTypeVariable type = new RangeTypeVariable (rawReturnType.getSymbol(), rawReturnType.getVariance(),  rawReturnType.getTypeDefinition(), LenseTypeSystem.Nothing() );
+                    m.setTypeVariable( type);
 
                    // m.setTypeVariable(rawReturnType);
                     
-//                    CastNode cast = new CastNode(m , rawReturnType);
+//                    CastNode cast = new CastNode(m , type);
 //                    m.getParent().replace(m, cast);
                 }
 

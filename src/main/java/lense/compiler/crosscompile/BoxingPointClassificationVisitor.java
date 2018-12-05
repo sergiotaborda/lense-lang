@@ -13,7 +13,7 @@ import lense.compiler.ast.CastNode;
 import lense.compiler.ast.ConstructorDeclarationNode;
 import lense.compiler.ast.ExpressionNode;
 import lense.compiler.ast.FieldOrPropertyAccessNode;
-import lense.compiler.ast.IndexedAccessNode;
+import lense.compiler.ast.IndexedPropertyReadNode;
 import lense.compiler.ast.MethodDeclarationNode;
 import lense.compiler.ast.MethodInvocationNode;
 import lense.compiler.ast.ReturnNode;
@@ -71,8 +71,8 @@ public final class BoxingPointClassificationVisitor implements Visitor<AstNode> 
 			if (v.getInitializer() !=null){
 				v.replace(v.getInitializer(), new BoxingPointNode(v.getInitializer(), v, BoxingDirection.BOXING_OUT));
 			}
-		}else if (node instanceof IndexedAccessNode) {
-			IndexedAccessNode m = (IndexedAccessNode)node;
+		}else if (node instanceof IndexedPropertyReadNode) {
+			IndexedPropertyReadNode m = (IndexedPropertyReadNode)node;
 
 			if (!(LenseTypeSystem.getInstance().isAssignableTo(m.getTypeVariable(), LenseTypeSystem.Void()))){
 				// outbox return 

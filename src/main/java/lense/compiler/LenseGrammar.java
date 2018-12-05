@@ -58,7 +58,7 @@ import lense.compiler.ast.ImplementedInterfacesNode;
 import lense.compiler.ast.ImportDeclarationsListNode;
 import lense.compiler.ast.ImportTypesListNode;
 import lense.compiler.ast.ImutabilityNode;
-import lense.compiler.ast.IndexedAccessNode;
+import lense.compiler.ast.IndexedPropertyReadNode;
 import lense.compiler.ast.IndexerPropertyDeclarationNode;
 import lense.compiler.ast.InferableTypeNode;
 import lense.compiler.ast.InstanceOfNode;
@@ -2996,7 +2996,7 @@ public class LenseGrammar extends AbstractLenseGrammar {
 			if (r.size() == 1) {
 				p.setAstNode(r.get(0).getAstNode().get());
 			} else {
-				IndexedAccessNode node = new IndexedAccessNode();
+				IndexedPropertyReadNode node = new IndexedPropertyReadNode();
 
 				node.setAccess(ensureExpression(r.get(0).getAstNode().get()));
 				node.setArguments(r.get(2).getAstNode(ArgumentListNode.class).get());

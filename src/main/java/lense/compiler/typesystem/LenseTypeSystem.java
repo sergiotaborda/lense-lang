@@ -866,6 +866,11 @@ public class LenseTypeSystem {
 		return type.getName().equals(Any().getName());
 	}
 	
+	public boolean isAny(TypeVariable type) {
+	    return type.isFixed() && type.getTypeDefinition().getName().equals(Any().getName());
+	}
+	    
+	
 	public boolean isNothing(TypeVariable type) {
 	        return type.getTypeDefinition().getName().equals(Nothing().getName());
 	}
@@ -888,6 +893,10 @@ public class LenseTypeSystem {
 		}
 		return false;
 	}
+
+    public boolean isVoid(TypeDefinition type) {
+        return type.getName().equals(Void().getName());
+    }
 
 
 }
