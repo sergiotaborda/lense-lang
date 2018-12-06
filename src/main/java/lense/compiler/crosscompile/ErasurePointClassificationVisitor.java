@@ -1,7 +1,5 @@
 package lense.compiler.crosscompile;
 
-import java.util.function.Function;
-
 import compiler.syntax.AstNode;
 import compiler.trees.Visitor;
 import compiler.trees.VisitorNext;
@@ -18,7 +16,7 @@ import lense.compiler.ast.MethodDeclarationNode;
 import lense.compiler.ast.MethodInvocationNode;
 import lense.compiler.ast.ReturnNode;
 import lense.compiler.ast.VariableDeclarationNode;
-import lense.compiler.crosscompile.BoxingPointNode.BoxingDirection;
+import lense.compiler.crosscompile.ErasurePointNode.BoxingDirection;
 import lense.compiler.type.variable.TypeVariable;
 import lense.compiler.typesystem.LenseTypeSystem;
 
@@ -26,7 +24,7 @@ import lense.compiler.typesystem.LenseTypeSystem;
  * Classifies cuting points as boxing or unboxing regardless of type
  * 
  */
-public final class BoxingPointClassificationVisitor implements Visitor<AstNode> {
+public final class ErasurePointClassificationVisitor implements Visitor<AstNode> {
 
 	private TypeVariable expectedType;
 
@@ -59,38 +57,39 @@ public final class BoxingPointClassificationVisitor implements Visitor<AstNode> 
 			ReturnNode r = (ReturnNode)node;
 			ExpressionNode val = r.getValue();
 
-			r.replace(val, new BoxingPointNode(val, r, u -> ((ReturnNode)u).getExpectedType(),BoxingDirection.BOXING_OUT) );
+			r.replace(val,  ErasurePointNode.unbox(val, r.getExpectedType()));
 		} else if (node instanceof AssignmentNode){
 			AssignmentNode a = (AssignmentNode)node;
 
-			a.replace(a.getRight(), new BoxingPointNode(a.getRight(), (AstNode)a.getLeft(), BoxingDirection.BOXING_OUT));
+			a.replace(a.getRight(), ErasurePointNode.convertTo(a.getRight(), ((ExpressionNode)a.getLeft()).getTypeVariable()));
 
 		}else if (node instanceof VariableDeclarationNode){
 			VariableDeclarationNode v = (VariableDeclarationNode)node;
 
 			if (v.getInitializer() !=null){
-				v.replace(v.getInitializer(), new BoxingPointNode(v.getInitializer(), v, BoxingDirection.BOXING_OUT));
+				v.replace(v.getInitializer(), ErasurePointNode.convertTo(v.getInitializer(), v.getInfo().getTypeVariable()));
 			}
 		}else if (node instanceof IndexedPropertyReadNode) {
 			IndexedPropertyReadNode m = (IndexedPropertyReadNode)node;
 
-			if (!(LenseTypeSystem.getInstance().isAssignableTo(m.getTypeVariable(), LenseTypeSystem.Void()))){
+			if (!(LenseTypeSystem.isAssignableTo(m.getTypeVariable(), LenseTypeSystem.Void()))){
 				// outbox return 
-				m.getParent().replace(m, new BoxingPointNode(m, m, BoxingDirection.BOXING_OUT));
+				m.getParent().replace(m, ErasurePointNode.unbox(m, m.getTypeVariable()));
 			}	
 		}else if (node instanceof MethodInvocationNode){
 			MethodInvocationNode m = (MethodInvocationNode)node;
 
-			if (!m.isTupleAccessMethod() && !(LenseTypeSystem.getInstance().isAssignableTo(m.getTypeVariable(), LenseTypeSystem.Void()))){
+			if (!m.isTupleAccessMethod() && !(LenseTypeSystem.isAssignableTo(m.getTypeVariable(), LenseTypeSystem.Void()))){
 				// outbox return 
 
-				m.getParent().replace(m, new BoxingPointNode(m, m, BoxingDirection.BOXING_OUT));
+				m.getParent().replace(m, ErasurePointNode.convertTo(m, m.getTypeVariable()));
 
 			}
 		} else if (node instanceof FieldOrPropertyAccessNode){
 
 			FieldOrPropertyAccessNode m = (FieldOrPropertyAccessNode)node;
-			m.getParent().replace(m, new BoxingPointNode(m, m, BoxingDirection.BOXING_OUT));
+			m.getParent().replace(m, ErasurePointNode.convertTo(m, m.getTypeVariable()));
+			
 		} else if (node instanceof ArgumentListItemNode){
 			ArgumentListItemNode item  = (ArgumentListItemNode)node;
 
@@ -115,21 +114,19 @@ public final class BoxingPointClassificationVisitor implements Visitor<AstNode> 
 				return;
 			}
 
-			if (theItem instanceof BoxingPointNode){
-				BoxingPointNode box = (BoxingPointNode)theItem;
+			if (theItem instanceof ErasurePointNode){
+				ErasurePointNode box = (ErasurePointNode)theItem;
 
 				if (box.isBoxingDirectionOut()) {
 					// trying to box in a box out = no boxing
-					item.replace(box, box.getReferenceNode());
+					item.replace(box, box.getValue());
 				} // else is already a box in
 				return;
 			}
 
 			TypeVariable typevar =  item.getExpectedType();
 			
-			Function<AstNode, TypeVariable> f = i -> ((ArgumentListItemNode)i).getExpectedType();
-			
-			BoxingPointNode box = new BoxingPointNode((ExpressionNode)theItem, item, f , BoxingDirection.BOXING_IN);
+			ErasurePointNode box = ErasurePointNode.box((ExpressionNode)theItem, item.getExpectedType());
 			
 			box.setCanElide(!typevar.isCalculated());
 			

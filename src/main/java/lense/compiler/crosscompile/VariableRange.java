@@ -74,7 +74,7 @@ public class VariableRange {
             return new VariableRange (min, max, range.isIncludeEnd());
         } else if (node instanceof TypeNode){
             return forType(((TypeNode) node).getTypeVariable().getTypeDefinition());
-        } else if (node instanceof BoxingPointNode){
+        } else if (node instanceof ErasurePointNode){
             return extractFrom(node.getFirstChild());
         } else if (node instanceof NewInstanceCreationNode
                 && ((NewInstanceCreationNode) node).getArguments() != null 

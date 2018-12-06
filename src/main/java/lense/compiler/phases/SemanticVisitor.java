@@ -100,8 +100,8 @@ import lense.compiler.ast.VariableWriteNode;
 import lense.compiler.ast.WhileNode;
 import lense.compiler.context.SemanticContext;
 import lense.compiler.context.VariableInfo;
-import lense.compiler.crosscompile.BoxingPointNode;
-import lense.compiler.crosscompile.BoxingPointNode.BoxingDirection;
+import lense.compiler.crosscompile.ErasurePointNode;
+import lense.compiler.crosscompile.ErasurePointNode.BoxingDirection;
 import lense.compiler.crosscompile.PrimitiveBooleanValue;
 import lense.compiler.crosscompile.PrimitiveTypeDefinition;
 import lense.compiler.crosscompile.VariableRange;
@@ -1596,10 +1596,12 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
                     IndexedPropertyReadNode a = (IndexedPropertyReadNode)leftNode;
                     
                     ArgumentListNode list = new ArgumentListNode(a.getArguments());
-                    final BoxingPointNode box = new BoxingPointNode(rightNode, rightNode, BoxingDirection.BOXING_IN);
-                    box.setCanElide(false);
-                    list.add(box);
-                    
+                   
+//                    final ErasurePointNode box = ErasurePointNode.box(rightNode, rightNode, BoxingDirection.BOXING_IN);
+//                    box.setCanElide(false);
+//                    list.add(box);
+//                    
+                    list.add(rightNode);
                     
                     MethodInvocationNode mth = new MethodInvocationNode(a.getAccess(), "set", list);
                     mth.setIndexDerivedMethod(true);
@@ -2624,7 +2626,7 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
             } else if (node instanceof MethodDeclarationNode) {
 
                 MethodDeclarationNode m = (MethodDeclarationNode) node;
-                TypeVariable returnType = m.getReturnType().getTypeVariable();
+                TypeVariable returnType = m.getReturnType().getTypeParameter();
 
                 if (!m.isAbstract()) {
 
@@ -2653,8 +2655,7 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 
                                 if (!typeSystem.isPromotableTo(variable.getTypeVariable(), returnType)) {
                                     throw new CompilationError(node,
-                                            variable.getTypeVariable() + " is not assignable to " + returnType
-                                                    + " in the return of method " + m.getName());
+                                            variable.getTypeVariable() + " is not assignable to " + returnType + " in the return of method " + m.getName());
                                 } else {
                                     // TODO promote
 

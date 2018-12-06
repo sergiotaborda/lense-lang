@@ -81,7 +81,8 @@ import lense.compiler.ast.VariableReadNode;
 import lense.compiler.ast.VariableReadTypeResolverNode;
 import lense.compiler.ast.VariableWriteNode;
 import lense.compiler.ast.WhileNode;
-import lense.compiler.crosscompile.BoxingPointNode;
+import lense.compiler.crosscompile.ErasurePointNode;
+import lense.compiler.crosscompile.ErasurePointNode.ErasureOperation;
 import lense.compiler.crosscompile.MethodInvocationOnPrimitiveNode;
 import lense.compiler.crosscompile.PrimitiveArithmeticOperationsNode;
 import lense.compiler.crosscompile.PrimitiveBox;
@@ -347,7 +348,7 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
                     }
                 }
 
-                writer.print("/* BOXING OUT */");
+                writer.print("/* PRIMITIVE BOXING OUT */");
     
 
                 if (pu.getTypeVariable().equals(PrimitiveTypeDefinition.BOOLEAN)){
@@ -386,15 +387,15 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 
 
                 if (pu.getTypeVariable().equals(PrimitiveTypeDefinition.BOOLEAN)){
-                    writer.print("/* BOXING IN */ lense.core.lang.Boolean.valueOfNative(");
+                    writer.print("/* PRIMITIVE BOXING IN */ lense.core.lang.Boolean.valueOfNative(");
                     TreeTransverser.transverse(node.getChildren().get(0), this);
                     writer.print(")");
                 } else if (pu.getTypeVariable().equals(PrimitiveTypeDefinition.INT)){
-                    writer.print("/* BOXING IN */  lense.core.math.Int32.valueOfNative(");
+                    writer.print("/* PRIMITIVE BOXING IN */  lense.core.math.Int32.valueOfNative(");
                     TreeTransverser.transverse(node.getChildren().get(0), this);
                     writer.print(")");
                 } else if (pu.getTypeVariable().equals(PrimitiveTypeDefinition.LONG)){
-                    writer.print("/* BOXING IN */  lense.core.math.Int64.valueOfNative(");
+                    writer.print("/* PRIMITIVE BOXING IN */  lense.core.math.Int64.valueOfNative(");
                     TreeTransverser.transverse(node.getChildren().get(0), this);
                     writer.print(")");
                 } else {
@@ -404,30 +405,21 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 
 
                 return VisitorNext.Siblings;
-            } else if (node instanceof BoxingPointNode) {
-                BoxingPointNode box = ((BoxingPointNode) node);
-
+            } else if (node instanceof ErasurePointNode) {
+                ErasurePointNode box = ((ErasurePointNode) node);
+                ErasureOperation operation = box.getErasureOperation();
          
                 TypeVariable typeVariable = box.getTypeVariable();
 
                 if (typeVariable != null) {
-                    writer.append("/*BOXING " + (box.isBoxingDirectionOut() ? "OUT" : "IN") + " to " + typeVariable.getTypeDefinition().getName() + "*/ ");
-                    AstNode inner = node.getChildren().get(0);
-                   
-                    if (box.isBoxingDirectionOut() && typeVariable.getTypeDefinition().getKind() != JavaTypeKind.Primitive){
-                        writer.append("(").append("(").append(typeVariable.getTypeDefinition().getName()).append(")");
-                        TreeTransverser.transverse(inner, this);
-                        writer.append(")");
-                    } else {
-                        TreeTransverser.transverse(inner, this);
-                    }
-                    
-                    
-                } else {
-                    writer.append("/*BOXING " + (box.isBoxingDirectionOut() ? "OUT" : "IN") + " to ?  */");
-                    TreeTransverser.transverse(node.getChildren().get(0), this);
-                }
+                    writer.append("/*"  + operation + ( operation == ErasureOperation.CONVERTION ?  "" : (box.isBoxingDirectionOut() ? " OUT" : " IN")) + " to " + typeVariable.getTypeDefinition().getName() + "*/ ");
 
+                } else {
+                    writer.append("/*"  + operation + ( operation == ErasureOperation.CONVERTION ?  "" : (box.isBoxingDirectionOut() ? " OUT" : " IN")) + " to ? */ ");
+
+                }
+                
+                TreeTransverser.transverse(node.getChildren().get(0), this);
                 
                 return VisitorNext.Siblings;
 
@@ -1953,7 +1945,7 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 
     private void printTypeSignature(Appendable pwriter, TypeVariable typeVar) {
         if (typeVar.getSymbol().isPresent()) {
-            writer.print(typeVar.getSymbol().get());
+            writer.print(signatureNameOf(typeVar.getSymbol().get()));
         } else if (typeVar.isSingleType()) {
             
    

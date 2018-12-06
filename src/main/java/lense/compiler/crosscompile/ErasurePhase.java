@@ -27,7 +27,7 @@ public final class ErasurePhase implements CompilerPhase{
         UnitTypes types = result.getCompiledUnit() == null ? null : (UnitTypes)result.getCompiledUnit().getAstRootNode();
         
         if (types == null){
-            return new CompilationResult(new RuntimeException("Unexpected Error. Result as no node."));
+            return new CompilationResult(new RuntimeException("Unexpected Error. Result has no node."));
         }
         for (ClassTypeNode ct : types.getTypes()){
         	if (!ct.isNative()) {
@@ -35,9 +35,10 @@ public final class ErasurePhase implements CompilerPhase{
         	    SemanticContext ctx = ct.getSemanticContext();
 
                 try {
-                    TreeTransverser.transverse(ct,new BoxingPointClassificationVisitor());
+                    TreeTransverser.transverse(ct,new ErasurePointClassificationVisitor());
                     TreeTransverser.transverse(ct,new BooleanErasureVisitor(ctx));
                     TreeTransverser.transverse(ct,new Int32ErasureVisitor());
+                    TreeTransverser.transverse(ct,new ElideErasureVisitor());
                 } catch (CompilationError e){
                     listener.error(new CompilerMessage(e.getMessage()));
                     return new CompilationResult(e);

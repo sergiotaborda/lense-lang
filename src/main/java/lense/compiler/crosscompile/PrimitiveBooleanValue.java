@@ -10,7 +10,7 @@ public class PrimitiveBooleanValue extends BooleanValue {
 	}
 	
 	public TypeVariable getTypeVariable() {
-		return PrimitiveTypeDefinition.BOOLEAN;
+		return  PrimitiveTypeDefinition.BOOLEAN;
 	}
 
 }
