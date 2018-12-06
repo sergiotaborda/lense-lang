@@ -65,7 +65,7 @@ import lense.compiler.ast.VariableDeclarationNode;
 import lense.compiler.ast.VariableReadNode;
 import lense.compiler.ast.VariableWriteNode;
 import lense.compiler.ast.WhileNode;
-import lense.compiler.crosscompile.BoxingPointNode;
+import lense.compiler.crosscompile.ErasurePointNode;
 import lense.compiler.crosscompile.PrimitiveBox;
 import lense.compiler.crosscompile.PrimitiveBooleanOperationsNode;
 import lense.compiler.crosscompile.PrimitiveUnbox;
@@ -165,8 +165,8 @@ public class Ecma6JavascriptWriterVisitor implements Visitor<AstNode> {
 				writer.print(")");
 
 				return VisitorNext.Siblings;
-			} else if (node instanceof BoxingPointNode){
-				TypeVariable typeVariable = ((BoxingPointNode)node).getTypeVariable();
+			} else if (node instanceof ErasurePointNode){
+				TypeVariable typeVariable = ((ErasurePointNode)node).getTypeVariable();
 				if (typeVariable != null){
 					writer.print("/* BOXING IN to " +  typeVariable.getTypeDefinition().getName()+ "*/");
 				} else {
