@@ -6,9 +6,9 @@ import lense.compiler.type.variable.TypeVariable;
 
 public class PrimitiveBox extends ExpressionNode {
 
-    private PrimitiveTypeDefinition type;
+    private ErasedTypeDefinition type;
     
-	public PrimitiveBox(PrimitiveTypeDefinition type, AstNode other) {
+	public PrimitiveBox(ErasedTypeDefinition type, AstNode other) {
 		this.add(other);
 		this.type = type;
 	}

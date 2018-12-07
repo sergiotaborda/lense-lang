@@ -10,9 +10,9 @@ import lense.compiler.ast.BooleanOperatorNode;
 import lense.compiler.ast.BooleanValue;
 import lense.compiler.ast.CastNode;
 import lense.compiler.ast.ClassTypeNode;
+import lense.compiler.ast.DecisionNode;
 import lense.compiler.ast.ExpressionNode;
 import lense.compiler.ast.InstanceOfNode;
-import lense.compiler.ast.LenseAstNode;
 import lense.compiler.ast.MethodInvocationNode;
 import lense.compiler.ast.ReturnNode;
 import lense.compiler.ast.TypedNode;
@@ -28,11 +28,9 @@ import lense.compiler.typesystem.LenseTypeSystem;
 
 public class BooleanErasureVisitor extends AbstractScopedVisitor {
 
-
-
-
     private static final PrimitiveTypeDefinition primitiveType = PrimitiveTypeDefinition.BOOLEAN;
     private static final TypeDefinition type = LenseTypeSystem.Boolean();
+    private static final ErasedTypeDefinition erasedType = new ErasedTypeDefinition( type,  primitiveType);
     private LenseTypeDefinition currentType;
 
     public BooleanErasureVisitor(SemanticContext context) {
@@ -59,7 +57,11 @@ public class BooleanErasureVisitor extends AbstractScopedVisitor {
             TypeVariable tv = r.getExpectedType();
 
             if (tv != null && tv.isFixed() &&  LenseTypeSystem.isAssignableTo(tv, type)) {
-                r.setExpectedType(primitiveType);
+                r.setExpectedType(erasedType);
+                if (r.getFirstChild() instanceof ErasurePointNode){
+                    ErasurePointNode p =(ErasurePointNode)r.getFirstChild();
+                    p.setTypeVariable(erasedType);
+                }
             } 
 
         } else if (node instanceof BooleanOperatorNode){
@@ -81,13 +83,25 @@ public class BooleanErasureVisitor extends AbstractScopedVisitor {
                 }
             }
  
+            op.setTypeVariable(erasedType);
+            
+        } else if (node instanceof DecisionNode){
+            
+            final ExpressionNode condition =  ((DecisionNode) node).getCondition();
+            if (condition instanceof ErasurePointNode){
+                ErasurePointNode p = (ErasurePointNode)condition;
+                if (p.getTypeVariable().equals(type) && p.canElide()){
+                    node.replace(p, p.getFirstChild());
+                }
+            }
+            
         } else if (node instanceof TypedNode && !(node instanceof ErasurePointNode )) {
             TypedNode t = (TypedNode) node;
 
             TypeVariable tv = t.getTypeVariable();
 
             if (tv != null && tv.isFixed() && !isTupleAccess(node) && LenseTypeSystem.isAssignableTo(tv, type)) {
-                t.setTypeVariable(primitiveType);
+                t.setTypeVariable(erasedType);
             } 
 
         } 
@@ -115,9 +129,6 @@ public class BooleanErasureVisitor extends AbstractScopedVisitor {
                 a.replace(a.getCheck(), new PrimitiveUnbox(primitiveType, a.getCheck()));
             }
 
-       
-            
-            
         } else if (node instanceof MethodInvocationNode) {
             MethodInvocationNode m = (MethodInvocationNode) node;
 
@@ -190,7 +201,10 @@ public class BooleanErasureVisitor extends AbstractScopedVisitor {
             if (boxingPoint.getErasureOperation() == ErasureOperation.CONVERTION){
                 // CONVERTION
 
-                if (type.equals(originalType) && primitiveType.equals(targetType)){
+                if (inner instanceof PrimitiveBox && primitiveType.equals(targetType)){
+                    boxingPoint.getParent().replace(boxingPoint, inner.getFirstChild() );
+                
+                } else if (type.equals(originalType) && primitiveType.equals(targetType)){
                     // convert to primitive by unboxing
 
                     if (inner instanceof BooleanValue){
@@ -202,10 +216,22 @@ public class BooleanErasureVisitor extends AbstractScopedVisitor {
 
                 } else if (primitiveType.equals(originalType) && type.equals(targetType)){
                     // convert to object type by boxing
-                   boxingPoint.getParent().replace(boxingPoint, new PrimitiveBox(primitiveType, inner));
-                } else if (targetType.equals(originalType) && (targetType.equals(type) || targetType.equals(primitiveType))){
+                   boxingPoint.getParent().replace(boxingPoint, new PrimitiveBox(erasedType, inner));
+                } else if (( type.equals(targetType) || primitiveType.equals(targetType)) && targetType.equals(originalType)){
                     // the types are expected and already are the same, remove erasure point
                     boxingPoint.getParent().replace(boxingPoint, inner);
+                } else if (boxingPoint.getFirstChild() instanceof ErasurePointNode){
+                    ErasurePointNode p = (ErasurePointNode)boxingPoint.getFirstChild();
+                    
+                    if (p.getTypeVariable().equals(type) || p.getTypeVariable().equals(primitiveType)){
+                        if (p.getBoxingDirection() == BoxingDirection.BOXING_OUT){
+                          
+                       }
+                       
+                    } 
+//                    else if (p.getBoxingDirection() == BoxingDirection.BOXING_OUT){
+//                        
+//                    }
                 } // else, some other type not interest in
 
             } else if (boxingPoint.getBoxingDirection() == BoxingDirection.BOXING_IN && targetType.equals(type)){
@@ -221,7 +247,7 @@ public class BooleanErasureVisitor extends AbstractScopedVisitor {
                         boxingPoint.getParent().replace(boxingPoint, inner);
                     } else {
                         // box the primitive
-                        boxingPoint.getParent().replace(boxingPoint, new PrimitiveBox(primitiveType, inner));
+                        boxingPoint.getParent().replace(boxingPoint, new PrimitiveBox(erasedType, inner));
                     }
                 } // else, some other type not interest in
 

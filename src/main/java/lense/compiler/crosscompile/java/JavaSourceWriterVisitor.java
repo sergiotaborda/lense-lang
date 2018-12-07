@@ -81,6 +81,7 @@ import lense.compiler.ast.VariableReadNode;
 import lense.compiler.ast.VariableReadTypeResolverNode;
 import lense.compiler.ast.VariableWriteNode;
 import lense.compiler.ast.WhileNode;
+import lense.compiler.crosscompile.ErasedTypeDefinition;
 import lense.compiler.crosscompile.ErasurePointNode;
 import lense.compiler.crosscompile.ErasurePointNode.ErasureOperation;
 import lense.compiler.crosscompile.MethodInvocationOnPrimitiveNode;
@@ -2040,7 +2041,9 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
         case Protected:
             writer.print("protected ");
             break;
-
+        case Undefined:
+            break;
+        
         }
     }
 
@@ -2050,15 +2053,16 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 
         } else if (t.getName().equals("lense.core.lang.reflection.ReifiedArguments")) {
             writer.print(t.getName());
-        } else if (t.getName().equals("boolean")) {
-            writer.print("boolean");
+       
+       
         } else {
             final TypeVariable type = t.getTypeVariable();
             if (type == null) {
                 TypeVariable upper = t.getTypeParameter().getUpperBound();
 
                 writer.print(upper.getTypeDefinition().getName());
-
+            } else if (type instanceof ErasedTypeDefinition) {
+                writer.print(((ErasedTypeDefinition) type).getPrimitiveType().getName());
             } else if (type.isFixed()) {
 
                 if (t.getParent() instanceof FormalParameterNode
