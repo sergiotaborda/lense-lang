@@ -30,21 +30,17 @@ public class ErasurePointNode extends ExpressionNode {
     
     
 	private BoxingDirection boxingDirection;
-	private TypeVariable expectedType;
 	private boolean canElide = true; // can be removed if the value is already of the expected type 
     private ErasureOperation erasureOperation;
 	
 
 	private ErasurePointNode(ExpressionNode expression, TypeVariable expectedType, ErasureOperation erasureOperation,  BoxingDirection boxingDirection){
 		this.add(expression);
-		this.expectedType = expectedType;
+		super.setTypeVariable(expectedType);
 		this.erasureOperation = erasureOperation;
 		this.boxingDirection = boxingDirection;
 	}
 
-	public TypeVariable getTypeVariable() {
-		return expectedType;
-	}
 
 	public ExpressionNode getValue() {
 		return (ExpressionNode)this.getChildren().get(0);
@@ -64,7 +60,14 @@ public class ErasurePointNode extends ExpressionNode {
 
 	
 	public String toString() {
-		return   erasureOperation.name() + "[" +  this.getFirstChild().toString() + " " +  (erasureOperation == ErasureOperation.BOXING ?  boxingDirection.name() : " TO " ) +  " " + expectedType.toString() + "]";
+		return   erasureOperation.name() 
+		        + "[" 
+		        +  this.getFirstChild().toString() 
+		        + " "
+		        +  (erasureOperation == ErasureOperation.BOXING ?  boxingDirection.name() : " TO " ) 
+		        +  " " 
+		        + getTypeVariable().toString() 
+		        + "]";
 	}
 
     public ErasureOperation getErasureOperation() {

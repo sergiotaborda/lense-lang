@@ -226,4 +226,24 @@ public class PrimitiveTypeDefinition implements TypeDefinition {
 			ConstructorParameter... parameters) {
 		return Optional.empty();
 	}
+	
+	public boolean equals(Object other){
+	    return other instanceof TypeDefinition && equals((TypeDefinition)other);
+	}
+	
+	public boolean equals(TypeDefinition other){
+        if (other == null){
+            return false;
+        }
+        
+        if (other instanceof ErasedTypeDefinition){
+            return this.equals(((ErasedTypeDefinition) other).getPrimitiveType());
+        } else {
+            return this.name.equals(other.getName());
+        }
+    }
+	
+	public int hashCode(){
+	    return this.name.hashCode();
+	}
 }
