@@ -56,6 +56,10 @@ public final class ErasurePointClassificationVisitor implements Visitor<AstNode>
 		if (node instanceof ReturnNode){
 			ReturnNode r = (ReturnNode)node;
 			ExpressionNode val = r.getValue();
+			
+			if (r.getExpectedType() == null){
+			    r.setExpectedType(r.getTypeVariable());
+			}
 
 			r.replace(val,  ErasurePointNode.convertTo(val, r.getExpectedType()));
 		} else if (node instanceof AssignmentNode){

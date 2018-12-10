@@ -36,6 +36,10 @@ public final class ErasedTypeDefinition implements TypeDefinition{
         return primitiveType.equals(other);
     }
     
+    public ErasedTypeDefinition getTypeDefinition(){
+        return this;
+    }
+    
     public int hashCode(){
         return primitiveType.hashCode();
     }
@@ -79,11 +83,7 @@ public final class ErasedTypeDefinition implements TypeDefinition{
     public Collection<TypeMember> getAllMembers() {
         return originalType.getAllMembers();
     }
-
-    public TypeDefinition getTypeDefinition() {
-        return originalType.getTypeDefinition();
-    }
-
+    
     public TypeVariable changeBaseType(TypeDefinition concrete) {
         return originalType.changeBaseType(concrete);
     }

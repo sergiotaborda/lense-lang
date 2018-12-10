@@ -17,14 +17,23 @@ public class ErasurePointNode extends ExpressionNode {
 	}
 	
 	public static ErasurePointNode box(ExpressionNode expression, TypeVariable expectedType){
+	    if (expectedType == null){
+	        throw new IllegalArgumentException("Type is required");
+	    }
 	    return new ErasurePointNode(expression, expectedType, ErasureOperation.BOXING, BoxingDirection.BOXING_IN);
 	}
 	
     public static ErasurePointNode unbox(ExpressionNode expression, TypeVariable expectedType){
+        if (expectedType == null){
+            throw new IllegalArgumentException("Type is required");
+        }
         return new ErasurePointNode(expression, expectedType, ErasureOperation.BOXING, BoxingDirection.BOXING_OUT);
     }
     
     public static ErasurePointNode convertTo(ExpressionNode expression, TypeVariable expectedType){
+        if (expectedType == null){
+            throw new IllegalArgumentException("Type is required");
+        }
         return new ErasurePointNode(expression, expectedType, ErasureOperation.CONVERTION, BoxingDirection.NONE);
     }
     
