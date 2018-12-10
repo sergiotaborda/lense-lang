@@ -14,9 +14,11 @@ import lense.compiler.ast.DecisionNode;
 import lense.compiler.ast.ExpressionNode;
 import lense.compiler.ast.InstanceOfNode;
 import lense.compiler.ast.MethodInvocationNode;
+import lense.compiler.ast.PreBooleanUnaryExpression;
 import lense.compiler.ast.ReturnNode;
 import lense.compiler.ast.TypedNode;
 import lense.compiler.ast.VariableReadNode;
+import lense.compiler.ast.WhileNode;
 import lense.compiler.context.SemanticContext;
 import lense.compiler.crosscompile.ErasurePointNode.BoxingDirection;
 import lense.compiler.crosscompile.ErasurePointNode.ErasureOperation;
@@ -31,6 +33,8 @@ public class BooleanErasureVisitor extends AbstractScopedVisitor {
     private static final PrimitiveTypeDefinition primitiveType = PrimitiveTypeDefinition.BOOLEAN;
     private static final TypeDefinition type = LenseTypeSystem.Boolean();
     private static final ErasedTypeDefinition erasedType = new ErasedTypeDefinition( type,  primitiveType);
+    private static final TypeDefinition any = LenseTypeSystem.Any();
+    
     private LenseTypeDefinition currentType;
 
     public BooleanErasureVisitor(SemanticContext context) {
@@ -39,7 +43,6 @@ public class BooleanErasureVisitor extends AbstractScopedVisitor {
 
     @Override
     protected Optional<LenseTypeDefinition> getCurrentType() {
-
         return Optional.ofNullable(currentType);
     }
 
@@ -85,9 +88,27 @@ public class BooleanErasureVisitor extends AbstractScopedVisitor {
  
             op.setTypeVariable(erasedType);
             
-        } else if (node instanceof DecisionNode){
+        }  else if (node instanceof PreBooleanUnaryExpression){
+            
+            final ExpressionNode condition =  (ExpressionNode)((PreBooleanUnaryExpression) node).getFirstChild();
+            if (condition instanceof ErasurePointNode){
+                ErasurePointNode p = (ErasurePointNode)condition;
+                if (p.getTypeVariable().equals(type) && p.canElide()){
+                    node.replace(p, p.getFirstChild());
+                }
+            }
+        }  else if (node instanceof DecisionNode){
             
             final ExpressionNode condition =  ((DecisionNode) node).getCondition();
+            if (condition instanceof ErasurePointNode){
+                ErasurePointNode p = (ErasurePointNode)condition;
+                if (p.getTypeVariable().equals(type) && p.canElide()){
+                    node.replace(p, p.getFirstChild());
+                }
+            }
+        } else if (node instanceof WhileNode){
+            
+            final ExpressionNode condition =  ((WhileNode) node).getCondition();
             if (condition instanceof ErasurePointNode){
                 ErasurePointNode p = (ErasurePointNode)condition;
                 if (p.getTypeVariable().equals(type) && p.canElide()){
@@ -188,6 +209,9 @@ public class BooleanErasureVisitor extends AbstractScopedVisitor {
             TypeVariable originalType = inner.getTypeVariable();
             TypeVariable targetType = boxingPoint.getTypeVariable();
 
+            if (targetType.isSingleType()){
+                targetType = targetType.getTypeDefinition();
+            }
 
 //            if (originalType == null){
 //                return;
@@ -201,8 +225,13 @@ public class BooleanErasureVisitor extends AbstractScopedVisitor {
             if (boxingPoint.getErasureOperation() == ErasureOperation.CONVERTION){
                 // CONVERTION
 
-                if (inner instanceof PrimitiveBox && primitiveType.equals(targetType)){
+                if (inner instanceof PrimitiveBox  && primitiveType.equals(targetType)){
+                    // conversion of erased value. not necessary
                     boxingPoint.getParent().replace(boxingPoint, inner.getFirstChild() );
+                
+                } else if (inner instanceof PrimitiveBooleanValue && primitiveType.equals(targetType)){
+                    // already erased
+                    boxingPoint.getParent().replace(boxingPoint, inner);
                 
                 } else if (type.equals(originalType) && primitiveType.equals(targetType)){
                     // convert to primitive by unboxing
@@ -229,13 +258,11 @@ public class BooleanErasureVisitor extends AbstractScopedVisitor {
                        }
                        
                     } 
-//                    else if (p.getBoxingDirection() == BoxingDirection.BOXING_OUT){
-//                        
-//                    }
                 } // else, some other type not interest in
 
-            } else if (boxingPoint.getBoxingDirection() == BoxingDirection.BOXING_IN && targetType.equals(type)){
+            } else if (boxingPoint.getBoxingDirection() == BoxingDirection.BOXING_IN && (targetType.equals(type) || targetType.equals(any))){
                 // BOXING IN
+                // also box in if expected type is any
                 if (inner instanceof BooleanValue){
                     // a literal is already boxed
                     boxingPoint.getParent().replace(boxingPoint, inner); 
@@ -254,13 +281,6 @@ public class BooleanErasureVisitor extends AbstractScopedVisitor {
             } else if (boxingPoint.getBoxingDirection() == BoxingDirection.BOXING_OUT) {
                 // BOXING OUT
                 if ( inner instanceof BooleanValue) {
-                    //	                  if(boxingPoint.getReferenceNode() instanceof ArgumentListItemNode){
-                    //	                      ArgumentListItemNode ref = (ArgumentListItemNode)boxingPoint.getReferenceNode();
-                    //	                      if (ref.isGeneric()){
-                    //	                          boxingPoint.getParent().replace(boxingPoint, new PrimitiveBox(primitiveType, inner));
-                    //	                          return;
-                    //	                      }
-                    //	                  } 
 
                     boxingPoint.getParent().replace(boxingPoint, new PrimitiveBooleanValue(((BooleanValue)inner).isValue()));
                 } else if (inner instanceof PrimitiveBox || inner instanceof PrimitiveBooleanValue) {
