@@ -14,6 +14,9 @@ public class ArgumentListItemNode extends LenseAstNode{
 	private String name;
 	
 	public ArgumentListItemNode(int index , AstNode node){
+	    if (node instanceof ArgumentListNode){
+	        throw new IllegalArgumentException();
+	    }
 		this.add(node);
 		this.index = index;
 	}

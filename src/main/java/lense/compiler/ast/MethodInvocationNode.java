@@ -44,12 +44,17 @@ public class MethodInvocationNode extends NeedTypeCalculationNode {
         this.member = member;
     }
     
-    public MethodInvocationNode (AstNode access , String name, ArgumentListNode ... arguments){
+    public MethodInvocationNode (AstNode access , String name, ArgumentListItemNode ... arguments){
         setCall(new MethodCallNode(name, new ArgumentListNode(arguments)));
         setAccess(access);
     }
+    
+    public MethodInvocationNode (AstNode access , String name, ArgumentListNode arguments){
+        setCall(new MethodCallNode(name, arguments));
+        setAccess(access);
+    }
 
-    public MethodInvocationNode (TypeMember member, AstNode access , ArgumentListNode ... arguments){
+    public MethodInvocationNode (TypeMember member, AstNode access , ArgumentListItemNode ... arguments){
         setCall(new MethodCallNode(member.getName(), new ArgumentListNode(arguments)));
         setAccess(access);
         this.member = member;

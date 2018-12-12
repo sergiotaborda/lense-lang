@@ -11,7 +11,6 @@ import lense.compiler.ast.AssignmentNode;
 import lense.compiler.ast.AssignmentNode.Operation;
 import lense.compiler.ast.BlockNode;
 import lense.compiler.ast.BooleanOperation;
-import lense.compiler.ast.BooleanValue;
 import lense.compiler.ast.ComparisonNode;
 import lense.compiler.ast.ExpressionNode;
 import lense.compiler.ast.FieldDeclarationNode;
@@ -60,13 +59,6 @@ public class DesugarVisitor extends AbstractLenseVisitor {
         return semanticContext;
     }
 
-    @Override
-    public void startVisit() {
-    }
-
-    @Override
-    public void endVisit() {
-    }
 
     @Override
     public VisitorNext visitBeforeChildren(AstNode node) {
@@ -514,14 +506,6 @@ public class DesugarVisitor extends AbstractLenseVisitor {
         return right instanceof NumericValue && ((NumericValue) right).isOne();
     }
     
-    private boolean isLogicConstant(ExpressionNode right) {
-        return right instanceof BooleanValue;
-    }
-    
-    private boolean isTrue(ExpressionNode right) {
-        return right instanceof BooleanValue && ((BooleanValue) right).isValue();
-    }
-
     public String resolvePropertyName(String name) {
         return name.substring(0, 1).toUpperCase() + name.substring(1);
     }
