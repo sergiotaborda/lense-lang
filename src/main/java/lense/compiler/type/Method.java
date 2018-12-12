@@ -31,7 +31,7 @@ public class Method implements CallableMember<Method> {
 	
 	private TypeDefinition declaringType;
 	private MethodReturn returnParameter;
-	private List<CallableMemberMember<Method>> parameters;
+	private List<CallableMemberMember<Method>> parameters = new ArrayList<>();
 	
 	private List<TypeVariable> methodFreeGenericTypes = new ArrayList<>();
     private Visibility visibility;

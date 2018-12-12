@@ -1597,16 +1597,13 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
                     
                     ArgumentListNode list = new ArgumentListNode(a.getArguments());
                    
-//                    final ErasurePointNode box = ErasurePointNode.box(rightNode, rightNode, BoxingDirection.BOXING_IN);
-//                    box.setCanElide(false);
-//                    list.add(box);
-//                    
                     list.add(rightNode);
                     
                     MethodInvocationNode mth = new MethodInvocationNode(a.getAccess(), "set", list);
                     mth.setIndexDerivedMethod(true);
                     mth.setScanPosition(node.getScanPosition());
                     mth.setTypeVariable(LenseTypeSystem.Void());
+                    mth.setTypeMember(a.getIndexerProperty());
                     
                     node.getParent().replace(node, mth);
                 }
@@ -2028,6 +2025,7 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
                                 + " is defined for type " + methodOwnerType);
                     }
 
+                    m.setIndexerProperty(indexer.get());
                     TypeVariable rawReturnType = indexer.get().getReturningType();
                     
 
