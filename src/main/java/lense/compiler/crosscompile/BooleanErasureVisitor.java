@@ -57,9 +57,7 @@ public class BooleanErasureVisitor extends AbstractScopedVisitor {
     @Override
     public VisitorNext doVisitBeforeChildren(AstNode node) {
         if (node instanceof ClassTypeNode) {
-
             this.currentType = ((ClassTypeNode) node).getTypeDefinition();
-
         } else if (node instanceof InstanceOfNode){
             ((InstanceOfNode) node).setTypeVariable(primitiveType);
         } else if (node instanceof ReturnNode){
@@ -120,8 +118,11 @@ public class BooleanErasureVisitor extends AbstractScopedVisitor {
                         arg.getParent().replace(arg, p);
                     }
                 }
+            } else if (m.getTypeVariable().isFixed() && m.getTypeVariable().equals(type)){
+                // asume all fixed Boolean returns will be erased to boolean primitive
+               
+                    m.setTypeVariable(erasedType);
                 
-
             }
 
         }  else if (node instanceof PreBooleanUnaryExpression){
@@ -288,13 +289,13 @@ public class BooleanErasureVisitor extends AbstractScopedVisitor {
                     } 
                 } // else, some other type not interest in
 
-            } else if (boxingPoint.getBoxingDirection() == BoxingDirection.BOXING_IN && (targetType.equals(type) || targetType.equals(any))){
+            } else if (boxingPoint.getBoxingDirection() == BoxingDirection.BOXING_IN ){
                 // BOXING IN
                 // also box in if expected type is any
                 if (inner instanceof BooleanValue){
                     // a literal is already boxed
                     boxingPoint.getParent().replace(boxingPoint, inner); 
-                } else if (primitiveType.equals(originalType)){
+                } else if (primitiveType.equals(originalType) && (targetType.equals(type) || targetType.equals(any))){
                     // the original type is a primitive
 
                     if ((inner instanceof VariableReadNode && boxingPoint.canElide()) || inner instanceof PrimitiveBooleanOperationsNode) {
@@ -306,6 +307,7 @@ public class BooleanErasureVisitor extends AbstractScopedVisitor {
                     }
 
                 } // else, some other type not interest in
+
 
             } else if (boxingPoint.getBoxingDirection() == BoxingDirection.BOXING_OUT) {
                 // BOXING OUT
