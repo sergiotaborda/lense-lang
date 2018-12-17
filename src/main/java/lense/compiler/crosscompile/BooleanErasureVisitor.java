@@ -15,6 +15,7 @@ import lense.compiler.ast.ClassTypeNode;
 import lense.compiler.ast.ConditionalStatement;
 import lense.compiler.ast.ExpressionNode;
 import lense.compiler.ast.GenericTypeParameterNode;
+import lense.compiler.ast.IndexedPropertyReadNode;
 import lense.compiler.ast.InstanceOfNode;
 import lense.compiler.ast.MethodInvocationNode;
 import lense.compiler.ast.PreBooleanUnaryExpression;
@@ -93,6 +94,9 @@ public class BooleanErasureVisitor extends AbstractScopedVisitor {
             }
 
             op.setTypeVariable(erasedType);
+        }  else if (node instanceof IndexedPropertyReadNode){
+            IndexedPropertyReadNode index = (IndexedPropertyReadNode)node;
+            
         }  else if (node instanceof MethodInvocationNode){
 
             MethodInvocationNode m = (MethodInvocationNode)node;
@@ -100,24 +104,49 @@ public class BooleanErasureVisitor extends AbstractScopedVisitor {
 
             if (m.isIndexDerivedMethod() && indexer instanceof IndexerProperty){
 
-                TypeVariable parameterType = ((IndexerProperty)indexer).getReturningType();
+                if ("set".equals(m.getCall().getName())) {
+                    TypeVariable parameterType = ((IndexerProperty)indexer).getReturningType();
 
-                ArgumentListItemNode n  = m.getCall().getArguments().getLastArgument();
+                    ArgumentListItemNode n  = m.getCall().getArguments().getLastArgument();
 
-                AstNode arg = n.getFirstChild();
-                TypeVariable argType = ((TypedNode)arg).getTypeVariable();
+                    AstNode arg = n.getFirstChild();
+                    TypeVariable argType = ((TypedNode)arg).getTypeVariable();
 
-                if (arg instanceof ErasurePointNode && argType.equals(type)){
-                    
-                    if (parameterType.isFixed() && parameterType.equals(type)){
-                        arg.getParent().replace(arg, arg.getFirstChild());
-                    } else {
-                        ErasurePointNode p = ErasurePointNode.box((ExpressionNode) arg.getFirstChild(), type);
-                        p.setCanElide(false);
+                    if (arg instanceof ErasurePointNode && argType.equals(type)){
                         
-                        arg.getParent().replace(arg, p);
+                        if (parameterType.isFixed() && parameterType.equals(type)){
+                            arg.getParent().replace(arg, arg.getFirstChild());
+                        } else {
+                            ErasurePointNode p = ErasurePointNode.box((ExpressionNode) arg.getFirstChild(), type);
+                            p.setCanElide(false);
+                            
+                            arg.getParent().replace(arg, p);
+                        }
                     }
+                } else {
+                    TypeVariable parameterType = ((IndexerProperty)indexer).getReturningType();
+
+                    AstNode parent = m.getParent();
+
+                    TypeVariable argType = ((TypedNode)parent).getTypeVariable();
+                    TypeVariable base = ((TypedNode)m.getAccess()).getTypeVariable();
+                    
+                    if (base.equals(currentType) && parent instanceof ErasurePointNode && argType.getUpperBound().equals(type)){
+                        
+                        if (!parameterType.isCalculated() && parameterType.getUpperBound().equals(type)){
+                            
+                            AstNode grandParent = parent.getParent();
+                            
+                            if (grandParent instanceof ErasurePointNode && ((ErasurePointNode)grandParent).getTypeVariable().equals(primitiveType) ){
+                                grandParent.getParent().replace(grandParent, m);
+                            } else {
+                                parent.getParent().replace(parent, m);
+                            }
+                        
+                        } 
+                    } 
                 }
+  
             } else if (m.getTypeVariable().isFixed() && m.getTypeVariable().equals(type)){
                 // asume all fixed Boolean returns will be erased to boolean primitive
                

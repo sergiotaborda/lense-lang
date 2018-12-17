@@ -1073,7 +1073,11 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
                 } else {
                     
                     final TypeDefinition type = n.getTypeVariable().getUpperBound().getTypeDefinition();
-                    boolean needsCast = n.isIndexDerivedMethod() && !LenseTypeSystem.getInstance().isVoid(type) && !LenseTypeSystem.getInstance().isAny(type);
+                    // TODO should be resolve at errasure time
+                    boolean needsCast = n.isIndexDerivedMethod() 
+                            && !LenseTypeSystem.getInstance().isVoid(type) 
+                            && !LenseTypeSystem.getInstance().isBoolean(type) 
+                            && !LenseTypeSystem.getInstance().isAny(type);
                     
                     if (needsCast){
                      
