@@ -342,6 +342,7 @@ public class DesugarVisitor extends AbstractLenseVisitor {
                 invokeSet.setIndexDerivedMethod(true);
                 invokeSet.setPropertyOperation(PropertyOperation.WRITE);
                 invokeSet.setTypeVariable(LenseTypeSystem.Void());
+                invokeSet.setTypeMember(n.getIndexerProperty());
                 
                 node.getParent().getParent().replace(n.getParent(), invokeSet);
                 
@@ -352,6 +353,7 @@ public class DesugarVisitor extends AbstractLenseVisitor {
                 invokeGet.setIndexDerivedMethod(true);
                 invokeGet.setPropertyOperation(PropertyOperation.READ);
                 invokeGet.setTypeVariable(n.getTypeVariable());
+                invokeGet.setTypeMember(n.getIndexerProperty());
                 
                 node.getParent().replace(node, invokeGet);
 
