@@ -1074,16 +1074,16 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
                     
                     final TypeDefinition type = n.getTypeVariable().getUpperBound().getTypeDefinition();
                     // TODO should be resolve at errasure time
-                    boolean needsCast = n.isIndexDerivedMethod() 
-                            && !LenseTypeSystem.getInstance().isVoid(type) 
-                            && !LenseTypeSystem.getInstance().isBoolean(type) 
-                            && !LenseTypeSystem.getInstance().isAny(type);
-                    
-                    if (needsCast){
-                     
-                        writer.append("((").append(type.getName()).append(")");
-                            
-                    }
+//                    boolean needsCast = n.isIndexDerivedMethod() 
+//                            && !LenseTypeSystem.getInstance().isVoid(type) 
+//                            && !LenseTypeSystem.getInstance().isBoolean(type) 
+//                            && !LenseTypeSystem.getInstance().isAny(type);
+//                    
+//                    if (needsCast){
+//                     
+//                        writer.append("((").append(type.getName()).append(")");
+//                            
+//                    }
                     if (n.getAccess() != null) {
                         TreeTransverser.transverse(n.getAccess(), this);
                         writer.print(".");
@@ -1097,9 +1097,9 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 
                     writer.print(")");
                     
-                    if (needsCast){
-                        writer.print(")");
-                    }
+//                    if (needsCast){
+//                        writer.print(")");
+//                    }
                 }
 
                 if (node.getParent() instanceof BlockNode) {

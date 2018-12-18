@@ -86,17 +86,15 @@ public final class ErasurePointClassificationVisitor implements Visitor<AstNode>
 			if (!m.isTupleAccessMethod() && !(LenseTypeSystem.isAssignableTo(m.getTypeVariable(), LenseTypeSystem.Void()))){
 				// outbox return 
 
-				m.getParent().replace(m, ErasurePointNode.convertTo(m, m.getTypeVariable()));
-
+			
+				if (m.isIndexDerivedMethod() && m.getCall().getName().equals("get")){
+	                m.getParent().replace(m, ErasurePointNode.unbox(m, m.getTypeVariable()));
+	            } else {
+	                m.getParent().replace(m, ErasurePointNode.convertTo(m, m.getTypeVariable()));
+	            }
 			}
 			
-			if (m.isIndexDerivedMethod() && m.getCall().getName().equals("get")){
-			    // TODO verify correctness , an implication in boxing. should be unbox ?
-			    CastNode  cast = new CastNode(m, m.getTypeVariable().getUpperBound());
-			    
-			    m.getParent().replace(m, cast);
-                
-			}
+			
 		} else if (node instanceof FieldOrPropertyAccessNode){
 
 			FieldOrPropertyAccessNode m = (FieldOrPropertyAccessNode)node;
