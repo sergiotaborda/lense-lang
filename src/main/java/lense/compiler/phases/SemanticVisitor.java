@@ -2560,7 +2560,8 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
                         ConstructorParameter param = (ConstructorParameter) methodParameters.get(i);
                         ArgumentListItemNode arg = (ArgumentListItemNode) n.getArguments().getChildren().get(i);
                         arg.setExpectedType(param.getType());
-
+                        
+                      //  promoteNodeType( arg.getFirstChild() , param.getType());
                     }
                 }
 
@@ -3193,7 +3194,7 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 
                 parent.getParent().replace(parent, concat);
             } else if (operation == ArithmeticOperation.Division && leftExpression instanceof NumericValue
-                    && LenseTypeSystem.getInstance().isAssignableTo(right, LenseTypeSystem.Rational())) {
+                    && LenseTypeSystem.isAssignableTo(right, LenseTypeSystem.Rational())) {
                 // natural / rational
 
                 MethodSignature signature = new MethodSignature("invert");
@@ -3270,9 +3271,9 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 
                 for (int i = 0; i < methodParameters.size(); i++) {
                     MethodParameter param = (MethodParameter) methodParameters.get(i);
-                    ArgumentListItemNode a = (ArgumentListItemNode) invokeOp.getCall().getArguments().getChildren()
-                            .get(i);
+                    ArgumentListItemNode a = (ArgumentListItemNode) invokeOp.getCall().getArguments().getChildren().get(i);
                     a.setExpectedType(param.getType());
+
                 }
 
                 parent.getParent().replace(parent, invokeOp);

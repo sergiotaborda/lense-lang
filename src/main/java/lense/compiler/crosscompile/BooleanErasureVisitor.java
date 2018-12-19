@@ -53,6 +53,7 @@ public class BooleanErasureVisitor extends AbstractScopedVisitor {
     private boolean isBooleanNode(ExpressionNode node) {
        return node instanceof BooleanOperatorNode
                || node instanceof PreBooleanUnaryExpression;
+              // || node instanceof InstanceOfNode;
                
     }
 
@@ -136,12 +137,13 @@ public class BooleanErasureVisitor extends AbstractScopedVisitor {
 
                     AstNode parent = m.getParent();
 
-                    TypeVariable argType = ((TypedNode)parent).getTypeVariable();
                     TypeVariable base = ((TypedNode)m.getAccess()).getTypeVariable();
                     
-                    if (base.equals(currentType) && parent instanceof ErasurePointNode && argType.getUpperBound().equals(type)){
+                    if (base.equals(currentType) && parent instanceof ErasurePointNode ){
                         
-                        if (!parameterType.isCalculated() && parameterType.getUpperBound().equals(type)){
+                        TypeVariable argType = ((ErasurePointNode)parent).getTypeVariable();
+                        
+                        if ( argType.getUpperBound().equals(type) && !parameterType.isCalculated() && parameterType.getUpperBound().equals(type)){
                             
                             AstNode grandParent = parent.getParent();
                             
@@ -180,6 +182,18 @@ public class BooleanErasureVisitor extends AbstractScopedVisitor {
                     node.replace(p, p.getFirstChild());
                 }
             }
+        } else if (node instanceof VariableDeclarationNode){
+            VariableDeclarationNode var = (VariableDeclarationNode)node;
+            
+            TypeVariable vartype = var.getInfo() == null ? var.getTypeVariable() : var.getInfo().getTypeVariable();
+            
+            if (vartype.equals(type)){
+                var.setTypeVariable(erasedType);
+                if (var.getInfo() != null){
+                    var.getInfo().setTypeVariable(erasedType);
+                }
+               
+            }
         } else if (node instanceof TypedNode
                 && !(node instanceof ErasurePointNode )
                 && !(node.getParent() instanceof VariableDeclarationNode )
@@ -215,9 +229,9 @@ public class BooleanErasureVisitor extends AbstractScopedVisitor {
         if (node instanceof AssertNode){
             AssertNode a = (AssertNode)node;
 
-            if (!a.getCheck().getTypeVariable().equals(primitiveType)){
+            if (!a.getCondition().getTypeVariable().equals(primitiveType)){
 
-                a.replace(a.getCheck(), new PrimitiveUnbox(primitiveType, a.getCheck()));
+                a.replace(a.getCondition(), new PrimitiveUnbox(primitiveType, a.getCondition()));
             }
 
         } else if (node instanceof MethodInvocationNode) {
@@ -237,7 +251,13 @@ public class BooleanErasureVisitor extends AbstractScopedVisitor {
                         m.getParent().replace(m, new PrimitiveBooleanOperationsNode(m.getAccess(), BooleanOperation.LogicNegate));
                     }
                 }
+            } else if (m.getCall().getName().equals("asString")){
 
+                TypeVariable accessType = ((TypedNode)m.getAccess()).getTypeVariable();
+                
+                if (primitiveType.equals(accessType)){
+                    m.getParent().replace(m, new MethodInvocationOnPrimitiveNode(primitiveType, m));
+                }
             } else if (m.getCall().getName().equals("negate")){
 
                 if (m.getAccess() instanceof ErasurePointNode){
@@ -297,13 +317,13 @@ public class BooleanErasureVisitor extends AbstractScopedVisitor {
                     // already erased
                     boxingPoint.getParent().replace(boxingPoint, inner);
 
-                } else if (type.equals(originalType.getUpperBound()) && primitiveType.equals(targetType)){
+                } else if ((type.equals(originalType)  || originalType != null && type.equals(originalType.getUpperBound()) ) && primitiveType.equals(targetType)){
                     // convert to primitive by unboxing
 
                     if (inner instanceof BooleanValue){
                         // is a literal
                         boxingPoint.getParent().replace(boxingPoint, new PrimitiveBooleanValue(((BooleanValue)inner).isValue()));
-                    } else if (isBooleanNode(inner)) {
+                    } else if (isBooleanNode(inner) || inner.getTypeVariable().equals(primitiveType)) {
                         boxingPoint.getParent().replace(boxingPoint, inner);
                     } else {
                         boxingPoint.getParent().replace(boxingPoint, new PrimitiveUnbox(primitiveType, inner));
