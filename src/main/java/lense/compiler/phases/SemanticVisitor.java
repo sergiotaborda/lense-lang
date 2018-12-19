@@ -1098,7 +1098,7 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 
 								Optional<Constructor> op = innerType.getConstructorByParameters(new ConstructorParameter(type));
 
-                                NewInstanceCreationNode cn = NewInstanceCreationNode.of(innerTypeVar, op.get(), n);
+                                NewInstanceCreationNode cn = NewInstanceCreationNode.of(op.get(), n);
                                 cn.getCreationParameters().getTypeParametersListNode()
                                         .add(new GenericTypeParameterNode(new TypeNode(innerTypeVar)));
 
@@ -1150,7 +1150,7 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 
 								Optional<Constructor> op = maxType.getConstructorByParameters(new ConstructorParameter(type));
 
-                                NewInstanceCreationNode cn = NewInstanceCreationNode.of(maxTypeDef, op.get(), n);
+                                NewInstanceCreationNode cn = NewInstanceCreationNode.of(op.get(), n);
                                 cn.getCreationParameters().getTypeParametersListNode()
                                         .add(new GenericTypeParameterNode(new TypeNode(maxTypeDef)));
 
@@ -1525,7 +1525,7 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
                         Optional<Constructor> op = left.getTypeDefinition()
                                 .getConstructorByParameters(new ConstructorParameter(right));
 
-                        NewInstanceCreationNode cn = NewInstanceCreationNode.of(left, op.get(), rightNode);
+                        NewInstanceCreationNode cn = NewInstanceCreationNode.of(op.get(), rightNode);
                         cn.getCreationParameters().getTypeParametersListNode()
                                 .add(new GenericTypeParameterNode(new TypeNode(left)));
 
@@ -1697,7 +1697,7 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 								Optional<Constructor> op = type.getTypeDefinition()
 										.getConstructorByImplicitAndPromotableParameters(true, new ConstructorParameter(right));
 								
-								NewInstanceCreationNode cn = NewInstanceCreationNode.of(type, op.get(),
+								NewInstanceCreationNode cn = NewInstanceCreationNode.of(op.get(),
                                         variableDeclaration.getInitializer());
 
                                 if (!type.getGenericParameters().isEmpty()) {
@@ -2561,7 +2561,7 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
                         ArgumentListItemNode arg = (ArgumentListItemNode) n.getArguments().getChildren().get(i);
                         arg.setExpectedType(param.getType());
                         
-                      //  promoteNodeType( arg.getFirstChild() , param.getType());
+                        promoteNodeType( arg.getFirstChild() , param.getType());
                     }
                 }
 
@@ -2669,7 +2669,7 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 											.getConstructorByParameters(new ConstructorParameter(variable.getTypeVariable()));
 
                                     for (ReturnNode rn : allReturns) {
-                                        NewInstanceCreationNode cn = NewInstanceCreationNode.of(returnType, op.get(),
+                                        NewInstanceCreationNode cn = NewInstanceCreationNode.of(op.get(),
                                                 rn.getChildren().get(0));
                                         cn.getCreationParameters().getTypeParametersListNode()
                                                 .add(new GenericTypeParameterNode(new TypeNode(returnType)));
@@ -3298,17 +3298,24 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 
         if (lenseTypeSystem.isMaybe(targetType)) {
 
+            if (lenseTypeSystem.isMaybe(nodeType)){
+                return node;
+            }
+            
             TypeVariable innerType = targetType.getGenericParameters().get(0);
 
             AstNode promoted = promoteNodeType(node, innerType);
 
-			Optional<Constructor> op = getSemanticContext().resolveTypeForName("lense.core.lang.Some", 1)
+			final Optional<TypeVariable> typeofSome = getSemanticContext().resolveTypeForName("lense.core.lang.Some", 1);
+            Optional<Constructor> op = typeofSome
 					.flatMap(t -> t.getTypeDefinition().getConstructorByParameters(new ConstructorParameter(innerType)));
-
+           
+            TypeVariable someTypeSpec = LenseTypeSystem.specify(typeofSome.get(), innerType);
+            
             // read parent before adding to new node (parent will change)
             AstNode parent = node.getParent();
 
-            NewInstanceCreationNode cn = NewInstanceCreationNode.of(targetType, op.get(), promoted);
+            NewInstanceCreationNode cn = NewInstanceCreationNode.of(someTypeSpec, op.get(), promoted);
             cn.getCreationParameters().getTypeParametersListNode()
                     .add(new GenericTypeParameterNode(new TypeNode(targetType)));
 
@@ -3332,7 +3339,7 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
             // read parent before adding to new node (parent will change)
             AstNode parent = node.getParent();
 
-            NewInstanceCreationNode cn = NewInstanceCreationNode.of(targetType, op.get(), node);
+            NewInstanceCreationNode cn = NewInstanceCreationNode.of(op.get(), node);
             cn.getCreationParameters().getTypeParametersListNode()
                     .add(new GenericTypeParameterNode(new TypeNode(targetType)));
 
@@ -3363,7 +3370,7 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
             n.setTypeVariable(left);
 
         } else {
-            NewInstanceCreationNode cn = NewInstanceCreationNode.of(left, op.get(), rightExpression);
+            NewInstanceCreationNode cn = NewInstanceCreationNode.of(op.get(), rightExpression);
             cn.getCreationParameters().getTypeParametersListNode()
                     .add(new GenericTypeParameterNode(new TypeNode(left)));
 
