@@ -6,6 +6,7 @@ import compiler.trees.VisitorNext;
 import lense.compiler.ast.CastNode;
 import lense.compiler.ast.ExpressionNode;
 import lense.compiler.crosscompile.ErasurePointNode.ErasureOperation;
+import lense.compiler.typesystem.LenseTypeSystem;
 
 public class ElideErasureVisitor implements Visitor<AstNode> {
 
@@ -35,8 +36,12 @@ public class ElideErasureVisitor implements Visitor<AstNode> {
             } else if (boxingPoint.canElide() && inner.getTypeVariable().equals(boxingPoint.getTypeVariable())){
                 // elide boxing
                 boxingPoint.getParent().replace(boxingPoint, inner);
-            } 
-//TODO remove conversions to Any
+            } else if (LenseTypeSystem.getInstance().isAny(boxingPoint.getTypeVariable())){
+               // remove conversions and boxing to Any
+               /// TODO
+                // boxingPoint.getParent().replace(boxingPoint, inner);
+            }
+
         }
     }
 

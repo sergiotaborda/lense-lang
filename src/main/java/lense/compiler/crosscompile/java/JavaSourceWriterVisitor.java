@@ -168,7 +168,7 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
                     writer.append("!");
                 }
                 writer.append("(");
-                TreeTransverser.transverse(a.getCheck(), this);
+                TreeTransverser.transverse(a.getCondition(), this);
 
                 if (a.getText().isPresent()) {
                     writer.append(")){ throw lense.core.lang.AssertionException.constructor(");
@@ -1319,7 +1319,8 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
                 if (t.getTypeVariable() == null) {
                     writer.print("????");
                 } else {
-                    writer.print(t.getTypeVariable().getTypeDefinition().getName());
+                    writeType(t.getTypeVariable());
+                    //writer.print(t.getTypeVariable().getTypeDefinition().getName());
                 }
                 writer.print(" ");
                 writer.print(sanitize(t.getName()));
@@ -2090,6 +2091,14 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 
             }
 
+        }
+    }
+    
+    private void writeType(TypeVariable type) {
+        if (type instanceof ErasedTypeDefinition) {
+            writer.print(((ErasedTypeDefinition) type).getPrimitiveType().getName());
+        } else {
+            writer.print(type.getUpperBound().getTypeDefinition().getName());
         }
     }
 

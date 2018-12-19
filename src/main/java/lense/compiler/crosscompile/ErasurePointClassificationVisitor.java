@@ -71,7 +71,10 @@ public final class ErasurePointClassificationVisitor implements Visitor<AstNode>
 			VariableDeclarationNode v = (VariableDeclarationNode)node;
 
 			if (v.getInitializer() !=null){
-				v.replace(v.getInitializer(), ErasurePointNode.convertTo(v.getInitializer(), v.getInfo().getTypeVariable()));
+			    
+			    TypeVariable type =  v.getInfo() == null ?  v.getTypeVariable() : v.getInfo().getTypeVariable();
+			    
+				v.replace(v.getInitializer(), ErasurePointNode.convertTo(v.getInitializer(), type));
 			}
 		}else if (node instanceof IndexedPropertyReadNode) {
 			IndexedPropertyReadNode m = (IndexedPropertyReadNode)node;
