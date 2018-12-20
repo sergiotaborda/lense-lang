@@ -5,11 +5,6 @@ import lense.core.math.SignedNumber;
 
 public interface Real extends Number , Comparable<Real>, SignedNumber {
 
-	//public native constructor zero();
-	//public native constructor one();
-
-	//public native implicit constructor valueOf(whole : Whole);
-
 	public abs(): Real;
 	
 	public symmetric() : Real;
@@ -18,7 +13,7 @@ public interface Real extends Number , Comparable<Real>, SignedNumber {
 	public isNegative() : Boolean;
 	public isPositive() : Boolean;
 	
-	public signum() : Integer;
+	public sign() : Integer;
 	public plus (other: Real): Real;
 	public minus (other: Real): Real;
 	public multiply (other: Real): Real;
@@ -34,4 +29,7 @@ public interface Real extends Number , Comparable<Real>, SignedNumber {
 	public asInteger() : Integer;
 
     public isWhole() : Boolean;
+
+	public ceil() : Integer;
+	public floor() : Integer;
 }

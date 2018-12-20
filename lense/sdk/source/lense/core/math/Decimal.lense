@@ -1,6 +1,7 @@
 
 import lense.core.math.Real;
 
-public native abstract class Decimal extends Real {
+public interface Decimal extends Real {
 
+	public asRational() : Rational;
 }

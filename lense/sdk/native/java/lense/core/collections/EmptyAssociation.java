@@ -8,9 +8,9 @@ import lense.core.lang.Maybe;
 import lense.core.lang.None;
 import lense.core.lang.String;
 import lense.core.lang.java.Base;
-import lense.core.lang.java.Native;
 import lense.core.lang.java.PlatformSpecific;
 import lense.core.math.Natural;
+import lense.core.math.Natural64;
 
 @PlatformSpecific
 public class EmptyAssociation extends Base implements Association {
@@ -32,7 +32,7 @@ public class EmptyAssociation extends Base implements Association {
 
 	@Override
 	public Natural getSize() {
-		return Natural.valueOfNative(0);
+		return Natural64.ZERO;
 	}
 
 	@Override

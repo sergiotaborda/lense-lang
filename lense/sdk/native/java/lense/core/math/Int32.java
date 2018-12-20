@@ -6,14 +6,22 @@ import lense.core.lang.Any;
 import lense.core.lang.Binary;
 import lense.core.lang.HashValue;
 import lense.core.lang.java.Constructor;
+import lense.core.lang.java.NonNull;
 import lense.core.lang.java.PlatformSpecific;
 import lense.core.lang.java.Property;
 
-public final class Int32 extends Integer implements Binary {
+public final class Int32  implements Integer, Binary {
 
+	public static Int32 NEGATIVE_ONE = new Int32(-1);
+	public static Int32 ZERO = new Int32(0);
+	public static Int32 ONE = new Int32(1);
+	public static Int32 TWO = new Int32(2);
+	public static Int32 THREE = new Int32(3);
+	public static Int32 TEN = new Int32(4);
+	
 	@Constructor(paramsSignature = "")
 	public static Int32 constructor (){
-		return new Int32(0);
+		return ZERO;
 	}
 	
 	@Constructor(isImplicit = true, paramsSignature = "lense.core.lang.Binary")
@@ -21,9 +29,41 @@ public final class Int32 extends Integer implements Binary {
 		return new Int32(0);
 	}
 	
+    public @NonNull Integer raiseTo(int other) {
+    	 if (this.isZero()){
+             if (other == 0){
+                 return Int32.ONE;
+             }
+             return this;
+         } else if (this.isOne()){
+             return Int32.ONE;
+         } else if (other == 0){
+             return Int32.ONE;
+         } else if (other == 1){
+             return this;
+         } else if (other == 2){
+             return  this.multiply(this);
+         } else if (other == 3){
+             return  this.multiply(this).multiply(this);
+         }
+         return new BigInt(this.asJavaBigInteger()).raiseTo(other);
+    }
+	
 	@PlatformSpecific
 	public static Int32 valueOfNative(int n){
-		return new Int32(n);
+		switch(n) {
+		case 0:
+			return ZERO;
+		case 1:
+			return ONE;
+		case 2:
+			return TWO;
+		case 3:
+			return THREE;
+		default:
+			return new Int32(n);
+		}
+		
 	}  
 	
 	@Constructor(isImplicit = true, paramsSignature = "lense.core.math.Whole")
@@ -37,7 +77,7 @@ public final class Int32 extends Integer implements Binary {
 		    
 		    if (val.compareTo(min) >=0 && val.compareTo(max) <=0 ){
 		        // in range of a int32
-		        return new Int32(val.intValue());
+		        return valueOfNative(val.intValue());
 		    } else {
 		        throw ArithmeticException.constructor();
 		    }
@@ -68,26 +108,33 @@ public final class Int32 extends Integer implements Binary {
 	public Integer plus(int value){
 		try {
 			return new Int32(Math.addExact(this.value , value));
-		} catch (ClassCastException e ){
+		} catch (java.lang.ArithmeticException e ){
 			return promoteNext().plus(new Int32(value));
 		}
 	}
 	@Override
 	public Integer minus(Integer other) {
-		try {
-			return new Int32(Math.subtractExact(this.value , ((Int32)other).value));
-		} catch (ClassCastException e ){
-			return promoteNext().plus(other);
+		
+		if (other instanceof Int32) {
+			try {
+				return new Int32(Math.subtractExact(this.value , ((Int32)other).value));
+			} catch (java.lang.ArithmeticException e ){
+				return promoteNext().minus(other);
+			}
 		}
+		return promoteNext().minus(other);
 	}
 	
 	@Override
 	public Integer multiply(Integer other) {
-		try {
-			return new Int32(Math.multiplyExact(this.value , ((Int32)other).value));
-		} catch (ClassCastException e ){
-			return promoteNext().multiply(other);
+		if (other instanceof Int32) {
+			try {
+				return new Int32(Math.multiplyExact(this.value , ((Int32)other).value));
+			} catch (java.lang.ArithmeticException e ){
+				return promoteNext().multiply(other);
+			}
 		}
+		return promoteNext().multiply(other);
 	}
 	
 	protected final Integer  promoteNext(){
@@ -95,7 +142,8 @@ public final class Int32 extends Integer implements Binary {
 	}
 
 	@Override
-	protected BigInteger asJavaBigInteger() {
+	@PlatformSpecific
+	public BigInteger asJavaBigInteger() {
 		return BigInteger.valueOf(value);
 	}
 
@@ -118,7 +166,7 @@ public final class Int32 extends Integer implements Binary {
 	@Override
 	public final Integer successor() {
 		if (value == java.lang.Integer.MAX_VALUE){
-		    throw ArithmeticException.constructor(lense.core.lang.String.valueOfNative("max success reached"));
+			return this.promoteNext().successor();
 		}
 		return valueOfNative(value + 1);
 	}
@@ -136,7 +184,7 @@ public final class Int32 extends Integer implements Binary {
 	@Override
 	public final Integer predecessor() {
 		if (value == java.lang.Integer.MIN_VALUE){
-		    throw ArithmeticException.constructor(lense.core.lang.String.valueOfNative("min predecessor reached"));
+			return this.promoteNext().predecessor();
 		}
 		return valueOfNative(value - 1);
 	}
@@ -144,16 +192,16 @@ public final class Int32 extends Integer implements Binary {
 	@Override
 	public Natural abs() {
 		if (this.value < 0){
-			return Natural.valueOfNative(-this.value);
+			return NativeNumberFactory.newNatural(-this.value);
 		} else {
-			return Natural.valueOfNative(this.value);
+			return NativeNumberFactory.newNatural(this.value);
 		}
 	}
 
 	@Override
 	@Property(name="size")
 	public final Natural bitsCount() {
-		return Natural.valueOfNative(32);
+		return Natural64.valueOfNative(32);
 	}
 
 	@Override
@@ -187,11 +235,6 @@ public final class Int32 extends Integer implements Binary {
 	@Override
 	public boolean bitAt(Natural index) {
 		return rightShiftBy(index).isOdd();
-	}
-
-	@Override
-	public Integer signum() {
-		return new Int32( value == 0 ? 0 : (value < 0 ? -1 : 1));
 	}
 
 
@@ -238,14 +281,19 @@ public final class Int32 extends Integer implements Binary {
         return new HashValue(this.value);
     }
 
+
+	
     public Integer wholeDivide (Integer other){
         if (other.isZero()){
             throw ArithmeticException.constructor(lense.core.lang.String.valueOfNative("Cannot divide by zero"));
         }  
-        if (other instanceof Int32){
-            return new Int32(this.value / ((Int32)other).value);
+        
+        if (other.isOne()) {
+        	return this;
+        } else if (other instanceof Int32){
+            return new Int64(this.value / ((Int32)other).value);
         } else {
-            return super.wholeDivide(other);
+            return this.promoteNext().wholeDivide(other);
         }
     }
 
@@ -253,12 +301,16 @@ public final class Int32 extends Integer implements Binary {
         if (other.isZero()){
             throw ArithmeticException.constructor(lense.core.lang.String.valueOfNative("Cannot divide by zero"));
         }  
-        if (other instanceof Int32){
+        
+        if (other.isOne()) {
+        	return this;
+        } else if (other instanceof Int32){
             return new Int32(this.value % ((Int32)other).value);
         } else {
-            return super.wholeDivide(other);
+            return this.promoteNext().wholeDivide(other); 
         }
     }
+    
 
     @Override
     public boolean isPositive() {
@@ -283,6 +335,41 @@ public final class Int32 extends Integer implements Binary {
 	public Int32 wrapMinus(Int32 other) {
 		return new Int32(this.value - other.value);
 	}
+
+	@Override
+	public Integer sign() {
+		if (this.value ==0) {
+			return Int32.ZERO;
+		} else if (this.value > 0) {
+			return Int32.ONE;
+		} else {
+			return Int32.NEGATIVE_ONE;
+		}
+	}
+	
+	public String toString() {
+		return String.valueOf(this.value);
+	}
+
+	
+	
+
+    @Override
+	public Comparison compareWith(Any other) {
+		if (other instanceof Int32) {
+			return Comparison.valueOfNative(Long.compare(this.value, ((Int32) other).value));
+		} else if (other instanceof Int64) {
+			return Comparison.valueOfNative(Long.compare(this.value, ((Int64) other).value));
+		} else  if (other instanceof Number && other instanceof Comparable) {
+			 if (this.toString().equals(other.toString())){
+				 return Comparison.valueOfNative(0);
+			 }
+			 return BigDecimal.valueOfNative(this.toString()).compareWith(other);
+		} 
+		throw new ClassCastException("Cannot compare to " + other.getClass().getName());
+	}
+	
+
 
 
 

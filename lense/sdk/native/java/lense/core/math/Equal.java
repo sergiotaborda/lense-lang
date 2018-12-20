@@ -30,4 +30,9 @@ public final class Equal extends Comparison{
 	public String asString() {
 		return String.valueOfNative("EQUAL");
 	}
+
+	@Override
+	public int nativeValue() {
+		return 0;
+	}
 }

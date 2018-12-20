@@ -556,14 +556,20 @@ public class LenseTypeDefinition implements TypeDefinition {
         }
 
         // find exact local
-        LenseTypeSystem typeSystem = LenseTypeSystem.getInstance();
+
+    	Method mostSpecific = null;
         for (TypeMember m : resolveMembers()) {
             if (m.isMethod() && signature.getName().equals(m.getName()) && LenseTypeSystem.isSignatureImplementedBy(signature, (CallableMember<Method>) m) ) {
-            	return Optional.of((Method) m);
+            	 
+            	if (mostSpecific == null) {
+            		mostSpecific = (Method) m;
+            	} else {
+            		mostSpecific = mostSpecific(mostSpecific,(Method) m);
+            	}
             }
         }
         
-        return Optional.empty();
+        return Optional.ofNullable(mostSpecific);
     }
     /**
      * {@inheritDoc}
@@ -611,6 +617,8 @@ public class LenseTypeDefinition implements TypeDefinition {
     public Optional<Method> getMethodByPromotableSignature(MethodSignature signature) {
         // find promotable
 
+    	Method mostSpecific = null;
+    	
     	outter: for (Method mth : this.getMethodsByName(signature.getName())) {
             if (mth.getParameters().size() == signature.getParameters().size()) {
             	
@@ -625,10 +633,19 @@ public class LenseTypeDefinition implements TypeDefinition {
                     }
                 }
                 
-                return Optional.of(mth);
+                if (mostSpecific == null) {
+                	mostSpecific = mth;
+                } else {
+                	mostSpecific = mostSpecific(mostSpecific , mth);
+                }
+              
             }
         }
-
+    	
+    	if (mostSpecific != null) {
+        	return Optional.of(mostSpecific);
+        } 
+    	
         if (this.getSuperDefinition() != null){
             Optional<Method> m = this.getSuperDefinition().getMethodByPromotableSignature(signature);
             if (m.isPresent()){
@@ -683,6 +700,7 @@ public class LenseTypeDefinition implements TypeDefinition {
 			map = map.filter(c -> c.isImplicit() == implicit.booleanValue());
 		}
 		Iterator<Constructor> iterator = map.iterator();
+		Constructor mostSpecific = null;
         while(iterator.hasNext()){
             Constructor constructor = iterator.next();
             if (visibility != null) {
@@ -694,15 +712,36 @@ public class LenseTypeDefinition implements TypeDefinition {
                 for (int p = 0; p < parameters.length; p++) {
                     ConstructorParameter mp = parameters[p];
                     if (LenseTypeSystem.getInstance().isPromotableTo(mp.getType(), constructor.getParameters().get(p).getType())) {
-                        return Optional.of(constructor);
+                    	if (mostSpecific == null) {
+                    		mostSpecific = constructor;
+                    	} else {
+                    		mostSpecific = mostSpecific(mostSpecific, constructor);
+                    	}
+                       
                     }
                 }
             }
         }
-        return Optional.empty();
+        return Optional.ofNullable(mostSpecific);
 	}
 	
-    @Override
+    private <C extends CallableMember<C>> C mostSpecific(C mostSpecific, C constructor) {
+    	 
+    	 for (int p = 0; p < constructor.getParameters().size(); p++) {
+              CallableMemberMember<C> mp = constructor.getParameters().get(p);
+              CallableMemberMember<C> sp = mostSpecific.getParameters().get(p);
+              
+             if (!LenseTypeSystem.isAssignableTo(sp.getType(),mp.getType())) {
+            	 return constructor;
+                
+             }
+         }
+    	 return mostSpecific;
+    	 
+	}
+    
+
+	@Override
     public Optional<Constructor> getConstructorByPromotableParameters(ConstructorParameter... parameters) {
     	return getConstructorByNameAndPromotableParameters(null, parameters);
     }

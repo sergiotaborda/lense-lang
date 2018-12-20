@@ -2,10 +2,13 @@ package lense.core.math;
 
 import java.math.BigInteger;
 
+import lense.core.lang.Any;
 import lense.core.lang.HashValue;
 
-public final class BigNatural extends Natural{
+public final class BigNatural implements Natural{
 
+	
+	
     private BigInteger value;
 
     public BigNatural(long value) {
@@ -26,13 +29,11 @@ public final class BigNatural extends Natural{
         return new BigNatural(this.value.multiply(other.asJavaBigInteger()));
     }
 
-    protected BigInteger asJavaBigInteger(){
+    public BigInteger asJavaBigInteger(){
         return value;
     }
 
-    public final HashValue hashValue(){
-        return new HashValue(value.hashCode());
-    }
+
 
     public lense.core.lang.String asString(){
         return lense.core.lang.String.valueOfNative(value.toString()); 
@@ -62,7 +63,7 @@ public final class BigNatural extends Natural{
     }
 
     @Override
-    protected Integer asInteger() {
+    public Integer asInteger() {
         return new BigInt(value);
     }
 
@@ -79,13 +80,13 @@ public final class BigNatural extends Natural{
     public Natural raiseTo( Natural other){
         if (this.isZero()){
             if (other.isZero()){
-                return Natural.ONE;
+                return Natural64.ONE;
             }
             return this;
         } else if (this.isOne()){
             return this;
         } else if (other.isZero()){
-            return Natural.ONE;
+            return Natural64.ONE;
         } else if (other.isOne()){
             return this;
         } else if (other.isInInt32Range()){
@@ -99,22 +100,17 @@ public final class BigNatural extends Natural{
     public Real raiseTo( Real other){
         if (this.isZero()){
             if (other.isZero()){
-                return Real.ONE;
+                return Rational.ONE;
             }
             return Rational.ZERO;
         } else if (this.isOne()){
             return Rational.ONE;
         } else if (other.isZero()){
-            return Real.ONE;
+            return Rational.ONE;
         } else if (other.isOne()){
-            return Rational.constructor(this.asInteger(), Integer.ONE);
+            return Rational.constructor(this);
         } 
         return new BigDecimal(this.value).raiseTo(other);
-    }
-
-    @Override
-    protected BigNatural asBigNat() {
-        return this;
     }
 
     @Override
@@ -143,11 +139,35 @@ public final class BigNatural extends Natural{
 	public Natural wrapMinus(Natural other) {
 		BigInteger rest = this.value.subtract(other.asJavaBigInteger());
 		if (rest.signum() <=0) {
-			return ZERO;
+			return Natural64.ZERO;
 		}
 	    return new BigNatural(rest);
 	}
 
 
+    public final HashValue hashValue(){
+        return new HashValue(value.hashCode());
+    }
+    
+	public String toString() {
+		return value.toString();
+	}
+
+	public int hashCode() {
+		return value.hashCode();
+	}
+	
+	public boolean equals(Object other) {
+		return other instanceof Any && equalsTo((Any)other);
+	}
+	
+	public boolean equalsTo(Any other) {
+		return this.compareWith(other).nativeValue() == 0;
+	}
+
+	@Override
+	public Whole plus(Whole other) {
+		return new BigInt(this.value.add(new BigInteger(other.toString())));
+	}
 
 }

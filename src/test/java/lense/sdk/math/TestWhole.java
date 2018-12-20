@@ -11,32 +11,34 @@ import lense.core.math.BigInt;
 import lense.core.math.Int32;
 import lense.core.math.Int64;
 import lense.core.math.Integer;
+import lense.core.math.NativeNumberFactory;
 import lense.core.math.Natural;
+import lense.core.math.Natural64;
 import lense.core.math.Whole;
 
 public class TestWhole {
 
 	@Test
 	public void testPositive() {
-		Whole n = Natural.valueOfNative(4);
-		Whole k = Natural.valueOfNative(40);
+		Whole n = Natural64.valueOfNative(4);
+		Whole k = Natural64.valueOfNative(40);
 
-		assertEquals( Natural.valueOfNative(44),  n.plus(k));
-		assertEquals( Natural.valueOfNative(44),  k.plus(n));
+		assertEquals( Natural64.valueOfNative(44),  n.plus(k));
+		assertEquals( Natural64.valueOfNative(44),  k.plus(n));
 
-		Whole maxInt = Natural.valueOfNative(java.lang.Integer.MAX_VALUE);
+		Whole maxInt = Natural64.valueOfNative(java.lang.Integer.MAX_VALUE);
 
-		assertEquals( Natural.valueOfNative((long)java.lang.Integer.MAX_VALUE + 4),  n.plus(maxInt));
-		assertEquals( Natural.valueOfNative((long)java.lang.Integer.MAX_VALUE + 4),  maxInt.plus(n));
+		assertEquals( Natural64.valueOfNative((long)java.lang.Integer.MAX_VALUE + 4),  n.plus(maxInt));
+		assertEquals( Natural64.valueOfNative((long)java.lang.Integer.MAX_VALUE + 4),  maxInt.plus(n));
 
-		Whole maxLong = Natural.valueOfNative(Long.MAX_VALUE);
+		Whole maxLong = Natural64.valueOfNative(Long.MAX_VALUE);
 
-		assertEquals( Natural.valueOf(BigInteger.valueOf(Long.MAX_VALUE).add(BigInteger.valueOf(4))),  n.plus(maxLong));
-		assertEquals( Natural.valueOf(BigInteger.valueOf(Long.MAX_VALUE).add(BigInteger.valueOf(4))),  maxLong.plus(n));
+		assertEquals( NativeNumberFactory.newNatural(BigInteger.valueOf(Long.MAX_VALUE).add(BigInteger.valueOf(4))),  n.plus(maxLong));
+		assertEquals( NativeNumberFactory.newNatural(BigInteger.valueOf(Long.MAX_VALUE).add(BigInteger.valueOf(4))),  maxLong.plus(n));
 		
-		Whole maxULong = Natural.valueOf("18446744073709551615");
+		Whole maxULong = NativeNumberFactory.newNatural("18446744073709551615");
 		
-		Whole maxULongPlus4 = Natural.valueOf("18446744073709551619");
+		Whole maxULongPlus4 = NativeNumberFactory.newNatural("18446744073709551619");
 		
 		assertEquals( maxULongPlus4,  n.plus(maxULong));
 		assertEquals( maxULongPlus4,  maxULong.plus(n));
@@ -46,57 +48,59 @@ public class TestWhole {
 
 	@Test
 	public void testInteger() {
-		Whole n = Integer.valueOfNative(-4);
-		Whole k = Natural.valueOfNative(40);
+		Whole n = Int32.valueOfNative(-4);
+		Whole k = Natural64.valueOfNative(40);
 
-		assertEquals( Natural.valueOfNative(36),  n.plus(k));
-		assertEquals( Natural.valueOfNative(36),  k.plus(n));
+		assertEquals( Natural64.valueOfNative(36),  n.plus(k));
+		assertEquals( Natural64.valueOfNative(36),  k.plus(n));
 
-		Whole maxInt = Natural.valueOfNative(java.lang.Integer.MAX_VALUE);
+		Whole maxInt = Natural64.valueOfNative(java.lang.Integer.MAX_VALUE);
 
-		assertEquals( Natural.valueOfNative((long)java.lang.Integer.MAX_VALUE - 4),  n.plus(maxInt));
-		assertEquals( Natural.valueOfNative((long)java.lang.Integer.MAX_VALUE - 4),  maxInt.plus(n));
+		assertEquals( Natural64.valueOfNative((long)java.lang.Integer.MAX_VALUE - 4),  n.plus(maxInt));
+		assertEquals( Natural64.valueOfNative((long)java.lang.Integer.MAX_VALUE - 4),  maxInt.plus(n));
 
-		Whole maxLong = Natural.valueOfNative(Long.MAX_VALUE);
+		Whole maxLong = Natural64.valueOfNative(Long.MAX_VALUE);
 
-		assertEquals( Natural.valueOf(BigInteger.valueOf(Long.MAX_VALUE).subtract(BigInteger.valueOf(4))),  n.plus(maxLong));
-		assertEquals( Natural.valueOf(BigInteger.valueOf(Long.MAX_VALUE).subtract(BigInteger.valueOf(4))),  maxLong.plus(n));
+		assertEquals( NativeNumberFactory.newNatural(BigInteger.valueOf(Long.MAX_VALUE).subtract(BigInteger.valueOf(4))),  n.plus(maxLong));
+		assertEquals( NativeNumberFactory.newNatural(BigInteger.valueOf(Long.MAX_VALUE).subtract(BigInteger.valueOf(4))),  maxLong.plus(n));
 		
-		Whole maxULong = Natural.valueOf("18446744073709551615");
+		Whole maxULong = Natural64.MAX;
 		
-		Whole maxULongPlus4 = Natural.valueOf("18446744073709551611");
+		Whole maxULongMinus4 = NativeNumberFactory.newNatural("18446744073709551611");
 		
-		assertEquals( maxULongPlus4,  n.plus(maxULong));
-		assertEquals( maxULongPlus4,  maxULong.plus(n));
+		assertEquals( maxULongMinus4,  maxULong.plus(n));
+		assertEquals( maxULongMinus4,  n.plus(maxULong));
+
 		
-		assertEquals( maxULongPlus4,  maxULong.predecessor().predecessor().predecessor().predecessor());
+		assertEquals( maxULongMinus4,  maxULong.predecessor().predecessor().predecessor().predecessor());
 	
 	}
 	
-	@Test(expected = ArithmeticException.class)
+
+	@Test
 	public void testIn32Limit(){
 		Whole k = Int32.valueOfNative(1);
 		Whole m = Int32.valueOfNative(java.lang.Integer.MAX_VALUE);
 		
-		m.plus(k);
+		assertEquals( "2147483648", m.plus(k).toString());
 	}
 	
-	@Test(expected = ArithmeticException.class)
+	@Test
 	public void testInt64UpperLimit(){
 		Whole k = Int64.valueOfNative(2);
 		Whole m = Int64.valueOfNative(java.lang.Long.MAX_VALUE - 1);
 		
-		m.plus(k);
+		assertEquals( "9223372036854775808", m.plus(k).toString());
 	}
 	
-	@Test(expected = ArithmeticException.class)
+	@Test
 	public void testInt64LowerLimit(){
 		Whole k = Int64.valueOfNative(-2);
 		Whole m = Int64.valueOfNative(java.lang.Long.MIN_VALUE + 1);
 		
-		m.plus(k);
+		assertEquals( "-9223372036854775809", m.plus(k).toString());
 	}
-	
+
 	@Test
 	public void testIn64PlusInt32(){
 		Whole k = Int32.valueOfNative(2);
@@ -123,32 +127,32 @@ public class TestWhole {
 	
 	@Test
 	public void testNaturalMinusNatural(){
-		Whole k = Natural.valueOfNative(2);
-		Whole m = Natural.valueOfNative(1);
+		Whole k = Natural64.valueOfNative(2);
+		Whole m = Natural64.valueOfNative(1);
 		
 		Whole r = m.minus(k);
 		
 		assertEquals(Int64.valueOfNative(-1), r);
 		
-		assertTrue(r instanceof Int64);
+		assertTrue(r instanceof Int32);
 	}
 	
 	@Test
 	public void testNaturalPlusNegative(){
-		Whole k = Natural.valueOfNative(2);
+		Whole k = Natural64.valueOfNative(2);
 		Whole m = Int32.valueOfNative(-1);
 		
 		Whole r = m.plus(k);
 		
 		assertEquals(Int64.valueOfNative(1), r);
 		
-		assertTrue(r instanceof Int64);
+		assertTrue(r instanceof Integer);
 		
 		r = k.plus(m);
 		
 		assertEquals(Int64.valueOfNative(1), r);
 		
-		assertTrue(r instanceof Int64);
+		assertTrue(r instanceof Integer);
 	}
 	
 	@Test
@@ -159,37 +163,30 @@ public class TestWhole {
 		m.plus(k);
 	}
 	
-	@Test(expected = ArithmeticException.class)
+	@Test(expected = lense.core.math.ArithmeticException.class)
 	public void testPredecessorWithWhole(){
-		Whole k = Natural.valueOfNative(1);
-		Whole m = Integer.valueOfNative(-1);
+		Whole k = Natural64.valueOfNative(1);
+		Whole m = Int32.valueOfNative(-1);
 		assertEquals( m, k.predecessor().predecessor());
 	}
 	
-	@Test(expected = ArithmeticException.class)
+	@Test(expected = lense.core.math.ArithmeticException.class)
 	public void testPredecessorWithNaturals(){
-		Natural k = Natural.valueOfNative(1);
-		Integer m = Integer.valueOfNative(-1);
+		Natural k = Natural64.valueOfNative(1);
+		Integer m = Int32.valueOfNative(-1);
 		assertEquals( m, k.predecessor().predecessor());
 	}
 	
-	@Test
-	public void testPredecessorWithIntegers(){
-		Whole k = Integer.valueOfNative(1);
-		Whole m = Integer.valueOfNative(-1);
-		assertEquals( m, k.predecessor().predecessor());
-	}
-
 	@Test
 	public void testScalablePredecessorLimit(){
-		Whole k = Integer.valueOfNative(java.lang.Long.MIN_VALUE);
-		Whole m = k.plus(Integer.valueOfNative(-1));
+		Whole k = Int64.valueOfNative(java.lang.Long.MIN_VALUE);
+		Whole m = k.plus(Int32.valueOfNative(-1));
 		Whole p = k.predecessor();
 		assertEquals( m, p );
 		assertTrue(p instanceof BigInt);
 	}
 	
-	@Test(expected = ArithmeticException.class)
+	@Test
 	public void testPredecessorLimit(){
 		Whole k = Int32.valueOfNative(java.lang.Integer.MIN_VALUE);
 		Whole m = k.plus(Int32.valueOfNative(-1));

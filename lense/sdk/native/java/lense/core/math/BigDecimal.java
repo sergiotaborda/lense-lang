@@ -2,19 +2,30 @@ package lense.core.math;
 
 import lense.core.lang.Any;
 import lense.core.lang.HashValue;
-import lense.core.lang.java.Constructor;
 import lense.core.lang.String;
+import lense.core.lang.java.Constructor;
+import lense.core.lang.java.ValueClass;
 
-public final class BigDecimal extends Decimal {
+@ValueClass
+public final class BigDecimal implements Decimal {
 
+	
+	public static BigDecimal ZERO = new BigDecimal(java.math.BigDecimal.ZERO);
+	
     @Constructor(paramsSignature = "")
     public static BigDecimal constructor (){
-        return new BigDecimal(java.math.BigDecimal.ZERO);
+        return ZERO;
     }
 
     @Constructor(paramsSignature = "lense.core.math.Rational")
     public static BigDecimal constructor (Rational other){
      
+    	if (other.isZero()) {
+    		return ZERO;
+    	} else if (other.isWhole()) {
+    		return valueOfNative(other.getNumerator().toString());
+    	}
+    	
         java.math.BigDecimal n = new java.math.BigDecimal( other.getNumerator().asJavaBigInteger());
         java.math.BigDecimal d = new java.math.BigDecimal( other.getDenominator().asJavaBigInteger());
         
@@ -46,11 +57,10 @@ public final class BigDecimal extends Decimal {
     public boolean equalsTo(Any other) {
     	if (other instanceof BigDecimal) {
     		return ((BigDecimal)other).value.compareTo(this.value) == 0;
-    	} else if (other instanceof Whole) {
-    		return new java.math.BigDecimal(((Whole)other).asJavaBigInteger()).compareTo(this.value) == 0;
-    	} else if (other instanceof Real) {
-    		return equalsTo(((Real)other).promoteToBigDecimal());
+    	} else if (other instanceof Number  && other instanceof Comparable) {
+    		return new java.math.BigDecimal(other.toString()).compareTo(this.value) == 0;
     	}
+    	
         return false;
     }
 
@@ -61,22 +71,22 @@ public final class BigDecimal extends Decimal {
 
     @Override
     public Real plus(Real other) {
-        return new BigDecimal(this.value.add(other.promoteToBigDecimal().value));
+        return new BigDecimal(this.value.add(new java.math.BigDecimal(other.toString())));
     }
 
     @Override
     public Real minus(Real other) {
-        return new BigDecimal(this.value.subtract(other.promoteToBigDecimal().value));
+        return new BigDecimal(this.value.subtract(new java.math.BigDecimal(other.toString())));
     }
 
     @Override
     public Real multiply(Real other) {
-        return new BigDecimal(this.value.multiply(other.promoteToBigDecimal().value));
+        return new BigDecimal(this.value.multiply(new java.math.BigDecimal(other.toString())));
     }
 
     @Override
     public Real divide(Real other) {
-        return new BigDecimal(this.value.divide(other.promoteToBigDecimal().value));
+        return new BigDecimal(this.value.divide(new java.math.BigDecimal(other.toString())));
     }
 
     @Override
@@ -90,37 +100,32 @@ public final class BigDecimal extends Decimal {
     }
 
     @Override
-    protected Real promoteNext() {
-        return this;
-    }
-
-    @Override
     public Real symmetric() {
         return new BigDecimal(this.value.negate());
     }
 
     @Override
-    public Integer signum() {
+    public Integer sign() {
         return new Int32(this.value.signum());
     }
 
 
     @Override
-    protected BigDecimal promoteToBigDecimal() {
-        return this;
-    }
-
-    @Override
     public Real raiseTo(Real other) {
         // TODO use bigdecimal arithmetic. use double for now
-        return Decimal64.valueOf(this).raiseTo(other);
+        return Float64.valueOf(this).raiseTo(Float64.valueOf(other)).asDecimal();
     }
     
     @Override
-    public Integer asInteger() {
-        return  Integer.valueOfNative(this.value.toBigInteger());
+    public Integer floor() {
+        return new BigInt(this.value.toBigInteger());
     }
 
+	@Override
+	public Integer ceil() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
     @Override
     public boolean isWhole() {
@@ -131,10 +136,23 @@ public final class BigDecimal extends Decimal {
     public Comparison compareWith(Any other) {
         if (other instanceof BigDecimal){
             return Comparison.valueOfNative(this.value.compareTo(((BigDecimal) other).value));
-        } else if (other instanceof Real){
-            return super.compareWith((Real)other);
+        } else  if (other instanceof Real){
+        	Real real = (Real) other;
+        	if (real.isNaN() || real.isNegativeInfinity()) {
+        		return Comparison.valueOfNative(1);
+        	} else if (real.isPositiveInfinity()) {
+        		return Comparison.valueOfNative(-1);
+        	}
+        	
+            return compareWith(real.asDecimal());
+        } else if (other instanceof Number  && other instanceof Comparable){
+        	if (this.toString().equals(other.toString())){
+				 return Comparison.valueOfNative(0);
+			 }
+        	return Comparison.valueOfNative(this.value.compareTo(new java.math.BigDecimal(other.toString())));
         }
-        throw new ClassCastException("Cannot compare");
+        
+        throw new ClassCastException("Cannot compare " + this.getClass().getName() + " to " + other.getClass().getName());
             
     }
 
@@ -143,24 +161,53 @@ public final class BigDecimal extends Decimal {
        return new BigDecimal(this.value.abs());
     }
 
-	
-    @Override
+
+    
 	public Rational asRational() {
 		 java.lang.String full = this.value.toPlainString();
 		 int pos = full.indexOf(".");
 		 if (pos < 0) {
 			 // no decimal part
-			 return Rational.constructor(Integer.valueOfNative(full), Integer.ONE);
+			 return Rational.constructor( new BigInt( new java.math.BigInteger(full)));
 		 } else {
 			 full = full.replace(".", "");
 			 int i =0;
 			 while(full.charAt(i) == '0') {
 				 i++;
 			 }
-			 return Rational.constructor(Integer.valueOfNative(full.substring(i)), Integer.valueOfNative(10).raiseTo(Natural.valueOfNative(full.length() - pos)));
+			 return Rational.constructor(new BigInt( new java.math.BigInteger(full.substring(i))), Int32.TEN.raiseTo(full.length() - pos));
 		 }
 	}
 
+	public java.lang.String toString() {
+		return value.toString();
+	}
+
+	@Override
+	public Decimal asDecimal() {
+		return this;
+	}
+
+	
+	@Override
+	public boolean isNaN() {
+		return false;
+	}
+
+	@Override
+	public boolean isNegativeInfinity() {
+		return false;
+	}
+
+	@Override
+	public boolean isPositiveInfinity() {
+		return false;
+	}
+
+	@Override
+	public boolean isInfinity() {
+		return false;
+	}
 
 
 }

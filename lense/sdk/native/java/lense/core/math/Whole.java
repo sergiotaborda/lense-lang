@@ -3,47 +3,33 @@ package lense.core.math;
 import java.math.BigInteger;
 
 import lense.core.lang.Any;
+import lense.core.lang.java.PlatformSpecific;
 import lense.core.lang.java.Signature;
 
 @Signature(":lense.core.math.Number:lense.core.math.Comparable<lense.core.math.Whole>")
-public abstract class Whole extends Number implements Comparable {
+public interface Whole extends Number , Comparable {
 
     public abstract Whole plus (Whole other);
     public abstract Whole minus (Whole other);
-    
 
-    public Rational divide(Whole other){
+    public default Rational divide(Whole other){
         if (other.isZero()){
             throw ArithmeticException.constructor(lense.core.lang.String.valueOfNative("Cannot divide by zero"));
         }
         return Rational.constructor(this.asInteger(), other.asInteger());
     }
 
-    public Whole wholeDivide (Whole other){
-        if (other.isZero()){
-            throw ArithmeticException.constructor(lense.core.lang.String.valueOfNative("Cannot divide by zero"));
-        }  
-        return Integer.valueOfNative(this.asJavaBigInteger().divide(other.asJavaBigInteger()));
-    }
+    public abstract Integer asInteger();
     
-    public Natural gcd(Whole other) {
+    public default Natural gcd(Whole other) {
         BigInteger gcd =  this.asJavaBigInteger().gcd(other.asJavaBigInteger());
         
-        if (gcd.bitLength() < 64){
-            return new UNat(gcd.longValue());
+        if (gcd.bitLength() < 63){
+            return new Natural64(gcd.longValue());
         } else {
             return new BigNatural(gcd);
         }
     }
-
-
-    public Whole remainder (Whole other){
-        if (other.isZero()){
-            throw ArithmeticException.constructor(lense.core.lang.String.valueOfNative("Cannot divide by zero"));
-        }  
-        return Integer.valueOfNative(this.asJavaBigInteger().remainder(other.asJavaBigInteger()));
-    }
-
 
     public abstract Whole successor();
     public abstract Whole predecessor();
@@ -53,11 +39,11 @@ public abstract class Whole extends Number implements Comparable {
 
 
     @Override
-    public boolean equalsTo(Any other) {
+    public default boolean equalsTo(Any other) {
     	if (other instanceof Whole) {
     		return ((Whole)other).asJavaBigInteger().compareTo(this.asJavaBigInteger()) == 0;
     	} else if (other instanceof Real) {
-    		return ((Real)other).equalsTo(Real.valueOf(this));
+    		return ((Real)other).equalsTo(Rational.constructor(this.asInteger(), Int32.ONE));
     	} 
     	return false;
       
@@ -65,38 +51,28 @@ public abstract class Whole extends Number implements Comparable {
 
 
     @Override
-    public Comparison compareWith(Any other) {
-        int comp = this.compareTo((Whole)other);
+    public default Comparison compareWith(Any other) {
+        int comp = compareTo(((Whole)other));
         if (comp > 0){
-            return Greater.constructor();
+            return Greater.GREATEAR;
         } else if (comp < 0){
-            return Smaller.constructor();
+            return Smaller.SMALLER;
         } else{
-            return Equal.constructor();
+            return Equal.EQUAL;
         }
     }
+    
+    @PlatformSpecific
+    public default int compareTo(Whole other) {
+        return  this.asJavaBigInteger().compareTo(((Whole)other).asJavaBigInteger());
+    }
 
-    protected abstract BigInteger asJavaBigInteger();
+    @PlatformSpecific
+    public default BigInteger asJavaBigInteger() {
+    	return new BigInteger(this.toString());
+    }
 
     public abstract Natural abs();
 
-    protected abstract Integer asInteger();
 
-    protected final int compareTo(Whole other){
-        return this.asJavaBigInteger().compareTo(other.asJavaBigInteger());
-    }
-
-    public Complex plus(Imaginary n ){
-        return Complex.constructor(Real.valueOf(this), n.real());
-    }
-
-    public Complex minus(Imaginary n){
-        return Complex.constructor(Real.valueOf(this), n.real().symmetric());
-    }
-    public Imaginary multiply(Imaginary n){
-        return Imaginary.valueOf(Real.valueOf(this).multiply(n.real()));
-    }
-    public Imaginary divide(Imaginary n){
-        return Imaginary.valueOf(Real.valueOf(this).divide(n.real()));
-    }
 }
