@@ -8,6 +8,7 @@ import lense.core.lang.java.Property;
 import lense.core.lang.java.Signature;
 import lense.core.lang.reflection.ReifiedArguments;
 import lense.core.math.Natural;
+import lense.core.math.Natural64;
 
 @Signature("[+T<lense.core.lang.Any]::lense.core.collections.ResizableSequence<T>")
 public class LinkedList extends AbstractAssortment implements ResizableSequence {
@@ -49,7 +50,7 @@ public class LinkedList extends AbstractAssortment implements ResizableSequence 
 
 	@Override @Property(name = "size")
 	public Natural getSize() {
-		return Natural.valueOfNative(list.size());
+		return Natural64.valueOfNative(list.size());
 	}
 
 	@Override @Property(name = "iterator")

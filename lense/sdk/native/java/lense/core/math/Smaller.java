@@ -31,4 +31,9 @@ public final class Smaller extends Comparison{
 	public String asString() {
 		return String.valueOfNative("SMALLLER");
 	}
+
+	@Override
+	public int nativeValue() {
+		return -1;
+	}
 }

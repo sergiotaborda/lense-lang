@@ -3,19 +3,22 @@ import lense.core.math.Whole;
 import lense.core.math.Rational;
 import lense.core.math.Natural;
 import lense.core.lang.Ordinal;
+import lense.core.math.SignedNumber;
 
 public interface Integer extends Whole , SignedNumber,  Ordinal<Integer>{
 
 
-		// public implicit constructor valueOf( n :Natural);
-		
-		public abs(): Integer;
+		public abs(): Natural;
 	
 		public plus( n : Integer) : Integer;
 		public minus( n : Integer) : Integer;
 		public multiply( n : Integer) : Integer;
 		public divide( n : Integer) : Rational;
 		
+		public plus( n : Natural) : Integer;
+		public minus( n : Natural) : Integer;
+		public multiply( n : Natural) : Integer;
+
 		public wholeDivide (other : Integer) : Integer; 
 		public wholeDivide (other : Natural) : Integer; 
 		public remainder (other : Integer) : Integer; 

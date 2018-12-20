@@ -2,12 +2,15 @@ package lense.core.math;
 
 import java.math.BigInteger;
 
+import lense.core.lang.Any;
 import lense.core.lang.HashValue;
 import lense.core.lang.java.Constructor;
 import lense.core.lang.java.NonNull;
 import lense.core.lang.java.PlatformSpecific;
+import lense.core.lang.java.ValueClass;
 
-public final class BigInt extends Integer {
+@ValueClass
+public final class BigInt implements Integer {
 
     private BigInteger value;
 
@@ -31,7 +34,8 @@ public final class BigInt extends Integer {
 	}
 			
 	@Override
-	protected BigInteger asJavaBigInteger() {
+	@PlatformSpecific
+	public BigInteger asJavaBigInteger() {
 		return value;
 	}
 
@@ -64,24 +68,24 @@ public final class BigInt extends Integer {
     public @NonNull Integer raiseTo(Natural other) {
         if (this.isZero()){
             if (other.isZero()){
-                return Integer.ONE;
+                return Int32.ONE;
             }
             return this;
         } else if (this.isOne()){
-            return Integer.ONE;
+            return Int32.ONE;
         } else if (other.isZero()){
-            return Integer.ONE;
+            return Int32.ONE;
         } else if (other.isOne()){
             return this;
-        } else if (other.compareTo(Integer.valueOfNative(2)) == 0){
+        } else if (other.compareTo(Int32.TWO) == 0){
             return  this.multiply(this);
-        } else if (other.compareTo(Integer.valueOfNative(3)) == 0){
+        } else if (other.compareTo(Int32.THREE) == 0){
             return  this.multiply(this).multiply(this);
         } else if (other.isInInt32Range()){
             return new BigInt(this.value.pow(other.toPrimitiveInt()));
         } else {
             // TODO resolve calculation. possible too big
-            throw new UnsupportedOperationException("raiseTo a number biger than Int32.MAX is not support yet");
+            throw new UnsupportedOperationException("raiseTo a number greater than Int32.MAX is not support yet");
         }
         
     }
@@ -107,7 +111,7 @@ public final class BigInt extends Integer {
 	}
 
 	@Override
-	public Integer signum() {
+	public Integer sign() {
 		return new Int32(value.signum());
 	}
 
@@ -133,9 +137,62 @@ public final class BigInt extends Integer {
         return value.intValue();
     }
 
+	
+	@Override
+	public Integer wholeDivide(Integer other) {
+		return new BigInt(this.asJavaBigInteger().divide(other.asJavaBigInteger()));
+	}
 
 
 
+	public String toString() {
+		return String.valueOf(this.value);
+	}
+
+
+	public boolean equals(Object other) {
+		return other instanceof Any && equalsTo((Any)other);
+	}
+	
+	public boolean equalsTo(Any other) {
+		return this.compareWith(other).nativeValue() == 0;
+	}
+
+	
+    @Override
+	public Comparison compareWith(Any other) {
+    	if (other instanceof Integer) {
+			return Comparison.valueOfNative(this.value.compareTo(((Integer) other).asJavaBigInteger()));
+		} else  if (other instanceof Number && other instanceof Comparable) {
+			 if (this.toString().equals(other.toString())){
+				 return Comparison.valueOfNative(0);
+			 }
+			 return BigDecimal.valueOfNative(this.toString()).compareWith(other);
+		} 
+		throw new ClassCastException("Cannot compare to " + other.getClass().getName());
+	}
+
+	public @NonNull Integer raiseTo(int exponent) {
+	   	 if (this.isZero()){
+	         if (exponent == 0){
+	             return Int32.ONE;
+	         }
+	         return this;
+	     } else if (this.isOne()){
+	         return Int32.ONE;
+	     } else if (exponent == 0){
+	         return Int32.ONE;
+	     } else if (exponent == 1){
+	         return this;
+	     } else if (exponent == 2){
+	         return  this.multiply(this);
+	     } else if (exponent == 3){
+	         return  this.multiply(this).multiply(this);
+	     }
+	   	 
+	   	 return new BigInt(this.value.pow(exponent));
+	}
+	
 
 
  

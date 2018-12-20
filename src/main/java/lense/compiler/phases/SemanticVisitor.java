@@ -1571,21 +1571,17 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 							// .add(new GenericTypeParameterNode(new TypeNode(right)));
 							//
 							// n.replace((AstNode) n.getRight(), cn);
+						} else if (n.getRight() instanceof NumericValue) {
+
+							promoteNodeType(n.getRight(), left);
 						} else {
 							throw new CompilationError(node, right + " is not assignable to " + left);
 						}
 
 					} else {
-						// TODO change to promote node, promotion is implicit
-						// constructor based
-						Optional<Constructor> op = left.getTypeDefinition()
-								.getConstructorByParameters(new ConstructorParameter(right));
-
-						NewInstanceCreationNode cn = NewInstanceCreationNode.of(left, op.get(), n.getRight());
-						cn.getCreationParameters().getTypeParametersListNode()
-						.add(new GenericTypeParameterNode(new TypeNode(left)));
-
-						n.replace((AstNode) n.getRight(), cn);
+						
+						promoteNodeType(n.getRight(), left);
+						
 					}
 				}
 
@@ -2731,9 +2727,8 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 
 			} else if (node instanceof ConditionalStatement) {
 
-				if (!((ConditionalStatement) node).getCondition().getTypeVariable().getTypeDefinition()
-						.equals(LenseTypeSystem.Boolean())) {
-					throw new CompilationError(
+				if (! LenseTypeSystem.Boolean().equals(((ConditionalStatement) node).getCondition().getTypeVariable().getTypeDefinition())) {
+					throw new CompilationError(node,
 							"Condition must be a Boolean value, found " + ((ConditionalStatement) node).getCondition()
 							.getTypeVariable().getTypeDefinition().getName());
 				}
@@ -3275,16 +3270,16 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 
 			return cn;
 		}
-
+		
+		if (node instanceof NumericValue && LenseTypeSystem.isNumber(targetType.getTypeDefinition())) {
+			((NumericValue) node).setTypeVariable(targetType);
+			return node;
+		} 
+		
 		if (!lenseTypeSystem.isPromotableTo(nodeType, targetType)) {
 
 			// TODO promote using extension
 			throw new CompilationError(node, nodeType + " is not assignable to " + targetType);
-		}
-
-		if (node instanceof NumericValue && LenseTypeSystem.isNumber(targetType.getTypeDefinition())) {
-			((NumericValue) node).setTypeVariable(targetType);
-			return node;
 		} else {
 			Optional<Constructor> op = targetType.getTypeDefinition().getConstructorByParameters(new ConstructorParameter(nodeType));
 

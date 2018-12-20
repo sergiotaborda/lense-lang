@@ -13,6 +13,7 @@ import lense.core.lang.reflection.JavaReifiedArguments;
 import lense.core.lang.reflection.Type;
 import lense.core.lang.reflection.TypeResolver;
 import lense.core.math.Natural;
+import lense.core.math.Natural64;
 
 @PlatformSpecific
 final class NativeMaybeArray extends Array implements SmallArray {
@@ -88,7 +89,7 @@ final class NativeMaybeArray extends Array implements SmallArray {
 
 	@Override
 	public Natural getSize() {
-		return Natural.valueOfNative(array.length);
+		return Natural64.valueOfNative(array.length);
 	}
 
 	@Override
@@ -170,7 +171,7 @@ final class NativeMaybeArray extends Array implements SmallArray {
 		for(int i =0; i < array.length; i++){
 			Any a = array[i];
 			if ((a == null && maybe.isAbsent()) || (a != null && maybe.is(a))){ 
-				return Some.constructor( JavaReifiedArguments.getInstance().addType(lense.core.math.Natural.TYPE_RESOLVER) , Natural.valueOfNative(i));
+				return Some.constructor( JavaReifiedArguments.getInstance().addType(lense.core.math.Natural.TYPE_RESOLVER) , Natural64.valueOfNative(i));
 			} 
 		}
 		return None.NONE;

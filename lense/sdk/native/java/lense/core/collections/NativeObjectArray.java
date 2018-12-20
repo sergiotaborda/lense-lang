@@ -12,6 +12,7 @@ import lense.core.lang.java.PlatformSpecific;
 import lense.core.lang.reflection.JavaReifiedArguments;
 import lense.core.lang.reflection.Type;
 import lense.core.math.Natural;
+import lense.core.math.Natural64;
 
 @PlatformSpecific
 final class NativeObjectArray extends Array implements SmallArray{
@@ -66,7 +67,7 @@ final class NativeObjectArray extends Array implements SmallArray{
 
 	@Override
 	public Natural getSize() {
-		return Natural.valueOfNative(array.length);
+		return Natural64.valueOfNative(array.length);
 	}
 
 	@Override
@@ -108,7 +109,7 @@ final class NativeObjectArray extends Array implements SmallArray{
 	public Maybe indexOf(Any element) {
 		for(int i =0; i < array.length; i++){
 			if (array[i].equalsTo(element)){ 
-				return Some.constructor( JavaReifiedArguments.getInstance().addType(lense.core.math.Natural.TYPE_RESOLVER) , Natural.valueOfNative(i));
+				return Some.constructor( JavaReifiedArguments.getInstance().addType(lense.core.math.Natural.TYPE_RESOLVER) , Natural64.valueOfNative(i));
 			}
 		}
 		return None.NONE;

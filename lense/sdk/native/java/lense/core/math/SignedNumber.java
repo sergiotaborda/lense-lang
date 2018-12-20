@@ -6,5 +6,5 @@ public interface SignedNumber  {
     public abstract boolean isNegative();
     public abstract boolean isPositive();
     
-    public abstract Integer signum();
+    public abstract Integer sign();
 }

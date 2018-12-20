@@ -361,10 +361,10 @@ public class LenseTypeSystem {
 		register(
 				new FundamentalLenseTypeDefinition("lense.core.math.Int16", LenseUnitKind.Class, integer));
 
-		sint.addConstructor(true, "valueOf", new ConstructorParameter(whole));
+		//sint.addConstructor(true, "valueOf", new ConstructorParameter(whole));
 
-		integer.addConstructor(true, "valueOf", new ConstructorParameter(natural));
-		integer.addConstructor(true, "valueOf", new ConstructorParameter(whole));
+		//integer.addConstructor(true, "valueOf", new ConstructorParameter(natural));
+		//integer.addConstructor(true, "valueOf", new ConstructorParameter(whole));
 
 		natural.addMethod("multiply", natural, new MethodParameter(natural));
 		natural.addMethod("remainder", natural, new MethodParameter(natural));
@@ -497,16 +497,6 @@ public class LenseTypeSystem {
 		return Optional.empty();
 	}
 
-	//    public boolean isAssignableTo(TypeVariable type, TypeVariable target) { // old IntervalTypeVariable
-	//        if (target.getVariance() == Variance.ContraVariant) {
-	//            isAssignableTo(target.getUpperBound(), type.getUpperBound());
-	//        } else if (target.getVariance() == Variance.Covariant) {
-	//            return isAssignableTo(type.getUpperBound(), target.getUpperBound());
-	//        }
-	//
-	//        return isAssignableTo(type.getUpperBound(), target.getUpperBound())
-	//                && isAssignableTo(type.getLowerBound(), target.getLowerBound());
-	//    }
 
 	public static boolean isAssignableTo(TypeVariable type, TypeVariable target) {
 		

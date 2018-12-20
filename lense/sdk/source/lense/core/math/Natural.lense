@@ -6,8 +6,10 @@ import lense.core.math.Rational;
 import lense.core.math.Comparable;
 import lense.core.collections.Progression;
 import lense.core.lang.String;
+import lense.core.lang.Ordinal;
+import lense.core.lang.Boolean;
 
-public interface Natural extends Whole , Progressable<Natural> , Comparable<Natural>{
+public interface Natural extends Whole , Ordinal<Natural>, Progressable<Natural> , Comparable<Natural>{
 
 
 	//public constructor parse(text :String); 
@@ -16,15 +18,24 @@ public interface Natural extends Whole , Progressable<Natural> , Comparable<Natu
 	public plus ( other: Natural) : Natural;
 	public multiply ( other: Natural) : Natural;
 		
+	public wrapMinus ( other: Natural)  : Natural;
+	public wrapPlus ( other: Natural) : Natural;
+
 	public multiply ( other: Integer) : Integer;
 			
 	public raiseTo( other: Natural) : Natural;
 	public raiseTo( other: Integer) : Rational;
 	public raiseTo( other: Real) : Real;
+
 	public remainder (other : Natural) : Natural; 	
+
 	public wholeDivide (other : Natural) : Natural; 	
 	public wholeDivide (other : Integer) : Integer; 	
 	
 	public upTo( other: Natural) : Progression<Natural>;
 
+
+	public isPositive() : Boolean; 
+	public isNegative() : Boolean; 
+	public symmetric() : Integer;  
 }

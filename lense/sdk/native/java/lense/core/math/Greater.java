@@ -30,4 +30,9 @@ public final class Greater extends Comparison{
 	public String asString() {
 		return String.valueOfNative("GREATER");
 	}
+
+	@Override
+	public int nativeValue() {
+		return 1;
+	}
 }

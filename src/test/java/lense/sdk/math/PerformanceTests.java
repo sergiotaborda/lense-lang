@@ -5,12 +5,14 @@ import java.math.BigInteger;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import lense.core.math.NativeNumberFactory;
 import lense.core.math.Natural;
+import lense.core.math.Natural64;
 
 public class PerformanceTests {
 
 
-	@Test @Ignore
+	@Test 
 	public void testRunTimePlusOne() {
 		int iterationsCount = 100;
 		long topMAx = 1_000_000 ;
@@ -19,7 +21,7 @@ public class PerformanceTests {
 		
 		for(int i = 0; i < iterationsCount; i++){
 			//iterateBigInteger(BigInteger.ZERO, BigInteger.valueOf(topMAx),BigInteger.ONE);
-			iterateNatural(Natural.valueOfNative(0), Natural.valueOfNative(topMAx), Natural.ONE);
+			iterateNatural(NativeNumberFactory.newNatural(0), NativeNumberFactory.newNatural(topMAx), Natural64.ONE);
 		}
 		
 		System.out.println("timing...");
@@ -46,13 +48,13 @@ public class PerformanceTests {
 
 			time = System.currentTimeMillis();
 			for(int i = 0; i < iterationsCount; i++){
-				iterateNatural(Natural.ZERO, Natural.valueOfNative(max), Natural.ONE);
+				iterateNatural(Natural64.ZERO, NativeNumberFactory.newNatural(max), Natural64.ONE);
 			}
 			System.out.println("......Natural : " + (System.currentTimeMillis() *1.0 - time) / iterationsCount + " ms");
 
 			time = System.currentTimeMillis();
 			for(int i = 0; i < iterationsCount; i++){
-				iterateNaturalSucessor(Natural.ZERO, Natural.valueOfNative(max));
+				iterateNaturalSucessor(Natural64.ZERO, NativeNumberFactory.newNatural(max));
 			}
 			System.out.println("......Natural Successor : " + (System.currentTimeMillis() *1.0 - time) / iterationsCount + " ms");
 
@@ -70,7 +72,7 @@ public class PerformanceTests {
 		
 		for(int i = 0; i < iterationsCount; i++){
 			//iterateBigInteger(BigInteger.ZERO, BigInteger.valueOf(topMAx),BigInteger.ONE);
-			iterateNatural(Natural.valueOfNative(0), Natural.valueOfNative(topMAx), Natural.ONE);
+			iterateNatural(NativeNumberFactory.newNatural(0), NativeNumberFactory.newNatural(topMAx), Natural64.ONE);
 		}
 		
 		System.out.println("timing...");
@@ -97,7 +99,7 @@ public class PerformanceTests {
 
 			time = System.currentTimeMillis();
 			for(int i = 0; i < iterationsCount; i++){
-				iterateNatural(Natural.ZERO, Natural.valueOfNative(max), Natural.valueOfNative(1000));
+				iterateNatural(Natural64.ZERO, NativeNumberFactory.newNatural(max), NativeNumberFactory.newNatural(1000));
 			}
 			System.out.println("......Natural : " + (System.currentTimeMillis() *1.0 - time) / iterationsCount + " ms");
 
@@ -131,7 +133,7 @@ public class PerformanceTests {
 		
 		for(int i = 0; i < iterationsCount; i++){
 			//iterateBigInteger(BigInteger.ZERO, BigInteger.valueOf(topMAx),BigInteger.ONE);
-			iterateNatural(Natural.valueOfNative(0), Natural.valueOfNative(topMAx), Natural.ONE);
+			iterateNatural(NativeNumberFactory.newNatural(0), NativeNumberFactory.newNatural(topMAx), Natural64.ONE);
 		}
 		
 		System.out.println("timing...");
@@ -141,26 +143,26 @@ public class PerformanceTests {
 			for(int i = 0; i < iterationsCount; i++){
 				iterateLong(0, max, max / 10);
 			}
-			System.out.println("......long : " + (System.currentTimeMillis() *1.0 - time) / iterationsCount + " ms");
+			System.out.println("......long : " + (System.currentTimeMillis() *1.0 - time) / iterationsCount + " ms/op");
 
 			time = System.currentTimeMillis();
 			for(int i = 0; i < iterationsCount; i++){
 				iterateLongObject(new Long(0), new Long(max), new Long(max/10));
 			}
-			System.out.println("......Long : " + (System.currentTimeMillis() *1.0 - time) / iterationsCount + " ms");
+			System.out.println("......Long : " + (System.currentTimeMillis() *1.0 - time) / iterationsCount + " ms/op");
 
 			
 			time = System.currentTimeMillis();
 			for(int i = 0; i < iterationsCount; i++){
 				iterateBigInteger(BigInteger.ZERO, BigInteger.valueOf(max), BigInteger.valueOf(max/10));
 			}
-			System.out.println("......BigInteger : " + (System.currentTimeMillis() *1.0 - time) / iterationsCount+ " ms");
+			System.out.println("......BigInteger : " + (System.currentTimeMillis() *1.0 - time) / iterationsCount+ " ms/op");
 
 			time = System.currentTimeMillis();
 			for(int i = 0; i < iterationsCount; i++){
-				iterateNatural(Natural.ZERO, Natural.valueOfNative(max), Natural.valueOfNative(max / 10));
+				iterateNatural(Natural64.ZERO, NativeNumberFactory.newNatural(max), NativeNumberFactory.newNatural(max / 10));
 			}
-			System.out.println("......Natural : " + (System.currentTimeMillis() *1.0 - time) / iterationsCount + " ms");
+			System.out.println("......Natural : " + (System.currentTimeMillis() *1.0 - time) / iterationsCount + " ms/op");
 
 			
 

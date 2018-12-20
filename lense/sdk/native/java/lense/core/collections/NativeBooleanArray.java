@@ -13,6 +13,7 @@ import lense.core.lang.java.PlatformSpecific;
 import lense.core.lang.reflection.JavaReifiedArguments;
 import lense.core.lang.reflection.Type;
 import lense.core.math.Natural;
+import lense.core.math.Natural64;
 
 @PlatformSpecific
 final class NativeBooleanArray extends Array implements SmallArray {
@@ -57,7 +58,7 @@ final class NativeBooleanArray extends Array implements SmallArray {
 
 	@Override
 	public Natural getSize() {
-		return Natural.valueOfNative(array.length);
+		return Natural64.valueOfNative(array.length);
 	}
 
 	@Override
@@ -135,7 +136,7 @@ final class NativeBooleanArray extends Array implements SmallArray {
 		boolean val = ((Boolean)element).toPrimitiveBoolean();
 		for(int i =0; i < array.length; i++){
 			if (array[i] == val){ 
-				return Some.constructor( JavaReifiedArguments.getInstance().addType(lense.core.math.Natural.TYPE_RESOLVER), Natural.valueOfNative(i));
+				return Some.constructor( JavaReifiedArguments.getInstance().addType(lense.core.math.Natural.TYPE_RESOLVER), Natural64.valueOfNative(i));
 			}
 		}
 		return None.NONE;

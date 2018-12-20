@@ -6,12 +6,12 @@ import lense.core.lang.java.Constructor;
 import lense.core.lang.java.PlatformSpecific;
 
 @PlatformSpecific
-public final class Imaginary extends Number{
+public final class Imaginary implements Number{
 
 	
 	@Constructor(paramsSignature = "")
 	public static Imaginary constructor (){
-		return valueOf(Real.ZERO);
+		return valueOf(Rational.ZERO);
 	}
 	
 	@Constructor(paramsSignature = "lense.core.math.Real")
@@ -43,19 +43,19 @@ public final class Imaginary extends Number{
 	
 	
 	public Complex plus(Whole other) {
-		return plus(Real.valueOf(other));
+		return plus(Rational.constructor(other));
 	}
 
 	public Complex minus(Whole other) {
-		return minus(Real.valueOf(other));
+		return minus(Rational.constructor(other));
 	}
 
 	public Imaginary multiply(Whole other) {
-		return multiply(Real.valueOf(other));
+		return multiply(Rational.constructor(other));
 	}
 
 	public Imaginary divide(Whole other) {
-		return divide(Real.valueOf(other));
+		return divide(Rational.constructor(other));
 	}
 	
 	public Complex plus(Real other) {

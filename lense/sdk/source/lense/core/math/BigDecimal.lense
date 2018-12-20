@@ -3,7 +3,7 @@ import lense.core.math.Decimal;
 import lense.core.math.Rational;
 
 
-public native class BigDecimal extends Decimal {
+public native value class BigDecimal implements Decimal {
 
 	public native constructor();
 	

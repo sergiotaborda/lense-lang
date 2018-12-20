@@ -97,7 +97,7 @@ public  class List<T> implements ResizableSequence<T> {
 			// TODO  make auto boxing of value in index automatic
 		}
 }/
-		length = length.predecessor();
+		length = length &- 1;
 	}
 
 	public  [index: Natural] : T { 

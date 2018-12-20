@@ -17,8 +17,20 @@ public value class Rational implements Real {
 
 	private constructor ( public  numerator : Integer , public denominator : Natural);
 
+	public constructor zero() {
+		return new Rational(0 , 1);
+	}
+
+	public constructor on1() {
+		return new Rational(1 , 1);
+	}
+
 	public implicit constructor valueOf(other : Integer) {
 		return new Rational(other , 1);
+	}
+
+	public implicit constructor valueOf(other : Whole) {
+		return other.divide(1);
 	}
 
 	public constructor (  numerator : Integer ,   denominator : Integer ){
@@ -44,6 +56,10 @@ public value class Rational implements Real {
 		return new Rational(numerator , denominator.abs());
 	}
 	
+	private symplify( numerator : Integer,  denominator : Integer ) : Rational {
+			return symplify(numerator * denominator.sign() , denominator.abs()) ;
+	}
+
 	private symplify( numerator : Integer,  denominator : Natural ) : Rational {
 	
 		if (numerator == 0){
@@ -178,12 +194,20 @@ public value class Rational implements Real {
 		return this.numerator.equalsTo(denominator);
 	}
 
+	public isNegative() : Boolean{
+		return sign() == -1;
+	}
+
+	public isPositive() : Boolean{
+		return sign() == 1;
+	}
+
 	public symmetric() : Real {
 		return new Rational(numerator.symmetric(), denominator);
 	}
 	
-	public signum() : Integer {
-		return numerator.signum();
+	public sign() : Integer {
+		return numerator.sign();
 	}
 
 	public asInteger() : Integer {
@@ -194,6 +218,27 @@ public value class Rational implements Real {
     	return this.numerator % this.denominator == 0;
     }
     
+	public floor() : Integer {
+		if (this < 0){
+			return -(-this).ceil();
+		} else {
+      		//extracted from http://www.cs.nott.ac.uk/~rcb/G51MPC/slides/NumberLogic.pdf
+			return this.numerator \ this.denominator ;
+		}
+	}
+
+	public ceil() : Integer {
+
+		if (this < 0){
+			return -(-this).floor();
+		} else {
+      		//extracted from http://www.cs.nott.ac.uk/~rcb/G51MPC/slides/NumberLogic.pdf
+			return (this.numerator + this.denominator - 1) \ this.denominator;
+		}
+	}
+
+
+
     public raiseTo(exponent : Real) : Real {
     	if (this == 0){ 
     		if (exponent == 0){
@@ -229,7 +274,7 @@ public value class Rational implements Real {
             throw new ArithmeticException("Cannot invert zero");
         }
 
-		let sign = this.numerator.signum();
+		let sign = this.numerator.sign();
 		return new Rational( this.denominator * sign, this.numerator.abs());
 	}
 	
@@ -256,4 +301,29 @@ public value class Rational implements Real {
 	   }/
 	   throw new Exception("Not implemented yet"); 
 	}  
+
+	public asDecimal() : Decimal {
+		return new BigDecimal(this);
+	} 
+
+	public isPositiveInfinity() => false;
+	public isNegativeInfinity() => false;
+	public isInfinity() => false;
+	public isNaN() => false;
+
+	public plus( other : Imaginary) : Complex {
+		 return new Complex.retangular(this, other.real());
+	}
+
+	public minus( other : Imaginary) : Complex {
+		return new Complex.retangular(this, -other.real());		 
+	}
+
+	public multiply( other : Imaginary) : Imaginary {
+		 return new Imaginary.valueOf(this) * other;
+	}
+
+	public divide( other : Imaginary) : Imaginary {
+		return new Imaginary.valueOf(this / other.real());
+	}
 }

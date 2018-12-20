@@ -282,12 +282,9 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 								.append(decimalPart).append("))");
 
 					} else {
-						writer.append("lense.core.math.Rational")
-								.append(".valueOf(lense.core.math.NativeNumberFactory.newInteger(")
-								.append(n.toString()).append("))");
+						writer.append("lense.core.math.Rational.valueOf(lense.core.math.NativeNumberFactory.newInteger(").append(n.toString()).append("))");
 					}
 				} else {
-					// TODO test bounds (number could be to big , should use string
 
 					QualifiedNameNode qn = new QualifiedNameNode(n.getTypeVariable().getTypeDefinition().getName());
 					String typeName = qn.getLast().getName();
@@ -297,15 +294,14 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 
 					if ("Natural".equals(typeName)) {
 						if (n.isZero()) {
-							writer.append("lense.core.math.Natural.ZERO");
+							writer.append("lense.core.math.NativeNumberFactory.naturalZero()");
 						} else if (n.isOne()) {
-							writer.append("lense.core.math.Natural.ONE");
+							writer.append("lense.core.math.NativeNumberFactory.naturalOne()");
 						} else {
-							writer.append("lense.core.math.Natural.valueOfNative(").append(n.toString()).append(")");
+							writer.append("lense.core.math.NativeNumberFactory.newNatural(\"").append(n.toString()).append("\")");
 						}
 					} else {
-						writer.append("lense.core.math.NativeNumberFactory.new").append(typeName).append("(")
-								.append(n.toString()).append(")");
+						writer.append("lense.core.math.NativeNumberFactory.new").append(typeName).append("(\"").append(n.toString()).append("\")");
 					}
 
 				}

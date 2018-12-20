@@ -12,6 +12,7 @@ import lense.core.lang.String;
 import lense.core.lang.java.Base;
 import lense.core.lang.reflection.ReifiedArguments;
 import lense.core.math.Natural;
+import lense.core.math.Natural64;
 
 public class Dictionary extends Base implements Association {
 
@@ -71,7 +72,7 @@ public class Dictionary extends Base implements Association {
 
 	@Override
 	public Natural getSize() {
-		return Natural.valueOfNative(map.size());
+		return Natural64.valueOfNative(map.size());
 	}
 
 	@Override

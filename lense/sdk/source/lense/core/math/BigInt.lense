@@ -2,6 +2,6 @@
 import lense.core.math.Integer;
 
 
-public native class BigInt extends Integer{
+public native value class BigInt implements Integer{
 
 }
