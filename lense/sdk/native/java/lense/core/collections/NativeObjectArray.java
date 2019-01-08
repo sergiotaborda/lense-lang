@@ -11,7 +11,9 @@ import lense.core.lang.Some;
 import lense.core.lang.java.PlatformSpecific;
 import lense.core.lang.reflection.JavaReifiedArguments;
 import lense.core.lang.reflection.Type;
+import lense.core.math.NativeNumberFactory;
 import lense.core.math.Natural;
+import lense.core.math.Natural64;
 
 @PlatformSpecific
 final class NativeObjectArray extends Array implements SmallArray{
@@ -20,7 +22,7 @@ final class NativeObjectArray extends Array implements SmallArray{
 	private final Type type;
 	
 	public NativeObjectArray(Natural size, Type innerType){
-		array = new Any[size.toPrimitiveInt()];
+		array = new Any[NativeNumberFactory.naturalToPrimitiveInt(size)];
 		this.type = Array.RAW_TYPE.withGenerics(innerType);
 	}
 	
@@ -44,10 +46,10 @@ final class NativeObjectArray extends Array implements SmallArray{
 
 	@Override
 	public Any get(Natural index) {
-		if (index.toPrimitiveInt() >= array.length){
+		if (NativeNumberFactory.naturalToPrimitiveInt(index) >= array.length){
 			throw IllegalIndexException.constructor(/*"Index from " + size + " on is not available"*/);
 		}
-		return array[index.toPrimitiveInt()];
+		return array[NativeNumberFactory.naturalToPrimitiveInt(index)];
 	}
 	
 	@Override
@@ -57,16 +59,16 @@ final class NativeObjectArray extends Array implements SmallArray{
 	
 	@Override
 	public void set(Natural index, Any value) {
-		if (index.toPrimitiveInt() >= array.length){
+		if (NativeNumberFactory.naturalToPrimitiveInt(index) >= array.length){
 			throw IllegalIndexException.constructor(/*"Index from " + size + " on is not available"*/);
 		}
 		System.out.println("Seting " + value + " at index " + index);
-		array[index.toPrimitiveInt()] = value;
+		array[NativeNumberFactory.naturalToPrimitiveInt(index)] = value;
 	}
 
 	@Override
 	public Natural getSize() {
-		return Natural.valueOfNative(array.length);
+		return Natural64.valueOfNative(array.length);
 	}
 
 	@Override
@@ -108,7 +110,7 @@ final class NativeObjectArray extends Array implements SmallArray{
 	public Maybe indexOf(Any element) {
 		for(int i =0; i < array.length; i++){
 			if (array[i].equalsTo(element)){ 
-				return Some.constructor( JavaReifiedArguments.getInstance().addType(lense.core.math.Natural.TYPE_RESOLVER) , Natural.valueOfNative(i));
+				return Some.constructor( JavaReifiedArguments.getInstance().addType(lense.core.math.Natural.TYPE_RESOLVER) , Natural64.valueOfNative(i));
 			}
 		}
 		return None.NONE;
@@ -152,7 +154,7 @@ final class NativeObjectArray extends Array implements SmallArray{
 			
 			NativeObjectArray n = (NativeObjectArray)other;
 			
-			System.arraycopy(this.array, sourceIndex.toPrimitiveInt(), n.array, destinationIndex.toPrimitiveInt(),length.toPrimitiveInt());
+			System.arraycopy(this.array, NativeNumberFactory.naturalToPrimitiveInt(sourceIndex), n.array,  NativeNumberFactory.naturalToPrimitiveInt(destinationIndex), NativeNumberFactory.naturalToPrimitiveInt(length));
 			
 			return other;
 		} else {

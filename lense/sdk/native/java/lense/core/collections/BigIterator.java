@@ -4,6 +4,7 @@ import java.math.BigInteger;
 
 import lense.core.lang.Any;
 import lense.core.lang.java.PlatformSpecific;
+import lense.core.math.NativeNumberFactory;
 import lense.core.math.Natural;
 
 @PlatformSpecific
@@ -40,7 +41,7 @@ public class BigIterator implements Iterator {
 
 	@Override
 	public Any current() {
-		return Natural.valueOf(current);
+		return NativeNumberFactory.newNatural(current);
 	}
 	
 }

@@ -6,28 +6,30 @@ import org.junit.Test;
 
 import lense.core.math.Complex;
 import lense.core.math.Imaginary;
+import lense.core.math.NativeNumberFactory;
 import lense.core.math.Natural;
+import lense.core.math.Rational;
 import lense.core.math.Real;
 
 public class TestComplex {
 
 	@Test
 	public void testComplexAbs () {
-		Imaginary img = Imaginary.valueOf(Real.valueOf(Natural.valueOfNative(4)));
-		Natural n = Natural.valueOfNative(3);
-		Real r = Real.valueOf(n);
+		Imaginary img = Imaginary.valueOf(Rational.valueOf(NativeNumberFactory.newNatural(4)));
+		Natural n = NativeNumberFactory.newNatural(3);
+		Real r = Rational.valueOf(n);
 		
-		Complex c = n.plus(img);
+		Complex c = img.plus(n);
 		
 		assertEquals("3+4i", c.asString().toString());
 		
 		assertEquals("9",  r.multiply(r).asString().toString());
 		assertEquals("-16",  img.multiply(img).asString().toString());
 		
-		Real x = Real.valueOf(Natural.valueOfNative(16));
+		Real x = Rational.valueOf(NativeNumberFactory.newNatural(16));
 		
 		assertEquals("25", r.multiply(r).plus(x).asString().toString());
-		assertEquals("25", c.abs().asString().toString());
+		assertEquals("5", c.abs().asString().toString());
 		
 		
 	}

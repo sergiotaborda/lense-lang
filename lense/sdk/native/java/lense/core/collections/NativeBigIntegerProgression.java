@@ -5,7 +5,6 @@ import java.math.BigInteger;
 import lense.core.lang.Any;
 import lense.core.lang.HashValue;
 import lense.core.lang.java.Base;
-import lense.core.lang.java.Native;
 import lense.core.lang.java.PlatformSpecific;
 
 @PlatformSpecific

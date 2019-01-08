@@ -1,0 +1,24 @@
+
+import lense.core.math.Number;
+import lense.core.lang.Boolean;
+import lense.core.math.SignedNumber;
+
+public interface FieldElement  {
+
+	public abs(): FieldElement;
+	
+	public symmetric() : FieldElement;
+	
+	public isZero() : Boolean;
+	public isNegative() : Boolean;
+	public isPositive() : Boolean;
+	
+	public sign() : Integer;
+	public plus (other: FieldElement): FieldElement;
+	public minus (other: FieldElement): FieldElement;
+	public multiply (other: FieldElement): FieldElement;
+	public divide (other: FieldElement): FieldElement;
+	
+	public sqrt() : FieldElement;
+
+}

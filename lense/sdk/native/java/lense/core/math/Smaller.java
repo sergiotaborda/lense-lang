@@ -31,4 +31,20 @@ public final class Smaller extends Comparison{
 	public String asString() {
 		return String.valueOfNative("SMALLLER");
 	}
+
+
+	@Override
+	public boolean isSmaller() {
+		return true;
+	}
+
+	@Override
+	public boolean isEqual() {
+		return false;
+	}
+
+	@Override
+	public boolean isGreater() {
+		return false;
+	}
 }

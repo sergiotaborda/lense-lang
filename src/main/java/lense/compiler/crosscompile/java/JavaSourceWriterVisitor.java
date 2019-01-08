@@ -18,7 +18,6 @@ import compiler.syntax.AstNode;
 import compiler.trees.TreeTransverser;
 import compiler.trees.Visitor;
 import compiler.trees.VisitorNext;
-import lense.compiler.ast.IndexedPropertyReadNode;
 import lense.compiler.ast.ArgumentListItemNode;
 import lense.compiler.ast.ArgumentListNode;
 import lense.compiler.ast.ArgumentTypeResolverNode;
@@ -45,10 +44,10 @@ import lense.compiler.ast.FieldAccessNode;
 import lense.compiler.ast.FieldDeclarationNode;
 import lense.compiler.ast.FieldOrPropertyAccessNode;
 import lense.compiler.ast.FieldOrPropertyAccessNode.FieldKind;
-import lense.compiler.context.VariableInfo;
 import lense.compiler.ast.ForEachNode;
 import lense.compiler.ast.FormalParameterNode;
 import lense.compiler.ast.GenericTypeParameterNode;
+import lense.compiler.ast.IndexedPropertyReadNode;
 import lense.compiler.ast.InstanceOfNode;
 import lense.compiler.ast.LiteralIntervalNode;
 import lense.compiler.ast.LiteralTupleInstanceCreation;
@@ -63,7 +62,6 @@ import lense.compiler.ast.ParametersListNode;
 import lense.compiler.ast.PosExpression;
 import lense.compiler.ast.PreBooleanUnaryExpression;
 import lense.compiler.ast.QualifiedNameNode;
-import lense.compiler.ast.RangeNode;
 import lense.compiler.ast.ReturnNode;
 import lense.compiler.ast.StatementNode;
 import lense.compiler.ast.StringConcatenationNode;
@@ -81,17 +79,18 @@ import lense.compiler.ast.VariableReadNode;
 import lense.compiler.ast.VariableReadTypeResolverNode;
 import lense.compiler.ast.VariableWriteNode;
 import lense.compiler.ast.WhileNode;
+import lense.compiler.context.VariableInfo;
 import lense.compiler.crosscompile.ErasedTypeDefinition;
 import lense.compiler.crosscompile.ErasurePointNode;
 import lense.compiler.crosscompile.ErasurePointNode.ErasureOperation;
 import lense.compiler.crosscompile.MethodInvocationOnPrimitiveNode;
 import lense.compiler.crosscompile.PrimitiveArithmeticOperationsNode;
+import lense.compiler.crosscompile.PrimitiveBooleanOperationsNode;
+import lense.compiler.crosscompile.PrimitiveBooleanValue;
 import lense.compiler.crosscompile.PrimitiveBox;
 import lense.compiler.crosscompile.PrimitiveComparisonNode;
-import lense.compiler.crosscompile.PrimitiveBooleanOperationsNode;
-import lense.compiler.crosscompile.PrimitiveUnbox;
-import lense.compiler.crosscompile.PrimitiveBooleanValue;
 import lense.compiler.crosscompile.PrimitiveTypeDefinition;
+import lense.compiler.crosscompile.PrimitiveUnbox;
 import lense.compiler.phases.ReificationVisitor;
 import lense.compiler.type.LenseTypeDefinition;
 import lense.compiler.type.LenseUnitKind;
@@ -190,8 +189,7 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
                 if (node instanceof PrimitiveBooleanValue) {
                     writer.print(((BooleanValue) node).getLiteralValue());
                 } else {
-                    writer.print(((BooleanValue) node).isValue() ? "lense.core.lang.Boolean.TRUE"
-                            : "lense.core.lang.Boolean.FALSE");
+                    writer.print(((BooleanValue) node).isValue() ? "lense.core.lang.Boolean.TRUE" : "lense.core.lang.Boolean.FALSE");
                 }
             } else if (node instanceof PrimitiveComparisonNode){
                 PrimitiveComparisonNode c = (PrimitiveComparisonNode)node;
@@ -335,10 +333,12 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 
                 return VisitorNext.Siblings;
 
+
             } else if (node instanceof PrimitiveUnbox) {
 
                 PrimitiveUnbox pu = (PrimitiveUnbox)node;
 
+					
                 AstNode n = pu.getChildren().get(0);
 
                 if (n instanceof MethodInvocationNode) {
@@ -463,12 +463,9 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
                             .append(".constructor(lense.core.math.NativeNumberFactory.newInteger(").append(intPart)
                             .append(decPart).append("),lense.core.math.NativeNumberFactory.newInteger(")
                             .append(decimalPart).append("))");
-
-                        } else {
-                            writer.append("lense.core.math.Rational")
-                            .append(".valueOf(lense.core.math.NativeNumberFactory.newInteger(")
-                            .append(n.toString()).append("))");
-                        }
+	    				} else {
+							writer.append("lense.core.math.Rational.valueOf(lense.core.math.NativeNumberFactory.newInteger(").append(n.toString()).append("))");
+	    				}
                     } else {
                         // TODO test bounds (number could be to big , should use string
 
@@ -479,18 +476,16 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
                         }
 
                         if ("Natural".equals(typeName)) {
-                            if (n.isZero()) {
-                                writer.append("lense.core.math.Natural.ZERO");
-                            } else if (n.isOne()) {
-                                writer.append("lense.core.math.Natural.ONE");
-                            } else {
-                                writer.append("lense.core.math.Natural.valueOfNative(").append(n.toString()).append(")");
-                            }
-                        } else {
-                            writer.append("lense.core.math.NativeNumberFactory.new").append(typeName).append("(")
-                            .append(n.toString()).append(")");
-                        }
-
+    						if (n.isZero()) {
+    							writer.append("lense.core.math.NativeNumberFactory.naturalZero()");
+    						} else if (n.isOne()) {
+    							writer.append("lense.core.math.NativeNumberFactory.naturalOne()");
+    						} else {
+    							writer.append("lense.core.math.NativeNumberFactory.newNatural(\"").append(n.toString()).append("\")");
+    						}
+    					} else {
+    						writer.append("lense.core.math.NativeNumberFactory.new").append(typeName).append("(\"").append(n.toString()).append("\")");
+    					}
                     }
 
                 }
@@ -669,6 +664,8 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
                             }
                             generics.deleteCharAt(generics.length() - 1);
                             generics.append(">&");
+                        } else {
+                        	 generics.append(td.getName()).append("&");
                         }
 
                     }

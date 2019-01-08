@@ -2,7 +2,7 @@
 import lense.core.math.Natural;
 import lense.core.lang.String;
 
-public class Version {
+public value class Version {
 
 	public constructor ( public major: Natural, public minor : Natural, public revision : Natural);
 

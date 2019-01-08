@@ -2,8 +2,10 @@ package lense.core.lang;
 
 import lense.core.lang.java.Base;
 import lense.core.lang.java.Constructor;
+import lense.core.math.Int32;
 import lense.core.math.Integer;
 import lense.core.math.Natural;
+import lense.core.math.Natural64;
 
 public class Byte extends Base implements Binary{
 
@@ -12,7 +14,7 @@ public class Byte extends Base implements Binary{
 		// ignoring other bit is equivalent to a % 256 operation
 		int value = 0;
 		for (int i =0; i < 8 ; i ++){
-			value += Math.pow(2, i) * (n.bitAt(Natural.valueOfNative(i)) ? 1 :  0);
+			value += Math.pow(2, i) * (n.bitAt(Natural64.valueOfNative(i)) ? 1 :  0);
 		}
 		return new Byte(value);
 	}
@@ -24,19 +26,19 @@ public class Byte extends Base implements Binary{
 
 	// return between -128 and 127
 	public Integer toInteger(){
-		return Integer.valueOfNative(value - 128);
+		return Int32.valueOfNative(value - 128);
 	}
 	
 	// return between 0 and 255
 	public Natural toNatural(){
-		return Natural.valueOfNative(value);
+		return Natural64.valueOfNative(value);
 	}
 
 	private int value; // positive number 0000_0000_0000_0000_0000_0000_XXXX_XXXX
 	
 	@Override
 	public Natural bitsCount() {
-		return Natural.valueOfNative(8);
+		return Natural64.valueOfNative(8);
 	}
 
 	@Override

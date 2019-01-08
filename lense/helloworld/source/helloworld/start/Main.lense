@@ -20,7 +20,7 @@ import lense.core.lang.Byte;
 import lense.core.math.Imaginary;
 import lense.core.math.Complex;
 import lense.core.math.Real;
-import lense.core.math.Decimal64;
+import lense.core.math.Float64;
 import lense.core.math.Rational;
 import lense.core.math.Interval;
 import lense.core.math.ArithmeticException;
@@ -133,7 +133,7 @@ public class Main extends ConsoleApplication {
 		
 		let x : Int32 = list[0];
 		
-		let y : Int32 = x; // &+ 1;
+		let y : Int32 = x &+ 1;
 		
 		assert (20 == y, "y is not 20, is {{ y }}");
 		
@@ -200,10 +200,12 @@ public class Main extends ConsoleApplication {
 	}
 
 	private  range(negated : Boolean,  from : Natural, to : Integer) : Integer{
+		let integerFrom : Integer = from;
+ 
 		if (negated){
-			return to - from;
+			return to - integerFrom;
 		} else {
-			return from - to;
+			return integerFrom - to;
 		}
 	} 
 
@@ -222,9 +224,9 @@ public class Main extends ConsoleApplication {
 
 		let c = 1 km;
 
-		let q : Quaternion = 4k + 3j + 2i + 1;
+		let q : Quaternion = 4.0k + 3.0j + 2i + 1.0;
 
-		assert (  new Quaternion(1,2,3,4) == q );
+		assert (  new Quaternion(1,2,3,4) == q , " {{ q }} is not {{ new Quaternion(1,2,3,4) }}");
 
 	}
 
@@ -284,13 +286,13 @@ public class Main extends ConsoleApplication {
   	 	
   	 	if (rational is Rational){
   	 		console.println("Decimal literals are rational");
-  	 		var dec : Decimal64 = toRational(rational);  
+  	 		var dec : Float64 = toRational(rational);  
   	 		console.println("dec is {{ dec }}");
   	 	} else {
   	 		console.println("Decimal literals are NOT rational");
   	 	}
   	 	 
-  	    var decimal : Decimal64 = 0.5;  
+  	    var decimal : Float64 = 0.5;  
   	 	   
   	 	assert ( 3/4 == 3/4);
   	 	
@@ -305,7 +307,7 @@ public class Main extends ConsoleApplication {
   	 	
 		var inverted = 1 / ratio;
 	
-		assert( 1 ==  ratio.signum() , " Sign of {{ ratio }} is not 1");
+		assert( 1 ==  ratio.sign() , " Sign of {{ ratio }} is not 1");
 
 		assert( inverted ==  ratio.invert() , " 1 / x is not the same as x.invert()");
 
@@ -350,7 +352,7 @@ public class Main extends ConsoleApplication {
   	    
   	 	var dc = 0.5 + 4i;
   	 	
-		assert ( new Complex(0.5, 4)  == dc , " Complex is not 0.5+4i");
+		assert ( new Complex.retangular(0.5, 4)  == dc , " Complex is not 0.5+4i");
 
   	 	var n = #EFA2;
   	 	
@@ -527,7 +529,7 @@ public class Main extends ConsoleApplication {
 
   	 	var dto = new Dto();
   	 	
-		assert ( dto.age == dto.constante);
+		assert ( dto.age == dto.constant);
 		assert ( dto.age == 34);
 
 		assert ( dto.name == none);

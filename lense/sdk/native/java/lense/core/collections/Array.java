@@ -13,6 +13,7 @@ import lense.core.lang.java.Signature;
 import lense.core.lang.reflection.ReifiedArguments;
 import lense.core.lang.reflection.Type;
 import lense.core.math.Natural;
+import lense.core.math.Natural64;
 
 
 @Signature("[=T<lense.core.lang.Any]::lense.core.collections.EditableSequence<T>")
@@ -63,7 +64,7 @@ public abstract class Array extends AbstractAssortment implements EditableSequen
 
 	@Constructor( paramsSignature = "")
 	public static Array empty (ReifiedArguments args){
-		return SizeArrayStrategy.resolveSizeStrategy(Natural.ZERO).resolveStrategy(args).createEmpty();
+		return SizeArrayStrategy.resolveSizeStrategy(Natural64.ZERO).resolveStrategy(args).createEmpty();
 	}
 	
 	@Override @Property(indexed = true ) 
