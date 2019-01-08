@@ -12,7 +12,9 @@ import lense.core.lang.java.PlatformSpecific;
 import lense.core.lang.reflection.JavaReifiedArguments;
 import lense.core.lang.reflection.Type;
 import lense.core.lang.reflection.TypeResolver;
+import lense.core.math.NativeNumberFactory;
 import lense.core.math.Natural;
+import lense.core.math.Natural64;
 
 @PlatformSpecific
 final class NativeMaybeArray extends Array implements SmallArray {
@@ -68,7 +70,7 @@ final class NativeMaybeArray extends Array implements SmallArray {
 
 	@Override
 	public Any get(Natural index) {
-		int pIndex = index.toPrimitiveInt();
+		int pIndex =  NativeNumberFactory.naturalToPrimitiveInt(index);
 		if (pIndex >= array.length){
 			throw IllegalIndexException.constructor(/*"Index from " + size + " on is not available"*/);
 		}
@@ -79,16 +81,16 @@ final class NativeMaybeArray extends Array implements SmallArray {
 	
 	@Override
 	public void set(Natural index, Any value) {
-		if (index.toPrimitiveInt() >= array.length){
+		if (NativeNumberFactory.naturalToPrimitiveInt(index) >= array.length){
 			throw IllegalIndexException.constructor(/*"Index from " + size + " on is not available"*/);
 		}
 		
-		setAtPrimitiveIndex(index.toPrimitiveInt(), value);
+		setAtPrimitiveIndex(NativeNumberFactory.naturalToPrimitiveInt(index), value);
 	}
 
 	@Override
 	public Natural getSize() {
-		return Natural.valueOfNative(array.length);
+		return Natural64.valueOfNative(array.length);
 	}
 
 	@Override
@@ -170,7 +172,7 @@ final class NativeMaybeArray extends Array implements SmallArray {
 		for(int i =0; i < array.length; i++){
 			Any a = array[i];
 			if ((a == null && maybe.isAbsent()) || (a != null && maybe.is(a))){ 
-				return Some.constructor( JavaReifiedArguments.getInstance().addType(lense.core.math.Natural.TYPE_RESOLVER) , Natural.valueOfNative(i));
+				return Some.constructor( JavaReifiedArguments.getInstance().addType(lense.core.math.Natural.TYPE_RESOLVER) , Natural64.valueOfNative(i));
 			} 
 		}
 		return None.NONE;
@@ -183,7 +185,7 @@ final class NativeMaybeArray extends Array implements SmallArray {
 			
 			NativeMaybeArray n = (NativeMaybeArray)other;
 			
-			System.arraycopy(this.array, sourceIndex.toPrimitiveInt(), n.array, destinationIndex.toPrimitiveInt(),length.toPrimitiveInt());
+			System.arraycopy(this.array, NativeNumberFactory.naturalToPrimitiveInt(sourceIndex), n.array,   NativeNumberFactory.naturalToPrimitiveInt(destinationIndex), NativeNumberFactory.naturalToPrimitiveInt(length));
 			
 			return other;
 		} else {

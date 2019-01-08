@@ -5,8 +5,9 @@ import lense.core.lang.HashValue;
 import lense.core.lang.java.Constructor;
 import lense.core.lang.java.Property;
 import lense.core.lang.java.Signature;
-import lense.core.math.Integer;
+import lense.core.math.NativeNumberFactory;
 import lense.core.math.Natural;
+import lense.core.math.Natural64;
 
 @Signature("[+T<lense.core.lang.Any]::lense.core.collections.ResizableSequence<T>")
 public class List extends AbstractAssortment implements ResizableSequence {
@@ -14,7 +15,7 @@ public class List extends AbstractAssortment implements ResizableSequence {
 	private java.util.ArrayList<Any> list;
 
 	public List(Natural capacity) {
-		list = new java.util.ArrayList<>(capacity.toPrimitiveInt());
+		list = new java.util.ArrayList<>(NativeNumberFactory.naturalToPrimitiveInt(capacity));
 	}
 
 	public List() {
@@ -40,18 +41,18 @@ public class List extends AbstractAssortment implements ResizableSequence {
 
 	@Property(indexed = true, setter = true)
 	public void set(Natural index, Any value) {
-		list.set(index.toPrimitiveInt(), value);
+		list.set(NativeNumberFactory.naturalToPrimitiveInt(index), value);
 	}
 
 	@Override
 	@Property(indexed = true)
 	public Any get(Natural index) {
-		return list.get(index.toPrimitiveInt());
+		return list.get(NativeNumberFactory.naturalToPrimitiveInt(index));
 	}
 
 	@Override
 	public Natural getSize() {
-		return Natural.valueOfNative(list.size());
+		return Natural64.valueOfNative(list.size());
 	}
 
 	@Override

@@ -140,16 +140,16 @@ public class LenseTypeSystem {
 		return getInstance().getForName("lense.core.math.Natural").get();
 	}
 
-	public static TypeDefinition Decimal() {
-		return getInstance().getForName("lense.core.math.Decimal").get();
+	public static TypeDefinition Float() {
+		return getInstance().getForName("lense.core.math.Float").get();
 	}
 
 	public static TypeDefinition Rational() {
 		return getInstance().getForName("lense.core.math.Rational").get();
 	}
 
-	public static TypeDefinition Decimal64() {
-		return getInstance().getForName("lense.core.math.Decimal64").get();
+	public static TypeDefinition Float64() {
+		return getInstance().getForName("lense.core.math.Float64").get();
 	}
 
 	public static TypeDefinition Interval() {
@@ -159,8 +159,8 @@ public class LenseTypeSystem {
 	/**
 	 * @return
 	 */
-	public static TypeDefinition Decimal32() {
-		return getInstance().getForName("lense.core.math.Decimal32").get();
+	public static TypeDefinition Float32() {
+		return getInstance().getForName("lense.core.math.Float32").get();
 	}
 
 	/**
@@ -336,11 +336,11 @@ public class LenseTypeSystem {
 				new FundamentalLenseTypeDefinition("lense.core.lang.Binary", LenseUnitKind.Interface, any));
 
 		LenseTypeDefinition number = register(
-				new FundamentalLenseTypeDefinition("lense.core.math.Number", LenseUnitKind.Class, any));
+				new FundamentalLenseTypeDefinition("lense.core.math.Number", LenseUnitKind.Interface, any));
 		LenseTypeDefinition whole = register(
-				new FundamentalLenseTypeDefinition("lense.core.math.Whole", LenseUnitKind.Class, number));
+				new FundamentalLenseTypeDefinition("lense.core.math.Whole", LenseUnitKind.Interface, number));
 		LenseTypeDefinition natural = register(
-				new FundamentalLenseTypeDefinition("lense.core.math.Natural", LenseUnitKind.Class, whole));
+				new FundamentalLenseTypeDefinition("lense.core.math.Natural", LenseUnitKind.Interface, whole));
 
 		tuple.addMethod("get", any, new MethodParameter(natural, "index"));
 
@@ -356,18 +356,18 @@ public class LenseTypeSystem {
 				new TypeVariable[] { natural });
 
 		LenseTypeDefinition integer = register(
-				new FundamentalLenseTypeDefinition("lense.core.math.Integer", LenseUnitKind.Class, whole));
+				new FundamentalLenseTypeDefinition("lense.core.math.Integer", LenseUnitKind.Interface, whole));
 		LenseTypeDefinition sint = register(
-				new FundamentalLenseTypeDefinition("lense.core.math.Int32", LenseUnitKind.Class, integer));
+				new FundamentalLenseTypeDefinition("lense.core.math.Int32", LenseUnitKind.Value, integer));
 		register(
-				new FundamentalLenseTypeDefinition("lense.core.math.Int64", LenseUnitKind.Class, integer));
+				new FundamentalLenseTypeDefinition("lense.core.math.Int64", LenseUnitKind.Value, integer));
 		register(
-				new FundamentalLenseTypeDefinition("lense.core.math.Int16", LenseUnitKind.Class, integer));
+				new FundamentalLenseTypeDefinition("lense.core.math.Int16", LenseUnitKind.Value, integer));
 
-		sint.addConstructor(true, "valueOf", new ConstructorParameter(whole));
+		//sint.addConstructor(true, "valueOf", new ConstructorParameter(whole));
 
-		integer.addConstructor(true, "valueOf", new ConstructorParameter(natural));
-		integer.addConstructor(true, "valueOf", new ConstructorParameter(whole));
+		//integer.addConstructor(true, "valueOf", new ConstructorParameter(natural));
+		//integer.addConstructor(true, "valueOf", new ConstructorParameter(whole));
 
 		natural.addMethod("multiply", natural, new MethodParameter(natural));
 		natural.addMethod("remainder", natural, new MethodParameter(natural));
@@ -409,21 +409,21 @@ public class LenseTypeSystem {
 		
 
 		LenseTypeDefinition real = register(
-				new FundamentalLenseTypeDefinition("lense.core.math.Real", LenseUnitKind.Class, number));
+				new FundamentalLenseTypeDefinition("lense.core.math.Real", LenseUnitKind.Interface, number));
 
 		LenseTypeDefinition decimal = register(
-				new FundamentalLenseTypeDefinition("lense.core.math.Decimal", LenseUnitKind.Class, real));
-		register(new FundamentalLenseTypeDefinition("lense.core.math.Decimal64", LenseUnitKind.Class, decimal));
-		register(new FundamentalLenseTypeDefinition("lense.core.math.Decimal32", LenseUnitKind.Class, decimal));
+				new FundamentalLenseTypeDefinition("lense.core.math.Float", LenseUnitKind.Interface, real));
+		register(new FundamentalLenseTypeDefinition("lense.core.math.Float64", LenseUnitKind.Value, decimal));
+		register(new FundamentalLenseTypeDefinition("lense.core.math.Float32", LenseUnitKind.Value, decimal));
 
-		register(new FundamentalLenseTypeDefinition("lense.core.math.Rational", LenseUnitKind.Class, real));
+		register(new FundamentalLenseTypeDefinition("lense.core.math.Rational", LenseUnitKind.Value, real));
 
 		LenseTypeDefinition img = register(
-				new FundamentalLenseTypeDefinition("lense.core.math.Imaginary", LenseUnitKind.Class, number));
+				new FundamentalLenseTypeDefinition("lense.core.math.Imaginary", LenseUnitKind.Value, number));
 		img.addMethod("real", real);
 
 		LenseTypeDefinition complex = register(
-				new FundamentalLenseTypeDefinition("lense.core.math.Complex", LenseUnitKind.Class, number));
+				new FundamentalLenseTypeDefinition("lense.core.math.Complex", LenseUnitKind.Value, number));
 
 		LenseTypeDefinition interval = register(new FundamentalLenseTypeDefinition("lense.core.math.Interval",
 				LenseUnitKind.Class, any, new RangeTypeVariable("T", Variance.Invariant, any, nothing))); // TODO
@@ -441,7 +441,7 @@ public class LenseTypeSystem {
 		// console.addMethod("println", svoid, new MethodParameter(string));
 		//
 		LenseTypeDefinition version = register(
-				new FundamentalLenseTypeDefinition("lense.core.lang.Version", LenseUnitKind.Class, any));
+				new FundamentalLenseTypeDefinition("lense.core.lang.Version", LenseUnitKind.Value, any));
 
 		LenseTypeDefinition packagetype = register(
 				new FundamentalLenseTypeDefinition("lense.core.lang.reflection.Package", LenseUnitKind.Interface, any));
@@ -500,16 +500,6 @@ public class LenseTypeSystem {
 		return Optional.empty();
 	}
 
-	//    public boolean isAssignableTo(TypeVariable type, TypeVariable target) { // old IntervalTypeVariable
-	//        if (target.getVariance() == Variance.ContraVariant) {
-	//            isAssignableTo(target.getUpperBound(), type.getUpperBound());
-	//        } else if (target.getVariance() == Variance.Covariant) {
-	//            return isAssignableTo(type.getUpperBound(), target.getUpperBound());
-	//        }
-	//
-	//        return isAssignableTo(type.getUpperBound(), target.getUpperBound())
-	//                && isAssignableTo(type.getLowerBound(), target.getLowerBound());
-	//    }
 
 	public static boolean isAssignableTo(TypeVariable type, TypeVariable target) {
 		
@@ -828,12 +818,11 @@ public class LenseTypeSystem {
 	}
 
 	public static boolean isNumber(TypeDefinition maxType) {
-		return maxType.getName().startsWith("lense.core.math") && (
+		return isAssignableTo(maxType, Number()) || maxType.getName().startsWith("lense.core.math") && (
 				maxType.getName().endsWith("Natural")
 				|| maxType.getName().endsWith("Integer") 
-				|| maxType.getName().endsWith("Decimal")
-				|| isAssignableTo(maxType, Number())
-	    );
+				|| maxType.getName().endsWith("Real")
+		);
 	}
 
 	public boolean isTuple(TypeVariable type, int count) {

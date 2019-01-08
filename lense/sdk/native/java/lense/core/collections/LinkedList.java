@@ -7,7 +7,9 @@ import lense.core.lang.java.MethodSignature;
 import lense.core.lang.java.Property;
 import lense.core.lang.java.Signature;
 import lense.core.lang.reflection.ReifiedArguments;
+import lense.core.math.NativeNumberFactory;
 import lense.core.math.Natural;
+import lense.core.math.Natural64;
 
 @Signature("[+T<lense.core.lang.Any]::lense.core.collections.ResizableSequence<T>")
 public class LinkedList extends AbstractAssortment implements ResizableSequence {
@@ -38,18 +40,18 @@ public class LinkedList extends AbstractAssortment implements ResizableSequence 
 	@Override @Property(indexed = true , name = "", setter = true)
 	@MethodSignature( returnSignature = "" , paramsSignature = "lense.core.math.Natural,T", declaringType = "lense.core.collections.EditableSequence" , overloaded = true)
 	public void set(Natural index, Any element) {
-		list.set(index.toPrimitiveInt(), element);
+		list.set(NativeNumberFactory.naturalToPrimitiveInt(index), element);
 	}
 
 	@Override @Property(indexed = true , name = "")
     @MethodSignature( returnSignature = "T" , paramsSignature = "lense.core.math.Natural",declaringType = "lense.core.collections.Sequence" , overloaded = true)
 	public Any get(Natural index) {
-		return list.get(index.toPrimitiveInt());
+		return list.get(NativeNumberFactory.naturalToPrimitiveInt(index));
 	}
 
 	@Override @Property(name = "size")
 	public Natural getSize() {
-		return Natural.valueOfNative(list.size());
+		return Natural64.valueOfNative(list.size());
 	}
 
 	@Override @Property(name = "iterator")

@@ -3,15 +3,18 @@ package lense.core.math;
 import lense.core.lang.Any;
 import lense.core.lang.HashValue;
 import lense.core.lang.java.Constructor;
-import lense.core.lang.java.PlatformSpecific;
+import lense.core.lang.java.Signature;
+import lense.core.lang.java.ValueClass;
+import lense.core.lang.reflection.Type;
 
-@PlatformSpecific
-public final class Imaginary extends Number{
+@Signature("::lense.core.math.Number")
+@ValueClass
+public final class Imaginary implements Number{
 
 	
 	@Constructor(paramsSignature = "")
 	public static Imaginary constructor (){
-		return valueOf(Real.ZERO);
+		return valueOf(Rational.ZERO);
 	}
 	
 	@Constructor(paramsSignature = "lense.core.math.Real")
@@ -43,27 +46,27 @@ public final class Imaginary extends Number{
 	
 	
 	public Complex plus(Whole other) {
-		return plus(Real.valueOf(other));
+		return plus(Rational.valueOf(other));
 	}
 
 	public Complex minus(Whole other) {
-		return minus(Real.valueOf(other));
+		return minus(Rational.valueOf(other));
 	}
 
 	public Imaginary multiply(Whole other) {
-		return multiply(Real.valueOf(other));
+		return multiply(Rational.valueOf(other));
 	}
 
 	public Imaginary divide(Whole other) {
-		return divide(Real.valueOf(other));
+		return divide(Rational.valueOf(other));
 	}
 	
 	public Complex plus(Real other) {
-		return Complex.constructor(other, value);
+		return Complex.retangular(other, value);
 	}
 
 	public Complex minus(Real other) {
-		return Complex.constructor(value.symmetric(), value);
+		return Complex.retangular(value.symmetric(), value);
 	}
 
 	public Imaginary multiply(Real other) {
@@ -100,4 +103,9 @@ public final class Imaginary extends Number{
     public boolean isZero() {
         return value.isZero();
     }
+
+	@Override
+	public Type type() {
+		return Type.fromName(this.getClass().getName());
+	}
 }

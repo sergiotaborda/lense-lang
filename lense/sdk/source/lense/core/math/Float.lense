@@ -1,0 +1,10 @@
+import lense.core.math.Real;
+
+public  interface Float extends Number {
+
+
+	public isNaN : Boolean { get; }
+	public isPositiveInfinity : Boolean { get; }
+	public isNegativeInfinity : Boolean { get; }
+	public isNegativeZero : Boolean { get; }
+}

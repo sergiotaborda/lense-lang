@@ -12,7 +12,7 @@ class NativeOrdinalIterator implements Iterator{
 	private Ordinal last;
 	private Ordinal first;
 	private boolean includeEnd;
-	private boolean stop = false;
+	private boolean stopped = false;
 	
 	NativeOrdinalIterator(NativeOrdinalProgression nativeOrdinalProgression, Ordinal first){
 	    this.first = first;
@@ -23,7 +23,7 @@ class NativeOrdinalIterator implements Iterator{
 	@Override
 	public boolean moveNext() {
 	    
-	    if (stop){
+	    if (stopped){
 	        return false;
 	    }
 	    
@@ -33,18 +33,19 @@ class NativeOrdinalIterator implements Iterator{
 		} 
 		
 		Ordinal next = (Ordinal)current.successor();
-		if (!next.equalsTo(last)){
+		if (next.equalsTo(last)){
+			stopped = true;
+			
+			if (includeEnd){
+			    current = next;
+	            return true;
+			} 
+			return false;
+		} else {
 			current = next;
 			return true;
 		}
-		
-		stop = true;
-		
-		if (includeEnd){
-		    current = next;
-            return true;
-		}
-		return false;
+
 	}
 
 	@Override

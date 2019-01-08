@@ -10,19 +10,24 @@ import lense.core.lang.None;
 import lense.core.lang.Some;
 import lense.core.lang.String;
 import lense.core.lang.java.Base;
+import lense.core.lang.reflection.JavaReifiedArguments;
 import lense.core.lang.reflection.ReifiedArguments;
+import lense.core.lang.reflection.TypeResolver;
 import lense.core.math.Natural;
+import lense.core.math.Natural64;
 
 public class Dictionary extends Base implements Association {
 
 	public static Dictionary fromKeyValueArray(ReifiedArguments args, KeyValuePair ... pairs){
-		return new Dictionary(pairs);
+		return new Dictionary( args,pairs);
 		
 	}
 	
 	private Map<Any,Any> map = new HashMap<>();
+	private ReifiedArguments args;
 	
-	public Dictionary(KeyValuePair[] pairs) {
+	public Dictionary(ReifiedArguments args,KeyValuePair[] pairs) {
+		this.args = args;
 		for(KeyValuePair pair : pairs){
 			map.put(pair.getKey(), pair.getValue());
 		}
@@ -71,7 +76,7 @@ public class Dictionary extends Base implements Association {
 
 	@Override
 	public Natural getSize() {
-		return Natural.valueOfNative(map.size());
+		return Natural64.valueOfNative(map.size());
 	}
 
 	@Override
@@ -85,7 +90,7 @@ public class Dictionary extends Base implements Association {
 		if (value == null){
 			return None.NONE;
 		} else {
-			return Some.constructor(null, value); 
+			return Some.constructor(JavaReifiedArguments.getInstance().addType(args.typeAt(Natural64.ONE)) , value); 
 		}
 	}
 

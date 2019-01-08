@@ -1,160 +1,46 @@
 package lense.core.math;
 
-import java.math.BigInteger;
+import lense.core.lang.Ordinal;
+import lense.core.lang.java.Signature;
 
-import lense.core.lang.HashValue;
-import lense.core.lang.java.Constructor;
-import lense.core.lang.java.NonNull;
-import lense.core.lang.java.PlatformSpecific;
+@Signature("::lense.core.math.Whole&lense.core.math.SignedNumber&lense.core.math.Comparable<lense.core.math.Integer>")
+public interface Integer extends Whole , Comparable, SignedNumber, Ordinal, Progressable {
 
-public abstract class Integer extends Whole implements Comparable, SignedNumber{
+	public Integer symmetric();
 
-	@Constructor(paramsSignature = "")
-	public static Integer constructor(){
-		return Int32.valueOfNative(0);
-	}
+	public Integer plus (Integer other);
+	public Integer multiply(Integer other);
 
-	@Constructor(isImplicit = true, paramsSignature = "lense.core.math.Natural")
-	public static Integer valueOf(Natural n){
-		return new BigInt(n.asJavaBigInteger());
-	}
 
-	@Constructor(isImplicit = true, paramsSignature = "lense.core.math.Whole")
-	public static Integer valueOf(Whole whole) {
-		if (whole instanceof Integer){
-			return (Integer) whole;
-		} else {
-			return valueOf((Natural)whole);
-		}
-	}
-
-	public abstract Integer symmetric();
-
-	public static final Integer ZERO = Integer.valueOfNative(0);
-	public static final Integer ONE =  Integer.valueOfNative(1);
-
-	public abstract Integer plus (Integer other);
-	public abstract Integer multiply(Integer predecessor);
-
-	public abstract Integer minus(Integer other);
+	public Integer minus (Natural other);
 	
+	public Integer plus (Natural other);
 	
-	public final Whole wrapMinus(Whole other) {
-		return this.wrapMinus(other.asInteger());
-	}
+	public Integer multiply (Natural other);
 	
-	public Rational divide(Integer other){
-		return super.divide(other);
-	}
-	
-	@PlatformSpecific
-	public static Integer valueOfNative(int n) {
-		return Int32.valueOfNative(n);
-	}
-	@PlatformSpecific
-	public static Integer valueOfNative(long n) {
-		return Int64.valueOfNative(n);
-	}
-	@PlatformSpecific
-	public static Integer valueOfNative(String n) {
-		return valueOfNative(new BigInteger(n));
-	}
-	@PlatformSpecific
-	public static Integer valueOfNative(BigInteger n) {
-
-		if (n.bitLength() <= 32){
-			return Int32.valueOfNative(n.intValue());
-		} else if (n.bitLength() <= 64){
-			return Int64.valueOfNative(n.longValue());
-		}
-		return new BigInt(n);
-	}
+	public Integer minus(Integer other);
 	
 
-	public final boolean isLessThen(@NonNull Integer other) {
-		return 	 compareTo(other) < 0;
-	}
+	public Integer wholeDivide(Integer other);
 	
-    public final boolean isLessOrEqualTo(@NonNull Integer other) {
-        return  compareTo(other) <= 0;
-    }
+	public Integer wholeDivide(Natural other);
 
-	@Override
-	protected Integer asInteger() {
-		return this;
-	}
+	public Integer remainder (Integer other); 
 	
-	public abstract HashValue hashValue();
-
-	public abstract Integer successor();
-	public abstract Integer predecessor();
+	public Integer successor();
+	public Integer predecessor();
 
 	
-	public abstract Integer signum();
+	public Integer sign();
 
-	public abstract boolean isZero();
-    public abstract boolean isOne();
+	public boolean isZero();
+    public boolean isOne();
 
-    public abstract boolean isNegative();
-
-    public @NonNull Integer raiseTo(Natural other) {
-        if (this.isZero()){
-            if (other.isZero()){
-                return Integer.ONE;
-            }
-            return this;
-        } else if (this.isOne()){
-            return Integer.ONE;
-        } else if (other.isZero()){
-            return Integer.ONE;
-        } else if (other.isOne()){
-            return this;
-        } else if (other.compareTo(Integer.valueOfNative(2)) == 0){
-            return  this.multiply(this);
-        } else if (other.compareTo(Integer.valueOfNative(3)) == 0){
-            return  this.multiply(this).multiply(this);
-        }
-        return new BigInt(this.asJavaBigInteger()).raiseTo(other);
-    }
+    public boolean isNegative();
     
-    public @NonNull Real raiseTo(Real other) {
-        if (this.isZero()){
-            if (other.isZero()){
-                return Real.ONE;
-            }
-            return Real.valueOf(this);
-        } else if (this.isOne()){
-            return Real.ONE;
-        } else if (other.isZero()){
-            return Real.ONE;
-        } else if (other.isOne()){
-            return Real.valueOf(this);
-        } 
-        return new BigDecimal(this.asJavaBigInteger()).raiseTo(other);
-    }
-    
+    public Integer raiseTo(Natural other);
+
+    public Real raiseTo(Real other) ;
     
 
-    public Integer wholeDivide ( Natural other) {
-        if (other.isZero()){
-            throw ArithmeticException.constructor(lense.core.lang.String.valueOfNative("Cannot divide by zero"));
-        }  
-        return Integer.valueOfNative(this.asJavaBigInteger().divide(other.asJavaBigInteger()));
-    }
-    
-    public Integer wholeDivide (Integer other){
-        if (other.isZero()){
-            throw ArithmeticException.constructor(lense.core.lang.String.valueOfNative("Cannot divide by zero"));
-        }  
-        return Integer.valueOfNative(this.asJavaBigInteger().divide(other.asJavaBigInteger()));
-    }
-
-    public Integer remainder (Integer other){
-        if (other.isZero()){
-            throw ArithmeticException.constructor(lense.core.lang.String.valueOfNative("Cannot divide by zero"));
-        }  
-        return Integer.valueOfNative(this.asJavaBigInteger().remainder(other.asJavaBigInteger()));
-    }
-
-    public abstract int toPrimitiveInt() ;
 }

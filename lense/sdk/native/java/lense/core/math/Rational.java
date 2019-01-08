@@ -4,9 +4,24 @@ import lense.core.lang.Any;
 import lense.core.lang.HashValue;
 import lense.core.lang.java.Constructor;
 import lense.core.lang.java.NonNull;
+import lense.core.lang.java.Signature;
+import lense.core.lang.java.ValueClass;
+import lense.core.lang.reflection.Type;
 
-public final class Rational extends Real {
+@Signature("::lense.core.math.Real")
+@ValueClass 
+public final class Rational implements Real  {
 
+	
+	public static final Rational ZERO = new Rational(Int32.ZERO, Int32.ONE);
+	public static final Rational ONE = new Rational(Int32.ONE, Int32.ONE);
+	public static final Rational HALF = new Rational(Int32.ONE, Int32.TWO);
+	
+	
+	@Constructor(paramsSignature = "")
+    public static Rational valueOf(Whole n){
+        return new Rational(n.asInteger(), Int32.ONE);
+    }
 	@Constructor(paramsSignature = "")
     public static Rational constructor(Integer n , Integer d){
         return new Rational(n,d);
@@ -16,7 +31,7 @@ public final class Rational extends Real {
     private Natural denominator;
 
     private Rational(@NonNull Integer n, @NonNull Integer d) {
-        numerator = n;
+        numerator = n.multiply(d.sign());
         denominator = d.abs();
     }
     
@@ -33,18 +48,9 @@ public final class Rational extends Real {
         return denominator;
     }
 
-    @Override
-    public boolean equalsTo(Any other) {
-        return other instanceof Rational &&  equalsTo((Rational)other);
-    }
 
     public boolean equalsTo(Rational other) {
-        return this.numerator.compareTo(other.numerator) == 0 && this.denominator.compareTo(other.denominator) == 0;
-    }
-
-    @Override
-    public final HashValue hashValue(){
-        return new HashValue(numerator.hashCode() ^ denominator.hashCode());
+        return this.numerator.compareWith(other.numerator).isEqual() && this.denominator.compareWith(other.denominator).isEqual();
     }
 
 
@@ -71,7 +77,7 @@ public final class Rational extends Real {
 
     public Rational plus(Rational other) {
         return symplify(
-                this.denominator.multiply(other.numerator).plus(this.denominator.multiply(other.numerator)) , 
+                this.denominator.multiply(other.numerator).plus(other.denominator.multiply(this.numerator)) , 
                 this.denominator.multiply(other.denominator) 
                 );
     }
@@ -143,8 +149,8 @@ public final class Rational extends Real {
     }
 
     @Override
-    public Integer signum() {
-        return numerator.signum();
+    public Integer sign() {
+        return numerator.sign();
     }
 
     private Real promoteNext() {
@@ -152,20 +158,15 @@ public final class Rational extends Real {
     }
 
     @Override
-    protected BigDecimal promoteToBigDecimal() {
-        return new BigDecimal(new java.math.BigDecimal(numerator.asJavaBigInteger().divide(this.denominator.asJavaBigInteger()).toString()));
-    }
-
-    @Override
     public Real raiseTo(Real other) {
         if (this.isZero()){
             if (other.isZero()){
-                return Real.ONE;
+                return Rational.ONE;
             }
             return this;
         }
         if (other.isWhole()){
-            Integer p = other.asInteger();
+            Integer p = other.floor();
             Natural n = p.abs();
             Rational result = new Rational(this.numerator.raiseTo(n), this.denominator.raiseTo(n));
             if (p.isNegative()){
@@ -177,21 +178,24 @@ public final class Rational extends Real {
         }
     }
 
-    private Rational invert() {
+    private BigDecimal promoteToBigDecimal() {
+		return BigDecimal.constructor(this);
+	}
+
+	private Rational invert() {
         if (this.isZero()){
             throw ArithmeticException.constructor(lense.core.lang.String.valueOfNative("Cannot invert zero"));
         }
-        return new Rational(this.denominator.multiply(Integer.ONE), this.numerator.abs());
+        return new Rational(this.denominator.multiply(Int32.ONE), this.numerator.abs());
     }
 
-    @Override
-    public Integer asInteger() {
-        return promoteToBigDecimal().asInteger();
+    public Integer floor() {
+        return numerator.wholeDivide(denominator);
     }
 
     @Override
     public boolean isWhole() {
-        return this.promoteToBigDecimal().isWhole();
+        return this.denominator.isOne();
     }
 
     @Override
@@ -199,10 +203,73 @@ public final class Rational extends Real {
         return new Rational(this.numerator.abs().asInteger(), this.denominator.abs().asInteger());
     }
 
+
+
+	@Override
+	public Integer ceil() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 	
 
 
 
+	public String toString() {
+		return numerator.toString() + "/" + denominator.toString();
+	}
 
+    @Override
+    public final HashValue hashValue(){
+        return new HashValue(numerator.hashCode() + 7 * denominator.hashCode());
+    }
+    
+	public int hashCode() {
+		return numerator.hashCode() + 7 * denominator.hashCode();
+	}
+	
+	public boolean equals(Object other) {
+		return other instanceof Any && equalsTo((Any)other);
+	}
+	
+	public boolean equalsTo(Any other) {
+		return this.compareWith(other).isEqual();
+	}
 
+	
+    @Override
+	public Comparison compareWith(Any other) {
+		if (other instanceof Rational) {
+			return this.numerator.multiply(((Rational) other).numerator).minus(((Rational)other).numerator.multiply( this.numerator)).sign().compareWith(Int32.ZERO);
+		} else if (other instanceof Number && other instanceof Comparable) {
+			throw new UnsupportedOperationException("Not implemented yet");
+		} 
+		throw new ClassCastException("Cannot compare Rational to " + other.getClass().getName());
+	}
+	
+
+	@Override
+	public boolean isNaN() {
+		return false;
+	}
+	
+	@Override
+	public boolean isNegativeInfinity() {
+		return false;
+	}
+	
+	@Override
+	public boolean isPositiveInfinity() {
+		return false;
+	}
+	
+	@Override
+	public boolean isInfinity() {
+		return false;
+	}
+
+	@Override
+	public Type type() {
+		return Type.fromName(this.getClass().getName());
+	}
 }

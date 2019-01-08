@@ -100,10 +100,7 @@ import lense.compiler.ast.VariableWriteNode;
 import lense.compiler.ast.WhileNode;
 import lense.compiler.context.SemanticContext;
 import lense.compiler.context.VariableInfo;
-import lense.compiler.crosscompile.ErasurePointNode;
-import lense.compiler.crosscompile.ErasurePointNode.BoxingDirection;
 import lense.compiler.crosscompile.PrimitiveBooleanValue;
-import lense.compiler.crosscompile.PrimitiveTypeDefinition;
 import lense.compiler.crosscompile.VariableRange;
 import lense.compiler.type.CallableMemberMember;
 import lense.compiler.type.Constructor;
@@ -139,7 +136,7 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 
     private Map<TypeVariable, List<TypeDefinition>> enhancements = new HashMap<>();
 
-    private final LenseTypeSystem lenseTypeSystem;
+	private final LenseTypeSystem lenseTypeSystem;
 
     public SemanticVisitor(SemanticContext sc) {
         super(sc);
@@ -175,7 +172,7 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
                 if (!this.currentType.isAbstract() && !this.currentType.isNative()) {
                     for (List<Method> list : expectedMethods.values()) {
                         for (Method m : list) {
-                            if (!m.isNative() && !m.isPropertyBridge() && m.isAbstract()) {
+                            if (!m.isNative() && !m.isPropertyBridge() && m.isAbstract() && !m.isDefault()) {
                                 throw new CompilationError(this.currentType.getName()
                                         + " is not abstract and does not implement abstract method " + m.getName()
                                         + " in " + m.getDeclaringType().getName());
@@ -501,6 +498,11 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 
                 superType = this.getSemanticContext().typeForName(superTypeNode).getTypeDefinition();
 
+				if (t.isValueClass()) {
+					throw new CompilationError(t, "Value classes cannot inherit from other types. They can only implement interfaces");
+				}
+				
+				superType = this.getSemanticContext().typeForName(superTypeNode).getTypeDefinition();
                 if (superType.isGeneric()) {
 
                     if (t.getKind().isEnhancement()) {
@@ -589,9 +591,8 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
                 }
             }
 
-            // algebric values
-            if (t.isAlgebric()) {
-
+			// algebric values
+			if (t.isAlgebric() && !t.isNative()) {
                 myType.setAlgebric(true);
 
                 List<TypeDefinition> chidlValues = new ArrayList<>(t.getAlgebricChildren().getChildren().size());
@@ -600,10 +601,10 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
                 for (AstNode n : t.getAlgebricChildren().getChildren()) {
                     ChildTypeNode ctn = (ChildTypeNode) n;
 
-                    TypeDefinition childType = this.getSemanticContext()
-                            .resolveTypeForName(ctn.getType().getName(), ctn.getType().getTypeParametersCount()).get()
-                            .getTypeDefinition();
-
+					TypeDefinition childType = this.getSemanticContext()
+							.resolveTypeForName(ctn.getType().getName(), ctn.getType().getTypeParametersCount()).orElseThrow(() ->  new CompilationError(ctn, "No type defined"))
+							.getTypeDefinition();
+					
                     if (childType.getTypeDefinition().getKind().isObject()) {
                         chidlValues.add(childType);
                     } else {
@@ -915,7 +916,7 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
                 }
 
             } else {
-				// 2. check if left as an exention method equivalent to left.posBindWith(right)
+				// 2. check if left as an extension method equivalent to left.posBindWith(right)
 				// TODO 
 
                 // 3. check if right is PresBindable right.preBindWith(left)
@@ -932,7 +933,7 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 
                         m.setTypeVariable(method.get().getReturningType());
                     } else {
-						throw new CompilationError(right, "Expression is not bindable to " + left.getTypeVariable().toString());
+						throw new CompilationError(node, "Expression is not bindable to " + left.getTypeVariable().toString());
                     }
 
                 } else {
@@ -1513,25 +1514,20 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 
                             someTpe = LenseTypeSystem.specify(someTpe, right);
 
-                            promoteNodeType(rightNode, someTpe);
+							promoteNodeType(n.getRight(), someTpe);
+						} else if (n.getRight() instanceof NumericValue) {
 
-                        } else {
-                            throw new CompilationError(node, right + " is not assignable to " + left);
-                        }
+							promoteNodeType(n.getRight(), left);
+						} else {
+							throw new CompilationError(node, right + " is not assignable to " + left);
+						}
 
-                    } else {
-                        // TODO change to promote node, promotion is implicit
-                        // constructor based
-                        Optional<Constructor> op = left.getTypeDefinition()
-                                .getConstructorByParameters(new ConstructorParameter(right));
-
-                        NewInstanceCreationNode cn = NewInstanceCreationNode.of(op.get(), rightNode);
-                        cn.getCreationParameters().getTypeParametersListNode()
-                                .add(new GenericTypeParameterNode(new TypeNode(left)));
-
-                        n.replace((AstNode) rightNode, cn);
-                    }
-                }
+					} else {
+						
+						promoteNodeType(n.getRight(), left);
+						
+					}
+				}
 
                 if (leftNode instanceof VariableWriteNode) {
                     VariableInfo info = this.getSemanticContext().currentScope()
@@ -1596,8 +1592,10 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
                     IndexedPropertyReadNode a = (IndexedPropertyReadNode)leftNode;
                     
                     ArgumentListNode list = new ArgumentListNode(a.getArguments());
-                   
+
                     list.add(rightNode);
+                    
+                    list.getLastArgument().setExpectedType(rightNode.getTypeVariable());
                     
                     MethodInvocationNode mth = new MethodInvocationNode(a.getAccess(), "set", list);
                     mth.setIndexDerivedMethod(true);
@@ -1611,19 +1609,19 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
             } else if (node instanceof TernaryConditionalExpressionNode) {
                 TernaryConditionalExpressionNode ternary = (TernaryConditionalExpressionNode) node;
 
-                TypeVariable type = typeSystem.unionOf(ternary.getThenExpression().getTypeVariable(),
+                TypeVariable type = lenseTypeSystem.unionOf(ternary.getThenExpression().getTypeVariable(),
                         ternary.getElseExpression().getTypeVariable());
 
                 if (type instanceof UnionType) {
                     UnionType unionType = (UnionType) type;
 
-                    if (typeSystem.isAssignableTo(unionType.getLeft(), unionType.getRight())) {
+                    if (lenseTypeSystem.isAssignableTo(unionType.getLeft(), unionType.getRight())) {
                         type = unionType.getRight(); // TODO promote side
-                    } else if (typeSystem.isAssignableTo(unionType.getRight(), unionType.getLeft())) {
+                    } else if (lenseTypeSystem.isAssignableTo(unionType.getRight(), unionType.getLeft())) {
                         type = unionType.getLeft(); // TODO promote side
-                    } else if (typeSystem.isPromotableTo(unionType.getLeft(), unionType.getRight())) {
+                    } else if (lenseTypeSystem.isPromotableTo(unionType.getLeft(), unionType.getRight())) {
                         type = unionType.getRight(); // TODO promote side
-                    } else if (typeSystem.isPromotableTo(unionType.getRight(), unionType.getLeft())) {
+                    } else if (lenseTypeSystem.isPromotableTo(unionType.getRight(), unionType.getLeft())) {
                         type = unionType.getLeft(); // TODO promote side
                     }
 
@@ -1641,7 +1639,7 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
             } else if (node instanceof ScopedVariableDefinitionNode) {
                 ScopedVariableDefinitionNode variableDeclaration = (ScopedVariableDefinitionNode) node;
 
-                TypedNode init = variableDeclaration.getInitializer();
+                ExpressionNode init = variableDeclaration.getInitializer();
 
                 TypeVariable type = variableDeclaration.getTypeVariable();
 
@@ -1757,7 +1755,8 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
                             //
                             // node.replace((AstNode) init, cn);
                         } else {
-							throw new CompilationError(node,	right + " is not assignable to variable '" + info.getName() + "' of type " + type);
+                        	promoteNodeType(init, type);
+							//throw new CompilationError(node,	right + " is not assignable to variable '" + info.getName() + "' of type " + type);
                         }
                     }
                 }
@@ -1788,10 +1787,10 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 
                     TypeVariable propType = p.getType().getTypeVariable();
                     if (!typeSystem.isAssignableTo(expType, propType)) {
-                        if (!typeSystem.isPromotableTo(expType, propType)) {
-                            throw new CompilationError(node,
-                                    expType + " is not assignable to " + propType + " in property " + p.getName());
-                        } else {
+//                        if (!typeSystem.isPromotableTo(expType, propType)) {
+//                            throw new CompilationError(node,
+//                                    expType + " is not assignable to " + propType + " in property " + p.getName());
+//                        } else {
 
                             promoteNodeType(exp, propType);
 							//
@@ -1805,7 +1804,7 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 							// .add(new GenericTypeParameterNode(new TypeNode(propType)));
                             //
                             // p.replace(exp, cn);
-                        }
+                      //  }
                     }
                 }
 
@@ -2472,7 +2471,7 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 
                         for (Map.Entry<TypeVariable, List<TypeDefinition>> entry : this.enhancements.entrySet()) {
 
-                            if (lenseTypeSystem.isAssignableTo(methodOwnerType, entry.getKey())) {
+                            if (LenseTypeSystem.isAssignableTo(methodOwnerType, entry.getKey())) {
 
                                 for (TypeDefinition enhancement : entry.getValue()) {
                                     method = enhancement.getMethodByPromotableSignature(signature);
@@ -2720,15 +2719,13 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 
             } else if (node instanceof ConditionalStatement) {
 
-				if (!((ConditionalStatement) node).getCondition().getTypeVariable().getTypeDefinition().equals(LenseTypeSystem.Boolean())
-				        && !((ConditionalStatement) node).getCondition().getTypeVariable().getTypeDefinition().equals(PrimitiveTypeDefinition.BOOLEAN)
-				        ) {
-                    throw new CompilationError(
-                            "Condition must be a Boolean value, found " + ((ConditionalStatement) node).getCondition()
-                                    .getTypeVariable().getTypeDefinition().getName());
-                }
-            } else if (node instanceof ForEachNode) {
-                ForEachNode n = (ForEachNode) node;
+				TypeVariable conditionType = ((ConditionalStatement) node).getCondition().getTypeVariable();
+				
+				if (!this.lenseTypeSystem.isBoolean(conditionType)) {
+					throw new CompilationError(node, "Condition must be a Boolean value, found " + conditionType.getTypeDefinition());
+				}
+			} else if (node instanceof ForEachNode) {
+				ForEachNode n = (ForEachNode) node;
 
                 if (!typeSystem.isAssignableTo(n.getContainer().getTypeVariable(), LenseTypeSystem.Iterable())) {
 
@@ -2894,10 +2891,9 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 
                     if (!arg.getName().isPresent()) {
                         // positional. must match parameter
-                        if (!LenseTypeSystem.isAssignableTo(((TypedNode) arg.getFirstChild()).getTypeVariable(),
-                                p.getType())
-                                && !lenseTypeSystem.isPromotableTo(((TypedNode) arg.getFirstChild()).getTypeVariable(),
-                                        p.getType())) {
+                        if (!LenseTypeSystem.isAssignableTo(((TypedNode) arg.getFirstChild()).getTypeVariable(),p.getType())
+                                && !lenseTypeSystem.isPromotableTo(((TypedNode) arg.getFirstChild()).getTypeVariable(), p.getType())
+                        ) {
                             continue outter;
                         }
                     }
@@ -3322,17 +3318,14 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
             parent.replace(node, cn);
 
             return cn;
-        }
-
-        if (!lenseTypeSystem.isPromotableTo(nodeType, targetType)) {
-
+        } else if (node instanceof NumericValue && LenseTypeSystem.isNumber(targetType.getTypeDefinition())) {
+			((NumericValue) node).setTypeVariable(targetType);
+			return node;
+		} 
+		
+	    if (!lenseTypeSystem.isPromotableTo(nodeType, targetType)) {
             // TODO promote using extension
             throw new CompilationError(node, nodeType + " is not assignable to " + targetType);
-        }
-
-        if (node instanceof NumericValue && LenseTypeSystem.isNumber(targetType.getTypeDefinition())) {
-            ((NumericValue) node).setTypeVariable(targetType);
-            return node;
         } else {
 			Optional<Constructor> op = targetType.getTypeDefinition().getConstructorByParameters(new ConstructorParameter(nodeType));
 

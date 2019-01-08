@@ -4,13 +4,13 @@ import lense.core.math.Real;
 import lense.core.math.Whole;
 import lense.core.math.Equal;
 
-public class Imaginary extends Number implements Comparable<Imaginary> {
+public value class Imaginary implements Number , Comparable<Imaginary> {
 
 
 	public implicit constructor valueOf ( private value : Real);
 	
 	public constructor (){
-		return new Imaginary.valueOf(new Real.zero());
+		return new Imaginary.valueOf(0.0);
 	}
 	
 	public real() => value;
@@ -23,17 +23,17 @@ public class Imaginary extends Number implements Comparable<Imaginary> {
 	
 	public divide( other: Imaginary) => this.value.divide(other.value);
 
-	public plus( other: Whole ) =>  plus(new Real.valueOf(other));
+	public plus( other: Whole ) =>  plus( other.divide(1) );
 
-	public minus( other : Whole) =>  minus(new Real.valueOf(other));
+	public minus( other : Whole) =>  minus( other.divide(1) );
 
-	public multiply( other: Whole) => multiply(new Real.valueOf(other));
+	public multiply( other: Whole) => multiply( other.divide(1) );
 
-	public divide( other : Whole) => divide(new Real.valueOf(other));
+	public divide( other : Whole) => divide( other.divide(1) );
 
-	public plus( other: Real) => new Complex(other, this.value);
+	public plus( other: Real) => new Complex.retangular(other, this.value);
 
-	public minus( other: Real ) => new Complex(-other, this.value);
+	public minus( other: Real ) => new Complex.retangular(-other, this.value);
 
 	public multiply( other: Real) => new Imaginary(this.value * other);
 
@@ -43,7 +43,7 @@ public class Imaginary extends Number implements Comparable<Imaginary> {
 
 	public symmetric() => new Imaginary(-this.value);
 	
-	public signum() => value.signum();
+	public sign() => value.sign();
 	
 	public override equalsTo( other : Any) {
 		return (other is Imaginary) && this.value.equalsTo(other.value);

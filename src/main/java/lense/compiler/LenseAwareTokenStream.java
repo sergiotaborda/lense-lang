@@ -53,14 +53,24 @@ class LenseAwareTokenStream implements TokenStream {
 			t = buffer.poll();
 		}
 
-		if (t.isKeyword() && (t.getText().get().equals("out") || t.getText().get().equals("in") )){
-			Token previous = original.peekPrevious();
-			if (previous.isOperator() && previous.getText().get().equals(".")){
-				// if keywords are used after a . they are not consider keywords. 
-				// This is to maintain compatibility with System.in and System.out
-				// TODO revise if this is really needed
-				return new SymbolBasedToken(t.getPosition(), t.getText().get(),TokenSymbol.ID );
+		if (t.isKeyword()){
+			
+			if (t.getText().get().equals("out")|| t.getText().get().equals("in")) {
+				Token previous = original.peekPrevious();
+				if (previous.isOperator() && previous.getText().get().equals(".")){
+					// if keywords are used after a . they are not consider keywords. 
+					// This is to maintain compatibility with System.in and System.out
+					// TODO revise if this is really needed
+					return new SymbolBasedToken(t.getPosition(), t.getText().get(),TokenSymbol.ID );
+				} 
+			} else if (t.getText().get().equals("value")) {
+				Token previous = original.peekNext();
+				if (!previous.isKeyword() || !previous.getText().get().equals("class")){
+					// value is only a keyword when used before the class keyword
+					return new SymbolBasedToken(t.getPosition(), t.getText().get(),TokenSymbol.ID );
+				}
 			}
+			
 		} else if (t.isOperator()){
 			if (t.getText().get().equals("<")){
 				openClose.push('<');
@@ -130,4 +140,11 @@ class LenseAwareTokenStream implements TokenStream {
 		return original.peekPrevious();
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Token peekNext() {
+		return original.peekNext();
+	}
 }

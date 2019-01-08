@@ -6,6 +6,7 @@ import lense.core.lang.reflection.ReifiedArguments;
 import lense.core.lang.reflection.Type;
 import lense.core.lang.reflection.TypeResolver;
 import lense.core.math.Natural;
+import lense.core.math.Natural64;
 
 @Signature("[=T<lense.core.lang.Any]::")
 public class Some extends Maybe{
@@ -15,7 +16,7 @@ public class Some extends Maybe{
 	
     @Constructor(paramsSignature = "T")
 	public static Some constructor(ReifiedArguments args, Any value){
-		return new Some(value,args.typeAt(Natural.ZERO));
+		return new Some(value,args.typeAt(Natural64.ZERO));
 	}
 	
 	private Some(Any value, TypeResolver innerTypeResolver){
