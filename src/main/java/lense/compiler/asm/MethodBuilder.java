@@ -37,6 +37,7 @@ public class MethodBuilder {
 	public boolean overloaded;
 	public String declaringType;
 	public String boundedTypes;
+	public boolean isOverride;
 
 	public MethodBuilder(LoadedClassBuilder loadedClassBuilder, MethodAsmInfo info) {
 		this.loadedClassBuilder  = loadedClassBuilder;
@@ -164,6 +165,8 @@ public class MethodBuilder {
 		Method m = new Method(isProperty, info.getVisibility(), info.getName(), r, params);
 	
 		m.setAbstract(info.isAbstract());
+		m.setDefault(info.isDefault());
+		m.setOverride(isOverride);
 
 		if (overloaded) {
 			 m.setDeclaringType(typeForName(null, this.declaringType));
@@ -211,51 +214,6 @@ public class MethodBuilder {
 
 	}
 
-//	private lense.compiler.type.variable.TypeVariable parseReturnSignature(LoadedLenseTypeDefinition declaringType, String returnSignature,TypeVariable returnTypeDefinition ){
-//
-//		Optional<Integer> symbolIndex = declaringType.getGenericParameterIndexBySymbol(returnSignature);
-//
-//		if (symbolIndex.isPresent()){
-//			return new DeclaringTypeBoundedTypeVariable(declaringType, symbolIndex.get(), returnSignature, lense.compiler.typesystem.Variance.Covariant);
-//
-//		} else {
-//			int pos = returnSignature.indexOf('<');
-//			if (pos > 0) {
-//				String paramType = returnSignature.substring(0, pos);
-//				String generics = returnSignature.substring(pos + 1, returnSignature.indexOf('>', pos+ 1));
-//				String[] genericsParams;
-//				if (generics.indexOf(',') > 0){
-//					genericsParams = generics.split(",");
-//				} else {
-//					genericsParams = new String[]{generics};
-//				}
-//
-//				LenseTypeDefinition type = loadedClassBuilder.resolveTypByNameAndKind(paramType,null);
-//
-//				List<TypeVariable> variables = new ArrayList<>(genericsParams.length);
-//
-//				for (int i=0; i < genericsParams.length; i++){
-//					symbolIndex = declaringType.getGenericParameterIndexBySymbol(genericsParams[i]);
-//
-//					if (symbolIndex.isPresent()){
-//						variables.add(new GenericTypeBoundToDeclaringTypeVariable(type,declaringType, symbolIndex.get(), genericsParams[i], Variance.Covariant ));
-//					} else {
-//						variables.add(parseReturnSignature(declaringType, genericsParams[i],type));
-//					}
-//				}
-//
-//				return  loadedClassBuilder.resolveTypeByNameWithVariables(paramType,variables);
-//
-//			} else if (returnTypeDefinition.getGenericParameters().isEmpty()){
-//				return returnTypeDefinition;
-//			} else {
-//				return loadedClassBuilder.resolveTypByNameAndKind(returnSignature, null);
-//
-//
-//			}
-//		} 
-//
-//	}
 
 	void addPropertyPart(LoadedLenseTypeDefinition def, Method method, boolean isIndexed, String propertyName, boolean isSetter) {
 		if (isIndexed) {

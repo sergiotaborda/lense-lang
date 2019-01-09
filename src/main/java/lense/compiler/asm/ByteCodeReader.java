@@ -113,7 +113,7 @@ public class ByteCodeReader extends ClassVisitor {
 		}
 		try {
 
-			MethodAsmInfo info = new MethodAsmInfo(name, desc, signature, exceptions, readVisibility(access),readAbstract(access));
+			MethodAsmInfo info = new MethodAsmInfo(name, desc, signature, exceptions, readVisibility(access), readAbstract(access), readDefault(access));
 
 
 			if ((access & ACC_STATIC) != 0) {
@@ -130,6 +130,10 @@ public class ByteCodeReader extends ClassVisitor {
 			return null;
 		}
 
+	}
+
+	private boolean readDefault(int access) {
+		return (access & Opcodes.ACC_FINAL) == 0; // if final is not default
 	}
 
 	private boolean readAbstract(int access) {

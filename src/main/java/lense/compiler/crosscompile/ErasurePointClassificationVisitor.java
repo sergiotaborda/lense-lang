@@ -6,12 +6,14 @@ import compiler.trees.VisitorNext;
 import lense.compiler.ast.ArgumentListItemNode;
 import lense.compiler.ast.ArgumentListNode;
 import lense.compiler.ast.AssignmentNode;
+import lense.compiler.ast.BooleanValue;
 import lense.compiler.ast.CaptureReifiedTypesNode;
 import lense.compiler.ast.CastNode;
 import lense.compiler.ast.ConstructorDeclarationNode;
 import lense.compiler.ast.ExpressionNode;
 import lense.compiler.ast.FieldOrPropertyAccessNode;
 import lense.compiler.ast.IndexedPropertyReadNode;
+import lense.compiler.ast.LiteralExpressionNode;
 import lense.compiler.ast.MethodDeclarationNode;
 import lense.compiler.ast.MethodInvocationNode;
 import lense.compiler.ast.ReturnNode;
@@ -124,7 +126,12 @@ public final class ErasurePointClassificationVisitor implements Visitor<AstNode>
 
 
 			if (item.getExpectedType() == null){
-				return;
+				if (theItem instanceof LiteralExpressionNode) {
+					item.setExpectedType(((LiteralExpressionNode) theItem).getTypeVariable());
+				} else {
+					return;
+				}
+				
 			}
 
 			if (theItem instanceof ErasurePointNode){

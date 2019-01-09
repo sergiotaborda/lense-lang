@@ -10,14 +10,16 @@ public class MethodAsmInfo {
 	private String[] exceptions;
 	private Visibility visibility;
 	private boolean isAbstract;
+	private boolean isDefault;
 
-	public MethodAsmInfo(String name, String desc, String signature, String[] exceptions, Visibility visibility, boolean isAbstract) {
+	public MethodAsmInfo(String name, String desc, String signature, String[] exceptions, Visibility visibility, boolean isAbstract, boolean isDefault) {
 		this.name = name;
 		this.desc = desc;
 		this.signature = signature;
 		this.exceptions = exceptions;
 		this.visibility = visibility;
 		this.isAbstract = isAbstract;
+		this.isDefault = isDefault;
 	}
 
 	public String getName() {
@@ -44,6 +46,13 @@ public class MethodAsmInfo {
 	public boolean isAbstract() {
 		return isAbstract;
 	}
+
+	
+	public boolean isDefault() {
+		return isDefault;
+	}
+
+	
 
 
 
