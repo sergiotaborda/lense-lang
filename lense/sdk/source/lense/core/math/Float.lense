@@ -1,6 +1,6 @@
 import lense.core.math.Real;
 
-public  interface Float extends Number {
+public  interface Float extends Real {
 
 
 	public isNaN : Boolean { get; }

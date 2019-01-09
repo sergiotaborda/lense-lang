@@ -14,7 +14,7 @@ public final class Imaginary implements Number{
 	
 	@Constructor(paramsSignature = "")
 	public static Imaginary constructor (){
-		return valueOf(Rational.ZERO);
+		return valueOf(Rational.zero());
 	}
 	
 	@Constructor(paramsSignature = "lense.core.math.Real")

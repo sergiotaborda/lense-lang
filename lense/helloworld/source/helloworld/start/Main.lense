@@ -334,9 +334,14 @@ public class Main extends ConsoleApplication {
 		assert ( 1/ 64 == powNeg , "  4 ^^ -3 is not 1/64 ");
   	  
   	    var distance = dist(3, 4); 
+
+  	 	console.println(distance == 5);
+  	 	console.println(distance == 5.0);
+  	 	console.println(5 == distance);
+  	 	console.println(5.0 == distance);
   	 	
 	// TODO natural == decimal
-	//	assert ( 5.0 == distance, "Distance is not 5, is {{ distance }}");
+		assert ( 5.0 == distance, "Distance is not 5, is {{ distance }}");
 
   	 	console.println(" distance srqt(3x3 + 4x4) = {{ distance }}");
   	 	console.println(" distance srqt(3x3 + 4x4) = {{ hypot(3, 4) }}");
