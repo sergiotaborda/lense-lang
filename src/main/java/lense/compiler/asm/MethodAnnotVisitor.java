@@ -23,7 +23,10 @@ public class MethodAnnotVisitor extends MethodVisitor{
         	builder.isPlataformSpecific = true;
         } else if (desc.equals("Llense/core/lang/java/Property;")){
         	builder.isProperty = true;
+        } else if (desc.equals("Ljava/lang/Override;")){
+        	builder.isOverride = true;
         } 
+        
         return new MAnnotationVisitor();
 
     }

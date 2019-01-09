@@ -8,6 +8,7 @@ import lense.compiler.typesystem.LenseTypeSystem;
 public class InstanceOfNode extends BooleanExpressionNode{
 
 	private Boolean evaluation;
+	private TypeVariable type = LenseTypeSystem.Boolean();
 
     public InstanceOfNode() {
 	
@@ -29,8 +30,7 @@ public class InstanceOfNode extends BooleanExpressionNode{
         return Optional.ofNullable(this.evaluation);
     }
     
-    private TypeVariable type = LenseTypeSystem.Boolean();
-
+ 
     public TypeVariable getTypeVariable() {
         return type;
     }

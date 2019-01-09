@@ -11,6 +11,8 @@ import lense.compiler.ast.BooleanOperatorNode;
 import lense.compiler.ast.BooleanValue;
 import lense.compiler.ast.CastNode;
 import lense.compiler.ast.ClassTypeNode;
+import lense.compiler.ast.ComparisonNode;
+import lense.compiler.ast.ComparisonNode.Operation;
 import lense.compiler.ast.ConditionalStatement;
 import lense.compiler.ast.ExpressionNode;
 import lense.compiler.ast.GenericTypeParameterNode;
@@ -52,7 +54,9 @@ public class BooleanErasureVisitor extends AbstractScopedVisitor {
 
     private boolean isBooleanNode(ExpressionNode node) {
        return node instanceof BooleanOperatorNode
-               || node instanceof PreBooleanUnaryExpression;
+    		   || node instanceof ComparisonNode &&  (((ComparisonNode)node).getOperation() == Operation.ReferenceEquals ||  ((ComparisonNode)node).getOperation() == Operation.ReferenceDifferent)
+    		   || node instanceof PreBooleanUnaryExpression;
+       
               // || node instanceof InstanceOfNode;
                
     }
@@ -62,7 +66,7 @@ public class BooleanErasureVisitor extends AbstractScopedVisitor {
         if (node instanceof ClassTypeNode) {
             this.currentType = ((ClassTypeNode) node).getTypeDefinition();
         } else if (node instanceof InstanceOfNode){
-            ((InstanceOfNode) node).setTypeVariable(primitiveType);
+            ((InstanceOfNode) node).setTypeVariable(erasedType);
         } else if (node instanceof ReturnNode){
             ReturnNode r = (ReturnNode)node;
 
@@ -96,6 +100,12 @@ public class BooleanErasureVisitor extends AbstractScopedVisitor {
             }
 
             op.setTypeVariable(erasedType);
+        } else if (node instanceof ComparisonNode){
+        	ComparisonNode op = ((ComparisonNode)node);
+  
+        	if (op.getOperation() == Operation.ReferenceEquals) {
+        		op.setTypeVariable(erasedType);
+        	}
         }  else if (node instanceof MethodInvocationNode){
 
             MethodInvocationNode m = (MethodInvocationNode)node;
@@ -114,13 +124,16 @@ public class BooleanErasureVisitor extends AbstractScopedVisitor {
                     if (argType.equals(type)){
                         if (arg instanceof ErasurePointNode ){
                             if (parameterType.isFixed() && parameterType.equals(type)){
-                                arg.getParent().replace(arg, arg.getFirstChild());
+                                //arg.getParent().replace(arg, arg.getFirstChild());
+                                arg.getParent().replace(arg, ErasurePointNode.convertTo((ExpressionNode) arg.getFirstChild(), erasedType));
+                                
                             } else {
                                 ErasurePointNode p = ErasurePointNode.box((ExpressionNode) arg.getFirstChild(), type);
                                 p.setCanElide(false);
                                 
                                 arg.getParent().replace(arg, p);
                             }
+
                         } else {
                             
                             AstNode parent = arg.getParent();
@@ -157,11 +170,36 @@ public class BooleanErasureVisitor extends AbstractScopedVisitor {
                     } 
                 }
   
-            } else if (m.getTypeVariable().isFixed() && m.getTypeVariable().equals(type)){
-                // asume all fixed Boolean returns will be erased to boolean primitive
-               
-                    m.setTypeVariable(erasedType);
+            } else {
+            	// assume all fixed Boolean returns will be erased to boolean primitive
                 
+            	if (m.getTypeVariable().isFixed() && m.getTypeVariable().equals(type)){         
+                     m.setTypeVariable(erasedType);
+                }
+            	
+            	// assume all fixed Boolean parameters will be erased to boolean primitive
+                
+            	for (ArgumentListItemNode item : m.getCall().getArguments().getChildren(ArgumentListItemNode.class)) {
+            		AstNode arg = item.getFirstChild();
+            		
+            		if (arg instanceof TypedNode) {
+            			TypeVariable argType = ((TypedNode)arg).getTypeVariable();
+                		
+                		if (type.equals(argType)) {
+                			if (type.isFixed()) {
+                				item.setExpectedType(erasedType);
+                    			
+                    			if (arg instanceof ErasurePointNode && ((ErasurePointNode) arg).getBoxingDirection() == BoxingDirection.BOXING_IN ){
+                                     arg.getParent().replace(arg, ErasurePointNode.convertTo((ExpressionNode) arg.getFirstChild(), erasedType));
+                  
+                        			
+                                } 
+                			} 
+                			
+                		}
+            		}
+            		
+            	}
             }
 
         }  else if (node instanceof PreBooleanUnaryExpression){
@@ -192,9 +230,21 @@ public class BooleanErasureVisitor extends AbstractScopedVisitor {
                 if (var.getInfo() != null){
                     var.getInfo().setTypeVariable(erasedType);
                 }
-               
+                
+//                ExpressionNode init = var.getInitializer();
+//               
+//                if (init instanceof ErasurePointNode){
+//                    ErasurePointNode p = (ErasurePointNode)init;
+//                    if (p.getTypeVariable().equals(type) && p.canElide()){
+//                        node.replace(p, p.getFirstChild());
+//                    }
+//                }
+//                
+                var.getInitializer().setTypeVariable(erasedType);
+                
             }
         } else if (node instanceof TypedNode
+        		&& !(node instanceof BooleanValue )
                 && !(node instanceof ErasurePointNode )
                 && !(node.getParent() instanceof VariableDeclarationNode )
                 && !(node.getParent() instanceof InstanceOfNode)
