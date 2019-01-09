@@ -17,6 +17,12 @@ public interface Real extends Number , Comparable<Real>, SignedNumber {
 	public isZero() : Boolean;
 	public isNegative() : Boolean;
 	public isPositive() : Boolean;
+	public isNaN() : Boolean;
+	public isNegativeInfinity() : Boolean;
+	public isPositiveInfinity() : Boolean;
+	public isInfinity() : Boolean;
+	public isNegativeZero() : Boolean;
+	
 	
 	public sign() : Integer;
 	public plus (other: Real): Real;

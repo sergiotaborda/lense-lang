@@ -16,11 +16,13 @@ import lense.core.lang.reflection.Type;
 @ValueClass
 public final class BigInt implements Integer , BigIntegerConvertable {
 
+    private static BigInt ZERO = new BigInt(BigInteger.ZERO);
+
 	private BigInteger value;
 
 	@Constructor(paramsSignature = "")
 	public static BigInt constructor(){
-		return new BigInt(BigInteger.ZERO);
+		return ZERO;
 	}
 
 	@Constructor(isImplicit = true, paramsSignature = "lense.core.math.Natural")
@@ -315,9 +317,16 @@ public final class BigInt implements Integer , BigIntegerConvertable {
 
 	@Override
 	public @NonNull Real raiseTo(Real other) {
-		return this.asReal().raiseTo(other);
+	    if (other.isZero()){
+	        return Rational.ONE;
+	    } else if (other.isOne()){
+            return this.asReal();
+		} else {
+		    // may produce infinity if value is out of double range
+		    return Float64.valueOfNative(Math.pow(this.value.doubleValue(), Float64.valueOf(other).value));
+		}
 	}
-
+	
 	@Override
 	public Complex plus(Imaginary n) {
 		return Complex.retangular(this.asReal(), n.real());

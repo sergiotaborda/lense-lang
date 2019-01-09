@@ -415,10 +415,18 @@ public class Int64 implements Integer , Binary , BigIntegerConvertable{
 	}
 
 
-	@Override
-	public @NonNull Real raiseTo(Real other) {
-		return this.asReal().raiseTo(other);
-	}
+    @Override
+    public @NonNull Real raiseTo(Real other) {
+        if (other.isPositiveInfinity()){
+            return Float64.POSITIVE_INIFNITY;
+        } else if (other.isNegativeInfinity()){
+            return Float64.NEGATIVE_INFINITY;
+        } else if (other.isNaN()){
+            return Float64.NaN;
+        } else {
+            return Float64.valueOfNative(Math.pow(this.value, Float64.valueOf(other).value));
+        }
+    }
 
 	@Override
 	public Complex plus(Imaginary n) {

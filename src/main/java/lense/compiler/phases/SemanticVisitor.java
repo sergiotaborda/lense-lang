@@ -498,7 +498,7 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 
                 superType = this.getSemanticContext().typeForName(superTypeNode).getTypeDefinition();
 
-				if (t.isValueClass()) {
+				if (t.getKind().isValue()) {
 					throw new CompilationError(t, "Value classes cannot inherit from other types. They can only implement interfaces");
 				}
 				
@@ -2715,6 +2715,15 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
                 if (t.isAlgebric() && !t.isAbstract()) {
                     throw new CompilationError(t, t.getName()
                             + " is algebric but is not marked abstract. Make it abstract or remove children types declarations.");
+                }
+                
+                if (t.getKind().isValue()){
+                    // verifiy hashValue, asString , equalsTo and type are implemented
+                   
+                    t.isAsStringDefined(t.getTypeDefinition().getMethodBySignature(new MethodSignature("asString")).map(m -> m.getSuperMethod() != null ).orElse(false));
+                    t.isHashValueDefined(t.getTypeDefinition().getMethodBySignature(new MethodSignature("hashValue")).map(m ->  m.getSuperMethod() != null ).orElse(false));
+                    t.isEqualsToDefined(t.getTypeDefinition().getMethodBySignature(new MethodSignature("equalsTo", new MethodParameter(ANY) )).map(m -> m.getSuperMethod() != null).orElse(false));
+                    
                 }
 
             } else if (node instanceof ConditionalStatement) {
