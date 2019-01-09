@@ -292,13 +292,13 @@ public final class BigNatural implements Natural , BigDecimalConvertable , BigIn
 	public Rational raiseTo(Integer other) {
 		if (this.isZero()){
 			if (other.isZero()){
-				return Rational.ONE;
+				return Rational.one();
 			}
-			return Rational.ZERO;
+			return Rational.zero();
 		} else if (this.isOne()){
-			return Rational.ONE;
+			return Rational.one();
 		} else if (other.isZero()){
-			return Rational.ONE;
+			return Rational.one();
 		} else if (other.isOne()){
 			return Rational.constructor(this.asInteger(), Int32.ONE);
 		}  else if (other.isNegative()){

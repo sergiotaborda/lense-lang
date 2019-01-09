@@ -13,10 +13,8 @@ import lense.core.lang.reflection.Type;
 public final class Rational implements Real  {
 
 	
-	public static final Rational ZERO = new Rational(Int32.ZERO, Int32.ONE);
-	public static final Rational ONE = new Rational(Int32.ONE, Int32.ONE);
-	public static final Rational HALF = new Rational(Int32.ONE, Int32.TWO);
-	
+	private static final Rational ZERO = new Rational(Int32.ZERO, Int32.ONE);
+	private static final Rational ONE = new Rational(Int32.ONE, Int32.ONE);
 	
 	@Constructor(paramsSignature = "")
     public static Rational valueOf(Whole n){
@@ -28,6 +26,16 @@ public final class Rational implements Real  {
         return new Rational(n,d);
     }
 	
+	@lense.core.lang.java.Constructor(paramsSignature="")
+	public  static lense.core.math.Rational zero(){
+	    return ZERO;
+	}
+
+	@lense.core.lang.java.Constructor(paramsSignature="")
+	public  static lense.core.math.Rational one(){
+	    return ONE;
+	}
+
 
     private Integer numerator;
     private Natural denominator;

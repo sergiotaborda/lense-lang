@@ -318,7 +318,7 @@ public final class BigInt implements Integer , BigIntegerConvertable {
 	@Override
 	public @NonNull Real raiseTo(Real other) {
 	    if (other.isZero()){
-	        return Rational.ONE;
+	        return Rational.one();
 	    } else if (other.isOne()){
             return this.asReal();
 		} else {

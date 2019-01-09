@@ -14,7 +14,7 @@ public final class Complex implements Number {
 
     @Constructor(paramsSignature = "lense.core.math.Real")
     public static Complex valueOfReal( Real real){
-        return new Complex(real, Rational.ZERO);
+        return new Complex(real, Rational.zero());
     }
     
     @Constructor(paramsSignature = "lense.core.math.Real, lense.core.math.Real")
@@ -69,7 +69,7 @@ public final class Complex implements Number {
     }
 
     public Real abs(){
-        return real.multiply(real).plus(this.imginary.multiply(this.imginary)).raiseTo(Rational.HALF);
+        return real.multiply(real).plus(this.imginary.multiply(this.imginary)).raiseTo(Rational.constructor(Int32.ONE, Int32.TWO));
     }
 
     @Override

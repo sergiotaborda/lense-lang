@@ -105,8 +105,6 @@ public value class Rational implements Real {
 		return this.numerator.asString() ++ "/" ++ this.denominator.asString();
 	}
 	
-
-	
 	public plus( other : Real) : Real {
 		if (other is Rational){
 			return plus(other);

@@ -5,9 +5,11 @@ import static org.junit.Assert.*;
 import org.junit.Test;
 
 import lense.core.math.Complex;
+import lense.core.math.Float64;
 import lense.core.math.Imaginary;
 import lense.core.math.NativeNumberFactory;
 import lense.core.math.Natural;
+import lense.core.math.Natural64;
 import lense.core.math.Rational;
 import lense.core.math.Real;
 
@@ -29,8 +31,16 @@ public class TestComplex {
 		Real x = Rational.valueOf(NativeNumberFactory.newNatural(16));
 		
 		assertEquals("25", r.multiply(r).plus(x).asString().toString());
-		assertEquals("5", c.abs().asString().toString());
+		assertEquals("5.0", c.abs().asString().toString());
 		
 		
 	}
+	
+	   @Test
+	    public void testNumberCompare () {
+	       
+	       assertTrue(NativeNumberFactory.compareNumbers(Rational.one(), Rational.zero()) > 0);
+	       
+	       Natural64.valueOfNative(5).equalsTo(Float64.valueOfNative(5.0));
+	   }
 }

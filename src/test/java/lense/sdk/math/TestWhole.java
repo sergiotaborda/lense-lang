@@ -9,6 +9,7 @@ import lense.core.math.Int64;
 import lense.core.math.Integer;
 import lense.core.math.Natural;
 import lense.core.math.Natural64;
+import lense.core.math.Rational;
 import lense.core.math.Whole;
 
 public class TestWhole {
@@ -70,7 +71,7 @@ public class TestWhole {
 	
 	}
 	
-	@Test(expected = ArithmeticException.class)
+	@Test(expected = lense.core.math.ArithmeticException.class)
 	public void testIn32Limit(){
 		Whole k = Int32.valueOfNative(1);
 		Whole m = Int32.valueOfNative(java.lang.Integer.MAX_VALUE);
@@ -78,7 +79,7 @@ public class TestWhole {
 		//m.plus(k);
 	}
 	
-	@Test(expected = ArithmeticException.class)
+	@Test(expected = lense.core.math.ArithmeticException.class)
 	public void testInt64UpperLimit(){
 		Whole k = Int64.valueOfNative(2);
 		Whole m = Int64.valueOfNative(java.lang.Long.MAX_VALUE - 1);
@@ -86,7 +87,7 @@ public class TestWhole {
 		//m.plus(k);
 	}
 	
-	@Test(expected = ArithmeticException.class)
+	@Test(expected = lense.core.math.ArithmeticException.class)
 	public void testInt64LowerLimit(){
 		Whole k = Int64.valueOfNative(-2);
 		Whole m = Int64.valueOfNative(java.lang.Long.MIN_VALUE + 1);
@@ -110,8 +111,8 @@ public class TestWhole {
 	public void testIn64MinusInt32(){
 		Whole k = Int32.valueOfNative(2);
 		Whole m = Int64.valueOfNative(1);
-		
-		//Whole r = m.minus(k);
+
+       //Whole r = m.minus(k);
 		
 		//assertEquals(Int64.valueOfNative(-1), r);
 		
@@ -156,14 +157,14 @@ public class TestWhole {
 		//m.plus(k);
 	}
 	
-	@Test(expected = ArithmeticException.class)
+	@Test(expected = lense.core.math.ArithmeticException.class)
 	public void testPredecessorWithWhole(){
 		Whole k = Natural64.valueOfNative(1);
 		Whole m = Int32.valueOfNative(-1);
 		assertEquals( m, k.predecessor().predecessor());
 	}
 	
-	@Test(expected = ArithmeticException.class)
+	@Test(expected = lense.core.math.ArithmeticException.class)
 	public void testPredecessorWithNaturals(){
 		Natural k = Natural64.valueOfNative(1);
 		Integer m = Int32.valueOfNative(-1);
@@ -186,7 +187,7 @@ public class TestWhole {
 //		assertTrue(p instanceof BigInt);
 	}
 	
-	@Test(expected = ArithmeticException.class)
+	@Test(expected = lense.core.math.ArithmeticException.class)
 	public void testPredecessorLimit(){
 //		Whole k = Int32.valueOfNative(java.lang.Integer.MIN_VALUE);
 //		Whole m = k.plus(Int32.valueOfNative(-1));
