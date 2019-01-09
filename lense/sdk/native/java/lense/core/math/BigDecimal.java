@@ -209,12 +209,16 @@ public final class BigDecimal implements Real {
 		return false;
 	}
 
-
+    @Override
+    public boolean isNegativeZero() {
+        return false;
+    }
 
 	@Override
 	public Type type() {
 		return Type.fromName(this.getClass().getName());
 	}
+
 
 
 }

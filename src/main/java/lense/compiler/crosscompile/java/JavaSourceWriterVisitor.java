@@ -105,6 +105,7 @@ import lense.compiler.typesystem.Imutability;
 import lense.compiler.typesystem.LenseTypeSystem;
 import lense.compiler.typesystem.Visibility;
 import lense.compiler.utils.Strings;
+import lense.core.lang.reflection.Type;
 
 /**
  * 
@@ -460,8 +461,7 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
                             }
 
                             writer.append("lense.core.math.Rational")
-                            .append(".constructor(lense.core.math.NativeNumberFactory.newInteger(").append(intPart)
-                            .append(decPart).append("),lense.core.math.NativeNumberFactory.newInteger(")
+                            .append(".constructor(lense.core.math.NativeNumberFactory.newInteger(").append(intPart).append(decPart).append("),lense.core.math.NativeNumberFactory.newInteger(")
                             .append(decimalPart).append("))");
 	    				} else {
 							writer.append("lense.core.math.Rational.valueOf(lense.core.math.NativeNumberFactory.newInteger(").append(n.toString()).append("))");
@@ -709,7 +709,12 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 
                 if (t.getKind().isObject()) {
                     writer.append("@lense.core.lang.java.SingletonObject()").println();
+                } 
+                
+                if (t.getKind().isValue()) {
+                    writer.append("@lense.core.lang.java.ValueClass").println();
                 }
+                
                 if (t.getAnnotations() != null) {
                     // TODO
 
@@ -746,10 +751,9 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 
                 writer.print(className);
 
-                if (!t.getKind().isInterface()) {
+                if (!t.getKind().isInterface() && !t.getKind().isValue()) {
                     writer.print(" extends ");
-                    if (t.getSuperType() != null
-                            && t.getSuperType().getTypeVariable().getTypeDefinition().getName().length() > 0) {
+                    if (t.getSuperType() != null && t.getSuperType().getTypeVariable().getTypeDefinition().getName().length() > 0) {
                         writer.print(t.getSuperType().getTypeVariable().getTypeDefinition().getName());
                     } else {
                         writer.print("lense.core.lang.java.Base");
@@ -775,6 +779,8 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
                     writer.print("lense.core.lang.Any");
                 } else if (t.getKind().isInterface()){
                     writer.print(" extends lense.core.lang.Any");
+                } else if (t.getKind().isValue()){
+                    writer.print(" implements lense.core.lang.Any");
                 }
 
                 writer.println("{");
@@ -812,6 +818,56 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 
                     }
 
+                } else if (t.getKind().isValue()){
+                    
+                    if (t.isEqualsToDefined()){
+                        writer
+                        .append(" public boolean equals (Object other) { ")
+                        .append("   return other instanceof lense.core.lang.Any && this.equalsTo((lense.core.lang.Any)other);")
+                        .println(" } ")
+                        ;
+                    } else {
+                        writer
+                        .append(" public boolean equalsTo (Any other) { ")
+                        .append("   return this.equals(other);")
+                        .println(" } ")
+                        ;
+                    }
+                   
+                    if(t.isHashValueDefined()){
+                        writer
+                        .append(" public int hashCode () { ")
+                        .append("   return this.hashValue().hashCode();")
+                        .println(" } ")
+                        ;
+                    } else {
+                        writer
+                        .append(" public lense.core.lang.HashValue hashValue () { ")
+                        .append("   return new lense.core.lang.HashValue(this.hashCode());")
+                        .println(" } ")
+                        ;
+                    }
+                   
+                    if(t.isAsStringDefined()){
+                        writer
+                        .append(" public java.lang.String toString () { ")
+                        .append("   return this.asString().toString();")
+                        .println(" } ")
+                        ;
+                    } else {
+                        writer
+                        .append(" public lense.core.lang.String asString () { ")
+                        .append("   return lense.core.lang.String.valueOfNative(this.toString());")
+                        .println(" } ")
+                        ;
+                    }
+                    
+                    // for all
+                    writer
+                    .append(" public lense.core.lang.reflection.Type type () { ")
+                    .append("   return lense.core.lang.reflection.Type.fromName(\"").append(t.getName()).append("\");")
+                    .println(" } ")
+                    ;
                 }
 
                 TreeTransverser.transverse(t.getBody(), this);

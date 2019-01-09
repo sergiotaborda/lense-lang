@@ -21,7 +21,7 @@ public value class Rational implements Real {
 		return new Rational(0 , 1);
 	}
 
-	public constructor on1() {
+	public constructor one() {
 		return new Rational(1 , 1);
 	}
 
@@ -305,6 +305,7 @@ public value class Rational implements Real {
 		return new BigDecimal(this);
 	} 
 
+	public isNegativeZero() => false;
 	public isPositiveInfinity() => false;
 	public isNegativeInfinity() => false;
 	public isInfinity() => false;

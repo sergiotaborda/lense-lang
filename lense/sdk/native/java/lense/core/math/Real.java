@@ -40,6 +40,7 @@ public interface Real extends Number, Comparable , SignedNumber {
 	public boolean isNegativeInfinity();
 	public boolean isPositiveInfinity();
 	public boolean isInfinity();
+	public boolean isNegativeZero();
 	
 	public Integer sign();
 

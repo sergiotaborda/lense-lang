@@ -22,10 +22,12 @@ public final class Rational implements Real  {
     public static Rational valueOf(Whole n){
         return new Rational(n.asInteger(), Int32.ONE);
     }
+	
 	@Constructor(paramsSignature = "")
     public static Rational constructor(Integer n , Integer d){
         return new Rational(n,d);
     }
+	
 
     private Integer numerator;
     private Natural denominator;
@@ -268,6 +270,11 @@ public final class Rational implements Real  {
 		return false;
 	}
 
+    @Override
+    public boolean isNegativeZero() {
+        return false;
+    }
+    
 	@Override
 	public Type type() {
 		return Type.fromName(this.getClass().getName());

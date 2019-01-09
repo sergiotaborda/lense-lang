@@ -253,6 +253,11 @@ public final class Float32 implements Float{
 		return java.lang.Float.isInfinite(this.value);
 	}
 
+    @Override
+    public boolean isNegativeZero() {
+        return (java.lang.Float.floatToIntBits(this.value) & 0x80000000) < 0;
+    }
+
 
 
 }
