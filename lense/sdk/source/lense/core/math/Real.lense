@@ -36,8 +36,6 @@ public interface Real extends Number , Comparable<Real>, SignedNumber {
 	public divide (other: Imaginary): Imaginary;
 	
 	public raiseTo(other : Real) : Real;
-	
-	public asInteger() : Integer;
 
     public isWhole() : Boolean;
 

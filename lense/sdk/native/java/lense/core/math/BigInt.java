@@ -377,5 +377,4 @@ public final class BigInt implements Integer , BigIntegerConvertable {
 		return this.remainder(other.asInteger());
 	}
 
-
 }

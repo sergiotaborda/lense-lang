@@ -7,6 +7,7 @@ import org.junit.Test;
 import lense.core.math.Complex;
 import lense.core.math.Float64;
 import lense.core.math.Imaginary;
+import lense.core.math.Int32;
 import lense.core.math.NativeNumberFactory;
 import lense.core.math.Natural;
 import lense.core.math.Natural64;
@@ -36,11 +37,18 @@ public class TestComplex {
 		
 	}
 	
-	   @Test
-	    public void testNumberCompare () {
+	@Test
+	public void testNumberCompare () {
 	       
-	       assertTrue(NativeNumberFactory.compareNumbers(Rational.one(), Rational.zero()) > 0);
+	    assertTrue(NativeNumberFactory.compareNumbers(Rational.one(), Rational.zero()) > 0);
 	       
-	       Natural64.valueOfNative(5).equalsTo(Float64.valueOfNative(5.0));
-	   }
+	    Real dist = dist(Int32.valueOfNative(3),Int32.valueOfNative(4));
+	    
+	    assertTrue(Natural64.valueOfNative(5).asReal().equalsTo(dist));
+	    assertTrue( dist.equalsTo( Natural64.valueOfNative(5).asReal()));
+	}
+	
+	private Real dist(lense.core.math.Integer a, lense.core.math.Integer b){
+	    return a.raiseTo(Natural64.valueOfNative(2)).plus(b.raiseTo(Natural64.valueOfNative(2))).raiseTo(Rational.constructor(Int32.ONE, Int32.TWO));
+	}
 }
