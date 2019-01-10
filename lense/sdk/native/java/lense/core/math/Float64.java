@@ -46,12 +46,26 @@ public final class Float64 implements Float{
 	Float64(double value){
 		this.value = value;
 	}
-	
+
 	public lense.core.lang.String asString(){
-		return lense.core.lang.String.valueOfNative(java.lang.Double.toString(value));
+		return lense.core.lang.String.valueOfNative(toString());
 	}
 	
-
+	@Override
+	public String toString(){
+	    return java.lang.Double.toString(value);
+	}
+	
+	@Override
+	public boolean equals(Object other){
+	    return other instanceof Any && equalsTo((Any)other);
+	}
+	
+	@Override
+	public int hashCode(){
+	    return hashValue().hashCode();
+	}
+	
 	@Override
 	public boolean equalsTo(Any other) {
 	    if (other instanceof Float64) {
@@ -141,6 +155,7 @@ public final class Float64 implements Float{
 	
     @Override
     public Integer floor() {
+        // TODO long may not sufice
         return Int64.valueOfNative((long)this.value);
     }
 

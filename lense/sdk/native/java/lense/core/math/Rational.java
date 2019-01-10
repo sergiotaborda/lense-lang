@@ -4,6 +4,7 @@ import lense.core.lang.Any;
 import lense.core.lang.HashValue;
 import lense.core.lang.java.Constructor;
 import lense.core.lang.java.NonNull;
+import lense.core.lang.java.Primitives;
 import lense.core.lang.java.Signature;
 import lense.core.lang.java.ValueClass;
 import lense.core.lang.reflection.Type;
@@ -221,9 +222,16 @@ public final class Rational implements Real  {
 		return null;
 	}
 
-	
 
+    @Override
+    public boolean isPositive() {
+        return this.sign().isPositive();
+    }
 
+    @Override
+    public boolean isNegative() {
+        return this.sign().isNegative();
+    }
 
 	public String toString() {
 		return numerator.toString() + "/" + denominator.toString();
@@ -252,7 +260,7 @@ public final class Rational implements Real  {
 		if (other instanceof Rational) {
 			return this.numerator.multiply(((Rational) other).numerator).minus(((Rational)other).numerator.multiply( this.numerator)).sign().compareWith(Int32.ZERO);
 		} else if (other instanceof Number && other instanceof Comparable) {
-			throw new UnsupportedOperationException("Not implemented yet");
+			return Primitives.comparisonFromNative(NativeNumberFactory.compareNumbers(this, (Number) other));
 		} 
 		throw new ClassCastException("Cannot compare Rational to " + other.getClass().getName());
 	}

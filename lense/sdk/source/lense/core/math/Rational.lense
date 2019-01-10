@@ -9,6 +9,8 @@ import lense.core.math.Greater;
 import lense.core.math.Smaller;
 import lense.core.math.Equal;
 import lense.core.math.BigDecimal;
+import lense.core.math.equal;
+import lense.core.math.Comparable;
 
 /{
 	A fraction n/d 
@@ -89,7 +91,11 @@ public value class Rational implements Real {
 			//other real values will only be equal if reduce to the same fraction
 			let reduction = other.asRational();
 			return this.numerator == reduction.numerator && this.denominator == reduction.denominator;
+		} else if (other is Number && other is Comparable){
+			return (this <=> other) == equal;
 		}
+		
+		
 		// otherwise is not a comparable number
 		return false; 
 	}
@@ -208,10 +214,6 @@ public value class Rational implements Real {
 		return numerator.sign();
 	}
 
-	public asInteger() : Integer {
-		return this.numerator \ this.denominator;
-	}
-
     public isWhole() : Boolean {
     	return this.numerator % this.denominator == 0;
     }
@@ -248,7 +250,7 @@ public value class Rational implements Real {
         } else if ( exponent == 0) {
         	return new Rational(1,1);
         } else if (exponent.isWhole()){
-            let p : Integer = exponent.asInteger();
+            let p : Integer = exponent.floor();
             let n : Natural = p.abs();
             var result : Rational = new Rational(this.numerator ^^ n, this.denominator ^^ n);
             if (p < 0) {
@@ -260,7 +262,7 @@ public value class Rational implements Real {
         	let d = this.denominator ^^ exponent;
         	
         	if (n.isWhole() && d.isWhole()){
-        		return new Rational( n.asInteger() , d.asInteger());
+        		return new Rational( n.floor() , d.floor());
         	}
 
             return n/ d;

@@ -51,13 +51,8 @@ public interface Real extends Number, Comparable , SignedNumber {
 	public boolean isWhole();
 
 	@Override
-	public default boolean isNegative() {
-		return this.sign().isNegative();
-	}
-
+	public boolean isNegative();
 	@Override
-	public default boolean isPositive() {
-		return this.sign().isPositive();
-	}
+	public boolean isPositive();
 
 }

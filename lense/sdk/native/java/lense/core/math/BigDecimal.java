@@ -59,9 +59,13 @@ public final class BigDecimal implements Real {
     public boolean equalsTo(Any other) {
     	if (other instanceof BigDecimal) {
     		return ((BigDecimal)other).value.compareTo(this.value) == 0;
-    	} else if (other instanceof Number  && other instanceof Comparable) {
-    		return new java.math.BigDecimal(other.toString()).compareTo(this.value) == 0;
-    	}
+    	} else if (other instanceof BigDecimalConvertable) {
+    		return ((BigDecimalConvertable)other).toBigDecimal().compareTo(this.value) == 0;
+    	} else if (other instanceof Rational) {
+            return constructor((Rational)other).compareWith(this).isEqual();
+        } else if (other instanceof Number  && other instanceof Comparable) {
+            return new java.math.BigDecimal(other.toString()).compareTo(this.value) == 0;
+        }
     	
         return false;
     }
@@ -213,12 +217,29 @@ public final class BigDecimal implements Real {
     public boolean isNegativeZero() {
         return false;
     }
+    
+    @Override
+    public boolean isPositive() {
+        return this.value.signum() > 0 ;
+    }
 
+    @Override
+    public boolean isNegative() {
+        return this.value.signum() < 0 ;
+    }
+    
 	@Override
 	public Type type() {
 		return Type.fromName(this.getClass().getName());
 	}
-
-
-
+    
+    @Override
+    public boolean equals(Object other){
+        return other instanceof Any && equalsTo((Any)other);
+    }
+    
+    @Override
+    public int hashCode(){
+        return hashValue().hashCode();
+    }
 }

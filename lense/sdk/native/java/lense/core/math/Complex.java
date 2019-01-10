@@ -74,7 +74,7 @@ public final class Complex implements Number {
 
     @Override
     public boolean equalsTo(Any other) {
-        return other instanceof Complex && equals((Complex)other);
+        return other instanceof Complex && equalsTo((Complex)other);
     }
 
     public boolean equalsTo(Complex other) {
@@ -100,5 +100,20 @@ public final class Complex implements Number {
 	public Type type() {
 		return Type.fromName(this.getClass().getName());
 	}
+	
+	@Override
+    public String toString(){
+        return  this.real.toString() + "" + this.imginary.toString() + "i";
+    }
+    
+    @Override
+    public boolean equals(Object other){
+        return other instanceof Any && equalsTo((Any)other);
+    }
+    
+    @Override
+    public int hashCode(){
+        return hashValue().hashCode();
+    }
 
 }
