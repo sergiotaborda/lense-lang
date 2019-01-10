@@ -251,7 +251,7 @@ public class ClassTypeNode extends AnnotadedLenseAstNode implements ScopeDelimit
         this.isHashValueDefined = value;
     }
 
-    public void isEqualsToDefined(boolean value) {
+    public void setEqualsToDefined(boolean value) {
         this.isEqualsToDefined = value;
     }
 
@@ -275,9 +275,6 @@ public class ClassTypeNode extends AnnotadedLenseAstNode implements ScopeDelimit
         return isEqualsToDefined;
     }
 
-    public void setEqualsToDefined(boolean isEqualsToDefined) {
-        this.isEqualsToDefined = isEqualsToDefined;
-    }
 
 
 

@@ -16,7 +16,11 @@ public interface Natural extends Whole , Ordinal {
 
 	public static final TypeResolver TYPE_RESOLVER = TypeResolver.lazy(() -> new Type(Natural.class));
 	
-//
+
+	public static Natural parse(lense.core.lang.String text){
+	    return BigNatural.parse(text).reduce();
+	}
+	
 //	public default @NonNull Progression upTo(@NonNull Natural other) {
 //		return new NativeOrdinalProgression(this, other, true);
 //	}

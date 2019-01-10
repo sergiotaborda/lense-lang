@@ -25,6 +25,11 @@ public final class BigInt implements Integer , BigIntegerConvertable {
 		return ZERO;
 	}
 
+	@Constructor(isImplicit = false, paramsSignature = "lense.core.lang.String")
+    public static BigInt parse(lense.core.lang.String other) {
+	    return new BigInt(new BigInteger(other.toString()));
+	}
+	
 	@Constructor(isImplicit = true, paramsSignature = "lense.core.math.Natural")
 	public static BigInt valueOf(Natural other) {
 
@@ -144,7 +149,7 @@ public final class BigInt implements Integer , BigIntegerConvertable {
 		return other.compareWith(Natural64.INT32_MAX).isSmaller();
 	}
 	
-	private Integer reduce() {
+	Integer reduce() {
 		
 		if (this.value.abs().bitLength() < 31) {
 			return Int32.valueOfNative(this.value.intValueExact());

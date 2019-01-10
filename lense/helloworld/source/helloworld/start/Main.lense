@@ -230,6 +230,13 @@ public class Main extends ConsoleApplication {
 
 	}
 
+	private demoBigNumbers(){
+		let a = new Natural.parse("18446744073709551615");
+		let b = new Natural.parse("18446744073709551619");
+		
+		assert ( b == (a + 4) , "18446744073709551615 + 4 is not 18446744073709551619 is {{ a + 4 }}" );
+	}
+
   	public override onStart()  {
 
 	
@@ -238,6 +245,8 @@ public class Main extends ConsoleApplication {
 
 		demoLongAndIntErrasure();
 
+		demoBigNumbers();
+		
 		demoBinding();
 
 		demoReification();

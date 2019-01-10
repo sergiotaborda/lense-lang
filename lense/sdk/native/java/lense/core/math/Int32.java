@@ -498,4 +498,9 @@ public final class Int32  implements Integer, Binary , BigIntegerConvertable {
 	public Whole remainder(Whole other) {
 		return this.remainder(other.asInteger());
 	}
+
+    @Override
+    public boolean equals(Object other){
+        return other instanceof Any && equalsTo((Any)other);
+    }
 }
