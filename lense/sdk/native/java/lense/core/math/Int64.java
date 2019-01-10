@@ -477,4 +477,5 @@ public class Int64 implements Integer , Binary , BigIntegerConvertable{
 	public Whole remainder(Whole other) {
 		return this.remainder(other.asInteger());
 	}
+	
 }

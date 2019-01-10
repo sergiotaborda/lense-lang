@@ -6,6 +6,14 @@ import lense.core.lang.java.Signature;
 @Signature("::lense.core.math.Whole&lense.core.math.SignedNumber&lense.core.math.Comparable<lense.core.math.Integer>")
 public interface Integer extends Whole , Comparable, SignedNumber, Ordinal, Progressable {
 
+    public static Integer valueOf(Natural other) {
+        return other.asInteger();
+    }
+    
+    public static Integer parse(lense.core.lang.String other) {
+        return BigInt.parse(other).reduce();
+    } 
+    
 	public Integer symmetric();
 
 	public Integer plus (Integer other);

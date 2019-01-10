@@ -8,11 +8,14 @@ import lense.core.collections.Progression;
 import lense.core.lang.String;
 import lense.core.lang.Ordinal;
 import lense.core.lang.Boolean;
+import lense.core.math.BigNatural;
 
 public interface Natural extends Whole , Ordinal<Natural>, Progressable<Natural> , Comparable<Natural>{
 
 
-	//public constructor parse(text :String); 
+	public constructor parse(text : String) {
+		return new BigNatural.parse(text);
+	}
 
 	public minus ( other: Natural)  : Integer;
 	public plus ( other: Natural) : Natural;
