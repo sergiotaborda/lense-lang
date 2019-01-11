@@ -1608,7 +1608,7 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 
                 writer.print(")");
 
-                if (ctr.isNative() || astnode.isAbstract()) {
+                if (ctr.isNative() || astnode.isNative()) {
                     // TODO write native peer call
                     writer.println("{ return null; // native \n }");
                 } else if (ctr.isPrimary()) {
