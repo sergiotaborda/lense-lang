@@ -12,6 +12,7 @@ import lense.compiler.ast.CastNode;
 import lense.compiler.ast.ConstructorDeclarationNode;
 import lense.compiler.ast.ExpressionNode;
 import lense.compiler.ast.FieldOrPropertyAccessNode;
+import lense.compiler.ast.ForEachNode;
 import lense.compiler.ast.IndexedPropertyReadNode;
 import lense.compiler.ast.LiteralExpressionNode;
 import lense.compiler.ast.MethodDeclarationNode;
@@ -151,9 +152,6 @@ public final class ErasurePointClassificationVisitor implements Visitor<AstNode>
 			box.setCanElide(!typevar.isCalculated());
 			
 			item.replace(theItem, box);
-
-
-
 		} 
 	}
 

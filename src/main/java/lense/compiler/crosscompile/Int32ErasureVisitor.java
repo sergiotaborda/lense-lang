@@ -8,7 +8,6 @@ import compiler.trees.Visitor;
 import compiler.trees.VisitorNext;
 import lense.compiler.ast.ArgumentListItemNode;
 import lense.compiler.ast.ArithmeticOperation;
-import lense.compiler.ast.BooleanValue;
 import lense.compiler.ast.CastNode;
 import lense.compiler.ast.ComparisonNode.Operation;
 import lense.compiler.ast.ExpressionNode;
@@ -25,14 +24,16 @@ import lense.compiler.ast.TypedNode;
 import lense.compiler.ast.VariableDeclarationNode;
 import lense.compiler.ast.VariableReadNode;
 import lense.compiler.context.VariableInfo;
-import lense.compiler.crosscompile.java.JavaTypeKind;
+import lense.compiler.crosscompile.ErasurePointNode.BoxingDirection;
+import lense.compiler.crosscompile.ErasurePointNode.ErasureOperation;
 import lense.compiler.type.TypeDefinition;
 import lense.compiler.type.variable.TypeVariable;
 import lense.compiler.typesystem.LenseTypeSystem;
 
 public class Int32ErasureVisitor implements Visitor<AstNode> {
 
-
+    private static final TypeDefinition any = LenseTypeSystem.Any();
+    
     private TypeDefinition type;
     private PrimitiveTypeDefinition primitiveType;
     private ErasedTypeDefinition erasedType;
@@ -64,18 +65,44 @@ public class Int32ErasureVisitor implements Visitor<AstNode> {
             TypeVariable tv = r.getExpectedType();
 
             if (tv != null && tv.isFixed() &&  LenseTypeSystem.isAssignableTo(tv, type)) {
-
-
-                r.setExpectedType(primitiveType);
+                r.setExpectedType(erasedType);
+                if (r.getFirstChild() instanceof ErasurePointNode){
+                    ErasurePointNode p =(ErasurePointNode)r.getFirstChild();
+                    p.setTypeVariable(erasedType);
+                }
+            }
+            
+        } else if (node instanceof VariableDeclarationNode){
+            VariableDeclarationNode var = (VariableDeclarationNode)node;
+            
+            TypeVariable vartype = var.getInfo() == null ? var.getTypeVariable() : var.getInfo().getTypeVariable();
+            
+            if (vartype.equals(type)){
+                var.setTypeVariable(erasedType);
+                if (var.getInfo() != null){
+                    var.getInfo().setTypeVariable(erasedType);
+                }
+                
+                ExpressionNode init = var.getInitializer();
+                
+                if (init != null){
+//                  
+//                  if (init instanceof ErasurePointNode){
+//                      ErasurePointNode p = (ErasurePointNode)init;
+//                      if (p.getTypeVariable().equals(type) && p.canElide()){
+//                          node.replace(p, p.getFirstChild());
+//                      }
+//                  }
+//                  
+                  init.setTypeVariable(erasedType);
+                }
 
             }
-        } else if (node instanceof VariableDeclarationNode || node instanceof InstanceOfNode){
-            return VisitorNext.Children;
         } else if (node instanceof NumericValue){
             NumericValue n = (NumericValue) node;
 
             if (LenseTypeSystem.isAssignableTo(n.getTypeVariable(), type)){
-                n.setTypeVariable(primitiveType);
+                n.setTypeVariable(erasedType);
             }
 
         } else if (node instanceof TypedNode
@@ -98,11 +125,11 @@ public class Int32ErasureVisitor implements Visitor<AstNode> {
 
                 } else if (node instanceof VariableReadNode){
                     if (((VariableReadNode) node).getVariableInfo().getDeclaringNode() instanceof FormalParameterNode){
-                        t.setTypeVariable(primitiveType);
+                        t.setTypeVariable(erasedType);
                     }
                   
                 } else {
-                    t.setTypeVariable(primitiveType);
+                    t.setTypeVariable(erasedType);
                 }
 
             }
@@ -209,10 +236,6 @@ public class Int32ErasureVisitor implements Visitor<AstNode> {
                     if (op != null){
                         // Arithmetic Operations only have 0 or 1 arguments
 
-                        //                        if (isPrimitiveOperation(op) && ((TypedNode)m.getCall().getFirstChild().getFirstChild().getFirstChild()).getTypeVariable().getTypeDefinition().equals(primitiveType) ){
-                        //                            m.getParent().replace(m, new PrimitiveArithmeticOperationsNode(primitiveType,m.getAccess(), m.getCall().getFirstChild().getFirstChild(), op));
-                        //                        } else {
-
                         // determine if the other part is a compatible number
                         AstNode right = m.getCall().getArguments().getFirstArgument().getFirstChild();
 
@@ -280,9 +303,6 @@ public class Int32ErasureVisitor implements Visitor<AstNode> {
                         PrimitiveBox boxAccess = new PrimitiveBox(erasedType, m.getAccess());
                         PrimitiveBox boxArgument = new PrimitiveBox(erasedType, m.getCall().getArguments().getFirstArgument().getFirstChild());
 
-                        // m.replace(m.getAccess(), boxAccess);
-                        // m.getCall().getFirstChild().getFirstChild().replace(m.getCall().getFirstChild().getFirstChild().getFirstChild() ,boxArgument );
-
                         MethodInvocationNode inv = new MethodInvocationNode(boxAccess , m.getCall().getName() ,new ArgumentListItemNode(1, boxArgument));
                         inv.setTypeMember(m.getTypeMember());
                         inv.setTypeVariable(m.getTypeVariable());
@@ -319,73 +339,168 @@ public class Int32ErasureVisitor implements Visitor<AstNode> {
 
             }
         } else if (node instanceof ErasurePointNode){
-            ErasurePointNode a = (ErasurePointNode)node;
-            ExpressionNode val = a.getValue();
+            
+            ErasurePointNode boxingPoint = (ErasurePointNode)node;
+            ExpressionNode inner = boxingPoint.getValue();
 
-            if (val.getTypeVariable() == null){
-                return;
-            } 
+            TypeVariable originalType = inner.getTypeVariable();
+            TypeVariable targetType = boxingPoint.getTypeVariable();
 
+            if (targetType.isSingleType()){
+                targetType = targetType.getTypeDefinition();
+            }
 
-            if (a.canElide() && val.getTypeVariable().equals(a.getTypeVariable())){
-                return;
-            } 
+            if (boxingPoint.getErasureOperation() == ErasureOperation.CONVERTION){
+                // CONVERTION
 
-            if (a.isBoxingDirectionOut()){
-                // OUT BOXING
+                if (inner instanceof PrimitiveBox  && primitiveType.equals(targetType)){
+                    // conversion of erased value. not necessary
+                    boxingPoint.getParent().replace(boxingPoint, inner.getFirstChild() );
 
-                if ( val instanceof NumericValue && val.getTypeVariable().getTypeDefinition().equals(type)) {
-//                    if(a.getReferenceNode() instanceof ArgumentListItemNode){
-//                        ArgumentListItemNode ref = (ArgumentListItemNode)a.getReferenceNode();
-//                        if (ref.isGeneric()){
-//                            a.getParent().replace(a, new PrimitiveBox(primitiveType,val));
-//                            return;
-//                        }
-//                    } 
+                } else if (inner instanceof PrimitiveNumericValue && primitiveType.equals(targetType)){
+                    // already erased
+                    boxingPoint.getParent().replace(boxingPoint, inner);
 
+                } else if ((type.equals(originalType)  || originalType != null && type.equals(originalType.getUpperBound()) ) && primitiveType.equals(targetType)){
+                    // convert to primitive by unboxing
 
-                    a.getParent().replace(a, new PrimitiveNumericValue(primitiveType, ((NumericValue)val)));
-
-
-                } else if (a.getTypeVariable() != null && !val.getTypeVariable().isFixed() && a.getTypeVariable().getTypeDefinition().getKind() == JavaTypeKind.Primitive){
-
-                    a.getParent().replace(a, new PrimitiveUnbox( primitiveType,val));
-
-                }
-        
-            } else {
-                // IN BOXING
-                if (val instanceof BooleanValue){
-                    a.getParent().replace(a, val);
-                } else if (val instanceof NumericValue){
-                    NumericValue n = (NumericValue)val;
-                    n.setTypeVariable(a.getTypeVariable());
-                    a.getParent().replace(a, val);
-                } else if (val.getTypeVariable().getTypeDefinition().getKind() == JavaTypeKind.Primitive){
-                    // val is already a primitive boolean
-                    if ((val instanceof VariableReadNode && a.canElide()) || val instanceof PrimitiveArithmeticOperationsNode) {
-                        a.getParent().replace(a, val);
+                    if (inner instanceof NumericValue){
+                        // is a literal
+                        boxingPoint.getParent().replace(boxingPoint, new PrimitiveNumericValue(primitiveType, (NumericValue)inner));
+                    } else if (inner.getTypeVariable().equals(primitiveType)) {
+                        boxingPoint.getParent().replace(boxingPoint, inner);
                     } else {
-                        a.getParent().replace(a, new PrimitiveBox(erasedType, val));
+                        boxingPoint.getParent().replace(boxingPoint, new PrimitiveUnbox(primitiveType, inner));
                     }
 
-                } else if (val instanceof MethodInvocationNode) {
-                    MethodInvocationNode m = (MethodInvocationNode)val;
-                    if ( m.getTypeVariable().isSingleType() && m.getTypeVariable().getTypeDefinition().getName().equals(type.getName())) {
-                        a.getParent().replace(a, new PrimitiveBox(erasedType, val));
+
+                } else if (primitiveType.equals(originalType) && type.equals(targetType)){
+                    // convert to object type by boxing
+                    boxingPoint.getParent().replace(boxingPoint, new PrimitiveBox(erasedType, inner));
+                } else if (( type.equals(targetType) || primitiveType.equals(targetType)) && targetType.equals(originalType)){
+                    // the types are expected and already are the same, remove erasure point
+                    boxingPoint.getParent().replace(boxingPoint, inner);
+                } else if (isNumber(targetType) && (inner instanceof PrimitiveArithmeticOperationsNode) ){
+                    boxingPoint.getParent().replace(boxingPoint, new PrimitiveBox(erasedType, inner));
+                    
+                } // else, some other type not interest in
+
+            } else if (boxingPoint.getBoxingDirection() == BoxingDirection.BOXING_IN ){
+                // BOXING IN
+                // also box in if expected type is any
+                if (inner instanceof NumericValue){
+                    // a literal is already boxed
+                    boxingPoint.getParent().replace(boxingPoint, inner); 
+                } else if (primitiveType.equals(originalType) && (targetType.equals(type) || targetType.equals(any))){
+                    // the original type is a primitive
+
+                    if ((inner instanceof VariableReadNode && boxingPoint.canElide()) || inner instanceof PrimitiveArithmeticOperationsNode) {
+                        // if can be elided, does not box , simple remove the box arround inner
+                        boxingPoint.getParent().replace(boxingPoint, inner);
+                    } else {
+                        // box the primitive
+                        boxingPoint.getParent().replace(boxingPoint, new PrimitiveBox(erasedType, inner));
                     }
-                } else if (val instanceof CastNode) {
-                    // no-op
 
-                } else {
+                } // else, some other type not interest in
 
-                }
+
+            } else if (boxingPoint.getBoxingDirection() == BoxingDirection.BOXING_OUT) {
+                // BOXING OUT
+                if ( inner instanceof NumericValue) {
+
+                    boxingPoint.getParent().replace(boxingPoint, new PrimitiveNumericValue(primitiveType , ((NumericValue)inner)));
+                } else if (inner instanceof PrimitiveBox || inner instanceof PrimitiveNumericValue) {
+
+                    if (inner.getTypeVariable().equals(primitiveType)) {
+                        // unbox the box is the same as do nothing
+
+                        boxingPoint.getParent().replace(boxingPoint, inner.getFirstChild());
+                    }
+                } else if (boxingPoint.getTypeVariable() != null && !originalType.isFixed() && targetType.getTypeDefinition().equals(primitiveType)){
+
+                    boxingPoint.getParent().replace(boxingPoint, new PrimitiveUnbox(primitiveType, inner));
+
+
+                } // else, some other type not interest in
 
             }
+            
+            
+            
+            
+            
+//            ErasurePointNode a = (ErasurePointNode)node;
+//            ExpressionNode val = a.getValue();
+//
+//            if (val.getTypeVariable() == null){
+//                return;
+//            } 
+//
+//
+//            if (a.canElide() && val.getTypeVariable().equals(a.getTypeVariable())){
+//                return;
+//            } 
+//
+//            if (a.isBoxingDirectionOut()){
+//                // OUT BOXING
+//
+//                if ( val instanceof NumericValue && val.getTypeVariable().getTypeDefinition().equals(type)) {
+////                    if(a.getReferenceNode() instanceof ArgumentListItemNode){
+////                        ArgumentListItemNode ref = (ArgumentListItemNode)a.getReferenceNode();
+////                        if (ref.isGeneric()){
+////                            a.getParent().replace(a, new PrimitiveBox(primitiveType,val));
+////                            return;
+////                        }
+////                    } 
+//
+//
+//                    a.getParent().replace(a, new PrimitiveNumericValue(primitiveType, ((NumericValue)val)));
+//
+//
+//                } else if (a.getTypeVariable() != null && !val.getTypeVariable().isFixed() && a.getTypeVariable().getTypeDefinition().getKind() == JavaTypeKind.Primitive){
+//
+//                    a.getParent().replace(a, new PrimitiveUnbox( primitiveType,val));
+//
+//                }
+//        
+//            } else {
+//                // IN BOXING
+//                if (val instanceof BooleanValue){
+//                    a.getParent().replace(a, val);
+//                } else if (val instanceof NumericValue){
+//                    NumericValue n = (NumericValue)val;
+//                    n.setTypeVariable(a.getTypeVariable());
+//                    a.getParent().replace(a, val);
+//                } else if (val.getTypeVariable().getTypeDefinition().getKind() == JavaTypeKind.Primitive){
+//                    // val is already a primitive boolean
+//                    if ((val instanceof VariableReadNode && a.canElide()) || val instanceof PrimitiveArithmeticOperationsNode) {
+//                        a.getParent().replace(a, val);
+//                    } else {
+//                        a.getParent().replace(a, new PrimitiveBox(erasedType, val));
+//                    }
+//
+//                } else if (val instanceof MethodInvocationNode) {
+//                    MethodInvocationNode m = (MethodInvocationNode)val;
+//                    if ( m.getTypeVariable().isSingleType() && m.getTypeVariable().getTypeDefinition().getName().equals(type.getName())) {
+//                        a.getParent().replace(a, new PrimitiveBox(erasedType, val));
+//                    }
+//                } else if (val instanceof CastNode) {
+//                    // no-op
+//
+//                } else {
+//
+//                }
+//
+//            }
 
 
         }
 
+    }
+
+    private boolean isNumber(TypeVariable targetType) {
+        return LenseTypeSystem.isAssignableTo(targetType, LenseTypeSystem.Number());
     }
 
     private AstNode promoteNodeType(PrimitiveTypeDefinition primitiveType, AstNode node) {
