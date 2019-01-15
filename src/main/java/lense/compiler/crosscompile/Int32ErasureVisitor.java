@@ -18,6 +18,7 @@ import lense.compiler.ast.InstanceOfNode;
 import lense.compiler.ast.MethodInvocationNode;
 import lense.compiler.ast.NewInstanceCreationNode;
 import lense.compiler.ast.NumericValue;
+import lense.compiler.ast.RangeNode;
 import lense.compiler.ast.ReturnNode;
 import lense.compiler.ast.TypeNode;
 import lense.compiler.ast.TypedNode;
@@ -71,7 +72,7 @@ public class Int32ErasureVisitor implements Visitor<AstNode> {
                     p.setTypeVariable(erasedType);
                 }
             }
-            
+    
         } else if (node instanceof VariableDeclarationNode){
             VariableDeclarationNode var = (VariableDeclarationNode)node;
             
@@ -207,8 +208,8 @@ public class Int32ErasureVisitor implements Visitor<AstNode> {
                 if (!varInfo.getMaximum().isPresent() || !varInfo.getMinimum().isPresent()){
                     // revert to  type
                     varInfo.setTypeVariable(type);
-                } else if(f.getContainer() instanceof MethodInvocationNode /*&& f.getContainer().getProperty("isRange", Boolean.class).orElse(false)*/){
-                    MethodInvocationNode m = (MethodInvocationNode) f.getContainer();
+                } else if(f.getContainer() instanceof ErasurePointNode && (((ErasurePointNode)f.getContainer()).getFirstChild() instanceof MethodInvocationNode) /*&& f.getContainer().getProperty("isRange", Boolean.class).orElse(false)*/){
+                    MethodInvocationNode m = (MethodInvocationNode) ((ErasurePointNode)f.getContainer()).getFirstChild();
                     
                     AstNode unboxAccess = promoteNodeType(primitiveType, m.getAccess());
                     AstNode unboxArgument = promoteNodeType(primitiveType,  m.getCall().getArguments().getFirstArgument().getFirstChild());
