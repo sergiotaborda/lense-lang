@@ -361,9 +361,9 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
                     if (n instanceof NumericValue){
                         writer.print(((NumericValue) n).getValue().toString());
                     } else {
-                        writer.print("((lense.core.math.Int32)");
+                        writer.print("lense.core.math.NativeNumberFactory.toPrimitiveInt(");
                         TreeTransverser.transverse(n, this);
-                        writer.print(").toPrimitiveInt()");
+                        writer.print(")");
                     }
                     
                 } else if (pu.getTypeVariable().equals(PrimitiveTypeDefinition.LONG)){
@@ -371,9 +371,9 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
                     if (n instanceof NumericValue){
                         writer.print(((NumericValue) n).getValue().toString());
                     } else {
-                        writer.print("((lense.core.math.Int64)");
+                        writer.print("lense.core.math.NativeNumberFactory.toPrimitiveLong(");
                         TreeTransverser.transverse(n, this);
-                        writer.print(").toPrimitiveLong()");
+                        writer.print(")");
                     }
                     
                 }  else {

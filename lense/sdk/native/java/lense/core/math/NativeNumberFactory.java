@@ -166,4 +166,28 @@ public final class NativeNumberFactory {
 
         return ga.compareTo(gb);
     }
+
+    public static int toPrimitiveInt(Whole number){
+        if (number instanceof Int32){
+            return ((Int32) number).value;
+        }
+        try {
+            return new BigInteger(number.toString()).intValueExact();
+        } catch (ArithmeticException e){
+            throw lense.core.math.ArithmeticException.constructor(e);
+        }
+    }
+
+    public static long toPrimitiveLong(Whole number){
+        if (number instanceof Int32){
+            return ((Int32) number).value;
+        } else if (number instanceof Int64){
+            return ((Int64) number).value;
+        }
+        try {
+            return new BigInteger(number.toString()).longValueExact();
+        } catch (ArithmeticException e){
+            throw lense.core.math.ArithmeticException.constructor(e);
+        }
+    }
 }
