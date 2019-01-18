@@ -28,11 +28,6 @@ public final class ErasurePointClassificationVisitor implements Visitor<AstNode>
 
 	private TypeVariable expectedType;
 
-	@Override
-	public void startVisit() {}
-
-	@Override
-	public void endVisit() {}
 
 	@Override
 	public VisitorNext visitBeforeChildren(AstNode node) {

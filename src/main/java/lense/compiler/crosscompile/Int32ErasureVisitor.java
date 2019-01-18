@@ -8,7 +8,6 @@ import compiler.trees.Visitor;
 import compiler.trees.VisitorNext;
 import lense.compiler.ast.ArgumentListItemNode;
 import lense.compiler.ast.ArithmeticOperation;
-import lense.compiler.ast.AssignmentNode;
 import lense.compiler.ast.CastNode;
 import lense.compiler.ast.ComparisonNode.Operation;
 import lense.compiler.ast.ExpressionNode;
@@ -19,7 +18,6 @@ import lense.compiler.ast.InstanceOfNode;
 import lense.compiler.ast.MethodInvocationNode;
 import lense.compiler.ast.NewInstanceCreationNode;
 import lense.compiler.ast.NumericValue;
-import lense.compiler.ast.RangeNode;
 import lense.compiler.ast.ReturnNode;
 import lense.compiler.ast.TypeNode;
 import lense.compiler.ast.TypedNode;
@@ -94,6 +92,7 @@ public class Int32ErasureVisitor implements Visitor<AstNode> {
 
             node.replace(inner, inner.getFirstChild());
 
+
         } else if (node instanceof VariableDeclarationNode){
             VariableDeclarationNode var = (VariableDeclarationNode)node;
 
@@ -120,13 +119,7 @@ public class Int32ErasureVisitor implements Visitor<AstNode> {
                 }
 
             }
-//        } else if (node instanceof NumericValue){
-//            NumericValue n = (NumericValue) node;
-//
-//            if (LenseTypeSystem.isAssignableTo(n.getTypeVariable(), type)){
-//                n.setTypeVariable(erasedType);
-//            }
-            
+
         } else if (node instanceof TypedNode
                 && !(node instanceof ErasurePointNode )
                 && !(node.getParent() instanceof VariableDeclarationNode )
@@ -229,6 +222,32 @@ public class Int32ErasureVisitor implements Visitor<AstNode> {
                 if (!varInfo.getMaximum().isPresent() || !varInfo.getMinimum().isPresent()){
                     // revert to  type
                     varInfo.setTypeVariable(type);
+                    f.getVariableDeclarationNode().setTypeVariable(type);
+                    
+                    if(f.getContainer() instanceof ErasurePointNode && (((ErasurePointNode)f.getContainer()).getFirstChild() instanceof MethodInvocationNode)) {
+                        MethodInvocationNode m = (MethodInvocationNode) ((ErasurePointNode)f.getContainer()).getFirstChild();
+
+                        AstNode unerasureAccess = unErase(m.getAccess());
+
+                        if (!(unerasureAccess instanceof NumericValue) && primitiveType.equals(((TypedNode)unerasureAccess).getTypeVariable())){
+                            unerasureAccess = new PrimitiveBox(erasedType, unerasureAccess);
+                        }
+                        
+                        AstNode unrasedrgument = unErase(m.getCall().getArguments().getFirstArgument().getFirstChild());
+    
+                        if (!(unrasedrgument instanceof NumericValue) && primitiveType.equals(((TypedNode)unrasedrgument).getTypeVariable())){
+                            unrasedrgument = new PrimitiveBox(erasedType, unrasedrgument);
+                        }
+                        
+                        MethodInvocationNode inv = new MethodInvocationNode(unerasureAccess , m.getCall().getName() ,new ArgumentListItemNode(1, unrasedrgument));
+                        inv.setTypeMember(m.getTypeMember());
+                        inv.setTypeVariable(m.getTypeVariable());
+                        inv.setScanPosition(inv.getScanPosition());
+
+                        m.getParent().replace(m, inv);
+                    }
+                 
+                    
                 } else if(f.getContainer() instanceof ErasurePointNode && (((ErasurePointNode)f.getContainer()).getFirstChild() instanceof MethodInvocationNode) /*&& f.getContainer().getProperty("isRange", Boolean.class).orElse(false)*/){
                     MethodInvocationNode m = (MethodInvocationNode) ((ErasurePointNode)f.getContainer()).getFirstChild();
 
@@ -310,12 +329,18 @@ public class Int32ErasureVisitor implements Visitor<AstNode> {
                                 
                                 m.getParent().getParent().replace(parent, new PrimitiveArithmeticOperationsNode(opType,m.getAccess(), right, op));
                             } else if (right instanceof NumericValue){
-                                ((NumericValue) right).setTypeVariable(type);
-                                m.getCall().getArguments().getFirstArgument().replace(m.getCall().getArguments().getFirstArgument().getFirstChild(), right);
+                                if (primitiveType.equals(access.getTypeVariable())){
+                                    // transforme to a primitive operation
+                                    m.getParent().replace(m, new PrimitiveArithmeticOperationsNode(primitiveType,m.getAccess(), new PrimitiveNumericValue(primitiveType, (NumericValue) right), op));
+                                } else {
+                                    ((NumericValue) right).setTypeVariable(type);
+                                    m.getCall().getArguments().getFirstArgument().replace(m.getCall().getArguments().getFirstArgument().getFirstChild(), right);
+                                }
+                             
                             }
-                        } else if (((TypedNode)right).getTypeVariable().getTypeDefinition().equals(primitiveType)){
+                        } else if (primitiveType.equals(((TypedNode)right).getTypeVariable().getTypeDefinition())){
                             // arguments are still primitive
-                            m.getParent().replace(m, new PrimitiveArithmeticOperationsNode(primitiveType,m.getAccess(), m.getCall().getFirstChild().getFirstChild(), op));
+                            m.getParent().replace(m, new PrimitiveArithmeticOperationsNode(primitiveType,m.getAccess(), m.getCall().getFirstChild().getFirstChild(), coerseToPrimitiveOperation(op)));
                         }
 
 
@@ -528,6 +553,19 @@ public class Int32ErasureVisitor implements Visitor<AstNode> {
 
         }
 
+    }
+
+    private AstNode unErase(AstNode node) {
+        while (!node.getChildren().isEmpty()){ 
+            if (node instanceof ErasurePointNode){
+                node = ((ErasurePointNode)node).getFirstChild();
+            } else if (node instanceof PrimitiveBox){
+                node = ((PrimitiveBox)node).getFirstChild();
+            } else {
+                break;
+            }
+        }
+        return node;
     }
 
     private boolean isNumber(TypeVariable targetType) {
