@@ -131,11 +131,11 @@ public class Main extends ConsoleApplication {
 		assert(1 == list.size, "List size is not 1");
 		assert(!list.empty, "List size is empty");
 		
-		let x : Int32 = list[0];
+		let w : Int32 = list[0];
 		
-		let y : Int32 = x &+ 1;
+		let z : Int32 = w &+ 1;
 		
-		assert (20 == y, "y is not 20, is {{ y }}");
+		assert (20 == z, "z is not 20, is {{ z }}");
 		
 	}
 	
@@ -143,8 +143,8 @@ public class Main extends ConsoleApplication {
 		return a &+ b;
 	}
 	
-	private  isum ( x : Int32 , y: Int32) : Integer {
-		return x + y;
+	private  isum ( q : Int32 , p: Int32) : Integer {
+		return q + p;
 	}
 	
 	private  increment ( a : Int32) : Int32 {

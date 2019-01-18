@@ -966,16 +966,17 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
                     writer.println("}");
                 } else {
                     // use an iterator for each
-
-                    writer.append("\nlense.core.collections.Iterator $it = ((lense.core.collections.Iterable)");
+                    String iteratorName = "$it" + f.hashCode();
+                    
+                    writer.append("\nlense.core.collections.Iterator ").append(iteratorName).append(" = ((lense.core.collections.Iterable)");
                     TreeTransverser.transverse(f.getContainer(), this);
                     writer.println(").getIterator();");
-                    writer.println("while ( $it.moveNext()) {");
+                    writer.append("while ( ").append(iteratorName).println(".moveNext()) {");
 
                     TreeTransverser.transverse(f.getVariableDeclarationNode(), this);
 
 
-                    writer.append("= (").append(typeName).println(") $it.current();");
+                    writer.append("= (").append(typeName).append(") ").append(iteratorName).println(".current();");
 
                     StringWriter w = new StringWriter();
                     PrintWriter sp = new PrintWriter(w);
