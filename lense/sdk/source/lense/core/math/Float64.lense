@@ -4,7 +4,7 @@ import lense.core.math.Int32;
 import lense.core.math.Real;
 import lense.core.math.Whole;
 
-public native class Float64 extends Real {
+public native class Float64 extends Float {
 
 	public native implicit constructor valueOf(other: Real);
 	public native implicit constructor valueOf(other: Whole);

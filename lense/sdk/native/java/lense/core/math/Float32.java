@@ -8,7 +8,7 @@ import lense.core.lang.java.Primitives;
 import lense.core.lang.reflection.Type;
 import lense.core.lang.reflection.TypeResolver;
 
-public final class Float32 implements Float{
+public final class Float32 implements Float {
 
 	private static Float32 ZERO = new Float32(0.0f);
 	private static Float32 NaN = new Float32(java.lang.Float.NaN);
@@ -68,7 +68,7 @@ public final class Float32 implements Float{
 		return new Float64(this.value);
 	}
 	@Override
-	public Float wrapPlus(Float other) {
+	public Float warpPlus(Float other) {
 		if (other instanceof Float32){
 			return new Float32(this.value + ((Float32)other).value);
 		} else {
@@ -104,56 +104,25 @@ public final class Float32 implements Float{
 	}
 	
 	@Override
-	public Real plus(Real other) {
-		if (this.isNaN()) {
-			return this;
-		} else if (other.isNaN()) {
-			return other;
-		} else if ((this.isNegativeInfinity() && other.isPositiveInfinity()) || (other.isNegativeInfinity() && this.isPositiveInfinity())) {
-			return NaN;
-		} else if (this.isInfinity()) {
-			return this;
-		}  else if (other.isInfinity()) {
-			return other;
-		} else if (other instanceof Float32){
-			float val = this.value + ((Float32)other).value;
-			
-			if (java.lang.Float.isInfinite(val) || java.lang.Float.isNaN(val)) {
-				return promoteNext().plus(other);
-			} else {
-				return new Float32(val);
-			}
-		} else {
-			return promoteNext().plus(other);
-		}
-	}
-
-
-
-	@Override
-	public Real minus(Real other) {
-		// TODO Auto-generated method stub
-		return null;
+	public Float plus(Float other) {
+		return warpPlus(other);
 	}
 
 	@Override
-	public Real multiply(Real other) {
-		// TODO Auto-generated method stub
-		return null;
+	public Float minus(Float other) {
+		return warpMinus(other);
 	}
 
 	@Override
-	public Real divide(Real other) {
-		// TODO Auto-generated method stub
-		return null;
+	public Float multiply(Float other) {
+		return wrapMultiply(other);
 	}
 
 	@Override
-	public Real raiseTo(Real other) {
-		// TODO Auto-generated method stub
-		return null;
+	public Float divide(Float other) {
+		return wrapDivide(other);
 	}
-	
+
 	@Override
 	public boolean isZero() {
 		return java.lang.Float.compare(this.value, 0.0f) == 0;
@@ -186,13 +155,15 @@ public final class Float32 implements Float{
 	
     @Override
     public Integer floor() {
-        return Int64.valueOfNative((long)this.value);
+    	// TODO handle infinites and nan
+        return Int32.valueOfNative((int)Math.floor(this.value));
     }
-
 
     @Override
     public boolean isWhole() {
-        return this.value % 1 == 0;
+        return !this.isInfinity() 
+        		&& !this.isNaN() 
+        		&& this.value % 1 == 0;
     }
 
     @Override

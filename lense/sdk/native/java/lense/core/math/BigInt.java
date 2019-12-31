@@ -315,7 +315,22 @@ public final class BigInt implements Integer , BigIntegerConvertable {
 
 	@Override
 	public @NonNull Real raiseTo(Real other) {
-		return this.asReal().raiseTo(other);
+		if ( other.isZero()) {
+			return Rational.ONE;
+		} else if (other.isOne()) {
+			return this.asReal();
+		} else if (other.isWhole()) {
+			Integer whole = other.floor();
+	
+			Rational power = Rational.constructor(raiseTo(whole.abs()), Int32.ONE);
+			
+			if (whole.sign().isNegative()) {
+				power = power.invert();
+			} 
+			
+			return power;
+		}
+		return BigDecimal.constructor(Rational.constructor(this, Int32.ONE)).raiseTo(other);
 	}
 
 	@Override

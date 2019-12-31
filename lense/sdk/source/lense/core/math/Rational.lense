@@ -21,7 +21,7 @@ public value class Rational implements Real {
 		return new Rational(0 , 1);
 	}
 
-	public constructor on1() {
+	public constructor one() {
 		return new Rational(1 , 1);
 	}
 
@@ -56,11 +56,11 @@ public value class Rational implements Real {
 		return new Rational(numerator , denominator.abs());
 	}
 	
-	private symplify( numerator : Integer,  denominator : Integer ) : Rational {
-			return symplify(numerator * denominator.sign() , denominator.abs()) ;
+	private simplify( numerator : Integer,  denominator : Integer ) : Rational {
+			return simplify(numerator * denominator.sign() , denominator.abs()) ;
 	}
 
-	private symplify( numerator : Integer,  denominator : Natural ) : Rational {
+	private simplify( numerator : Integer,  denominator : Natural ) : Rational {
 	
 		if (numerator == 0){
 			// all forms of zero are the same. 
@@ -84,11 +84,10 @@ public value class Rational implements Real {
 		if ( other is Whole && this.denominator == 1){
 			return this.numerator == other;
 		} else if(other is Rational){
-			return this.numerator == other.numerator && this.denominator == other.denominator;
-		} else if(other is BigDecimal){
-			//other real values will only be equal if reduce to the same fraction
-			let reduction = other.asRational();
-			return this.numerator == reduction.numerator && this.denominator == reduction.denominator;
+			return this.numerator == other.numerator 
+				&& this.denominator == other.denominator;
+		} else if(other is Real){
+			return this.compareWith(other).isEqual();
 		}
 		// otherwise is not a comparable number
 		return false; 
@@ -125,7 +124,7 @@ public value class Rational implements Real {
 	}
 
 	public plus( other : Rational) : Rational {
-		 return symplify(
+		 return simplify(
 				 other.denominator * this.numerator   + this.denominator * other.numerator , 
 				 this.denominator * other.denominator 
 		 );
@@ -140,7 +139,7 @@ public value class Rational implements Real {
 	}
 	
 	public minus( other : Rational) : Rational{
-		 return symplify(
+		 return simplify(
 				 other.denominator * this.numerator  - this.denominator * other.numerator , 
 				 this.denominator * other.denominator 
 		 );
@@ -156,7 +155,7 @@ public value class Rational implements Real {
 	}
 	
 	public multiply( other : Rational) : Rational {
-		 return symplify(
+		 return simplify(
 				 this.numerator * other.numerator,
 				 this.denominator * other.denominator
 		 );
@@ -180,7 +179,7 @@ public value class Rational implements Real {
 		if (other.numerator < 0){ // set the sign in the final numerator 
 			n = -n;
 		}
-		return symplify(
+		return simplify(
 				 n,
 				 this.denominator * other.numerator.abs()
 		);
@@ -191,7 +190,7 @@ public value class Rational implements Real {
 	}
 
 	public isOne() : Boolean{
-		return this.numerator.equalsTo(denominator);
+		return this.numerator == this.denominator;
 	}
 
 	public isNegative() : Boolean{
@@ -250,7 +249,7 @@ public value class Rational implements Real {
         } else if ( exponent == 0) {
         	return new Rational(1,1);
         } else if (exponent.isWhole()){
-            let p : Integer = exponent.asInteger();
+            let p : Integer = exponent.floor();
             let n : Natural = p.abs();
             var result : Rational = new Rational(this.numerator ^^ n, this.denominator ^^ n);
             if (p < 0) {
@@ -262,7 +261,7 @@ public value class Rational implements Real {
         	let d = this.denominator ^^ exponent;
         	
         	if (n.isWhole() && d.isWhole()){
-        		return new Rational( n.asInteger() , d.asInteger());
+        		return new Rational( n.floor() , d.floor());
         	}
 
             return n/ d;
