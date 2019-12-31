@@ -4,7 +4,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 /**
- * Marks a type or member as platform implementation detail.
+ * Marks a type as being only a value with no identity
  *
  */
 @Retention(RetentionPolicy.CLASS)

@@ -24,6 +24,10 @@ public enum LenseUnitKind implements TypeKind{
 	public boolean isObject() {
 		return this == Object;
 	}
+	
+	public boolean isValue() {
+		return this == Value;
+	}
 
 	public boolean isEnhancement() {
 		return this == Enhancement;
