@@ -48,6 +48,7 @@ public class Boolean extends Base implements Any{
 	}
 	
 	public boolean negate(){
+		System.out.print("nagating " + this.value);
 		return !this.value;
 	}
 	

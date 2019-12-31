@@ -358,11 +358,11 @@ public class LenseTypeSystem {
 		LenseTypeDefinition integer = register(
 				new FundamentalLenseTypeDefinition("lense.core.math.Integer", LenseUnitKind.Interface, whole));
 		LenseTypeDefinition sint = register(
-				new FundamentalLenseTypeDefinition("lense.core.math.Int32", LenseUnitKind.Value, integer));
+				new FundamentalLenseTypeDefinition("lense.core.math.Int32", LenseUnitKind.ValueClass, integer));
 		register(
-				new FundamentalLenseTypeDefinition("lense.core.math.Int64", LenseUnitKind.Value, integer));
+				new FundamentalLenseTypeDefinition("lense.core.math.Int64", LenseUnitKind.ValueClass, integer));
 		register(
-				new FundamentalLenseTypeDefinition("lense.core.math.Int16", LenseUnitKind.Value, integer));
+				new FundamentalLenseTypeDefinition("lense.core.math.Int16", LenseUnitKind.ValueClass, integer));
 
 		//sint.addConstructor(true, "valueOf", new ConstructorParameter(whole));
 
@@ -413,17 +413,17 @@ public class LenseTypeSystem {
 
 		LenseTypeDefinition decimal = register(
 				new FundamentalLenseTypeDefinition("lense.core.math.Float", LenseUnitKind.Interface, real));
-		register(new FundamentalLenseTypeDefinition("lense.core.math.Float64", LenseUnitKind.Value, decimal));
-		register(new FundamentalLenseTypeDefinition("lense.core.math.Float32", LenseUnitKind.Value, decimal));
+		register(new FundamentalLenseTypeDefinition("lense.core.math.Float64", LenseUnitKind.ValueClass, decimal));
+		register(new FundamentalLenseTypeDefinition("lense.core.math.Float32", LenseUnitKind.ValueClass, decimal));
 
-		register(new FundamentalLenseTypeDefinition("lense.core.math.Rational", LenseUnitKind.Value, real));
+		register(new FundamentalLenseTypeDefinition("lense.core.math.Rational", LenseUnitKind.ValueClass, real));
 
 		LenseTypeDefinition img = register(
-				new FundamentalLenseTypeDefinition("lense.core.math.Imaginary", LenseUnitKind.Value, number));
+				new FundamentalLenseTypeDefinition("lense.core.math.Imaginary", LenseUnitKind.ValueClass, number));
 		img.addMethod("real", real);
 
 		LenseTypeDefinition complex = register(
-				new FundamentalLenseTypeDefinition("lense.core.math.Complex", LenseUnitKind.Value, number));
+				new FundamentalLenseTypeDefinition("lense.core.math.Complex", LenseUnitKind.ValueClass, number));
 
 		LenseTypeDefinition interval = register(new FundamentalLenseTypeDefinition("lense.core.math.Interval",
 				LenseUnitKind.Class, any, new RangeTypeVariable("T", Variance.Invariant, any, nothing))); // TODO
@@ -441,7 +441,7 @@ public class LenseTypeSystem {
 		// console.addMethod("println", svoid, new MethodParameter(string));
 		//
 		LenseTypeDefinition version = register(
-				new FundamentalLenseTypeDefinition("lense.core.lang.Version", LenseUnitKind.Value, any));
+				new FundamentalLenseTypeDefinition("lense.core.lang.Version", LenseUnitKind.ValueClass, any));
 
 		LenseTypeDefinition packagetype = register(
 				new FundamentalLenseTypeDefinition("lense.core.lang.reflection.Package", LenseUnitKind.Interface, any));

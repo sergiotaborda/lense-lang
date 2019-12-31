@@ -5,6 +5,7 @@ import java.math.BigInteger;
 import lense.core.collections.NativeOrdinalProgression;
 import lense.core.collections.Progression;
 import lense.core.lang.Any;
+import lense.core.lang.AnyValue;
 import lense.core.lang.HashValue;
 import lense.core.lang.java.Constructor;
 import lense.core.lang.java.NonNull;
@@ -14,7 +15,7 @@ import lense.core.lang.java.ValueClass;
 import lense.core.lang.reflection.Type;
 
 @ValueClass
-public final class BigInt implements Integer , BigIntegerConvertable {
+public final class BigInt implements Integer , BigIntegerConvertable , AnyValue {
 
 	private BigInteger value;
 
