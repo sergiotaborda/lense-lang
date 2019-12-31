@@ -5,6 +5,7 @@ import java.math.BigInteger;
 import lense.core.collections.NativeOrdinalProgression;
 import lense.core.collections.Progression;
 import lense.core.lang.Any;
+import lense.core.lang.AnyValue;
 import lense.core.lang.Binary;
 import lense.core.lang.HashValue;
 import lense.core.lang.java.Constructor;
@@ -18,7 +19,7 @@ import lense.core.lang.reflection.Type;
 
 @Signature("::lense.core.math.Integer&lense.core.lang.Binary")
 @ValueClass
-public class Int64 implements Integer , Binary , BigIntegerConvertable{
+public class Int64 implements Integer , Binary , BigIntegerConvertable , AnyValue{
 
 	public static Int64 ZERO = new Int64(0);
 	public static Int64 ONE = new Int64(1);

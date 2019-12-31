@@ -1,6 +1,7 @@
 package lense.core.math;
 
 import lense.core.lang.Any;
+import lense.core.lang.AnyValue;
 import lense.core.lang.HashValue;
 import lense.core.lang.java.Constructor;
 import lense.core.lang.java.NonNull;
@@ -10,7 +11,7 @@ import lense.core.lang.reflection.Type;
 
 @Signature("::lense.core.math.Real")
 @ValueClass 
-public final class Rational implements Real  {
+public final class Rational implements Real , AnyValue  {
 
 	
 	public static final Rational ZERO = new Rational(Int32.ZERO, Int32.ONE);

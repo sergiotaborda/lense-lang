@@ -19,6 +19,7 @@ public class IteratorAdapter implements Iterator{
 		if( original.hasNext()){
 			started = true;
 			current =  original.next();
+			return true;
 		}
 		return false;
 	}

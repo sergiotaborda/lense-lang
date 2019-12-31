@@ -241,7 +241,7 @@ public class ClassTypeNode extends AnnotadedLenseAstNode implements ScopeDelimit
 	}
 
 	public boolean isValueClass() {
-		return isValueClass;
+		return isValueClass || this.kind.isValue();
 	}
 
 	public void setValueClass(boolean isValueClass) {

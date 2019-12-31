@@ -2,13 +2,14 @@ package lense.core.math;
 
 
 import lense.core.lang.Any;
+import lense.core.lang.AnyValue;
 import lense.core.lang.HashValue;
 import lense.core.lang.java.Constructor;
 import lense.core.lang.java.Primitives;
 import lense.core.lang.reflection.Type;
 import lense.core.lang.reflection.TypeResolver;
 
-public final class Float64 implements Float {
+public final class Float64 implements Float, AnyValue {
  
 	private static Float64 ZERO = new Float64(0.0d);
 	private static Float64 NaN = new Float64(java.lang.Double.NaN);

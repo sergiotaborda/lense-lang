@@ -6,6 +6,7 @@ import java.math.BigInteger;
 import lense.core.collections.NativeOrdinalProgression;
 import lense.core.collections.Progression;
 import lense.core.lang.Any;
+import lense.core.lang.AnyValue;
 import lense.core.lang.HashValue;
 import lense.core.lang.Ordinal;
 import lense.core.lang.java.NonNull;
@@ -15,7 +16,7 @@ import lense.core.lang.java.Signature;
 import lense.core.lang.reflection.Type;
 
 @Signature("::lense.core.math.Natural")
-public final class Natural64 implements Natural , BigDecimalConvertable , BigIntegerConvertable{
+public final class Natural64 implements Natural , BigDecimalConvertable , BigIntegerConvertable, AnyValue{
 	
 	public static final Number INT32_MAX = valueOfNative(java.lang.Integer.MAX_VALUE);
 	public static Natural64 MAX = new Natural64("18446744073709551615");

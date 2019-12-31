@@ -3,6 +3,7 @@ package lense.core.math;
 import java.math.RoundingMode;
 
 import lense.core.lang.Any;
+import lense.core.lang.AnyValue;
 import lense.core.lang.HashValue;
 import lense.core.lang.String;
 import lense.core.lang.java.Constructor;
@@ -11,7 +12,7 @@ import lense.core.lang.java.ValueClass;
 import lense.core.lang.reflection.Type;
 
 @ValueClass
-public final class BigDecimal implements Real {
+public final class BigDecimal implements Real  , AnyValue {
 
 	
 	public static BigDecimal ZERO = new BigDecimal(java.math.BigDecimal.ZERO);

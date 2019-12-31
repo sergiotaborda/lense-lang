@@ -9,7 +9,7 @@ package lense.compiler.type;
 public enum LenseUnitKind implements TypeKind{
 
 	Class,
-	Value,
+	ValueClass,
 	Interface,
 	Annotation,
 	Enum,
@@ -26,7 +26,7 @@ public enum LenseUnitKind implements TypeKind{
 	}
 	
 	public boolean isValue() {
-		return this == Value;
+		return this == ValueClass;
 	}
 
 	public boolean isEnhancement() {
