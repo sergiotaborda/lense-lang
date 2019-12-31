@@ -8,8 +8,8 @@ import lense.core.lang.java.Primitives;
 import lense.core.lang.reflection.Type;
 import lense.core.lang.reflection.TypeResolver;
 
-public final class Float64 implements Float{
-
+public final class Float64 implements Float {
+ 
 	private static Float64 ZERO = new Float64(0.0d);
 	private static Float64 NaN = new Float64(java.lang.Double.NaN);
 	private static Float64 NEGATIVE_INFINITY = new Float64(java.lang.Double.NEGATIVE_INFINITY);
@@ -22,11 +22,7 @@ public final class Float64 implements Float{
 	
 	@Constructor(isImplicit= true, paramsSignature = "lense.core.math.Real")
 	public static Float64 valueOf(Real other){
-		if (other instanceof Float64) {
-			return (Float64) other;
-		} else 	if (other instanceof Float32) {
-			return new Float64(((Float32)other).value);
-		} else if (other instanceof Rational) {
+		 if (other instanceof Rational) {
 			return new Float64(java.lang.Double.parseDouble(BigDecimal.constructor((Rational)other).toString()));
 		}
 		return new Float64(java.lang.Double.parseDouble(other.toString()));
@@ -72,7 +68,7 @@ public final class Float64 implements Float{
 	}
 
 	@Override
-	public Float wrapPlus(Float other) {
+	public Float warpPlus(Float other) {
 		return new Float64(this.value + java.lang.Double.parseDouble(other.toString()));
 	}
 
@@ -141,9 +137,9 @@ public final class Float64 implements Float{
 	
     @Override
     public Integer floor() {
-        return Int64.valueOfNative((long)this.value);
+    	// TODO handle infinites and nan
+        return Int64.valueOfNative((long)Math.floor(this.value));
     }
-
 
     @Override
     public boolean isWhole() {
@@ -193,87 +189,23 @@ public final class Float64 implements Float{
 	}
 	
 	@Override
-	public Real plus(Real other) {
-		if (this.isNaN()) {
-			return this;
-		} else if (other.isNaN()) {
-			return other;
-		} else if ((this.isNegativeInfinity() && other.isPositiveInfinity()) || (other.isNegativeInfinity() && this.isPositiveInfinity())) {
-			return NaN;
-		} else if (this.isInfinity()) {
-			return this;
-		}  else if (other.isInfinity()) {
-			return other;
-		} else if (other instanceof Float32){
-			double val = this.value + ((Float32)other).value;
-			
-			if (java.lang.Double.isInfinite(val) || java.lang.Double.isNaN(val)) {
-				return promoteNext().plus(other);
-			} else {
-				return new Float64(val);
-			}
-		} else if (other instanceof Float64){
-			double val = this.value + ((Float64)other).value;
-			
-			if (java.lang.Double.isInfinite(val) || java.lang.Double.isNaN(val)) {
-				return promoteNext().plus(other);
-			} else {
-				return new Float64(val);
-			}
-		} else {
-			return promoteNext().plus(other);
-		}
+	public Float plus(Float other) {
+		return warpPlus(other);
 	}
 
 	@Override
-	public Real minus(Real other) {
-		if (this.isNaN()) {
-			return this;
-		} else if (other.isNaN()) {
-			return other;
-		} else if ((this.isPositiveInfinity() && other.isPositiveInfinity()) || (other.isNegativeInfinity() && this.isNegativeInfinity())) {
-			return NaN;
-		} else if (this.isInfinity()) {
-			return this;
-		}  else if (other.isInfinity()) {
-			return other;
-		} else if (other instanceof Float32){
-			double val = this.value + ((Float32)other).value;
-			
-			if (java.lang.Double.isInfinite(val) || java.lang.Double.isNaN(val)) {
-				return promoteNext().plus(other);
-			} else {
-				return new Float64(val);
-			}
-		} else if (other instanceof Float64){
-			double val = this.value + ((Float64)other).value;
-			
-			if (java.lang.Double.isInfinite(val) || java.lang.Double.isNaN(val)) {
-				return promoteNext().plus(other);
-			} else {
-				return new Float64(val);
-			}
-		} else {
-			return promoteNext().plus(other);
-		}
+	public Float minus(Float other) {
+		return warpMinus(other);
 	}
 
 	@Override
-	public Real multiply(Real other) {
-		// TODO Auto-generated method stub
-		return null;
+	public Float multiply(Float other) {
+		return wrapMultiply(other);
 	}
 
 	@Override
-	public Real divide(Real other) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Real raiseTo(Real other) {
-		// TODO Auto-generated method stub
-		return null;
+	public Float divide(Float other) {
+		return wrapDivide(other);
 	}
 
 	@Override
@@ -296,4 +228,5 @@ public final class Float64 implements Float{
 		return java.lang.Double.isInfinite(this.value) ;
 	}
 
+	
 }

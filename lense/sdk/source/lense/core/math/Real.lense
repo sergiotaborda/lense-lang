@@ -3,7 +3,7 @@ import lense.core.math.Number;
 import lense.core.lang.Boolean;
 import lense.core.math.SignedNumber;
 
-public interface Real extends Number , Comparable<Real>, SignedNumber {
+public interface Real extends SignedNumber , Comparable<Real> {
 
 
 	public implicit constructor  valueOf(other : Whole) {
@@ -11,14 +11,17 @@ public interface Real extends Number , Comparable<Real>, SignedNumber {
 	}
 
 	public abs(): Real;
-	
+
 	public symmetric() : Real;
-	
+
+	public isOne() : Boolean;
 	public isZero() : Boolean;
-	public isNegative() : Boolean;
-	public isPositive() : Boolean;
 	
-	public sign() : Integer;
+    public isWhole() : Boolean;
+
+	public ceil() : Integer;
+	public floor() : Integer;
+
 	public plus (other: Real): Real;
 	public minus (other: Real): Real;
 	public multiply (other: Real): Real;
@@ -31,10 +34,4 @@ public interface Real extends Number , Comparable<Real>, SignedNumber {
 	
 	public raiseTo(other : Real) : Real;
 	
-	public asInteger() : Integer;
-
-    public isWhole() : Boolean;
-
-	public ceil() : Integer;
-	public floor() : Integer;
 }

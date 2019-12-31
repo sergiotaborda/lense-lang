@@ -1,5 +1,7 @@
 package lense.core.math;
 
+import java.math.RoundingMode;
+
 import lense.core.lang.Any;
 import lense.core.lang.HashValue;
 import lense.core.lang.String;
@@ -88,7 +90,16 @@ public final class BigDecimal implements Real {
 
     @Override
     public Real divide(Real other) {
-        return new BigDecimal(this.value.divide(new java.math.BigDecimal(other.toString())));
+    	if (this.isWhole() && other.isWhole()) {
+    		return this.asInteger().divide(other.asInteger());
+    	}
+    	
+    	java.math.BigDecimal devisor = new java.math.BigDecimal(other.toString());
+    	try {
+    		return new BigDecimal(this.value.divide(devisor));
+    	} catch (java.lang.ArithmeticException e) {
+    		return new BigDecimal(this.value.divide(devisor, RoundingMode.HALF_EVEN));
+    	}
     }
 
     @Override
@@ -115,7 +126,7 @@ public final class BigDecimal implements Real {
     @Override
     public Real raiseTo(Real other) {
         // TODO use bigdecimal arithmetic. use double for now
-        return Float64.valueOf(this).raiseTo(Float64.valueOf(other));
+        return valueOfNative( Float64.valueOf(this).raiseTo(Float64.valueOf(other)).asString().toString());
     }
     
     @Override
@@ -125,8 +136,7 @@ public final class BigDecimal implements Real {
 
 	@Override
 	public Integer ceil() {
-		// TODO Auto-generated method stub
-		return null;
+	   throw new UnsupportedOperationException("Ceil not implmented yet in BigDecimal");
 	}
 
     @Override
@@ -146,15 +156,6 @@ public final class BigDecimal implements Real {
     	
         if (other instanceof BigDecimal){
             return Primitives.comparisonFromNative(this.value.compareTo(((BigDecimal) other).value));
-        } else  if (other instanceof Real){
-        	Real real = (Real) other;
-        	if (real.isNaN() || real.isNegativeInfinity()) {
-        		return Primitives.comparisonFromNative(1);
-        	} else if (real.isPositiveInfinity()) {
-        		return Primitives.comparisonFromNative(-1);
-        	}
-        	
-        	return Primitives.comparisonFromNative(NativeNumberFactory.compareNumbers(this, (Number)other));
         } else {
         	return Primitives.comparisonFromNative(NativeNumberFactory.compareNumbers(this, (Number)other));
         }
@@ -166,8 +167,6 @@ public final class BigDecimal implements Real {
        return new BigDecimal(this.value.abs());
     }
 
-
-    
 	public Rational asRational() {
 		 java.lang.String full = this.value.toPlainString();
 		 int pos = full.indexOf(".");
@@ -188,33 +187,46 @@ public final class BigDecimal implements Real {
 		return value.toString();
 	}
 
-	
-	@Override
-	public boolean isNaN() {
-		return false;
-	}
-
-	@Override
-	public boolean isNegativeInfinity() {
-		return false;
-	}
-
-	@Override
-	public boolean isPositiveInfinity() {
-		return false;
-	}
-
-	@Override
-	public boolean isInfinity() {
-		return false;
-	}
-
-
-
 	@Override
 	public Type type() {
 		return Type.fromName(this.getClass().getName());
 	}
 
+	@Override
+	public Integer asInteger() {
+		return floor();
+	}
+
+	@Override
+	public boolean isNegative() {
+		return this.value.signum() < 0;
+	}
+
+	@Override
+	public boolean isPositive() {
+		return this.value.signum() > 0;
+	}
+
+	@Override
+	public Complex plus(Imaginary other) {
+		return Complex.retangular(this, other.real());
+	}
+
+	@Override
+	public Complex minus(Imaginary other) {
+		return Complex.retangular(this, other.real().symmetric());
+	}
+	
+
+	@Override
+	public Imaginary multiply(Imaginary other) {
+		return Imaginary.valueOf(this.multiply(other.real()));
+	}
+	
+
+	@Override
+	public Imaginary divide(Imaginary other) {
+		return Imaginary.valueOf(this.divide(other.real()));
+	}
 
 }

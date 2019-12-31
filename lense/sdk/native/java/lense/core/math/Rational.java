@@ -182,7 +182,7 @@ public final class Rational implements Real  {
 		return BigDecimal.constructor(this);
 	}
 
-	private Rational invert() {
+	public Rational invert() {
         if (this.isZero()){
             throw ArithmeticException.constructor(lense.core.lang.String.valueOfNative("Cannot invert zero"));
         }
@@ -247,29 +247,47 @@ public final class Rational implements Real  {
 		throw new ClassCastException("Cannot compare Rational to " + other.getClass().getName());
 	}
 	
-
-	@Override
-	public boolean isNaN() {
-		return false;
-	}
-	
-	@Override
-	public boolean isNegativeInfinity() {
-		return false;
-	}
-	
-	@Override
-	public boolean isPositiveInfinity() {
-		return false;
-	}
-	
-	@Override
-	public boolean isInfinity() {
-		return false;
-	}
-
 	@Override
 	public Type type() {
 		return Type.fromName(this.getClass().getName());
 	}
+	
+	@Override
+	public Integer asInteger() {
+		return this.floor();
+	}
+	
+	@Override
+	public boolean isNegative() {
+		return this.numerator.isNegative();
+	}
+	
+	@Override
+	public boolean isPositive() {
+		return this.numerator.isPositive();
+	}
+	
+	@Override
+	public Complex plus(Imaginary other) {
+		return Complex.retangular(this, other.real());
+	}
+
+	@Override
+	public Complex minus(Imaginary other) {
+		return Complex.retangular(this, other.real().symmetric());
+	}
+	
+
+	@Override
+	public Imaginary multiply(Imaginary other) {
+		return Imaginary.valueOf(this.multiply(other.real()));
+	}
+	
+
+	@Override
+	public Imaginary divide(Imaginary other) {
+		return Imaginary.valueOf(this.divide(other.real()));
+	}
+
+
 }
