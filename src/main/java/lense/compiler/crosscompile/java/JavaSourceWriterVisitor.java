@@ -709,7 +709,10 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 
                 if (t.getKind().isObject()) {
                     writer.append("@lense.core.lang.java.SingletonObject()").println();
+                } else  if (t.isValueClass()) {
+                    writer.append("@lense.core.lang.java.ValueClass").println();
                 }
+                
                 if (t.getAnnotations() != null) {
                     // TODO
 
@@ -763,6 +766,13 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
                         writer.print(" implements ");
                     }
 
+                    if (t.isValueClass()) {
+                    	writer.print("lense.core.lang.AnyClass");
+                    	if (!t.getInterfaces().getChildren().isEmpty()){
+                    		writer.print(" , ");
+                    	}
+                    }
+                    
                     int count = 0;
                     for (AstNode n : t.getInterfaces().getChildren()) {
                         TypeNode tn = (TypeNode) n;
@@ -775,7 +785,7 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
                     writer.print("lense.core.lang.Any");
                 } else if (t.getKind().isInterface()){
                     writer.print(" extends lense.core.lang.Any");
-                }
+                } 
 
                 writer.println("{");
 
