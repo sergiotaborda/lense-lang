@@ -90,7 +90,91 @@ public class Main extends ConsoleApplication {
 
 	}
 
-	private demoLongAndIntErrasure(){
+	private demoIntErasure_ErasurePossible(){
+
+		let ap : Int32 = 44;
+		let bp : Int32= 55;
+
+		let dp = ap &+ bp;
+
+		let gp = ap &* bp;
+	
+		assert (99 == dp , "dp is not999, is {{ dp }}");
+
+		assert (2420 == gp, "gp is not 2420, is {{ gp }}");
+
+		assert (gp is Int32, "gp is not an Int32");
+		assert (dp is Int32, "dp is not an Int32");
+		assert (!(dp is Int64), "dp is an Int64");
+		assert (dp is Integer, "dp is not an Integer");
+		
+		for (let i in 0 .. 3){
+			ap = ap &+ i;
+		}
+
+		assert (50 == ap, "a is not 50, is {{ ap }}");
+		
+		let list = new List<Int32>();
+		
+		list.add(ap);
+		
+		console.println(list);
+		console.println(list.size);
+
+		assert(1 == list.size, "List size is not 1");
+		assert(!list.empty, "List size is empty");
+		
+		let x : Int32 = list[0];
+		
+		let y : Int32 = x &+ 1;
+		
+		assert (51 == y, "y is not 51, is {{ y }}");
+		
+	}
+	
+	private demoLongErasure_ErasurePossible(){
+
+		let ap : Int64 = 44;
+		let bp : Int64 = 55;
+
+		let dp = ap &+ bp;
+
+		let gp = ap &* bp;
+	
+		assert (99 == dp , "dp is not999, is {{ dp }}");
+
+		assert (2420 == gp, "gp is not 2420, is {{ gp }}");
+
+		assert (gp is Int64, "gp is not an Int64");
+		assert (dp is Int64, "dp is not an Int64");
+		assert (!(dp is Int32), "dp is an Int32");
+		assert (dp is Integer, "dp is not an Integer");
+/{
+		for (let i in 0 .. 3){
+			ap = ap &+ i;
+		}
+}/
+		assert (50 == ap, "a is not 50, is {{ ap }}");
+		
+		let list = new List<Int64>();
+		
+		list.add(ap);
+		
+		console.println(list);
+		console.println(list.size);
+
+		assert(1 == list.size, "List size is not 1");
+		assert(!list.empty, "List size is empty");
+		
+		let x : Int64 = list[0];
+		/{
+		let y : Int64 = x &+ 1;
+		
+		assert (51 == y, "y is not 51, is {{ y }}");
+		}/
+	}
+	
+	private demoLongAndIntErasure_NoErasurePossible(){
 
 		let a : Int32 = 4;
 		let b : Int32 = 5;
@@ -236,8 +320,10 @@ public class Main extends ConsoleApplication {
 
   	 	console.println("Begin " ++ this.type().name); 
 
-		demoLongAndIntErrasure();
+		demoLongAndIntErasure_NoErasurePossible();
 
+		demoIntErasure_ErasurePossible();
+	
 		demoBinding();
 
 		demoReification();

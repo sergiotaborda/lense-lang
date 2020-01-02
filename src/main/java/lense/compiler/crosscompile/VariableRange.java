@@ -26,7 +26,7 @@ public class VariableRange {
             return INT_RANGE;
         } else  if (type == PrimitiveTypeDefinition.LONG){
             return Long_RANGE;
-        }
+        } 
 
         return EMPTY;
     }

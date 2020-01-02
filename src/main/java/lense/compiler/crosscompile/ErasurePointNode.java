@@ -87,4 +87,18 @@ public class ErasurePointNode extends ExpressionNode {
         return boxingDirection;
     }
 
+	
+    public ErasurePointNode simplify() {
+		if (this.getValue() instanceof ErasurePointNode) {
+			ErasurePointNode child = (ErasurePointNode)this.getValue();
+			
+			if (child.boxingDirection == this.boxingDirection
+					&& child.erasureOperation == this.erasureOperation
+			) {
+				return child.simplify();
+			}
+		}
+		return this;
+	}
+
 }
