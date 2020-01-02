@@ -3,5 +3,8 @@ import lense.core.lang.Exception;
 
 public class IllegalIndexException extends Exception {
 
+	public constructor ();
+
+	public constructor (message : String) extends super (message); 
 	
 } 

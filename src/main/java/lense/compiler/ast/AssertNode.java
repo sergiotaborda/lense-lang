@@ -8,7 +8,7 @@ import java.util.Optional;
 /**
  * 
  */
-public class AssertNode extends StatementNode {
+public class AssertNode extends StatementNode implements ConditionalStatement {
 
     private boolean referenceValue = true;
     
@@ -16,7 +16,7 @@ public class AssertNode extends StatementNode {
         this.add(expressionNode);
     }
 
-    public ExpressionNode getCheck() {
+    public ExpressionNode getCondition() {
     	return (ExpressionNode) this.getFirstChild();
     }
     

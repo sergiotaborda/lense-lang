@@ -1,0 +1,30 @@
+import lense.core.math.Real;
+import lense.core.math.SignedNumber;
+
+public  interface Float extends SignedNumber {
+
+	public isNaN(): Boolean;
+	public isNegativeZero() : Boolean;
+	public isNegativeInfinity() : Boolean;
+	public isPositiveInfinity() : Boolean;
+	public isInfinity() : Boolean;
+	
+    public abs(): Float;
+
+	public symmetric() : Float;
+
+	public isOne() : Boolean;
+	public isZero() : Boolean;
+	
+    public isWhole() : Boolean;
+
+	public ceil() : Integer;
+	public floor() : Integer;
+
+	public plus (other: Float): Float;
+	public minus (other: Float): Float;
+	public multiply (other: Float): Float;
+	public divide (other: Float): Float;
+	
+	public raiseTo(other : Float) : Float;
+}

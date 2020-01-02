@@ -12,6 +12,7 @@ import lense.core.lang.java.Signature;
 import lense.core.lang.reflection.Type;
 import lense.core.lang.reflection.TypeResolver;
 import lense.core.math.Natural;
+import lense.core.math.Natural64;
 
 @Signature("::lense.core.collections.Sequence<lense.core.lang.Character>")
 public class String extends Base implements Sequence , CharSequence {
@@ -40,7 +41,7 @@ public class String extends Base implements Sequence , CharSequence {
 	@Override
 	public Natural getSize() {
 
-		return Natural.valueOfNative(str.length());
+		return Natural64.valueOfNative(str.length());
 	}
 
 	@Override

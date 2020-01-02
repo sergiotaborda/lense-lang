@@ -2,42 +2,44 @@
 import lense.core.math.Number;
 import lense.core.math.Imaginary;
 import lense.core.math.Real;
+import lense.core.math.ArithmeticException;
 
-public class Complex extends Number {
+public value class Complex implements Number {
 
- 	public constructor ( private real : Real, private imaginary: Real);
-	
-	public constructor (){
-		return new Complex(new Real.zero(), new Real.zero());
-	}
-	
-	public implicit constructor valueOfReal( real : Real){
-		return new Complex(real, new Real.zero());
-	}
-	
-   	public implicit constructor valueOfImaginary( img : Imaginary){
-		return new Complex(new Real.zero(), img.real());
+
+	private constructor (real: Real, imaginary: Real);
+
+	public implicit constructor valueOfReal(real: Real){
+		return new Complex(real, 0.0);
 	}
 
-	public real() => real;
+	public implicit constructor valueOf(img: Imaginary){
+		return new Complex(0.0, img.real());
+	}
 
-	public imaginary() => imaginary;
+	public implicit constructor retangular(real: Real, img: Real){
+		return new Complex(real, img);
+	}
 
-	public plus( other : Complex) => new Complex(this.real.plus(other.real), this.imaginary.plus(other.imaginary));
+	public real() => this.real;
 
-	public minus( other : Complex) => new Complex(this.real. minus(other.real), this.imaginary. minus(other.imaginary));
+	public imaginary() => this.imaginary;
+
+	public plus( other : Complex) => new Complex(this.real + other.real, this.imaginary + other.imaginary);
+
+	public minus( other : Complex) => new Complex(this.real - other.real, this.imaginary - other.imaginary);
 
 	public  multiply( other : Complex) {
 		return new Complex(
-				this.real.multiply(other.real).minus(this.imaginary.multiply(other.imaginary)) ,
-				this.real.multiply(other.imaginary).plus(this.imaginary.multiply(other.real))
+				(this.real * other.real) - (this.imaginary * other.imaginary) ,
+				(this.real * other.imaginary) + (this.imaginary * other.real)
 		);
 	}
 
 	public divide( denominator : Complex ) : Complex {
 		let magnitude : Real =  denominator.abs();
 		if (magnitude.isZero()){
-			throw new Exception();
+			throw new ArithmeticException("Cannot divide by zero");
 		}
 		return this.multiply(denominator.conjugate()).divide(magnitude);
 	}
@@ -56,9 +58,9 @@ public class Complex extends Number {
 
 	public override asString() : String {
 	    var sign : String = "+";
-	    if (imaginary.signum() < 0){
+	    if (imaginary.sign() < 0){
 	    	sign = " - ";
 	    }
-		return real.asString() ++ sign ++  imaginary.asString() ++ "i";
+		return real.asString() ++ sign ++  imaginary.abs().asString() ++ "i";
 	}
 }

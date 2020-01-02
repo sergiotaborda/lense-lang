@@ -11,7 +11,6 @@ import lense.compiler.ast.AssignmentNode;
 import lense.compiler.ast.AssignmentNode.Operation;
 import lense.compiler.ast.BlockNode;
 import lense.compiler.ast.BooleanOperation;
-import lense.compiler.ast.BooleanValue;
 import lense.compiler.ast.ComparisonNode;
 import lense.compiler.ast.ExpressionNode;
 import lense.compiler.ast.FieldDeclarationNode;
@@ -19,7 +18,7 @@ import lense.compiler.ast.FieldOrPropertyAccessNode;
 import lense.compiler.ast.FieldOrPropertyAccessNode.FieldKind;
 import lense.compiler.ast.FormalParameterNode;
 import lense.compiler.ast.ImutabilityNode;
-import lense.compiler.ast.IndexedAccessNode;
+import lense.compiler.ast.IndexedPropertyReadNode;
 import lense.compiler.ast.IndexerPropertyDeclarationNode;
 import lense.compiler.ast.MethodDeclarationNode;
 import lense.compiler.ast.MethodInvocationNode;
@@ -60,13 +59,6 @@ public class DesugarVisitor extends AbstractLenseVisitor {
         return semanticContext;
     }
 
-    @Override
-    public void startVisit() {
-    }
-
-    @Override
-    public void endVisit() {
-    }
 
     @Override
     public VisitorNext visitBeforeChildren(AstNode node) {
@@ -329,8 +321,8 @@ public class DesugarVisitor extends AbstractLenseVisitor {
                     n.getParent().replace(node, invokeGet);
                 }
             }
-        } else if (node instanceof IndexedAccessNode) {
-            IndexedAccessNode n = (IndexedAccessNode) node;
+        } else if (node instanceof IndexedPropertyReadNode) {
+            IndexedPropertyReadNode n = (IndexedPropertyReadNode) node;
 
             ArgumentListNode list = new ArgumentListNode();
             for (AstNode a : n.getArguments().getChildren()) {
@@ -350,6 +342,7 @@ public class DesugarVisitor extends AbstractLenseVisitor {
                 invokeSet.setIndexDerivedMethod(true);
                 invokeSet.setPropertyOperation(PropertyOperation.WRITE);
                 invokeSet.setTypeVariable(LenseTypeSystem.Void());
+                invokeSet.setTypeMember(n.getIndexerProperty());
                 
                 node.getParent().getParent().replace(n.getParent(), invokeSet);
                 
@@ -360,6 +353,7 @@ public class DesugarVisitor extends AbstractLenseVisitor {
                 invokeGet.setIndexDerivedMethod(true);
                 invokeGet.setPropertyOperation(PropertyOperation.READ);
                 invokeGet.setTypeVariable(n.getTypeVariable());
+                invokeGet.setTypeMember(n.getIndexerProperty());
                 
                 node.getParent().replace(node, invokeGet);
 
@@ -372,54 +366,24 @@ public class DesugarVisitor extends AbstractLenseVisitor {
             ArgumentListItemNode arg = new ArgumentListItemNode(0, n.getRight());
             arg.setExpectedType(n.getRight().getTypeVariable());
 
-            if (n.getOperation() == ComparisonNode.Operation.EqualTo) {
+            if (n.getOperation() == ComparisonNode.Operation.EqualTo || n.getOperation() == ComparisonNode.Operation.Different) {
 
                 MethodInvocationNode invocation;
 
                 if (isZero(n.getRight())) {
                     invocation = new MethodInvocationNode(n.getLeft(), "isZero");
+                    invocation.setTypeVariable(n.getTypeVariable());
+
+                } else if (isZero(n.getLeft())) {
+                    invocation = new MethodInvocationNode(n.getRight(), "isZero");
+                    invocation.setTypeVariable(n.getTypeVariable());
+                } else if (isOne(n.getRight())) {
+                    invocation = new MethodInvocationNode(n.getLeft(), "isOne");
                     invocation.setTypeVariable(n.getTypeVariable());
 
                     
-                } else if (isZero(n.getLeft())) {
-                    invocation = new MethodInvocationNode(n.getRight(), "isZero");
-                    invocation.setTypeVariable(n.getTypeVariable());
-
-//                } else if (isLogicConstant(n.getRight())) {
-//                	
-//                	if (isTrue(n.getRight())) {
-//                		 invocation = new MethodInvocationNode(n.getLeft(), "isTrue");
-//                         invocation.setTypeVariable(n.getTypeVariable());
-//                	} else {
-//                		 invocation = new MethodInvocationNode(n.getLeft(), "isFalse");
-//                         invocation.setTypeVariable(n.getTypeVariable());
-//                	}
-//                } else if (isLogicConstant(n.getLeft())) {
-//                	
-//                	if (isTrue(n.getLeft())) {
-//                		 invocation = new MethodInvocationNode(n.getRight(), "isTrue");
-//                         invocation.setTypeVariable(n.getTypeVariable());
-//                	} else {
-//                		 invocation = new MethodInvocationNode(n.getRight(), "isFalse");
-//                         invocation.setTypeVariable(n.getTypeVariable());
-//                	}
-                } else {
-                    invocation = new MethodInvocationNode(n.getLeft(), "equalsTo", arg);
-                    invocation.setTypeVariable(n.getTypeVariable());
-                }
-
-                node.getParent().replace(node, invocation);
-
-            } else if (n.getOperation() == ComparisonNode.Operation.Different) {
-
-                MethodInvocationNode invocation;
-
-                if (isZero(n.getRight())) {
-                    invocation = new MethodInvocationNode(n.getLeft(), "isZero");
-                    invocation.setTypeVariable(n.getTypeVariable());
-
-                } else if (isZero(n.getLeft())) {
-                    invocation = new MethodInvocationNode(n.getRight(), "isZero");
+                } else if (isOne(n.getLeft())) {
+                    invocation = new MethodInvocationNode(n.getRight(), "isOne");
                     invocation.setTypeVariable(n.getTypeVariable());
 //                } else if (isLogicConstant(n.getRight())) {
 //                	
@@ -440,13 +404,18 @@ public class DesugarVisitor extends AbstractLenseVisitor {
 //                         invocation.setTypeVariable(n.getTypeVariable());
 //                	}
                 } else {
-                    invocation = new MethodInvocationNode(n.getLeft(), "equalsTo", arg);
+                    invocation = new MethodInvocationNode(n.getLeft(),ComparisonNode.Operation.EqualTo.getEquivalentMethodName().get(), arg);
                     invocation.setTypeVariable(n.getTypeVariable());
                 }
 
-                PreBooleanUnaryExpression not = new PreBooleanUnaryExpression(BooleanOperation.LogicNegate, invocation);
+                if (n.getOperation() == ComparisonNode.Operation.Different){
+                    PreBooleanUnaryExpression not = new PreBooleanUnaryExpression(BooleanOperation.LogicNegate, invocation);
+                    node.getParent().replace(node, not);
+                } else {
+                    node.getParent().replace(node, invocation);
+                }
 
-                node.getParent().replace(node, not);
+               
 
             } else if (n.getOperation() == ComparisonNode.Operation.ReferenceEquals) {
                 // no-op
@@ -454,7 +423,7 @@ public class DesugarVisitor extends AbstractLenseVisitor {
                 // no-op
             } else {
 
-                MethodInvocationNode compareTo = new MethodInvocationNode(n.getLeft(), "compareWith", arg);
+                MethodInvocationNode compareTo = new MethodInvocationNode(n.getLeft(), ComparisonNode.Operation.Compare.getEquivalentMethodName().get() , arg);
                 compareTo.setTypeVariable(LenseTypeSystem.Natural());
 
                 if (n.getOperation() == ComparisonNode.Operation.Compare) {
@@ -535,14 +504,10 @@ public class DesugarVisitor extends AbstractLenseVisitor {
         return right instanceof NumericValue && ((NumericValue) right).isZero();
     }
     
-    private boolean isLogicConstant(ExpressionNode right) {
-        return right instanceof BooleanValue;
+    private boolean isOne(ExpressionNode right) {
+        return right instanceof NumericValue && ((NumericValue) right).isOne();
     }
     
-    private boolean isTrue(ExpressionNode right) {
-        return right instanceof BooleanValue && ((BooleanValue) right).isValue();
-    }
-
     public String resolvePropertyName(String name) {
         return name.substring(0, 1).toUpperCase() + name.substring(1);
     }

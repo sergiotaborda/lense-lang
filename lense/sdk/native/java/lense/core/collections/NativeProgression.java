@@ -5,7 +5,7 @@ import java.util.stream.IntStream;
 import lense.core.lang.Any;
 import lense.core.lang.HashValue;
 import lense.core.lang.java.Base;
-import lense.core.math.Natural;
+import lense.core.math.Natural64;
 
 public class NativeProgression extends Base implements Progression{
 
@@ -19,7 +19,7 @@ public class NativeProgression extends Base implements Progression{
 	
 	@Override
 	public Iterator getIterator() {
-		return new IteratorAdapter(IntStream.range(start, end + 1).mapToObj(i -> Natural.valueOfNative(i)).iterator());
+		return new IteratorAdapter(IntStream.range(start, end + 1).mapToObj(i -> Natural64.valueOfNative(i)).iterator());
 	}
 
 	@Override

@@ -3,16 +3,21 @@ import lense.core.math.Integer;
 import lense.core.lang.Binary;
 import lense.core.math.Natural;
 
-public native class Int64 extends Integer implements Binary{
+public native value class Int64 implements Integer ,  Binary{
 
-	public native implicit constructor valueOf ( n: Natural);
 	public native implicit constructor valueOf ( n: Binary);
+
+	public native implicit constructor valueOf ( n: Whole);
 	
 	public native complement() : Int64;
 	
-	public  size : Natural {get { return 64;}}
-
 	public native rightShiftBy( n:Natural) : Int64;
 	
 	public native leftShiftBy( n:Natural) : Int64;
+	
+    public native wrapPlus( other : Int64) : Int64;
+
+    public native wrapMultiply( other : Int64) : Int64;
+    
+    public native wrapMinus( other : Int64) : Int64;
 }

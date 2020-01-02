@@ -26,7 +26,7 @@ import lense.compiler.ast.FieldOrPropertyAccessNode;
 import lense.compiler.ast.FieldOrPropertyAccessNode.FieldKind;
 import lense.compiler.ast.ForEachNode;
 import lense.compiler.ast.FormalParameterNode;
-import lense.compiler.ast.IndexedAccessNode;
+import lense.compiler.ast.IndexedPropertyReadNode;
 import lense.compiler.ast.LiteralCreation;
 import lense.compiler.ast.MethodDeclarationNode;
 import lense.compiler.ast.MethodInvocationNode;
@@ -499,9 +499,9 @@ public class TacInstructionsVisitor implements Visitor<AstNode> {
 
 				n.setProperty("tempVal", target);
 			}
-		} else if (node instanceof IndexedAccessNode){
+		} else if (node instanceof IndexedPropertyReadNode){
 			// access[expr]
-			IndexedAccessNode n =(IndexedAccessNode)node;
+			IndexedPropertyReadNode n =(IndexedPropertyReadNode)node;
 //			
 //			Operand access = n.getAccess().getProperty("tempVal", Operand.class).get();
 //			Operand expr = n.getIndexExpression().getProperty("tempVal", Operand.class).get();

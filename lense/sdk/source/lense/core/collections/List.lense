@@ -81,7 +81,7 @@ public  class List<T> implements ResizableSequence<T> {
 		}
 
 		array[length] = new Some<T>(value);
-		length += 1; 
+		this.length += 1; 
 	}
 
 	public remove(value : T) {
@@ -97,19 +97,19 @@ public  class List<T> implements ResizableSequence<T> {
 			// TODO  make auto boxing of value in index automatic
 		}
 }/
-		length = length.predecessor();
+		length = length &- 1;
 	}
 
 	public  [index: Natural] : T { 
 		get {
-			if ( index >= length - 1){
-				throw new IllegalIndexException();
+			if ( index > length - 1){
+				throw new IllegalIndexException("Passed index {{ index }} is greater than maximum index {{ length - 1 }} ");
 			}
-			let v = array[index];
+			let v : T? = array[index];
 			if (v != none){
-				return v;
+				return v.value;
 			} else {
-				throw new IllegalIndexException();
+				throw new IllegalIndexException("No element is present at index {{ index }}");
 			}
 			
 		}

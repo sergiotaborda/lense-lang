@@ -2,6 +2,7 @@ package lense.core.collections;
 
 import lense.core.lang.reflection.ReifiedArguments;
 import lense.core.math.Natural;
+import lense.core.math.Natural64;
 
 abstract class SizeArrayStrategy {
 
@@ -10,7 +11,7 @@ abstract class SizeArrayStrategy {
 	 static SizeArrayStrategy resolveSizeStrategy(Natural size) {
 		 
 		 System.out.println("Creating an array of size "  + size.toString());
-		 if (size.isInInt32Range()) {
+		 if (size.compareWith(Natural64.INT32_MAX).isSmaller()) {
 			 return resolveStandardSizeStrategy();
 		 } else {
 			 throw new UnsupportedOperationException("Arrays bigger than int32 length are not supported yet");

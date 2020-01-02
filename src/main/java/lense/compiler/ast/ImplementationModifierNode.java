@@ -14,6 +14,7 @@ public class ImplementationModifierNode extends LenseAstNode {
 	private boolean isFinal;
 	private boolean isDefault;
 	private boolean isOverride;
+	private boolean isValueClass;
 	
 	/**
 	 * Constructor.
@@ -32,6 +33,7 @@ public class ImplementationModifierNode extends LenseAstNode {
 		n.isFinal = this.isFinal || other.isFinal;
 		n.isDefault = this.isDefault || other.isDefault;
 		n.isOverride = this.isOverride || other.isOverride;
+		n.isValueClass = this.isValueClass || other.isValueClass;
 		
 		return n;
 	}
@@ -82,6 +84,16 @@ public class ImplementationModifierNode extends LenseAstNode {
 
 	public void setOverride(boolean isOverride) {
 		this.isOverride = isOverride;
+	}
+
+	
+	public boolean isValueClass() {
+		return isValueClass;
+	}
+	
+
+	public void setValueClass(boolean isValueClass) {
+		this.isValueClass = isValueClass;
 	}
 
 

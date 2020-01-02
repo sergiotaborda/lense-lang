@@ -18,4 +18,5 @@ public  abstract class AbstractLenseVisitor implements Visitor<AstNode>{
 	}
 
     protected abstract SemanticContext getSemanticContext();
+    
 }

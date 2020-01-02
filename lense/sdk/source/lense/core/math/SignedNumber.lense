@@ -8,7 +8,7 @@ import lense.core.math.Integer;
 	Represents a mathematical quantity that can be compared to 0.
 	Number as no properties or operations and is not comparable. 
 }/
-public interface SignedNumber  {
+public interface SignedNumber extends Number  {
 
 	public isZero() : Boolean;
 	
@@ -23,6 +23,11 @@ public interface SignedNumber  {
 		Note that 0.isPositive() returns false;
 	}/
     public isPositive() : Boolean;
-    
-    public signum(): Integer;
+ 
+	/{
+		Return 0 if the value is zero, -1 if the value if less than zero and 1 if greater
+	}/
+    public sign(): Integer;
+
+	// TODO public symmetric() : self;
 }

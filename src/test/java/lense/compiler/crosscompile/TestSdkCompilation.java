@@ -11,6 +11,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import lense.compiler.ast.LenseCompilerListener;
@@ -27,7 +28,7 @@ import lense.compiler.modules.ModulesRepository;
 public class TestSdkCompilation {
 
 
-	@Test 
+	 @Test 
 	public void testCompileLibrary() throws IOException {
 		File folder = new File(new File(".").getAbsoluteFile().getParentFile(), "/lense/sdk/");
 
@@ -51,7 +52,7 @@ public class TestSdkCompilation {
 		.compileModuleFromDirectory(folder);
 	}
 
-	@Test 
+	 @Ignore @Test 
     public void testCompileLibraryJavascript() throws IOException {
         File folder = new File(new File(".").getAbsoluteFile().getParentFile(), "/lense/sdk/");
 
