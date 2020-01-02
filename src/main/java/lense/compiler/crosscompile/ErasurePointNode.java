@@ -101,4 +101,12 @@ public class ErasurePointNode extends ExpressionNode {
 		return this;
 	}
 
+	
+    public ExpressionNode elideAll() {
+    	if (this.getValue() instanceof ErasurePointNode) {
+    		return ((ErasurePointNode)this.getValue()).elideAll();
+		}
+		return this.getValue();
+	}
+
 }

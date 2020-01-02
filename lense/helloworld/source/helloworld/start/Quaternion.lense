@@ -1,8 +1,9 @@
 
 import lense.core.lang.PreBindable;
 import lense.core.lang.AssertionException;
+import lense.core.math.Number;
 
-public value class Quaternion {
+public value class Quaternion implements Number {
 
 	public constructor ( real : Real, i : Real, j : Real, k : Real);
 
@@ -28,6 +29,14 @@ public value class Quaternion {
 
 	public constructor valueOfK(r : Real){
 		return new Quaternion(0, 0, 0, r);
+	}
+
+	public isZero(): Boolean {
+
+		return this.real.isZero() 
+			&& this.i.isZero() 
+			&& this.j.isZero()
+			&& this.k.isZero();
 	}
 
 	public plus(other : Complex ) : Quaternion {

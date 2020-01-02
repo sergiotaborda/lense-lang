@@ -37,12 +37,14 @@ public class ClassTypeNode extends AnnotadedLenseAstNode implements ScopeDelimit
 	private boolean isSealed;
 	private boolean isAlgebric;
 	private boolean isValueClass;
-	
+	private boolean isImmutable;
+		
 	private Visibility visibility;
 	private ChildTypesListNode childTypesListNode;
     private boolean isAsStringDefined;
     private boolean isHashValueDefined;
     private boolean isEqualsToDefined;
+
 	
 	public ClassTypeNode (LenseUnitKind kind){
 		this.kind = kind;
@@ -182,6 +184,18 @@ public class ClassTypeNode extends AnnotadedLenseAstNode implements ScopeDelimit
 		this.isNative = isNative;
 	}
 
+	public boolean isExplicitlyImmutable() {
+		return isImmutable;
+	}
+
+	public void setExplicitlyImmutable(boolean isImmutable) {
+		this.isImmutable = isImmutable;
+	}
+	
+	public boolean isImmutable() {
+		return isImmutable && this.isValueClass();
+	}
+	
 	public String getPackageName() {
 		int pos = name.lastIndexOf('.');
 		if (pos >0){

@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import compiler.CompilerListener;
 import compiler.syntax.AstNode;
 import compiler.trees.TreeTransverser;
 import compiler.trees.VisitorNext;
@@ -56,11 +57,13 @@ public class StructureVisitor extends AbstractScopedVisitor {
 
 	private LenseTypeDefinition currentType;
 	private boolean secondPass;
+	private CompilerListener listener;
 
-	public StructureVisitor (LenseTypeDefinition currentType, SemanticContext semanticContext , boolean secondPass){
+	public StructureVisitor (CompilerListener listener, LenseTypeDefinition currentType, SemanticContext semanticContext , boolean secondPass){
 		super(semanticContext);
 		this.currentType = currentType;
 		this.secondPass = secondPass;
+		this.listener = listener;
 	}
 	
     @Override
@@ -212,7 +215,7 @@ public class StructureVisitor extends AbstractScopedVisitor {
 					
 					ReturnNode r = op.get();
 					
-					SemanticVisitor sv = new SemanticVisitor(this.getSemanticContext());
+					SemanticVisitor sv = new SemanticVisitor(this.getSemanticContext(), this.listener);
 
 					TreeTransverser.transverse( node, sv);
 					

@@ -49,6 +49,7 @@ public class LenseTypeDefinition implements TypeDefinition {
     
     private List<TypeDefinition> caseValues = Collections.emptyList();
     private List<TypeDefinition> caseTypes = Collections.emptyList();
+	private boolean isImmutable;
 
     public LenseTypeDefinition(String name, TypeKind kind, LenseTypeDefinition superDefinition) {
         this.name = name;
@@ -96,7 +97,7 @@ public class LenseTypeDefinition implements TypeDefinition {
     	   other.isAlgebric = this.isAlgebric;
     	   other.caseTypes = this.caseTypes;
     	   other.caseValues = this.caseValues;
-    	 
+    	   other.isImmutable = this.isImmutable;
     	   
            return other;
     }
@@ -158,6 +159,19 @@ public class LenseTypeDefinition implements TypeDefinition {
         this.plataformSpecific = plataformSpecific;
     }
 
+    public boolean isExplicitlyImmutable() {
+        return isImmutable;
+    }
+
+    public void setExplicitlyImmutable(boolean isImmutable) {
+        this.isImmutable = isImmutable;
+    }
+    
+    public boolean isImmutable() {
+    	return isImmutable || this.kind.isValue();
+    }
+
+    
     public boolean isFundamental(){
         return false;
     }

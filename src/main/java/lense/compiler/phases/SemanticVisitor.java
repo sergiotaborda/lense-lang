@@ -21,6 +21,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import compiler.CompilerListener;
+import compiler.CompilerMessage;
 import compiler.parser.IdentifierNode;
 import compiler.parser.NameIdentifierNode;
 import compiler.syntax.AstNode;
@@ -57,6 +59,7 @@ import lense.compiler.ast.DecisionNode;
 import lense.compiler.ast.ExpressionNode;
 import lense.compiler.ast.FieldDeclarationNode;
 import lense.compiler.ast.FieldOrPropertyAccessNode;
+import lense.compiler.ast.FieldOrPropertyAccessNode.FieldAccessKind;
 import lense.compiler.ast.FieldOrPropertyAccessNode.FieldKind;
 import lense.compiler.ast.ForEachNode;
 import lense.compiler.ast.FormalParameterNode;
@@ -138,9 +141,13 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 
 	private final LenseTypeSystem lenseTypeSystem;
 
-    public SemanticVisitor(SemanticContext sc) {
+	private CompilerListener listener;
+
+    public SemanticVisitor(SemanticContext sc,CompilerListener listener) {
         super(sc);
 
+        this.listener = listener;
+        
         lenseTypeSystem = LenseTypeSystem.getInstance();
 
         ANY = (LenseTypeDefinition) sc.resolveTypeForName("lense.core.lang.Any", 0).get();
@@ -149,9 +156,10 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
         // sc.resolveTypeForName("lense.core.lang.Nothing", 0).get();
     }
 
-    public SemanticVisitor(SemanticContext sc, Map<TypeVariable, List<TypeDefinition>> enhancements) {
-        this(sc);
+    public SemanticVisitor(SemanticContext sc, Map<TypeVariable, List<TypeDefinition>> enhancements, CompilerListener listener) {
+        this(sc,listener);
         this.enhancements = enhancements;
+     
     }
 
     @Override
@@ -277,6 +285,14 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
             this.getSemanticContext().currentScope().defineVariable("@returnOfMethod",
                     this.getSemanticContext().currentScope().getCurrentType(), node);
 
+        } else if (node instanceof AssignmentNode) {
+        	AssignmentNode a = (AssignmentNode)node;
+        	
+        	TypedNode left = a.getLeft();
+        	if (left instanceof FieldOrPropertyAccessNode) {
+        		((FieldOrPropertyAccessNode)left).setAccessKind(FieldAccessKind.WRITE);
+        	}
+        	
         } else if (node instanceof MethodDeclarationNode) {
 
             MethodDeclarationNode m = (MethodDeclarationNode) node;
@@ -490,9 +506,15 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
             myType.setVisibility(visibility);
             myType.setAbstract(t.isAbstract());
             myType.setNative(t.isNative());
-
+            myType.setExplicitlyImmutable(t.isExplicitlyImmutable());
             // TODO annotations
+            
+            if (t.getKind().isValue() && t.isExplicitlyImmutable()) {
+				 this.listener.warn(new CompilerMessage("Value classes are already immutable. You may remove the immutable modifier for " + t.getName()));
+			}
 
+          
+         
             TypeDefinition superType = ANY;
             if (superTypeNode != null) {
 
@@ -634,7 +656,7 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 
             }
 
-            TreeTransverser.transverse(t, new StructureVisitor(myType, this.getSemanticContext(), true));
+            TreeTransverser.transverse(t, new StructureVisitor(this.listener , myType, this.getSemanticContext(), true));
 
             if (t.getInterfaces() != null) {
                 for (AstNode n : t.getInterfaces().getChildren()) {
@@ -671,7 +693,7 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 
             ForEachNode n = (ForEachNode) node;
 
-            TreeTransverser.transverse(n.getContainer(), new SemanticVisitor(this.getSemanticContext()));
+            TreeTransverser.transverse(n.getContainer(), new SemanticVisitor( this.getSemanticContext(),this.listener));
 
             TypeVariable containerTypeVariable = n.getContainer().getTypeVariable();
 
@@ -756,7 +778,8 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
         AstNode parent = node.getParent();
         if (parent instanceof ForEachNode || parent instanceof WhileNode) {
             return false;
-        } else if (parent instanceof PropertyDeclarationNode || parent instanceof MethodDeclarationNode
+        } else if (parent instanceof PropertyDeclarationNode 
+        		|| parent instanceof MethodDeclarationNode
                 || parent instanceof DecisionNode) {
             return false;
         } else {
@@ -1489,15 +1512,23 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
                 AssignmentNode n = (AssignmentNode) node;
 
                 // the left side cannot be a cast
-                final TypedNode leftNode = n.getLeft();
+                TypedNode leftNode = n.getLeft();
                 if (leftNode instanceof CastNode) {
 					 AstNode lft = ((CastNode)leftNode).getFirstChild();
 					node.replace((AstNode)leftNode, lft);
 				}
-				
+
+           
+                
                 TypeVariable left = leftNode.getTypeVariable();
                 final ExpressionNode rightNode = n.getRight();
                 TypeVariable right = rightNode.getTypeVariable();
+                
+                if (leftNode instanceof VariableReadNode && rightNode instanceof VariableReadNode) {
+                	if (((VariableReadNode)leftNode).getVariableInfo() == ((VariableReadNode)rightNode).getVariableInfo()) {
+                		listener.warn(new CompilerMessage("The assignment to variable " + ((VariableReadNode)leftNode).getName() +  " has no effect"));
+                	}
+                }
 
                 if (!LenseTypeSystem.isAssignableTo(right, left)) {
 
@@ -1542,6 +1573,11 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 
                     FieldOrPropertyAccessNode fp = (FieldOrPropertyAccessNode) leftNode;
 
+                    // is inside constructor ?
+                    if (fp.getPrimary() != null && fp.getPrimary() instanceof VariableReadNode && ((VariableReadNode)fp.getPrimary()).getName().equals("this") && isInsideConstructor(fp)) {
+                        throw new CompilationError(node, "Invalid access to this. Instance scope is not defined inside constructor. Please use primary constructor instead.");
+                    }
+   
                     if (fp.getKind() == FieldKind.FIELD) {
                         VariableInfo info = this.getSemanticContext().currentScope()
                                 .searchVariable(((FieldOrPropertyAccessNode) leftNode).getName());
@@ -1555,7 +1591,7 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
                             AstNode parent = ((LenseAstNode) leftNode).getParent().getParent().getParent();
                             if (!(parent instanceof ConstructorDeclarationNode)) {
                                 throw new CompilationError(node,
-                                        "Cannot modify the value of an imutable variable or field (" + info.getName()
+                                        "Cannot modify the value of an immutable variable or field (" + info.getName()
                                                 + ")");
                             }
 
@@ -1576,9 +1612,13 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
                         if (property.isPresent()) {
 
                             if (!property.get().canWrite()) {
+                            	
+                              
                                 throw new CompilationError(node,
-                                        "Property " + ((FieldOrPropertyAccessNode) leftNode).getName()
-                                                + " is read only and it cannot be asigned to");
+                                            "Property " + ((FieldOrPropertyAccessNode) leftNode).getName()
+                                                    + " is read only and it cannot be asigned to");
+                                
+
                             }
 
                         } else {
@@ -1586,6 +1626,8 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
                                     + ((FieldOrPropertyAccessNode) leftNode).getName() + " is not defined in type "
                                     + ((TypedNode) fp.getPrimary()).getTypeVariable().getTypeDefinition().getName());
                         }
+                        
+    
                     } 
 
                 } else if (leftNode instanceof IndexedPropertyReadNode){
@@ -1775,9 +1817,13 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
             } else if (node instanceof PropertyDeclarationNode) {
                 PropertyDeclarationNode p = (PropertyDeclarationNode) node;
 
+                if (p.getModifier() != null && this.currentType.isImmutable()) {
+                    throw new CompilationError(p, "Immutable types cannot define modifiers");
+                }
+                
                 if (p.getAcessor() != null && p.getModifier() != null
                         && p.getAcessor().isImplicit() ^ p.getModifier().isImplicit()) {
-                    throw new CompilationError(p, "Implicit properties cannot have implementation");
+                    throw new CompilationError(p, "Implicit properties cannot define implementation");
                 }
 
                 if (p.getInitializer() != null) {
@@ -1786,25 +1832,10 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
                     TypeVariable expType = exp.getTypeVariable();
 
                     TypeVariable propType = p.getType().getTypeVariable();
-                    if (!typeSystem.isAssignableTo(expType, propType)) {
-//                        if (!typeSystem.isPromotableTo(expType, propType)) {
-//                            throw new CompilationError(node,
-//                                    expType + " is not assignable to " + propType + " in property " + p.getName());
-//                        } else {
+                    if (!LenseTypeSystem.isAssignableTo(expType, propType)) {
 
                             promoteNodeType(exp, propType);
-							//
-							// Optional<Constructor> op = propType.getTypeDefinition()
-							// .getConstructorByParameters(Visibility.Public, new
-							// ConstructorParameter(expType));
-							//
-							// NewInstanceCreationNode cn = NewInstanceCreationNode.of(propType, op.get(),
-							// exp);
-							// cn.getCreationParameters().getTypeParametersListNode()
-							// .add(new GenericTypeParameterNode(new TypeNode(propType)));
-                            //
-                            // p.replace(exp, cn);
-                      //  }
+
                     }
                 }
 
@@ -2805,7 +2836,25 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
     }
 
 
-    private void createSynteticAsString(ClassTypeNode t) {
+    private boolean isInsideConstructor(FieldOrPropertyAccessNode leftNode) {
+		AstNode n = leftNode;
+		while ( n.getParent() != null) {
+			n =  n.getParent();
+			
+			if ( n instanceof ConstructorDeclarationNode) {
+				return true;
+			} else if ( n instanceof MethodDeclarationNode) {
+				return false;
+			} else if ( n instanceof ClassBodyNode) {
+				return false;
+			}
+		}
+		
+		return false;
+    	
+	}
+
+	private void createSynteticAsString(ClassTypeNode t) {
         // TODO Auto-generate asString
         
     }
@@ -3580,8 +3629,9 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
             } else {
                 m.setTypeVariable(variable.getTypeVariable());
 
-                m.getParent().replace(m, new VariableReadNode(name, variable));
-
+                if (m.getAccessKind() == FieldAccessKind.READ) {
+                    m.getParent().replace(m, new VariableReadNode(name, variable));
+                } 
             }
         } else {
             m.setTypeVariable(field.get().getReturningType());

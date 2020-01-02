@@ -181,7 +181,7 @@ public abstract class AbstractLenseGrammar extends AbstractGrammar {
 		visibilityModifier.setRule(Terminal.of("public").or(Terminal.of("private").or(Terminal.of("protected"))));
 		varianceModifier.setRule(Terminal.of("in").or(Terminal.of("out").or(Terminal.of("inv").or(EmptyTerminal.instance()))));
 		implementationModifiers.setRule(implementationModifier.or(implementationModifiers.add(implementationModifier)));
-		implementationModifier.setRule(Terminal.of("abstract").or(Terminal.of("native").or(Terminal.of("sealed").or(Terminal.of("final").or(Terminal.of("override").or(Terminal.of("default").or(Terminal.of("value"))))))));
+		implementationModifier.setRule(Terminal.of("abstract").or(Terminal.of("native").or(Terminal.of("sealed").or(Terminal.of("final").or(Terminal.of("override").or(Terminal.of("default").or(Terminal.of("value").or(Terminal.of("immutable")))))))));
 		annotations.setRule(annotation.or(annotations.add(annotation)));
 		annotation.setRule(Terminal.of("@").add(Identifier.instance()));
 		moduleDeclaration.setRule(Terminal.of("module").add(qualifiedName).add(Terminal.of("(")).add(VersionLiteral.instance()).add(Terminal.of(")")).add(moduleBody));

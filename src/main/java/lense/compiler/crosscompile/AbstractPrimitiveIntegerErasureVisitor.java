@@ -14,6 +14,8 @@ import lense.compiler.ast.BooleanValue;
 import lense.compiler.ast.CastNode;
 import lense.compiler.ast.ComparisonNode.Operation;
 import lense.compiler.ast.ExpressionNode;
+import lense.compiler.ast.FieldOrPropertyAccessNode;
+import lense.compiler.ast.FieldOrPropertyAccessNode.FieldAccessKind;
 import lense.compiler.ast.ForEachNode;
 import lense.compiler.ast.FormalParameterNode;
 import lense.compiler.ast.GenericTypeParameterNode;
@@ -91,7 +93,7 @@ public class AbstractPrimitiveIntegerErasureVisitor implements Visitor<AstNode> 
         	// sweep and mark variable 
         	 TreeTransverser.transverse(((MethodDeclarationNode)node).getBlock(),sweeper);
         	 
-        	 
+
         } else if (node instanceof TypedNode
                 && !(node instanceof ErasurePointNode )
                 && !(node.getParent() instanceof VariableDeclarationNode )
@@ -114,7 +116,9 @@ public class AbstractPrimitiveIntegerErasureVisitor implements Visitor<AstNode> 
                     if (((VariableReadNode) node).getVariableInfo().getDeclaringNode() instanceof FormalParameterNode){
                         t.setTypeVariable(primitiveType);
                     }
-                  
+//                } else if (node instanceof FieldOrPropertyAccessNode && ((FieldOrPropertyAccessNode)node).getAccessKind() == FieldAccessKind.WRITE){
+//                	FieldOrPropertyAccessNode fn = (FieldOrPropertyAccessNode)node;
+//                	fn.setTypeVariable(primitiveType);
                 } else {
                     t.setTypeVariable(primitiveType);
                 }
