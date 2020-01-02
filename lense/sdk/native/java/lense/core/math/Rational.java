@@ -5,6 +5,7 @@ import lense.core.lang.AnyValue;
 import lense.core.lang.HashValue;
 import lense.core.lang.java.Constructor;
 import lense.core.lang.java.NonNull;
+import lense.core.lang.java.Primitives;
 import lense.core.lang.java.Signature;
 import lense.core.lang.java.ValueClass;
 import lense.core.lang.reflection.Type;
@@ -14,19 +15,29 @@ import lense.core.lang.reflection.Type;
 public final class Rational implements Real , AnyValue  {
 
 	
-	public static final Rational ZERO = new Rational(Int32.ZERO, Int32.ONE);
-	public static final Rational ONE = new Rational(Int32.ONE, Int32.ONE);
-	public static final Rational HALF = new Rational(Int32.ONE, Int32.TWO);
-	
+	private static final Rational ZERO = new Rational(Int32.ZERO, Int32.ONE);
+	private static final Rational ONE = new Rational(Int32.ONE, Int32.ONE);
 	
 	@Constructor(paramsSignature = "")
     public static Rational valueOf(Whole n){
         return new Rational(n.asInteger(), Int32.ONE);
     }
+	
 	@Constructor(paramsSignature = "")
     public static Rational constructor(Integer n , Integer d){
         return new Rational(n,d);
     }
+	
+	@lense.core.lang.java.Constructor(paramsSignature="")
+	public  static lense.core.math.Rational zero(){
+	    return ZERO;
+	}
+
+	@lense.core.lang.java.Constructor(paramsSignature="")
+	public  static lense.core.math.Rational one(){
+	    return ONE;
+	}
+
 
     private Integer numerator;
     private Natural denominator;
@@ -212,9 +223,16 @@ public final class Rational implements Real , AnyValue  {
 		return null;
 	}
 
-	
 
+    @Override
+    public boolean isPositive() {
+        return this.sign().isPositive();
+    }
 
+    @Override
+    public boolean isNegative() {
+        return this.sign().isNegative();
+    }
 
 	public String toString() {
 		return numerator.toString() + "/" + denominator.toString();
@@ -243,7 +261,7 @@ public final class Rational implements Real , AnyValue  {
 		if (other instanceof Rational) {
 			return this.numerator.multiply(((Rational) other).numerator).minus(((Rational)other).numerator.multiply( this.numerator)).sign().compareWith(Int32.ZERO);
 		} else if (other instanceof Number && other instanceof Comparable) {
-			throw new UnsupportedOperationException("Not implemented yet");
+			return Primitives.comparisonFromNative(NativeNumberFactory.compareNumbers(this, (Number) other));
 		} 
 		throw new ClassCastException("Cannot compare Rational to " + other.getClass().getName());
 	}
@@ -258,16 +276,8 @@ public final class Rational implements Real , AnyValue  {
 		return this.floor();
 	}
 	
-	@Override
-	public boolean isNegative() {
-		return this.numerator.isNegative();
-	}
-	
-	@Override
-	public boolean isPositive() {
-		return this.numerator.isPositive();
-	}
-	
+
+
 	@Override
 	public Complex plus(Imaginary other) {
 		return Complex.retangular(this, other.real());

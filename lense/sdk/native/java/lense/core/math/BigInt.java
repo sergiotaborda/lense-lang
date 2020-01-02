@@ -17,13 +17,20 @@ import lense.core.lang.reflection.Type;
 @ValueClass
 public final class BigInt implements Integer , BigIntegerConvertable , AnyValue {
 
+    private static BigInt ZERO = new BigInt(BigInteger.ZERO);
+
 	private BigInteger value;
 
 	@Constructor(paramsSignature = "")
 	public static BigInt constructor(){
-		return new BigInt(BigInteger.ZERO);
+		return ZERO;
 	}
 
+	@Constructor(isImplicit = false, paramsSignature = "lense.core.lang.String")
+    public static BigInt parse(lense.core.lang.String other) {
+	    return new BigInt(new BigInteger(other.toString()));
+	}
+	
 	@Constructor(isImplicit = true, paramsSignature = "lense.core.math.Natural")
 	public static BigInt valueOf(Natural other) {
 
@@ -143,7 +150,7 @@ public final class BigInt implements Integer , BigIntegerConvertable , AnyValue 
 		return other.compareWith(Natural64.INT32_MAX).isSmaller();
 	}
 	
-	private Integer reduce() {
+	Integer reduce() {
 		
 		if (this.value.abs().bitLength() < 31) {
 			return Int32.valueOfNative(this.value.intValueExact());
@@ -333,7 +340,7 @@ public final class BigInt implements Integer , BigIntegerConvertable , AnyValue 
 		}
 		return BigDecimal.constructor(Rational.constructor(this, Int32.ONE)).raiseTo(other);
 	}
-
+	
 	@Override
 	public Complex plus(Imaginary n) {
 		return Complex.retangular(this.asReal(), n.real());
@@ -383,6 +390,5 @@ public final class BigInt implements Integer , BigIntegerConvertable , AnyValue 
 	public Whole remainder(Whole other) {
 		return this.remainder(other.asInteger());
 	}
-
 
 }
