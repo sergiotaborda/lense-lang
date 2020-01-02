@@ -22,7 +22,7 @@
 
 == Language Features
 
-- [ ] understand that -0.0 may be a different thing than 0.0 if the taget is Float. Also 0.0.symetric() == -0.0 in Float and that -0.0 = new Float32(0.0).symetric()  but not  -0.0 =/= new Float32(new Rational(0.0)); 
+- [ ] understand that -0.0 may be a different thing than 0.0 if the target is Float. Also 0.0.symetric() == -0.0 in Float and that -0.0 = new Float32(0.0).symetric()  but not  -0.0 =/= new Float32(new Rational(0.0)); 
 - [ ] validade literal number range at compile time.
 - [ ] consider target typing and/or mapping literals to objects with special `Literal` (not instanciable) object and implicit constructors 
 - [x] define variables with `let` and values with `val`. make `let` the default when not expliclity declared
@@ -35,13 +35,13 @@
 * [x] case objects   ( via algebric types)
 - [x] enums (via sealed types)
 - [ ] Annotation
-- [ ] Enhancements -> useful for operations on numbers of different types. enhancements can be native
+- [ ] Enhancements
 * [x] methods
 * [ ] constructors
 * [ ] read only properties
 * [ ] native
 - [ ] data/record classes 
-- [ ] value classes
+- [x] value classes
 
 - [ ] validate variables used are effectively final ( so they can be used in lambdas)
      
@@ -53,9 +53,9 @@
 - [x] Support named parameters so `go ( from: x, to : y)` is the same as go `(to: y ; from: x)`
 - [ ] Support default parameters. define `print ( msg : String , printer : Printer = defaultPrinter)` then call as `print("hello")` or as `print("hello", myPrinter)`. Default can be any object as it is not set in the call site.
 - [x] classes are open by default. methods are closed by default. To open methods define them `default`. Abstract methods are marked `abstract`. Methods that implements abstracts or redefines (overrrides) a default method are marked `override`. Compiler verifies correctness.
-- [ ] allow interfaces to define deault methods. This will allow for using interfaces as traits. 
-- [ ] allow definition and implementation of meta types and meta interfaces. meta interfaces cannot be implemented by objects but can be used as a type in a parameter or generic and in a instanceof (although may be not in auto cast)
-- [ ] use meta interfaces to define operators (currently are special named methods) 		
+- [ ] allow interfaces to define default methods. This will allow for using interfaces as traits. 
+- [ ] allow definition and implementation of meta types and meta interfaces. meta interfaces cannot be implemented by objects but can be used as a type in a parameter or generic and in a `is` (although may be not in auto cast)
+* [ ] use meta interfaces to define operators (currently are special named methods) 		
 - [ ] allow declaring objects as return type.
 - [ ] handle void objects inside boxes like  collections 
 - [x] support implicit get and set for properties
@@ -79,21 +79,21 @@
 
 - [x] Define `class` type 
 - [x] Define `object` type 
-- [x] Define Selaed Type Hierarchies types like: `abstract class Boolean is true , false`
+- [x] Define sealed Type Hierarchies types like: `abstract class Boolean is true , false`
 * [x] Define sealed case classes,  
 * [x] Define sealed case objects and enums  
 * [ ] Define sealed interfaces  
 - [ ] Define Annotations
-- [ ] Define Enhancements (usefull for operations on numbers of different types. enhancements can be native)
+- [ ] Define Enhancements (useful for operations on numbers of different types. enhancements can be native)
 * [x] Define enhancement methods
-* [ ] Define enhancement named contructors
+* [ ] Define enhancement named constructors
 * [ ] Define enhancement read only/calculated properties
 * [ ] Define native enhancement
 - [ ] data/record classes 
-* [ ] define Property bags as single loadable/parsable file (JSON style) 
-- [ ] value classes
-- [ ] imutable classes
-* [ ] save immutability as an annotation, handle as a meta interface
+* [ ] define Property bags as single loadable/parseable file (JSON style) 
+- [x] value classes
+- [x] immutable classes
+* [x] save immutability as an interface
 - [ ] Native Types
 * [x] full native types 
 * [ ] native peers
@@ -127,8 +127,8 @@
 === Flow Sensitive Typing
 
 - [x] support flow sensitive typing in `if` directives
-- [x] support flow sensitive typing in `&&` expressions (like `other is Human && other.isSlepping()` identifing other is `Human` after `&&`)
-- [ ] support flow sensitive typing in `||` expressions (like `other is Male || other.isPregnant()` identifing other is `Female` )t
+- [x] support flow sensitive typing in `&&` expressions (like `other is Human && other.isSlepping()` identifying other is `Human` after `&&`)
+- [ ] support flow sensitive typing in `||` expressions (like `other is Male || other.isPregnant()` identifying other is `Female` )t
 - [x] support flow sensitive typing in `assert` directives
 - [ ] support flow sensitive typing in `switch` directives
 - [ ] support `exists x` as a flow sensitive way to decapsulate Maybe similar to instanceof 
@@ -152,9 +152,13 @@
 - [ ] support auto-boxing and auto-unboxing of _native primitives_
 * [x] use auto-boxing to erase `Boolean` with primitive `boolean`  (java back-end) 
 * [x] identity bound limits in loops  
-* [/] erase numeric values to they primitive conterparts when bound limits are kown (like in ranges). Done for int
-* [ ] erase string to native charSequence. 
-* [ ] erase Maybe to native `null`. This would improve interoperability with native code
+- [/] erase numeric values to they primitive conterparts
+* [ ] erase Int32 explicitly declared variables
+* [ ] erase Int64 explicitly declared variables
+* [ ] erase Natural declared variables accounting for bound limits are known (like in ranges). 
+* [ ] erase Integer declared variables accounting for bound limits are known (like in ranges). 
+- [ ] erase string to native charSequence. 
+- [ ] erase Maybe to native `null`. This would improve interoperability with native code
 
 === Operators
 

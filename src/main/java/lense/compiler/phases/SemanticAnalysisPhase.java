@@ -89,7 +89,7 @@ public class SemanticAnalysisPhase implements CompilerPhase {
 					// attach the repository with loaded types
 					SemanticContext ctx = ct.getSemanticContext().withRepository(typeRepository);
 
-					TreeTransverser.transverse(ct,new SemanticVisitor(ctx, enhancements));
+					TreeTransverser.transverse(ct,new SemanticVisitor(ctx, enhancements, listener));
 					TreeTransverser.transverse(ct,new EnsureNotFundamentalTypesVisitor(ctx));
 
 					hasAlgebric = hasAlgebric || ct.isAlgebric();
