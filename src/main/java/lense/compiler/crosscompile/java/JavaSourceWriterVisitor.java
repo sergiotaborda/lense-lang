@@ -781,10 +781,15 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
                     	writer.print("lense.core.lang.AnyValue");
                     } else {
                         writer.print("lense.core.lang.Any");
+                        if (t.isImmutable()){
+                            writer.print(" , lense.core.lang.Immutable");
+                        } 
                     }
                
                 } else if (t.getKind().isInterface()){
                     writer.print(" extends lense.core.lang.Any");
+                } else if (t.isExplicitlyImmutable()){
+                    writer.print(" implements lense.core.lang.Immutable");
                 } 
 
                 writer.println("{");

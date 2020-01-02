@@ -200,7 +200,15 @@ public class LoadedClassBuilder {
 			Optional<LenseTypeDefinition> type = parseInterfaceSignature(ss, maps, def);
 
 			if (type.isPresent()) {
+				if (type.get().getName().equals("lense.core.lang.Immutable")) {
+					def.setExplicitlyImmutable(true);
+				}
+				if (type.get().getName().equals("lense.core.lang.AnyValue")) {
+					def.setExplicitlyImmutable(true);
+					def.setKind(LenseUnitKind.ValueClass);
+				}
 				def.addInterface(type.get());
+				
 			}
 
 		}

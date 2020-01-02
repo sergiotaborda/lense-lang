@@ -20,10 +20,15 @@ public class FieldOrPropertyAccessNode extends NeedTypeCalculationNode {
 		FIELD
 	}
 	
+	public enum FieldAccessKind {
+		READ,
+		WRITE
+	}
+	
 	private AstNode primary;
 	private String name;
 	private FieldKind kind;
-
+	private FieldAccessKind accessKind = FieldAccessKind.READ;
 
 	/**
 	 * Constructor.
@@ -104,6 +109,14 @@ public class FieldOrPropertyAccessNode extends NeedTypeCalculationNode {
 		n.setPrimary(this.primary);
 	
 		return n;
+	}
+
+	public FieldAccessKind getAccessKind() {
+		return accessKind;
+	}
+
+	public void setAccessKind(FieldAccessKind accessKind) {
+		this.accessKind = accessKind;
 	}
 
 }
