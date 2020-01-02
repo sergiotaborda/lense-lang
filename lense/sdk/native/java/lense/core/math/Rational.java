@@ -15,8 +15,8 @@ import lense.core.lang.reflection.Type;
 public final class Rational implements Real , AnyValue  {
 
 	
-	private static final Rational ZERO = new Rational(Int32.ZERO, Int32.ONE);
-	private static final Rational ONE = new Rational(Int32.ONE, Int32.ONE);
+	public static final Rational ZERO = new Rational(Int32.ZERO, Int32.ONE);
+	public static final Rational ONE = new Rational(Int32.ONE, Int32.ONE);
 	
 	@Constructor(paramsSignature = "")
     public static Rational valueOf(Whole n){

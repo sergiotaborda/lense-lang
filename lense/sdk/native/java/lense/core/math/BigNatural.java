@@ -7,6 +7,7 @@ import lense.core.collections.Progression;
 import lense.core.lang.Any;
 import lense.core.lang.AnyValue;
 import lense.core.lang.HashValue;
+import lense.core.lang.java.Constructor;
 import lense.core.lang.java.NonNull;
 import lense.core.lang.java.Primitives;
 import lense.core.lang.java.ValueClass;
@@ -15,6 +16,12 @@ import lense.core.lang.reflection.Type;
 @ValueClass
 public final class BigNatural implements Natural , BigDecimalConvertable , BigIntegerConvertable , AnyValue{
 
+	@Constructor(isImplicit = false, paramsSignature = "lense.core.lang.String")
+    public static BigNatural parse(lense.core.lang.String other) {
+	    return new BigNatural(new BigInteger(other.toString()));
+	}
+	
+	
 	private BigInteger value;
 
 	public BigNatural(long value) {
@@ -109,7 +116,7 @@ public final class BigNatural implements Natural , BigDecimalConvertable , BigIn
 	}
 
 	
-	private Natural reduce() {
+    public Natural reduce() {
 		
 		if (this.compareWith(Natural64.MAX).isSmaller()) {
 			return Natural64.parseNative(this.value.toString());

@@ -20,6 +20,7 @@ import lense.core.lang.Byte;
 import lense.core.math.Imaginary;
 import lense.core.math.Complex;
 import lense.core.math.Real;
+import lense.core.math.BigNatural;
 import lense.core.math.Float64;
 import lense.core.math.Rational;
 import lense.core.math.Interval;
@@ -315,12 +316,21 @@ public class Main extends ConsoleApplication {
 	}
 
 	private demoBigNumbers(){
-	/{
+	
 		let a = new Natural.parse("18446744073709551615");
 		let b = new Natural.parse("18446744073709551619");
 		
-		assert ( b == (a + 4) , "18446744073709551615 + 4 is not 18446744073709551619 is {{ a + 4 }}" );
-		}/
+				 	 	console.println("big a = {{ a }}"); 
+		 	 	console.println("big b = {{ b }}"); 
+		 	 	
+		let c = a + 4;
+		
+
+		 	 	
+		assert ( a is Int64);
+		assert ( b is BigNatural);
+		assert ( b == c , "18446744073709551615 + 4 is not 18446744073709551619 is {{ a + 4 }}" );
+		
 	}
 
   	public override onStart()  {

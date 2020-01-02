@@ -3,6 +3,7 @@ package lense.core.math;
 import lense.core.collections.Progression;
 import lense.core.lang.Any;
 import lense.core.lang.Ordinal;
+import lense.core.lang.java.Constructor;
 import lense.core.lang.java.NonNull;
 import lense.core.lang.java.PlatformSpecific;
 import lense.core.lang.java.Signature;
@@ -17,6 +18,7 @@ public interface Natural extends Whole , Ordinal {
 	public static final TypeResolver TYPE_RESOLVER = TypeResolver.lazy(() -> new Type(Natural.class));
 	
 
+	@Constructor(isImplicit = false, paramsSignature = "lense.core.lang.String")
 	public static Natural parse(lense.core.lang.String text){
 	    return BigNatural.parse(text).reduce();
 	}
