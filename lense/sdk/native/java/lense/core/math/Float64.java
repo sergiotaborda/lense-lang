@@ -229,5 +229,11 @@ public final class Float64 implements Float, AnyValue {
 		return java.lang.Double.isInfinite(this.value) ;
 	}
 
+
+    public boolean isNegativeZero() {
+        return (java.lang.Double.doubleToLongBits(this.value) & 0x8000000000000000L) < 0;
+    }
+    
+
 	
 }

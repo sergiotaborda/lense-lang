@@ -4,6 +4,7 @@ import lense.core.math.SignedNumber;
 public  interface Float extends SignedNumber {
 
 	public isNaN(): Boolean;
+	public isNegativeZero() : Boolean;
 	public isNegativeInfinity() : Boolean;
 	public isPositiveInfinity() : Boolean;
 	public isInfinity() : Boolean;

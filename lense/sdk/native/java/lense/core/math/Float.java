@@ -4,6 +4,7 @@ public interface Float extends  Number, Comparable, SignedNumber{
 
 
 	public boolean isNaN();
+	public boolean isNegativeZero();
 	public boolean isNegativeInfinity();
 	public boolean isPositiveInfinity();
 	public boolean isInfinity();
