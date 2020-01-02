@@ -39,10 +39,11 @@ public final class ErasurePointClassificationVisitor implements Visitor<AstNode>
 
 		} else if (node instanceof ConstructorDeclarationNode){
 			this.expectedType = ((ConstructorDeclarationNode)node).getReturnType().getTypeVariable();
-		}  else if (node instanceof ReturnNode){
+		} else if (node instanceof ReturnNode){
 			((ReturnNode)node).setExpectedType(this.expectedType );
 			this.expectedType  = null;
-		}
+		} 
+		
 		return VisitorNext.Children;
 	}
 
@@ -62,6 +63,11 @@ public final class ErasurePointClassificationVisitor implements Visitor<AstNode>
 
 			a.replace(a.getRight(), ErasurePointNode.convertTo(a.getRight(), ((ExpressionNode)a.getLeft()).getTypeVariable()));
 
+			if (a.getLeft() instanceof ErasurePointNode) {
+				 ExpressionNode plain = ((ErasurePointNode)a.getLeft()).elideAll();
+				 a.replace((AstNode)a.getLeft(), plain);
+			}
+			
 		}else if (node instanceof VariableDeclarationNode){
 			VariableDeclarationNode v = (VariableDeclarationNode)node;
 

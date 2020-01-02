@@ -801,6 +801,7 @@ public class LenseGrammar extends AbstractLenseGrammar {
 				n.setAbstract(modifiers.getImplementationModifier().isAbstract());
 				n.setNative(modifiers.getImplementationModifier().isNative());
 				n.setVisibility(modifiers.getVisibility().getVisibility(Visibility.Private));
+				n.setExplicitlyImmutable(modifiers.getImplementationModifier().isImmutable());
 
 
 				Optional<TypeParametersListNode> generics = r.get(++nextNodeIndex).getAstNode(TypeParametersListNode.class);
@@ -1384,6 +1385,8 @@ public class LenseGrammar extends AbstractLenseGrammar {
 				node.setOverride(true);
 			} else if (semanticAttribute.isPresent() && semanticAttribute.get().equals("value")) {
 				node.setValueClass(true);
+			} else if (semanticAttribute.isPresent() && semanticAttribute.get().equals("immutable")) {
+				node.setImmutable(true);
 			}
 			p.setAstNode(node);
 		});

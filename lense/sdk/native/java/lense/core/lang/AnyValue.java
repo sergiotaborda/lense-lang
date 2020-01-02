@@ -1,5 +1,9 @@
 package lense.core.lang;
 
-public interface AnyValue extends Any {
+/**
+ * Marker interface for values. All values are imutable
+ *
+ */
+public interface AnyValue extends Any , Immutable {
 
 }

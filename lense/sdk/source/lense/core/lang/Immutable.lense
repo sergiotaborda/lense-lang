@@ -1,0 +1,8 @@
+
+/{
+|	Marker interface for immutability
+}/
+public interface Immutable {
+
+
+} 
