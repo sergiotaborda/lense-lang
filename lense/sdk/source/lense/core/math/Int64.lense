@@ -15,9 +15,9 @@ public native value class Int64 implements Integer ,  Binary{
 	
 	public native leftShiftBy( n:Natural) : Int64;
 	
-    public native wrapPlus( other : Int64) : Int32;
+    public native wrapPlus( other : Int64) : Int64;
 
-    public native wrapMultiply( other : Int64) : Int32;
+    public native wrapMultiply( other : Int64) : Int64;
     
-    public native wrapMinus( other : Int64) : Int32;
+    public native wrapMinus( other : Int64) : Int64;
 }

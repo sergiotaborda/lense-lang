@@ -262,7 +262,6 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
             } else if (node instanceof PrimitiveArithmeticOperationsNode){
                 PrimitiveArithmeticOperationsNode n = (PrimitiveArithmeticOperationsNode) node;
 
-
                 switch (n.getOperation()){
                 case Addition:
                 case Power:
@@ -471,9 +470,9 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 
                         QualifiedNameNode qn = new QualifiedNameNode(n.getTypeVariable().getTypeDefinition().getName());
                         String typeName = qn.getLast().getName();
-                        if (typeName.equals("Whole") || typeName.equals("Any")) {
+                        if (typeName.equals("Whole") ) {
                             typeName = "Natural";
-                        }
+                        } 
 
                         if ("Natural".equals(typeName)) {
     						if (n.isZero()) {
@@ -894,7 +893,10 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
                 VariableInfo varInfo = f.getVariableDeclarationNode().getInfo();
                 String typeName = varInfo.getTypeVariable().getTypeDefinition().getName();
 
-                if (varInfo.getTypeVariable().getTypeDefinition().getKind() == JavaTypeKind.Primitive && varInfo.getMaximum().isPresent() && varInfo.getMinimum().isPresent()){
+                if (varInfo.getTypeVariable().getTypeDefinition().getKind() == JavaTypeKind.Primitive 
+                		&& varInfo.getMaximum().isPresent() 
+                		&& varInfo.getMinimum().isPresent()
+                ){
                     // use a count for each
                     
                     MethodInvocationNode range = (MethodInvocationNode)f.getContainer();

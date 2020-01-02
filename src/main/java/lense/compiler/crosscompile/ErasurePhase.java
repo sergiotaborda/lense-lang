@@ -36,8 +36,11 @@ public final class ErasurePhase implements CompilerPhase{
 
                 try {
                     TreeTransverser.transverse(ct,new ErasurePointClassificationVisitor());
+                    TreeTransverser.transverse(ct,new ErasurePointSimplificationVisitor());
+                    
                     TreeTransverser.transverse(ct,new BooleanErasureVisitor(ctx));
-                    //TreeTransverser.transverse(ct,new Int32ErasureVisitor());
+                    TreeTransverser.transverse(ct,new Int32ErasureVisitor());
+                    TreeTransverser.transverse(ct,new Int64ErasureVisitor());
                     TreeTransverser.transverse(ct,new ElideErasureVisitor());
                 } catch (CompilationError e){
                     listener.error(new CompilerMessage(e.getMessage()));
