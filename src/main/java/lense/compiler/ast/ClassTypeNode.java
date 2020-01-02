@@ -36,8 +36,13 @@ public class ClassTypeNode extends AnnotadedLenseAstNode implements ScopeDelimit
 	private boolean isFinal;
 	private boolean isSealed;
 	private boolean isAlgebric;
+	private boolean isValueClass;
+	
 	private Visibility visibility;
 	private ChildTypesListNode childTypesListNode;
+    private boolean isAsStringDefined;
+    private boolean isHashValueDefined;
+    private boolean isEqualsToDefined;
 	
 	public ClassTypeNode (LenseUnitKind kind){
 		this.kind = kind;
@@ -237,6 +242,42 @@ public class ClassTypeNode extends AnnotadedLenseAstNode implements ScopeDelimit
 	public void setAlgebric(boolean isAlgebric) {
 		this.isAlgebric = isAlgebric;
 	}
+
+    public void isAsStringDefined(boolean value) {
+       this.isAsStringDefined = value;
+    }
+	public boolean isValueClass() {
+		return isValueClass || this.kind.isValue();
+	}
+
+    public void isHashValueDefined(boolean value) {
+        this.isHashValueDefined = value;
+    }
+
+    public void setEqualsToDefined(boolean value) {
+        this.isEqualsToDefined = value;
+    }
+
+    public boolean isAsStringDefined() {
+        return isAsStringDefined;
+    }
+
+    public void setAsStringDefined(boolean isAsStringDefined) {
+        this.isAsStringDefined = isAsStringDefined;
+    }
+
+    public boolean isHashValueDefined() {
+        return isHashValueDefined;
+    }
+
+    public void setHashValueDefined(boolean isHashValueDefined) {
+        this.isHashValueDefined = isHashValueDefined;
+    }
+
+    public boolean isEqualsToDefined() {
+        return isEqualsToDefined;
+    }
+
 
 
 

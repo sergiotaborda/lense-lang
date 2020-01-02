@@ -1,12 +1,14 @@
 
-import lense.core.math.Decimal;
+import lense.core.math.Real;
 import lense.core.math.Rational;
 
 
-public native class BigDecimal extends Decimal {
+public native value class BigDecimal implements Real {
 
 	public native constructor();
 	
 	public native constructor(other : Rational);
+
+	public native asRational(): Rational;
 
 }

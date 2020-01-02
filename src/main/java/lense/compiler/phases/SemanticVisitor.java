@@ -61,7 +61,7 @@ import lense.compiler.ast.FieldOrPropertyAccessNode.FieldKind;
 import lense.compiler.ast.ForEachNode;
 import lense.compiler.ast.FormalParameterNode;
 import lense.compiler.ast.GenericTypeParameterNode;
-import lense.compiler.ast.IndexedAccessNode;
+import lense.compiler.ast.IndexedPropertyReadNode;
 import lense.compiler.ast.IndexerPropertyDeclarationNode;
 import lense.compiler.ast.InstanceOfNode;
 import lense.compiler.ast.LambdaExpressionNode;
@@ -101,6 +101,7 @@ import lense.compiler.ast.WhileNode;
 import lense.compiler.context.SemanticContext;
 import lense.compiler.context.VariableInfo;
 import lense.compiler.crosscompile.PrimitiveBooleanValue;
+import lense.compiler.crosscompile.VariableRange;
 import lense.compiler.type.CallableMemberMember;
 import lense.compiler.type.Constructor;
 import lense.compiler.type.ConstructorParameter;
@@ -126,1687 +127,1672 @@ import lense.compiler.typesystem.Visibility;
 
 public final class SemanticVisitor extends AbstractScopedVisitor {
 
-	private Map<String, List<Method>> expectedMethods = new HashMap<String, List<Method>>();
+    private Map<String, List<Method>> expectedMethods = new HashMap<String, List<Method>>();
 
-	private LenseTypeDefinition ANY;
-	private LenseTypeDefinition VOID;
-	// private LenseTypeDefinition NOTHING;
-	protected LenseTypeDefinition currentType;
+    private LenseTypeDefinition ANY;
+    private LenseTypeDefinition VOID;
+    // private LenseTypeDefinition NOTHING;
+    protected LenseTypeDefinition currentType;
 
-	private Map<TypeVariable, List<TypeDefinition>> enhancements = new HashMap<>();
+    private Map<TypeVariable, List<TypeDefinition>> enhancements = new HashMap<>();
 
 	private final LenseTypeSystem lenseTypeSystem;
 
-	public SemanticVisitor(SemanticContext sc) {
-		super(sc);
+    public SemanticVisitor(SemanticContext sc) {
+        super(sc);
 
-		lenseTypeSystem = LenseTypeSystem.getInstance();
+        lenseTypeSystem = LenseTypeSystem.getInstance();
 
-		ANY = (LenseTypeDefinition) sc.resolveTypeForName("lense.core.lang.Any", 0).get();
-		VOID = (LenseTypeDefinition) sc.resolveTypeForName("lense.core.lang.Void", 0).get();
-		// NOTHING = (LenseTypeDefinition)
-		// sc.resolveTypeForName("lense.core.lang.Nothing", 0).get();
-	}
+        ANY = (LenseTypeDefinition) sc.resolveTypeForName("lense.core.lang.Any", 0).get();
+        VOID = (LenseTypeDefinition) sc.resolveTypeForName("lense.core.lang.Void", 0).get();
+        // NOTHING = (LenseTypeDefinition)
+        // sc.resolveTypeForName("lense.core.lang.Nothing", 0).get();
+    }
 
-	public SemanticVisitor(SemanticContext sc, Map<TypeVariable, List<TypeDefinition>> enhancements) {
-		this(sc);
-		this.enhancements = enhancements;
-	}
+    public SemanticVisitor(SemanticContext sc, Map<TypeVariable, List<TypeDefinition>> enhancements) {
+        this(sc);
+        this.enhancements = enhancements;
+    }
 
-	@Override
-	protected Optional<LenseTypeDefinition> getCurrentType() {
-		return Optional.ofNullable(currentType);
-	}
+    @Override
+    protected Optional<LenseTypeDefinition> getCurrentType() {
+        return Optional.ofNullable(currentType);
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void endVisit() {
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void endVisit() {
 
-		if (this.currentType != null && !this.currentType.getKind().isEnhancement()) {
+        if (this.currentType != null && !this.currentType.getKind().isEnhancement()) {
 
-			if (!expectedMethods.isEmpty()) {
+            if (!expectedMethods.isEmpty()) {
 
-				if (!this.currentType.isAbstract() && !this.currentType.isNative()) {
-					for (List<Method> list : expectedMethods.values()) {
-						for (Method m : list) {
-							if (!m.isNative() && !m.isPropertyBridge() && m.isAbstract()) {
-								throw new CompilationError(this.currentType.getName()
-										+ " is not abstract and does not implement abstract method " + m.getName()
-										+ " in " + m.getDeclaringType().getName());
-							}
-						}
-					}
+                if (!this.currentType.isAbstract() && !this.currentType.isNative()) {
+                    for (List<Method> list : expectedMethods.values()) {
+                        for (Method m : list) {
+                            if (!m.isNative() && !m.isPropertyBridge() && m.isAbstract() && !m.isDefault()) {
+                                throw new CompilationError(this.currentType.getName()
+                                        + " is not abstract and does not implement abstract method " + m.getName()
+                                        + " in " + m.getDeclaringType().getName());
+                            }
+                        }
+                    }
 
-				}
+                }
 
-			}
+            }
 
-			if (!currentType.hasConstructor()) {
-				// if no constructor exists, add a default one
-				Constructor ctr = new Constructor("constructor", Collections.emptyList(), false, Visibility.Public);
-				currentType.addConstructor(ctr);
-			}
+            if (!currentType.hasConstructor()) {
+                // if no constructor exists, add a default one
+                Constructor ctr = new Constructor("constructor", Collections.emptyList(), false, Visibility.Public);
+                currentType.addConstructor(ctr);
+            }
 
-			currentType.getConstructors().filter(m -> m.getName() == null)
-			.sorted((a, b) -> a.getParameters().size() - b.getParameters().size()).forEach(c -> {
+            currentType.getConstructors().filter(m -> m.getName() == null)
+                    .sorted((a, b) -> a.getParameters().size() - b.getParameters().size()).forEach(c -> {
 
-				c.setName("constructor");
+                        c.setName("constructor");
 
-			});
+                    });
 
-			if (!currentType.isAbstract() && !currentType.isNative()) {
-				LinkedList<TypeDefinition> superTypes = new LinkedList<>(currentType.getInterfaces());
-				if (currentType.getSuperDefinition() != null) {
-					superTypes.addFirst(currentType.getSuperDefinition());
-				}
+            if (!currentType.isAbstract() && !currentType.isNative()) {
+                LinkedList<TypeDefinition> superTypes = new LinkedList<>(currentType.getInterfaces());
+                if (currentType.getSuperDefinition() != null) {
+                    superTypes.addFirst(currentType.getSuperDefinition());
+                }
 
-				for (TypeDefinition st : superTypes) {
-					for (TypeMember mb : st.getMembers()) {
-						if (mb.isMethod()) {
-							Method m = (Method) mb;
-							if (m.isAbstract() && !m.isPropertyBridge()) {
-								Collection<Method> implemented = currentType.getMethodsByName(m.getName());
-								if (!implemented.stream().anyMatch(i -> lenseTypeSystem.isMethodImplementedBy(m, i))) {
-									throw new CompilationError(
-											currentType.getSimpleName() + " is not abstract and method " + m.toString()
-											+ " on " + st.getName() + "  is not implemented");
-								}
-							}
-						}
-					}
-				}
-			}
+                for (TypeDefinition st : superTypes) {
+                    for (TypeMember mb : st.getMembers()) {
+                        if (mb.isMethod()) {
+                            Method m = (Method) mb;
+                            if (m.isAbstract() && !m.isPropertyBridge()) {
+                                Collection<Method> implemented = currentType.getMethodsByName(m.getName());
+                                if (!implemented.stream().anyMatch(i -> lenseTypeSystem.isMethodImplementedBy(m, i))) {
+                                    throw new CompilationError(
+                                            currentType.getSimpleName() + " is not abstract and method " + m.toString()
+                                                    + " on " + st.getName() + "  is not implemented");
+                                }
+                            }
+                        }
+                    }
+                }
+            }
 
-		}
-	}
+        }
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public VisitorNext doVisitBeforeChildren(AstNode node) {
-		if (node instanceof AssertNode) {
-			AssertNode r = (AssertNode) node;
-			ExpressionNode val = (ExpressionNode) r.getFirstChild();
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public VisitorNext doVisitBeforeChildren(AstNode node) {
+        if (node instanceof AssertNode) {
+            AssertNode r = (AssertNode) node;
+            ExpressionNode val = (ExpressionNode) r.getFirstChild();
 
-			if (val instanceof PreBooleanUnaryExpression) {
-				PreBooleanUnaryExpression exp = (PreBooleanUnaryExpression) val;
+            if (val instanceof PreBooleanUnaryExpression) {
+                PreBooleanUnaryExpression exp = (PreBooleanUnaryExpression) val;
 
-				if (exp.getOperation() == BooleanOperation.LogicNegate) {
+                if (exp.getOperation() == BooleanOperation.LogicNegate) {
 
-					exp.getParent().replace(val, exp.getFirstChild());
+//					exp.getParent().replace(val, exp.getFirstChild());
+//
+//					r.setReferenceValue(false);
+//					
+					  AssertNode a = new AssertNode( (ExpressionNode) exp.getFirstChild() );
+	                  a.setReferenceValue(false);
+	                  r.getText().ifPresent( text -> a.setText(text));
+	                    
+                    r.getParent().replace(r, a);
+                }
+            }
 
-					r.setReferenceValue(false);
-				}
-			}
+        } else if (node instanceof ContinueNode) {
+            // verify is use inside a loop
+            if (!isUsedInLoop(node)) {
+                throw new CompilationError(node, "Cannot use continue directive outside a loop");
+            }
 
-		} else if (node instanceof ContinueNode) {
-			// verify is use inside a loop
-			if (!isUsedInLoop(node)) {
-				throw new CompilationError(node, "Cannot use continue directive outside a loop");
-			}
+        } else if (node instanceof BreakNode) {
+            // verify is use inside a loop
+            if (!isUsedInLoop(node)) {
+                throw new CompilationError(node, "Cannot use break directive outside a loop");
+            }
 
-		} else if (node instanceof BreakNode) {
-			// verify is use inside a loop
-			if (!isUsedInLoop(node)) {
-				throw new CompilationError(node, "Cannot use break directive outside a loop");
-			}
+        } else if (node instanceof ConstructorDeclarationNode) {
 
-		} else if (node instanceof ConstructorDeclarationNode) {
+            ConstructorDeclarationNode constructorDeclarationNode = (ConstructorDeclarationNode) node;
 
-			ConstructorDeclarationNode constructorDeclarationNode = (ConstructorDeclarationNode) node;
-
-			// defaults
-			if (constructorDeclarationNode.getVisibility() == null) {
+            // defaults
+            if (constructorDeclarationNode.getVisibility() == null) {
 				constructorDeclarationNode.setVisibility(Visibility.Private); // TODO set the class visibility level
-			}
+            }
 
-			constructorDeclarationNode
-			.setReturnType(new TypeNode(this.getSemanticContext().currentScope().getCurrentType()));
+            constructorDeclarationNode
+                    .setReturnType(new TypeNode(this.getSemanticContext().currentScope().getCurrentType()));
 
-			// define variable in the method scope. the current scope is block
-			this.getSemanticContext().currentScope().defineVariable("@returnOfMethod",
-					this.getSemanticContext().currentScope().getCurrentType(), node);
+            // define variable in the method scope. the current scope is block
+            this.getSemanticContext().currentScope().defineVariable("@returnOfMethod",
+                    this.getSemanticContext().currentScope().getCurrentType(), node);
 
-		} else if (node instanceof MethodDeclarationNode) {
+        } else if (node instanceof MethodDeclarationNode) {
 
-			MethodDeclarationNode m = (MethodDeclarationNode) node;
+            MethodDeclarationNode m = (MethodDeclarationNode) node;
 
-			// defaults
-			if (m.getVisibility() == null) {
-				m.setVisibility(Visibility.Private);
-			}
+            // defaults
+            if (m.getVisibility() == null) {
+                m.setVisibility(Visibility.Private);
+            }
 
-			// auto-abstract if interface
-			if (this.currentType != null && this.currentType.getKind() == LenseUnitKind.Interface && !m.isDefault()) {
-				m.setAbstract(true);
-			}
+            // auto-abstract if interface
+            if (this.currentType != null && this.currentType.getKind() == LenseUnitKind.Interface && !m.isDefault()) {
+                m.setAbstract(true);
+            }
 
-			// define variable in the method scope. the current scope is block
-			this.getSemanticContext().currentScope().defineVariable("@returnOfMethod", LenseTypeSystem.Nothing(), node);
+            // define variable in the method scope. the current scope is block
+            this.getSemanticContext().currentScope().defineVariable("@returnOfMethod", LenseTypeSystem.Nothing(), node);
 
-			// verify overriding
-			if (this.currentType != null) {
-				if (!m.isNative() && m.isAbstract() && !this.currentType.isAbstract()) {
-					throw new CompilationError(node,
-							m.getName() + " is abstract but " + this.currentType.getName() + " is not abstract");
-				}
+            // verify overriding
+            if (this.currentType != null) {
+                if (!m.isNative() && m.isAbstract() && !this.currentType.isAbstract()) {
+                    throw new CompilationError(node,
+                            m.getName() + " is abstract but " + this.currentType.getName() + " is not abstract");
+                }
 
-				List<Method> superMethods = expectedMethods.get(m.getName());
+                List<Method> superMethods = expectedMethods.get(m.getName());
 
-				if (superMethods == null || superMethods.isEmpty()) {
+                if (superMethods == null || superMethods.isEmpty()) {
 					// no supper method exists, so this method cannot declare override
-					if (m.isOverride()) {
-						throw new CompilationError(node, "The method " + m.getName() + " of type "
-								+ this.currentType.getName() + " must override or implement a supertype method");
-					}
-				} else {
-					// a supper method exists.
+                    if (m.isOverride()) {
+                        throw new CompilationError(node, "The method " + m.getName() + " of type "
+                                + this.currentType.getName() + " must override or implement a supertype method");
+                    }
+                } else {
+                    // a supper method exists.
 
-					if (m.getProperty("removed", Boolean.class).orElse(false)) {
-						// already tested has matched in previous visit
-						removeExpected(m.getMethod());
-					} else {
-						// match signatures
-						for (Method superMethod : superMethods) {
+                    if (m.getProperty("removed", Boolean.class).orElse(false)) {
+                        // already tested has matched in previous visit
+                        removeExpected(m.getMethod());
+                    } else {
+                        // match signatures
+                        for (Method superMethod : superMethods) {
 
-							if (superMethod.getParameters().size() == m.getParameters().getChildren().size()) {
+                            if (superMethod.getParameters().size() == m.getParameters().getChildren().size()) {
 
-								boolean analiseInheritance = true;
-								if (!superMethod.getParameters().isEmpty()) {
-									Iterator<CallableMemberMember<Method>> ita = superMethod.getParameters().iterator();
-									Iterator<AstNode> itb = m.getParameters().getChildren().iterator();
+                                boolean analiseInheritance = true;
+                                if (!superMethod.getParameters().isEmpty()) {
+                                    Iterator<CallableMemberMember<Method>> ita = superMethod.getParameters().iterator();
+                                    Iterator<AstNode> itb = m.getParameters().getChildren().iterator();
 
-									while (ita.hasNext()) {
-										MethodParameter superParameter = (MethodParameter) ita.next();
-										FormalParameterNode thisParameter = (FormalParameterNode) itb.next();
+                                    while (ita.hasNext()) {
+                                        MethodParameter superParameter = (MethodParameter) ita.next();
+                                        FormalParameterNode thisParameter = (FormalParameterNode) itb.next();
 
-										boolean matches = this.lenseTypeSystem.isAssignableTo(
+                                        boolean matches = this.lenseTypeSystem.isAssignableTo(
 												thisParameter.getTypeVariable(), superParameter.getType().getUpperBound())
-												&& this.lenseTypeSystem.isAssignableTo(
-														superParameter.getType().getLowerBound(),
-														thisParameter.getTypeVariable());
+                                                && this.lenseTypeSystem.isAssignableTo(
+                                                        superParameter.getType().getLowerBound(),
+                                                        thisParameter.getTypeVariable());
 
-										if (!matches) {
-											analiseInheritance = false;
-											break;
-										}
-									}
-								}
+                                        if (!matches) {
+                                            analiseInheritance = false;
+                                            break;
+                                        }
+                                    }
+                                }
 
-								if (analiseInheritance) {
+                                if (analiseInheritance) {
 
-									if (!superMethod.isAbstract() && !m.isOverride()) {
-										throw new CompilationError(node,
-												"The method " + m.getName() + " in type " + this.currentType.getName()
-												+ " must declare override of a supertype method in "
-												+ superMethod.getDeclaringType().getName());
-									}
+                                    if (!superMethod.isAbstract() && !m.isOverride()) {
+                                        throw new CompilationError(node,
+                                                "The method " + m.getName() + " in type " + this.currentType.getName()
+                                                        + " must declare override of a supertype method in "
+                                                        + superMethod.getDeclaringType().getName());
+                                    }
 
-									if (!superMethod.isAbstract() && !superMethod.isDefault()) {
-										throw new CompilationError(node,
-												"The method " + m.getName() + " in type " + this.currentType.getName()
-												+ " cannot override a non default supertype method in "
-												+ superMethod.getDeclaringType().getName());
-									}
+                                    if (!superMethod.isAbstract() && !superMethod.isDefault()) {
+                                        throw new CompilationError(node,
+                                                "The method " + m.getName() + " in type " + this.currentType.getName()
+                                                        + " cannot override a non default supertype method in "
+                                                        + superMethod.getDeclaringType().getName());
+                                    }
 
-									m.setSuperMethod(superMethod);
+                                    m.setSuperMethod(superMethod);
 
-									m.getMethod().setSuperMethod(superMethod);
-									removeExpected(m.getMethod());
+                                    m.getMethod().setSuperMethod(superMethod);
+                                    removeExpected(m.getMethod());
 
-									m.setProperty("removed", true);
+                                    m.setProperty("removed", true);
 
 									Iterator<CallableMemberMember<Method>> itSuper = superMethod.getParameters().iterator();
 									Iterator<CallableMemberMember<Method>> itMy = m.getMethod().getParameters().iterator();
 
-									while (itSuper.hasNext()) {
-										MethodParameter s = (MethodParameter) itSuper.next();
-										MethodParameter b = (MethodParameter) itMy.next();
+                                    while (itSuper.hasNext()) {
+                                        MethodParameter s = (MethodParameter) itSuper.next();
+                                        MethodParameter b = (MethodParameter) itMy.next();
 
-										if (s.getType().isCalculated()) {
-											b.setVariance(Variance.ContraVariant);
-										}
-									}
+                                        if (s.getType().isCalculated()) {
+                                            b.setVariance(Variance.ContraVariant);
+                                        }
+                                    }
 
-								}
+                                }
 
 							} // else, not the same number of parameters: is an overload.
-						}
-					}
+                        }
+                    }
 
+                }
+            }
 
+        } else if (node instanceof AccessorNode) {
+
+            AccessorNode m = (AccessorNode) node;
+            // defaults
+            if (m.getVisibility() == null) {
+                m.setVisibility(m.getParent().getVisibility());
+            }
+
+            if (this.getSemanticContext().currentScope().getCurrentType().getKind() == LenseUnitKind.Interface) {
+                m.setAbstract(true);
+            }
+
+            if (m.getParent().isIndexed()) {
+                for (AstNode n : ((IndexerPropertyDeclarationNode) m.getParent()).getIndexes().getChildren()) {
+                    FormalParameterNode var = (FormalParameterNode) n;
+                    TypeVariable type = var.getTypeNode().getTypeVariable();
+
+                    this.getSemanticContext().currentScope().defineVariable(var.getName(), type, node)
+                            .setInitialized(true);
+                }
+            }
+
+            // define variable in the method scope. the current scope is block
+            this.getSemanticContext().currentScope().defineVariable("@returnOfMethod",
+                    m.getParent().getType().getTypeParameter(), node);
+
+        } else if (node instanceof ModifierNode) {
+
+            ModifierNode m = (ModifierNode) node;
+            // defaults
+            if (m.getVisibility() == null) {
+                m.setVisibility(m.getParent().getVisibility());
+            }
+            if (this.getSemanticContext().currentScope().getCurrentType().getKind() == LenseUnitKind.Interface) {
+                m.setAbstract(true);
+            }
+            if (m.getParent().isIndexed()) {
+                for (AstNode n : ((IndexerPropertyDeclarationNode) m.getParent()).getIndexes().getChildren()) {
+                    FormalParameterNode var = (FormalParameterNode) n;
+                    TypeVariable type = var.getTypeNode().getTypeVariable();
+
+                    this.getSemanticContext().currentScope().defineVariable(var.getName(), type, node)
+                            .setInitialized(true);
+                }
+            }
+
+            TypeVariable type = m.getParent().getType().getTypeVariable();
+            if (type == null) {
+                type = m.getParent().getType().getTypeParameter();
+            }
+
+            this.getSemanticContext().currentScope().defineVariable(m.getValueVariableName(), type, node)
+                    .setInitialized(true);
+        } else if (node instanceof ClassTypeNode) {
+            ClassTypeNode t = (ClassTypeNode) node;
+
+            int genericParametersCount = t.getGenerics() == null ? 0 : t.getGenerics().getChildren().size();
+
+            Optional<TypeVariable> maybeMyType = this.getSemanticContext().resolveTypeForName(t.getName(),
+                    genericParametersCount);
+
+            TypeNode superTypeNode = t.getSuperType();
+
+            LenseTypeDefinition myType;
+            if (maybeMyType.isPresent()) {
+                myType = (LenseTypeDefinition) maybeMyType.get();
+            } else {
+
+                List<TypeVariable> genericVariables = new ArrayList<>(genericParametersCount);
+
+                if (genericParametersCount > 0) {
+
+                    for (AstNode a : t.getGenerics().getChildren()) {
+                        GenericTypeParameterNode g = (GenericTypeParameterNode) a;
+
+                        TypeNode tn = g.getTypeNode();
+
+                        RangeTypeVariable r = new RangeTypeVariable(tn.getName(), g.getVariance(),
+                                LenseTypeSystem.Any(), LenseTypeSystem.Nothing());
+                        genericVariables.add(r);
+
+                        this.getSemanticContext().currentScope().defineTypeVariable(tn.getName(), r, node);
+                    }
+
+                }
+
+                myType = new LenseTypeDefinition(t.getName(), t.getKind(), ANY, genericVariables);
+                myType = (LenseTypeDefinition) this.getSemanticContext().registerType(myType, genericParametersCount);
+            }
+
+            myType.setKind(t.getKind());
+
+            if (myType.getKind() == LenseUnitKind.Interface) {
+                myType.setAbstract(true);
+            }
+
+            Visibility visibility = t.getVisibility();
+            if (visibility == Visibility.Undefined) {
+                myType.setVisibility(Visibility.Private);
+            }
+            myType.setVisibility(visibility);
+            myType.setAbstract(t.isAbstract());
+            myType.setNative(t.isNative());
+
+            // TODO annotations
+
+            TypeDefinition superType = ANY;
+            if (superTypeNode != null) {
+
+                superType = this.getSemanticContext().typeForName(superTypeNode).getTypeDefinition();
+
+				if (t.getKind().isValue()) {
+					throw new CompilationError(t, "Value classes cannot inherit from other types. They can only implement interfaces");
 				}
-			}
-
-		} else if (node instanceof AccessorNode) {
-
-			AccessorNode m = (AccessorNode) node;
-			// defaults
-			if (m.getVisibility() == null) {
-				m.setVisibility(m.getParent().getVisibility());
-			}
-
-			if (this.getSemanticContext().currentScope().getCurrentType().getKind() == LenseUnitKind.Interface) {
-				m.setAbstract(true);
-			}
-
-			if (m.getParent().isIndexed()) {
-				for (AstNode n : ((IndexerPropertyDeclarationNode) m.getParent()).getIndexes().getChildren()) {
-					FormalParameterNode var = (FormalParameterNode) n;
-					TypeVariable type = var.getTypeNode().getTypeVariable();
-
-					this.getSemanticContext().currentScope().defineVariable(var.getName(), type, node)
-					.setInitialized(true);
-				}
-			}
-
-			// define variable in the method scope. the current scope is block
-			this.getSemanticContext().currentScope().defineVariable("@returnOfMethod",
-					m.getParent().getType().getTypeParameter(), node);
-
-		} else if (node instanceof ModifierNode) {
-
-			ModifierNode m = (ModifierNode) node;
-			// defaults
-			if (m.getVisibility() == null) {
-				m.setVisibility(m.getParent().getVisibility());
-			}
-			if (this.getSemanticContext().currentScope().getCurrentType().getKind() == LenseUnitKind.Interface) {
-				m.setAbstract(true);
-			}
-			if (m.getParent().isIndexed()) {
-				for (AstNode n : ((IndexerPropertyDeclarationNode) m.getParent()).getIndexes().getChildren()) {
-					FormalParameterNode var = (FormalParameterNode) n;
-					TypeVariable type = var.getTypeNode().getTypeVariable();
-
-					this.getSemanticContext().currentScope().defineVariable(var.getName(), type, node)
-					.setInitialized(true);
-				}
-			}
-
-			TypeVariable type = m.getParent().getType().getTypeVariable();
-			if (type == null) {
-				type = m.getParent().getType().getTypeParameter();
-			}
-
-			this.getSemanticContext().currentScope().defineVariable(m.getValueVariableName(), type, node)
-			.setInitialized(true);
-		} else if (node instanceof ClassTypeNode) {
-			ClassTypeNode t = (ClassTypeNode) node;
-
-			int genericParametersCount = t.getGenerics() == null ? 0 : t.getGenerics().getChildren().size();
-
-			Optional<TypeVariable> maybeMyType = this.getSemanticContext().resolveTypeForName(t.getName(),
-					genericParametersCount);
-
-			TypeNode superTypeNode = t.getSuperType();
-
-			LenseTypeDefinition myType;
-			if (maybeMyType.isPresent()) {
-				myType = (LenseTypeDefinition) maybeMyType.get();
-			} else {
-
-				List<TypeVariable> genericVariables = new ArrayList<>(genericParametersCount);
-
-				if (genericParametersCount > 0) {
-
-					for (AstNode a : t.getGenerics().getChildren()) {
-						GenericTypeParameterNode g = (GenericTypeParameterNode) a;
-
-						TypeNode tn = g.getTypeNode();
-
-						RangeTypeVariable r = new RangeTypeVariable(tn.getName(), g.getVariance(),
-								LenseTypeSystem.Any(), LenseTypeSystem.Nothing());
-						genericVariables.add(r);
-
-						this.getSemanticContext().currentScope().defineTypeVariable(tn.getName(), r, node);
-					}
-
-				}
-
-				myType = new LenseTypeDefinition(t.getName(), t.getKind(), ANY, genericVariables);
-				myType = (LenseTypeDefinition) this.getSemanticContext().registerType(myType, genericParametersCount);
-			}
-
-			myType.setKind(t.getKind());
-
-			if (myType.getKind() == LenseUnitKind.Interface) {
-				myType.setAbstract(true);
-			}
-
-			Visibility visibility = t.getVisibility();
-			if (visibility == Visibility.Undefined) {
-				myType.setVisibility(Visibility.Private);
-			}
-			myType.setVisibility(visibility);
-			myType.setAbstract(t.isAbstract());
-			myType.setNative(t.isNative());
-
-			// TODO annotations
-
-			TypeDefinition superType = ANY;
-			if (superTypeNode != null) {
-
+				
 				superType = this.getSemanticContext().typeForName(superTypeNode).getTypeDefinition();
+                if (superType.isGeneric()) {
 
-				if (superType.isGeneric()) {
+                    if (t.getKind().isEnhancement()) {
 
-					if (t.getKind().isEnhancement()) {
+                        List<TypeVariable> params = new ArrayList<>(superTypeNode.getChildren().size());
+                        for (AstNode n : superTypeNode.getChildren()) {
+                            if (n instanceof GenericTypeParameterNode) {
+                                GenericTypeParameterNode g = (GenericTypeParameterNode) n;
 
-						List<TypeVariable> params = new ArrayList<>(superTypeNode.getChildren().size());
-						for (AstNode n : superTypeNode.getChildren()) {
-							if (n instanceof GenericTypeParameterNode) {
-								GenericTypeParameterNode g = (GenericTypeParameterNode) n;
+                                params.add(this.getSemanticContext().typeForName(g.getTypeNode()));
 
-								params.add(this.getSemanticContext().typeForName(g.getTypeNode()));
+                            } else {
+                                throw new UnsupportedOperationException();
+                            }
+                        }
 
-							} else {
-								throw new UnsupportedOperationException();
-							}
-						}
+                        superType = LenseTypeSystem.specify(superType, params);
 
-						superType = LenseTypeSystem.specify(superType, params);
+                    } else {
+                        for (AstNode n : superTypeNode.getChildren()) {
+                            if (n instanceof GenericTypeParameterNode) {
+                                throw new UnsupportedOperationException();
+                            } else {
+                                TypeNode tn = (TypeNode) n;
+                                TypeDefinition rawInterfaceType = this.getSemanticContext().typeForName(tn)
+                                        .getTypeDefinition();
+                                TypeDefinition interfaceType = rawInterfaceType;
+                                if (rawInterfaceType.isGeneric()) {
+                                    TypeVariable[] parameters = new TypeVariable[tn.getChildren().size()];
+                                    int index = 0;
+                                    for (AstNode a : tn.getChildren()) {
+                                        GenericTypeParameterNode g = (GenericTypeParameterNode) a;
+                                        TypeNode tt = g.getTypeNode();
+                                        for (int i = 0; i < myType.getGenericParameters().size(); i++) {
+                                            TypeVariable v = myType.getGenericParameters().get(i);
+                                            if (v.getSymbol().get().equals(tt.getName())) {
+                                                parameters[index] = new DeclaringTypeBoundedTypeVariable(myType, i,
+                                                        tt.getName(), g.getVariance());
+                                            }
+                                        }
+                                        index++;
+                                    }
 
-					} else {
-						for (AstNode n : superTypeNode.getChildren()) {
-							if (n instanceof GenericTypeParameterNode) {
-								throw new UnsupportedOperationException();
-							} else {
-								TypeNode tn = (TypeNode) n;
-								TypeDefinition rawInterfaceType = this.getSemanticContext().typeForName(tn)
-										.getTypeDefinition();
-								TypeDefinition interfaceType = rawInterfaceType;
-								if (rawInterfaceType.isGeneric()) {
-									TypeVariable[] parameters = new TypeVariable[tn.getChildren().size()];
-									int index = 0;
-									for (AstNode a : tn.getChildren()) {
-										GenericTypeParameterNode g = (GenericTypeParameterNode) a;
-										TypeNode tt = g.getTypeNode();
-										for (int i = 0; i < myType.getGenericParameters().size(); i++) {
-											TypeVariable v = myType.getGenericParameters().get(i);
-											if (v.getSymbol().get().equals(tt.getName())) {
-												parameters[index] = new DeclaringTypeBoundedTypeVariable(myType, i,
-														tt.getName(), g.getVariance());
-											}
-										}
-										index++;
-									}
+                                    interfaceType = LenseTypeSystem.specify(rawInterfaceType, parameters);
 
-									interfaceType = LenseTypeSystem.specify(rawInterfaceType, parameters);
+                                }
 
-								}
+                                tn.setTypeVariable(interfaceType);
+                                myType.addInterface(interfaceType);
+                            }
 
-								tn.setTypeVariable(interfaceType);
-								myType.addInterface(interfaceType);
-							}
+                        }
+                    }
 
-						}
-					}
+                }
 
-				}
+                if (!t.getKind().isEnhancement() && superType.getKind() == LenseUnitKind.Interface
+                        && !lenseTypeSystem.isAny(superType)) {
+                    throw new CompilationError(node, t.getName() + " cannot extend interface " + superType.getName()
+                            + ". Did you meant to use 'implements' instead of 'extends' ?.");
+                }
 
-				if (!t.getKind().isEnhancement() && superType.getKind() == LenseUnitKind.Interface
-						&& !lenseTypeSystem.isAny(superType)) {
-					throw new CompilationError(node, t.getName() + " cannot extend interface " + superType.getName()
-					+ ". Did you meant to use 'implements' instead of 'extends' ?.");
-				}
+                superTypeNode.setTypeVariable(superType);
 
-				superTypeNode.setTypeVariable(superType);
+            } else if (t.getKind().isEnhancement()) {
+                throw new CompilationError(node, t.getName() + " enhancement must define a type for extention");
 
-			} else if (t.getKind().isEnhancement()) {
-				throw new CompilationError(node, t.getName() + " enhancement must define a type for extention");
+            }
 
-			}
+            if (superType.equals(myType)) {
+                if (!myType.equals(ANY)) {
+                    throw new CompilationError(node, t.getName() + " cannot extend it self");
+                }
+            } else {
+                myType.setSuperTypeDefinition(superType);
 
-			if (superType.equals(myType)) {
-				if (!myType.equals(ANY)) {
-					throw new CompilationError(node, t.getName() + " cannot extend it self");
-				}
-			} else {
-				myType.setSuperTypeDefinition(superType);
-
-				if (superType == ANY) {
-					// supertype is Any // TODO change on loaded
-					superType.getAllMembers().stream().filter(m -> m.isMethod() && !m.isProperty()).peek(m -> {
-						m.setAbstract(false);
-						m.setDefault(!m.getName().equals("type"));
-					}).forEach(m -> addExpected(m.getName(), ((Method) m)));
-				} else {
-					superType.getAllMembers().stream().filter(m -> m.isMethod() && !m.isProperty())
-					.forEach(m -> addExpected(m.getName(), ((Method) m)));
-				}
-			}
+                if (superType == ANY) {
+                    // supertype is Any // TODO change on loaded
+                    superType.getAllMembers().stream().filter(m -> m.isMethod() && !m.isProperty()).peek(m -> {
+                        m.setAbstract(false);
+                        m.setDefault(!m.getName().equals("type"));
+                    }).forEach(m -> addExpected(m.getName(), ((Method) m)));
+                } else {
+                    superType.getAllMembers().stream().filter(m -> m.isMethod() && !m.isProperty())
+                            .forEach(m -> addExpected(m.getName(), ((Method) m)));
+                }
+            }
 
 			// algebric values
-			if (t.isAlgebric()) {
+			if (t.isAlgebric() && !t.isNative()) {
+                myType.setAlgebric(true);
 
-				myType.setAlgebric(true);
+                List<TypeDefinition> chidlValues = new ArrayList<>(t.getAlgebricChildren().getChildren().size());
+                List<TypeDefinition> chidlTypes = new ArrayList<>(t.getAlgebricChildren().getChildren().size());
 
-				List<TypeDefinition> chidlValues = new ArrayList<>(t.getAlgebricChildren().getChildren().size());
-				List<TypeDefinition> chidlTypes = new ArrayList<>(t.getAlgebricChildren().getChildren().size());
-
-				for (AstNode n : t.getAlgebricChildren().getChildren()) {
-					ChildTypeNode ctn = (ChildTypeNode) n;
+                for (AstNode n : t.getAlgebricChildren().getChildren()) {
+                    ChildTypeNode ctn = (ChildTypeNode) n;
 
 					TypeDefinition childType = this.getSemanticContext()
-							.resolveTypeForName(ctn.getType().getName(), ctn.getType().getTypeParametersCount()).get()
+							.resolveTypeForName(ctn.getType().getName(), ctn.getType().getTypeParametersCount()).orElseThrow(() ->  new CompilationError(ctn, "No type defined"))
 							.getTypeDefinition();
+					
+                    if (childType.getTypeDefinition().getKind().isObject()) {
+                        chidlValues.add(childType);
+                    } else {
+                        chidlTypes.add(childType);
+                    }
 
-					if (childType.getTypeDefinition().getKind().isObject()) {
-						chidlValues.add(childType);
-					} else {
-						chidlTypes.add(childType);
-					}
+                    ctn.getType().setTypeVariable(childType);
 
-					ctn.getType().setTypeVariable(childType);
+                }
 
-				}
+                myType.setCaseTypes(chidlTypes);
+                myType.setCaseValues(chidlValues);
+            }
 
-				myType.setCaseTypes(chidlTypes);
-				myType.setCaseValues(chidlValues);
-			}
+            t.setTypeDefinition(myType);
 
-			t.setTypeDefinition(myType);
+            this.currentType = myType;
 
-			this.currentType = myType;
+            if (t.getKind().isEnhancement()) {
 
-			if (t.getKind().isEnhancement()) {
+                this.getSemanticContext().currentScope().defineVariable("this", superType, node).setInitialized(true);
 
-				this.getSemanticContext().currentScope().defineVariable("this", superType, node).setInitialized(true);
+            } else {
+                this.getSemanticContext().currentScope().defineVariable("this", myType, node).setInitialized(true);
 
-			} else {
-				this.getSemanticContext().currentScope().defineVariable("this", myType, node).setInitialized(true);
+                this.getSemanticContext().currentScope().defineVariable("super", superType, node).setInitialized(true);
 
-				this.getSemanticContext().currentScope().defineVariable("super", superType, node).setInitialized(true);
+            }
 
-			}
+            TreeTransverser.transverse(t, new StructureVisitor(myType, this.getSemanticContext(), true));
 
-			TreeTransverser.transverse(t, new StructureVisitor(myType, this.getSemanticContext(), true));
-
-			if (t.getInterfaces() != null) {
-				for (AstNode n : t.getInterfaces().getChildren()) {
+            if (t.getInterfaces() != null) {
+                for (AstNode n : t.getInterfaces().getChildren()) {
 					// generifyInterfaceType(myType, myGenericTypes, (TypeNode) n);
 
-					TypeDefinition interfaceType = specifySuperInterface(myType, myType.getGenericParameters(),
-							(TypeNode) n);
+                    TypeDefinition interfaceType = specifySuperInterface(myType, myType.getGenericParameters(),
+                            (TypeNode) n);
 
-					myType.addInterface(interfaceType);
+                    myType.addInterface(interfaceType);
 
-					for (TypeMember m : interfaceType.getAllMembers()) {
-						if (m.isMethod() && !m.isProperty()) {
-							addExpected(m.getName(), ((Method) m));
+                    for (TypeMember m : interfaceType.getAllMembers()) {
+                        if (m.isMethod() && !m.isProperty()) {
+                            addExpected(m.getName(), ((Method) m));
 
-						}
-					}
+                        }
+                    }
 
-				}
-			}
+                }
+            }
 
-		} else if (node instanceof VariableReadNode) {
-			VariableReadNode v = (VariableReadNode) node;
-			VariableInfo variableInfo = this.getSemanticContext().currentScope().searchVariable(v.getName());
-			if (variableInfo == null) {
-				throw new CompilationError(node, "Variable " + v.getName() + " was not defined");
-			}
-			if (!variableInfo.isInitialized()) {
+        } else if (node instanceof VariableReadNode) {
+            VariableReadNode v = (VariableReadNode) node;
+            VariableInfo variableInfo = this.getSemanticContext().currentScope().searchVariable(v.getName());
+            if (variableInfo == null) {
+                throw new CompilationError(node, "Variable " + v.getName() + " was not defined");
+            }
+            if (!variableInfo.isInitialized()) {
 
-				throw new CompilationError(node, "Variable " + v.getName() + " was not initialized.");
-			}
-			v.setVariableInfo(variableInfo);
+                throw new CompilationError(node, "Variable " + v.getName() + " was not initialized.");
+            }
+            v.setVariableInfo(variableInfo);
 
-		} else if (node instanceof ForEachNode) {
+        } else if (node instanceof ForEachNode) {
 
-			ForEachNode n = (ForEachNode) node;
+            ForEachNode n = (ForEachNode) node;
 
-			TreeTransverser.transverse(n.getContainer(), new SemanticVisitor(this.getSemanticContext()));
+            TreeTransverser.transverse(n.getContainer(), new SemanticVisitor(this.getSemanticContext()));
 
-			TypeVariable containerTypeVariable = n.getContainer().getTypeVariable();
+            TypeVariable containerTypeVariable = n.getContainer().getTypeVariable();
 
-			TypeVariable typeVariable = containerTypeVariable.getGenericParameters().get(0);
+            TypeVariable typeVariable = containerTypeVariable.getGenericParameters().get(0);
 
-			n.getVariableDeclarationNode().setTypeNode(new TypeNode(typeVariable));
+            n.getVariableDeclarationNode().setTypeNode(new TypeNode(typeVariable));
 
-			VariableInfo iterationVariable = this.getSemanticContext().currentScope()
-					.defineVariable(n.getVariableDeclarationNode().getName(), typeVariable, n);
+            VariableInfo iterationVariable = this.getSemanticContext().currentScope()
+                    .defineVariable(n.getVariableDeclarationNode().getName(), typeVariable, n);
 
-			iterationVariable.setInitialized(true);
+            iterationVariable.setInitialized(true);
 
-			if (n.getContainer() instanceof RangeNode) {
-				RangeNode range = (RangeNode) n.getContainer();
+            if (LenseTypeSystem.isAssignableTo(n.getContainer().getTypeVariable(), LenseTypeSystem.Progression())) {
 
-				if (lenseTypeSystem.isAssignableTo(iterationVariable.getTypeVariable(), LenseTypeSystem.Natural())) { // TODO
-					// change
-					// to
-					// .Number()
-					// is a number
-					// try to determine limits
+				if (LenseTypeSystem.isAssignableTo(iterationVariable.getTypeVariable(), LenseTypeSystem.Number())) { // TODO Orderable with successor
 
-					if (range.getStart() instanceof NumericValue) {
-						iterationVariable.setMininumValue(((NumericValue) range.getStart()).getValue());
-					}
+                    VariableRange r = VariableRange.extractFrom(n.getContainer());
 
-					if (range.getEnd() instanceof NumericValue) {
-						iterationVariable.setMaximumValue(((NumericValue) range.getEnd()).getValue());
-					}
+                    r.getMin().ifPresent(v -> iterationVariable.setMininumValue(v));
+                    r.getMax().ifPresent(v -> iterationVariable.setMaximumValue(v));
+                    iterationVariable.setIncludeMaximum(r.isIncludeMax());
+                }
 
-				}
+            }
 
-			}
+        } else if (node instanceof VariableWriteNode) {
+            VariableWriteNode v = (VariableWriteNode) node;
+            VariableInfo variableInfo = this.getSemanticContext().currentScope().searchVariable(v.getName());
 
-		} else if (node instanceof VariableWriteNode) {
-			VariableWriteNode v = (VariableWriteNode) node;
-			VariableInfo variableInfo = this.getSemanticContext().currentScope().searchVariable(v.getName());
+            if (variableInfo == null) {
+                throw new CompilationError("Variable " + v.getName() + " was not defined");
+            } else if (variableInfo.getDeclaringNode() instanceof ClassTypeNode) {
+                // a field is being set
+                // TODO
+            }
 
-			if (variableInfo == null) {
-				throw new CompilationError("Variable " + v.getName() + " was not defined");
-			} else if (variableInfo.getDeclaringNode() instanceof ClassTypeNode) {
-				// a field is being set
-				// TODO
-			}
+            variableInfo.markWrite();
+            v.setVariableInfo(variableInfo);
 
-			variableInfo.markWrite();
-			v.setVariableInfo(variableInfo);
+        } else if (node instanceof LambdaExpressionNode) {
 
-		} else if (node instanceof LambdaExpressionNode) {
+            LambdaExpressionNode n = ((LambdaExpressionNode) node);
 
-			LambdaExpressionNode n = ((LambdaExpressionNode) node);
+            AstNode parent = n.getParent();
+            while (!(parent instanceof ScopedVariableDefinitionNode)) {
+                parent = n.getParent();
+            }
 
-			AstNode parent = n.getParent();
-			while (!(parent instanceof ScopedVariableDefinitionNode)) {
-				parent = n.getParent();
-			}
+            TypeVariable assignmentType = ((ScopedVariableDefinitionNode) parent).getTypeNode().getTypeVariable();
 
-			TypeVariable assignmentType = ((ScopedVariableDefinitionNode) parent).getTypeNode().getTypeVariable();
+            List<TypeVariable> parameters = new ArrayList<>();
+            if (assignmentType.getTypeDefinition().getName().equals("lense.core.lang.Function")) {
+                parameters = assignmentType.getTypeDefinition().getGenericParameters();
+            }
 
-			List<TypeVariable> parameters = new ArrayList<>();
-			if (assignmentType.getTypeDefinition().getName().equals("lense.core.lang.Function")) {
-				parameters = assignmentType.getTypeDefinition().getGenericParameters();
-			}
+            int index = 1;
+            for (AstNode p : n.getParameters().getChildren()) {
 
-			int index = 1;
-			for (AstNode p : n.getParameters().getChildren()) {
+                FormalParameterNode d = ((FormalParameterNode) p);
+                String name = d.getName();
+                TypeVariable td = d.getTypeVariable();
+                if (td == null) {
+                    td = parameters.get(index); // TODO Type inference to
+                    // name resolution
+                    d.setTypeNode(new TypeNode(td));
+                }
 
-				FormalParameterNode d = ((FormalParameterNode) p);
-				String name = d.getName();
-				TypeVariable td = d.getTypeVariable();
-				if (td == null) {
-					td = parameters.get(index); // TODO Type inference to
-					// name resolution
-					d.setTypeNode(new TypeNode(td));
-				}
+                this.getSemanticContext().currentScope().defineVariable(name, td, node).setInitialized(true);
+                index++;
+            }
+        }
 
-				this.getSemanticContext().currentScope().defineVariable(name, td, node).setInitialized(true);
-				index++;
-			}
-		}
+        return VisitorNext.Children;
+    }
 
-		return VisitorNext.Children;
-	}
+    private boolean isUsedInLoop(AstNode node) {
 
-	private boolean isUsedInLoop(AstNode node) {
+        if (node == null) {
+            return false;
+        }
 
-		if (node == null) {
-			return false;
-		}
+        AstNode parent = node.getParent();
+        if (parent instanceof ForEachNode || parent instanceof WhileNode) {
+            return false;
+        } else if (parent instanceof PropertyDeclarationNode || parent instanceof MethodDeclarationNode
+                || parent instanceof DecisionNode) {
+            return false;
+        } else {
+            return isUsedInLoop(parent);
+        }
+    }
 
-		AstNode parent = node.getParent();
-		if (parent instanceof ForEachNode || parent instanceof WhileNode) {
-			return false;
-		} else if (parent instanceof PropertyDeclarationNode || parent instanceof MethodDeclarationNode
-				|| parent instanceof DecisionNode) {
-			return false;
-		} else {
-			return isUsedInLoop(parent);
-		}
-	}
+    private void removeExpected(Method method) {
+        expectedMethods.remove(method.getName());
+    }
 
-	private void removeExpected(Method method) {
-		expectedMethods.remove(method.getName());
-	}
+    private void addExpected(String name, Method method) {
+        if (method.isPropertyBridge()) {
+            return;
+        }
+        List<Method> list = expectedMethods.get(name);
 
-	private void addExpected(String name, Method method) {
-		if (method.isPropertyBridge()) {
-			return;
-		}
-		List<Method> list = expectedMethods.get(name);
+        if (list == null) {
+            list = new ArrayList<>(1);
+            expectedMethods.put(name, list);
+        } else {
+            if (list.contains(method)) {
+                return;
+            } else {
+                Iterator<Method> it = list.iterator();
 
-		if (list == null) {
-			list = new ArrayList<>(1);
-			expectedMethods.put(name, list);
-		} else {
-			if (list.contains(method)) {
-				return;
-			} else {
-				Iterator<Method> it = list.iterator();
+                boolean add = false;
 
-				boolean add = false;
+                outter: while (it.hasNext()) {
+                    Method current = it.next();
 
-				outter: while (it.hasNext()) {
-					Method current = it.next();
+                    for (int i = 0; i < current.getParameters().size(); i++) {
 
-					for (int i = 0; i < current.getParameters().size(); i++) {
+                        TypeVariable p = current.getParameters().get(i).getType();
+                        TypeVariable n = method.getParameters().get(i).getType();
 
-						TypeVariable p = current.getParameters().get(i).getType();
-						TypeVariable n = method.getParameters().get(i).getType();
+                        if (lenseTypeSystem.isAssignableTo(p, n)) {
+                            it.remove();
+                            add = true;
+                            continue outter;
+                        }
+                    }
+                }
 
-						if (lenseTypeSystem.isAssignableTo(p, n)) {
-							it.remove();
-							add = true;
-							continue outter;
-						}
-					}
-				}
+                if (add) {
+                    list.add(method);
+                    return;
+                }
+            }
+        }
 
-				if (add) {
-					list.add(method);
-					return;
-				}
-			}
-		}
+        list.add(method);
+    }
 
-		list.add(method);
-	}
+    private TypeDefinition specifySuperInterface(LenseTypeDefinition declaringType,
+            List<TypeVariable> implementationGenericTypes, TypeNode interfaceNode) {
 
-	private TypeDefinition specifySuperInterface(LenseTypeDefinition declaringType,
-			List<TypeVariable> implementationGenericTypes, TypeNode interfaceNode) {
+        TypeDefinition rawInterfaceType = this.getSemanticContext().typeForName(interfaceNode).getTypeDefinition();
 
-		TypeDefinition rawInterfaceType = this.getSemanticContext().typeForName(interfaceNode).getTypeDefinition();
+        if (rawInterfaceType.getGenericParameters().isEmpty()) {
+            // no generics
+            interfaceNode.setTypeVariable(rawInterfaceType);
+            return rawInterfaceType;
+        }
 
-		if (rawInterfaceType.getGenericParameters().isEmpty()) {
-			// no generics
-			interfaceNode.setTypeVariable(rawInterfaceType);
-			return rawInterfaceType;
-		}
+        TypeVariable[] parameters = new TypeVariable[interfaceNode.getTypeParametersCount()];
+        int index = 0;
+        for (AstNode a : interfaceNode.getChildren()) {
+            // match the relevant generic types
+            GenericTypeParameterNode g = (GenericTypeParameterNode) a;
+            TypeNode generitcTypeParameter = g.getTypeNode();
 
-		TypeVariable[] parameters = new TypeVariable[interfaceNode.getTypeParametersCount()];
-		int index = 0;
-		for (AstNode a : interfaceNode.getChildren()) {
-			// match the relevant generic types
-			GenericTypeParameterNode g = (GenericTypeParameterNode) a;
-			TypeNode generitcTypeParameter = g.getTypeNode();
+            if (generitcTypeParameter.getTypeVariable() == null
+                    || generitcTypeParameter.getTypeVariable().getTypeDefinition().equals(ANY)) {
+                for (int i = 0; i < implementationGenericTypes.size(); i++) {
+                    TypeVariable v = implementationGenericTypes.get(i);
+                    if (v.getSymbol().get().equals(generitcTypeParameter.getName())) {
 
-			if (generitcTypeParameter.getTypeVariable() == null
-					|| generitcTypeParameter.getTypeVariable().getTypeDefinition().equals(ANY)) {
-				for (int i = 0; i < implementationGenericTypes.size(); i++) {
-					TypeVariable v = implementationGenericTypes.get(i);
-					if (v.getSymbol().get().equals(generitcTypeParameter.getName())) {
+                        parameters[index] = new DeclaringTypeBoundedTypeVariable(declaringType, i,
+                                generitcTypeParameter.getName(), g.getVariance());
 
-						parameters[index] = new DeclaringTypeBoundedTypeVariable(declaringType, i,
-								generitcTypeParameter.getName(), g.getVariance());
+                    }
+                }
+            } else {
+                if (generitcTypeParameter.getTypeParametersCount() > 0) {
+                    // Recursive call
+                    parameters[index] = specifySuperInterface(declaringType, implementationGenericTypes,
+                            generitcTypeParameter);
 
-					}
-				}
-			} else {
-				if (generitcTypeParameter.getTypeParametersCount() > 0) {
-					// Recursive call
-					parameters[index] = specifySuperInterface(declaringType, implementationGenericTypes,
-							generitcTypeParameter);
+                } else {
+                    parameters[index] = generitcTypeParameter.getTypeVariable();
+                }
+            }
 
-				} else {
-					parameters[index] = generitcTypeParameter.getTypeVariable();
-				}
-			}
+            index++;
+        }
 
-			index++;
-		}
+        LenseTypeDefinition interfaceType = LenseTypeSystem.specify(rawInterfaceType, parameters);
+        interfaceNode.setTypeVariable(interfaceType);
 
-		LenseTypeDefinition interfaceType = LenseTypeSystem.specify(rawInterfaceType, parameters);
-		interfaceNode.setTypeVariable(interfaceType);
+        return interfaceType;
+    }
 
-		return interfaceType;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void doVisitAfterChildren(AstNode node) {
+        if (node instanceof AssertNode) {
+            AssertNode r = (AssertNode) node;
+            ExpressionNode val = (ExpressionNode) r.getFirstChild();
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void doVisitAfterChildren(AstNode node) {
-		if (node instanceof AssertNode) {
-			AssertNode r = (AssertNode) node;
-			ExpressionNode val = (ExpressionNode) r.getFirstChild();
+            if (!(val instanceof ComparisonNode) && !(val instanceof InstanceOfNode)) {
+				ComparisonNode n = new ComparisonNode( r.getReferenceValue() ? Operation.EqualTo : Operation.Different);
+                n.add(val);
+                n.add(new BooleanValue(r.getReferenceValue()));
 
-			if (!(val instanceof ComparisonNode) && !(val instanceof InstanceOfNode)) {
-				ComparisonNode n = new ComparisonNode(Operation.EqualTo);
-				n.add(val);
-				n.add(new BooleanValue(r.getReferenceValue()));
+                r.replace(val, n);
+            }
 
-				r.replace(val, n);
-			}
+		} else if (node instanceof InstanceOfNode){
+		    InstanceOfNode n = (InstanceOfNode)node;
+		    
+		    if (!LenseTypeSystem.isAssignableTo(n.getExpression().getTypeVariable() , n.getTypeNode().getTypeVariable()) 
+		            && !LenseTypeSystem.isAssignableTo( n.getTypeNode().getTypeVariable(), n.getExpression().getTypeVariable() ) ){
+		        
+                // is mandatory false
+                n.setMandatoryEvaluation(false);
 
-		} else if (node instanceof JuxpositionNode) {
-			JuxpositionNode jn = (JuxpositionNode) node;
+            }
 
-			ExpressionNode left = ensureExpression(jn.getChildren().get(0));
-			ExpressionNode right = ensureExpression(jn.getChildren().get(1));
+        } else if (node instanceof JuxpositionNode) {
+            JuxpositionNode jn = (JuxpositionNode) node;
+
+            ExpressionNode left = ensureExpression(jn.getChildren().get(0));
+            ExpressionNode right = ensureExpression(jn.getChildren().get(1));
 
 			TypeVariable posBindable = this.getSemanticContext().resolveTypeForName("lense.core.lang.PosBindable", 2).get();
 			TypeVariable preBindable = this.getSemanticContext().resolveTypeForName("lense.core.lang.PreBindable", 2).get();
 
-			// 1. check if left is PosBindable left.posBindWith(right)
+            // 1. check if left is PosBindable left.posBindWith(right)
 
-			if (LenseTypeSystem.isAssignableTo(left.getTypeVariable(), posBindable)) {
+            if (LenseTypeSystem.isAssignableTo(left.getTypeVariable(), posBindable)) {
 
 				Optional<Method> method = left.getTypeVariable().getTypeDefinition().getMethodByPromotableSignature(new MethodSignature("posBindWith", new MethodParameter(right.getTypeVariable())));
 
-				if (method.isPresent()) {
-					ArgumentListItemNode arg = new ArgumentListItemNode(0, right);
-					arg.setExpectedType(method.get().getParameters().get(0).getType());
+                if (method.isPresent()) {
+                    ArgumentListItemNode arg = new ArgumentListItemNode(0, right);
+                    arg.setExpectedType(method.get().getParameters().get(0).getType());
 					MethodInvocationNode m = new MethodInvocationNode(left , "posBindWith",  arg);
 
-					node.getParent().replace(node, m);
+                    node.getParent().replace(node, m);
 
-					m.setTypeVariable(method.get().getReturningType());
-				} else {
+                    m.setTypeVariable(method.get().getReturningType());
+                } else {
 					throw new CompilationError(left, "Expression is not bindable to " + right.getTypeVariable().toString());
-				}
+                }
 
-
-			} else  {
-				// 2. check if left as an exention method equivalent to left.posBindWith(right)
+            } else {
+				// 2. check if left as an extension method equivalent to left.posBindWith(right)
 				// TODO 
 
-				// 3. check if right is PresBindable right.preBindWith(left)
-				if (LenseTypeSystem.isAssignableTo(right.getTypeVariable(), preBindable)) {
+                // 3. check if right is PresBindable right.preBindWith(left)
+                if (LenseTypeSystem.isAssignableTo(right.getTypeVariable(), preBindable)) {
 
 					Optional<Method> method = right.getTypeVariable().getTypeDefinition().getMethodByPromotableSignature(new MethodSignature("preBindWith", new MethodParameter(left.getTypeVariable())));
 
-					if (method.isPresent()) {
-						ArgumentListItemNode arg = new ArgumentListItemNode(0, left);
-						arg.setExpectedType(method.get().getParameters().get(0).getType());
+                    if (method.isPresent()) {
+                        ArgumentListItemNode arg = new ArgumentListItemNode(0, left);
+                        arg.setExpectedType(method.get().getParameters().get(0).getType());
 						MethodInvocationNode m = new MethodInvocationNode(right , "preBindWith",  arg);
 
-						node.getParent().replace(node, m);
+                        node.getParent().replace(node, m);
 
-						m.setTypeVariable(method.get().getReturningType());
-					} else {
-						throw new CompilationError(right, "Expression is not bindable to " + left.getTypeVariable().toString());
-					}
+                        m.setTypeVariable(method.get().getReturningType());
+                    } else {
+						throw new CompilationError(node, "Expression is not bindable to " + left.getTypeVariable().toString());
+                    }
 
-				} else  {
+                } else {
 
 					// 4. check if right as an exention method equivalent to right.preBindWith(left)
 					// TODO 
 
-					// else fail
-					throw new CompilationError(node, "Expressions are not bindable");
-				}
-			}
+                    // else fail
+                    throw new CompilationError(node, "Expressions are not bindable");
+                }
+            }
 
+        } else if (node instanceof SwitchNode) {
+            SwitchNode switchNode = (SwitchNode) node;
 
-		} else if (node instanceof SwitchNode) {
-			SwitchNode switchNode = (SwitchNode) node;
+            TypeDefinition type = ensureNotFundamental(switchNode.getCandidate().getTypeVariable().getTypeDefinition());
+            switchNode.getCandidate().setTypeVariable(type);
 
-			TypeDefinition type = ensureNotFundamental(switchNode.getCandidate().getTypeVariable().getTypeDefinition());
-			switchNode.getCandidate().setTypeVariable(type);
+            if (type.isAlgebric()) {
+                Set<TypeDefinition> set = new HashSet<>(
+                        switchNode.getCandidate().getTypeVariable().getTypeDefinition().getCaseValues());
 
-			if (type.isAlgebric()) {
-				Set<TypeDefinition> set = new HashSet<>(
-						switchNode.getCandidate().getTypeVariable().getTypeDefinition().getCaseValues());
+                boolean defaultFound = false;
+                for (AstNode op : switchNode.getOptions().getChildren()) {
+                    SwitchOption t = (SwitchOption) op;
 
-				boolean defaultFound = false;
-				for (AstNode op : switchNode.getOptions().getChildren()) {
-					SwitchOption t = (SwitchOption) op;
+                    if (t.isDefault()) {
+                        defaultFound = true;
+                        continue;
+                    }
 
-					if (t.isDefault()) {
-						defaultFound = true;
-						continue;
-					}
+                    if (t.getValue() instanceof BooleanValue) {
+                        set.remove(new FundamentalLenseTypeDefinition(
+                                "lense.core.lang." + ((BooleanValue) t.getValue()).getLiteralValue(),
+                                LenseUnitKind.Object, (LenseTypeDefinition) LenseTypeSystem.Boolean()));
+                    } else {
+                        set.remove(t.getValue().getTypeVariable().getTypeDefinition());
+                    }
 
-					if (t.getValue() instanceof BooleanValue) {
-						set.remove(new FundamentalLenseTypeDefinition(
-								"lense.core.lang." + ((BooleanValue) t.getValue()).getLiteralValue(),
-								LenseUnitKind.Object, (LenseTypeDefinition) LenseTypeSystem.Boolean()));
-					} else {
-						set.remove(t.getValue().getTypeVariable().getTypeDefinition());
-					}
+                }
 
-				}
+                if (!set.isEmpty() && !defaultFound) {
+                    // check if default option is present
+                    throw new CompilationError(node,
+                            "Not all cases where covered and no default case was declared. Cover all case values or declare a default case.");
+                }
+            } else {
+                boolean defaultFound = switchNode.getOptions().getChildren().stream()
+                        .filter(c -> ((SwitchOption) c).isDefault()).findAny().isPresent();
+                if (!defaultFound) {
+                    // check if default option is present
+                    throw new CompilationError(node,
+                            "Candidate type has no declared coverage and default case was not declared. Ddeclare a default case.");
+                }
+            }
+        } else {
+            LenseTypeSystem typeSystem = lenseTypeSystem;
 
-				if (!set.isEmpty() && !defaultFound) {
-					// check if default option is present
-					throw new CompilationError(node,
-							"Not all cases where covered and no default case was declared. Cover all case values or declare a default case.");
-				}
-			} else {
-				boolean defaultFound = switchNode.getOptions().getChildren().stream()
-						.filter(c -> ((SwitchOption) c).isDefault()).findAny().isPresent();
-				if (!defaultFound) {
-					// check if default option is present
-					throw new CompilationError(node,
-							"Candidate type has no declared coverage and default case was not declared. Ddeclare a default case.");
-				}
-			}
-		} else {
-			LenseTypeSystem typeSystem = lenseTypeSystem;
+            if (node instanceof ComparisonNode) {
+                ComparisonNode n = (ComparisonNode) node;
 
-			if (node instanceof ComparisonNode) {
-				ComparisonNode n = (ComparisonNode) node;
+                TypeDefinition comparable = LenseTypeSystem.Comparable();
+                TypeVariable leftSide = ensureNotFundamental(n.getLeft().getTypeVariable());
 
-				TypeDefinition comparable = LenseTypeSystem.Comparable();
-				TypeVariable leftSide = ensureNotFundamental(n.getLeft().getTypeVariable());
+                if (n.getOperation().dependsOnComparable() && !typeSystem.isAssignableTo(leftSide, comparable)) {
+                    throw new CompilationError(node, leftSide.getTypeDefinition().getName() + " is not Comparable");
+                }
+            } else if (node instanceof ConstructorDeclarationNode) {
+                ConstructorDeclarationNode ctr = new ConstructorDeclarationNode();
 
-				if (n.getOperation().dependsOnComparable() && !typeSystem.isAssignableTo(leftSide, comparable)) {
-					throw new CompilationError(node, leftSide.getTypeDefinition().getName() + " is not Comparable");
-				}
-			} else if (node instanceof ConstructorDeclarationNode) {
-				ConstructorDeclarationNode ctr = new ConstructorDeclarationNode();
+                if (ctr.isImplicit()) {
+                    if (ctr.getParameters().getChildren().isEmpty()) {
+                        throw new CompilationError(node, "An implicit constructor must have one parameter");
+                    } else if (ctr.getParameters().getChildren().size() > 1) {
+                        throw new CompilationError(node, "An implicit constructor can only have one parameter");
+                    }
+                }
 
-				if (ctr.isImplicit()) {
-					if (ctr.getParameters().getChildren().isEmpty()) {
-						throw new CompilationError(node, "An implicit constructor must have one parameter");
-					} else if (ctr.getParameters().getChildren().size() > 1) {
-						throw new CompilationError(node, "An implicit constructor can only have one parameter");
-					}
-				}
+                if (ctr.isPrimary() && ctr.getBlock() != null) {
+                    throw new CompilationError(node, "The primary constructor cannot declare a body");
+                }
+            } else if (node instanceof ClassBodyNode) {
+                ClassBodyNode n = (ClassBodyNode) node;
+                if (!currentType.hasConstructor() && !currentType.isAbstract()
+                        && currentType.getKind() == LenseUnitKind.Class) {
+                    // if no constructor exists, add a default one
+                    currentType.addConstructor(
+                            new Constructor("constructor", Collections.emptyList(), false, Visibility.Public));
 
-				if (ctr.isPrimary() && ctr.getBlock() != null) {
-					throw new CompilationError(node, "The primary constructor cannot declare a body");
-				}
-			} else if (node instanceof ClassBodyNode) {
-				ClassBodyNode n = (ClassBodyNode) node;
-				if (!currentType.hasConstructor() && !currentType.isAbstract()
-						&& currentType.getKind() == LenseUnitKind.Class) {
-					// if no constructor exists, add a default one
-					currentType.addConstructor(
-							new Constructor("constructor", Collections.emptyList(), false, Visibility.Public));
+                    ConstructorDeclarationNode c = new ConstructorDeclarationNode();
+                    c.setReturnType(new TypeNode(currentType));
+                    c.setPrimary(true);
+                    c.setImplicit(false);
+                    c.setVisibility(Visibility.Public);
+                    n.add(c);
+                }
 
-					ConstructorDeclarationNode c = new ConstructorDeclarationNode();
-					c.setReturnType(new TypeNode(currentType));
-					c.setPrimary(true);
-					c.setImplicit(false);
-					c.setVisibility(Visibility.Public);
-					n.add(c);
-				}
-
-			} else if (node instanceof TypeNode) {
-				TypeNode t = (TypeNode) node;
-				if (t.needsInference()) {
-					return;
-				}
+            } else if (node instanceof TypeNode) {
+                TypeNode t = (TypeNode) node;
+                if (t.needsInference()) {
+                    return;
+                }
 				resolveTypeDefinition(t, Variance.Invariant); // TODO read parent nodes to determine variance
-			} else if (node instanceof LiteralSequenceInstanceCreation) {
-				LiteralSequenceInstanceCreation literal = (LiteralSequenceInstanceCreation) node;
+            } else if (node instanceof LiteralSequenceInstanceCreation) {
+                LiteralSequenceInstanceCreation literal = (LiteralSequenceInstanceCreation) node;
 
-				TypeDefinition maxType = ((TypedNode) literal.getArguments().getFirst().getFirstChild())
-						.getTypeVariable().getTypeDefinition();
+                TypeDefinition maxType = ((TypedNode) literal.getArguments().getFirstArgument().getFirstChild())
+                        .getTypeVariable().getTypeDefinition();
 
-				maxType = this.getSemanticContext()
-						.resolveTypeForName(maxType.getName(), maxType.getGenericParameters().size()).get()
-						.getTypeDefinition();
+                maxType = this.getSemanticContext()
+                        .resolveTypeForName(maxType.getName(), maxType.getGenericParameters().size()).get()
+                        .getTypeDefinition();
 
-				boolean isMaybe = typeSystem.isMaybe(maxType);
+                boolean isMaybe = typeSystem.isMaybe(maxType);
 
-				for (int i = 1; i < literal.getArguments().getChildren().size(); i++) {
-					AstNode n = literal.getArguments().getChildren().get(i).getFirstChild();
-					TypedNode t = (TypedNode) n;
-					TypeDefinition nextType = t.getTypeVariable().getTypeDefinition();
-					nextType = this.getSemanticContext()
-							.resolveTypeForName(nextType.getName(), nextType.getGenericParameters().size()).get()
-							.getTypeDefinition();
+                for (int i = 1; i < literal.getArguments().getChildren().size(); i++) {
+                    AstNode n = literal.getArguments().getChildren().get(i).getFirstChild();
+                    TypedNode t = (TypedNode) n;
+                    TypeDefinition nextType = t.getTypeVariable().getTypeDefinition();
+                    nextType = this.getSemanticContext()
+                            .resolveTypeForName(nextType.getName(), nextType.getGenericParameters().size()).get()
+                            .getTypeDefinition();
 
-					if (!nextType.equals(maxType)) {
-						if (typeSystem.isPromotableTo(maxType, nextType)) {
-							maxType = nextType;
-						} else if (!typeSystem.isPromotableTo(nextType, maxType)) {
+                    if (!nextType.equals(maxType)) {
+                        if (typeSystem.isPromotableTo(maxType, nextType)) {
+                            maxType = nextType;
+                        } else if (!typeSystem.isPromotableTo(nextType, maxType)) {
 
-							isMaybe = isMaybe || typeSystem.isMaybe(nextType);
+                            isMaybe = isMaybe || typeSystem.isMaybe(nextType);
 
-							if (!isMaybe) {
-								// TODO incompatible types in the same array
-								throw new CompilationError(node, "Heterogeneous Sequence");
-							}
+                            if (!isMaybe) {
+                                // TODO incompatible types in the same array
+                                throw new CompilationError(node, "Heterogeneous Sequence");
+                            }
 
-						}
-					}
-				}
+                        }
+                    }
+                }
 
-				if (isMaybe) {
+                if (isMaybe) {
 
-					TypeDefinition innerType = maxType;
-					TypeDefinition maybeType = this.getSemanticContext()
-							.resolveTypeForName(LenseTypeSystem.Maybe().getName(), 1).get().getTypeDefinition();
-					maxType = LenseTypeSystem.specify(maybeType, maxType);
+                    TypeDefinition innerType = maxType;
+                    TypeDefinition maybeType = this.getSemanticContext()
+                            .resolveTypeForName(LenseTypeSystem.Maybe().getName(), 1).get().getTypeDefinition();
+                    maxType = LenseTypeSystem.specify(maybeType, maxType);
 
-					TypeDefinition someType = this.getSemanticContext().resolveTypeForName("lense.core.lang.Some", 1)
-							.get().getTypeDefinition();
+                    TypeDefinition someType = this.getSemanticContext().resolveTypeForName("lense.core.lang.Some", 1)
+                            .get().getTypeDefinition();
 
-					TypeVariable innerTypeVar = innerType;
+                    TypeVariable innerTypeVar = innerType;
 
-					ListIterator<AstNode> lstIterator = literal.getArguments().listIterator();
+                    ListIterator<AstNode> lstIterator = literal.getArguments().listIterator();
 
-					while (lstIterator.hasNext()) {
-						AstNode n = lstIterator.next().getFirstChild();
-						TypeDefinition type = ((TypedNode) n).getTypeVariable().getTypeDefinition();
+                    while (lstIterator.hasNext()) {
+                        AstNode n = lstIterator.next().getFirstChild();
+                        TypeDefinition type = ((TypedNode) n).getTypeVariable().getTypeDefinition();
 
-						if (typeSystem.isMaybe(type)) {
-							continue;
-						}
-						if (!typeSystem.isAssignableTo(type, innerType)) {
-							if (typeSystem.isPromotableTo(type, innerType)) {
+                        if (typeSystem.isMaybe(type)) {
+                            continue;
+                        }
+                        if (!typeSystem.isAssignableTo(type, innerType)) {
+                            if (typeSystem.isPromotableTo(type, innerType)) {
 
 								Optional<Constructor> op = innerType.getConstructorByParameters(new ConstructorParameter(type));
 
-								NewInstanceCreationNode cn = NewInstanceCreationNode.of(innerTypeVar, op.get(), n);
-								cn.getCreationParameters().getTypeParametersListNode()
-								.add(new GenericTypeParameterNode(new TypeNode(innerTypeVar)));
+                                NewInstanceCreationNode cn = NewInstanceCreationNode.of(op.get(), n);
+                                cn.getCreationParameters().getTypeParametersListNode()
+                                        .add(new GenericTypeParameterNode(new TypeNode(innerTypeVar)));
 
-								lstIterator.set(cn);
+                                lstIterator.set(cn);
 
-							} else {
-								throw new CompilationError(node,
-										"Heterogeneous Sequence. Cannot promote " + type + " to " + innerType);
-							}
-						}
-					}
+                            } else {
+                                throw new CompilationError(node,
+                                        "Heterogeneous Sequence. Cannot promote " + type + " to " + innerType);
+                            }
+                        }
+                    }
 
-					TypeVariable maxTypeDef = maxType;
+                    TypeVariable maxTypeDef = maxType;
 
-					literal.getCreationParameters().getTypeParametersListNode()
-					.add(new GenericTypeParameterNode(new TypeNode(maxTypeDef)));
+                    literal.getCreationParameters().getTypeParametersListNode()
+                            .add(new GenericTypeParameterNode(new TypeNode(maxTypeDef)));
 
-					lstIterator = literal.getArguments().listIterator();
+                    lstIterator = literal.getArguments().listIterator();
 
-					while (lstIterator.hasNext()) {
-						AstNode n = lstIterator.next().getFirstChild();
-						TypeDefinition type = ((TypedNode) n).getTypeVariable().getTypeDefinition();
-						if (!typeSystem.isMaybe(type)) {
+                    while (lstIterator.hasNext()) {
+                        AstNode n = lstIterator.next().getFirstChild();
+                        TypeDefinition type = ((TypedNode) n).getTypeVariable().getTypeDefinition();
+                        if (!typeSystem.isMaybe(type)) {
 
 							Optional<Constructor> op = someType.getConstructorByParameters(new ConstructorParameter(type));
-							TypeVariable someTypeSpec = LenseTypeSystem.specify(someType, type);
+                            TypeVariable someTypeSpec = LenseTypeSystem.specify(someType, type);
 
-							NewInstanceCreationNode cn = NewInstanceCreationNode.of(someTypeSpec, op.get(), n);
-							cn.getCreationParameters().getTypeParametersListNode()
-							.add(new GenericTypeParameterNode(new TypeNode(someTypeSpec)));
+                            NewInstanceCreationNode cn = NewInstanceCreationNode.of(someTypeSpec, op.get(), n);
+                            cn.getCreationParameters().getTypeParametersListNode()
+                                    .add(new GenericTypeParameterNode(new TypeNode(someTypeSpec)));
 
-							lstIterator.set(cn);
+                            lstIterator.set(cn);
 
-						}
-					}
-				} else {
-					TypeVariable maxTypeDef = maxType;
+                        }
+                    }
+                } else {
+                    TypeVariable maxTypeDef = maxType;
 
-					literal.getCreationParameters().getTypeParametersListNode()
-					.add(new GenericTypeParameterNode(new TypeNode(maxTypeDef)));
+                    literal.getCreationParameters().getTypeParametersListNode()
+                            .add(new GenericTypeParameterNode(new TypeNode(maxTypeDef)));
 
-					ListIterator<AstNode> lstIterator = literal.getArguments().listIterator();
+                    ListIterator<AstNode> lstIterator = literal.getArguments().listIterator();
 
-					while (lstIterator.hasNext()) {
-						AstNode n = lstIterator.next().getFirstChild();
-						TypeDefinition type = ((TypedNode) n).getTypeVariable().getTypeDefinition();
-						if (!typeSystem.isAssignableTo(type, maxType)) {
-							if (typeSystem.isPromotableTo(type, maxType)) {
+                    while (lstIterator.hasNext()) {
+                        AstNode n = lstIterator.next().getFirstChild();
+                        TypeDefinition type = ((TypedNode) n).getTypeVariable().getTypeDefinition();
+                        if (!LenseTypeSystem.isAssignableTo(type, maxType)) {
+                            if (typeSystem.isPromotableTo(type, maxType)) {
 
 								Optional<Constructor> op = maxType.getConstructorByParameters(new ConstructorParameter(type));
 
-								NewInstanceCreationNode cn = NewInstanceCreationNode.of(maxTypeDef, op.get(), n);
-								cn.getCreationParameters().getTypeParametersListNode()
-								.add(new GenericTypeParameterNode(new TypeNode(maxTypeDef)));
+                                NewInstanceCreationNode cn = NewInstanceCreationNode.of(op.get(), n);
+                                cn.getCreationParameters().getTypeParametersListNode()
+                                        .add(new GenericTypeParameterNode(new TypeNode(maxTypeDef)));
 
-								lstIterator.set(cn);
+                                lstIterator.set(cn);
 
-							} else {
-								throw new CompilationError(node,
-										"Heterogeneous Sequence. Cannot promote " + type + " to " + maxType);
-							}
-						}
-					}
+                            } else {
+                                throw new CompilationError(node,
+                                        "Heterogeneous Sequence. Cannot promote " + type + " to " + maxType);
+                            }
+                        }
+                    }
 
-				}
+                }
 
-				Optional<TypeVariable> sequenceType = this.getSemanticContext().resolveTypeForName(
-						LenseTypeSystem.Sequence().getName(), LenseTypeSystem.Sequence().getGenericParameters().size());
+                Optional<TypeVariable> sequenceType = this.getSemanticContext().resolveTypeForName(
+                        LenseTypeSystem.Sequence().getName(), LenseTypeSystem.Sequence().getGenericParameters().size());
 
-				TypeVariable seqType = LenseTypeSystem.specify(sequenceType.get(), maxType);
+                TypeVariable seqType = LenseTypeSystem.specify(sequenceType.get(), maxType);
 
-				literal.setTypeVariable(seqType);
+                literal.setTypeVariable(seqType);
 
-				TypeParametersListNode typeParametersListNode = literal.getCreationParameters()
-						.getTypeParametersListNode();
+                TypeParametersListNode typeParametersListNode = literal.getCreationParameters()
+                        .getTypeParametersListNode();
 
-				typeParametersListNode.add(new GenericTypeParameterNode(new TypeNode(seqType)));
+                typeParametersListNode.add(new GenericTypeParameterNode(new TypeNode(seqType)));
 
-			} else if (node instanceof LiteralAssociationInstanceCreation) {
-				LiteralAssociationInstanceCreation literal = (LiteralAssociationInstanceCreation) node;
+            } else if (node instanceof LiteralAssociationInstanceCreation) {
+                LiteralAssociationInstanceCreation literal = (LiteralAssociationInstanceCreation) node;
 
-				TypeDefinition keypair = ((TypedNode) literal.getArguments().getFirst().getFirstChild())
-						.getTypeVariable().getTypeDefinition();
-				TypeVariable keyType = keypair.getGenericParameters().get(0);
-				TypeVariable valueType = keypair.getGenericParameters().get(1);
+                TypeDefinition keypair = ((TypedNode) literal.getArguments().getFirstArgument().getFirstChild())
+                        .getTypeVariable().getTypeDefinition();
+                TypeVariable keyType = keypair.getGenericParameters().get(0);
+                TypeVariable valueType = keypair.getGenericParameters().get(1);
 
-				literal.getCreationParameters().getTypeParametersListNode()
-				.add(new GenericTypeParameterNode(new TypeNode(keyType)));
-				literal.getCreationParameters().getTypeParametersListNode()
-				.add(new GenericTypeParameterNode(new TypeNode(valueType)));
+                literal.getCreationParameters().getTypeParametersListNode()
+                        .add(new GenericTypeParameterNode(new TypeNode(keyType)));
+                literal.getCreationParameters().getTypeParametersListNode()
+                        .add(new GenericTypeParameterNode(new TypeNode(valueType)));
 
-				for (ArgumentListItemNode a : literal.getArguments().getChildren(ArgumentListItemNode.class)) {
-					NewInstanceCreationNode n = ((NewInstanceCreationNode) a.getFirstChild());
+                for (ArgumentListItemNode a : literal.getArguments().getChildren(ArgumentListItemNode.class)) {
+                    NewInstanceCreationNode n = ((NewInstanceCreationNode) a.getFirstChild());
 
-					TypeParametersListNode typeParametersListNode = n.getCreationParameters()
-							.getTypeParametersListNode();
+                    TypeParametersListNode typeParametersListNode = n.getCreationParameters()
+                            .getTypeParametersListNode();
 
-					typeParametersListNode.add(new GenericTypeParameterNode(new TypeNode(keyType)));
-					typeParametersListNode.add(new GenericTypeParameterNode(new TypeNode(valueType)));
+                    typeParametersListNode.add(new GenericTypeParameterNode(new TypeNode(keyType)));
+                    typeParametersListNode.add(new GenericTypeParameterNode(new TypeNode(valueType)));
 
-					a.setExpectedType(LenseTypeSystem.specify(keypair, keyType, valueType));
-				}
+                    a.setExpectedType(LenseTypeSystem.specify(keypair, keyType, valueType));
+                }
 
-				literal.setTypeVariable(LenseTypeSystem.specify(LenseTypeSystem.Association(), keyType, valueType));
+                literal.setTypeVariable(LenseTypeSystem.specify(LenseTypeSystem.Association(), keyType, valueType));
 
-			} else if (node instanceof LiteralTupleInstanceCreation) {
+            } else if (node instanceof LiteralTupleInstanceCreation) {
 
-				LiteralTupleInstanceCreation tuple = ((LiteralTupleInstanceCreation) node);
+                LiteralTupleInstanceCreation tuple = ((LiteralTupleInstanceCreation) node);
 
-				TypedNode value = (TypedNode) tuple.getChildren().get(1).getChildren().get(0).getFirstChild();
-				TypedNode nextTuple;
-				if (tuple.getChildren().get(1).getChildren().size() == 2) {
-					nextTuple = (TypedNode) tuple.getChildren().get(1).getChildren().get(1).getFirstChild();
-				} else {
-					nextTuple = new TypeNode(LenseTypeSystem.Nothing());
-				}
+                TypedNode value = (TypedNode) tuple.getChildren().get(1).getChildren().get(0).getFirstChild();
+                TypedNode nextTuple;
+                if (tuple.getChildren().get(1).getChildren().size() == 2) {
+                    nextTuple = (TypedNode) tuple.getChildren().get(1).getChildren().get(1).getFirstChild();
+                } else {
+                    nextTuple = new TypeNode(LenseTypeSystem.Nothing());
+                }
 
-				LenseTypeDefinition tupleType = LenseTypeSystem.specify(LenseTypeSystem.Tuple(),
-						value.getTypeVariable(), nextTuple.getTypeVariable());
+                LenseTypeDefinition tupleType = LenseTypeSystem.specify(LenseTypeSystem.Tuple(),
+                        value.getTypeVariable(), nextTuple.getTypeVariable());
 
-				tuple.getCreationParameters().getTypeParametersListNode()
-				.add(new GenericTypeParameterNode(new TypeNode(value.getTypeVariable())));
-				tuple.getCreationParameters().getTypeParametersListNode()
-				.add(new GenericTypeParameterNode(new TypeNode(nextTuple.getTypeVariable())));
+                tuple.getCreationParameters().getTypeParametersListNode()
+                        .add(new GenericTypeParameterNode(new TypeNode(value.getTypeVariable())));
+                tuple.getCreationParameters().getTypeParametersListNode()
+                        .add(new GenericTypeParameterNode(new TypeNode(nextTuple.getTypeVariable())));
 
-				//
-				// TypeNode typeNode = new TypeNode(new
-				// QualifiedNameNode(tuple.getTypeNode().getName()));
-				// typeNode.addParametricType(new GenericTypeParameterNode(new
-				// TypeNode(value.getTypeVariable())));
-				// typeNode.addParametricType(new GenericTypeParameterNode(new
-				// TypeNode(nextTuple.getTypeVariable())));
-				//
-				// typeNode.setTypeVariable();
-				//
-				// tuple.replace(tuple.getTypeNode(), typeNode);
+                //
+                // TypeNode typeNode = new TypeNode(new
+                // QualifiedNameNode(tuple.getTypeNode().getName()));
+                // typeNode.addParametricType(new GenericTypeParameterNode(new
+                // TypeNode(value.getTypeVariable())));
+                // typeNode.addParametricType(new GenericTypeParameterNode(new
+                // TypeNode(nextTuple.getTypeVariable())));
+                //
+                // typeNode.setTypeVariable();
+                //
+                // tuple.replace(tuple.getTypeNode(), typeNode);
 
-				((LiteralTupleInstanceCreation) node).setTypeVariable(tupleType);
-			} else if (node instanceof RangeNode) {
-				RangeNode r = (RangeNode) node;
+                ((LiteralTupleInstanceCreation) node).setTypeVariable(tupleType);
+            } else if (node instanceof RangeNode) {
+                RangeNode r = (RangeNode) node;
 
-				TypeVariable left = ((TypedNode) r.getChildren().get(0)).getTypeVariable();
-				TypeVariable right = ((TypedNode) r.getChildren().get(1)).getTypeVariable();
 
-				TypeVariable finalType;
-				if (left.equals(right)) {
-					finalType = left;
-				} else if (typeSystem.isPromotableTo(left, right)) {
-					finalType = right;
-				} else if (typeSystem.isPromotableTo(right, left)) {
-					finalType = left;
-				} else {
-					throw new CompilationError(node, "Cannot create range from " + left + " to " + right);
-				}
+				final ExpressionNode left = (ExpressionNode)r.getChildren().get(0);
+                final ExpressionNode right = (ExpressionNode)r.getChildren().get(1);
+                TypeVariable innerType = tryPromoteEnds(node, typeSystem, left, right)
+				        .orElseThrow(() ->  new CompilationError(node, "Cannot create range from " + left.getTypeVariable() + " to " + right.getTypeVariable()));
 
-				r.setTypeVariable(LenseTypeSystem.specify(LenseTypeSystem.Progression(), finalType));
+			
+                r.setTypeVariable(LenseTypeSystem.specify(LenseTypeSystem.Progression(), innerType));
 
-				ArgumentListItemNode arg = new ArgumentListItemNode(0, r.getEnd());
-				arg.setExpectedType(r.getEnd().getTypeVariable());
+                ArgumentListItemNode arg = new ArgumentListItemNode(0, r.getEnd());
+                arg.setExpectedType(r.getEnd().getTypeVariable());
 
-				String name = "upTo";
-				if (!r.isIncludeEnd()) {
-					name = "upToExclusive";
-				}
+                String name = "upTo";
+                if (!r.isIncludeEnd()) {
+                    name = "upToExclusive";
+                }
 
+				VariableRange limits = VariableRange.extractFrom(r); 
+				
 				MethodInvocationNode create = new MethodInvocationNode(r.getStart(), name, arg);
-				create.setTypeVariable(
-						LenseTypeSystem.specify(LenseTypeSystem.Progression(), r.getStart().getTypeVariable()));
+				create.setTypeVariable(LenseTypeSystem.specify(LenseTypeSystem.Progression(), r.getStart().getTypeVariable()));
 
-				r.getParent().replace(r, create);
+				limits.getMin().ifPresent( m -> create.setProperty("minimum",m));
+				limits.getMax().ifPresent( m -> create.setProperty("maximum",m));
+	            
+			    create.setProperty("includeMaximum",r.isIncludeEnd());
+			    create.setProperty("isRange", "true");
+                
+				
+                r.getParent().replace(r, create);
 
-			} else if (node instanceof LiteralIntervalNode) {
-				LiteralIntervalNode r = (LiteralIntervalNode) node;
+            } else if (node instanceof LiteralIntervalNode) {
+                LiteralIntervalNode r = (LiteralIntervalNode) node;
 
-				Optional<TypeVariable> oleft = Optional.ofNullable(r.getStart()).map(s -> s.getTypeVariable());
-				Optional<TypeVariable> oright = Optional.ofNullable(r.getEnd()).map(s -> s.getTypeVariable());
+                final ExpressionNode left = (ExpressionNode) r.getChildren().get(0);
+                final ExpressionNode right = (ExpressionNode) r.getChildren().get(1);
 
-				TypeVariable finalType = null;
-				if (oleft.isPresent() && oright.isPresent()) {
-					TypeVariable left = oleft.get();
-					TypeVariable right = oright.get();
+                TypeVariable innerType = tryPromoteEnds(node, typeSystem, left, right)
+                        .orElseThrow(() ->  new CompilationError(node, "Cannot create interval from " + left.getTypeVariable() + " to " + right.getTypeVariable()));
 
-					TypeDefinition leftDef = this.getSemanticContext()
-							.resolveTypeForName(left.getTypeDefinition().getName(), left.getGenericParameters().size())
-							.get().getTypeDefinition();
-					TypeDefinition rightDef = this.getSemanticContext()
-							.resolveTypeForName(right.getTypeDefinition().getName(),
-									right.getGenericParameters().size())
-							.get().getTypeDefinition();
+                TypeVariable type = this.getSemanticContext().resolveTypeForName("lense.core.math.Interval", 1).get();
 
-					if (left.equals(right)) {
-						finalType = left;
-					} else if (typeSystem.isPromotableTo(leftDef, rightDef)) {
-						finalType = right;
+                r.setTypeVariable(LenseTypeSystem.specify(type, innerType));
 
-						// cast left to right
+            } else if (node instanceof LambdaExpressionNode) {
+                LambdaExpressionNode n = (LambdaExpressionNode) node;
 
-						promoteNodeType(r.getStart(), finalType);
+                List<TypeVariable> generics = new ArrayList<>();
 
-						// Optional<Constructor> op =
-						// rightDef.getConstructorByParameters(Visibility.Public,
-						// new ConstructorParameter(left));
-						//
-						// NewInstanceCreationNode cast = NewInstanceCreationNode.of(finalType,
-						// op.get(), r.getStart());
-						// cast.getCreationParameters().getTypeParametersListNode()
-						// .add(new GenericTypeParameterNode(new TypeNode(finalType)));
-						//
-						// r.replace(r.getStart(), cast);
+                generics.add(n.getBody().getTypeVariable());
 
-					} else if (typeSystem.isPromotableTo(rightDef, leftDef)) {
-						finalType = left;
+                // TODO infer types
+                for (AstNode v : n.getParameters().getChildren()) {
+                    FormalParameterNode vr = (FormalParameterNode) v;
+                    generics.add(vr.getTypeVariable());
+                }
 
-						// cast right to left
+                TypeDefinition funtionType = LenseTypeSystem.specify(LenseTypeSystem.Function(generics.size()),
+                        generics.toArray(new TypeVariable[generics.size()]));
 
-						promoteNodeType(r.getEnd(), finalType);
+                n.setTypeVariable(funtionType);
 
-						// Optional<Constructor> op =
-						// leftDef.getConstructorByParameters(Visibility.Public,
-						// new ConstructorParameter(right));
-						//
-						// NewInstanceCreationNode cast = NewInstanceCreationNode.of(finalType,
-						// op.get(), r.getEnd());
-						// cast.getCreationParameters().getTypeParametersListNode()
-						// .add(new GenericTypeParameterNode(new TypeNode(finalType)));
-						//
-						// r.replace(r.getEnd(), cast);
-					} else {
-						throw new CompilationError(node, "Cannot create interval from " + left + " to " + right);
-					}
-				} else if (oleft.isPresent()) {
-					finalType = oleft.get();
-				} else if (oright.isPresent()) {
-					finalType = oright.get();
-				} else {
-					throw new CompilationError(node, "Cannot create interval");
-				}
+            } else if (node instanceof BooleanOperatorNode) {
+                BooleanOperatorNode b = (BooleanOperatorNode) node;
 
-				TypeVariable type = this.getSemanticContext().resolveTypeForName("lense.core.math.Interval", 1).get();
+                Optional<ArithmeticOperation> equivalent = b.getOperation().equivalentArithmeticOperation();
 
-				r.setTypeVariable(LenseTypeSystem.specify(type, finalType));
+                if (equivalent.isPresent()) {
+                    promoteArithmeticOperatorToMethodCall(b, b.getLeft(), b.getRight(), equivalent.get());
+                }
 
-			} else if (node instanceof LambdaExpressionNode) {
-				LambdaExpressionNode n = (LambdaExpressionNode) node;
+            } else if (node instanceof ArithmeticNode) {
+                ArithmeticNode n = (ArithmeticNode) node;
 
-				List<TypeVariable> generics = new ArrayList<>();
+                promoteArithmeticOperatorToMethodCall(n, n.getLeft(), n.getRight(), n.getOperation());
 
-				generics.add(n.getBody().getTypeVariable());
+            } else if (node instanceof PosExpression) {
+                PosExpression p = (PosExpression) node;
 
-				// TODO infer types
-				for (AstNode v : n.getParameters().getChildren()) {
-					FormalParameterNode vr = (FormalParameterNode) v;
-					generics.add(vr.getTypeVariable());
-				}
-
-				TypeDefinition funtionType = LenseTypeSystem.specify(LenseTypeSystem.Function(generics.size()),
-						generics.toArray(new TypeVariable[generics.size()]));
-
-				n.setTypeVariable(funtionType);
-
-			} else if (node instanceof BooleanOperatorNode) {
-				BooleanOperatorNode b = (BooleanOperatorNode) node;
-
-				Optional<ArithmeticOperation> equivalent = b.getOperation().equivalentArithmeticOperation();
-
-				if (equivalent.isPresent()) {
-					promoteArithmeticOperatorToMethodCall(b, b.getLeft(), b.getRight(), equivalent.get());
-				}
-
-			} else if (node instanceof ArithmeticNode) {
-				ArithmeticNode n = (ArithmeticNode) node;
-
-				promoteArithmeticOperatorToMethodCall(n, n.getLeft(), n.getRight(), n.getOperation());
-
-			} else if (node instanceof PosExpression) {
-				PosExpression p = (PosExpression) node;
-
-				String methodName;
+                String methodName;
 				if (p.getOperation().equals(ArithmeticOperation.Decrement)) { /* a-- */
 					methodName = "predecessor";
 				} else if (p.getOperation().equals(ArithmeticOperation.Increment)) { /* a++ */
-					methodName = "successor";
-				} else {
-					throw new CompilationError(node, "Unrecognized pos operator");
-				}
+                    methodName = "successor";
+                } else {
+                    throw new CompilationError(node, "Unrecognized pos operator");
+                }
 
-				TypeVariable variable = ((TypedNode) p.getChildren().get(0)).getTypeVariable();
+                TypeVariable variable = ((TypedNode) p.getChildren().get(0)).getTypeVariable();
 
-				TypeDefinition type = variable.getTypeDefinition();
-				Optional<Method> list = type.getMethodsByName(methodName).stream()
-						.filter(md -> md.getParameters().size() == 0).findAny();
+                TypeDefinition type = variable.getTypeDefinition();
+                Optional<Method> list = type.getMethodsByName(methodName).stream()
+                        .filter(md -> md.getParameters().size() == 0).findAny();
 
-				if (!list.isPresent()) {
-					throw new CompilationError(node,
-							"The method " + methodName + "() is undefined for TypeDefinition " + type);
-				}
+                if (!list.isPresent()) {
+                    throw new CompilationError(node,
+                            "The method " + methodName + "() is undefined for TypeDefinition " + type);
+                }
 
-				// replace by a method invocation
-				MethodInvocationNode method = new MethodInvocationNode(list.get(),
-						ensureExpression(node.getChildren().get(0)));
-				method.setTypeVariable(list.get().getReturningType());
+                // replace by a method invocation
+                MethodInvocationNode method = new MethodInvocationNode(list.get(),
+                        ensureExpression(node.getChildren().get(0)));
+                method.setTypeVariable(list.get().getReturningType());
 
-				if (node.getParent() instanceof ReturnNode) {
-					node.getParent().replace(node, method);
-				} else {
+                if (node.getParent() instanceof ReturnNode) {
+                    node.getParent().replace(node, method);
+                } else {
 
-					VariableWriteNode left;
-					if (node.getChildren().get(0) instanceof VariableReadNode) {
-						left = new VariableWriteNode((VariableReadNode) node.getChildren().get(0));
-					} else {
-						throw new CompilationError(node, "Cannot call methodName at this point yet");
-					}
-					AssignmentNode assignment = new AssignmentNode(AssignmentNode.Operation.SimpleAssign);
-					assignment.setLeft(left);
-					assignment.setRight(method);
+                    VariableWriteNode left;
+                    if (node.getChildren().get(0) instanceof VariableReadNode) {
+                        left = new VariableWriteNode((VariableReadNode) node.getChildren().get(0));
+                    } else {
+                        throw new CompilationError(node, "Cannot call methodName at this point yet");
+                    }
+                    AssignmentNode assignment = new AssignmentNode(AssignmentNode.Operation.SimpleAssign);
+                    assignment.setLeft(left);
+                    assignment.setRight(method);
 
-					node.getParent().replace(node, assignment);
-				}
+                    node.getParent().replace(node, assignment);
+                }
 
-			} else if (node instanceof PreExpression) {
-				PreExpression p = (PreExpression) node;
+            } else if (node instanceof PreExpression) {
+                PreExpression p = (PreExpression) node;
 
-				final TypeDefinition type = ((TypedNode) p.getChildren().get(0)).getTypeVariable().getTypeDefinition();
+                final TypeDefinition type = ((TypedNode) p.getChildren().get(0)).getTypeVariable().getTypeDefinition();
 
-				if (p.getOperation().equals(UnitaryOperation.Positive)) { /* +a */
-					// +a is a no-op. replace the node by its content
-					node.getParent().replace(node, node.getChildren().get(0));
+                if (p.getOperation().equals(UnitaryOperation.Positive)) { /* +a */
+                    // +a is a no-op. replace the node by its content
+                    node.getParent().replace(node, node.getChildren().get(0));
 
-				} else if (p.getOperation().equals(UnitaryOperation.Decrement)
-						|| p.getOperation().equals(UnitaryOperation.Increment)) {
-					String methodName;
+                } else if (p.getOperation().equals(UnitaryOperation.Decrement)
+                        || p.getOperation().equals(UnitaryOperation.Increment)) {
+                    String methodName;
 					if (p.getOperation().equals(UnitaryOperation.Decrement)) { /* --a */
 						methodName = "predecessor";
 					} else if (p.getOperation().equals(UnitaryOperation.Increment)) { /* ++a */
-						methodName = "successor";
-					} else {
-						throw new CompilationError(node, "Unrecognized pos operator");
-					}
+                        methodName = "successor";
+                    } else {
+                        throw new CompilationError(node, "Unrecognized pos operator");
+                    }
 
-					Optional<Method> list = type.getMethodsByName(methodName).stream()
-							.filter(md -> md.getParameters().size() == 0).findAny();
+                    Optional<Method> list = type.getMethodsByName(methodName).stream()
+                            .filter(md -> md.getParameters().size() == 0).findAny();
 
-					if (!list.isPresent()) {
-						throw new CompilationError(node,
-								"The method " + methodName + "() is undefined for TypeDefinition " + type);
-					}
+                    if (!list.isPresent()) {
+                        throw new CompilationError(node,
+                                "The method " + methodName + "() is undefined for TypeDefinition " + type);
+                    }
 
-					// replace by a method invocation
-					MethodInvocationNode method = new MethodInvocationNode(list.get(),
-							ensureExpression(node.getChildren().get(0)));
-					method.setTypeVariable(list.get().getReturningType());
+                    // replace by a method invocation
+                    MethodInvocationNode method = new MethodInvocationNode(list.get(),
+                            ensureExpression(node.getChildren().get(0)));
+                    method.setTypeVariable(list.get().getReturningType());
 
-					if (node.getParent() instanceof ReturnNode) {
-						node.getParent().replace(node, method);
-					} else {
+                    if (node.getParent() instanceof ReturnNode) {
+                        node.getParent().replace(node, method);
+                    } else {
 
-						VariableWriteNode left;
-						if (node.getChildren().get(0) instanceof VariableReadNode) {
-							VariableReadNode variableReadNode = (VariableReadNode) node.getChildren().get(0);
-							left = new VariableWriteNode(variableReadNode);
+                        VariableWriteNode left;
+                        if (node.getChildren().get(0) instanceof VariableReadNode) {
+                            VariableReadNode variableReadNode = (VariableReadNode) node.getChildren().get(0);
+                            left = new VariableWriteNode(variableReadNode);
 
-						} else {
-							throw new CompilationError(node, "Cannot call methodName at this point yet");
-						}
-						AssignmentNode assignment = new AssignmentNode(AssignmentNode.Operation.SimpleAssign);
-						assignment.setLeft(left);
-						assignment.setRight(method);
+                        } else {
+                            throw new CompilationError(node, "Cannot call methodName at this point yet");
+                        }
+                        AssignmentNode assignment = new AssignmentNode(AssignmentNode.Operation.SimpleAssign);
+                        assignment.setLeft(left);
+                        assignment.setRight(method);
 
-						node.getParent().replace(node, assignment);
-					}
-				} else { /* -a , ~a */
+                        node.getParent().replace(node, assignment);
+                    }
+                } else { /* -a , ~a */
 
-					String methodName = p.getOperation().getArithmeticOperation().equivalentMethod();
-					Optional<Method> list = type.getMethodsByName(methodName).stream()
-							.filter(md -> md.getParameters().size() == 0).findAny();
+                    String methodName = p.getOperation().getArithmeticOperation().equivalentMethod();
+                    Optional<Method> list = type.getMethodsByName(methodName).stream()
+                            .filter(md -> md.getParameters().size() == 0).findAny();
 
-					if (!list.isPresent()) {
-						throw new CompilationError(node,
-								"The method " + methodName + "() is undefined for TypeDefinition " + type);
-					}
+                    if (!list.isPresent()) {
+                        throw new CompilationError(node,
+                                "The method " + methodName + "() is undefined for TypeDefinition " + type);
+                    }
 
-					// replace by a method invocation
-					MethodInvocationNode method = new MethodInvocationNode(list.get(),
-							ensureExpression(node.getChildren().get(0)));
+                    // replace by a method invocation
+                    MethodInvocationNode method = new MethodInvocationNode(list.get(),
+                            ensureExpression(node.getChildren().get(0)));
 
-					method.setTypeVariable(list.get().getReturningType());
+                    method.setTypeVariable(list.get().getReturningType());
 
-					node.getParent().replace(node, method);
+                    node.getParent().replace(node, method);
+                }
+
+            } else if (node instanceof PrimitiveBooleanValue) {
+                // no-op
+            } else if (node instanceof LiteralExpressionNode) {
+                LiteralExpressionNode n = (LiteralExpressionNode) node;
+
+                Optional<TypeVariable> resolvedType = this.getSemanticContext()
+                        .resolveTypeForName(n.getTypeVariable().getTypeDefinition().getName(), 0);
+
+                n.setTypeVariable(resolvedType.get());
+
+            } else if (node instanceof PreBooleanUnaryExpression) {
+                PreBooleanUnaryExpression p = (PreBooleanUnaryExpression) node;
+
+                final TypeDefinition type = ((TypedNode) p.getChildren().get(0)).getTypeVariable().getTypeDefinition();
+
+                String methodName;
+                if (p.getOperation().equals(BooleanOperation.BitNegate)) { /* ~a */
+                    // TODO verify operator interface Binary
+                    if (LenseTypeSystem.Boolean().equals(type)) {
+                        methodName = ArithmeticOperation.Complement.equivalentMethod();
+                    } else {
+                        throw new CompilationError(node,
+                                "Operator ~ can only be applied to Boolean instances ( found " + type.getName() + ")");
+                    }
+                } else if (p.getOperation().equals(BooleanOperation.LogicNegate)) { /* !a */
+                    if (lenseTypeSystem.isBoolean(type)) {
+                        methodName = "negate";
+                    } else {
+                        throw new CompilationError(node,
+                                "Operator ! can only be applied to Boolean instances ( found " + type.getName() + ")");
+                    }
+                } else {
+                    throw new CompilationError(node, "Unrecognized operator");
+                }
+
+                Optional<Method> list = type.getMethodsByName(methodName).stream()
+                        .filter(md -> md.getParameters().size() == 0).findAny();
+
+                if (!list.isPresent()) {
+                    throw new CompilationError(node,
+                            "The method " + methodName + "() is undefined for TypeDefinition " + type);
+                }
+
+                // replace by a method invocation
+                ExpressionNode expr = ensureExpression(node.getChildren().get(0));
+
+                MethodInvocationNode method = new MethodInvocationNode(list.get(), expr);
+
+                method.setTypeVariable(list.get().getReturningType());
+
+                node.getParent().replace(node, method);
+
+            } else if (node instanceof AssignmentNode) {
+                AssignmentNode n = (AssignmentNode) node;
+
+                // the left side cannot be a cast
+                final TypedNode leftNode = n.getLeft();
+                if (leftNode instanceof CastNode) {
+					 AstNode lft = ((CastNode)leftNode).getFirstChild();
+					node.replace((AstNode)leftNode, lft);
 				}
+				
+                TypeVariable left = leftNode.getTypeVariable();
+                final ExpressionNode rightNode = n.getRight();
+                TypeVariable right = rightNode.getTypeVariable();
 
-			} else if (node instanceof PrimitiveBooleanValue) {
-				// no-op
-			} else if (node instanceof LiteralExpressionNode) {
-				LiteralExpressionNode n = (LiteralExpressionNode) node;
+                if (!LenseTypeSystem.isAssignableTo(right, left)) {
 
-				Optional<TypeVariable> resolvedType = this.getSemanticContext()
-						.resolveTypeForName(n.getTypeVariable().getTypeDefinition().getName(), 0);
+                    if (!typeSystem.isPromotableTo(right, left)) {
+                        if (left.getTypeDefinition().getName().equals(LenseTypeSystem.Maybe().getName())) {
+                            // promotable to maybe
+                            if (!typeSystem.isPromotableTo(right,
+                                    left.getTypeDefinition().getGenericParameters().get(0))) {
+                                throw new CompilationError(node, right + " is not assignable to " + left);
+                            }
 
-				n.setTypeVariable(resolvedType.get());
+                            TypeDefinition someTpe = this.getSemanticContext()
+                                    .resolveTypeForName("lense.core.lang.Some", 1).get().getTypeDefinition();
 
-			} else if (node instanceof PreBooleanUnaryExpression) {
-				PreBooleanUnaryExpression p = (PreBooleanUnaryExpression) node;
-
-				final TypeDefinition type = ((TypedNode) p.getChildren().get(0)).getTypeVariable().getTypeDefinition();
-
-				String methodName;
-				if (p.getOperation().equals(BooleanOperation.BitNegate)) { /* ~a */
-					// TODO verify operator interface Binary
-					if (LenseTypeSystem.Boolean().equals(type)) {
-						methodName = ArithmeticOperation.Complement.equivalentMethod();
-					} else {
-						throw new CompilationError(node,
-								"Operator ~ can only be applied to Boolean instances ( found " + type.getName() + ")");
-					}
-				} else if (p.getOperation().equals(BooleanOperation.LogicNegate)) { /* !a */
-					if (lenseTypeSystem.isBoolean(type)) {
-						methodName = "negate";
-					} else {
-						throw new CompilationError(node,
-								"Operator ! can only be applied to Boolean instances ( found " + type.getName() + ")");
-					}
-				} else {
-					throw new CompilationError(node, "Unrecognized operator");
-				}
-
-				Optional<Method> list = type.getMethodsByName(methodName).stream()
-						.filter(md -> md.getParameters().size() == 0).findAny();
-
-				if (!list.isPresent()) {
-					throw new CompilationError(node,
-							"The method " + methodName + "() is undefined for TypeDefinition " + type);
-				}
-
-				// replace by a method invocation
-				ExpressionNode expr = ensureExpression(node.getChildren().get(0));
-
-				MethodInvocationNode method = new MethodInvocationNode(list.get(), expr);
-
-				method.setTypeVariable(list.get().getReturningType());
-
-				node.getParent().replace(node, method);
-
-			} else if (node instanceof AssignmentNode) {
-				AssignmentNode n = (AssignmentNode) node;
-
-				TypeVariable left = n.getLeft().getTypeVariable();
-				TypeVariable right = n.getRight().getTypeVariable();
-
-				if (!typeSystem.isAssignableTo(right, left)) {
-
-					if (!typeSystem.isPromotableTo(right, left)) {
-						if (left.getTypeDefinition().getName().equals(LenseTypeSystem.Maybe().getName())) {
-							// promotable to maybe
-							if (!typeSystem.isPromotableTo(right,
-									left.getTypeDefinition().getGenericParameters().get(0))) {
-								throw new CompilationError(node, right + " is not assignable to " + left);
-							}
-
-							TypeDefinition someTpe = this.getSemanticContext()
-									.resolveTypeForName("lense.core.lang.Some", 1).get().getTypeDefinition();
-
-							someTpe = LenseTypeSystem.specify(someTpe, right);
+                            someTpe = LenseTypeSystem.specify(someTpe, right);
 
 							promoteNodeType(n.getRight(), someTpe);
-							//
-							// Optional<Constructor> op =
-							// someTpe.getConstructorByPromotableParameters(Visibility.Public,
-							// new ConstructorParameter(right));
-							//
-							// NewInstanceCreationNode cn = NewInstanceCreationNode.of(someTpe, op.get(),
-							// n.getRight());
-							// cn.getCreationParameters().getTypeParametersListNode()
-							// .add(new GenericTypeParameterNode(new TypeNode(right)));
-							//
-							// n.replace((AstNode) n.getRight(), cn);
+						} else if (n.getRight() instanceof NumericValue) {
+
+							promoteNodeType(n.getRight(), left);
 						} else {
 							throw new CompilationError(node, right + " is not assignable to " + left);
 						}
 
 					} else {
-						// TODO change to promote node, promotion is implicit
-						// constructor based
-						Optional<Constructor> op = left.getTypeDefinition()
-								.getConstructorByParameters(new ConstructorParameter(right));
-
-						NewInstanceCreationNode cn = NewInstanceCreationNode.of(left, op.get(), n.getRight());
-						cn.getCreationParameters().getTypeParametersListNode()
-						.add(new GenericTypeParameterNode(new TypeNode(left)));
-
-						n.replace((AstNode) n.getRight(), cn);
+						
+						promoteNodeType(n.getRight(), left);
+						
 					}
 				}
 
-				if (n.getLeft() instanceof VariableWriteNode) {
-					VariableInfo info = this.getSemanticContext().currentScope()
-							.searchVariable(((VariableWriteNode) n.getLeft()).getName());
+                if (leftNode instanceof VariableWriteNode) {
+                    VariableInfo info = this.getSemanticContext().currentScope()
+                            .searchVariable(((VariableWriteNode) leftNode).getName());
 
-					if (info.isImutable() && info.isInitialized()) {
-						throw new CompilationError(node,
-								"Cannot modify the value of an imutable variable or field (" + info.getName() + ")");
+                    if (info.isImutable() && info.isInitialized()) {
+                        throw new CompilationError(node,
+                                "Cannot modify the value of an imutable variable or field (" + info.getName() + ")");
+                    }
+                    info.setInitialized(true);
+                } else if (leftNode instanceof FieldOrPropertyAccessNode) {
+
+                    FieldOrPropertyAccessNode fp = (FieldOrPropertyAccessNode) leftNode;
+
+                    if (fp.getKind() == FieldKind.FIELD) {
+                        VariableInfo info = this.getSemanticContext().currentScope()
+                                .searchVariable(((FieldOrPropertyAccessNode) leftNode).getName());
+
+                        if (info == null) {
+                            throw new CompilationError(node, "Variable or field "
+                                    + ((FieldOrPropertyAccessNode) leftNode).getName() + " is not defined");
+                        }
+                        if (info.isImutable() && info.isInitialized()) {
+
+                            AstNode parent = ((LenseAstNode) leftNode).getParent().getParent().getParent();
+                            if (!(parent instanceof ConstructorDeclarationNode)) {
+                                throw new CompilationError(node,
+                                        "Cannot modify the value of an imutable variable or field (" + info.getName()
+                                                + ")");
+                            }
+
+                        }
+                        info.setInitialized(true);
+                    } else {
+                        // property
+                        Optional<Property> property;
+                        if (fp.getPrimary() == null) {
+                            property = this.currentType.getPropertyByName(fp.getName());
+
+                        } else {
+                            property = ((TypedNode) fp.getPrimary()).getTypeVariable().getTypeDefinition()
+                                    .getPropertyByName(fp.getName());
+
+                        }
+
+                        if (property.isPresent()) {
+
+                            if (!property.get().canWrite()) {
+                                throw new CompilationError(node,
+                                        "Property " + ((FieldOrPropertyAccessNode) leftNode).getName()
+                                                + " is read only and it cannot be asigned to");
+                            }
+
+                        } else {
+                            throw new CompilationError(node, "Property "
+                                    + ((FieldOrPropertyAccessNode) leftNode).getName() + " is not defined in type "
+                                    + ((TypedNode) fp.getPrimary()).getTypeVariable().getTypeDefinition().getName());
+                        }
+                    } 
+
+                } else if (leftNode instanceof IndexedPropertyReadNode){
+                    IndexedPropertyReadNode a = (IndexedPropertyReadNode)leftNode;
+                    
+                    ArgumentListNode list = new ArgumentListNode(a.getArguments());
+
+                    list.add(rightNode);
+                    
+                    list.getLastArgument().setExpectedType(rightNode.getTypeVariable());
+                    
+                    MethodInvocationNode mth = new MethodInvocationNode(a.getAccess(), "set", list);
+                    mth.setIndexDerivedMethod(true);
+                    mth.setScanPosition(node.getScanPosition());
+                    mth.setTypeVariable(LenseTypeSystem.Void());
+                    mth.setTypeMember(a.getIndexerProperty());
+                    
+                    node.getParent().replace(node, mth);
+                }
+
+            } else if (node instanceof TernaryConditionalExpressionNode) {
+                TernaryConditionalExpressionNode ternary = (TernaryConditionalExpressionNode) node;
+
+                TypeVariable type = lenseTypeSystem.unionOf(ternary.getThenExpression().getTypeVariable(),
+                        ternary.getElseExpression().getTypeVariable());
+
+                if (type instanceof UnionType) {
+                    UnionType unionType = (UnionType) type;
+
+                    if (lenseTypeSystem.isAssignableTo(unionType.getLeft(), unionType.getRight())) {
+                        type = unionType.getRight(); // TODO promote side
+                    } else if (lenseTypeSystem.isAssignableTo(unionType.getRight(), unionType.getLeft())) {
+                        type = unionType.getLeft(); // TODO promote side
+                    } else if (lenseTypeSystem.isPromotableTo(unionType.getLeft(), unionType.getRight())) {
+                        type = unionType.getRight(); // TODO promote side
+                    } else if (lenseTypeSystem.isPromotableTo(unionType.getRight(), unionType.getLeft())) {
+                        type = unionType.getLeft(); // TODO promote side
+                    }
+
+                }
+                ternary.setTypeVariable(type);
+            } else if (node instanceof FormalParameterNode) {
+                FormalParameterNode formal = ((FormalParameterNode) node);
+
+                try {
+                    this.getSemanticContext().currentScope().defineVariable(formal.getName(), formal.getTypeVariable(),
+                            node);
+                } catch (TypeAlreadyDefinedException e) {
+                    e.printStackTrace();
+                }
+            } else if (node instanceof ScopedVariableDefinitionNode) {
+                ScopedVariableDefinitionNode variableDeclaration = (ScopedVariableDefinitionNode) node;
+
+                ExpressionNode init = variableDeclaration.getInitializer();
+
+                TypeVariable type = variableDeclaration.getTypeVariable();
+
+                if (variableDeclaration.getTypeNode().needsInference()) {
+                    if (init != null) {
+                        type = init.getTypeVariable();
+                        variableDeclaration.getTypeNode().setTypeVariable(type);
+                    } else {
+                        throw new CompilationError(node, "Variable Type cannot be infered");
+                    }
+                }
+
+                VariableInfo info = this.getSemanticContext().currentScope()
+                        .searchVariable(variableDeclaration.getName());
+
+                if (info == null) {
+                    try {
+                        info = this.getSemanticContext().currentScope().defineVariable(variableDeclaration.getName(),
+                                type, node);
+                    } catch (TypeAlreadyDefinedException e) {
+                        if (!(node.getParent() instanceof ForEachNode)) {
+                            throw new CompilationError(node, e.getMessage());
+                        }
+                    }
+                }
+
+                info.setImutable(variableDeclaration.getImutabilityValue() == Imutability.Imutable);
+
+                variableDeclaration.setInfo(info);
+
+                if (init != null) {
+
+                    info.setInitialized(true);
+					
+					VariableRange limits = VariableRange.extractFrom((AstNode) init);
+					
+					if(limits.getMin().isPresent()) {
+						 info.setMininumValue(limits.getMin().get());
+					} 
+					if(limits.getMax().isPresent()) {
+						 info.setMininumValue(limits.getMax().get());
 					}
-					info.setInitialized(true);
-				} else if (n.getLeft() instanceof FieldOrPropertyAccessNode) {
-
-					FieldOrPropertyAccessNode fp = (FieldOrPropertyAccessNode) n.getLeft();
-
-					if (fp.getKind() == FieldKind.FIELD) {
-						VariableInfo info = this.getSemanticContext().currentScope()
-								.searchVariable(((FieldOrPropertyAccessNode) n.getLeft()).getName());
-
-						if (info == null) {
-							throw new CompilationError(node, "Variable or field "
-									+ ((FieldOrPropertyAccessNode) n.getLeft()).getName() + " is not defined");
-						}
-						if (info.isImutable() && info.isInitialized()) {
-
-							AstNode parent = ((LenseAstNode) n.getLeft()).getParent().getParent().getParent();
-							if (!(parent instanceof ConstructorDeclarationNode)) {
-								throw new CompilationError(node,
-										"Cannot modify the value of an imutable variable or field (" + info.getName()
-										+ ")");
-							}
-
-						}
-						info.setInitialized(true);
-					} else {
-						// property
-						Optional<Property> property;
-						if (fp.getPrimary() == null) {
-							property = this.currentType.getPropertyByName(fp.getName());
-
-						} else {
-							property = ((TypedNode) fp.getPrimary()).getTypeVariable().getTypeDefinition()
-									.getPropertyByName(fp.getName());
-
-						}
-
-						if (property.isPresent()) {
-
-							if (!property.get().canWrite()) {
-								throw new CompilationError(node,
-										"Property " + ((FieldOrPropertyAccessNode) n.getLeft()).getName()
-										+ " is read only and it cannot be asigned to");
-							}
-
-						} else {
-							throw new CompilationError(node, "Property "
-									+ ((FieldOrPropertyAccessNode) n.getLeft()).getName() + " is not defined in type "
-									+ ((TypedNode) fp.getPrimary()).getTypeVariable().getTypeDefinition().getName());
-						}
-					}
-
-				}
-
-			} else if (node instanceof TernaryConditionalExpressionNode) {
-				TernaryConditionalExpressionNode ternary = (TernaryConditionalExpressionNode) node;
-
-				TypeVariable type = typeSystem.unionOf(ternary.getThenExpression().getTypeVariable(),
-						ternary.getElseExpression().getTypeVariable());
-
-				if (type instanceof UnionType) {
-					UnionType unionType = (UnionType) type;
-
-					if (typeSystem.isAssignableTo(unionType.getLeft(), unionType.getRight())) {
-						type = unionType.getRight(); // TODO promote side
-					} else if (typeSystem.isAssignableTo(unionType.getRight(), unionType.getLeft())) {
-						type = unionType.getLeft(); // TODO promote side
-					} else if (typeSystem.isPromotableTo(unionType.getLeft(), unionType.getRight())) {
-						type = unionType.getRight(); // TODO promote side
-					} else if (typeSystem.isPromotableTo(unionType.getRight(), unionType.getLeft())) {
-						type = unionType.getLeft(); // TODO promote side
-					}
-
-				}
-				ternary.setTypeVariable(type);
-			} else if (node instanceof FormalParameterNode) {
-				FormalParameterNode formal = ((FormalParameterNode) node);
-
-				try {
-					this.getSemanticContext().currentScope().defineVariable(formal.getName(), formal.getTypeVariable(),
-							node);
-				} catch (TypeAlreadyDefinedException e) {
-					e.printStackTrace();
-				}
-			} else if (node instanceof ScopedVariableDefinitionNode) {
-				ScopedVariableDefinitionNode variableDeclaration = (ScopedVariableDefinitionNode) node;
-
-				TypedNode init = variableDeclaration.getInitializer();
-
-				TypeVariable type = variableDeclaration.getTypeVariable();
-
-				if (variableDeclaration.getTypeNode().needsInference()) {
-					if (init != null) {
-						type = init.getTypeVariable();
-						variableDeclaration.getTypeNode().setTypeVariable(type);
-					} else {
-						throw new CompilationError(node, "Variable Type cannot be infered");
-					}
-				}
-
-				VariableInfo info = this.getSemanticContext().currentScope()
-						.searchVariable(variableDeclaration.getName());
-
-				if (info == null) {
-					try {
-						info = this.getSemanticContext().currentScope().defineVariable(variableDeclaration.getName(),
-								type, node);
-					} catch (TypeAlreadyDefinedException e) {
-						if (!(node.getParent() instanceof ForEachNode)) {
-							throw new CompilationError(node, e.getMessage());
-						}
-					}
-				}
-
-				info.setImutable(variableDeclaration.getImutabilityValue() == Imutability.Imutable);
-
-				variableDeclaration.setInfo(info);
-
-				if (init != null) {
-
-					info.setInitialized(true);
+					info.setIncludeMaximum(limits.isIncludeMax());
+					
 					TypeVariable right = init.getTypeVariable();
 
 					if (!LenseTypeSystem.isAssignableTo(right, type)) {
 						if (typeSystem.isPromotableTo(right, type)) {
 			
-							Optional<Constructor> op = type.getTypeDefinition()
-									.getConstructorByImplicitAndPromotableParameters(true, new ConstructorParameter(right));
-							// TODO analyze literals for simplification without constructor
+							if (LenseTypeSystem.isNumber(type.getTypeDefinition()) && init instanceof NumericValue) {
+								((NumericValue)init).setTypeVariable(type);
+							} else {
+								Optional<Constructor> op = type.getTypeDefinition()
+										.getConstructorByImplicitAndPromotableParameters(true, new ConstructorParameter(right));
+								
+								NewInstanceCreationNode cn = NewInstanceCreationNode.of(op.get(),
+                                        variableDeclaration.getInitializer());
 
-							NewInstanceCreationNode cn = NewInstanceCreationNode.of(type, op.get(),
-									variableDeclaration.getInitializer());
+                                if (!type.getGenericParameters().isEmpty()) {
 
-							if (!type.getGenericParameters().isEmpty()) {
+                                    for (TypeVariable variable : type.getGenericParameters()) {
+                                        cn.getCreationParameters().getTypeParametersListNode()
+                                                .add(new GenericTypeParameterNode(new TypeNode(variable)));
+                                    }
 
-								for (TypeVariable variable : type.getGenericParameters()) {
-									cn.getCreationParameters().getTypeParametersListNode()
-									.add(new GenericTypeParameterNode(new TypeNode(variable)));
-								}
+                                }
 
-							}
+                                variableDeclaration.setInitializer(cn);
+                            }
+							
+							
+                        } else if (typeSystem.isTuple(type, 1)) { // TODO
+                            // better
+                            // polimorphism
+                            // for
+                            // promotion
 
-							variableDeclaration.setInitializer(cn);
-						} else if (typeSystem.isTuple(type, 1)) { // TODO
-							// better
-							// polimorphism
-							// for
-							// promotion
+                            final LiteralTupleInstanceCreation m = new LiteralTupleInstanceCreation(
+                                    variableDeclaration.getInitializer());
 
-							final LiteralTupleInstanceCreation m = new LiteralTupleInstanceCreation(
-									variableDeclaration.getInitializer());
-
-							m.getCreationParameters().getTypeParametersListNode()
-							.add(new GenericTypeParameterNode(new TypeNode(right)));
-							// m.getCreationParameters().getTypeParametersListNode().add(new
+                            m.getCreationParameters().getTypeParametersListNode()
+                                    .add(new GenericTypeParameterNode(new TypeNode(right)));
+                            // m.getCreationParameters().getTypeParametersListNode().add(new
 							// GenericTypeParameterNode(new TypeNode(nextTuple.getTypeVariable())));
 
-							variableDeclaration.setInitializer(m);
-							m.setTypeVariable(type);
-						} else if (typeSystem.isMaybe(type)) {
+                            variableDeclaration.setInitializer(m);
+                            m.setTypeVariable(type);
+                        } else if (typeSystem.isMaybe(type)) {
 
-							TypeDefinition someType = getSemanticContext().resolveTypeForName("lense.core.lang.Some", 1)
-									.get().getTypeDefinition();
+                            TypeDefinition someType = getSemanticContext().resolveTypeForName("lense.core.lang.Some", 1)
+                                    .get().getTypeDefinition();
 
-							LenseTypeDefinition someTypeOfRight = LenseTypeSystem.specify(someType, right);
+                            LenseTypeDefinition someTypeOfRight = LenseTypeSystem.specify(someType, right);
 
-							Optional<Constructor> op = someType.getMembers().stream()
-									.filter(m -> m.isConstructor() && m.getVisibility() == Visibility.Public)
-									.map(c -> (Constructor) c).findAny();
+                            this.promoteNodeType((AstNode) init, someTypeOfRight);
 
-							TypeVariable someTypeSpec = someTypeOfRight;
+                            // Optional<Constructor> op =
+                            // someType.getMembers().stream()
+                            // .filter(m -> m.isConstructor() &&
+                            // m.getVisibility() == Visibility.Public)
+                            // .map(c -> (Constructor) c).findAny();
+                            //
+                            // TypeVariable someTypeSpec = someTypeOfRight;
+                            //
+                            // NewInstanceCreationNode cn =
+                            // NewInstanceCreationNode.of(someTypeSpec,
+                            // op.get(),
+                            // (AstNode) init);
+                            //
+                            // cn.getCreationParameters().getTypeParametersListNode()
+                            // .add(new GenericTypeParameterNode(new
+                            // TypeNode(someTypeSpec)));
+                            //
+                            // node.replace((AstNode) init, cn);
+                        } else {
+                        	promoteNodeType(init, type);
+							//throw new CompilationError(node,	right + " is not assignable to variable '" + info.getName() + "' of type " + type);
+                        }
+                    }
+                }
 
-							NewInstanceCreationNode cn = NewInstanceCreationNode.of(someTypeSpec, op.get(),
-									(AstNode) init);
+                if (node instanceof FieldDeclarationNode) {
+                    FieldDeclarationNode f = (FieldDeclarationNode) node;
 
-							cn.getCreationParameters().getTypeParametersListNode()
-							.add(new GenericTypeParameterNode(new TypeNode(someTypeSpec)));
+                    LenseTypeDefinition currentType = (LenseTypeDefinition) this.getSemanticContext().currentScope()
+                            .getCurrentType();
 
-							node.replace((AstNode) init, cn);
-						} else {
-							throw new CompilationError(node,	right + " is not assignable to variable '" + info.getName() + "' of type " + type);
-						}
-					}
-				}
+                    currentType.addField(f.getName(), f.getTypeVariable(), f.getImutabilityValue());
 
-				if (node instanceof FieldDeclarationNode) {
-					FieldDeclarationNode f = (FieldDeclarationNode) node;
+                    // TODO only is used in constructor
+                    info.setInitialized(true);
+                }
+            } else if (node instanceof PropertyDeclarationNode) {
+                PropertyDeclarationNode p = (PropertyDeclarationNode) node;
 
-					LenseTypeDefinition currentType = (LenseTypeDefinition) this.getSemanticContext().currentScope()
-							.getCurrentType();
+                if (p.getAcessor() != null && p.getModifier() != null
+                        && p.getAcessor().isImplicit() ^ p.getModifier().isImplicit()) {
+                    throw new CompilationError(p, "Implicit properties cannot have implementation");
+                }
 
-					currentType.addField(f.getName(), f.getTypeVariable(), f.getImutabilityValue());
+                if (p.getInitializer() != null) {
+                    ExpressionNode exp = p.getInitializer();
 
-					// TODO only is used in constructor
-					info.setInitialized(true);
-				}
-			} else if (node instanceof PropertyDeclarationNode) {
-				PropertyDeclarationNode p = (PropertyDeclarationNode) node;
+                    TypeVariable expType = exp.getTypeVariable();
 
-				if (p.getAcessor() != null && p.getModifier() != null
-						&& p.getAcessor().isImplicit() ^ p.getModifier().isImplicit()) {
-					throw new CompilationError(p, "Implicit properties cannot have implementation");
-				}
+                    TypeVariable propType = p.getType().getTypeVariable();
+                    if (!typeSystem.isAssignableTo(expType, propType)) {
+//                        if (!typeSystem.isPromotableTo(expType, propType)) {
+//                            throw new CompilationError(node,
+//                                    expType + " is not assignable to " + propType + " in property " + p.getName());
+//                        } else {
 
-				if (p.getInitializer() != null) {
-					ExpressionNode exp = p.getInitializer();
-
-					TypeVariable expType = exp.getTypeVariable();
-
-					TypeVariable propType = p.getType().getTypeVariable();
-					if (!typeSystem.isAssignableTo(expType, propType)) {
-						if (!typeSystem.isPromotableTo(expType, propType)) {
-							throw new CompilationError(node,
-									expType + " is not assignable to " + propType + " in property " + p.getName());
-						} else {
-
-							promoteNodeType(exp, propType);
+                            promoteNodeType(exp, propType);
 							//
 							// Optional<Constructor> op = propType.getTypeDefinition()
 							// .getConstructorByParameters(Visibility.Public, new
@@ -1816,135 +1802,135 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 							// exp);
 							// cn.getCreationParameters().getTypeParametersListNode()
 							// .add(new GenericTypeParameterNode(new TypeNode(propType)));
-							//
-							// p.replace(exp, cn);
-						}
-					}
-				}
+                            //
+                            // p.replace(exp, cn);
+                      //  }
+                    }
+                }
 
-				// auto-abstract if interface
-				if (this.getSemanticContext().currentScope().getCurrentType().getKind() == LenseUnitKind.Interface) {
-					p.setAbstract(true);
+                // auto-abstract if interface
+                if (this.getSemanticContext().currentScope().getCurrentType().getKind() == LenseUnitKind.Interface) {
+                    p.setAbstract(true);
 
-					if (p.getVisibility() == null) {
-						p.setVisibility(Visibility.Public);
-					}
+                    if (p.getVisibility() == null) {
+                        p.setVisibility(Visibility.Public);
+                    }
 
-					if (p.getVisibility() != Visibility.Public) {
-						throw new CompilationError(node, "Members of an interface must be public");
-					}
+                    if (p.getVisibility() != Visibility.Public) {
+                        throw new CompilationError(node, "Members of an interface must be public");
+                    }
 
-					if (p.getAcessor() != null) {
-						p.getAcessor().setAbstract(true);
-						p.getAcessor().setVisibility(p.getVisibility());
-					}
-					if (p.getModifier() != null) {
-						p.getModifier().setAbstract(true);
-						p.getModifier().setVisibility(p.getVisibility());
-					}
-				}
+                    if (p.getAcessor() != null) {
+                        p.getAcessor().setAbstract(true);
+                        p.getAcessor().setVisibility(p.getVisibility());
+                    }
+                    if (p.getModifier() != null) {
+                        p.getModifier().setAbstract(true);
+                        p.getModifier().setVisibility(p.getVisibility());
+                    }
+                }
 
-				LenseTypeDefinition currentType = (LenseTypeDefinition) this.getSemanticContext().currentScope()
-						.getCurrentType();
+                LenseTypeDefinition currentType = (LenseTypeDefinition) this.getSemanticContext().currentScope()
+                        .getCurrentType();
 
-				String typeName = p.getType().getName();
-				VariableInfo genericParameter = this.getSemanticContext().currentScope().searchVariable(typeName);
+                String typeName = p.getType().getName();
+                VariableInfo genericParameter = this.getSemanticContext().currentScope().searchVariable(typeName);
 
-				TypeVariable propertyType = p.getType().getTypeVariable();
+                TypeVariable propertyType = p.getType().getTypeVariable();
 
-				if (genericParameter != null && genericParameter.isTypeVariable()) {
-					List<TypeVariable> parameters = currentType.getGenericParameters();
-					Optional<Integer> opIndex = currentType.getGenericParameterIndexBySymbol(typeName);
+                if (genericParameter != null && genericParameter.isTypeVariable()) {
+                    List<TypeVariable> parameters = currentType.getGenericParameters();
+                    Optional<Integer> opIndex = currentType.getGenericParameterIndexBySymbol(typeName);
 
-					if (!opIndex.isPresent()) {
-						throw new CompilationError(node,
-								typeName + " is not a valid generic parameter for type " + currentType.getName());
-					}
+                    if (!opIndex.isPresent()) {
+                        throw new CompilationError(node,
+                                typeName + " is not a valid generic parameter for type " + currentType.getName());
+                    }
 
-					int index = opIndex.get();
+                    int index = opIndex.get();
 
-					propertyType = new DeclaringTypeBoundedTypeVariable(currentType, index, typeName,
-							parameters.get(index).getVariance());
+                    propertyType = new DeclaringTypeBoundedTypeVariable(currentType, index, typeName,
+                            parameters.get(index).getVariance());
 
-				}
+                }
 
-				if (p.isIndexed()) {
+                if (p.isIndexed()) {
 
-					lense.compiler.type.variable.TypeVariable[] params = new lense.compiler.type.variable.TypeVariable[((IndexerPropertyDeclarationNode) p)
-					                                                                                                   .getIndexes().getChildren().size()];
-					int i = 0;
-					for (AstNode n : ((IndexerPropertyDeclarationNode) p).getIndexes().getChildren()) {
-						FormalParameterNode var = (FormalParameterNode) n;
-						params[i++] = var.getTypeNode().getTypeParameter();
-						// this.getSemanticContext().currentScope().defineTypeVariable(var.getName(),
-						// type, p).setInitialized(true);
-					}
+                    lense.compiler.type.variable.TypeVariable[] params = new lense.compiler.type.variable.TypeVariable[((IndexerPropertyDeclarationNode) p)
+                            .getIndexes().getChildren().size()];
+                    int i = 0;
+                    for (AstNode n : ((IndexerPropertyDeclarationNode) p).getIndexes().getChildren()) {
+                        FormalParameterNode var = (FormalParameterNode) n;
+                        params[i++] = var.getTypeNode().getTypeParameter();
+                        // this.getSemanticContext().currentScope().defineTypeVariable(var.getName(),
+                        // type, p).setInitialized(true);
+                    }
 
 					// IndexerProperty indexer = currentType.addIndexer(propertyType, p.getAcessor()
-					// != null,
-					// p.getModifier() != null, params);
+                    // != null,
+                    // p.getModifier() != null, params);
 
 					// ArrayList<TypeVariable> listParams = new ArrayList<>(Arrays.asList(params));
 
-					// if (indexer.canWrite()) {
-					// listParams.add(propertyType);
-					// removeExpected("set", listParams);
-					// }
-					//
-					// if (indexer.canRead()) {
-					// removeExpected("get", listParams);
-					// }
-					//
+                    // if (indexer.canWrite()) {
+                    // listParams.add(propertyType);
+                    // removeExpected("set", listParams);
+                    // }
+                    //
+                    // if (indexer.canRead()) {
+                    // removeExpected("get", listParams);
+                    // }
+                    //
 
-				} else {
-					Property property = currentType.addProperty(p.getName(), propertyType, p.getAcessor() != null,
-							p.getModifier() != null);
+                } else {
+                    Property property = currentType.addProperty(p.getName(), propertyType, p.getAcessor() != null,
+                            p.getModifier() != null);
 
-					// if (property.canWrite()) {
-					// removeExpected("set" + p.getName(), new
-					// ArrayList<>(Arrays.asList(propertyType)));
-					// }
-					//
-					// if (property.canRead()) {
+                    // if (property.canWrite()) {
+                    // removeExpected("set" + p.getName(), new
+                    // ArrayList<>(Arrays.asList(propertyType)));
+                    // }
+                    //
+                    // if (property.canRead()) {
 					// removeExpected("get"+ p.getName() , Collections.emptyList());
-					// }
-				}
+                    // }
+                }
 
-			} else if (node instanceof IndexedAccessNode) {
-				IndexedAccessNode m = (IndexedAccessNode) node;
+            } else if (node instanceof IndexedPropertyReadNode) {
+                IndexedPropertyReadNode m = (IndexedPropertyReadNode) node;
 
-				TypedNode a = (TypedNode) m.getAccess();
+                TypedNode a = (TypedNode) m.getAccess();
 
-				TypeDefinition currentType = this.getSemanticContext().currentScope().getCurrentType();
+                TypeDefinition currentType = this.getSemanticContext().currentScope().getCurrentType();
 
-				TypeDefinition methodOwnerType = currentType;
-				if (a != null) {
-					if (a.getTypeVariable().isSingleType()) {
-						methodOwnerType = a.getTypeVariable().getTypeDefinition();
-					} else {
-						throw new UnsupportedOperationException();
-					}
+                TypeDefinition methodOwnerType = currentType;
+                if (a != null) {
+                    if (a.getTypeVariable().isSingleType()) {
+                        methodOwnerType = a.getTypeVariable().getTypeDefinition();
+                    } else {
+                        throw new UnsupportedOperationException();
+                    }
 
-				}
+                }
 
-				if (methodOwnerType.getName().equals("lense.core.collections.Tuple")) {
-					// only one index is allowed
-					if (m.getArguments().getChildren().size() != 1) {
-						throw new CompilationError(node, "Tuples only accept one index");
-					}
+                if (methodOwnerType.getName().equals("lense.core.collections.Tuple")) {
+                    // only one index is allowed
+                    if (m.getArguments().getChildren().size() != 1) {
+                        throw new CompilationError(node, "Tuples only accept one index");
+                    }
 
-					ExpressionNode indexArgument = (ExpressionNode) m.getArguments().getFirst().getFirstChild();
-					Optional<Integer> index = asConstantNumber(indexArgument);
-					if (index.isPresent()) {
+                    ExpressionNode indexArgument = (ExpressionNode) m.getArguments().getFirstArgument().getFirstChild();
+                    Optional<Integer> index = asConstantNumber(indexArgument);
+                    if (index.isPresent()) {
 
-						int maxIndex = countTupleSize(methodOwnerType);
+                        int maxIndex = countTupleSize(methodOwnerType);
 
-						Optional<Method> headMethod = LenseTypeSystem.Tuple()
-								.getMethodBySignature(new MethodSignature("head"));
-						Optional<Method> tailMethod = LenseTypeSystem.Tuple()
-								.getMethodBySignature(new MethodSignature("tail"));
+                        Optional<Method> headMethod = LenseTypeSystem.Tuple()
+                                .getMethodBySignature(new MethodSignature("head"));
+                        Optional<Method> tailMethod = LenseTypeSystem.Tuple()
+                                .getMethodBySignature(new MethodSignature("tail"));
 
-						if (index.get() == 0) {
+                        if (index.get() == 0) {
 							MethodInvocationNode invoke = new MethodInvocationNode(
 									headMethod.get(),ensureExpression(m.getAccess())
 							);
@@ -1971,248 +1957,256 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 
 							TypeVariable upperbound = previous.getTypeVariable().getGenericParameters().get(0).getUpperBound();
 
-							MethodInvocationNode invoke = new MethodInvocationNode(headMethod.get(), previous);
-							invoke.setTypeVariable(upperbound);
-							invoke.setTupleAccessMethod(true);
+                            MethodInvocationNode invoke = new MethodInvocationNode(headMethod.get(), previous);
+                            invoke.setTypeVariable(upperbound);
+                            invoke.setTupleAccessMethod(true);
 
-							CastNode cast = new CastNode(invoke, upperbound.getTypeDefinition());
+                            CastNode cast = new CastNode(invoke, upperbound.getTypeDefinition());
 
-							node.getParent().replace(node, cast);
+                            node.getParent().replace(node, cast);
 
-							return;
-						} else {
+                            return;
+                        } else {
 							MethodInvocationNode previous = new MethodInvocationNode(
 									tailMethod.get(),
 									ensureExpression(m.getAccess())
 							);
-							previous.setTupleAccessMethod(true);
-							previous.setTypeVariable(methodOwnerType.getGenericParameters().get(1));
+                            previous.setTupleAccessMethod(true);
+                            previous.setTypeVariable(methodOwnerType.getGenericParameters().get(1));
 
-						
-							for (int i = 0; i < index.get() - 2; i++) {
-								MethodInvocationNode current = new MethodInvocationNode(tailMethod.get(), previous);
-								current.setTypeVariable(previous.getTypeVariable().getGenericParameters().get(1));
-								current.setTupleAccessMethod(true);
-								previous = current;
-							}
+                            for (int i = 0; i < index.get() - 2; i++) {
+                                MethodInvocationNode current = new MethodInvocationNode(tailMethod.get(), previous);
+                                current.setTypeVariable(previous.getTypeVariable().getGenericParameters().get(1));
+                                current.setTupleAccessMethod(true);
+                                previous = current;
+                            }
 
-							MethodInvocationNode current = new MethodInvocationNode(tailMethod.get(), previous);
-							current.setTypeVariable(previous.getTypeVariable());
-							current.setTupleAccessMethod(true);
-							TypeVariable previousValueType = previous.getTypeVariable().getGenericParameters().get(0);
-							previous = current;
-							
-							MethodInvocationNode invoke = new MethodInvocationNode(headMethod.get(), previous);
-							invoke.setTupleAccessMethod(true);
-							invoke.setTypeVariable(previousValueType);
+                            MethodInvocationNode current = new MethodInvocationNode(tailMethod.get(), previous);
+                            current.setTypeVariable(previous.getTypeVariable());
+                            current.setTupleAccessMethod(true);
+                            TypeVariable previousValueType = previous.getTypeVariable().getGenericParameters().get(0);
+                            previous = current;
 
-							CastNode cast = new CastNode(invoke, previousValueType.getTypeDefinition());
-							cast.setTupleAccessMethod(true);
-							
-							node.getParent().replace(node, cast);
+                            MethodInvocationNode invoke = new MethodInvocationNode(headMethod.get(), previous);
+                            invoke.setTupleAccessMethod(true);
+                            invoke.setTypeVariable(previousValueType);
 
-							return;
-						}
+                            CastNode cast = new CastNode(invoke, previousValueType.getTypeDefinition());
+                            cast.setTupleAccessMethod(true);
 
-					}
-				} else {
+                            node.getParent().replace(node, cast);
 
-					TypeVariable[] signatureTypes = new TypeVariable[m.getArguments().getChildren().size()];
+                            return;
+                        }
 
-					int index = 0;
-					for (AstNode n : m.getArguments().getChildren()) {
-						ArgumentListItemNode arg = (ArgumentListItemNode) n;
-						TypeVariable type = arg.getExpectedType();
+                    }
+                } else {
 
-						if (type == null) {
-							type = ((TypedNode) arg.getFirstChild()).getTypeVariable();
-							arg.setExpectedType(type);
-						}
-						signatureTypes[index++] = type;
-					}
+                    TypeVariable[] signatureTypes = new TypeVariable[m.getArguments().getChildren().size()];
 
-					Optional<IndexerProperty> indexer = methodOwnerType.getIndexerPropertyByTypeArray(signatureTypes);
+                    int index = 0;
+                    for (AstNode n : m.getArguments().getChildren()) {
+                        ArgumentListItemNode arg = (ArgumentListItemNode) n;
+                        TypeVariable type = arg.getExpectedType();
 
-					if (!indexer.isPresent()) {
-						throw new CompilationError(node, "No indexer "
-								+ Stream.of(signatureTypes).map(t -> t.toString()).collect(Collectors.joining(","))
-								+ " is defined for type " + methodOwnerType);
-					}
+                        if (type == null) {
+                            type = ((TypedNode) arg.getFirstChild()).getTypeVariable();
+                            arg.setExpectedType(type);
+                        }
+                        signatureTypes[index++] = type;
+                    }
 
-					m.setTypeVariable(indexer.get().getReturningType());
+                    Optional<IndexerProperty> indexer = methodOwnerType.getIndexerPropertyByTypeArray(signatureTypes);
 
-				}
+                    if (!indexer.isPresent()) {
+                        throw new CompilationError(node, "No indexer "
+                                + Stream.of(signatureTypes).map(t -> t.toString()).collect(Collectors.joining(","))
+                                + " is defined for type " + methodOwnerType);
+                    }
 
-			} else if (node instanceof PosExpression) {
-				PosExpression n = (PosExpression) node;
-				n.setTypeVariable(((TypedNode) n.getChildren().get(0)).getTypeVariable());
-			} else if (node instanceof FieldOrPropertyAccessNode) {
-				FieldOrPropertyAccessNode m = (FieldOrPropertyAccessNode) node;
+                    m.setIndexerProperty(indexer.get());
+                    TypeVariable rawReturnType = indexer.get().getReturningType();
+                    
 
-				VariableInfo info = this.getSemanticContext().currentScope().searchVariable("this");
-				TypeVariable currentType = info.getTypeVariable();
+                    final RangeTypeVariable type = new RangeTypeVariable (rawReturnType.getSymbol(), rawReturnType.getVariance(),  rawReturnType.getTypeDefinition(), LenseTypeSystem.Nothing() );
+                    m.setTypeVariable( type);
 
-				TypeVariable fieldOwnerType = currentType;
+                   // m.setTypeVariable(rawReturnType);
+                    
+//                    CastNode cast = new CastNode(m , type);
+//                    m.getParent().replace(m, cast);
+                }
 
-				String name = m.getName();
+            } else if (node instanceof PosExpression) {
+                PosExpression n = (PosExpression) node;
+                n.setTypeVariable(((TypedNode) n.getChildren().get(0)).getTypeVariable());
+            } else if (node instanceof FieldOrPropertyAccessNode) {
+                FieldOrPropertyAccessNode m = (FieldOrPropertyAccessNode) node;
 
-				AstNode access = m.getPrimary();
+                VariableInfo info = this.getSemanticContext().currentScope().searchVariable("this");
+                TypeVariable currentType = info.getTypeVariable();
 
-				if (access == null && name.contains(".")) {
-					access = new QualifiedNameNode(name);
-				}
+                TypeVariable fieldOwnerType = currentType;
 
-				if (access == null) {
-					// ok, analise after
-				} else if (access instanceof QualifiedNameNode) {
-					QualifiedNameNode qn = ((QualifiedNameNode) access);
+                String name = m.getName();
 
-					Optional<TypeVariable> maybeType = this.getSemanticContext().resolveTypeForName(qn.getName(), 0);
+                AstNode access = m.getPrimary();
 
-					while (!maybeType.isPresent()) {
-						qn = qn.getPrevious();
-						if (qn != null) {
-							maybeType = this.getSemanticContext().resolveTypeForName((qn).getName(), 0);
-						} else {
-							break;
-						}
-					}
+                if (access == null && name.contains(".")) {
+                    access = new QualifiedNameNode(name);
+                }
 
-					if (maybeType.isPresent()) {
-						TypeDefinition def = maybeType.get().getTypeDefinition();
+                if (access == null) {
+                    // ok, analise after
+                } else if (access instanceof QualifiedNameNode) {
+                    QualifiedNameNode qn = ((QualifiedNameNode) access);
 
-						fieldOwnerType = def;
-						qn = ((QualifiedNameNode) access);
+                    Optional<TypeVariable> maybeType = this.getSemanticContext().resolveTypeForName(qn.getName(), 0);
 
-						Deque<String> path = new LinkedList<>();
-						while (qn.getPrevious() != null) {
-							path.add(qn.getLast().getName());
-							qn = qn.getPrevious();
+                    while (!maybeType.isPresent()) {
+                        qn = qn.getPrevious();
+                        if (qn != null) {
+                            maybeType = this.getSemanticContext().resolveTypeForName((qn).getName(), 0);
+                        } else {
+                            break;
+                        }
+                    }
 
-						}
+                    if (maybeType.isPresent()) {
+                        TypeDefinition def = maybeType.get().getTypeDefinition();
 
-						while (!path.isEmpty()) {
-							String fieldName = path.pop();
-							Optional<Field> maybeField = def.getFieldByName(fieldName);
+                        fieldOwnerType = def;
+                        qn = ((QualifiedNameNode) access);
 
-							if (!maybeField.isPresent()) {
+                        Deque<String> path = new LinkedList<>();
+                        while (qn.getPrevious() != null) {
+                            path.add(qn.getLast().getName());
+                            qn = qn.getPrevious();
 
-								Optional<Property> props = def.getPropertyByName(fieldName);
+                        }
 
-								if (!props.isPresent()) {
-									throw new CompilationError(
-											name + " is not a field or a property of TypeDefinition " + fieldOwnerType);
-								} else {
-									Property property = props.get();
-									m.setTypeVariable(property.getReturningType());
+                        while (!path.isEmpty()) {
+                            String fieldName = path.pop();
+                            Optional<Field> maybeField = def.getFieldByName(fieldName);
 
-									// Replace PropertyAccess
+                            if (!maybeField.isPresent()) {
 
-									return;
-								}
-							} else {
-								Field field = maybeField.get();
-								m.setTypeVariable(field.getReturningType());
+                                Optional<Property> props = def.getPropertyByName(fieldName);
 
-								// Replace FieldAccess
+                                if (!props.isPresent()) {
+                                    throw new CompilationError(
+                                            name + " is not a field or a property of TypeDefinition " + fieldOwnerType);
+                                } else {
+                                    Property property = props.get();
+                                    m.setTypeVariable(property.getReturningType());
 
-								return;
-							}
-						}
+                                    // Replace PropertyAccess
 
-					} else {
-						// try variable
-						VariableInfo variable = this.getSemanticContext().currentScope()
-								.searchVariable(((QualifiedNameNode) access).getName());
+                                    return;
+                                }
+                            } else {
+                                Field field = maybeField.get();
+                                m.setTypeVariable(field.getReturningType());
 
-						if (variable == null) {
-							throw new CompilationError(
-									((QualifiedNameNode) access).getName() + " variable is not defined");
-						}
+                                // Replace FieldAccess
 
-						// Replace Variable Read
-						VariableReadNode read = new VariableReadNode(((QualifiedNameNode) access).getName());
-						read.setVariableInfo(variable);
+                                return;
+                            }
+                        }
 
-						m.replace(access, read);
-						fieldOwnerType = variable.getTypeVariable();
+                    } else {
+                        // try variable
+                        VariableInfo variable = this.getSemanticContext().currentScope()
+                                .searchVariable(((QualifiedNameNode) access).getName());
 
-					}
-				} else if (access instanceof TypedNode) {
-					fieldOwnerType = ((TypedNode) access).getTypeVariable();
-				} else if (access instanceof CastNode) {
-					fieldOwnerType = ((CastNode) access).getTypeVariable();
-				} else if (access instanceof IdentifierNode) {
+                        if (variable == null) {
+                            throw new CompilationError(
+                                    ((QualifiedNameNode) access).getName() + " variable is not defined");
+                        }
 
-					TypeVariable ownerType = this.getSemanticContext().currentScope().searchVariable("this")
-							.getTypeVariable();
+                        // Replace Variable Read
+                        VariableReadNode read = new VariableReadNode(((QualifiedNameNode) access).getName());
+                        read.setVariableInfo(variable);
 
-					Optional<TypedNode> typedNode = typeForName(access, ((IdentifierNode) access).getName());
+                        m.replace(access, read);
+                        fieldOwnerType = variable.getTypeVariable();
 
-					if (typedNode.isPresent()) {
-						fieldOwnerType = typedNode.get().getTypeVariable();
+                    }
+                } else if (access instanceof TypedNode) {
+                    fieldOwnerType = ((TypedNode) access).getTypeVariable();
+                } else if (access instanceof CastNode) {
+                    fieldOwnerType = ((CastNode) access).getTypeVariable();
+                } else if (access instanceof IdentifierNode) {
 
-						node.replace(access, (AstNode) typedNode.get());
-					} else {
-						fieldOwnerType = ownerType;
-					}
+                    TypeVariable ownerType = this.getSemanticContext().currentScope().searchVariable("this")
+                            .getTypeVariable();
 
-				} else {
-					throw new CompilationError(access.getClass() + " Not supported yet");
-				}
+                    Optional<TypedNode> typedNode = typeForName(access, ((IdentifierNode) access).getName());
 
-				if (fieldOwnerType.equals(currentType)) {
+                    if (typedNode.isPresent()) {
+                        fieldOwnerType = typedNode.get().getTypeVariable();
 
-					resolveFieldPropertyOrVariableName(node, m, currentType, fieldOwnerType, name);
+                        node.replace(access, (AstNode) typedNode.get());
+                    } else {
+                        fieldOwnerType = ownerType;
+                    }
 
-				} else {
+                } else {
+                    throw new CompilationError(access.getClass() + " Not supported yet");
+                }
 
-					TypeDefinition def = ensureNotFundamental(fieldOwnerType.getTypeDefinition());
-					Optional<Field> field = def.getFieldByName(name);
+                if (fieldOwnerType.equals(currentType)) {
 
-					if (!field.isPresent()) {
+                    resolveFieldPropertyOrVariableName(node, m, currentType, fieldOwnerType, name);
 
-						Optional<Property> property = def.getPropertyByName(name);
+                } else {
 
-						if (!property.isPresent()) {
-							if (!typeSystem.isAssignableTo(def, LenseTypeSystem.Maybe())) {
-								throw new CompilationError(node,
-										"No field or property '" + name + "' is defined in " + fieldOwnerType);
-							}
+                    TypeDefinition def = ensureNotFundamental(fieldOwnerType.getTypeDefinition());
+                    Optional<Field> field = def.getFieldByName(name);
 
-							TypeDefinition innerType = def.getGenericParameters().get(0).getTypeDefinition();
+                    if (!field.isPresent()) {
 
-							field = innerType.getFieldByName(name);
+                        Optional<Property> property = def.getPropertyByName(name);
 
-							if (!field.isPresent()) {
-								throw new CompilationError(node,
-										"No field or property " + name + " is defined in " + fieldOwnerType);
-							}
+                        if (!property.isPresent()) {
+                            if (!typeSystem.isAssignableTo(def, LenseTypeSystem.Maybe())) {
+                                throw new CompilationError(node,
+                                        "No field or property '" + name + "' is defined in " + fieldOwnerType);
+                            }
 
-							// transform to call inside the maybe using map
-							TypeVariable finalType = LenseTypeSystem.specify(LenseTypeSystem.Maybe(),
-									field.get().getReturningType());
-							TypeDefinition mappingFunction = LenseTypeSystem.specify(LenseTypeSystem.Function(2),
-									innerType, field.get().getReturningType());
+                            TypeDefinition innerType = def.getGenericParameters().get(0).getTypeDefinition();
 
-							TypeVariable type = mappingFunction;
-							NewInstanceCreationNode newObject = NewInstanceCreationNode.of(type);
+                            field = innerType.getFieldByName(name);
 
-							newObject.getCreationParameters().getTypeParametersListNode()
-							.add(new GenericTypeParameterNode(new TypeNode(type)));
+                            if (!field.isPresent()) {
+                                throw new CompilationError(node,
+                                        "No field or property " + name + " is defined in " + fieldOwnerType);
+                            }
 
-							ArgumentListItemNode arg = new ArgumentListItemNode(0, newObject);
-							arg.setExpectedType(newObject.getTypeVariable());
+                            // transform to call inside the maybe using map
+                            TypeVariable finalType = LenseTypeSystem.specify(LenseTypeSystem.Maybe(),
+                                    field.get().getReturningType());
+                            TypeDefinition mappingFunction = LenseTypeSystem.specify(LenseTypeSystem.Function(2),
+                                    innerType, field.get().getReturningType());
 
-							// TODO this will resolve the correct m
-							Optional<Method> method = finalType.getTypeDefinition().getMethodBySignature(
-									new MethodSignature("map", new MethodParameter(newObject.getTypeVariable())));
+                            TypeVariable type = mappingFunction;
+                            NewInstanceCreationNode newObject = NewInstanceCreationNode.of(type);
 
-							MethodInvocationNode transform = new MethodInvocationNode(method.get(),
-									ensureExpression(m.getPrimary()), arg
-									// TODO
-									// lambda
-									);
+                            newObject.getCreationParameters().getTypeParametersListNode()
+                                    .add(new GenericTypeParameterNode(new TypeNode(type)));
+
+                            ArgumentListItemNode arg = new ArgumentListItemNode(0, newObject);
+                            arg.setExpectedType(newObject.getTypeVariable());
+
+                            // TODO this will resolve the correct m
+                            Optional<Method> method = finalType.getTypeDefinition().getMethodBySignature(
+                                    new MethodSignature("map", new MethodParameter(newObject.getTypeVariable())));
+
+                            MethodInvocationNode transform = new MethodInvocationNode(method.get(),
+                                    ensureExpression(m.getPrimary()), arg
+                            // TODO
+                            // lambda
+                            );
 
 							m.getParent().replace(m, transform); // this operation
 							// will
@@ -2220,81 +2214,82 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 							// transform.type.
 							m.setTypeVariable(finalType); // set it again
 							transform.setTypeVariable(finalType); // set it again
-						} else {
-							m.setTypeVariable(property.get().getReturningType());
-							m.setKind(FieldOrPropertyAccessNode.FieldKind.PROPERTY);
-						}
-					} else {
-						m.setTypeVariable(field.get().getReturningType());
-						m.setKind(FieldOrPropertyAccessNode.FieldKind.FIELD);
-					}
-				}
-			} else if (node instanceof ArgumentListNode) {
-				ArgumentListNode m = (ArgumentListNode) node;
+                                                                  // again
+                        } else {
+                            m.setTypeVariable(property.get().getReturningType());
+                            m.setKind(FieldOrPropertyAccessNode.FieldKind.PROPERTY);
+                        }
+                    } else {
+                        m.setTypeVariable(field.get().getReturningType());
+                        m.setKind(FieldOrPropertyAccessNode.FieldKind.FIELD);
+                    }
+                }
+            } else if (node instanceof ArgumentListNode) {
+                ArgumentListNode m = (ArgumentListNode) node;
 
-				ListIterator<AstNode> it = m.listIterator();
+                ListIterator<AstNode> it = m.listIterator();
 
-				while (it.hasNext()) {
-					AstNode a = it.next().getFirstChild();
-					if (a instanceof IdentifierNode) {
-						IdentifierNode id = (IdentifierNode) a;
-						VariableInfo info = this.getSemanticContext().currentScope().searchVariable(id.getName());
+                while (it.hasNext()) {
+                    AstNode a = it.next().getFirstChild();
+                    if (a instanceof IdentifierNode) {
+                        IdentifierNode id = (IdentifierNode) a;
+                        VariableInfo info = this.getSemanticContext().currentScope().searchVariable(id.getName());
 
-						if (info == null) {
-							// try field
+                        if (info == null) {
+                            // try field
 
-							TypeDefinition currentType = this.getSemanticContext().currentScope().getCurrentType();
+                            TypeDefinition currentType = this.getSemanticContext().currentScope().getCurrentType();
 
-							Optional<Field> field = currentType.getFieldByName(id.getName());
+                            Optional<Field> field = currentType.getFieldByName(id.getName());
 
-							if (!field.isPresent()) {
+                            if (!field.isPresent()) {
 
-								Optional<Property> property = currentType.getPropertyByName(id.getName());
+                                Optional<Property> property = currentType.getPropertyByName(id.getName());
 
-								if (!property.isPresent()) {
-									throw new CompilationError(id, id.getName() + " is not a variable or a field");
-								} else {
-									FieldOrPropertyAccessNode r = new FieldOrPropertyAccessNode(id.getName());
-									r.setKind(FieldKind.PROPERTY);
-									r.setType(property.get().getReturningType());
-									it.set(new ArgumentListItemNode(it.nextIndex() - 1, r));
-								}
+                                if (!property.isPresent()) {
+                                    throw new CompilationError(id, id.getName() + " is not a variable or a field");
+                                } else {
+                                    FieldOrPropertyAccessNode r = new FieldOrPropertyAccessNode(id.getName());
+                                    r.setKind(FieldKind.PROPERTY);
+                                    r.setType(property.get().getReturningType());
+                                    it.set(new ArgumentListItemNode(it.nextIndex() - 1, r));
+                                }
 
-							} else {
-								FieldOrPropertyAccessNode r = new FieldOrPropertyAccessNode(id.getName());
-								r.setKind(FieldKind.FIELD);
-								r.setType(field.get().getReturningType());
-								it.set(new ArgumentListItemNode(it.nextIndex() - 1, r));
-							}
+                            } else {
+                                FieldOrPropertyAccessNode r = new FieldOrPropertyAccessNode(id.getName());
+                                r.setKind(FieldKind.FIELD);
+                                r.setType(field.get().getReturningType());
+                                it.set(new ArgumentListItemNode(it.nextIndex() - 1, r));
+                            }
 
-						} else {
-							VariableReadNode r = new VariableReadNode(id.getName(), info);
-							it.set(new ArgumentListItemNode(it.nextIndex() - 1, r));
-						}
-					}
-				}
+                        } else {
+                            VariableReadNode r = new VariableReadNode(id.getName(), info);
+                            it.set(new ArgumentListItemNode(it.nextIndex() - 1, r));
+                        }
+                    }
+                }
 
-			} else if (node instanceof MethodInvocationNode) {
-				MethodInvocationNode m = (MethodInvocationNode) node;
+            } else if (node instanceof MethodInvocationNode) {
+                MethodInvocationNode m = (MethodInvocationNode) node;
 
-				if (m.getTypeVariable() != null) {
-					return;
-				}
+                if (m.getTypeVariable() != null) {
+                    return;
+                }
 
-				TypeVariable methodOwnerType = this.getSemanticContext().currentScope().searchVariable("this")
-						.getTypeVariable();
-				TypeDefinition currentType = this.getSemanticContext().currentScope().getCurrentType();
+                TypeVariable methodOwnerType = this.getSemanticContext().currentScope().searchVariable("this")
+                        .getTypeVariable();
+                TypeDefinition currentType = this.getSemanticContext().currentScope().getCurrentType();
 
-				String name = m.getCall().getName();
+                String name = m.getCall().getName();
 
-				AstNode access = m.getAccess();
+                AstNode access = m.getAccess();
 
-				if (access == null) {
-					// access to self
+                if (access == null) {
+                    // access to self
 
-					methodOwnerType = currentType;
-					// MethodParameter[] parameters =
-					// asMethodParameters(m.getCall().getArguments());
+                    methodOwnerType = currentType;
+                    // MethodParameter[] parameters =
+                    // asMethodParameters(m.getCall().getArguments());
 					// MethodSignature signature = new MethodSignature(name, parameters);
 					//
 					// Optional<Method> method = currentType.getMethodBySignature(signature);
@@ -2305,219 +2300,219 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 					//
 					// if (!method.isPresent()) {
 					// throw new CompilationError(node, "Method " + signature + " is not defined in
-					// "
-					// + methodOwnerType + " or its super classes");
-					// } else {
-					//
-					// List<CallableMemberMember<Method>> parameteres =
-					// method.get().getParameters();
-					//
-					// for (int i = 0; i < parameteres.size(); i++) {
-					//
-					// ArgumentListItemNode parent = ((ArgumentListItemNode)
-					// m.getCall().getArguments()
-					// .getChildren().get(i));
+                    // "
+                    // + methodOwnerType + " or its super classes");
+                    // } else {
+                    //
+                    // List<CallableMemberMember<Method>> parameteres =
+                    // method.get().getParameters();
+                    //
+                    // for (int i = 0; i < parameteres.size(); i++) {
+                    //
+                    // ArgumentListItemNode parent = ((ArgumentListItemNode)
+                    // m.getCall().getArguments()
+                    // .getChildren().get(i));
 					// ExpressionNode rightExpression = (ExpressionNode) parent.getFirstChild();
 					//
 					// promote(parent, rightExpression, parameteres.get(i).getType(),
-					// rightExpression.getTypeVariable());
-					// }
-					//
-					// }
-					// }
-					//
-					// m.setTypeVariable(method.get().getReturningType());
+                    // rightExpression.getTypeVariable());
+                    // }
+                    //
+                    // }
+                    // }
+                    //
+                    // m.setTypeVariable(method.get().getReturningType());
 
-				} else if (access instanceof QualifiedNameNode) {
-					QualifiedNameNode qn = ((QualifiedNameNode) access);
+                } else if (access instanceof QualifiedNameNode) {
+                    QualifiedNameNode qn = ((QualifiedNameNode) access);
 
-					Optional<TypeVariable> maybeType = this.getSemanticContext().resolveTypeForName(qn.getName(), 0);
+                    Optional<TypeVariable> maybeType = this.getSemanticContext().resolveTypeForName(qn.getName(), 0);
 
-					while (!maybeType.isPresent()) {
-						qn = qn.getPrevious();
-						if (qn != null) {
-							maybeType = this.getSemanticContext().resolveTypeForName((qn).getName(), 0);
-						} else {
-							break;
-						}
-					}
+                    while (!maybeType.isPresent()) {
+                        qn = qn.getPrevious();
+                        if (qn != null) {
+                            maybeType = this.getSemanticContext().resolveTypeForName((qn).getName(), 0);
+                        } else {
+                            break;
+                        }
+                    }
 
-					if (maybeType.isPresent()) {
-						TypeDefinition def = maybeType.get().getTypeDefinition();
-						methodOwnerType = def;
+                    if (maybeType.isPresent()) {
+                        TypeDefinition def = maybeType.get().getTypeDefinition();
+                        methodOwnerType = def;
 
-						qn = ((QualifiedNameNode) access);
+                        qn = ((QualifiedNameNode) access);
 
-						Deque<String> path = new LinkedList<>();
-						while (qn.getPrevious() != null) {
-							path.add(qn.getLast().getName());
-							qn = qn.getPrevious();
+                        Deque<String> path = new LinkedList<>();
+                        while (qn.getPrevious() != null) {
+                            path.add(qn.getLast().getName());
+                            qn = qn.getPrevious();
 
-						}
+                        }
 
-						while (!path.isEmpty()) {
-							String fieldName = path.pop();
-							Optional<Field> maybeField = def.getFieldByName(fieldName);
+                        while (!path.isEmpty()) {
+                            String fieldName = path.pop();
+                            Optional<Field> maybeField = def.getFieldByName(fieldName);
 
-							if (!maybeField.isPresent()) {
+                            if (!maybeField.isPresent()) {
 
-								throw new CompilationError(
-										"The field " + name + " is undefined for TypeDefinition " + methodOwnerType);
-							} else {
-								Field field = maybeField.get();
-								methodOwnerType = field.getReturningType();
-							}
-						}
+                                throw new CompilationError(
+                                        "The field " + name + " is undefined for TypeDefinition " + methodOwnerType);
+                            } else {
+                                Field field = maybeField.get();
+                                methodOwnerType = field.getReturningType();
+                            }
+                        }
 
-						if (def.getKind() == LenseUnitKind.Object) {
-							ObjectReadNode vnode = new ObjectReadNode(def, (qn).getName());
+                        if (def.getKind() == LenseUnitKind.Object) {
+                            ObjectReadNode vnode = new ObjectReadNode(def, (qn).getName());
 
-							access.getParent().replace(access, vnode);
+                            access.getParent().replace(access, vnode);
 
-							methodOwnerType = vnode.getTypeVariable();
-						}
+                            methodOwnerType = vnode.getTypeVariable();
+                        }
 
-					} else {
-						// try variable
-						String varName = ((QualifiedNameNode) access).getName();
-						VariableInfo variableInfo = this.getSemanticContext().currentScope().searchVariable(varName);
+                    } else {
+                        // try variable
+                        String varName = ((QualifiedNameNode) access).getName();
+                        VariableInfo variableInfo = this.getSemanticContext().currentScope().searchVariable(varName);
 
-						if (variableInfo == null) {
+                        if (variableInfo == null) {
 
-							Optional<TypeVariable> obj = this.getSemanticContext().resolveTypeForName(varName, 0);
+                            Optional<TypeVariable> obj = this.getSemanticContext().resolveTypeForName(varName, 0);
 
-							if (obj.isPresent() && obj.get().getTypeDefinition().getKind() == LenseUnitKind.Object) {
-								ObjectReadNode vnode = new ObjectReadNode(obj.get(), varName);
+                            if (obj.isPresent() && obj.get().getTypeDefinition().getKind() == LenseUnitKind.Object) {
+                                ObjectReadNode vnode = new ObjectReadNode(obj.get(), varName);
 
-								access.getParent().replace(access, vnode);
+                                access.getParent().replace(access, vnode);
 
-								methodOwnerType = vnode.getTypeVariable();
-							}
+                                methodOwnerType = vnode.getTypeVariable();
+                            }
 
-							// try property
-							Optional<Property> property = this.getSemanticContext().currentScope().getCurrentType()
-									.getPropertyByName(varName);
+                            // try property
+                            Optional<Property> property = this.getSemanticContext().currentScope().getCurrentType()
+                                    .getPropertyByName(varName);
 
-							if (!property.isPresent()) {
+                            if (!property.isPresent()) {
 
-								// try a super property
-								property = this.getSemanticContext().currentScope().getCurrentType()
-										.getSuperDefinition().getPropertyByName(varName);
+                                // try a super property
+                                property = this.getSemanticContext().currentScope().getCurrentType()
+                                        .getSuperDefinition().getPropertyByName(varName);
 
-								if (!property.isPresent()) {
-									throw new CompilationError(((QualifiedNameNode) access).getName()
-											+ " is not a valid field, property or object");
-								}
+                                if (!property.isPresent()) {
+                                    throw new CompilationError(((QualifiedNameNode) access).getName()
+                                            + " is not a valid field, property or object");
+                                }
 
-							}
+                            }
 
-							if (property.isPresent()) {
+                            if (property.isPresent()) {
 
-								FieldOrPropertyAccessNode p = new FieldOrPropertyAccessNode(varName);
-								p.setKind(FieldKind.PROPERTY);
-								p.setType(property.get().getReturningType());
+                                FieldOrPropertyAccessNode p = new FieldOrPropertyAccessNode(varName);
+                                p.setKind(FieldKind.PROPERTY);
+                                p.setType(property.get().getReturningType());
 
-								access.getParent().replace(access, p);
+                                access.getParent().replace(access, p);
 
-								methodOwnerType = p.getTypeVariable();
-							}
+                                methodOwnerType = p.getTypeVariable();
+                            }
 
-						} else {
-							VariableReadNode vnode = new VariableReadNode(varName, variableInfo);
+                        } else {
+                            VariableReadNode vnode = new VariableReadNode(varName, variableInfo);
 
-							access.getParent().replace(access, vnode);
+                            access.getParent().replace(access, vnode);
 
-							methodOwnerType = variableInfo.getTypeVariable();
-						}
+                            methodOwnerType = variableInfo.getTypeVariable();
+                        }
 
-					}
+                    }
 
-				} else if (access instanceof NameIdentifierNode) {
+                } else if (access instanceof NameIdentifierNode) {
 
-					TypeVariable ownerType = this.getSemanticContext().currentScope().searchVariable("this")
-							.getTypeVariable();
+                    TypeVariable ownerType = this.getSemanticContext().currentScope().searchVariable("this")
+                            .getTypeVariable();
 
-					Optional<TypedNode> typedNode = typeForName(access, ((NameIdentifierNode) access).getName());
+                    Optional<TypedNode> typedNode = typeForName(access, ((NameIdentifierNode) access).getName());
 
-					if (typedNode.isPresent()) {
-						methodOwnerType = typedNode.get().getTypeVariable();
+                    if (typedNode.isPresent()) {
+                        methodOwnerType = typedNode.get().getTypeVariable();
 
-						node.replace(access, (AstNode) typedNode.get());
-					} else {
-						methodOwnerType = ownerType;
-					}
+                        node.replace(access, (AstNode) typedNode.get());
+                    } else {
+                        methodOwnerType = ownerType;
+                    }
 
-				} else if (access instanceof TypedNode) {
-					methodOwnerType = ((TypedNode) access).getTypeVariable();
-				} else {
-					throw new CompilationError("Not supported yet");
-				}
+                } else if (access instanceof TypedNode) {
+                    methodOwnerType = ((TypedNode) access).getTypeVariable();
+                } else {
+                    throw new CompilationError("Not supported yet");
+                }
 
-				TypeDefinition def = ensureNotFundamental(methodOwnerType.getTypeDefinition());
+                TypeDefinition def = ensureNotFundamental(methodOwnerType.getTypeDefinition());
 
-				Optional<Method> method = resolveMethod(name, def, m.getCall());
+                Optional<Method> method = resolveMethod(name, def, m.getCall());
 
-				if (method.isPresent()) {
+                if (method.isPresent()) {
 
-					applyMethodCall(node, m, method.get());
-				} else {
+                    applyMethodCall(node, m, method.get());
+                } else {
 
-					// TODO consider named parameters for enhancements
+                    // TODO consider named parameters for enhancements
 
-					MethodParameter[] parameters = asMethodParameters(m.getCall().getArguments());
+                    MethodParameter[] parameters = asMethodParameters(m.getCall().getArguments());
 
-					MethodSignature signature = new MethodSignature(name, parameters);
+                    MethodSignature signature = new MethodSignature(name, parameters);
 
-					// search in enhancements
+                    // search in enhancements
 
-					if (!this.enhancements.isEmpty()) {
+                    if (!this.enhancements.isEmpty()) {
 
-						List<Method> found = new LinkedList<>();
+                        List<Method> found = new LinkedList<>();
 
-						for (Map.Entry<TypeVariable, List<TypeDefinition>> entry : this.enhancements.entrySet()) {
+                        for (Map.Entry<TypeVariable, List<TypeDefinition>> entry : this.enhancements.entrySet()) {
 
-							if (lenseTypeSystem.isAssignableTo(methodOwnerType, entry.getKey())) {
+                            if (LenseTypeSystem.isAssignableTo(methodOwnerType, entry.getKey())) {
 
-								for (TypeDefinition enhancement : entry.getValue()) {
-									method = enhancement.getMethodByPromotableSignature(signature);
-									if (method.isPresent()) {
-										found.add(method.get());
-									}
-								}
+                                for (TypeDefinition enhancement : entry.getValue()) {
+                                    method = enhancement.getMethodByPromotableSignature(signature);
+                                    if (method.isPresent()) {
+                                        found.add(method.get());
+                                    }
+                                }
 
-							}
-						}
+                            }
+                        }
 
-						if (found.size() == 1) {
-							// set method return type
+                        if (found.size() == 1) {
+                            // set method return type
 
-							applyMethodCall(node, m, found.get(0));
+                            applyMethodCall(node, m, found.get(0));
 
-							m.setStaticInvocation(true);
+                            m.setStaticInvocation(true);
 
-							return;
-						} else if (found.size() > 1) {
-							throw new CompilationError(node,
-									"More than one enhancement matches call to '" + name + "' in type '" + def.getName()
-									+ "' with arguments " + Arrays.toString(parameters)
-									+ ". Please, desambiguate");
-						}
+                            return;
+                        } else if (found.size() > 1) {
+                            throw new CompilationError(node,
+                                    "More than one enhancement matches call to '" + name + "' in type '" + def.getName()
+                                            + "' with arguments " + Arrays.toString(parameters)
+                                            + ". Please, desambiguate");
+                        }
 
-					}
+                    }
 
-					throw new CompilationError(node, "There is no method named '" + name + "' in type '" + def.getName()
-					+ "' with arguments " + Arrays.toString(parameters) + " nor an enchament matches");
+                    throw new CompilationError(node, "There is no method named '" + name + "' in type '" + def.getName()
+                            + "' with arguments " + Arrays.toString(parameters) + " nor an enchament matches");
 
-				}
+                }
 
-			} else if (node instanceof NewInstanceCreationNode) {
+            } else if (node instanceof NewInstanceCreationNode) {
 
-				if (node instanceof lense.compiler.ast.LiteralCreation) {
-					return;
-				}
-				NewInstanceCreationNode n = (NewInstanceCreationNode) node;
+                if (node instanceof lense.compiler.ast.LiteralCreation) {
+                    return;
+                }
+                NewInstanceCreationNode n = (NewInstanceCreationNode) node;
 
-				TypeDefinition def = n.getTypeNode().getTypeVariable().getTypeDefinition();
+                TypeDefinition def = n.getTypeNode().getTypeVariable().getTypeDefinition();
 
 				ConstructorParameter[] parameters = n.getArguments() == null 
 						? new ConstructorParameter[0]
@@ -2534,958 +2529,1158 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 									: def.getConstructorByNameAndPromotableParameters(n.getName(), parameters);
 								
 
-							if (!constructor.isPresent()) {
-								throw new CompilationError(n, "Constructor " + def.getName() + "("
-										+ Stream.of(parameters).map(cp -> cp.toString()).collect(Collectors.joining(","))
-										+ ") is not defined");
-							}
-						}
+                    if (!constructor.isPresent()) {
+                        throw new CompilationError(n, "Constructor " + def.getName() + "("
+                                + Stream.of(parameters).map(cp -> cp.toString()).collect(Collectors.joining(","))
+                                + ") is not defined");
+                    }
+                }
 
-						n.setConstructor(constructor.get());
+                n.setConstructor(constructor.get());
 
-						if (n.getArguments() != null) {
+                if (n.getArguments() != null) {
 
-							List<CallableMemberMember<Constructor>> methodParameters = n.getConstructor().getParameters();
+                    List<CallableMemberMember<Constructor>> methodParameters = n.getConstructor().getParameters();
 
-							if (methodParameters.size() != n.getArguments().getChildren().size()) {
-								throw new CompilationError(node, "Argument count does not match parameters count");
-							}
+                    if (methodParameters.size() != n.getArguments().getChildren().size()) {
+                        throw new CompilationError(node, "Argument count does not match parameters count");
+                    }
 
-							Map<String, Integer> orderedParamNames = new LinkedHashMap<>();
+                    Map<String, Integer> orderedParamNames = new LinkedHashMap<>();
 
-							for (int i = 0; i < methodParameters.size(); i++) {
-								ConstructorParameter param = (ConstructorParameter) methodParameters.get(i);
-								orderedParamNames.put(param.getName(), i);
-							}
+                    for (int i = 0; i < methodParameters.size(); i++) {
+                        ConstructorParameter param = (ConstructorParameter) methodParameters.get(i);
+                        orderedParamNames.put(param.getName(), i);
+                    }
 
-							ReorderArguments(n, orderedParamNames);
+                    ReorderArguments(n, orderedParamNames);
 
-							for (int i = 0; i < methodParameters.size(); i++) {
-								ConstructorParameter param = (ConstructorParameter) methodParameters.get(i);
-								ArgumentListItemNode arg = (ArgumentListItemNode) n.getArguments().getChildren().get(i);
-								arg.setExpectedType(param.getType());
+                    for (int i = 0; i < methodParameters.size(); i++) {
+                        ConstructorParameter param = (ConstructorParameter) methodParameters.get(i);
+                        ArgumentListItemNode arg = (ArgumentListItemNode) n.getArguments().getChildren().get(i);
+                        arg.setExpectedType(param.getType());
+                        
+                        promoteNodeType( arg.getFirstChild() , param.getType());
+                    }
+                }
 
-							}
-						}
+            } else if (node instanceof ReturnNode) {
+                ReturnNode n = (ReturnNode) node;
 
-			} else if (node instanceof ReturnNode) {
-				ReturnNode n = (ReturnNode) node;
+                if (this.getSemanticContext().currentScope().getParent() == null) {
+                    throw new CompilationError(n, "Return clause only can be used inside statments");
+                }
 
-				if (this.getSemanticContext().currentScope().getParent() == null) {
-					throw new CompilationError(n, "Return clause only can be used inside statments");
-				}
+                // escape analysis hint
+                if (!n.getChildren().isEmpty() && (n.getChildren().get(0) instanceof VariableReadNode)) {
+                    VariableReadNode vr = (VariableReadNode) n.getChildren().get(0);
 
-				// escape analysis hint
-				if (!n.getChildren().isEmpty() && (n.getChildren().get(0) instanceof VariableReadNode)) {
-					VariableReadNode vr = (VariableReadNode) n.getChildren().get(0);
+                    this.getSemanticContext().currentScope().searchVariable(vr.getName()).markEscapes();
+                }
 
-					this.getSemanticContext().currentScope().searchVariable(vr.getName()).markEscapes();
-				}
+                // mark variable in the method scope.
+                VariableInfo returnVariable = this.getSemanticContext().currentScope()
+                        .searchVariable("@returnOfMethod");
 
-				// mark variable in the method scope.
-				VariableInfo returnVariable = this.getSemanticContext().currentScope()
-						.searchVariable("@returnOfMethod");
+                TypeVariable union = typeSystem.unionOf(returnVariable.getTypeVariable(), n.getTypeVariable());
 
-				TypeVariable union = typeSystem.unionOf(returnVariable.getTypeVariable(), n.getTypeVariable());
+                returnVariable.setTypeVariable(union);
 
-				returnVariable.setTypeVariable(union);
+            } else if (node instanceof AccessorNode) {
 
-			} else if (node instanceof AccessorNode) {
+                AccessorNode m = (AccessorNode) node;
+                TypeVariable returnType = m.getParent().getType().getTypeVariable();
 
-				AccessorNode m = (AccessorNode) node;
-				TypeVariable returnType = m.getParent().getType().getTypeVariable();
+                if (!m.isAbstract() && !m.isImplicit()) {
 
-				if (!m.isAbstract() && !m.isImplicit()) {
+                    if (returnType != null && returnType.getTypeDefinition().equals(VOID)) {
+                        VariableInfo variable = this.getSemanticContext().currentScope()
+                                .searchVariable("@returnOfMethod");
 
-					if (returnType != null && returnType.getTypeDefinition().equals(VOID)) {
-						VariableInfo variable = this.getSemanticContext().currentScope()
-								.searchVariable("@returnOfMethod");
+                        if (variable != null && !variable.getTypeVariable().equals(VOID)) {
+                            throw new CompilationError("Method " + m.getParent().getName() + " cannot return a value");
+                        }
+                    } else {
+                        VariableInfo variable = this.getSemanticContext().currentScope()
+                                .searchVariable("@returnOfMethod");
 
-						if (variable != null && !variable.getTypeVariable().equals(VOID)) {
-							throw new CompilationError("Method " + m.getParent().getName() + " cannot return a value");
-						}
-					} else {
-						VariableInfo variable = this.getSemanticContext().currentScope()
-								.searchVariable("@returnOfMethod");
+                        if (!m.getParent().isNative() && variable == null) {
 
-						if (!m.getParent().isNative() && variable == null) {
+                            LenseTypeDefinition currentType = (LenseTypeDefinition) this.getSemanticContext()
+                                    .currentScope().getCurrentType();
+                            if (!currentType.isNative() && !currentType.isAbstract()
+                                    && (currentType.getKind() == LenseUnitKind.Class
+                                            || currentType.getKind() == LenseUnitKind.Object)) {
+                                throw new CompilationError(node,
+                                        "Method " + m.getParent().getName() + " must return a result of " + returnType);
+                            }
 
-							LenseTypeDefinition currentType = (LenseTypeDefinition) this.getSemanticContext()
-									.currentScope().getCurrentType();
-							if (!currentType.isNative() && !currentType.isAbstract()
-									&& (currentType.getKind() == LenseUnitKind.Class
-									|| currentType.getKind() == LenseUnitKind.Object)) {
-								throw new CompilationError(node,
-										"Method " + m.getParent().getName() + " must return a result of " + returnType);
-							}
+                        }
 
-						}
+                    }
 
-					}
+                }
 
-				}
+            } else if (node instanceof MethodDeclarationNode) {
 
-			} else if (node instanceof MethodDeclarationNode) {
+                MethodDeclarationNode m = (MethodDeclarationNode) node;
+                TypeVariable returnType = m.getReturnType().getTypeParameter();
 
-				MethodDeclarationNode m = (MethodDeclarationNode) node;
-				TypeVariable returnType = m.getReturnType().getTypeVariable();
+                if (!m.isAbstract()) {
 
-				if (!m.isAbstract()) {
+                    if (!m.getReturnType().needsInference()) {
+                        if (returnType.getTypeDefinition().equals(VOID)) {
+                            VariableInfo variable = this.getSemanticContext().currentScope()
+                                    .searchVariable("@returnOfMethod");
 
-					if (!m.getReturnType().needsInference()) {
-						if (returnType.getTypeDefinition().equals(VOID)) {
-							VariableInfo variable = this.getSemanticContext().currentScope()
-									.searchVariable("@returnOfMethod");
+                            if (variable != null && !typeSystem.isAssignableTo(variable.getTypeVariable(), VOID)) {
+                                throw new CompilationError(node, "Method " + m.getName() + " cannot return a value");
+                            }
+                        } else {
+                            VariableInfo variable = this.getSemanticContext().currentScope()
+                                    .searchVariable("@returnOfMethod");
 
-							if (variable != null && !typeSystem.isAssignableTo(variable.getTypeVariable(), VOID)) {
-								throw new CompilationError(node, "Method " + m.getName() + " cannot return a value");
-							}
-						} else {
-							VariableInfo variable = this.getSemanticContext().currentScope()
-									.searchVariable("@returnOfMethod");
+							if (!m.isNative() && (variable == null || lenseTypeSystem.isNothing(variable.getTypeVariable()))) {
 
-							if (!m.isNative() && variable == null) {
+                                TypeDefinition currentType = this.getSemanticContext().currentScope().getCurrentType();
+                                if (currentType.getKind() == LenseUnitKind.Class) {
+                                    throw new CompilationError(node,
+                                            "Method " + m.getName() + " must return a result of " + returnType);
+                                }
+                            }
 
-								TypeDefinition currentType = this.getSemanticContext().currentScope().getCurrentType();
-								if (currentType.getKind() == LenseUnitKind.Class) {
-									throw new CompilationError(node,
-											"Method " + m.getName() + " must return a result of " + returnType
-											+ ". Found type " + currentType.getName());
-								}
-							}
+                            if (!LenseTypeSystem.isAssignableTo(variable.getTypeVariable(), returnType)) {
 
-							if (!typeSystem.isAssignableTo(variable.getTypeVariable(), returnType)) {
+                                if (!typeSystem.isPromotableTo(variable.getTypeVariable(), returnType)) {
+                                    throw new CompilationError(node,
+                                            variable.getTypeVariable() + " is not assignable to " + returnType + " in the return of method " + m.getName());
+                                } else {
+                                    // TODO promote
 
-								if (!typeSystem.isPromotableTo(variable.getTypeVariable(), returnType)) {
-									throw new CompilationError(node,
-											variable.getTypeVariable() + " is not assignable to " + returnType
-											+ " in the return of method " + m.getName());
-								} else {
-									// TODO promote
+                                    Collection<ReturnNode> allReturns = m.getBlock().findAllReturnNodes();
 
-									Collection<ReturnNode> allReturns = m.getBlock().findAllReturnNodes();
+                                    if (allReturns.isEmpty()) {
+                                        throw new CompilationError(node,
+                                                variable.getTypeVariable() + " no return instruction found");
+                                    }
 
-									if (allReturns.isEmpty()) {
-										throw new CompilationError(node,
-												variable.getTypeVariable() + " no return instruction found");
-									}
-
-									Optional<Constructor> op = returnType.getTypeDefinition()
+                                    Optional<Constructor> op = returnType.getTypeDefinition()
 											.getConstructorByParameters(new ConstructorParameter(variable.getTypeVariable()));
 
-									for (ReturnNode rn : allReturns) {
-										NewInstanceCreationNode cn = NewInstanceCreationNode.of(returnType, op.get(),
-												rn.getChildren().get(0));
-										cn.getCreationParameters().getTypeParametersListNode()
-										.add(new GenericTypeParameterNode(new TypeNode(returnType)));
+                                    for (ReturnNode rn : allReturns) {
+                                        NewInstanceCreationNode cn = NewInstanceCreationNode.of(op.get(),
+                                                rn.getChildren().get(0));
+                                        cn.getCreationParameters().getTypeParametersListNode()
+                                                .add(new GenericTypeParameterNode(new TypeNode(returnType)));
 
-										ReturnNode nr = new ReturnNode();
-										nr.add(cn);
+                                        ReturnNode nr = new ReturnNode();
+                                        nr.add(cn);
 
-										rn.getParent().replace(rn, nr);
-									}
+                                        rn.getParent().replace(rn, nr);
+                                    }
 
-								}
-							}
+                                }
+                            }
 
-						}
+                        }
 
-					}
+                    }
 
-				} else {
-					if (this.getSemanticContext().currentScope().getCurrentType()
-							.getKind() == LenseUnitKind.Interface) {
-						m.setVisibility(Visibility.Public);
-						m.setAbstract(true);
-					}
+                } else {
+                    if (this.getSemanticContext().currentScope().getCurrentType()
+                            .getKind() == LenseUnitKind.Interface) {
+                        m.setVisibility(Visibility.Public);
+                        m.setAbstract(true);
+                    }
 
-				}
+                }
 
-			} else if (node instanceof ClassTypeNode) {
+            } else if (node instanceof ClassTypeNode) {
 
-				ClassTypeNode t = (ClassTypeNode) node;
-				if (t.getInterfaces() != null) {
+                ClassTypeNode t = (ClassTypeNode) node;
+                if (t.getInterfaces() != null) {
 
-					for (AstNode n : t.getInterfaces().getChildren()) {
-						TypeNode tn = (TypeNode) n;
-						TypeDefinition typeVariable = ensureNotFundamental(tn.getTypeVariable().getTypeDefinition());
-						if (typeVariable.getKind() != LenseUnitKind.Interface) {
-							throw new CompilationError(t,
-									t.getName() + " cannot implement " + typeVariable.getName() + " because "
-											+ typeVariable.getName() + " it is a " + typeVariable.getKind()
-											+ " and not an interface");
-						}
-					}
-				}
+                    for (AstNode n : t.getInterfaces().getChildren()) {
+                        TypeNode tn = (TypeNode) n;
+                        TypeDefinition typeVariable = ensureNotFundamental(tn.getTypeVariable().getTypeDefinition());
+                        if (typeVariable.getKind() != LenseUnitKind.Interface) {
+                            throw new CompilationError(t,
+                                    t.getName() + " cannot implement " + typeVariable.getName() + " because "
+                                            + typeVariable.getName() + " it is a " + typeVariable.getKind()
+                                            + " and not an interface");
+                        }
+                    }
+                }
 
-				if (t.isAlgebric() && !t.isAbstract()) {
-					throw new CompilationError(t, t.getName()
-							+ " is algebric but is not marked abstract. Make it abstract or remove children types declarations.");
-				}
+                if (t.isAlgebric() && !t.isAbstract()) {
+                    throw new CompilationError(t, t.getName()
+                            + " is algebric but is not marked abstract. Make it abstract or remove children types declarations.");
+                }
+                
+                t.isAsStringDefined(t.getTypeDefinition().getMethodBySignature(new MethodSignature("asString")).map(m -> m.getSuperMethod() != null ).orElse(false));
+                t.isHashValueDefined(t.getTypeDefinition().getMethodBySignature(new MethodSignature("hashValue")).map(m ->  m.getSuperMethod() != null ).orElse(false));
+                t.setEqualsToDefined(t.getTypeDefinition().getMethodBySignature(new MethodSignature("equalsTo", new MethodParameter(ANY) )).map(m -> m.getSuperMethod() != null).orElse(false));
+                
+                if (t.getKind().isValue()){
+                  
+                    if (!t.isEqualsToDefined() && !t.isHashValueDefined()){
+                        createSynteticEqualsAndHash(t);                      
+                    } else if ((!t.isEqualsToDefined() && t.isHashValueDefined()) || (t.isEqualsToDefined() && !t.isHashValueDefined())){
+                        throw new CompilationError(t, "Methods equalsTo and hashValue must be overrided together. ");
+                    }
+                 
+                    if (!t.isAsStringDefined()){
+                        createSynteticAsString(t);
+                    }
+                    
+                  
+                } else if ((!t.isEqualsToDefined() && t.isHashValueDefined()) || (t.isEqualsToDefined() && !t.isHashValueDefined())){
+                        throw new CompilationError(t, "Methods equalsTo and hashValue must be overrided together. ");
+                }
 
-			} else if (node instanceof ConditionalStatement) {
+            } else if (node instanceof ConditionalStatement) {
 
-				if (!((ConditionalStatement) node).getCondition().getTypeVariable().getTypeDefinition()
-						.equals(LenseTypeSystem.Boolean())) {
-					throw new CompilationError(
-							"Condition must be a Boolean value, found " + ((ConditionalStatement) node).getCondition()
-							.getTypeVariable().getTypeDefinition().getName());
+				TypeVariable conditionType = ((ConditionalStatement) node).getCondition().getTypeVariable();
+				
+				if (!this.lenseTypeSystem.isBoolean(conditionType)) {
+					throw new CompilationError(node, "Condition must be a Boolean value, found " + conditionType.getTypeDefinition());
 				}
 			} else if (node instanceof ForEachNode) {
 				ForEachNode n = (ForEachNode) node;
 
-				if (!typeSystem.isAssignableTo(n.getContainer().getTypeVariable(), LenseTypeSystem.Iterable())) {
+                if (!typeSystem.isAssignableTo(n.getContainer().getTypeVariable(), LenseTypeSystem.Iterable())) {
 
-					// verify correct type loading
+                    // verify correct type loading
 
-					TypeDefinition def = n.getContainer().getTypeVariable().getTypeDefinition();
-					TypeVariable g = this.getSemanticContext()
-							.resolveTypeForName(def.getName(), def.getGenericParameters().size()).get();
+                    TypeDefinition def = n.getContainer().getTypeVariable().getTypeDefinition();
+                    TypeVariable g = this.getSemanticContext()
+                            .resolveTypeForName(def.getName(), def.getGenericParameters().size()).get();
 
-					if (!typeSystem.isAssignableTo(g, LenseTypeSystem.Iterable())) {
-						throw new CompilationError(node,
-								"Can only iterate over an instance of " + LenseTypeSystem.Iterable());
-					}
+                    if (!typeSystem.isAssignableTo(g, LenseTypeSystem.Iterable())) {
+                        throw new CompilationError(node,
+                                "Can only iterate over an instance of " + LenseTypeSystem.Iterable());
+                    }
 
-				}
+                }
 
-				if (!typeSystem.isAssignableTo(
-						n.getContainer().getTypeVariable().getGenericParameters().get(0).getUpperBound(),
-						n.getVariableDeclarationNode().getTypeVariable())) {
-					throw new CompilationError(n.getVariableDeclarationNode().getTypeVariable().getSymbol()
-							+ " is not contained in " + n.getContainer().getTypeVariable());
-				}
+                if (!typeSystem.isAssignableTo(
+                        n.getContainer().getTypeVariable().getGenericParameters().get(0).getUpperBound(),
+                        n.getVariableDeclarationNode().getTypeVariable())) {
+                    throw new CompilationError(n.getVariableDeclarationNode().getTypeVariable().getSymbol()
+                            + " is not contained in " + n.getContainer().getTypeVariable());
+                }
 
-			} else if (node instanceof ParametersListNode) {
+            } else if (node instanceof ParametersListNode) {
 
-				for (AstNode n : node.getChildren()) {
-					FormalParameterNode var = (FormalParameterNode) n;
-					// mark this variables as initialized because they are
-					// parameters
-					this.getSemanticContext().currentScope().searchVariable(var.getName()).setInitialized(true);
-				}
-			} else if (node instanceof CatchOptionNode) {
+                for (AstNode n : node.getChildren()) {
+                    FormalParameterNode var = (FormalParameterNode) n;
+                    // mark this variables as initialized because they are
+                    // parameters
+                    this.getSemanticContext().currentScope().searchVariable(var.getName()).setInitialized(true);
+                }
+            } else if (node instanceof CatchOptionNode) {
 
-				TypeVariable exceptionType = ((CatchOptionNode) node).getExceptions().getTypeVariable();
-				if (!typeSystem.isAssignableTo(exceptionType, LenseTypeSystem.Exception())) {
-					throw new CompilationError("No exception of TypeDefinition " + exceptionType.getSymbol()
-					+ " can be thrown; an exception TypeDefinition must be a subclass of Exception");
-				}
+                TypeVariable exceptionType = ((CatchOptionNode) node).getExceptions().getTypeVariable();
+                if (!typeSystem.isAssignableTo(exceptionType, LenseTypeSystem.Exception())) {
+                    throw new CompilationError("No exception of TypeDefinition " + exceptionType.getSymbol()
+                            + " can be thrown; an exception TypeDefinition must be a subclass of Exception");
+                }
 
-			} else if (node instanceof SwitchOption) {
+            } else if (node instanceof SwitchOption) {
 
-				final SwitchOption s = (SwitchOption) node;
-				if (!s.isDefault()) {
-					boolean literal = s.getValue() instanceof LiteralExpressionNode;
-					if (!literal) {
-						boolean object = s.getValue() instanceof ObjectReadNode;
+                final SwitchOption s = (SwitchOption) node;
+                if (!s.isDefault()) {
+                    boolean literal = s.getValue() instanceof LiteralExpressionNode;
+                    if (!literal) {
+                        boolean object = s.getValue() instanceof ObjectReadNode;
 
-						if (!object) {
-							throw new CompilationError("Switch case option value must be a constant");
-						}
-					}
-				}
+                        if (!object) {
+                            throw new CompilationError("Switch case option value must be a constant");
+                        }
+                    }
+                }
 
-			}
-		}
-	}
+            }
+        }
+    }
 
-	private Optional<Method> resolveMethod(String methodName, TypeDefinition def, ArgumentListHolder holder) {
 
-		ArgumentListNode args = holder.getArguments();
+    private void createSynteticAsString(ClassTypeNode t) {
+        // TODO Auto-generate asString
+        
+    }
 
-		Set<String> mamedParams = new HashSet<>();
+    private void createSynteticEqualsAndHash(ClassTypeNode t) {
+        // define equals based on all properties
+        
+        MethodDeclarationNode equals = new MethodDeclarationNode();
+        equals.setName("equalsTo");
+        equals.setOverride(true);
+        equals.setReturnType(new TypeNode(LenseTypeSystem.Boolean()));
+        equals.setVisibility(Visibility.Public);
+        
+        ParametersListNode parameters = new ParametersListNode();
+        parameters.add(new FormalParameterNode("other", LenseTypeSystem.Any()));
+        equals.setParameters(parameters);
+        
+        BlockNode block = new BlockNode();
+        equals.setBlock(block);
+        
+        ReturnNode r = new ReturnNode();
+        block.add(r);
+        
+                
+        InstanceOfNode isOf = new InstanceOfNode();
+        isOf.add(new VariableReadNode("other"));
+        isOf.add(new TypeNode(t.getTypeDefinition()));
 
-		List<ArgumentListItemNode> arguments = args.getChildren(ArgumentListItemNode.class);
-		for (ArgumentListItemNode arg : arguments) {
-			if (arg.getName().isPresent()) {
-				if (!mamedParams.add(arg.getName().get())) {
-					throw new CompilationError(arg, "Duplicated named parameter '" + arg.getName().get()
-							+ "'. Each parameter can only be set once.");
-				}
-			} else if (!mamedParams.isEmpty()) {
-				throw new CompilationError(arg,
-						"All named parameters must be set after positional parameter. Parameter '" + arg.getName().get()
-						+ "' cannot be set at this position.");
-			}
-		}
+                  
+                
+        Deque<ExpressionNode> expressions = new LinkedList<>();
+        t.getTypeDefinition().getAllMembers().stream().filter( m -> m instanceof Property).map(m -> (Property)m).forEach( p -> {
+            
+            ComparisonNode c = new ComparisonNode(ComparisonNode.Operation.EqualTo);
+            
+            FieldOrPropertyAccessNode pa = new FieldOrPropertyAccessNode(p.getName());
+            pa.setKind(FieldKind.PROPERTY);
+            pa.setTypeVariable(p.getReturningType());
+            
+            c.add(pa);
+            
+            FieldOrPropertyAccessNode pb = new FieldOrPropertyAccessNode(p.getName());
+            pb.setKind(FieldKind.PROPERTY);
+            pb.setPrimary(new CastNode(new VariableReadNode("other"), t.getTypeDefinition()));
+            pb.setTypeVariable(p.getReturningType());
+            
+            c.add(pb);
+ 
+            expressions.add(c);
+            
+        });
+        
+        BooleanOperatorNode and = new BooleanOperatorNode(BooleanOperation.LogicShortAnd);
+        and.add(isOf);
+        
+        r.setValue(and);
+        
+        BooleanOperatorNode previousAnd = and;
+        while (expressions.size() != 1){
+            and = new BooleanOperatorNode(BooleanOperation.LogicShortAnd);
+            previousAnd.add(and);
+            and.add(expressions.removeFirst());
+            previousAnd = and;
+        }
+        
+        previousAnd.add(expressions.removeFirst());
+        
+        t.getBody().add(equals);
+        
+        t.setEqualsToDefined(true);
+        
+        
+        // hashValue
+        
+        TypeVariable hashValueType = this.getSemanticContext().resolveTypeForName("lense.core.lang.HashValue", 0).get();
+        
+        MethodDeclarationNode hash = new MethodDeclarationNode();
+        hash.setName("hashValue");
+        hash.setOverride(true);
+        hash.setReturnType(new TypeNode(hashValueType));
+        hash.setVisibility(Visibility.Public);
+        
+        parameters = new ParametersListNode();
+        hash.setParameters(parameters);
+        
+        block = new BlockNode();
+        hash.setBlock(block);
+        
+        r = new ReturnNode();
+        block.add(r);
+        
+                
+        NewInstanceCreationNode newConcat = new NewInstanceCreationNode();
+        newConcat.setTypeNode(new TypeNode(hashValueType));
+        
+        ExpressionNode access = newConcat;
+        Iterator<Property> it = t.getTypeDefinition().getAllMembers().stream().filter( m -> m instanceof Property).map(m -> (Property)m).iterator();
+        
+   
+        while (it.hasNext()){
+            Property  p = it.next();
+            
+            FieldOrPropertyAccessNode pa = new FieldOrPropertyAccessNode(p.getName());
+            pa.setKind(FieldKind.PROPERTY);
+            pa.setTypeVariable(p.getReturningType());
+            
+            MethodInvocationNode h = new MethodInvocationNode(pa , "hashValue" );
+            h.setTypeVariable(hashValueType);
+            
+            access = new MethodInvocationNode(access , "concat" , new ArgumentListItemNode(0, h));
+            access.setTypeVariable(hashValueType);
+        }
 
-		if (mamedParams.isEmpty()) {
-			// purely positional
+        r.setValue(access);
+        
+        t.getBody().add(hash);
+        
+        t.setHashValueDefined(true);
+    }
 
-			MethodParameter[] parameters = asMethodParameters(args);
+    private Optional<TypeVariable> tryPromoteEnds(
+            AstNode node, 
+            LenseTypeSystem typeSystem,
+            ExpressionNode left,
+            ExpressionNode right
+           ) {
+        
+        Optional<TypeVariable> oleft = Optional.ofNullable(left).map(s -> s.getTypeVariable());
+        Optional<TypeVariable> oright = Optional.ofNullable(right).map(s -> s.getTypeVariable());
 
-			MethodSignature signature = new MethodSignature(methodName, parameters);
+        if (oleft.isPresent() && oright.isPresent()) {
+            TypeVariable tleft = oleft.get();
+            TypeVariable tright = oright.get();
 
-			Optional<Method> method = def.getMethodBySignature(signature);
+            TypeDefinition leftDef = this.getSemanticContext()
+        			.resolveTypeForName(tleft.getTypeDefinition().getName(), tleft.getGenericParameters().size())
+        			.get().getTypeDefinition();
+            TypeDefinition rightDef = this.getSemanticContext()
+        			.resolveTypeForName(tright.getTypeDefinition().getName(),
+        					tright.getGenericParameters().size())
+                    .get().getTypeDefinition();
 
-			if (method.isPresent()) {
-				return method;
-			}
+            if (oleft.equals(oright)) {
+                return oleft;
+            } else if (typeSystem.isPromotableTo(leftDef, rightDef)) {
 
-			return def.getMethodByPromotableSignature(signature);
+                // cast left to right
 
-		} else {
-			List<Method> possibleMethods = def.getAllMembers().stream().filter(it -> it.isMethod())
-					.map(it -> (Method) it).filter(it -> it.getName().equals(methodName))
-					.filter(it -> it.getParameters().size() == args.getChildren().size()).collect(Collectors.toList());
+                promoteNodeType(left, tright);
 
-			outter: for (Method m : possibleMethods) {
+                return Optional.of(tright);
+            } else if (typeSystem.isPromotableTo(rightDef, leftDef)) {
+                // cast right to left
 
-				Set<String> set = new HashSet<>();
-				Map<String, Integer> orderedParamNames = new LinkedHashMap<>();
+                promoteNodeType(right, tleft);
 
-				int index = 0;
+                return Optional.of(tleft);
+            } else {
+                return Optional.empty();
+        		//throw new CompilationError(node, "Cannot create interval from " + left + " to " + right);
+            }
+        } else if (oleft.isPresent()) {
+            return oleft;
+        } else if (oright.isPresent()) {
+            return oright;
+        } else {
+            return Optional.empty();
+        }
 
-				Iterator<CallableMemberMember<Method>> itParams = m.getParameters().iterator();
-				Iterator<ArgumentListItemNode> itArgs = args.getChildren(ArgumentListItemNode.class).iterator();
-				while (itParams.hasNext()) {
-					ArgumentListItemNode arg = itArgs.next();
-					MethodParameter p = (MethodParameter) itParams.next();
-					set.add(p.getName());
-					orderedParamNames.put(p.getName(), index++);
+    }
 
-					if (!arg.getName().isPresent()) {
-						// positional. must match parameter
-						if (!LenseTypeSystem.isAssignableTo(((TypedNode) arg.getFirstChild()).getTypeVariable(),
-								p.getType())
-								&& !lenseTypeSystem.isPromotableTo(((TypedNode) arg.getFirstChild()).getTypeVariable(),
-										p.getType())) {
-							continue outter;
-						}
-					}
-				}
+    private Optional<Method> resolveMethod(String methodName, TypeDefinition def, ArgumentListHolder holder) {
 
-				for (String name : mamedParams) {
-					if (!set.contains(name)) {
-						continue outter;
-					}
-				}
+        ArgumentListNode args = holder.getArguments();
 
-				// compatible method
+        Set<String> mamedParams = new HashSet<>();
+
+        List<ArgumentListItemNode> arguments = args.getChildren(ArgumentListItemNode.class);
+        for (ArgumentListItemNode arg : arguments) {
+            if (arg.getName().isPresent()) {
+                if (!mamedParams.add(arg.getName().get())) {
+                    throw new CompilationError(arg, "Duplicated named parameter '" + arg.getName().get()
+                            + "'. Each parameter can only be set once.");
+                }
+            } else if (!mamedParams.isEmpty()) {
+                throw new CompilationError(arg,
+                        "All named parameters must be set after positional parameter. Parameter '" + arg.getName().get()
+                                + "' cannot be set at this position.");
+            }
+        }
+
+        if (mamedParams.isEmpty()) {
+            // purely positional
+
+            MethodParameter[] parameters = asMethodParameters(args);
+
+            MethodSignature signature = new MethodSignature(methodName, parameters);
+
+            Optional<Method> method = def.getMethodBySignature(signature);
+
+            if (method.isPresent()) {
+                return method;
+            }
+
+            return def.getMethodByPromotableSignature(signature);
+
+        } else {
+            List<Method> possibleMethods = def.getAllMembers().stream().filter(it -> it.isMethod())
+                    .map(it -> (Method) it).filter(it -> it.getName().equals(methodName))
+                    .filter(it -> it.getParameters().size() == args.getChildren().size()).collect(Collectors.toList());
+
+            outter: for (Method m : possibleMethods) {
+
+                Set<String> set = new HashSet<>();
+                Map<String, Integer> orderedParamNames = new LinkedHashMap<>();
+
+                int index = 0;
+
+                Iterator<CallableMemberMember<Method>> itParams = m.getParameters().iterator();
+                Iterator<ArgumentListItemNode> itArgs = args.getChildren(ArgumentListItemNode.class).iterator();
+                while (itParams.hasNext()) {
+                    ArgumentListItemNode arg = itArgs.next();
+                    MethodParameter p = (MethodParameter) itParams.next();
+                    set.add(p.getName());
+                    orderedParamNames.put(p.getName(), index++);
+
+                    if (!arg.getName().isPresent()) {
+                        // positional. must match parameter
+                        if (!LenseTypeSystem.isAssignableTo(((TypedNode) arg.getFirstChild()).getTypeVariable(),p.getType())
+                                && !lenseTypeSystem.isPromotableTo(((TypedNode) arg.getFirstChild()).getTypeVariable(), p.getType())
+                        ) {
+                            continue outter;
+                        }
+                    }
+                }
+
+                for (String name : mamedParams) {
+                    if (!set.contains(name)) {
+                        continue outter;
+                    }
+                }
+
+                // compatible method
 				// TODO generate function calls in source call order before reordering
 
-				AstNode topNode = resolveTopNode((AstNode) holder);
+                AstNode topNode = resolveTopNode((AstNode) holder);
 
-				ListIterator<ArgumentListItemNode> iterator = arguments.listIterator(arguments.size());
-				while (iterator.hasPrevious()) {
-					ArgumentListItemNode arg = iterator.previous();
+                ListIterator<ArgumentListItemNode> iterator = arguments.listIterator(arguments.size());
+                while (iterator.hasPrevious()) {
+                    ArgumentListItemNode arg = iterator.previous();
 
-					ExpressionNode exp = (ExpressionNode) arg.getFirstChild();
+                    ExpressionNode exp = (ExpressionNode) arg.getFirstChild();
 
-					if (arg.getName().isPresent() && !(exp instanceof LiteralExpressionNode)) {
+                    if (arg.getName().isPresent() && !(exp instanceof LiteralExpressionNode)) {
 
-						String variableName = "$" + arg.getScanPosition().getLineNumber() + "$" + arg.getName().get();
+                        String variableName = "$" + arg.getScanPosition().getLineNumber() + "$" + arg.getName().get();
 
-						VariableDeclarationNode declare = new VariableDeclarationNode(variableName,
-								exp.getTypeVariable(), exp);
+                        VariableDeclarationNode declare = new VariableDeclarationNode(variableName,
+                                exp.getTypeVariable(), exp);
 
-						VariableInfo varDef = this.getSemanticContext().currentScope().defineVariable(variableName,
-								exp.getTypeVariable(), topNode.getParent().getParent());
+                        VariableInfo varDef = this.getSemanticContext().currentScope().defineVariable(variableName,
+                                exp.getTypeVariable(), topNode.getParent().getParent());
 
-						VariableReadNode read = new VariableReadNode(variableName, varDef);
+                        VariableReadNode read = new VariableReadNode(variableName, varDef);
 
-						arg.replace(exp, read);
+                        arg.replace(exp, read);
 
-						topNode.getParent().addBefore(topNode, declare);
-					}
-				}
+                        topNode.getParent().addBefore(topNode, declare);
+                    }
+                }
 
-				ReorderArguments(holder, orderedParamNames);
+                ReorderArguments(holder, orderedParamNames);
 
-				return Optional.of(m);
-			}
+                return Optional.of(m);
+            }
 
-			return Optional.empty();
-		}
+            return Optional.empty();
+        }
 
-	}
+    }
 
-	private AstNode resolveTopNode(AstNode holder) {
+    private AstNode resolveTopNode(AstNode holder) {
 
-		if (holder.getParent() instanceof BlockNode) {
-			return holder;
-		}
+        if (holder.getParent() instanceof BlockNode) {
+            return holder;
+        }
 
-		return resolveTopNode(holder.getParent());
-	}
+        return resolveTopNode(holder.getParent());
+    }
 
-	private void applyMethodCall(AstNode node, MethodInvocationNode m, Method mthd) {
+    private void applyMethodCall(AstNode node, MethodInvocationNode m, Method mthd) {
 
-		m.setTypeMember(mthd);
-		m.setTypeVariable(mthd.getReturningType());
+        m.setTypeMember(mthd);
+        m.setTypeVariable(mthd.getReturningType());
 
-		List<CallableMemberMember<Method>> methodParameters = mthd.getParameters();
-		if (methodParameters.size() != m.getCall().getArguments().getChildren().size()) {
-			throw new CompilationError(m.getCall(), "Argument count does not match parameters count");
-		}
+        List<CallableMemberMember<Method>> methodParameters = mthd.getParameters();
+        if (methodParameters.size() != m.getCall().getArguments().getChildren().size()) {
+            throw new CompilationError(m.getCall(), "Argument count does not match parameters count");
+        }
 
-		Map<String, List<ArgumentListItemNode>> freeArguments = new HashMap<>();
+        Map<String, List<ArgumentListItemNode>> freeArguments = new HashMap<>();
 
-		for (int i = 0; i < methodParameters.size(); i++) {
-			MethodParameter param = (MethodParameter) methodParameters.get(i);
+        for (int i = 0; i < methodParameters.size(); i++) {
+            MethodParameter param = (MethodParameter) methodParameters.get(i);
 
-			// math expected argument with method parameter type
-			ArgumentListItemNode arg = m.getCall().getArguments().getChildren(ArgumentListItemNode.class).get(i);
-			arg.setExpectedType(param.getType());
+            // math expected argument with method parameter type
+            ArgumentListItemNode arg = m.getCall().getArguments().getChildren(ArgumentListItemNode.class).get(i);
+            arg.setExpectedType(param.getType());
 
-			TypedNode value = (TypedNode) arg.getChildren().get(0);
+            TypedNode value = (TypedNode) arg.getChildren().get(0);
 
-			// check assignability
-			if (!lenseTypeSystem.isAssignableTo(value.getTypeVariable(), param.getType())) {
+            // check assignability
+            if (!lenseTypeSystem.isAssignableTo(value.getTypeVariable(), param.getType())) {
 
-				if (!lenseTypeSystem.isPromotableTo(value.getTypeVariable(), param.getType())) {
-					throw new CompilationError(node,
-							"Cannot assign " + value.getTypeVariable().getTypeDefinition().getName() + " to "
-									+ param.getType().getTypeDefinition().getName());
-				}
+                if (!lenseTypeSystem.isPromotableTo(value.getTypeVariable(), param.getType())) {
+                    throw new CompilationError(node,
+                            "Cannot assign " + value.getTypeVariable().getTypeDefinition().getName() + " to "
+                                    + param.getType().getTypeDefinition().getName());
+                }
 
-				promoteNodeType(arg.getChildren().get(0), param.getType());
-			}
+                promoteNodeType(arg.getChildren().get(0), param.getType());
+            }
 
-			if (param.isMethodTypeBound()) {
-				addFreeTypes(methodParameters, freeArguments, param.getType(), arg);
-			}
+            if (param.isMethodTypeBound()) {
+                addFreeTypes(methodParameters, freeArguments, param.getType(), arg);
+            }
 
-		}
+        }
 
-		Map<String, TypeVariable> boundedTypes = new HashMap<>();
+        Map<String, TypeVariable> boundedTypes = new HashMap<>();
 
-		for (Map.Entry<String, List<ArgumentListItemNode>> entry : freeArguments.entrySet()) {
+        for (Map.Entry<String, List<ArgumentListItemNode>> entry : freeArguments.entrySet()) {
 
-			if (entry.getValue().size() > 1) {
-				TypeVariable previous = ((TypedNode) entry.getValue().get(0).getFirstChild()).getTypeVariable();
+            if (entry.getValue().size() > 1) {
+                TypeVariable previous = ((TypedNode) entry.getValue().get(0).getFirstChild()).getTypeVariable();
 
-				for (int i = 1; i < entry.getValue().size(); i++) {
-					TypeVariable current = ((TypedNode) entry.getValue().get(i).getFirstChild()).getTypeVariable();
+                for (int i = 1; i < entry.getValue().size(); i++) {
+                    TypeVariable current = ((TypedNode) entry.getValue().get(i).getFirstChild()).getTypeVariable();
 
-					if (!lenseTypeSystem.isPromotableTo(current, previous)) {
+                    if (!lenseTypeSystem.isPromotableTo(current, previous)) {
 
-						if (lenseTypeSystem.isPromotableTo(previous, current)) {
-							previous = current;
-						} else {
-							throw new CompilationError(node,
-									"Types " + previous.getTypeDefinition().getName() + " and "
-											+ current.getTypeDefinition().getName() + " cannot be bound to free type "
-											+ entry.getKey());
-						}
-
-					}
-				}
-
-				boundedTypes.put(entry.getKey(), previous);
-
-			} else {
-				TypeVariable previous = ((TypedNode) entry.getValue().get(0).getFirstChild()).getTypeVariable();
-				boundedTypes.put(entry.getKey(), previous);
-			}
-		}
-
-		m.setBoundedTypes(boundedTypes);
-	}
-
-	private void ReorderArguments(ArgumentListHolder m, Map<String, Integer> orderedParamNames) {
-		List<ArgumentListItemNode> argList = new ArrayList<>(m.getArguments().getChildren(ArgumentListItemNode.class));
-
-		if (argList.size() > 1) {
-			Collections.sort(argList, (a, b) -> {
-
-				if (!a.getName().isPresent() && !b.getName().isPresent()) {
-					return 0;
-				} else if (!a.getName().isPresent()) {
-					throw new CompilationError(a,
-							"All named parameters must be set after positional parameter. Parameter '"
-									+ b.getName().get() + "' cannot be set at this position.");
-				} else if (!b.getName().isPresent()) {
-					return 1;
-				}
-
-				Integer apos = orderedParamNames.get(a.getName().get());
-
-				if (apos == null) {
-					throw new CompilationError(a,
-							"Parameter '" + a.getName().get() + "' does not match any of the expected parameters");
-				}
-
-				Integer bpos = orderedParamNames.get(b.getName().get());
-
-				if (bpos == null) {
-					throw new CompilationError(a,
-							"Parameter '" + b.getName().get() + "' does not match any of the expected parameters");
-				}
-
-				return apos.compareTo(bpos);
-			});
-
-			Set<String> names = new HashSet<>();
-			Set<Integer> positons = new HashSet<>();
-			int positon = 0;
-			for (ArgumentListItemNode arg : argList) {
-				if (arg.getName().isPresent()) {
-					if (!names.add(arg.getName().get())) {
-						throw new CompilationError(arg, "Duplicated named parameter '" + arg.getName().get()
-								+ "'. Each parameter can only be set once.");
-					} else if (positons.contains(orderedParamNames.get(arg.getName().get()))) {
-						throw new CompilationError(arg, "Name parameter '" + arg.getName().get()
-								+ "' refers to an already set positional parameter. Each parameter can only be set once.");
-					}
-				} else {
-					positons.add(positon++);
-				}
-			}
-
-			m.setArguments(ArgumentListNode.of(argList));
-		}
-	}
-
-	private void addFreeTypes(List<CallableMemberMember<Method>> methodParameters,
-			Map<String, List<ArgumentListItemNode>> freeArguments, TypeVariable paramType, ArgumentListItemNode arg) {
-
-		if (paramType.getSymbol().isPresent()) {
-			String symbol = paramType.getSymbol().get();
-			List<ArgumentListItemNode> freeType = freeArguments.get(symbol);
-
-			if (freeType == null) {
-				freeType = new ArrayList<>(methodParameters.size());
-				freeArguments.put(symbol, freeType);
-			}
-
-			freeType.add(arg);
-		} else if (!paramType.getGenericParameters().isEmpty()) {
-			for (TypeVariable g : paramType.getGenericParameters()) {
-				addFreeTypes(methodParameters, freeArguments, g, arg);
-			}
-		}
-	}
-
-	private ExpressionNode ensureExpression(AstNode node) {
-		if (node instanceof IdentifierNode) {
-			throw new RuntimeException(node + " is not an expression");
-		} else if (node instanceof ExpressionNode) {
-			return (ExpressionNode) node;
-		} else {
-			throw new RuntimeException(node + " is not an expression");
-		}
-	}
-
-	private Optional<TypedNode> typeForName(AstNode access, String name) {
-
-		VariableInfo variable = this.getSemanticContext().currentScope().searchVariable(name);
-
-		if (variable != null) {
-			return Optional.of(new VariableReadNode(name, variable));
-		} else {
-
-			// can be a field
-
-			Optional<Field> field = currentType.getFieldByName(name);
-
-			if (field.isPresent()) {
-				return Optional.of(new FieldOrPropertyAccessNode(field.get()));
-			} else {
-
-				// can be a property
-				Optional<Property> property = currentType.getPropertyByName(name);
-
-				if (property.isPresent()) {
-					return Optional.of(new FieldOrPropertyAccessNode(property.get()));
-				} else {
-					throw new CompilationError(access, "Identifier " + name + " was not defined");
-				}
+                        if (lenseTypeSystem.isPromotableTo(previous, current)) {
+                            previous = current;
+                        } else {
+                            throw new CompilationError(node,
+                                    "Types " + previous.getTypeDefinition().getName() + " and "
+                                            + current.getTypeDefinition().getName() + " cannot be bound to free type "
+                                            + entry.getKey());
+                        }
+
+                    }
+                }
+
+                boundedTypes.put(entry.getKey(), previous);
+
+            } else {
+                TypeVariable previous = ((TypedNode) entry.getValue().get(0).getFirstChild()).getTypeVariable();
+                boundedTypes.put(entry.getKey(), previous);
+            }
+        }
+
+        m.setBoundedTypes(boundedTypes);
+    }
+
+    private void ReorderArguments(ArgumentListHolder m, Map<String, Integer> orderedParamNames) {
+        List<ArgumentListItemNode> argList = new ArrayList<>(m.getArguments().getChildren(ArgumentListItemNode.class));
+
+        if (argList.size() > 1) {
+            Collections.sort(argList, (a, b) -> {
+
+                if (!a.getName().isPresent() && !b.getName().isPresent()) {
+                    return 0;
+                } else if (!a.getName().isPresent()) {
+                    throw new CompilationError(a,
+                            "All named parameters must be set after positional parameter. Parameter '"
+                                    + b.getName().get() + "' cannot be set at this position.");
+                } else if (!b.getName().isPresent()) {
+                    return 1;
+                }
+
+                Integer apos = orderedParamNames.get(a.getName().get());
+
+                if (apos == null) {
+                    throw new CompilationError(a,
+                            "Parameter '" + a.getName().get() + "' does not match any of the expected parameters");
+                }
+
+                Integer bpos = orderedParamNames.get(b.getName().get());
+
+                if (bpos == null) {
+                    throw new CompilationError(a,
+                            "Parameter '" + b.getName().get() + "' does not match any of the expected parameters");
+                }
+
+                return apos.compareTo(bpos);
+            });
+
+            Set<String> names = new HashSet<>();
+            Set<Integer> positons = new HashSet<>();
+            int positon = 0;
+            for (ArgumentListItemNode arg : argList) {
+                if (arg.getName().isPresent()) {
+                    if (!names.add(arg.getName().get())) {
+                        throw new CompilationError(arg, "Duplicated named parameter '" + arg.getName().get()
+                                + "'. Each parameter can only be set once.");
+                    } else if (positons.contains(orderedParamNames.get(arg.getName().get()))) {
+                        throw new CompilationError(arg, "Name parameter '" + arg.getName().get()
+                                + "' refers to an already set positional parameter. Each parameter can only be set once.");
+                    }
+                } else {
+                    positons.add(positon++);
+                }
+            }
+
+            m.setArguments(ArgumentListNode.of(argList));
+        }
+    }
+
+    private void addFreeTypes(List<CallableMemberMember<Method>> methodParameters,
+            Map<String, List<ArgumentListItemNode>> freeArguments, TypeVariable paramType, ArgumentListItemNode arg) {
+
+        if (paramType.getSymbol().isPresent()) {
+            String symbol = paramType.getSymbol().get();
+            List<ArgumentListItemNode> freeType = freeArguments.get(symbol);
+
+            if (freeType == null) {
+                freeType = new ArrayList<>(methodParameters.size());
+                freeArguments.put(symbol, freeType);
+            }
+
+            freeType.add(arg);
+        } else if (!paramType.getGenericParameters().isEmpty()) {
+            for (TypeVariable g : paramType.getGenericParameters()) {
+                addFreeTypes(methodParameters, freeArguments, g, arg);
+            }
+        }
+    }
+
+    private ExpressionNode ensureExpression(AstNode node) {
+        if (node instanceof IdentifierNode) {
+            throw new RuntimeException(node + " is not an expression");
+        } else if (node instanceof ExpressionNode) {
+            return (ExpressionNode) node;
+        } else {
+            throw new RuntimeException(node + " is not an expression");
+        }
+    }
+
+    private Optional<TypedNode> typeForName(AstNode access, String name) {
+
+        VariableInfo variable = this.getSemanticContext().currentScope().searchVariable(name);
+
+        if (variable != null) {
+            return Optional.of(new VariableReadNode(name, variable));
+        } else {
+
+            // can be a field
+
+            Optional<Field> field = currentType.getFieldByName(name);
+
+            if (field.isPresent()) {
+                return Optional.of(new FieldOrPropertyAccessNode(field.get()));
+            } else {
+
+                // can be a property
+                Optional<Property> property = currentType.getPropertyByName(name);
+
+                if (property.isPresent()) {
+                    return Optional.of(new FieldOrPropertyAccessNode(property.get()));
+                } else {
+                    throw new CompilationError(access, "Identifier " + name + " was not defined");
+                }
 
-			}
-		}
-	}
+            }
+        }
+    }
 
-	private void promoteArithmeticOperatorToMethodCall(ExpressionNode parent, ExpressionNode leftExpression,
-			ExpressionNode rightExpression, ArithmeticOperation operation) {
+    private void promoteArithmeticOperatorToMethodCall(ExpressionNode parent, ExpressionNode leftExpression,
+            ExpressionNode rightExpression, ArithmeticOperation operation) {
 
-		TypeVariable left = ensureNotFundamental(leftExpression.getTypeVariable());
-		TypeVariable right = ensureNotFundamental(rightExpression.getTypeVariable());
+        TypeVariable left = ensureNotFundamental(leftExpression.getTypeVariable());
+        TypeVariable right = ensureNotFundamental(rightExpression.getTypeVariable());
 
-		if (left.equals(right) && left.getTypeDefinition().equals(LenseTypeSystem.String())) {
-			// String concat
-			if (operation != ArithmeticOperation.Concatenation) {
-				throw new CompilationError(parent,
-						"Operation " + operation.equivalentMethod() + " is not defined for type String");
-			}
+        if (left.equals(right) && left.getTypeDefinition().equals(LenseTypeSystem.String())) {
+            // String concat
+            if (operation != ArithmeticOperation.Concatenation) {
+                throw new CompilationError(parent,
+                        "Operation " + operation.equivalentMethod() + " is not defined for type String");
+            }
 
-			parent.setTypeVariable(left);
-
-			StringConcatenationNode c;
-			if (leftExpression instanceof StringConcatenationNode) {
-				c = (StringConcatenationNode) leftExpression;
-				c.add(rightExpression);
-			} else {
-				c = new StringConcatenationNode();
-				c.add(leftExpression);
-				c.add(rightExpression);
+            parent.setTypeVariable(left);
+
+            StringConcatenationNode c;
+            if (leftExpression instanceof StringConcatenationNode) {
+                c = (StringConcatenationNode) leftExpression;
+                c.add(rightExpression);
+            } else {
+                c = new StringConcatenationNode();
+                c.add(leftExpression);
+                c.add(rightExpression);
 
-			}
-			c.setTypeVariable(left);
-			parent.getParent().replace(parent, c);
+            }
+            c.setTypeVariable(left);
+            parent.getParent().replace(parent, c);
 
-			parent.getParent().replace(parent, c);
-		} else {
-			// validate division by zero
-
-			// find instance operator method
-			TypeDefinition type = ensureNotFundamental(left.getTypeDefinition());
+            parent.getParent().replace(parent, c);
+        } else {
+            // validate division by zero
 
-			if (type.equals(LenseTypeSystem.String())) {
+            // find instance operator method
+            TypeDefinition type = ensureNotFundamental(left.getTypeDefinition());
 
-				// String concat
-				Optional<Method> method = type.getMethodBySignature(new MethodSignature("asString"));
-
-				MethodInvocationNode convert = new MethodInvocationNode(method.get(), rightExpression);
-				convert.setTypeVariable(left);
-
-				StringConcatenationNode concat = new StringConcatenationNode();
-				concat.add(leftExpression);
-				concat.add(convert);
-				concat.setTypeVariable(left);
+            if (type.equals(LenseTypeSystem.String())) {
 
-				parent.getParent().replace(parent, concat);
-			} else if (operation == ArithmeticOperation.Division && leftExpression instanceof NumericValue
-					&& LenseTypeSystem.getInstance().isAssignableTo(right, LenseTypeSystem.Rational())) {
-				// natural / rational
+                // String concat
+                Optional<Method> method = type.getMethodBySignature(new MethodSignature("asString"));
 
-				MethodSignature signature = new MethodSignature("invert");
+                MethodInvocationNode convert = new MethodInvocationNode(method.get(), rightExpression);
+                convert.setTypeVariable(left);
 
-				Optional<Method> method = right.getTypeDefinition().getMethodBySignature(signature);
+                StringConcatenationNode concat = new StringConcatenationNode();
+                concat.add(leftExpression);
+                concat.add(convert);
+                concat.setTypeVariable(left);
 
-				MethodInvocationNode invertRational = new MethodInvocationNode(method.get(), rightExpression);
+                parent.getParent().replace(parent, concat);
+            } else if (operation == ArithmeticOperation.Division && leftExpression instanceof NumericValue
+                    && LenseTypeSystem.isAssignableTo(right, LenseTypeSystem.Rational())) {
+                // natural / rational
 
-				TypeVariable t = method.get().getReturningType();
-				if (t == null) {
-					throw new IllegalStateException("Type cannot be null");
-				}
-				invertRational.setTypeVariable(t);
+                MethodSignature signature = new MethodSignature("invert");
 
-				if (((NumericValue) leftExpression).isOne()) {
-					parent.getParent().replace(parent, invertRational);
+                Optional<Method> method = right.getTypeDefinition().getMethodBySignature(signature);
 
-				} else {
+                MethodInvocationNode invertRational = new MethodInvocationNode(method.get(), rightExpression);
 
-					signature = new MethodSignature("multiply", new MethodParameter(right));
+                TypeVariable t = method.get().getReturningType();
+                if (t == null) {
+                    throw new IllegalStateException("Type cannot be null");
+                }
+                invertRational.setTypeVariable(t);
 
-					method = right.getTypeDefinition().getMethodBySignature(signature);
+                if (((NumericValue) leftExpression).isOne()) {
+                    parent.getParent().replace(parent, invertRational);
 
-					leftExpression.setTypeVariable(right);
+                } else {
 
-					ArgumentListItemNode arg = new ArgumentListItemNode(0, leftExpression);
-					arg.setExpectedType(right);
+                    signature = new MethodSignature("multiply", new MethodParameter(right));
 
-					MethodInvocationNode multiply = new MethodInvocationNode(method.get(), invertRational, arg);
+                    method = right.getTypeDefinition().getMethodBySignature(signature);
 
-					t = method.get().getReturningType();
-					if (t == null) {
-						throw new IllegalStateException("Type cannot be null");
-					}
-					multiply.setTypeVariable(t);
-					parent.getParent().replace(parent, multiply);
+                    leftExpression.setTypeVariable(right);
 
-				}
+                    ArgumentListItemNode arg = new ArgumentListItemNode(0, leftExpression);
+                    arg.setExpectedType(right);
 
-			} else if (operation == ArithmeticOperation.Division && rightExpression instanceof NumericValue
-					&& ((NumericValue) rightExpression).isOne()) {
+                    MethodInvocationNode multiply = new MethodInvocationNode(method.get(), invertRational, arg);
 
-				parent.getParent().replace(parent, leftExpression);
+                    t = method.get().getReturningType();
+                    if (t == null) {
+                        throw new IllegalStateException("Type cannot be null");
+                    }
+                    multiply.setTypeVariable(t);
+                    parent.getParent().replace(parent, multiply);
 
-			} else {
-				MethodSignature signature = new MethodSignature(operation.equivalentMethod(),
-						new MethodParameter(right, "text"));
+                }
 
-				Optional<Method> method = type.getMethodBySignature(signature);
+            } else if (operation == ArithmeticOperation.Division && rightExpression instanceof NumericValue
+                    && ((NumericValue) rightExpression).isOne()) {
 
-				if (!method.isPresent()) {
+                parent.getParent().replace(parent, leftExpression);
 
-					method = type.getMethodByPromotableSignature(signature);
+            } else {
+                MethodSignature signature = new MethodSignature(operation.equivalentMethod(),
+                        new MethodParameter(right, "text"));
 
-					if (!method.isPresent()) {
-						// search static operator
-						throw new CompilationError(parent,
-								"Method " + operation.equivalentMethod() + "(" + right + ") is not defined in " + left);
-					} else {
-						// Promote
-						promote(parent, rightExpression, left, right);
-					}
-				}
+                Optional<Method> method = type.getMethodBySignature(signature);
 
-				ArgumentListItemNode arg = new ArgumentListItemNode(0, rightExpression);
-				arg.setExpectedType(rightExpression.getTypeVariable());
+                if (!method.isPresent()) {
 
-				MethodInvocationNode invokeOp = new MethodInvocationNode(method.get(), leftExpression, arg);
+                    method = type.getMethodByPromotableSignature(signature);
 
-				List<CallableMemberMember<Method>> methodParameters = method.get().getParameters();
-				if (methodParameters.size() != invokeOp.getCall().getArguments().getChildren().size()) {
-					throw new CompilationError(parent, "Argument count does not match parameters count");
-				}
+                    if (!method.isPresent()) {
+                        // search static operator
+                        throw new CompilationError(parent,
+                                "Method " + operation.equivalentMethod() + "(" + right + ") is not defined in " + left);
+                    } else {
+                        // Promote
+                        rightExpression = promote(parent, rightExpression, left, right);
+                    }
+                }
 
-				for (int i = 0; i < methodParameters.size(); i++) {
-					MethodParameter param = (MethodParameter) methodParameters.get(i);
-					ArgumentListItemNode a = (ArgumentListItemNode) invokeOp.getCall().getArguments().getChildren()
-							.get(i);
-					a.setExpectedType(param.getType());
-				}
+                ArgumentListItemNode arg = new ArgumentListItemNode(0, rightExpression);
+                arg.setExpectedType(rightExpression.getTypeVariable());
 
-				parent.getParent().replace(parent, invokeOp);
+                MethodInvocationNode invokeOp = new MethodInvocationNode(method.get(), leftExpression, arg);
 
-				TypeVariable t = method.get().getReturningType();
-				if (t == null) {
-					throw new IllegalStateException("Type cannot be null");
-				}
-				invokeOp.setTypeVariable(t);
+                List<CallableMemberMember<Method>> methodParameters = method.get().getParameters();
+                if (methodParameters.size() != invokeOp.getCall().getArguments().getChildren().size()) {
+                    throw new CompilationError(parent, "Argument count does not match parameters count");
+                }
 
-				parent.getParent().replace(parent, invokeOp);
-			}
-		}
-	}
+                for (int i = 0; i < methodParameters.size(); i++) {
+                    MethodParameter param = (MethodParameter) methodParameters.get(i);
+                    ArgumentListItemNode a = (ArgumentListItemNode) invokeOp.getCall().getArguments().getChildren().get(i);
+                    a.setExpectedType(param.getType());
 
-	private AstNode promoteNodeType(AstNode node, TypeVariable targetType) {
+                }
 
-		TypeVariable nodeType = ((TypedNode) node).getTypeVariable();
-		if (lenseTypeSystem.isAssignableTo(nodeType, targetType)) {
-			return node;
-		}
+                parent.getParent().replace(parent, invokeOp);
 
-		if (lenseTypeSystem.isMaybe(targetType)) {
+                TypeVariable t = method.get().getReturningType();
+                if (t == null) {
+                    throw new IllegalStateException("Type cannot be null");
+                }
+                invokeOp.setTypeVariable(t);
 
-			TypeVariable innerType = targetType.getGenericParameters().get(0);
+                parent.getParent().replace(parent, invokeOp);
+            }
+        }
+    }
 
-			AstNode promoted = promoteNodeType(node, innerType);
+    private AstNode promoteNodeType(AstNode node, TypeVariable targetType) {
 
-			Optional<Constructor> op = getSemanticContext().resolveTypeForName("lense.core.lang.Some", 1)
+        TypeVariable nodeType = ((TypedNode) node).getTypeVariable();
+        if (LenseTypeSystem.isAssignableTo(nodeType, targetType)) {
+            return node;
+        }
+
+        if (lenseTypeSystem.isMaybe(targetType)) {
+
+            if (lenseTypeSystem.isMaybe(nodeType)){
+                return node;
+            }
+            
+            TypeVariable innerType = targetType.getGenericParameters().get(0);
+
+            AstNode promoted = promoteNodeType(node, innerType);
+
+			final Optional<TypeVariable> typeofSome = getSemanticContext().resolveTypeForName("lense.core.lang.Some", 1);
+            Optional<Constructor> op = typeofSome
 					.flatMap(t -> t.getTypeDefinition().getConstructorByParameters(new ConstructorParameter(innerType)));
+           
+            TypeVariable someTypeSpec = LenseTypeSystem.specify(typeofSome.get(), innerType);
+            
+            // read parent before adding to new node (parent will change)
+            AstNode parent = node.getParent();
 
-			// read parent before adding to new node (parent will change)
-			AstNode parent = node.getParent();
+            NewInstanceCreationNode cn = NewInstanceCreationNode.of(someTypeSpec, op.get(), promoted);
+            cn.getCreationParameters().getTypeParametersListNode()
+                    .add(new GenericTypeParameterNode(new TypeNode(targetType)));
 
-			NewInstanceCreationNode cn = NewInstanceCreationNode.of(targetType, op.get(), promoted);
-			cn.getCreationParameters().getTypeParametersListNode()
-			.add(new GenericTypeParameterNode(new TypeNode(targetType)));
+            parent.replace(node, cn);
 
-			parent.replace(node, cn);
-
-			return cn;
-		}
-
-		if (!lenseTypeSystem.isPromotableTo(nodeType, targetType)) {
-
-			// TODO promote using extension
-			throw new CompilationError(node, nodeType + " is not assignable to " + targetType);
-		}
-
-		if (node instanceof NumericValue && LenseTypeSystem.isNumber(targetType.getTypeDefinition())) {
+            return cn;
+        } else if (node instanceof NumericValue && LenseTypeSystem.isNumber(targetType.getTypeDefinition())) {
 			((NumericValue) node).setTypeVariable(targetType);
 			return node;
-		} else {
+		} 
+		
+	    if (!lenseTypeSystem.isPromotableTo(nodeType, targetType)) {
+            // TODO promote using extension
+            throw new CompilationError(node, nodeType + " is not assignable to " + targetType);
+        } else {
 			Optional<Constructor> op = targetType.getTypeDefinition().getConstructorByParameters(new ConstructorParameter(nodeType));
 
-			// read parent before adding to new node (parent will change)
-			AstNode parent = node.getParent();
+            // read parent before adding to new node (parent will change)
+            AstNode parent = node.getParent();
 
-			NewInstanceCreationNode cn = NewInstanceCreationNode.of(targetType, op.get(), node);
-			cn.getCreationParameters().getTypeParametersListNode()
-			.add(new GenericTypeParameterNode(new TypeNode(targetType)));
+            NewInstanceCreationNode cn = NewInstanceCreationNode.of(op.get(), node);
+            cn.getCreationParameters().getTypeParametersListNode()
+                    .add(new GenericTypeParameterNode(new TypeNode(targetType)));
 
-			parent.replace(node, cn);
+            parent.replace(node, cn);
 
-			return cn;
-		}
+            return cn;
+        }
 
-	}
+    }
 
-	private void promote(LenseAstNode parent, ExpressionNode rightExpression, TypeVariable left, TypeVariable right) {
+	private ExpressionNode promote(LenseAstNode parent, ExpressionNode rightExpression, TypeVariable left, TypeVariable right) {
 
-		if (LenseTypeSystem.isAssignableTo(left, right)) {
-			return;
-		}
+        if (LenseTypeSystem.isAssignableTo(left, right)) {
+            return rightExpression;
+        }
 
-		Optional<Constructor> op = left.getTypeDefinition().getConstructorByParameters(new ConstructorParameter(right));
+        Optional<Constructor> op = left.getTypeDefinition().getConstructorByParameters(new ConstructorParameter(right));
 
-		if (!op.isPresent()) {
+        if (!op.isPresent()) {
 
-			// if they are numbers other option exist
-			throw new CompilationError(parent, "Implicit constructor not found to promote " + right + " to " + left);
-		}
+            // if they are numbers other option exist
+            throw new CompilationError(parent, "Implicit constructor not found to promote " + right + " to " + left);
+        }
 
-		if (rightExpression instanceof NumericValue) {
-			NumericValue n = (NumericValue) rightExpression;
+        if (rightExpression instanceof NumericValue) {
+            NumericValue n = (NumericValue) rightExpression;
 
-			n.setTypeVariable(left);
-		} else {
-			NewInstanceCreationNode cn = NewInstanceCreationNode.of(left, op.get(), rightExpression);
-			cn.getCreationParameters().getTypeParametersListNode()
-			.add(new GenericTypeParameterNode(new TypeNode(left)));
+            n.setTypeVariable(left);
 
-			parent.replace(rightExpression, cn);
-		}
+        } else {
+            NewInstanceCreationNode cn = NewInstanceCreationNode.of(op.get(), rightExpression);
+            cn.getCreationParameters().getTypeParametersListNode()
+                    .add(new GenericTypeParameterNode(new TypeNode(left)));
 
-	}
+            parent.replace(rightExpression, cn);
 
-	private TypeDefinition ensureNotFundamental(TypeDefinition type) {
-		if (type instanceof LoadedLenseTypeDefinition) {
-			return type;
-		} else if (type instanceof FundamentalLenseTypeDefinition) {
-			return getSemanticContext().resolveTypeForName(type.getName(), type.getGenericParameters().size())
-					.orElseThrow(() -> new RuntimeException(type.getName() + " has not found")).getTypeDefinition();
-		}
-		return type;
+            return cn;
+        }
 
-	}
+        return rightExpression;
+    }
 
-	private TypeVariable ensureNotFundamental(TypeVariable type) {
+    private TypeDefinition ensureNotFundamental(TypeDefinition type) {
+        if (type instanceof LoadedLenseTypeDefinition) {
+            return type;
+        } else if (type instanceof FundamentalLenseTypeDefinition) {
+            return getSemanticContext().resolveTypeForName(type.getName(), type.getGenericParameters().size())
+                    .orElseThrow(() -> new RuntimeException(type.getName() + " has not found")).getTypeDefinition();
+        }
+        return type;
 
-		type.ensureNotFundamental(t -> getSemanticContext()
-				.resolveTypeForName(t.getName(), t.getGenericParameters().size()).get().getTypeDefinition());
+    }
 
-		return type;
+    private TypeVariable ensureNotFundamental(TypeVariable type) {
 
-	}
+        type.ensureNotFundamental(t -> {
+         return getSemanticContext().resolveTypeForName(t.getName(), t.getGenericParameters() == null ? 0 : t.getGenericParameters().size()).get().getTypeDefinition();   
+        });
 
-	private void resolveFieldPropertyOrVariableName(AstNode node, FieldOrPropertyAccessNode m, TypeVariable currentType,
-			TypeVariable fieldOwnerType, String name) {
+        return type;
 
-		TypeDefinition def = currentType.getTypeDefinition();
-		Optional<Field> field = def.getFieldByName(name);
+    }
 
-		if (!field.isPresent()) {
+    private void resolveFieldPropertyOrVariableName(AstNode node, FieldOrPropertyAccessNode m, TypeVariable currentType,
+            TypeVariable fieldOwnerType, String name) {
 
-			// try variable
-			VariableInfo variable = this.getSemanticContext().currentScope().searchVariable(name);
+        TypeDefinition def = currentType.getTypeDefinition();
+        Optional<Field> field = def.getFieldByName(name);
 
-			if (variable == null) {
+        if (!field.isPresent()) {
 
-				Optional<Property> property = def.getPropertyByName(name);
+            // try variable
+            VariableInfo variable = this.getSemanticContext().currentScope().searchVariable(name);
 
-				if (!property.isPresent()) {
+            if (variable == null) {
 
-					// check possible object reference
+                Optional<Property> property = def.getPropertyByName(name);
 
-					Optional<TypeVariable> object = this.getSemanticContext().resolveTypeForName(name, 0);
+                if (!property.isPresent()) {
 
-					if (!object.isPresent()) {
-						throw new CompilationError(node, "Field " + name + " is not defined in " + fieldOwnerType);
-					}
+                    // check possible object reference
 
-					m.setTypeVariable(object.get());
+                    Optional<TypeVariable> object = this.getSemanticContext().resolveTypeForName(name, 0);
 
-					m.getParent().replace(m, new ObjectReadNode(object.get(), name));
+                    if (!object.isPresent()) {
+                        throw new CompilationError(node, "Field " + name + " is not defined in " + fieldOwnerType);
+                    }
 
-				} else {
-					m.setTypeVariable(property.get().getReturningType()); // TODO
-					// use
-					// typevariables
-					// all
-					// the
-					// way
-					m.setKind(FieldOrPropertyAccessNode.FieldKind.PROPERTY);
-				}
-			} else {
-				m.setTypeVariable(variable.getTypeVariable());
+                    m.setTypeVariable(object.get());
 
-				m.getParent().replace(m, new VariableReadNode(name, variable));
+                    m.getParent().replace(m, new ObjectReadNode(object.get(), name));
 
-			}
-		} else {
-			m.setTypeVariable(field.get().getReturningType());
-			m.setKind(FieldOrPropertyAccessNode.FieldKind.FIELD);
-		}
-	}
+                } else {
+                    m.setTypeVariable(property.get().getReturningType()); // TODO
+                    // use
+                    // typevariables
+                    // all
+                    // the
+                    // way
+                    m.setKind(FieldOrPropertyAccessNode.FieldKind.PROPERTY);
+                }
+            } else {
+                m.setTypeVariable(variable.getTypeVariable());
 
-	/**
-	 * @param methodOwnerType
-	 * @return
-	 */
-	private int countTupleSize(TypeDefinition methodOwnerType) {
-		int count = 1;
-		TypeVariable type = methodOwnerType.getGenericParameters().get(1).getUpperBound();
-		while (!LenseTypeSystem.isAssignableTo(type.getTypeDefinition(), LenseTypeSystem.Nothing())) {
-			count++;
+                m.getParent().replace(m, new VariableReadNode(name, variable));
 
-			type = type.getGenericParameters().get(1).getUpperBound();
-		}
-		return count;
-	}
+            }
+        } else {
+            m.setTypeVariable(field.get().getReturningType());
+            m.setKind(FieldOrPropertyAccessNode.FieldKind.FIELD);
+        }
+    }
 
-	/**
-	 * @param indexExpression
-	 */
-	private Optional<Integer> asConstantNumber(ExpressionNode indexExpression) {
-		if (indexExpression instanceof NumericValue) {
-			return Optional.of(((NumericValue) indexExpression).getValue().intValue());
-		} else {
-			return Optional.empty();
-		}
-	}
+    /**
+     * @param methodOwnerType
+     * @return
+     */
+    private int countTupleSize(TypeDefinition methodOwnerType) {
+        int count = 1;
+        TypeVariable type = methodOwnerType.getGenericParameters().get(1).getUpperBound();
+        while (!LenseTypeSystem.isAssignableTo(type.getTypeDefinition(), LenseTypeSystem.Nothing())) {
+            count++;
 
-	public ConstructorParameter[] asConstructorParameters(ArgumentListNode argumentListNode) {
-		MethodParameter[] params = asMethodParameters(argumentListNode);
-		ConstructorParameter[] cparams = new ConstructorParameter[params.length];
+            type = type.getGenericParameters().get(1).getUpperBound();
+        }
+        return count;
+    }
 
-		for (int i = 0; i < params.length; i++) {
-			cparams[i] = new ConstructorParameter(params[i].getType(), params[i].getName());
-		}
+    /**
+     * @param indexExpression
+     */
+    private Optional<Integer> asConstantNumber(ExpressionNode indexExpression) {
+        if (indexExpression instanceof NumericValue) {
+            return Optional.of(((NumericValue) indexExpression).getValue().intValue());
+        } else {
+            return Optional.empty();
+        }
+    }
 
-		return cparams;
+    public ConstructorParameter[] asConstructorParameters(ArgumentListNode argumentListNode) {
+        MethodParameter[] params = asMethodParameters(argumentListNode);
+        ConstructorParameter[] cparams = new ConstructorParameter[params.length];
 
-	}
+        for (int i = 0; i < params.length; i++) {
+            cparams[i] = new ConstructorParameter(params[i].getType(), params[i].getName());
+        }
 
-	public MethodParameter[] asMethodParameters(ArgumentListNode argumentListNode) {
-		return argumentListNode.getChildren().stream().map(a -> ((ArgumentListItemNode) a).getFirstChild()).map(v -> {
-			if (v instanceof VariableReadNode) {
-				VariableReadNode var = (VariableReadNode) v;
-				return new MethodParameter(var.getTypeVariable(), var.getName());
-			} else if (v instanceof MethodInvocationNode) {
-				MethodInvocationNode var = (MethodInvocationNode) v;
-				return new MethodParameter(var.getTypeVariable(), "methodParam");
-			} else if (v instanceof TypedNode) {
-				TypedNode var = (TypedNode) v;
-				if (var.getTypeVariable() == null) {
+        return cparams;
 
-					return null;
-					// int index =
-					// resolveCurrentTypeGenericTypeParameterIndex(var.getTypeParameter().getName());
-					// compiler.typesystem.TypeVariable tv = new
-					// MethodDeclaringTypeParameter(index);
-					//
-					// return new MethodParameter(tv, var());
-				} else {
-					return new MethodParameter(var.getTypeVariable(), "type");
-				}
+    }
 
-			} else if (v instanceof QualifiedNameNode) {
-				QualifiedNameNode qn = (QualifiedNameNode) v;
+    public MethodParameter[] asMethodParameters(ArgumentListNode argumentListNode) {
+        return argumentListNode.getChildren().stream().map(a -> ((ArgumentListItemNode) a).getFirstChild()).map(v -> {
+            if (v instanceof VariableReadNode) {
+                VariableReadNode var = (VariableReadNode) v;
+                return new MethodParameter(var.getTypeVariable(), var.getName());
+            } else if (v instanceof MethodInvocationNode) {
+                MethodInvocationNode var = (MethodInvocationNode) v;
+                return new MethodParameter(var.getTypeVariable(), "methodParam");
+            } else if (v instanceof TypedNode) {
+                TypedNode var = (TypedNode) v;
+                if (var.getTypeVariable() == null) {
 
-				Optional<TypeVariable> maybeType = this.getSemanticContext().resolveTypeForName(qn.getName(), 0);
+                    return null;
+                    // int index =
+                    // resolveCurrentTypeGenericTypeParameterIndex(var.getTypeParameter().getName());
+                    // compiler.typesystem.TypeVariable tv = new
+                    // MethodDeclaringTypeParameter(index);
+                    //
+                    // return new MethodParameter(tv, var());
+                } else {
+                    return new MethodParameter(var.getTypeVariable(), "type");
+                }
 
-				while (!maybeType.isPresent()) {
-					qn = qn.getPrevious();
-					if (qn != null) {
-						maybeType = this.getSemanticContext().resolveTypeForName((qn).getName(), 0);
-					} else {
-						break;
-					}
-				}
+            } else if (v instanceof QualifiedNameNode) {
+                QualifiedNameNode qn = (QualifiedNameNode) v;
 
-				if (!maybeType.isPresent()) {
-					throw new CompilationError(v, ((QualifiedNameNode) v).getName() + " is not a recognized type");
-				}
-				return new MethodParameter(maybeType.get(), "");
-			} else if (v instanceof IdentifierNode) {
-				VariableInfo var = this.getSemanticContext().currentScope()
-						.searchVariable(((IdentifierNode) v).getName());
+                Optional<TypeVariable> maybeType = this.getSemanticContext().resolveTypeForName(qn.getName(), 0);
 
-				if (var == null) {
-					throw new CompilationError(v, ((IdentifierNode) v).getName() + " is not a field or variable");
-				}
+                while (!maybeType.isPresent()) {
+                    qn = qn.getPrevious();
+                    if (qn != null) {
+                        maybeType = this.getSemanticContext().resolveTypeForName((qn).getName(), 0);
+                    } else {
+                        break;
+                    }
+                }
 
-				return new MethodParameter(var.getTypeVariable(), var.getName());
-			} else {
-				throw new RuntimeException();
-			}
-		}).collect(Collectors.toList()).toArray(new MethodParameter[argumentListNode.getChildren().size()]);
-	}
+                if (!maybeType.isPresent()) {
+                    throw new CompilationError(v, ((QualifiedNameNode) v).getName() + " is not a recognized type");
+                }
+                return new MethodParameter(maybeType.get(), "");
+            } else if (v instanceof IdentifierNode) {
+                VariableInfo var = this.getSemanticContext().currentScope()
+                        .searchVariable(((IdentifierNode) v).getName());
+
+                if (var == null) {
+                    throw new CompilationError(v, ((IdentifierNode) v).getName() + " is not a field or variable");
+                }
+
+                return new MethodParameter(var.getTypeVariable(), var.getName());
+            } else {
+                throw new RuntimeException();
+            }
+        }).collect(Collectors.toList()).toArray(new MethodParameter[argumentListNode.getChildren().size()]);
+    }
 
 }

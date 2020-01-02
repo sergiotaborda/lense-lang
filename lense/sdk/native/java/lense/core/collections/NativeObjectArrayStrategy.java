@@ -4,6 +4,7 @@ import java.util.Arrays;
 
 import lense.core.lang.Any;
 import lense.core.lang.reflection.Type;
+import lense.core.math.NativeNumberFactory;
 import lense.core.math.Natural;
 
  class NativeObjectArrayStrategy implements ArrayStrategy {
@@ -16,7 +17,7 @@ import lense.core.math.Natural;
 
 	@Override
 	public Array createArrayFrom(Natural size, Any seed) {
-		Any[] array = new Any[size.toPrimitiveInt()];
+		Any[] array = new Any[NativeNumberFactory.naturalToPrimitiveInt(size)];
 		Arrays.fill(array,seed);
 
 		return new NativeObjectArray(array, argumentType);

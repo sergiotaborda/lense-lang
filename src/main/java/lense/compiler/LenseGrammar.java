@@ -58,7 +58,7 @@ import lense.compiler.ast.ImplementedInterfacesNode;
 import lense.compiler.ast.ImportDeclarationsListNode;
 import lense.compiler.ast.ImportTypesListNode;
 import lense.compiler.ast.ImutabilityNode;
-import lense.compiler.ast.IndexedAccessNode;
+import lense.compiler.ast.IndexedPropertyReadNode;
 import lense.compiler.ast.IndexerPropertyDeclarationNode;
 import lense.compiler.ast.InferableTypeNode;
 import lense.compiler.ast.InstanceOfNode;
@@ -187,7 +187,7 @@ public class LenseGrammar extends AbstractLenseGrammar {
 			return Optional.of(new SymbolBasedToken(pos, text, TokenSymbol.LiteralDecimalNumber));
 		} else if (isVersionLiteral(text)) {
 			return Optional.of(new VersionLiteralToken(pos, text));
-		}
+		} 
 
 		return super.terminalMatch(pos, text);
 
@@ -248,11 +248,11 @@ public class LenseGrammar extends AbstractLenseGrammar {
 			} else if (end == 'L') {
 				throw new CompilationError("A decimal number cannot end with L");
 			} else if (end == 'd') {
-				return LenseTypeSystem.Decimal64();
+				return LenseTypeSystem.Float64();
 			} else if (end == 'f') {
-				return LenseTypeSystem.Decimal32();
+				return LenseTypeSystem.Float32();
 			} else if (end == 'm') {
-				return LenseTypeSystem.Decimal();
+				return LenseTypeSystem.Float();
 			} else if (end == 'i') {
 				return LenseTypeSystem.Imaginary();
 			}
@@ -263,15 +263,15 @@ public class LenseGrammar extends AbstractLenseGrammar {
 			} else if (end == 'S') {
 				return LenseTypeSystem.Short();
 			} else if (end == 'Z') {
-				return LenseTypeSystem.Int();
+				return LenseTypeSystem.Int32();
 			} else if (end == 'L') {
-				return LenseTypeSystem.Long();
+				return LenseTypeSystem.Int64();
 			} else if (end == 'd') {
-				return LenseTypeSystem.Decimal64();
+				return LenseTypeSystem.Float64();
 			} else if (end == 'f') {
-				return LenseTypeSystem.Decimal32();
+				return LenseTypeSystem.Float32();
 			} else if (end == 'm') {
-				return LenseTypeSystem.Decimal();
+				return LenseTypeSystem.Float();
 			} else if (end == 'i') {
 				return LenseTypeSystem.Imaginary();
 			}
@@ -782,13 +782,14 @@ public class LenseGrammar extends AbstractLenseGrammar {
 				p.setAstNode(r.get(0).getAstNode().get());
 			} else {
 
-				ClassTypeNode n = new ClassTypeNode(LenseUnitKind.Class);
-
+			
 				Modifiers modifiers = new Modifiers();
 
 				int nextNodeIndex = readModifiers(r, modifiers, QualifiedNameNode.class);
 
 				QualifiedNameNode qname = r.get(nextNodeIndex).getAstNode(QualifiedNameNode.class).get();
+
+			    ClassTypeNode n = new ClassTypeNode(modifiers.getImplementationModifier().isValueClass() ? LenseUnitKind.ValueClass : LenseUnitKind.Class);
 
 				n.setScanPosition(r.get(nextNodeIndex).getParserTreeNode().getScanPosition());
 				n.setName(qname.getName());
@@ -890,7 +891,7 @@ public class LenseGrammar extends AbstractLenseGrammar {
 				n.setAbstract(true);
 				n.setNative(false);
 				n.setVisibility(modifiers.getVisibility().getVisibility(Visibility.Private));
-
+				
 
 				n.setSuperType(new TypeNode(LenseTypeSystem.Any()));
 
@@ -948,7 +949,7 @@ public class LenseGrammar extends AbstractLenseGrammar {
 				if (modifiers.getAnnotations() != null) {
 					n.setAnnotations(modifiers.getAnnotations());
 				}
-
+				
 				n.setAbstract(modifiers.getImplementationModifier().isAbstract());
 				n.setNative(modifiers.getImplementationModifier().isNative());
 				n.setVisibility(modifiers.getVisibility().getVisibility(Visibility.Private));
@@ -1381,6 +1382,8 @@ public class LenseGrammar extends AbstractLenseGrammar {
 				node.setDefault(true);
 			} else if (semanticAttribute.isPresent() && semanticAttribute.get().equals("override")) {
 				node.setOverride(true);
+			} else if (semanticAttribute.isPresent() && semanticAttribute.get().equals("value")) {
+				node.setValueClass(true);
 			}
 			p.setAstNode(node);
 		});
@@ -2996,7 +2999,7 @@ public class LenseGrammar extends AbstractLenseGrammar {
 			if (r.size() == 1) {
 				p.setAstNode(r.get(0).getAstNode().get());
 			} else {
-				IndexedAccessNode node = new IndexedAccessNode();
+				IndexedPropertyReadNode node = new IndexedPropertyReadNode();
 
 				node.setAccess(ensureExpression(r.get(0).getAstNode().get()));
 				node.setArguments(r.get(2).getAstNode(ArgumentListNode.class).get());

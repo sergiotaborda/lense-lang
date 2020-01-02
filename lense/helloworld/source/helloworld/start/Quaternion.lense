@@ -2,7 +2,7 @@
 import lense.core.lang.PreBindable;
 import lense.core.lang.AssertionException;
 
-public class Quaternion {
+public value class Quaternion {
 
 	public constructor ( real : Real, i : Real, j : Real, k : Real);
 
@@ -42,7 +42,7 @@ public class Quaternion {
 
 	public plus(other : Whole ) : Quaternion {
 
-		return new Quaternion( this.real + new Real.valueOf(other) , this.i , this.j, this.k);
+		return new Quaternion( this.real + other.asReal() , this.i , this.j, this.k);
 	}
 
 	public plus(other : Imaginary ) : Quaternion {

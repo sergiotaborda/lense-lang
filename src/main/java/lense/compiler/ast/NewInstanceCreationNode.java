@@ -30,7 +30,10 @@ public class NewInstanceCreationNode extends ExpressionNode implements ArgumentL
 		return new NewInstanceCreationNode(left);
 	}
 
-
+	public static NewInstanceCreationNode of(Constructor constructor, AstNode param) {
+	    return of(constructor.getDeclaringType() , constructor, param);
+	}
+	
 	public static NewInstanceCreationNode of(TypeVariable type, Constructor constructor, AstNode param) {
 		ArgumentListItemNode arg = new ArgumentListItemNode(0, param);
 		arg.setExpectedType(constructor.getParameters().get(0).getType());
@@ -43,7 +46,11 @@ public class NewInstanceCreationNode extends ExpressionNode implements ArgumentL
 
 	}
 
-	public static NewInstanceCreationNode of(TypeVariable type, Constructor constructor,   AstNode ... params) {
+	public static NewInstanceCreationNode of(Constructor constructor,   AstNode ... params) {
+	    return of (constructor.getDeclaringType(), constructor, params);
+	}
+	
+	public static NewInstanceCreationNode of(TypeVariable type,Constructor constructor,   AstNode ... params) {
 
 		ArgumentListNode list = new ArgumentListNode();
 		int count=0;
@@ -75,6 +82,10 @@ public class NewInstanceCreationNode extends ExpressionNode implements ArgumentL
 		this(t, new ArgumentListNode());
 	}
 
+	public String toString(){
+	    return "new " + typeNode.getName() +  "(" + argumentList + ")";
+	}
+	
 	protected NewInstanceCreationNode (TypeNode t,ArgumentListNode args){
 		setTypeNode(t);
 

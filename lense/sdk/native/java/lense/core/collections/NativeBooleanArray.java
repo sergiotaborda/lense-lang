@@ -12,7 +12,9 @@ import lense.core.lang.Some;
 import lense.core.lang.java.PlatformSpecific;
 import lense.core.lang.reflection.JavaReifiedArguments;
 import lense.core.lang.reflection.Type;
+import lense.core.math.NativeNumberFactory;
 import lense.core.math.Natural;
+import lense.core.math.Natural64;
 
 @PlatformSpecific
 final class NativeBooleanArray extends Array implements SmallArray {
@@ -41,23 +43,23 @@ final class NativeBooleanArray extends Array implements SmallArray {
 	
 	@Override
 	public Any get(Natural index) {
-		if (index.toPrimitiveInt() >= array.length){
+		if (NativeNumberFactory.naturalToPrimitiveInt(index) >= array.length){
 			throw IllegalIndexException.constructor(/*"Index from " + size + " on is not available"*/);
 		}
-		return getAtPrimitiveIndex(index.toPrimitiveInt());
+		return getAtPrimitiveIndex(NativeNumberFactory.naturalToPrimitiveInt(index));
 	}
 	
 	@Override
 	public void set(Natural index, Any value) {
-		if (index.toPrimitiveInt() >= array.length){
+		if (NativeNumberFactory.naturalToPrimitiveInt(index) >= array.length){
 			throw IllegalIndexException.constructor(/*"Index from " + size + " on is not available"*/);
 		}
-		array[index.toPrimitiveInt()] = ((Boolean)value).toPrimitiveBoolean();
+		array[NativeNumberFactory.naturalToPrimitiveInt(index)] = ((Boolean)value).toPrimitiveBoolean();
 	}
 
 	@Override
 	public Natural getSize() {
-		return Natural.valueOfNative(array.length);
+		return Natural64.valueOfNative(array.length);
 	}
 
 	@Override
@@ -135,7 +137,7 @@ final class NativeBooleanArray extends Array implements SmallArray {
 		boolean val = ((Boolean)element).toPrimitiveBoolean();
 		for(int i =0; i < array.length; i++){
 			if (array[i] == val){ 
-				return Some.constructor( JavaReifiedArguments.getInstance().addType(lense.core.math.Natural.TYPE_RESOLVER), Natural.valueOfNative(i));
+				return Some.constructor( JavaReifiedArguments.getInstance().addType(lense.core.math.Natural.TYPE_RESOLVER), Natural64.valueOfNative(i));
 			}
 		}
 		return None.NONE;
@@ -156,19 +158,19 @@ final class NativeBooleanArray extends Array implements SmallArray {
 			
 			NativeBooleanArray n = (NativeBooleanArray)other;
 			
-			if (sourceIndex.toPrimitiveInt() < 0 || sourceIndex.toPrimitiveInt() >=  n.array.length  ) {
-				throw new IllegalArgumentException("sourceIndex out of bounds " + sourceIndex.toPrimitiveInt());
+			if (NativeNumberFactory.naturalToPrimitiveInt(sourceIndex) < 0 || NativeNumberFactory.naturalToPrimitiveInt(sourceIndex) >=  n.array.length  ) {
+				throw new IllegalArgumentException("sourceIndex out of bounds " + sourceIndex);
 			}
 			
-			if (destinationIndex.toPrimitiveInt() < 0 || destinationIndex.toPrimitiveInt() >=  n.array.length  ) {
-				throw new IllegalArgumentException("destinationIndex out of bounds " + destinationIndex.toPrimitiveInt());
+			if (NativeNumberFactory.naturalToPrimitiveInt(destinationIndex) < 0 || NativeNumberFactory.naturalToPrimitiveInt(destinationIndex) >=  n.array.length  ) {
+				throw new IllegalArgumentException("destinationIndex out of bounds " + destinationIndex);
 			}
 			
-			if (length.toPrimitiveInt() < 0 || destinationIndex.toPrimitiveInt() + length.toPrimitiveInt() >  n.array.length  ) {
-				throw new IllegalArgumentException("length out of bounds " + length.toPrimitiveInt());
+			if (NativeNumberFactory.naturalToPrimitiveInt(length) < 0 || NativeNumberFactory.naturalToPrimitiveInt(destinationIndex) +  NativeNumberFactory.naturalToPrimitiveInt(length) >  n.array.length  ) {
+				throw new IllegalArgumentException("length out of bounds " + length);
 			}
 			
-			System.arraycopy(this.array, sourceIndex.toPrimitiveInt(), n.array, destinationIndex.toPrimitiveInt(),length.toPrimitiveInt());
+			System.arraycopy(this.array, NativeNumberFactory.naturalToPrimitiveInt(sourceIndex), n.array, NativeNumberFactory.naturalToPrimitiveInt(destinationIndex) , NativeNumberFactory.naturalToPrimitiveInt(length));
 			
 			return other;
 		} else {

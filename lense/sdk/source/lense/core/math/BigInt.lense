@@ -1,7 +1,10 @@
 
 import lense.core.math.Integer;
+import lense.core.lang.String;
 
+public native value class BigInt implements Integer {
 
-public native class BigInt extends Integer{
-
+	public native constructor parse(other : String);
+	public native implicit constructor valueOf(other : Natural);
+	
 }

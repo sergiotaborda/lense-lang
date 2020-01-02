@@ -181,7 +181,7 @@ public abstract class AbstractLenseGrammar extends AbstractGrammar {
 		visibilityModifier.setRule(Terminal.of("public").or(Terminal.of("private").or(Terminal.of("protected"))));
 		varianceModifier.setRule(Terminal.of("in").or(Terminal.of("out").or(Terminal.of("inv").or(EmptyTerminal.instance()))));
 		implementationModifiers.setRule(implementationModifier.or(implementationModifiers.add(implementationModifier)));
-		implementationModifier.setRule(Terminal.of("abstract").or(Terminal.of("native").or(Terminal.of("sealed").or(Terminal.of("final").or(Terminal.of("override").or(Terminal.of("default")))))));
+		implementationModifier.setRule(Terminal.of("abstract").or(Terminal.of("native").or(Terminal.of("sealed").or(Terminal.of("final").or(Terminal.of("override").or(Terminal.of("default").or(Terminal.of("value"))))))));
 		annotations.setRule(annotation.or(annotations.add(annotation)));
 		annotation.setRule(Terminal.of("@").add(Identifier.instance()));
 		moduleDeclaration.setRule(Terminal.of("module").add(qualifiedName).add(Terminal.of("(")).add(VersionLiteral.instance()).add(Terminal.of(")")).add(moduleBody));
@@ -216,7 +216,7 @@ public abstract class AbstractLenseGrammar extends AbstractGrammar {
 		extendsInterfaceType.setRule(nonNullType.or(extendsInterfaceType.add(Terminal.of(",")).add(nonNullType)));
 		interfaceBody.setRule(Terminal.of("{").add(interfaceMemberDeclarations).add(Terminal.of("}")).or(Terminal.of("{").add(Terminal.of("}"))));
 		interfaceMemberDeclarations.setRule(interfaceMemberDeclaration.or(interfaceMemberDeclarations.add(interfaceMemberDeclaration)));
-		interfaceMemberDeclaration.setRule(abstractMethodDeclaration.or(abstractPropertyDeclaration.or(abstractIndexerDeclaration)));
+		interfaceMemberDeclaration.setRule(constructorDeclaration.or(abstractMethodDeclaration.or(abstractPropertyDeclaration.or(abstractIndexerDeclaration))));
 		abstractPropertyDeclaration.setRule(annotations.add(visibilityModifier).add(imutabilityModifier).add(Identifier.instance()).add(Terminal.of(":")).add(type).add(abstractPropertyHead).or(annotations.add(visibilityModifier).add(Identifier.instance()).add(Terminal.of(":")).add(type).add(abstractPropertyHead)).or(annotations.add(imutabilityModifier).add(Identifier.instance()).add(Terminal.of(":")).add(type).add(abstractPropertyHead)).or(annotations.add(Identifier.instance()).add(Terminal.of(":")).add(type).add(abstractPropertyHead)).or(visibilityModifier.add(imutabilityModifier).add(Identifier.instance()).add(Terminal.of(":")).add(type).add(abstractPropertyHead)).or(visibilityModifier.add(Identifier.instance()).add(Terminal.of(":")).add(type).add(abstractPropertyHead)).or(imutabilityModifier.add(Identifier.instance()).add(Terminal.of(":")).add(type).add(abstractPropertyHead)).or(Identifier.instance().add(Terminal.of(":")).add(type).add(abstractPropertyHead)));
 		abstractPropertyHead.setRule(Terminal.of("{").add(abstractPropertyMembers).add(Terminal.of("}")).or(EmptyTerminal.instance()));
 		abstractPropertyMembers.setRule(abstractPropertyMember.or(abstractPropertyMembers.add(abstractPropertyMember)));

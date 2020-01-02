@@ -24,7 +24,8 @@ public class PrimitiveTypeDefinition implements TypeDefinition {
 
 	public static final PrimitiveTypeDefinition BOOLEAN = new PrimitiveTypeDefinition("boolean", "Boolean");
 	public static final PrimitiveTypeDefinition CHAR = new PrimitiveTypeDefinition("char", "Character");
-	public static final PrimitiveTypeDefinition INT = new PrimitiveTypeDefinition("int", "Integer");
+	public static final PrimitiveTypeDefinition INT = new PrimitiveTypeDefinition("int", "Int32");
+	public static final PrimitiveTypeDefinition LONG = new PrimitiveTypeDefinition("long", "Int64");
 	
 	private String name;
 
@@ -37,6 +38,10 @@ public class PrimitiveTypeDefinition implements TypeDefinition {
 	
 	public String getWrapperName() {
 		return wrapperName;
+	}
+	
+	public String toString(){
+	    return name;
 	}
 	
 	@Override
@@ -220,5 +225,25 @@ public class PrimitiveTypeDefinition implements TypeDefinition {
 	public Optional<Constructor> getConstructorByImplicitAndPromotableParameters(boolean implicit,
 			ConstructorParameter... parameters) {
 		return Optional.empty();
+	}
+	
+	public boolean equals(Object other){
+	    return other instanceof TypeDefinition && equals((TypeDefinition)other);
+	}
+	
+	public boolean equals(TypeDefinition other){
+        if (other == null){
+            return false;
+        }
+        
+        if (other instanceof ErasedTypeDefinition){
+            return this.equals(((ErasedTypeDefinition) other).getPrimitiveType());
+        } else {
+            return this.name.equals(other.getName());
+        }
+    }
+	
+	public int hashCode(){
+	    return this.name.hashCode();
 	}
 }

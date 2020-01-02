@@ -3,6 +3,7 @@ package lense.core.lang.reflection;
 import java.util.ArrayList;
 import java.util.List;
 
+import lense.core.math.NativeNumberFactory;
 import lense.core.math.Natural;
 
 public class JavaReifiedArguments implements ReifiedArguments {
@@ -31,7 +32,7 @@ public class JavaReifiedArguments implements ReifiedArguments {
 
 	@Override
 	public TypeResolver typeAt(Natural index) {
-		return list.get(index.toPrimitiveInt());
+		return list.get(NativeNumberFactory.naturalToPrimitiveInt(index));
 	}
 	
 

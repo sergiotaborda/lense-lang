@@ -295,7 +295,7 @@ public final class JavalizeVisitor implements Visitor<AstNode>{
         else if (node instanceof MethodDeclarationNode){
         	MethodDeclarationNode m = (MethodDeclarationNode)node;
         	
-        	if (m.getSuperMethod() != null) {
+        	if (m.getSuperMethod() != null && !m.isAbstract()) {
         		
         		Method superMethod = m.getSuperMethod();
         		

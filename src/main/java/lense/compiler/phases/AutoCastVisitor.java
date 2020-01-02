@@ -5,7 +5,8 @@ import compiler.syntax.AstNode;
 import compiler.trees.VisitorNext;
 import lense.compiler.ast.CastNode;
 import lense.compiler.ast.FieldOrPropertyAccessNode;
-import lense.compiler.ast.IndexedAccessNode;
+import lense.compiler.ast.IndexedPropertyReadNode;
+import lense.compiler.ast.InstanceOfNode;
 import lense.compiler.ast.LenseAstNode;
 import lense.compiler.ast.QualifiedNameNode;
 import lense.compiler.ast.VariableReadNode;
@@ -69,9 +70,16 @@ public class AutoCastVisitor extends AbstractLenseVisitor  {
 					p.setPrimary(new VariableReadNode("this"));
 				} else {
 					VariableReadNode var = new VariableReadNode(p.getName());
-					CastNode cast = new CastNode(var, this.typeVariable.getTypeDefinition());
+					var.setVariableInfo(variable);
 					
-					node.getParent().replace(p, cast);
+					if (p.getParent() instanceof InstanceOfNode) {
+						node.getParent().replace(p, var);
+					} else {
+						CastNode cast = new CastNode(var, this.typeVariable.getTypeDefinition());
+						
+						node.getParent().replace(p, cast);
+					}
+				
 					
 				}
 				

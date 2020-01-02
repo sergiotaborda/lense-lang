@@ -4,6 +4,8 @@
 package lense.compiler.context;
 
 import java.math.BigDecimal;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 import compiler.syntax.AstNode;
@@ -25,6 +27,7 @@ public class VariableInfo {
 	private AstNode declaringNode;
     private BigDecimal min;
     private BigDecimal max;
+    private boolean includeMaximum;
 
 	/**
 	 * Constructor.
@@ -130,5 +133,32 @@ public class VariableInfo {
     public Optional<BigDecimal> getMaximum(){
         return Optional.ofNullable(this.max);
     }
-	
+
+    public boolean isIncludeMaximum() {
+        return includeMaximum;
+    }
+
+    public void setIncludeMaximum(boolean includeMaximum) {
+        this.includeMaximum = includeMaximum;
+    }
+
+    private Map<String, Object> properties = new HashMap<>();
+    
+    public <P> Optional<P> getProperty(String name, Class<P> type) {
+        if (properties.containsKey(name)){
+            try {
+                P p = type.cast(properties.get(name));
+                return Optional.of(p);
+            } catch (ClassCastException e){
+                return Optional.empty();
+            }
+        } else {
+            return Optional.empty();
+        }
+
+    }
+
+    public <P> void setProperty(String name, P value) {
+        properties.put(name, value);
+    }
 }

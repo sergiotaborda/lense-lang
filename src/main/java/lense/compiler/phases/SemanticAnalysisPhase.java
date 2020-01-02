@@ -83,7 +83,8 @@ public class SemanticAnalysisPhase implements CompilerPhase {
 			
 			for (ClassTypeNode ct : types.getTypes()){
 				// cannot share semantic context among classes
-				if (!ct.isNative()) {
+				
+				if (!ct.isNative()) { // TODO remove this condition
 
 					// attach the repository with loaded types
 					SemanticContext ctx = ct.getSemanticContext().withRepository(typeRepository);
@@ -93,7 +94,11 @@ public class SemanticAnalysisPhase implements CompilerPhase {
 
 					hasAlgebric = hasAlgebric || ct.isAlgebric();
 
-				} 
+			   }  else {
+				   if (ct.getKind().isValue() && ct.getSuperType() != null) {
+					   throw new CompilationError(ct, "Value classes cannot inherit from other classes. They can only implement interfaces.");
+				   }
+			   }
 			}
 
 			if (hasAlgebric) {

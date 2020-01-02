@@ -4,6 +4,7 @@ import java.util.Arrays;
 
 import lense.core.lang.Any;
 import lense.core.lang.reflection.Type;
+import lense.core.math.NativeNumberFactory;
 import lense.core.math.Natural;
 
  class NativeBooleanArrayStrategy implements ArrayStrategy {
@@ -16,7 +17,7 @@ import lense.core.math.Natural;
 	@Override
 	public Array createArrayFrom(Natural size, Any seed) {
 		
-		boolean[] array = new boolean[size.toPrimitiveInt()];
+		boolean[] array = new boolean[ NativeNumberFactory.naturalToPrimitiveInt(size)];
 		Arrays.fill(array, ((lense.core.lang.Boolean)seed).toPrimitiveBoolean());
 		
 		return new NativeBooleanArray(array);
@@ -37,7 +38,7 @@ import lense.core.math.Natural;
 
 	@Override
 	public Array createArrayFrom(Sequence seq) {
-		NativeBooleanArray array = new NativeBooleanArray(seq.getSize().toPrimitiveInt());
+		NativeBooleanArray array = new NativeBooleanArray( NativeNumberFactory.naturalToPrimitiveInt(seq.getSize()));
 		Iterator iterator = seq.getIterator();
 		int i=0;
 		while(iterator.moveNext()){

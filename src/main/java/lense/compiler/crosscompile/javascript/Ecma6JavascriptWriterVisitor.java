@@ -65,10 +65,10 @@ import lense.compiler.ast.VariableDeclarationNode;
 import lense.compiler.ast.VariableReadNode;
 import lense.compiler.ast.VariableWriteNode;
 import lense.compiler.ast.WhileNode;
-import lense.compiler.crosscompile.BoxingPointNode;
-import lense.compiler.crosscompile.PrimitiveBooleanBox;
+import lense.compiler.crosscompile.ErasurePointNode;
+import lense.compiler.crosscompile.PrimitiveBox;
 import lense.compiler.crosscompile.PrimitiveBooleanOperationsNode;
-import lense.compiler.crosscompile.PrimitiveBooleanUnbox;
+import lense.compiler.crosscompile.PrimitiveUnbox;
 import lense.compiler.crosscompile.PrimitiveBooleanValue;
 import lense.compiler.type.LenseTypeDefinition;
 import lense.compiler.type.LenseUnitKind;
@@ -151,22 +151,22 @@ public class Ecma6JavascriptWriterVisitor implements Visitor<AstNode> {
 					throw new UnsupportedOperationException();
 				}
 				return VisitorNext.Siblings;
-			} else if (node instanceof PrimitiveBooleanUnbox){
+			} else if (node instanceof PrimitiveUnbox){
 
 				writer.print("/* BOXING OUT */(");
 				TreeTransverser.transverse(node.getChildren().get(0), this);
 				writer.print(").toPrimitiveBoolean()");
 
 				return VisitorNext.Siblings;
-			} else if (node instanceof PrimitiveBooleanBox){
+			} else if (node instanceof PrimitiveBox){
 
 				writer.print("/* BOXING IN */ lense.core.lang.Boolean.valueOfNative(");
 				TreeTransverser.transverse(node.getChildren().get(0), this);
 				writer.print(")");
 
 				return VisitorNext.Siblings;
-			} else if (node instanceof BoxingPointNode){
-				TypeVariable typeVariable = ((BoxingPointNode)node).getTypeVariable();
+			} else if (node instanceof ErasurePointNode){
+				TypeVariable typeVariable = ((ErasurePointNode)node).getTypeVariable();
 				if (typeVariable != null){
 					writer.print("/* BOXING IN to " +  typeVariable.getTypeDefinition().getName()+ "*/");
 				} else {

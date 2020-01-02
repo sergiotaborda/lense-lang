@@ -2,7 +2,7 @@
 import lense.core.math.Natural;
 import lense.core.lang.String;
 
-public class Version {
+public value class Version {
 
 	public constructor ( public major: Natural, public minor : Natural, public revision : Natural);
 
@@ -10,6 +10,20 @@ public class Version {
 		// TODO 
 		return new Version(0,0,0);
 	}
+
+
+	public override equalsTo( other : Any) {
+		return other is Version 
+			&& this.major == other.major 
+			&& this.minor == other.minor
+			&& this.revision == other.revision;
+	}
 	
-	
+	public override hashValue() {
+		return this.major.hashValue() ++ this.minor.hashValue() ++ this.revision.hashValue();
+	}
+
+	public override asString() {
+		return "{{this.major}}.{{this.minor}}.{{this.revision}}";
+	}
 } 

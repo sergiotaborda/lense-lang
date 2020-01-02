@@ -369,7 +369,7 @@ public abstract class LenseCompiler {
             }
 
             if (!referencedNames.isEmpty()){
-                throw new CompilationError( "Type " + referencedNames.stream().filter(r -> r.length() > 0).findFirst().get() + " was not found");
+                throw new CompilationError( "Type " + referencedNames.stream().filter(r -> r.length() > 0).findFirst().get() + " was referenced, but not found");
             }
 
             trace("Compiling graph");

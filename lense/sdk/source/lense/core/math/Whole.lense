@@ -1,21 +1,24 @@
 
 import lense.core.math.Number;
 
-public native abstract class Whole extends Number implements Comparable<Whole> {
+public interface Whole extends Number , Comparable<Whole> {
 
-	public native abstract isOne() : Boolean;
+	public isOne() : Boolean;
 
-	public native abstract plus( n : Imaginary) : Complex;
-	public native abstract minus( n : Imaginary) : Complex;
-	public native abstract multiply( n : Imaginary) : Imaginary;
-	public native abstract divide( n : Imaginary) : Imaginary;
+	public plus( n : Imaginary) : Complex;
+	public minus( n : Imaginary) : Complex;
+	public multiply( n : Imaginary) : Imaginary;
+	public divide( n : Imaginary) : Imaginary;
 	
-	public native abstract plus( n : Whole) : Whole;
-	public native abstract minus( n : Whole) : Whole;
-	public native abstract divide( n : Whole) : Rational;
-	public native abstract wholeDivide (other : Whole) : Whole; 
-	public native abstract remainder (other : Whole) : Whole; 	
+	public plus( n : Whole) : Whole;
+	public minus( n : Whole) : Whole;
+	public divide( n : Whole) : Rational;
+	public wholeDivide (other : Whole) : Whole; 
+	public remainder (other : Whole) : Whole; 	
 	
-	public native abstract abs () : Natural; 
-	public native gcd( other : Whole) : Natural;
+	public abs () : Natural; 
+	public gcd( other : Whole) : Natural;
+
+	public asReal() : Real;
+	public asInteger() : Integer;
 }

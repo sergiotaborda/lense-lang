@@ -2,6 +2,7 @@ package lense.core.collections;
 
 import lense.core.lang.Any;
 import lense.core.lang.reflection.Type;
+import lense.core.math.NativeNumberFactory;
 import lense.core.math.Natural;
 
 public class NativeMaybeArrayStrategy implements ArrayStrategy {
@@ -15,7 +16,7 @@ public class NativeMaybeArrayStrategy implements ArrayStrategy {
 	
 	@Override
 	public Array createArrayFrom(Natural size, Any seed) {
-		return new NativeMaybeArray(type,size.toPrimitiveInt());
+		return new NativeMaybeArray(type, NativeNumberFactory.naturalToPrimitiveInt(size));
 	}
 
 	private String innerTypeName() {
@@ -33,7 +34,7 @@ public class NativeMaybeArrayStrategy implements ArrayStrategy {
 
 	@Override
 	public Array createArrayFrom(Sequence seq) {
-		NativeMaybeArray array = new NativeMaybeArray(type,seq.getSize().toPrimitiveInt());
+		NativeMaybeArray array = new NativeMaybeArray(type, NativeNumberFactory.naturalToPrimitiveInt(seq.getSize()));
 		Iterator iterator = seq.getIterator();
 		int i=0;
 		while(iterator.moveNext()){

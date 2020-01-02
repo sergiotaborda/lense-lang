@@ -9,16 +9,30 @@ import lense.core.math.Greater;
 import lense.core.math.Smaller;
 import lense.core.math.Equal;
 import lense.core.math.BigDecimal;
+import lense.core.math.equal;
+import lense.core.math.Comparable;
 
 /{
 	A fraction n/d 
 }/
-public class Rational extends Real {
+public value class Rational implements Real {
 
 	private constructor ( public  numerator : Integer , public denominator : Natural);
 
+	public constructor zero() {
+		return new Rational(0 , 1);
+	}
+
+	public constructor one() {
+		return new Rational(1 , 1);
+	}
+
 	public implicit constructor valueOf(other : Integer) {
 		return new Rational(other , 1);
+	}
+
+	public implicit constructor valueOf(other : Whole) {
+		return other.divide(1);
 	}
 
 	public constructor (  numerator : Integer ,   denominator : Integer ){
@@ -44,7 +58,11 @@ public class Rational extends Real {
 		return new Rational(numerator , denominator.abs());
 	}
 	
-	private symplify( numerator : Integer,  denominator : Natural ) : Rational {
+	private simplify( numerator : Integer,  denominator : Integer ) : Rational {
+			return simplify(numerator * denominator.sign() , denominator.abs()) ;
+	}
+
+	private simplify( numerator : Integer,  denominator : Natural ) : Rational {
 	
 		if (numerator == 0){
 			// all forms of zero are the same. 
@@ -68,12 +86,15 @@ public class Rational extends Real {
 		if ( other is Whole && this.denominator == 1){
 			return this.numerator == other;
 		} else if(other is Rational){
-			return this.numerator == other.numerator && this.denominator == other.denominator;
-		} else if(other is Decimal){
-			//other real values will only be equal if reduce to the same fraction
-			let reduction = other.asRational();
-			return this.numerator == reduction.numerator && this.denominator == reduction.denominator;
+			return this.numerator == other.numerator 
+				&& this.denominator == other.denominator;
+		} else if(other is Real){
+			return this.compareWith(other).isEqual();
+		} else if (other is Number && other is Comparable){
+			return (this <=> other) == equal;
 		}
+		
+		
 		// otherwise is not a comparable number
 		return false; 
 	}
@@ -88,8 +109,6 @@ public class Rational extends Real {
 		} 
 		return this.numerator.asString() ++ "/" ++ this.denominator.asString();
 	}
-	
-
 	
 	public plus( other : Real) : Real {
 		if (other is Rational){
@@ -109,7 +128,7 @@ public class Rational extends Real {
 	}
 
 	public plus( other : Rational) : Rational {
-		 return symplify(
+		 return simplify(
 				 other.denominator * this.numerator   + this.denominator * other.numerator , 
 				 this.denominator * other.denominator 
 		 );
@@ -124,7 +143,7 @@ public class Rational extends Real {
 	}
 	
 	public minus( other : Rational) : Rational{
-		 return symplify(
+		 return simplify(
 				 other.denominator * this.numerator  - this.denominator * other.numerator , 
 				 this.denominator * other.denominator 
 		 );
@@ -140,7 +159,7 @@ public class Rational extends Real {
 	}
 	
 	public multiply( other : Rational) : Rational {
-		 return symplify(
+		 return simplify(
 				 this.numerator * other.numerator,
 				 this.denominator * other.denominator
 		 );
@@ -164,7 +183,7 @@ public class Rational extends Real {
 		if (other.numerator < 0){ // set the sign in the final numerator 
 			n = -n;
 		}
-		return symplify(
+		return simplify(
 				 n,
 				 this.denominator * other.numerator.abs()
 		);
@@ -175,25 +194,50 @@ public class Rational extends Real {
 	}
 
 	public isOne() : Boolean{
-		return this.numerator.equalsTo(denominator);
+		return this.numerator == this.denominator;
+	}
+
+	public isNegative() : Boolean{
+		return sign() == -1;
+	}
+
+	public isPositive() : Boolean{
+		return sign() == 1;
 	}
 
 	public symmetric() : Real {
 		return new Rational(numerator.symmetric(), denominator);
 	}
 	
-	public signum() : Integer {
-		return numerator.signum();
-	}
-
-	public asInteger() : Integer {
-		return this.numerator \ this.denominator;
+	public sign() : Integer {
+		return numerator.sign();
 	}
 
     public isWhole() : Boolean {
     	return this.numerator % this.denominator == 0;
     }
     
+	public floor() : Integer {
+		if (this < 0){
+			return -(-this).ceil();
+		} else {
+      		//extracted from http://www.cs.nott.ac.uk/~rcb/G51MPC/slides/NumberLogic.pdf
+			return this.numerator \ this.denominator ;
+		}
+	}
+
+	public ceil() : Integer {
+
+		if (this < 0){
+			return -(-this).floor();
+		} else {
+      		//extracted from http://www.cs.nott.ac.uk/~rcb/G51MPC/slides/NumberLogic.pdf
+			return (this.numerator + this.denominator - 1) \ this.denominator;
+		}
+	}
+
+
+
     public raiseTo(exponent : Real) : Real {
     	if (this == 0){ 
     		if (exponent == 0){
@@ -205,7 +249,7 @@ public class Rational extends Real {
         } else if ( exponent == 0) {
         	return new Rational(1,1);
         } else if (exponent.isWhole()){
-            let p : Integer = exponent.asInteger();
+            let p : Integer = exponent.floor();
             let n : Natural = p.abs();
             var result : Rational = new Rational(this.numerator ^^ n, this.denominator ^^ n);
             if (p < 0) {
@@ -217,7 +261,7 @@ public class Rational extends Real {
         	let d = this.denominator ^^ exponent;
         	
         	if (n.isWhole() && d.isWhole()){
-        		return new Rational( n.asInteger() , d.asInteger());
+        		return new Rational( n.floor() , d.floor());
         	}
 
             return n/ d;
@@ -229,7 +273,7 @@ public class Rational extends Real {
             throw new ArithmeticException("Cannot invert zero");
         }
 
-		let sign = this.numerator.signum();
+		let sign = this.numerator.sign();
 		return new Rational( this.denominator * sign, this.numerator.abs());
 	}
 	
@@ -243,17 +287,36 @@ public class Rational extends Real {
     }
 
 	public override compareWith (other : Real) : Comparison {
-		/{
-		}let diff = this - other;
+		
+		let diff = this - other;
 		
 	    if (diff >0){
-			return Greater;
+			return greater;
 		} else if (diff <0){
-			return Smaller;
+			return smaller;
 		}
 
-	   return Equal;
-	   }/
-	   throw new Exception("Not implemented yet"); 
+	   return equal;
+
 	}  
+
+	public asDecimal() : BigDecimal {
+		return new BigDecimal(this);
+	} 
+
+	public plus( other : Imaginary) : Complex {
+		 return new Complex.retangular(this, other.real());
+	}
+
+	public minus( other : Imaginary) : Complex {
+		return new Complex.retangular(this, -other.real());		 
+	}
+
+	public multiply( other : Imaginary) : Imaginary {
+		 return new Imaginary.valueOf(this * other.real());
+	}
+
+	public divide( other : Imaginary) : Imaginary {
+		return new Imaginary.valueOf(this / other.real());
+	}
 }

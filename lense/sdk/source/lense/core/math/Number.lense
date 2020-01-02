@@ -3,9 +3,9 @@ import lense.core.lang.String;
 
 /{
 	Represents a mathematical quantity.
-	Number as no properties or operations and is not comparable. 
+	Number as no other properties or operations other that `isZero()`  and is not comparable. 
 }/
-public native abstract class Number {
+public interface Number {
 
-	public native abstract isZero() : Boolean;
+	public isZero() : Boolean;
 }
