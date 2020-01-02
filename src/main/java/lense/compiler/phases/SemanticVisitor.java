@@ -498,7 +498,7 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 
                 superType = this.getSemanticContext().typeForName(superTypeNode).getTypeDefinition();
 
-				if (t.isValueClass()) {
+				if (t.getKind().isValue()) {
 					throw new CompilationError(t, "Value classes cannot inherit from other types. They can only implement interfaces");
 				}
 				
@@ -2716,6 +2716,27 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
                     throw new CompilationError(t, t.getName()
                             + " is algebric but is not marked abstract. Make it abstract or remove children types declarations.");
                 }
+                
+                t.isAsStringDefined(t.getTypeDefinition().getMethodBySignature(new MethodSignature("asString")).map(m -> m.getSuperMethod() != null ).orElse(false));
+                t.isHashValueDefined(t.getTypeDefinition().getMethodBySignature(new MethodSignature("hashValue")).map(m ->  m.getSuperMethod() != null ).orElse(false));
+                t.setEqualsToDefined(t.getTypeDefinition().getMethodBySignature(new MethodSignature("equalsTo", new MethodParameter(ANY) )).map(m -> m.getSuperMethod() != null).orElse(false));
+                
+                if (t.getKind().isValue()){
+                  
+                    if (!t.isEqualsToDefined() && !t.isHashValueDefined()){
+                        createSynteticEqualsAndHash(t);                      
+                    } else if ((!t.isEqualsToDefined() && t.isHashValueDefined()) || (t.isEqualsToDefined() && !t.isHashValueDefined())){
+                        throw new CompilationError(t, "Methods equalsTo and hashValue must be overrided together. ");
+                    }
+                 
+                    if (!t.isAsStringDefined()){
+                        createSynteticAsString(t);
+                    }
+                    
+                  
+                } else if ((!t.isEqualsToDefined() && t.isHashValueDefined()) || (t.isEqualsToDefined() && !t.isHashValueDefined())){
+                        throw new CompilationError(t, "Methods equalsTo and hashValue must be overrided together. ");
+                }
 
             } else if (node instanceof ConditionalStatement) {
 
@@ -2781,6 +2802,128 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 
             }
         }
+    }
+
+
+    private void createSynteticAsString(ClassTypeNode t) {
+        // TODO Auto-generate asString
+        
+    }
+
+    private void createSynteticEqualsAndHash(ClassTypeNode t) {
+        // define equals based on all properties
+        
+        MethodDeclarationNode equals = new MethodDeclarationNode();
+        equals.setName("equalsTo");
+        equals.setOverride(true);
+        equals.setReturnType(new TypeNode(LenseTypeSystem.Boolean()));
+        equals.setVisibility(Visibility.Public);
+        
+        ParametersListNode parameters = new ParametersListNode();
+        parameters.add(new FormalParameterNode("other", LenseTypeSystem.Any()));
+        equals.setParameters(parameters);
+        
+        BlockNode block = new BlockNode();
+        equals.setBlock(block);
+        
+        ReturnNode r = new ReturnNode();
+        block.add(r);
+        
+                
+        InstanceOfNode isOf = new InstanceOfNode();
+        isOf.add(new VariableReadNode("other"));
+        isOf.add(new TypeNode(t.getTypeDefinition()));
+
+                  
+                
+        Deque<ExpressionNode> expressions = new LinkedList<>();
+        t.getTypeDefinition().getAllMembers().stream().filter( m -> m instanceof Property).map(m -> (Property)m).forEach( p -> {
+            
+            ComparisonNode c = new ComparisonNode(ComparisonNode.Operation.EqualTo);
+            
+            FieldOrPropertyAccessNode pa = new FieldOrPropertyAccessNode(p.getName());
+            pa.setKind(FieldKind.PROPERTY);
+            pa.setTypeVariable(p.getReturningType());
+            
+            c.add(pa);
+            
+            FieldOrPropertyAccessNode pb = new FieldOrPropertyAccessNode(p.getName());
+            pb.setKind(FieldKind.PROPERTY);
+            pb.setPrimary(new CastNode(new VariableReadNode("other"), t.getTypeDefinition()));
+            pb.setTypeVariable(p.getReturningType());
+            
+            c.add(pb);
+ 
+            expressions.add(c);
+            
+        });
+        
+        BooleanOperatorNode and = new BooleanOperatorNode(BooleanOperation.LogicShortAnd);
+        and.add(isOf);
+        
+        r.setValue(and);
+        
+        BooleanOperatorNode previousAnd = and;
+        while (expressions.size() != 1){
+            and = new BooleanOperatorNode(BooleanOperation.LogicShortAnd);
+            previousAnd.add(and);
+            and.add(expressions.removeFirst());
+            previousAnd = and;
+        }
+        
+        previousAnd.add(expressions.removeFirst());
+        
+        t.getBody().add(equals);
+        
+        t.setEqualsToDefined(true);
+        
+        
+        // hashValue
+        
+        TypeVariable hashValueType = this.getSemanticContext().resolveTypeForName("lense.core.lang.HashValue", 0).get();
+        
+        MethodDeclarationNode hash = new MethodDeclarationNode();
+        hash.setName("hashValue");
+        hash.setOverride(true);
+        hash.setReturnType(new TypeNode(hashValueType));
+        hash.setVisibility(Visibility.Public);
+        
+        parameters = new ParametersListNode();
+        hash.setParameters(parameters);
+        
+        block = new BlockNode();
+        hash.setBlock(block);
+        
+        r = new ReturnNode();
+        block.add(r);
+        
+                
+        NewInstanceCreationNode newConcat = new NewInstanceCreationNode();
+        newConcat.setTypeNode(new TypeNode(hashValueType));
+        
+        ExpressionNode access = newConcat;
+        Iterator<Property> it = t.getTypeDefinition().getAllMembers().stream().filter( m -> m instanceof Property).map(m -> (Property)m).iterator();
+        
+   
+        while (it.hasNext()){
+            Property  p = it.next();
+            
+            FieldOrPropertyAccessNode pa = new FieldOrPropertyAccessNode(p.getName());
+            pa.setKind(FieldKind.PROPERTY);
+            pa.setTypeVariable(p.getReturningType());
+            
+            MethodInvocationNode h = new MethodInvocationNode(pa , "hashValue" );
+            h.setTypeVariable(hashValueType);
+            
+            access = new MethodInvocationNode(access , "concat" , new ArgumentListItemNode(0, h));
+            access.setTypeVariable(hashValueType);
+        }
+
+        r.setValue(access);
+        
+        t.getBody().add(hash);
+        
+        t.setHashValueDefined(true);
     }
 
     private Optional<TypeVariable> tryPromoteEnds(

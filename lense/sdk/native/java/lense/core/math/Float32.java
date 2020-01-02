@@ -225,6 +225,26 @@ public final class Float32 implements Float , AnyValue{
 		return java.lang.Float.isInfinite(this.value);
 	}
 
+    @Override
+    public boolean isNegativeZero() {
+        return (java.lang.Float.floatToIntBits(this.value) & 0x80000000) < 0;
+    }
+    
+    @Override
+    public String toString(){
+        return java.lang.Float.toString(value);
+    }
+    
+    @Override
+    public boolean equals(Object other){
+        return other instanceof Any && equalsTo((Any)other);
+    }
+    
+    @Override
+    public int hashCode(){
+        return hashValue().hashCode();
+    }
+
 
 
 }

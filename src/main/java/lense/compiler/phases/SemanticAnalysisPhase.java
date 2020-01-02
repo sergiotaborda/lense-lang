@@ -95,7 +95,7 @@ public class SemanticAnalysisPhase implements CompilerPhase {
 					hasAlgebric = hasAlgebric || ct.isAlgebric();
 
 			   }  else {
-				   if (ct.isValueClass() && ct.getSuperType() != null) {
+				   if (ct.getKind().isValue() && ct.getSuperType() != null) {
 					   throw new CompilationError(ct, "Value classes cannot inherit from other classes. They can only implement interfaces.");
 				   }
 			   }

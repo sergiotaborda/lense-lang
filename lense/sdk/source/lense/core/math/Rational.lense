@@ -9,6 +9,8 @@ import lense.core.math.Greater;
 import lense.core.math.Smaller;
 import lense.core.math.Equal;
 import lense.core.math.BigDecimal;
+import lense.core.math.equal;
+import lense.core.math.Comparable;
 
 /{
 	A fraction n/d 
@@ -88,7 +90,11 @@ public value class Rational implements Real {
 				&& this.denominator == other.denominator;
 		} else if(other is Real){
 			return this.compareWith(other).isEqual();
+		} else if (other is Number && other is Comparable){
+			return (this <=> other) == equal;
 		}
+		
+		
 		// otherwise is not a comparable number
 		return false; 
 	}
@@ -103,8 +109,6 @@ public value class Rational implements Real {
 		} 
 		return this.numerator.asString() ++ "/" ++ this.denominator.asString();
 	}
-	
-
 	
 	public plus( other : Real) : Real {
 		if (other is Rational){
@@ -209,10 +213,6 @@ public value class Rational implements Real {
 		return numerator.sign();
 	}
 
-	public asInteger() : Integer {
-		return this.numerator \ this.denominator;
-	}
-
     public isWhole() : Boolean {
     	return this.numerator % this.denominator == 0;
     }
@@ -303,11 +303,6 @@ public value class Rational implements Real {
 	public asDecimal() : BigDecimal {
 		return new BigDecimal(this);
 	} 
-
-	public isPositiveInfinity() => false;
-	public isNegativeInfinity() => false;
-	public isInfinity() => false;
-	public isNaN() => false;
 
 	public plus( other : Imaginary) : Complex {
 		 return new Complex.retangular(this, other.real());

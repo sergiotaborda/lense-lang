@@ -732,7 +732,6 @@ public class LenseGrammar extends AbstractLenseGrammar {
 					n.setAnnotations(modifiers.getAnnotations());
 				}
 
-				n.setValueClass(modifiers.getImplementationModifier().isValueClass());
 				n.setNative(modifiers.getImplementationModifier().isNative());
 				n.setVisibility(modifiers.getVisibility().getVisibility(Visibility.Private));
 
@@ -783,13 +782,14 @@ public class LenseGrammar extends AbstractLenseGrammar {
 				p.setAstNode(r.get(0).getAstNode().get());
 			} else {
 
-				ClassTypeNode n = new ClassTypeNode(LenseUnitKind.Class);
-
+			
 				Modifiers modifiers = new Modifiers();
 
 				int nextNodeIndex = readModifiers(r, modifiers, QualifiedNameNode.class);
 
 				QualifiedNameNode qname = r.get(nextNodeIndex).getAstNode(QualifiedNameNode.class).get();
+
+			    ClassTypeNode n = new ClassTypeNode(modifiers.getImplementationModifier().isValueClass() ? LenseUnitKind.ValueClass : LenseUnitKind.Class);
 
 				n.setScanPosition(r.get(nextNodeIndex).getParserTreeNode().getScanPosition());
 				n.setName(qname.getName());
@@ -798,7 +798,6 @@ public class LenseGrammar extends AbstractLenseGrammar {
 					n.setAnnotations(modifiers.getAnnotations());
 				}
 
-				n.setValueClass(modifiers.getImplementationModifier().isValueClass());
 				n.setAbstract(modifiers.getImplementationModifier().isAbstract());
 				n.setNative(modifiers.getImplementationModifier().isNative());
 				n.setVisibility(modifiers.getVisibility().getVisibility(Visibility.Private));
@@ -891,9 +890,8 @@ public class LenseGrammar extends AbstractLenseGrammar {
 
 				n.setAbstract(true);
 				n.setNative(false);
-				n.setValueClass(false);
 				n.setVisibility(modifiers.getVisibility().getVisibility(Visibility.Private));
-
+				
 
 				n.setSuperType(new TypeNode(LenseTypeSystem.Any()));
 
@@ -952,7 +950,6 @@ public class LenseGrammar extends AbstractLenseGrammar {
 					n.setAnnotations(modifiers.getAnnotations());
 				}
 				
-				n.setValueClass(modifiers.getImplementationModifier().isValueClass());
 				n.setAbstract(modifiers.getImplementationModifier().isAbstract());
 				n.setNative(modifiers.getImplementationModifier().isNative());
 				n.setVisibility(modifiers.getVisibility().getVisibility(Visibility.Private));

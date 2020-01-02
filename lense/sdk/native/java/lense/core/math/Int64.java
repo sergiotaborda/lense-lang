@@ -485,4 +485,5 @@ public class Int64 implements Integer , Binary , BigIntegerConvertable , AnyValu
 	public Whole remainder(Whole other) {
 		return this.remainder(other.asInteger());
 	}
+	
 }

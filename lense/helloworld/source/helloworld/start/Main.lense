@@ -215,11 +215,11 @@ public class Main extends ConsoleApplication {
 		assert(1 == list.size, "List size is not 1");
 		assert(!list.empty, "List size is empty");
 		
-		let x : Int32 = list[0];
+		let w : Int32 = list[0];
 		
-		let y : Int32 = x &+ 1;
+		let z : Int32 = w &+ 1;
 		
-		assert (20 == y, "y is not 20, is {{ y }}");
+		assert (20 == z, "z is not 20, is {{ z }}");
 		
 	}
 	
@@ -227,8 +227,8 @@ public class Main extends ConsoleApplication {
 		return a &+ b;
 	}
 	
-	private  isum ( x : Int32 , y: Int32) : Integer {
-		return x + y;
+	private  isum ( q : Int32 , p: Int32) : Integer {
+		return q + p;
 	}
 	
 	private  increment ( a : Int32) : Int32 {
@@ -314,6 +314,15 @@ public class Main extends ConsoleApplication {
 
 	}
 
+	private demoBigNumbers(){
+	/{
+		let a = new Natural.parse("18446744073709551615");
+		let b = new Natural.parse("18446744073709551619");
+		
+		assert ( b == (a + 4) , "18446744073709551615 + 4 is not 18446744073709551619 is {{ a + 4 }}" );
+		}/
+	}
+
   	public override onStart()  {
 
 	
@@ -323,7 +332,8 @@ public class Main extends ConsoleApplication {
 		demoLongAndIntErasure_NoErasurePossible();
 
 		demoIntErasure_ErasurePossible();
-	
+		demoBigNumbers();
+		
 		demoBinding();
 
 		demoReification();
@@ -420,6 +430,15 @@ public class Main extends ConsoleApplication {
 		assert ( 1/ 64 == powNeg , "  4 ^^ -3 is not 1/64 ");
   	  
   	    var distance = dist(3, 4); 
+
+		var ref = 5.0;
+
+		if (ref is Rational){
+			console.println("Ref is Rational ");
+		} else {
+			console.println("Ref is not Rational");
+		}
+		
   	 	
 	// TODO natural == decimal
 		assert ( 5.0 == distance, "Distance is not 5, is {{ distance }}");
@@ -532,7 +551,7 @@ public class Main extends ConsoleApplication {
   	    console.println("End");
   	 
   	}
-
+	
 	public demoEnhacements(){
 
 		var seq = [1,2,3,4,5];
