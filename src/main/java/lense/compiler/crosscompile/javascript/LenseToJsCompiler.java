@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import lense.compiler.FileLocations;
@@ -45,9 +46,8 @@ public class LenseToJsCompiler extends LenseCompiler{
     }
 
 	@Override
-	protected File resolveNativeFile(File folder, String name) {
-		// TODO Auto-generated method stub
-		return null;
+	protected Optional<File> resolveNativeFile(File folder, String name) {
+		return Optional.empty();
 	}
 
 }

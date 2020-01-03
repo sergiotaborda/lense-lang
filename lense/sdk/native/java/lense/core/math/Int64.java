@@ -45,11 +45,26 @@ public class Int64 implements Integer , Binary , BigIntegerConvertable , AnyValu
 		return new Int64(n);
 	}  
 
-	//	@Constructor(paramsSignature = "lense.core.math.Natural")
-	//	public static Int64 valueOf(Natural n){
-	//		// TODO validate overflow
-	//		return new Int64(NativeNumberFactory.naturalToPrimitiveInt(n));
-	//	}  
+	@Constructor(isImplicit = true, paramsSignature = "lense.core.math.Whole")
+	public static Int64 valueOf(Whole n){
+		if (n instanceof Int64){
+			return (Int64)n;
+		} else if (n instanceof Int32){
+			return valueOfNative(((Int32) n).value);
+		} else {
+			BigInteger max = BigInteger.valueOf(java.lang.Long.MAX_VALUE);
+			BigInteger min = BigInteger.valueOf(java.lang.Long.MIN_VALUE);
+			BigInteger val = new BigInteger(n.toString());
+
+			if (val.compareTo(min) >=0 && val.compareTo(max) <=0 ){
+				// in range of a int64
+				return valueOfNative(val.intValue());
+			} else {
+				throw ArithmeticException.constructor();
+			}
+		}
+
+	}  
 
 	@Constructor(paramsSignature = "lense.core.lang.String")
 	public static Int64 parse(String s){

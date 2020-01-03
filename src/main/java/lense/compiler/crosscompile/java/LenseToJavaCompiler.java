@@ -18,6 +18,7 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 import java.util.jar.Attributes;
@@ -207,8 +208,11 @@ public class LenseToJavaCompiler extends LenseCompiler{
 	}
 
 
-	protected File resolveNativeFile(File folder, String name) {
-		return new File( folder, name + ".class");
+	protected Optional<File> resolveNativeFile(File folder, String name) {
+		File file = new File( folder, name + ".class");
+		
+		return Optional.of(file).filter(f -> f.exists());
+		
 	}
 
 	protected void collectNative(FileLocations fileLocations, Map<String, File> nativeTypes) throws IOException {
@@ -265,7 +269,7 @@ public class LenseToJavaCompiler extends LenseCompiler{
 				int pos = packageFile.indexOf(".java");
 				packageFile = packageFile.substring(0, pos) + ".class";
 
-				File source = resolveNativeFile(n.getParentFile(), n.getName().substring(0,  n.getName().length() - 5));
+				Optional<File> source = resolveNativeFile(n.getParentFile(), n.getName().substring(0,  n.getName().length() - 5));
 
 
 
@@ -273,10 +277,10 @@ public class LenseToJavaCompiler extends LenseCompiler{
 
 				target.getParentFile().mkdirs();
 
-				if (!source.exists()){
-					System.err.println("Compiled file with java compiler does not exist");
+				if (!source.isPresent()){
+					throw new CompilationError("Compiled file with java compiler does not exist");
 				} else {
-					Files.move(source.toPath(), target.toPath());
+					Files.move(source.get().toPath(), target.toPath());
 					nativeTypes.put(packageFile.substring(1).replace(File.separatorChar, '.').replaceAll(".class",""), target);
 
 					//                    TypeDefinition type = reader.readNative(target);
@@ -287,7 +291,7 @@ public class LenseToJavaCompiler extends LenseCompiler{
 
 
 		} else {
-			System.err.println("Cannot compile source with java compiler");
+			throw new CompilationError("Cannot compile source with java compile");
 		}
 
 	}

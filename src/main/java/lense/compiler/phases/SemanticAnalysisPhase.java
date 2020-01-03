@@ -84,8 +84,7 @@ public class SemanticAnalysisPhase implements CompilerPhase {
 			for (ClassTypeNode ct : types.getTypes()){
 				// cannot share semantic context among classes
 				
-				if (!ct.isNative()) { // TODO remove this condition
-
+				
 					// attach the repository with loaded types
 					SemanticContext ctx = ct.getSemanticContext().withRepository(typeRepository);
 
@@ -96,11 +95,7 @@ public class SemanticAnalysisPhase implements CompilerPhase {
 
 					hasAlgebric = hasAlgebric || ct.isAlgebric();
 
-			   }  else {
-				   if (ct.getKind().isValue() && ct.getSuperType() != null) {
-					   throw new CompilationError(ct, "Value classes cannot inherit from other classes. They can only implement interfaces.");
-				   }
-			   }
+			
 			}
 
 			if (hasAlgebric) {
@@ -116,7 +111,14 @@ public class SemanticAnalysisPhase implements CompilerPhase {
 						for (AstNode n : ct.getAlgebricChildren().getChildren()) {
 							ChildTypeNode ctn = (ChildTypeNode)n;
 							if(!mapping.containsKey(ctn.getType().getName())) {
-								throw new CompilationError(ctn, "Child type " + ctn.getType().getName() + " is not defined. Child types must be defined in the same source file.");
+								
+								if (!("lense.core.lang.true".equals(ctn.getType().getName()) 
+										|| "lense.core.lang.false".equals(ctn.getType().getName())
+										|| "lense.core.lang.none".equals(ctn.getType().getName())
+								)) {
+									throw new CompilationError(ctn, "Child type " + ctn.getType().getName() + " is not defined. Child types must be defined in the same source file.");
+								}
+							
 							}
 						}
 					} else if (ct.getTypeDefinition().getSuperDefinition().isAlgebric()){

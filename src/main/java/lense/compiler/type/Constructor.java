@@ -160,7 +160,8 @@ public class Constructor implements CallableMember<Constructor>{
 	}
 	
 	public boolean equals(Constructor other){
-		return other.name.equals(this.name) && this.isImplicit == other.isImplicit && this.parameters.size() == other.parameters.size()
+		return (other.name == this.name || other.name.equals(this.name)) 
+				&& this.isImplicit == other.isImplicit && this.parameters.size() == other.parameters.size()
 				&& this.parameters.equals(other.parameters);
 	}
 

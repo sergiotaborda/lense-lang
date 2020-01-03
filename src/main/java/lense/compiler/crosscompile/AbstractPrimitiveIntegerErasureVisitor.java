@@ -14,8 +14,6 @@ import lense.compiler.ast.BooleanValue;
 import lense.compiler.ast.CastNode;
 import lense.compiler.ast.ComparisonNode.Operation;
 import lense.compiler.ast.ExpressionNode;
-import lense.compiler.ast.FieldOrPropertyAccessNode;
-import lense.compiler.ast.FieldOrPropertyAccessNode.FieldAccessKind;
 import lense.compiler.ast.ForEachNode;
 import lense.compiler.ast.FormalParameterNode;
 import lense.compiler.ast.GenericTypeParameterNode;
@@ -473,20 +471,6 @@ public class AbstractPrimitiveIntegerErasureVisitor implements Visitor<AstNode> 
             return ArithmeticOperation.WrapMultiplication; 
         default:
             return op;
-        }
-    }
-
-    private boolean isPrimitiveOperation(ArithmeticOperation op) {
-        switch (op){
-        case Addition:
-        case Power:
-        case Subtraction:
-        case Multiplication:
-        case Division:
-        case IntegerDivision:
-            return false;
-        default:
-            return true;
         }
     }
 

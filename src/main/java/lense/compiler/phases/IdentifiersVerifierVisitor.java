@@ -44,7 +44,7 @@ public class IdentifiersVerifierVisitor extends AbstractScopedVisitor {
 	}
 
 	private void validateIdentifier(AstNode node, String name) {
-		if (name == null || "Package$$Info".equals(name)|| "Module$$Info".equals(name)) {
+		if (name == null || "Package$$Info".equals(name)|| "Module$$Info".equals(name) || name.startsWith("$reificiationInfo$t")) {
 			return;
 		}
 		
