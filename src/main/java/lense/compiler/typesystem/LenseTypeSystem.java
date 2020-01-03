@@ -279,7 +279,6 @@ public class LenseTypeSystem {
 		// obey
 		// function
 		// return
-		maybe.addConstructor("", new ConstructorParameter(any));
 
 		LenseTypeDefinition none = register(new FundamentalLenseTypeDefinition("lense.core.lang.None",
 				LenseUnitKind.Class, specify(maybe, nothing), new TypeVariable[0]));

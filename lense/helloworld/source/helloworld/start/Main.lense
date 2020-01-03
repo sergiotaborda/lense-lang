@@ -150,11 +150,11 @@ public class Main extends ConsoleApplication {
 		assert (dp is Int64, "dp is not an Int64");
 		assert (!(dp is Int32), "dp is an Int32");
 		assert (dp is Integer, "dp is not an Integer");
-/{
+
 		for (let i in 0 .. 3){
 			ap = ap &+ i;
 		}
-}/
+
 		assert (50 == ap, "a is not 50, is {{ ap }}");
 		
 		let list = new List<Int64>();

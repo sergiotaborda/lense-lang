@@ -4,6 +4,7 @@
 package lense.compiler.ast;
 
 import lense.compiler.phases.ScopeDelimiter;
+import lense.compiler.type.Constructor;
 
 /**
  * 
@@ -14,11 +15,12 @@ public class ConstructorDeclarationNode extends InvocableDeclarionNode implement
 	private String name;
 	private ParametersListNode parameters = new ParametersListNode();
 	private BlockNode block;
-	private boolean isPrimary= false;
+	private boolean isPrimary = false;
 	private boolean isImplicit = false;
     private ConstructorExtentionNode constructorExtentionNode;
 	private TypeParametersListNode typeParametersListNode;
 
+	private Constructor assignedConstructor;
     
     public ConstructorDeclarationNode () {}
     
@@ -88,6 +90,16 @@ public class ConstructorDeclarationNode extends InvocableDeclarionNode implement
 	}
 	public TypeParametersListNode getMethodScopeGenerics() {
 		return typeParametersListNode;
+	}
+
+
+	public Constructor getAssignedConstructor() {
+		return assignedConstructor;
+	}
+
+
+	public void setAssignedConstructor(Constructor assignedConstructor) {
+		this.assignedConstructor = assignedConstructor;
 	}
 
 	

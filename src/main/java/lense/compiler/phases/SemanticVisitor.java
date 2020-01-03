@@ -546,7 +546,7 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
                     } else {
                         for (AstNode n : superTypeNode.getChildren()) {
                             if (n instanceof GenericTypeParameterNode) {
-                                throw new UnsupportedOperationException();
+                               // throw new UnsupportedOperationException();
                             } else {
                                 TypeNode tn = (TypeNode) n;
                                 TypeDefinition rawInterfaceType = this.getSemanticContext().typeForName(tn)
@@ -2913,14 +2913,19 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
         r.setValue(and);
         
         BooleanOperatorNode previousAnd = and;
-        while (expressions.size() != 1){
-            and = new BooleanOperatorNode(BooleanOperation.LogicShortAnd);
-            previousAnd.add(and);
-            and.add(expressions.removeFirst());
-            previousAnd = and;
-        }
         
-        previousAnd.add(expressions.removeFirst());
+        if (!expressions.isEmpty()) {
+
+	        while (expressions.size() != 1){
+	            and = new BooleanOperatorNode(BooleanOperation.LogicShortAnd);
+	            previousAnd.add(and);
+	            and.add(expressions.removeFirst());
+	            previousAnd = and;
+	        }
+	        
+	        previousAnd.add(expressions.removeFirst());
+	        
+        }
         
         t.getBody().add(equals);
         

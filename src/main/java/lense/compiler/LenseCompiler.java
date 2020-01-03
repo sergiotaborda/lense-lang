@@ -154,7 +154,7 @@ public abstract class LenseCompiler {
     protected abstract void createModuleArchive(FileLocations locations, ModuleNode module, File base, Set<String> applications) throws IOException, FileNotFoundException;
     protected abstract void initCorePhase(CompositePhase corePhase, Map<String, File> nativeTypes, UpdatableTypeRepository typeContainer);
     protected abstract void collectNative(FileLocations fileLocations, Map<String, File> nativeTypes) throws IOException;
-	protected abstract File resolveNativeFile(File folder, String name);
+	protected abstract Optional<File> resolveNativeFile(File folder, String name);
 	
     /**
      * @param moduleproject
@@ -470,9 +470,9 @@ public abstract class LenseCompiler {
         		
         		if (type.isNative()) {
         			
-        			File nativeTypeFile = nativeTypes.get(type.getName());
+        			Optional<File> nativeTypeFile = Optional.ofNullable(nativeTypes.get(type.getName()));
                   
-        			if (nativeTypeFile == null) {
+        			if (!nativeTypeFile.isPresent()) {
     					if (type.getKind().isObject()) {
     						
     						String[] name = Strings.split(type.getName(), ".");
@@ -487,10 +487,14 @@ public abstract class LenseCompiler {
     						
     						nativeTypeFile =  resolveNativeFile (locations.getTargetFolder(), Strings.join(name, File.separator));
     					}
+    					
+    					if (!nativeTypeFile.isPresent()) {
+    						throw new CompilationError("Expected native file for type " + type.getName()  + " does not exist");
+    					}
         			}
         			
         			try {
-						TypeDefinition typeDef = reader.readNative(nativeTypeFile);
+						TypeDefinition typeDef = reader.readNative(nativeTypeFile.get());
 						typeDef = currentModuleRepository.registerType(typeDef, typeDef.getGenericParameters().size());
 						
 						type.setTypeDefinition((LenseTypeDefinition)typeDef);

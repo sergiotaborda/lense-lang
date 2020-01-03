@@ -3,6 +3,7 @@
  */
 package lense.compiler.phases;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -33,6 +34,7 @@ import lense.compiler.ast.VariableDeclarationNode;
 import lense.compiler.ast.VariableReadNode;
 import lense.compiler.context.SemanticContext;
 import lense.compiler.context.VariableInfo;
+import lense.compiler.type.Constructor;
 import lense.compiler.type.ConstructorParameter;
 import lense.compiler.type.LenseTypeDefinition;
 import lense.compiler.type.LenseUnitKind;
@@ -135,7 +137,13 @@ public class StructureVisitor extends AbstractScopedVisitor {
 				    if (type == null){
 				        throw new IllegalStateException("type cannot be null");
 				    }
-					TreeTransverser.transverse(b.getChildren().get(1), new AutoCastVisitor(this.getSemanticContext(), name, type));
+				    
+				    if (b.getChildren().size() == 1) {
+				    	b.getParent().replace(b, node);
+				    } else {
+				    	TreeTransverser.transverse(b.getChildren().get(1), new AutoCastVisitor(this.getSemanticContext(), name, type));
+				    }
+					
 				}
 			}
 		}
@@ -196,7 +204,9 @@ public class StructureVisitor extends AbstractScopedVisitor {
 
 			ConstructorParameter[] params = asConstructorParameters(f.getParameters());
 
-			currentType.addConstructor(f.isImplicit(), f.getName(), params);
+			Constructor ctr = currentType.addConstructor(f.isImplicit(), f.getName(), params);
+			
+			f.setAssignedConstructor(ctr);
 
 		} else 	if (node instanceof FieldDeclarationNode){
 			FieldDeclarationNode f = (FieldDeclarationNode)node;
@@ -386,13 +396,16 @@ public class StructureVisitor extends AbstractScopedVisitor {
 
 	private ConstructorParameter[] asConstructorParameters(ParametersListNode parameters) {
 		MethodParameter[] params = asMethodParameters(parameters);
-		ConstructorParameter[] cparams = new ConstructorParameter[params.length];
+		List<ConstructorParameter> cparams = new ArrayList<>(params.length);
 
 		for (int i =0; i < params.length; i++){
-			cparams[i] = new ConstructorParameter(params[i].getType(), params[i].getName());
+			
+			if (!params[i].getType().toString().equals("lense.core.lang.reflection.ReifiedArguments")){
+				cparams.add( new ConstructorParameter(params[i].getType(), params[i].getName()));
+			}
 		}
 
-		return cparams;
+		return cparams.toArray(new ConstructorParameter[cparams.size()]);
 	}
 
 	private MethodParameter[] asMethodParameters(ParametersListNode parameters) {

@@ -232,6 +232,13 @@ public class MethodBuilder {
 				TypeVariable indexType = isSetter ? method.getParameters().get(method.getParameters().size() - 1).getType() : method.getReturningType();
 
 				member = new IndexerProperty(def, indexType, !isSetter, isSetter, params);
+				
+				member.setAbstract(method.isAbstract());
+				member.setDefault(method.isDefault());
+				member.setNative(method.isNative());
+				member.setOverride(method.isOverride());
+				member.setVisibility(method.getVisibility());
+				
 				loadedClassBuilder.properties.put(key, member);
 
 				def.addIndexer(member);

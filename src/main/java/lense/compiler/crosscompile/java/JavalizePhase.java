@@ -40,14 +40,17 @@ public final class JavalizePhase implements CompilerPhase {
 			return new CompilationResult(new RuntimeException("Unexpected Error. Result as no node."));
 		}
 		for (ClassTypeNode ct : types.getTypes()){
-			if (!ct.isNative()) {
-				// cannot share semantic context among classes
-				try {
-					TreeTransverser.transverse(ct,new JavalizeVisitor(ct.getSemanticContext(), this.nativeTypes, typeContainer));
-				} catch (CompilationError e){
-					listener.error(new CompilerMessage(e.getMessage()));
-					return new CompilationResult(e);
-				}
+			
+			try {
+				TreeTransverser.transverse(ct,new NativeVerificationVisitor(ct.getSemanticContext(), this.nativeTypes, typeContainer));
+				if (!ct.isNative()) {
+					// cannot share semantic context among classes
+					TreeTransverser.transverse(ct,new JavalizeVisitor(ct.getSemanticContext(), typeContainer));
+				} 
+			
+			} catch (CompilationError e){
+				listener.error(new CompilerMessage(e.getMessage()));
+				return new CompilationResult(e);
 			}
 		}
 		return result;
