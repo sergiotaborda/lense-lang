@@ -2,7 +2,7 @@ package lense.compiler.ast;
 
 import lense.compiler.phases.ScopeDelimiter;
 
-public class PropertyDeclarationNode extends InvocableDeclarionNode implements ScopeDelimiter{
+public class PropertyDeclarationNode extends InvocableDeclarionNode implements ScopeDelimiter {
 
 	private AccessorNode acessor;
 	private ModifierNode modifier;

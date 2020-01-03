@@ -676,9 +676,14 @@ public class NameResolutionVisitor extends AbstractScopedVisitor {
 		}else if (node instanceof PropertyDeclarationNode){
 			PropertyDeclarationNode n = (PropertyDeclarationNode)node;
 
+			if (n.getType() == null) {
+				n.setType(new TypeNode(n.getInitializer().getTypeVariable()));
+			}
 
 			this.handleTypeParameters(node, n.getType());
+			
 			String name = n.getType().getName();
+			
 			if ((n.getAcessor() != null || n.getModifier() != null) && !genericNames.contains(name) && !this.getSemanticContext().currentScope().getCurrentType().getName().endsWith(name)){
 				Optional<Import> match = matchImports(ct, name);
 
