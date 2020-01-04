@@ -62,7 +62,6 @@ final class NativeObjectArray extends Array implements SmallArray{
 		if (NativeNumberFactory.naturalToPrimitiveInt(index) >= array.length){
 			throw IllegalIndexException.constructor(/*"Index from " + size + " on is not available"*/);
 		}
-		System.out.println("Seting " + value + " at index " + index);
 		array[NativeNumberFactory.naturalToPrimitiveInt(index)] = value;
 	}
 
