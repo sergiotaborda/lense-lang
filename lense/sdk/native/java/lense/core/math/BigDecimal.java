@@ -173,14 +173,14 @@ public final class BigDecimal implements Real  , AnyValue {
 		 int pos = full.indexOf(".");
 		 if (pos < 0) {
 			 // no decimal part
-			 return Rational.valueOf( new BigInt( new java.math.BigInteger(full)));
+			 return BigRational.valueOf( new BigInt( new java.math.BigInteger(full)));
 		 } else {
 			 full = full.replace(".", "");
 			 int i =0;
 			 while(full.charAt(i) == '0') {
 				 i++;
 			 }
-			 return Rational.constructor(new BigInt( new java.math.BigInteger(full.substring(i))), Int32.TEN.raiseTo(full.length() - pos));
+			 return BigRational.constructor(new BigInt( new java.math.BigInteger(full.substring(i))), Int32.TEN.raiseTo(full.length() - pos));
 		 }
 	}
 

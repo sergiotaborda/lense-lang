@@ -6,7 +6,7 @@ import org.junit.Test;
 
 import lense.core.math.NativeNumberFactory;
 import lense.core.math.Natural;
-import lense.core.math.Rational;
+import lense.core.math.BigRational;
 
 public class TestFactorial {
 
@@ -37,7 +37,7 @@ public class TestFactorial {
 	@Test
 	public void testAsRational() {
 		
-		assertEquals(Rational.constructor(
+		assertEquals(BigRational.constructor(
 				lense.core.math.Int32.valueOfNative(3415500),
 				lense.core.math.Int32.valueOfNative(10000)
 		),
@@ -45,7 +45,7 @@ public class TestFactorial {
 		);
 		
 		
-		assertEquals(Rational.constructor(
+		assertEquals(BigRational.constructor(
 				lense.core.math.Int32.valueOfNative(1),
 				lense.core.math.Int32.valueOfNative(100)
 		),

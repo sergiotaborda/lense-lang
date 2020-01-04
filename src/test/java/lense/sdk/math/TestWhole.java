@@ -9,7 +9,7 @@ import lense.core.math.Int64;
 import lense.core.math.Integer;
 import lense.core.math.Natural;
 import lense.core.math.Natural64;
-import lense.core.math.Rational;
+import lense.core.math.BigRational;
 import lense.core.math.Whole;
 
 public class TestWhole {

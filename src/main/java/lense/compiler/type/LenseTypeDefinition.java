@@ -615,7 +615,7 @@ public class LenseTypeDefinition implements TypeDefinition {
         }
 
         for (TypeDefinition i : this.interfaces){
-            Optional<Method> m =  i.getMethodByPromotableSignature(signature);
+            Optional<Method> m =  i.getMethodBySignature(signature);
             if (m.isPresent()){
                 Method myMethod = m.get().changeDeclaringType(this);
               //  this.addMethod(myMethod);

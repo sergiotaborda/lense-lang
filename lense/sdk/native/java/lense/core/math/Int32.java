@@ -384,13 +384,13 @@ public final class Int32  implements Integer, Binary , BigIntegerConvertable, An
 
 	@Override
 	public Rational divide(Whole other) {
-		return Rational.constructor(this, other.asInteger());
+		return BigRational.constructor(this, other.asInteger());
 	}
 
 
 	@Override
 	public Real asReal() {
-		return Rational.constructor(this, ONE);
+		return BigRational.constructor(this, ONE);
 	}
 
 
@@ -440,13 +440,13 @@ public final class Int32  implements Integer, Binary , BigIntegerConvertable, An
 	@Override
 	public Real raiseTo(Real other) {
 		if ( other.isZero()) {
-			return Rational.ONE;
+			return BigRational.ONE;
 		} else if (other.isOne()) {
 			return this.asReal();
 		} else if (other.isWhole()) {
 			Integer whole = other.floor();
 	
-			Rational power = Rational.constructor(raiseTo(whole.abs()), ONE);
+			Rational power = BigRational.constructor(raiseTo(whole.abs()), ONE);
 			
 			if (whole.sign().isNegative()) {
 				power = power.invert();
@@ -454,7 +454,7 @@ public final class Int32  implements Integer, Binary , BigIntegerConvertable, An
 			
 			return power;
 		}
-		return BigDecimal.constructor(Rational.constructor(this, ONE)).raiseTo(other);
+		return BigDecimal.constructor(BigRational.constructor(this, ONE)).raiseTo(other);
 	}
 
 	@Override
