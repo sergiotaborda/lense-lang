@@ -146,8 +146,6 @@ public final class NativeNumberFactory {
 
     public static int compareNumbers(Number a, Number b) {
 
-        System.out.println("Compar  a=" + a + " with b=" + b);
-
         java.math.BigDecimal ga;
         if (a instanceof Rational) {
             ga = lense.core.math.BigDecimal.constructor((Rational) a).value;

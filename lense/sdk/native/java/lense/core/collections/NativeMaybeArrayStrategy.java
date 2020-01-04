@@ -11,7 +11,6 @@ public class NativeMaybeArrayStrategy implements ArrayStrategy {
 
 	public NativeMaybeArrayStrategy(Type type) {
 		this.type = type;
-		System.out.println("Created a Maybe array for type " + innerTypeName());
 	}
 	
 	@Override

@@ -10,7 +10,6 @@ abstract class SizeArrayStrategy {
 	
 	 static SizeArrayStrategy resolveSizeStrategy(Natural size) {
 		 
-		 System.out.println("Creating an array of size "  + size.toString());
 		 if (size.compareWith(Natural64.INT32_MAX).isSmaller()) {
 			 return resolveStandardSizeStrategy();
 		 } else {

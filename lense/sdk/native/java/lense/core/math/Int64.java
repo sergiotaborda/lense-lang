@@ -145,11 +145,9 @@ public class Int64 implements Integer , Binary , BigIntegerConvertable , AnyValu
 		return BigInteger.valueOf(value);
 	}
 
-
 	public lense.core.lang.String asString(){
 		return lense.core.lang.String.valueOfNative(java.lang.Long.toString(value)); 
 	}
-
 
 	@Override
 	public boolean isZero() {
@@ -225,7 +223,6 @@ public class Int64 implements Integer , Binary , BigIntegerConvertable , AnyValu
 		return rightShiftBy(index).isOdd();
 	}
 
-
 	@Override
 	public boolean isNegative() {
 		return this.value < 0;
@@ -295,7 +292,6 @@ public class Int64 implements Integer , Binary , BigIntegerConvertable , AnyValu
 		return new Int64(this.value + other.value);
 	}
 
-
 	public Int64 wrapMultiply(Int64 other) {
 		return new Int64(this.value * other.value);
 	}
@@ -303,7 +299,6 @@ public class Int64 implements Integer , Binary , BigIntegerConvertable , AnyValu
 	public Int64 wrapMinus(Int64 other) {
 		return new Int64(this.value - other.value);
 	}
-
 
 	@Override
 	public boolean isPositive() {
@@ -371,13 +366,10 @@ public class Int64 implements Integer , Binary , BigIntegerConvertable , AnyValu
 		return new NativeOrdinalProgression(this, (Int64)end, false);
 	}
 
-
-
 	@Override
 	public Rational divide(Whole other) {
 		return Rational.constructor(this, other.asInteger());
 	}
-
 
 	@Override
 	public Real asReal() {
@@ -400,36 +392,30 @@ public class Int64 implements Integer , Binary , BigIntegerConvertable , AnyValu
 		}
 	}
 
-
 	@Override
 	public Type type() {
 		return Type.fromName(this.getClass().getName());
 	}
-
 
 	@Override
 	public Whole minus(Whole other) {
 		return minus(other.asInteger());
 	}
 
-
 	@Override
 	public Integer wholeDivide(Natural other) {
 		return this.wholeDivide(other.asInteger());
 	}
-
 
 	@Override
 	public Whole plus(Whole other) {
 		return plus(other.asInteger());
 	}
 
-
 	@Override
 	public Integer raiseTo(Natural other) {
 		return this.promoteNext().raiseTo(other);
 	}
-
 
 	@Override
 	public @NonNull Real raiseTo(Real other) {
