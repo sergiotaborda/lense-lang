@@ -7,6 +7,7 @@ import lense.core.lang.java.PlatformSpecific;
 @PlatformSpecific
 public final class NativeNumberFactory {
 
+	
     public static int naturalToPrimitiveInt(Natural natural) {
         if (natural instanceof Natural64) {
             return ((Natural64) natural).toPrimitiveInt();
@@ -49,7 +50,7 @@ public final class NativeNumberFactory {
     }
 
     public static Imaginary newImaginary(long nativeValue) {
-        return Imaginary.valueOf(Rational.valueOf(newInteger(nativeValue)));
+        return Imaginary.valueOf(BigRational.valueOf(newInteger(nativeValue)));
     }
 
     public static Integer newInteger(long nativeValue) {

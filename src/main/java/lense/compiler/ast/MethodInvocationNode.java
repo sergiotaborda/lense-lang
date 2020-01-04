@@ -28,11 +28,6 @@ public class MethodInvocationNode extends NeedTypeCalculationNode {
 
     public MethodInvocationNode (){}
 
-    //	public MethodInvocationNode (AstNode access ,String name, AstNode ... arguments){
-    //		setCall(new MethodCallNode(name, new ArgumentListNode(arguments)));
-    //		setAccess(access);
-    //	}
-
     public MethodInvocationNode (AstNode access , String name, ArgumentListItemNode singleArgument){
         setCall(new MethodCallNode(name, new ArgumentListNode(singleArgument)));
         setAccess(access);

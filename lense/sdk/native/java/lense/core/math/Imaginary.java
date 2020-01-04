@@ -14,7 +14,7 @@ public final class Imaginary implements Number{
 	
 	@Constructor(paramsSignature = "")
 	public static Imaginary constructor (){
-		return valueOf(Rational.zero());
+		return valueOf(BigRational.zero());
 	}
 	
 	@Constructor(paramsSignature = "lense.core.math.Real")
@@ -46,19 +46,19 @@ public final class Imaginary implements Number{
 	
 	
 	public Complex plus(Whole other) {
-		return plus(Rational.valueOf(other));
+		return plus(BigRational.valueOf(other));
 	}
 
 	public Complex minus(Whole other) {
-		return minus(Rational.valueOf(other));
+		return minus(BigRational.valueOf(other));
 	}
 
 	public Imaginary multiply(Whole other) {
-		return multiply(Rational.valueOf(other));
+		return multiply(BigRational.valueOf(other));
 	}
 
 	public Imaginary divide(Whole other) {
-		return divide(Rational.valueOf(other));
+		return divide(BigRational.valueOf(other));
 	}
 	
 	public Complex plus(Real other) {

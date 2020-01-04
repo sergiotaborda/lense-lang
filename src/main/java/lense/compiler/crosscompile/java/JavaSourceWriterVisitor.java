@@ -458,12 +458,12 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
                                 intPart = "";
                             }
 
-                            writer.append("lense.core.math.Rational")
+                            writer.append("lense.core.math.BigRational")
                             .append(".constructor(lense.core.math.NativeNumberFactory.newInteger(").append(intPart)
                             .append(decPart).append("),lense.core.math.NativeNumberFactory.newInteger(")
                             .append(decimalPart).append("))");
 	    				} else {
-							writer.append("lense.core.math.Rational.valueOf(lense.core.math.NativeNumberFactory.newInteger(").append(n.toString()).append("))");
+							writer.append("lense.core.math.BigRational.valueOf(lense.core.math.NativeNumberFactory.newInteger(").append(n.toString()).append("))");
 	    				}
                     } else {
                         // TODO test bounds (number could be to big , should use string

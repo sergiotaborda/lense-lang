@@ -200,12 +200,12 @@ public final class BigNatural implements Natural , BigDecimalConvertable , BigIn
 
 	@Override
 	public Rational divide(Whole other) {
-		return Rational.constructor(this.asInteger(), other.asInteger());
+		return BigRational.constructor(this.asInteger(), other.asInteger());
 	}
 
 	@Override
 	public Real asReal() {
-		return Rational.constructor(this.asInteger(), Int32.ONE);
+		return BigRational.constructor(this.asInteger(), Int32.ONE);
 	}
 
 	@Override
@@ -301,19 +301,19 @@ public final class BigNatural implements Natural , BigDecimalConvertable , BigIn
 	public Rational raiseTo(Integer other) {
 		if (this.isZero()){
 			if (other.isZero()){
-				return Rational.ONE;
+				return BigRational.ONE;
 			}
-			return Rational.ZERO;
+			return BigRational.ZERO;
 		} else if (this.isOne()){
-			return Rational.ONE;
+			return BigRational.ONE;
 		} else if (other.isZero()){
-			return Rational.ONE;
+			return BigRational.ONE;
 		} else if (other.isOne()){
-			return Rational.constructor(this.asInteger(), Int32.ONE);
+			return BigRational.constructor(this.asInteger(), Int32.ONE);
 		}  else if (other.isNegative()){
-			return Rational.constructor(Int32.ONE, this.raiseTo(other.abs()).asInteger());
+			return BigRational.constructor(Int32.ONE, this.raiseTo(other.abs()).asInteger());
 		} else {
-			return Rational.constructor( this.raiseTo(other.abs()).asInteger(), Int32.ONE);
+			return BigRational.constructor( this.raiseTo(other.abs()).asInteger(), Int32.ONE);
 		}
 	}
 
