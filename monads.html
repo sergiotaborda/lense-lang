@@ -20,48 +20,32 @@
 
 	</script>
   
+	<script src="js/jquery-1.11.1.min.js"></script>
+  
 	<script src="js/shCore.js"></script>
 
 	<script src="js/shBrushScala.js"></script>
 	<script src="js/shBrushCSharp.js"></script>
 	<script src="js/shBrushDart.js"></script>
 	<script src="js/shBrushJava.js"></script>
-		
 	<script src="js/shBrushLense.js"></script>
-
 
     <!-- Le styles -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
-    <link href="css/asciidoctor.css" rel="stylesheet">
+    
     <link href="css/base.css" rel="stylesheet">
-    <link href="css/prettify.css" rel="stylesheet">
+	<link href="css/asciidoctor.css" rel="stylesheet">
+ 
   	<link rel="stylesheet" type="text/css" href="css/shCore.css"  >
 	<link rel="stylesheet" type="text/css" href="css/shThemeLense.css" >
 	<link rel="stylesheet" type="text/css" href="css/shThemeDefault.css" >
-	
+	<link rel="stylesheet" type="text/css" href="css/site.css" >
+
 	<style>
-	 .console {
-	    background : black;
-	    color: white;
-	    width: 500px;
-	 }
-	 p {
-	 	text-align:justified;
-	 }
-	 pre {
-	 	background-color:white !important;
-	 	border:0px !important;
-	 	padding:0px !important;
-	 	overflow: visible !important;
-	 }
-	 pre code {
-	 	padding:2px !important;
-	 	margin : 0px !important;
-	 }
-	 
-	.syntaxhighlighter table .container:before {
-		display: none !important;
-	}
+		.navbar-toggle{
+			float:left;
+			margin-left:7px;
+		}
 	</style>
 	
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
@@ -72,20 +56,56 @@
     <!-- Fav and touch icons -->
 
     <link rel="shortcut icon" href="icon.png">
+	
+	<script>
+	$(document).ready(function() {
+	  $(".collapsible-menu").on("click", "li > a", function(e) {
+		var p = $(this).parent();
+		if (p.hasClass("has-children")) {
+			p.toggleClass("open").siblings(".open").removeClass("open");
+		}
+	  });
+	  
+	  var url = window.location.pathname;
+		var filename = url.substring(url.lastIndexOf('/')+1);
+		
+	  $(".collapsible-menu a").each(function(){
+		var link = $(this).attr("href");
+		
+		if (filename == link) {
+			var item = $(this).parent();
+			
+			while (!item.hasClass("collapsible-menu")){
+				if (item.hasClass("has-children")) {
+					item.toggleClass("open").siblings(".open").removeClass("open");
+				}
+				item = $(item).parent()
+			}
+		}
+
+	  })
+	  
+	});
+	</script>
   </head>
   <body onload="prettyPrint()">
     <div id="wrap">
 	
 	<!-- Fixed navbar -->
-    <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <nav class="navbar navbar-default navbar-fixed-top" >
       <div class="container">
         <div class="navbar-header">
+		  <button type="button" data-target="#navbar" data-toggle="collapse" class="navbar-toggle"> 
+			  <span class="sr-only">Toggle navigation</span> 
+			  <span class="icon-bar"></span> 
+			  <span class="icon-bar"></span> 
+		  </button>
           <a class="navbar-brand" href="index.html">Lense</a>
         </div>
-        <div class="navbar-collapse collapse">
+        <div id="navbar" class="navbar-collapse collapse">
           <ul class="nav navbar-nav">
             <li class="dropdown">
-				<a href="#" class="dropdown-toggle" data-toggle="dropdown">Get Started<b class="caret"></b></a>
+				<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Get Started<b class="caret"></b></a>
 				<ul class="dropdown-menu">
 					<li class="disabled"><a href="learn.html">Learn Lense</a></li>
 					<li class="disabled"><a href="try.html">Try Lense</a></li>
@@ -93,7 +113,7 @@
 				</ul>
 			</li>
             <li class="dropdown">
-				<a href="#" class="dropdown-toggle" data-toggle="dropdown">Fundamentals<b class="caret"></b></a>
+				<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Fundamentals<b class="caret"></b></a>
 				<ul class="dropdown-menu">
 					<li><a href="tour/tour.html">Language Tour</a></li>
 					<li class="disabled"><a href="guide.html">Programmer's Guide</a></li>
@@ -103,7 +123,7 @@
             </li>
 			
             <li class="dropdown">
-              <a href="#" class="dropdown-toggle" data-toggle="dropdown">Details<b class="caret"></b></a>
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Details<b class="caret"></b></a>
 				<ul class="dropdown-menu">
 					<li><a href="nullability.html">Nullability</a></li>
 					<li><a href="numbers.html">Numbers</a></li>
@@ -137,50 +157,142 @@
           </ul>
         </div><!--/.nav-collapse -->
       </div>
-    </div>
+    </nav>
+	
 	<div class="corner-ribbon top-right sticky shadow"><a href="status.html">Exploration Stage</a></div>
-    <div class="container">
-	<p><h1>Monads</h1><p>Lense supports the concept of Monad. A monad is a special container type that allows operations to occur on the contained type without explicitly requiring<br/>the boxing and unboxing of the contained instances. Monads are a special case of the Decorator pattern where all operations return a new object and transform the decorated type in some way.</p><p>Because all monads are containers, they rely on decorating a contained object. In Lense we do this simply by calling the monads constructor.<br/>You can also create <a href="enhancements.html">enhancements</a> to facilitate some more common encapsulations.</p><p>The most common operation is to transform a monad object to another monad object of the same type operating in the contained elements. This is done by the map function.</p><h1>Iterable</h1><p>Iterable is a monad that allows the iteration of elements in a given order. <code>Sequence</code>s like <code>Array</code>s and <code>List</code>s implement <code>Iterable</code>s . Also <code>Association</code>s , <code>Tuple</code>s and <code>Progression</code> are <code>Iterable</code>s.<br/>You can iterate over the elements of any <code>Iterable&lt;T&gt;</code> with the <em>for-each</em> directive and transform them in some way</p>
-<pre><code class="brush: lense ">val cities : Sequence&lt;String&gt; = [&quot;New York&quot;, &quot;London&quot;, &quot;Paris&quot;];
-val lengths : List&lt;Natural&gt; = new List&lt;Natural&gt;();
-
-for (String city in cities){
-	lengths.add(city.size());
-}
-</code></pre><p>When you need to transform several containers or the transformations are complex this type of explicit iteration becomes cumbersome.<br/>Because all Iterables are monads , they have the <code>map</code> method that receives a lambda to operate over all elements. </p>
-<pre><code class="brush: lense ">val cities : Sequence&lt;String&gt; = [&quot;New York&quot;, &quot;London&quot;, &quot;Paris&quot;];
-
-val lengths : Sequence&lt;Natural&gt;  =  cities.map( city -&gt; city.size());
-</code></pre><p>This code simply applies a transformation to all elements of the original container (*cities*) and produces a new <em>Iterable<Natural></em>. Them we assign that result to a List.<br/>Because List has a conversion constructor based on Iterable the elements are copied to the list as if we had write</p>
-<pre><code class="brush: lense ">val cities : Sequence&lt;String&gt; = [&quot;New York&quot;, &quot;London&quot;, &quot;Paris&quot;];
-
-val lengths : List&lt;Natural&gt; =  new List&lt;Natural&gt;(cities.map( city -&gt; city.size()));
-</code></pre><p>You can use several other methods like <code>filter</code> that allows you to exclude some values.<br/>For example, if we want to calculate the cubes of only odd numbers between 1 and 100 we can use a Progression and write </p>
-<pre><code class="brush: lense ">var cubes : Sequence&lt;Natural&gt;=  1..100.filter(n -&gt; n.isOdd()).map( n -&gt; n ** 3));
-</code></pre><p>This a very simple, readable, code that means the same as </p>
-<pre><code class="brush: lense ">val  cubes = new List&lt;Natural&gt;();
-
-for (Natural n in 1..100) {
-	if (n.isOdd()) {
-		lengths.add(n ** 3);
-	}
-}
-</code></pre><h1>Maybe</h1><p>Maybe is a monad that allows us to manipulate possible absent values. <code>Maybe&lt;T&gt;</code> is an abstract type with only two subtypes : <code>Some&lt;T&gt;</code> and None. <code>None</code> has a single instance named <code>none</code>. <code>none</code> represents the absence of value.<br/>Maybe is equivalent to the <code>Optional</code> type that exists in other languages. However, in Lense, Maybe is a fundamental type and its the only way you can handle the concept of "null" since Lense does not allow the traditional <code>null</code> reference value. </p>
-<pre><code class="brush: lense ">public calculateNameLength( name : Maybe&lt;String&gt;) : Maybe&lt;Natural&gt; {
+    
+	<div class="container">
+	<div class="container-fluid">
+		<div class="row row-offcanvas row-offcanvas-right">
+			 <div class="col-xs-12 col-sm-9 col-sm-push-3">
+				<div class="paragraph"> 
+ <p>==Monads</p> 
+</div> 
+<div class="paragraph"> 
+ <p>Lense supports the concept of Monad. A monad is a special container type that allows operations to occur on the contained type without explicitly requiring the boxing and unboxing of the contained instances. Monads are a special case of the Decorator pattern where all operations return a new object and transform the decorated type in some way.</p> 
+</div> 
+<div class="paragraph"> 
+ <p>Because all monads are containers, they rely on decorating a contained object. In Lense we do this simply by calling the monads constructor. You can also create <a href="enhancements.html">enhancements</a> to facilitate some more common encapsulations.</p> 
+</div> 
+<div class="sect2"> 
+ <h3 id="_strong_map_strong"><strong>map</strong></h3> 
+ <div class="paragraph"> 
+  <p>The most common operation is to transform a monad object to another monad object of the same type operating in the contained elements. This is done by the <strong>map</strong> function.</p> 
+ </div> 
+ <div class="listingblock"> 
+  <div class="content"> 
+   <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">public calculateNameLength( name : Monad&lt;String&gt;) : Monad&lt;Natural&gt; {
 	return name.map(m -&gt; m.size());
-}
-</code></pre><p>Because Maybe is a fundamental type in Lense we can simplify this method with some shorter syntax:</p>
-<pre><code class="brush: lense ">public calculateNameLength( name: String?) : Natural? {
-	return name.map(m -&gt; m.size());
-}
-</code></pre><p>This simple method returns the length of the given name and we can called it like:</p>
-<pre><code class="brush: lense ">val x : Natural? = calculateNameLength(&quot;London&quot;); // x holds a Some&lt;Natural&gt; with a value 6 inside
-val y : Natural?= calculateNameLength(none); // y holds the instance of &#39;none&#39;. 
-</code></pre><p>Note that the methods does not use any decision directive to handle the absence of value directly. This is handled by the <code>map</code> method it self.<br/>If the original Maybe is really and instanceof of <code>Some</code> it has some value in it, that value is passed to the given lambda and a new <code>Some</code> is created having inside the calculated value.<br/>If the original Maybe is really a <code>none</code> the lambda is not invoked and <code>none</code> is returned.</p><p>You can, if you want to, transform a Maybe<T> to a T by offering a default value, like this:</p>
-<pre><code class="brush: lense ">val  x : Natural? =  ... // obtain in some way
+}</code></pre> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect2"> 
+ <h3 id="_strong_flatmap_strong"><strong>flatMap</strong></h3> 
+ <div class="paragraph"> 
+  <p>Some times a map operation will end up in an object of type <code>Monad&lt;Monad&lt;T&gt;&gt;</code>. Normally we would like to end up in a <code>Monad&lt;T&gt;</code> type, so we can use the <strong>flatMap</strong> operation:</p> 
+ </div> 
+ <div class="listingblock"> 
+  <div class="content"> 
+   <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">var name : String?
 
-val size : Natural = x.or(0);
-</code></pre><p>this means if <em>x</em> has a value, that value will assigned to <em>size</em>, otherwise 0 will be assigned.</p></p>
+var length : Natural? = name.flaMap(m -&gt; calculateNameLength(m));</code></pre> 
+  </div> 
+ </div> 
+</div>
+			</div>
+			<div class="col-xs-6 col-sm-3 col-sm-pull-9 sidebar-offcanvas" id="sidebar"">
+
+<ul class="collapsible-menu">
+	<li><a href="index.html">Introduction</a></i></i>
+	<li><a href="status.html">Status</a></i>
+	<li class="has-children">
+		<a href="javascript:void(0)">Syntax and Semantics</a>
+		<ul >
+			<li><a href="identifiers.html">Reserved Words</a></li>
+			<li><a href="variables.html">Variables and Mutability</a></li>
+			<li><a href="nullability.html">Nullability</a></li>
+			
+			 <!--
+			
+			<li>Comments</li>
+			<li>Generics</li>
+			<li>Functions and Lambdas</li>
+			
+			-->
+			
+			<li class="has-children">
+				<a href="javascript:void(0)">Fundamental Types</a>
+				<ul>
+					<li><a href="booleans.html">Boolean</a></li>
+					<li><a href="strings.html">String</a></li>
+					<li><a href="numbers.html">Number</a></li>
+					<li><a href="binary.html">Binary</a></li>
+					<li><a href="interval.html">Interval</a></li>
+					<li><a href="iterable.html">Iterable</a></li>
+					<li class="has-children"> 
+						<a href="javascript:void(0)">Containers</a>
+						<ul> 
+							<li><a href="maybe.html">Maybe</a></li>
+							<li><a href="tuples.html">Tuple</a></li>
+							
+							<li>Range</li>
+							<li><a href="sequence.html">Sequence</a></li>
+							<li>Association</li>
+							
+						</ul>
+					</li>
+				</ul>
+			</li>
+			<li><a href="containerLiterals.html">Container Literals</a></li>
+			<li><a href="arrays.html">Arrays</a></li>
+			<li class="has-children">
+				<a href="javascript:void(0)">Control Statements</a>
+				<ul>
+					<li>Decision: if</li>
+					<li>Loop : while</li>
+					<li>Iteration : for</li>
+					<li>Selection/Matching : switch</li>
+				</ul>
+			</li>
+			<li class="has-children"> 
+				<a href="javascript:void(0)">Types</a>
+				<ul>	
+					<li><a href="classes.html">Classes</a></li>
+					<li><a href="objects.html">Objects</a></li>
+					<li><a href="interfaces.html">Interfaces</a></li>
+					<li>Enums</li>
+					<li><a href="enhancements.html">Enhancements</a></li>
+				</ul>
+			</li>
+			<li class="has-children"> 
+				<a href="javascript:void(0)">Type Members</a>
+				<ul>
+					<li><a href="constructors.html">Constructors</a></li>
+					<li><a href="properties.html">Fields and Properties</a></li>
+					<li><a href="indexers.html">Indexed Properties</a></li>
+					<li>Methods</li>
+				</ul>
+			</li>
+			<li><a href="casting.html">Casting</a></li>
+			<li><a href="operators.html">Operator Overloading</a></li>
+			
+		</ul>
+	</li>
+	<li class="has-children">
+		<a href="javascript:void(0)">Compilation</a>
+		<ul>
+			<li><a href="platforms.html">Platforms</a></li>
+			<li><a href="erasure.html">Erasure</a></li>
+		</ul>
+	</li>
+	<li><a href="concurrency.html">Concurrency</a>
+	</li>
+
+<ul>			</div>
+		</div>
+	</div>
+	
 	
 		</div>
 		<div id="push"></div>
@@ -188,7 +300,7 @@ val size : Natural = x.or(0);
     
     <div id="footer">
       <div class="container">
-        <p class="muted credit">Lense is an open source project and a community driven effort</p>
+        <p class="muted credit">Lense is an open source project </p>
       </div>
     </div>
     
@@ -197,6 +309,16 @@ val size : Natural = x.or(0);
     <script src="js/bootstrap.min.js"></script>
     <script src="js/prettify.js"></script>
     <script>
+	
+		$(document).ready(function() {
+				$("code.language-lense").addClass("brush: lense");
+				$("code.language-java").addClass("brush: java");
+				$("code.language-c-sharp").addClass("brush: c-sharp");
+				$("code.language-typescript").addClass("brush: typescript");
+				$("code.language-dart").addClass("brush: dart");
+				$("code.language-swift").addClass("brush: swift");
+		});
+	
     	SyntaxHighlighter.config.tagName = 'code';
 		SyntaxHighlighter.defaults.toolbar = false;
 		SyntaxHighlighter.all();

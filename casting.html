@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8"/>
-    <title>Objects</title>
+    <title>Casting</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <meta name="author" content="">
@@ -166,65 +166,99 @@
 		<div class="row row-offcanvas row-offcanvas-right">
 			 <div class="col-xs-12 col-sm-9 col-sm-push-3">
 				<div class="sect1"> 
- <h2 id="_objects">Objects</h2> 
+ <h2 id="_casting">Casting</h2> 
  <div class="sectionbody"> 
   <div class="paragraph"> 
-   <p>Instead of static members, Lense has object declarations. An object declaration instructs the compiler to create a singleton object that exists at the package level.</p> 
+   <p>Lense does not support an explicit cast operator like C or Java do. Lense supports flow sensitive casting instead. This means the compiler can use flow directives like <code>if</code> or <code>switch</code> to understand the type of the variable.</p> 
   </div> 
   <div class="listingblock"> 
    <div class="content"> 
-    <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">public object Console {
+    <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">public collectLeafs( root : Node , leafs : List&lt;Node&gt;) {
 
-	public println(String text) {
-         // implementation goes here ...
-    }
+	if ( obj is LeafNode){
+	   leafs.add(obj);
+	} else if (obj is BranchNode){
+
+		// obj.children is visible because the compiler knows obj is a BranchNode
+		for (var child in obj.children){
+			collectLeafs(child, leafs);
+		}
+	} else {
+		throw new Exception("Unrecognised node");
+	}
+
 }</code></pre> 
    </div> 
   </div> 
   <div class="paragraph"> 
-   <p>Objects are then imported normally like a type using the <code>import</code> statement:</p> 
+   <p>The <code>is</code> operator returns <code>true</code> if the variable holds an object of the specified type. The compiler then knows that all references to that variable inside the <code>if</code> really refer to that type, and so all operations on that type are allowed.</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>Flow sensitive typing simplifies writing the <strong>check and cast</strong> idiom, very common when overriding <code>equals</code>. In other languages, like Java, you need to test for type and then cast:</p> 
   </div> 
   <div class="listingblock"> 
    <div class="content"> 
-    <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">import somepackage.Console;
+    <pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">// java
+public class Person {
 
-public class OtherClass {
+	public long id;
 
-	public doIt() {
-	     Console.println("Hello, world");
+	public equals(Object other){
+		return (other instanceof Person) &amp;&amp; ((Person)other).Id == this.Id;
+	}
+
+}</code></pre> 
+   </div> 
+  </div> 
+  <div class="paragraph"> 
+   <p>in Lense the compiler is smart to understand that if tested, then the variable is of that type.</p> 
+  </div> 
+  <div class="listingblock"> 
+   <div class="content"> 
+    <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">public class Person {
+
+	public Id : Natural;
+
+	public equals(other : Any){
+		return other is Person &amp;&amp; other.Id == this.Id;
+	}
+
+}</code></pre> 
+   </div> 
+  </div> 
+  <div class="paragraph"> 
+   <p>You can also use other flow directives like <code>switch</code> :</p> 
+  </div> 
+  <div class="listingblock"> 
+   <div class="content"> 
+    <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">public collectLeafs( root : Node , leafs : List&lt;Node&gt;) {
+
+	switch(obj){
+		case is LeafNode {
+		    leafs.add(obj);
+		}
+		case is BranchNode {
+			for (var child in obj.children){
+				collectLeafs(child, leafs);
+			}
+		}
+		default{
+		 	throw new Exception("Unrecognised node");
+		}
 	}
 }</code></pre> 
    </div> 
   </div> 
   <div class="paragraph"> 
-   <p>As you can see from this example, calling methods on the object is very much like a static call in other languages.</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>When declaring an object Lense will really create a single instance of the given anonymous class in the parent scope. Objects can implement interfaces and inherit from other classes but not from other objects.</p> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="_nested_objects_under_consideration">Nested Objects (Under Consideration)</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>Objects can be nested in other types and other objects. In this case the object will have access to the private members of the surrounding type. Nested objects calls must be prefixed with the type they are in:</p> 
+   <p>and <code>assert</code>:</p> 
   </div> 
   <div class="listingblock"> 
    <div class="content"> 
-    <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">public class OtherClass {
+    <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">var node : Node  = ... // some node
 
-	public object SomeObject {
+assert( node is BranchNode);
 
-	      public doItInTheObject () {}
-	}
-
-	public doItInTheOtherClass() {}
-}
-
-// called like
-
-OtherClass.SomeObject.doItInTheObject()</code></pre> 
+return node.children.size; // at this line the compiler knows node is a BranchNode because otherwise and exception would have been thrown earlier.</code></pre> 
    </div> 
   </div> 
  </div> 

@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8"/>
-    <title>Container Literals</title>
+    <title>Objects</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <meta name="author" content="">
@@ -165,212 +165,287 @@
 	<div class="container-fluid">
 		<div class="row row-offcanvas row-offcanvas-right">
 			 <div class="col-xs-12 col-sm-9 col-sm-push-3">
-				<div class="sect1"> 
- <h2 id="_container_literals">Container Literals</h2> 
+				<div class="paragraph"> 
+ <p>Lense does not have <a href="glossary.html#primtiveTypes">primitive types</a> and thus all values are objects , all objects descend from some class and all variables are references. The Lense back-end compiler may try to use the native plataform’s primitives as much as possible to enhance performance, but this is an optimization. Conceptually primitives do not exist.</p> 
+</div> 
+<div class="sect1"> 
+ <h2 id="_classes">Classes</h2> 
  <div class="sectionbody"> 
   <div class="paragraph"> 
-   <p>Lense recognizes literals for `Sequence`s, `Association`s and `Tuple`s. As a rule, because Lense has type inference it must be possible to infer the type of literal from the syntax, so we need a diferent sintax for each container type.</p> 
+   <p>Classes are the main tool for defining your own objects. A class to represent fraction objects could be implemented like so:</p> 
   </div> 
-  <div class="sect2"> 
-   <h3 id="sequence-literal">Sequences</h3> 
-   <div class="paragraph"> 
-    <p>In C-familly languages an array is a fundamental type and can be created literally using curly brackets <strong>{</strong> and <strong>}</strong>, but in more mathematical oriented languages such as Fortran an Julia common brackets are used.</p> 
-   </div> 
-   <div class="listingblock"> 
-    <div class="content"> 
-     <pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">// an example in Java
-int[] array = new int[]{1, 2, 3};</code></pre> 
-    </div> 
-   </div> 
-   <div class="paragraph"> 
-    <p>On a closer look we can understand the C-family languages syntax like Java or C# as not having array literals <strong>per se</strong>, but initializers applied to arrays. So the syntax <code>{1 ,2 , 3}</code> does not denote an array, but an initializer. Initializers do not have type and they are intrinsically understood by the compiler.</p> 
-   </div> 
-   <div class="paragraph"> 
-    <p>What’s happening in that java code is that an array is being constructed with <code>new int[]</code> and then initialized with the values 1, 2 and 3. The JVM will translate this two operations as a single operation, but conceptually there is a difference.</p> 
-   </div> 
-   <div class="paragraph"> 
-    <p>In C# the same concept is used to initialize both arrays and lists</p> 
-   </div> 
-   <div class="listingblock"> 
-    <div class="content"> 
-     <pre class="highlightjs highlight"><code class="language-csharp hljs" data-lang="csharp">int[] array = new int[]{1, 2, 3};
-List&lt;int&gt; list = new List(){1, 2, 3};</code></pre> 
-    </div> 
-   </div> 
-   <div class="paragraph"> 
-    <p>In Lense the type of the container is fixed by the syntax and a <a href="constructors.html#conversion">conversion constructor</a> is used to copy the values to another type if need be. So no constructor is called. A runtime object is created that depends on the underlying platform. The type inside the container is inferred from the declared value types.</p> 
-   </div> 
-   <div class="paragraph"> 
-    <p>Lense uses common brackets to represent <code>Sequence</code> literals. Keep in mind arrays are not fundamental types in Lense, sequences are.An array is a special (mutable) sub type of sequence. (as always types are shown for clarity, they are optional)</p> 
-   </div> 
-   <div class="listingblock"> 
-    <div class="content"> 
-     <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">let sequence : Sequence&lt;Natural&gt;   = [1, 2, 3];
-var array : Array&lt;Natural&gt;  = [1, 2, 3];</code></pre> 
-    </div> 
-   </div> 
-   <div class="paragraph"> 
-    <p>The first line creates a sequence of elements 1, 2 and 3. The second line creates an array of the elements 1, 2 and 3 by first creating a sequence and them promoting it to an Array by calling its <a href="constructors.html#conversion">conversion constructor</a>. In practice the compiler is free to optimize these literal constructions and not really call the conversion constructor on <code>Array&lt;T&gt;</code>.</p> 
-   </div> 
-  </div> 
-  <div class="sect2"> 
-   <h3 id="_sets">Sets</h3> 
-   <div class="paragraph"> 
-    <p>Currently there is no special syntax for sets. A set can be created by using a literal sequence and a constructor.</p> 
-   </div> 
-   <div class="listingblock"> 
-    <div class="content"> 
-     <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">let sequence : Set&lt;Natural&gt; = new HashSet([1, 2, 2, 3, 4, 3]);</code></pre> 
-    </div> 
-   </div> 
-   <div class="paragraph"> 
-    <p>Or, you can use the <code>toSet</code> method in <code>Sequence</code>:</p> 
-   </div> 
-   <div class="listingblock"> 
-    <div class="content"> 
-     <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">let sequence : Set&lt;Natural&gt; = link:toSet([1, 2, 2, 3, 4, 3];</code></pre> 
-    </div> 
-   </div> 
-   <div class="paragraph"> 
-    <p>The set will only contain the elements 1, 2, 3 and 4 once.</p> 
-   </div> 
-  </div> 
-  <div class="sect2"> 
-   <h3 id="_associations">Associations</h3> 
-   <div class="paragraph"> 
-    <p>Associations are used to maintain pairs of values related to each other. Normally in a <strong>key to value</strong> relationship.</p> 
-   </div> 
-   <div class="listingblock"> 
-    <div class="content"> 
-     <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">let  association : Association&lt;Natural,String&gt; = { 1:"First", 2:"Second", 3:"Third" };
-var  map : Map&lt;Natural, String&gt; =  { 1:"First", 2:"Second", 3:"Third" };</code></pre> 
-    </div> 
-   </div> 
-   <div class="paragraph"> 
-    <p>Like <code>Sequence</code>, <code>Association</code> is a fundamental type in Lense, so it has its own literal type.</p> 
-   </div> 
-   <div class="paragraph"> 
-    <p>The first line creates an association of elements. The second line creates a map of the same elements by first creating an association and them promoting it to a Map. In Lense, <code>Map</code> is a specific (mutable) implementation of <code>Association</code> and not an interface like in Java. Is equivalent to <code>HashMap</code> in Java.</p> 
-   </div> 
-  </div> 
-  <div class="sect2"> 
-   <h3 id="_tuples">Tuples</h3> 
-   <div class="paragraph"> 
-    <p>Tuples are similar to sequences, but each index has its own type. Tuples also are fundamental types in Lense. Structurally a Tuple is a node in a linked-list kind of structure. But Tuples are not Sequences, eventhought they are <code>Iterable&lt;Any&gt;</code> The syntax is similar to Sequences.</p> 
-   </div> 
-   <div class="listingblock"> 
-    <div class="content"> 
-     <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">var tuple : Tuple&lt;Natural , Tuple&lt;String, Tuple&lt; Boolean, Nothing &gt;&gt;&gt; = ( 1 , "2" , true );
-var association : (Natural , String , Boolean) = ( 1 : "2" : true );</code></pre> 
-    </div> 
-   </div> 
-   <div class="paragraph"> 
-    <p>The first line creates a tuple of elements. The second line creates the same tuple but uses the tuple short type syntax for representing tuple types. The default form used in the first line can be very long and odd to write and read eventhought is the exact correct type of that tuple.</p> 
-   </div> 
-  </div> 
-  <div class="sect2"> 
-   <h3 id="_matrix_under_consideration">Matrix (Under Consideration)</h3> 
-   <div class="paragraph"> 
-    <p>It could be possible to define a specific syntax for a two dimensional`Matrix`. This is not currently implemented.</p> 
-   </div> 
-   <div class="listingblock"> 
-    <div class="content"> 
-     <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">var matrix :  Matrix&lt;Natural&gt;  = [ 1 ,2 ,3 ; 4, 5, 6 ; 5 6 7];
+  <div class="listingblock"> 
+   <div class="content"> 
+    <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">public let class Fraction {
 
-// also can be written as
+    private constructor ( public let numerator: Integer, public let denominator: Integer);
 
-var  matrix : Matrix&lt;Natural&gt; = [
-	1 ,2 ,3 ;
- 	4, 5, 6 ;
- 	5, 6, 7
-];</code></pre> 
-    </div> 
-   </div> 
-   <div class="paragraph"> 
-    <p>This would make a lot of sense in order to facilitate using Lense in more math and/or science scenarios. An alternative is to write sequence of sequences literals an use conversion constructors :</p> 
-   </div> 
-   <div class="listingblock"> 
-    <div class="content"> 
-     <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">var  matrix :  Matrix&lt;Natural&gt; = [ [1 ,2 ,3 ], [4, 5, 6 ], [ 5 6 7]];
+    public constructor valueOf ( value: Decimal){
+        return new Fraction(value.toString());
+    }
 
-// also can be written as
+    public constructor parse (value : String){
+         let pos : Natural? = value.indexOf('.');
+         if (pos != none){
+            let wholePart = new Integer.parse(value.subString(0,pos));
+            let multiplier =  10 ^^ (value.size - pos); // 10 to the power of the number of decimal digits
+            let decimalPart = new Integer.parse(value.subString(pos+1));
 
-var  matrix : Matrix&lt;Natural&gt; = [
-	[1 ,2 ,3],
- 	[4, 5, 6],
- 	[5, 6, 7]
-];</code></pre> 
-    </div> 
-   </div> 
-   <div class="paragraph"> 
-    <p>The support for matrixes is still under consideration and may not be implemented.</p> 
-   </div> 
-  </div> 
-  <div class="sect2"> 
-   <h3 id="_records_under_consideration">Records (Under Consideration)</h3> 
-   <div class="paragraph"> 
-    <p>Records are a special object that represents a non typed property bag. Records are not currently implemented. A possible syntax would be similar to an association, but using = instead of ":". The difference is that on an association both sides of the ":" can be variables, in a record only the right side can be a variable. The left side is interpreted as the name of a property.</p> 
-   </div> 
-   <div class="listingblock"> 
-    <div class="content"> 
-     <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">var  address : Record = {
-	Street = "Baker Street",
-	Number = "221B",
-	City = "Lodon",
-	Country = "England"
+            let numerator = wholePart * multiplier + decimalPart;
+
+            return new Fraction(numerator, multiplier);
+         } else {
+            // whole number
+            return new Fraction(new Integer.parse(value), 1);
+         }
+    }
+
+    public multiply ( other : Fraction) : Fraction{
+          return new Fraction ( this.numerator * other.numerator, this.denominator * other.denominator);
+    }
+
+    public invert () : Fraction{
+        return new Fraction (this.denominator, this.numerator);
+    }
+
 }</code></pre> 
-    </div> 
    </div> 
-   <div class="paragraph"> 
-    <p>This syntax takes us full circle to the initializer concept discussed at the beginning. We can now use records to initialize other types like so:</p> 
-   </div> 
-   <div class="listingblock"> 
-    <div class="content"> 
-     <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">var  address : Address = new Address {
-	Street = "Baker Street",
-	Number = "221B",
-	City = "London",
-	Country = "England"
+  </div> 
+  <div class="paragraph"> 
+   <p>Classes in Lense support <a href="properties.html">properties</a>, <a href="properties.html#indexed">indexers</a>, methods and <a href="constructors.html">constructors</a> as you would expect. Lense also support immutability declaration for classes with <code>let class</code>. Any type or member can also have generic type parameters.</p> 
+  </div> 
+  <div class="listingblock"> 
+   <div class="content"> 
+    <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">public class Matrix&lt;T&gt; {
+
+    private backingArray : Array&lt;T&gt;;
+    private rowsCount : Natural;
+    private colsCount : Natural;
+
+    constructor Matrix( rowsCount : Natural, colsCount : Natural, seed : T){
+        this.rowsCount = rowsCount;
+        this.colsCount = colsCount;
+
+        backingArray = new Array&lt;T&gt;(rowsCount * colsCount, seed);
+    }
+
+    public  [row : Natural, column: Natural] : T {
+        get {
+            return backingArray[row * rowsCount + column];
+        }
+        set (value){
+			backingArray[row * rowsCount + column] = value;
+        }
+    }
+
 }</code></pre> 
-    </div> 
    </div> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="sum-types">Sealed Type Hierarchies</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>In Lense is possible to define an abstract type that can only be implemented by a limited list of other types. This is called a Sealed Type Hierarchy. This mechanism is known in other languages as "sum type" or "algebraic type".</p> 
+  </div> 
+  <div class="sect2"> 
+   <h3 id="_sealed_classes">Sealed Classes</h3> 
    <div class="paragraph"> 
-    <p>This a combination of a call to the <a href="constructors.html">primary constructor</a> and a initialization of each property referred in the record literal. This is not a conversion but syntax sugar for:</p> 
+    <p>The classic example is the Node type. Normally we have a Branch node and a Leaf node. Traditionally we would write:</p> 
    </div> 
    <div class="listingblock"> 
     <div class="content"> 
-     <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">// define a record
-var  tempRecord : Record = {
-	Street = "Baker Street",
-	Number = "221B",
-	City = "London",
-	Country = "England"
+     <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">public abstract class Node &lt;T&gt; {
+
 }
 
-// copy properties with the same name
-var address : Address = new Address();
+public class Branch&lt;T&gt; extends Node&lt;T&gt;{
+	constructor (left : Node&lt;T&gt;  , right: Node&lt;T&gt; );
+}
 
-address.Street = tempRecord.Street;
-address.Number = tempRecord.Number;
-address.City = tempRecord.City;
-address.Country = tempRecord.Country;</code></pre> 
+public class Leaf &lt;T&gt; extends Node&lt;T&gt;{
+	constructor (value : T );
+}</code></pre> 
     </div> 
    </div> 
    <div class="paragraph"> 
-    <p>That is optimized to:</p> 
+    <p>If we now need to collect all leafs in a tree, traditionally, we would need to do some recursive algorithm that would decide what to do based on the type of the Node. For example, in java would be:</p> 
    </div> 
    <div class="listingblock"> 
     <div class="content"> 
-     <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">var  address : Address = new Address();
+     <pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">// java
+public &lt;T&gt; void colectLeafs(Node&lt;T&gt; node, List&lt;T&gt; leafs){
 
-address.Street = "Baker Street";
-address.Number = "221B";
-address.City = "London";
-address.Country = "England";</code></pre> 
+	if (node instanceof Branch){
+	     Branch b = (Branch)node);
+	     collectLeafs(b.left, leafs);
+	     collectLeafs(b.right, leafs);
+	} else if (node instanceof Leaf){
+	    leafs.add(((Leaf)node).value);
+	}
+}</code></pre> 
     </div> 
    </div> 
    <div class="paragraph"> 
-    <p>This feature is similar to the initialization syntax in C# even thought in Lense we would be using the conjunction of two concepts : constructors and record literals.</p> 
+    <p>Of course this is not good Object Oriented design because we could add a method to Node and make use of polymorphism, but suppose Node is given by some third party code and we cannot add the polymorphic method. Then, we need to make a decision based on the type of the object, then cast it, then capture the properties and use them. In Lense we could use a similar construction using <a href="https://en.wikipedia.org/wiki/Flow-sensitive_typing">flow-sensitive typing</a>:</p> 
+   </div> 
+   <div class="listingblock"> 
+    <div class="content"> 
+     <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">public colectLeafs&lt;T&gt;(Node&lt;T&gt; node, List&lt;T&gt; leafs): Void {
+
+	if (node is Branch&lt;T&gt;){
+	     collectLeafs(node.left, leafs);
+	     collectLeafs(node.right, leafs);
+	} else if (node is Leaf&lt;T&gt;){
+	    leafs.add(node.value);
+	}
+}</code></pre> 
+    </div> 
+   </div> 
+   <div class="paragraph"> 
+    <p>However the compiler would be blind to the fact <code>Node</code> is a sum type. If we did not had a <code>else if</code> to test for leafs the compiler would not complain. When we need the be sure all sub types are covered we can use the <code>switch</code> statement.</p> 
+   </div> 
+   <div class="listingblock"> 
+    <div class="content"> 
+     <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">public colectLeafs&lt;T&gt;(Node&lt;T&gt; node, List&lt;T&gt; leafs) : Void {
+
+	switch(node) {
+		case is Branch&lt;T&gt; {
+			collectLeafs(node.left, leafs);
+	        collectLeafs(node.right, leafs);
+		}
+		case is Leaf&lt;T&gt; {
+			leafs.add(node.value);
+		}
+	}
+}</code></pre> 
+    </div> 
+   </div> 
+   <div class="paragraph"> 
+    <p>Flow-sensitive typing mechanism still applies inside the switch case, but for this to work as expect we need to inform the compiler all children types of <code>Node</code> are limited to <code>Brunch</code> and <code>Leaf</code>:</p> 
+   </div> 
+   <div class="listingblock"> 
+    <div class="content"> 
+     <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">// the root type must be abstract and have an is clause
+public abstract class Node&lt;T&gt; is Brunch&lt;T&gt; , Leaf&lt;T&gt; {
+
+}
+
+// the children must be marked has case class ans extend from the root class
+public case class Brunch&lt;T&gt; extends Node&lt;T&gt; {
+	constructor (var left : Node&lt;T&gt; , var right : Node&lt;T&gt;);
+}
+
+public case class Leaf&lt;T&gt; extends Node&lt;T&gt; {
+	constructor (var value : T);
+}</code></pre> 
+    </div> 
+   </div> 
+   <div class="paragraph"> 
+    <p>With this new code the compiler knows that <code>Brunch</code> and <code>Leaf</code> are the only possible sub types of <code>Node</code>.</p> 
+   </div> 
+   <div class="paragraph"> 
+    <p>With this syntax the case classes can be defined in any file. The <code>is</code> clause marks the type as the root of the Sealed Type Hierarchy. The <code>case</code> keyword informs the compiler this is a child type of <code>Node</code> so the compiler checks to see if <code>Node</code> has defined it in the <code>is</code> clause.</p> 
+   </div> 
+   <div class="paragraph"> 
+    <p>The hierarchy can continue has a child of a sum type can the be the root of a new sealed type hierarchy. Take <a href="maybe.html">Maybe</a> as an example :</p> 
+   </div> 
+   <div class="listingblock"> 
+    <div class="content"> 
+     <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">public abstract class Maybe&lt;T&gt; is None , Some&lt;T&gt; {
+
+	// methods
+
+}
+
+public case class None extends Maybe&lt;Nothing&gt; is none{ // defines an object as only child
+
+	// methods
+}
+
+public case object none extends None {}
+
+public case class Some&lt;T&gt; extends Maybe&lt;T&gt; {
+
+	// methods
+}</code></pre> 
+    </div> 
+   </div> 
+   <div class="paragraph"> 
+    <p>Note as <code>none</code> is a <code>case object</code> on <code>None</code>.</p> 
+   </div> 
+   <div class="paragraph"> 
+    <p>You can define each type in a separate file for each, or group them together in a single file. It is not relevant for the compiler. The only rule is that the entire hierarchy must exist in a single module.</p> 
+   </div> 
+  </div> 
+  <div class="sect2"> 
+   <h3 id="_sealed_interfaces">Sealed interfaces</h3> 
+   <div class="paragraph"> 
+    <p>You can also define a sealed type hierarchy with interfaces:</p> 
+   </div> 
+   <div class="listingblock"> 
+    <div class="content"> 
+     <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">public interface FileSystemElement is File , Folder , Drive {
+	// methods
+}
+
+public case interface Folder extends FileSystemElement{
+	// methods
+}
+
+public case interface Drive extends FileSystemElement{
+	// methods
+}
+
+public case interface File extends FileSystemElement is ContentFile, CompactedFileSystem{
+	// methods
+}
+
+
+public class ContentFile implements File {
+	// methods
+}
+
+public class CompactedFileSystem implements File {
+	// methods for zip like files
+}</code></pre> 
+    </div> 
+   </div> 
+  </div> 
+  <div class="sect2"> 
+   <h3 id="_sealed_instances">Sealed Instances</h3> 
+   <div class="paragraph"> 
+    <p>Lense does no have enums like Java or C# , sealed types are used instead</p> 
+   </div> 
+   <div class="listingblock"> 
+    <div class="content"> 
+     <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">public abstract class Suit is hearts , diamonds , clubs , spades {
+}
+
+public case object hearts extends Suit();
+public case object diamonds extends Suit();
+public case object clubs extends Suit();
+public case object spades extends Suit();</code></pre> 
+    </div> 
+   </div> 
+   <div class="paragraph"> 
+    <p>If no override or overload is necessary, you can reduce boilerplate by defining the cases in a nested form</p> 
+   </div> 
+   <div class="listingblock"> 
+    <div class="content"> 
+     <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">public abstract class Suit { // the is clause is not necessary if all the cases are nested
+
+	 case object hearts;   // assumed public and that extends the encompassing type
+	 case object diamonds; // assumed public and that extends the encompassing type
+	 case object clubs;    // assumed public and that extends the encompassing type
+	 case object spades;   // assumed public and that extends the encompassing type
+
+}</code></pre> 
+    </div> 
+   </div> 
+   <div class="paragraph"> 
+    <p>You can do this is class types also, but because you need to implement methods it is not quite convenient in that scenario.</p> 
    </div> 
   </div> 
  </div> 

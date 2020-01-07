@@ -20,48 +20,32 @@
 
 	</script>
   
+	<script src="js/jquery-1.11.1.min.js"></script>
+  
 	<script src="js/shCore.js"></script>
 
 	<script src="js/shBrushScala.js"></script>
 	<script src="js/shBrushCSharp.js"></script>
 	<script src="js/shBrushDart.js"></script>
 	<script src="js/shBrushJava.js"></script>
-		
 	<script src="js/shBrushLense.js"></script>
-
 
     <!-- Le styles -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
-    <link href="css/asciidoctor.css" rel="stylesheet">
+    
     <link href="css/base.css" rel="stylesheet">
-    <link href="css/prettify.css" rel="stylesheet">
+	<link href="css/asciidoctor.css" rel="stylesheet">
+ 
   	<link rel="stylesheet" type="text/css" href="css/shCore.css"  >
 	<link rel="stylesheet" type="text/css" href="css/shThemeLense.css" >
 	<link rel="stylesheet" type="text/css" href="css/shThemeDefault.css" >
-	
+	<link rel="stylesheet" type="text/css" href="css/site.css" >
+
 	<style>
-	 .console {
-	    background : black;
-	    color: white;
-	    width: 500px;
-	 }
-	 p {
-	 	text-align:justified;
-	 }
-	 pre {
-	 	background-color:white !important;
-	 	border:0px !important;
-	 	padding:0px !important;
-	 	overflow: visible !important;
-	 }
-	 pre code {
-	 	padding:2px !important;
-	 	margin : 0px !important;
-	 }
-	 
-	.syntaxhighlighter table .container:before {
-		display: none !important;
-	}
+		.navbar-toggle{
+			float:left;
+			margin-left:7px;
+		}
 	</style>
 	
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
@@ -72,20 +56,56 @@
     <!-- Fav and touch icons -->
 
     <link rel="shortcut icon" href="icon.png">
+	
+	<script>
+	$(document).ready(function() {
+	  $(".collapsible-menu").on("click", "li > a", function(e) {
+		var p = $(this).parent();
+		if (p.hasClass("has-children")) {
+			p.toggleClass("open").siblings(".open").removeClass("open");
+		}
+	  });
+	  
+	  var url = window.location.pathname;
+		var filename = url.substring(url.lastIndexOf('/')+1);
+		
+	  $(".collapsible-menu a").each(function(){
+		var link = $(this).attr("href");
+		
+		if (filename == link) {
+			var item = $(this).parent();
+			
+			while (!item.hasClass("collapsible-menu")){
+				if (item.hasClass("has-children")) {
+					item.toggleClass("open").siblings(".open").removeClass("open");
+				}
+				item = $(item).parent()
+			}
+		}
+
+	  })
+	  
+	});
+	</script>
   </head>
   <body onload="prettyPrint()">
     <div id="wrap">
 	
 	<!-- Fixed navbar -->
-    <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <nav class="navbar navbar-default navbar-fixed-top" >
       <div class="container">
         <div class="navbar-header">
+		  <button type="button" data-target="#navbar" data-toggle="collapse" class="navbar-toggle"> 
+			  <span class="sr-only">Toggle navigation</span> 
+			  <span class="icon-bar"></span> 
+			  <span class="icon-bar"></span> 
+		  </button>
           <a class="navbar-brand" href="index.html">Lense</a>
         </div>
-        <div class="navbar-collapse collapse">
+        <div id="navbar" class="navbar-collapse collapse">
           <ul class="nav navbar-nav">
             <li class="dropdown">
-				<a href="#" class="dropdown-toggle" data-toggle="dropdown">Get Started<b class="caret"></b></a>
+				<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Get Started<b class="caret"></b></a>
 				<ul class="dropdown-menu">
 					<li class="disabled"><a href="learn.html">Learn Lense</a></li>
 					<li class="disabled"><a href="try.html">Try Lense</a></li>
@@ -93,7 +113,7 @@
 				</ul>
 			</li>
             <li class="dropdown">
-				<a href="#" class="dropdown-toggle" data-toggle="dropdown">Fundamentals<b class="caret"></b></a>
+				<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Fundamentals<b class="caret"></b></a>
 				<ul class="dropdown-menu">
 					<li><a href="tour/tour.html">Language Tour</a></li>
 					<li class="disabled"><a href="guide.html">Programmer's Guide</a></li>
@@ -103,7 +123,7 @@
             </li>
 			
             <li class="dropdown">
-              <a href="#" class="dropdown-toggle" data-toggle="dropdown">Details<b class="caret"></b></a>
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Details<b class="caret"></b></a>
 				<ul class="dropdown-menu">
 					<li><a href="nullability.html">Nullability</a></li>
 					<li><a href="numbers.html">Numbers</a></li>
@@ -137,159 +157,328 @@
           </ul>
         </div><!--/.nav-collapse -->
       </div>
-    </div>
+    </nav>
+	
 	<div class="corner-ribbon top-right sticky shadow"><a href="status.html">Exploration Stage</a></div>
-    <div class="container">
-	<p><h1>Properties</h1><p>In other languages you can have fields (class attributes) and methods. Some languages , like C# and Scala introduce the concept of properties.<br/>Properties are invoked like fields but behave like methods. All properties have two associated methods called Acessor and Modifier. The acessor is the methods called to obtain (get) the value<br/>of the property. The Modifier is the methods called to change (set) the value of the property. In the background, properties are commonly a polimorfic way to access a field.<br/>In java, for example, properties are not a language construct and developers are required to follow some idioms and rules (Java Beans) to define properties in a ways other developers and API will understand.</p><p>From the degin point of view, fields represent state and properties represent the access to that state with the added value of intercepting the state read and write operations and eventually calculating the state on the fly from other properties. Because of this, fields are not supposed to be public has this will break polimorfic access and the client code will have knowledge of how the object stores its state. On the other hand, properties never need to be private because if they are they are not polimorfic any more an the class is only controling acess to it self. </p><p>So Lense does only have one construct named Property. However, Lense properties behave like fields if the are private, and like normal properties if the are not private hence having the best of both world in a single construct. Adicionally remember Lense requires all fields and properties to be initialized to a non <em>null</em> value.</p><p>~~~~brush: lense<br/>public class Person {</p>
-<pre><code>public var name : String { get; set;}   = &quot;&quot;; // self-backing property initialized with the empty string
-public var surname : String  { get; set;}  = &quot;&quot;; // self-backing property initialized with the empty string
-</code></pre><p>}</p><p>// used like a field</p><p>val person = new Person();</p><p>person.name = "John"; // call modifier to set the value<br/>person.surname = "Doe"; // call modifier to set the value</p><p>val fullname = person.fullname; // call accessor to get the value</p><p>Console.print(fullname); // prints: John Doe<br/>~~~~</p><p>The compiler will produce backing fields for non-public properties and will produce acessor and modifier methods that read and write from/to that field.</p><p>Note that properties are preceded with var or val. Properties with val are read-only and can only define an acessor (get) method.<br/>Properties wih var are read-write and can define both acessor and modifier. By this rule we can them simplify the declarations like this:</p>
-<pre><code class="brush: lense">public class Person {
-
-	public var name : String  = &quot;&quot;; // self-backing property initialized with the empty string
-	public var surname : String  = &quot;&quot;; // self-backing property initialized with the empty string
-	
-}
-
-Now the properties look like fields. Remember that the compiler will produce polimorphic properties because you defined them as public.
-
-## Adding Beahvior
-
-Properties can be calculated and/or calculate state. When you need this funcionallity you simply declare the body of the acessor and modifier. 
-Remember that if you do not declare one of them the correspondig operation (read , or write) will not be available.
-
-</code></pre><p>public class Person {</p>
-<pre><code>public var name : String = &quot;&quot;;
-public var surname : String = &quot;&quot;;
-public var birthdayay : Date?;
-
-// read-write property
-public fullname : String {  // backing-fields will not be produced when the acessor and/or the modifier are explicitly defined.
-    get { 
-       // concatenate the names
-       return name + &quot; &quot; + surname; 
-    }
-    set (value){
-       // split the names by a empty space
-       val split = value.split(&quot; &quot;);
-       this.name = split[0];
-       this.surname = split[1];
-    }
-}
-
-// read-only
-public ageToday : Natural? { // the acessor wil not be defined because is not declared
-    get{
-       return this.birthdayay.map ( date -&gt; (Date.today - date).days); 
-    }
-}
-</code></pre><p>}<br/>~~~~</p><h2>Non Inialized Properties</h2><p>You may not omit the properie's initialization because Lense as no <code>null</code>. If we do not kown the value or do not want to initialized it you will need to use an optional type.</p>
-<pre><code class="brush: lense">public class Person {
-    ... 
-	public var birthdayay : Date?;
-}
-</code></pre><p>Lense will still initialize this propery (because there are no nulls), but because its an optional type , the value to use is a constant (the object none). So the above code is equivalent to:</p>
-<pre><code class="brush: lense">public class Person {
-
-	public var birthdayay : Date? = none;
-}
-</code></pre><h2>Read-Only and Write-Only Properties</h2><p>By omitting just the modifier, you can make a property read-only. By omitting just the accessor, you can make a property write-only.<br/>If the property is read only, or write only. the compiler will not define a private backing-field and an explicit method body is necessary.</p>
-<pre><code class="brush: lense">public class Person {
-
-	public name : String{}
-	public surname : String{}
-	
-	public  fullname : String { // a read only property
-		get { return name + &quot; &quot; + surname; }
-	}
-}
-</code></pre><p>The use of write-only properties is less commom, in practice, but possible. In that case you will need some other place to store the value.</p>
-<pre><code class="brush: lense">public class Write {
-
-	private var field : String?
-
-	public  fullname : String{ // a write only property
-		set(value) { 
-			this.field = name + &quot; &quot; + surname; 
-		}
-	}
-}
-</code></pre><p>Please note the syntax for a private fields is the same for a public property only the visibility modifier is different.</p><h2>Properties Constructor</h2><p>If the properties are mandatory in the constructor you can use a special constructor syntax</p>
-<pre><code class="brush: lense">public class Fraction {
-
-	constructor ( public val numerator, public val denominator);
-	
-	public val Value : Rational {
-		get {
-			return this.numerator / this.denominator;
-		}
-	}
-}
-</code></pre><p>This will create two readonly properties named "numerator" and "denominator" with a backing-field that is initialized in the constructor.<br/>You can only use this syntax in the primary constructor (the one with no body).</p><h2>Different visibility</h2><p>Sometimes you need to have a public accessor but a private modifier, or vice-versa. In that case you can use visibility modifiers to declare diferent visibilities</p>
-<pre><code class="brush: lense">public class Person {
-
-	public name : String{ public get; private set;}
-	public surname : String { get; private set;}
-}
-</code></pre><p>If you omit the modifier near the acessor or modifier declarations the visibility of the property will be used.<br/>The visibility of the acessor or modifier may not be less restrictive than that of the property. So public get for a private property makes no sense. </p><h2>Intercepting And Acces to the Backing-Field</h2><p>Sometimes you need to intercept the call to the acessor or the modifier but we would like the code to also write the result to the backing-field;<br/>This is very uncomon, so the example is a little contrived. The point is that can be done, if you need to.</p>
-<pre><code class="brush: lense">public class Doubler {
-	
-	contructor (private val log: Logger);
-
-	public someValue : Natural {
-		get {
-			log.trace(&quot;returning {{ someValue }}&quot;);
-			return 
-		}
-		set (value) {
-			val doubleValue = value *2;
-			log.trace(&quot;storing {{value}} as  {{ doubleValue }}&quot;);
-			someValue = doubleValue;
-		}
-	}
-}
-val log = ... // obtain it somehow
-
-val d = new Doubler(log); 
-
-d.someValue = 5; // will log &quot;storing 5 as 10&quot;
-val x = d.someValue; // will log &quot;returning 10&quot;
-</code></pre><p>You can use the property's name inside the accessor or the modifier to read the value before returning it and in the case of the modifier also to set a different value that the one given.</p><h1>Indexer Properties</h1><p><a name="indexed">Indexer properties</a> are anonymous properties that allow you to associate a value of the property with one or more values of parameters called indexes.<br/>The most common examples are arrays that use numeric indexes or maps that use key object for indexes.</p><p>The rules of normal properties apply to indexer properties , you need to define an accessor, or a modifier, or both.<br/>Indexer properties are never self-backing.</p><p>Indexers are not limited to one index. In the next example we use an array to implement a matrix using a mathematical trick of calculating the cell<br/>position in the array. We use the indexer property in the array to read and write values in the array.</p>
-<pre><code class="brush: lense">public class Matrix&lt;T&gt; {
-
-	private cells : Array&lt;T&gt;;
-	private rowsCount : Natural;
-	private columnsCount: Natural;
-	
-	contructor (private rowsCount : Natural, private columnsCount: Natural, private seed : T){
-		this.rowsCount = rowsCount;
-		this.columnsCount = columnsCount;
-		
-		this.cells = new Array.filled&lt;T&gt;(rowsCount * columnsCount, seed);
-	}
     
-	public [Natural row, Natural column] : T { 
-		get {  
-			return items[calculateCell(row, column)]; 
-		}
-		set (value){
-		   items[calculateCell(row, column] = value;
+	<div class="container">
+	<div class="container-fluid">
+		<div class="row row-offcanvas row-offcanvas-right">
+			 <div class="col-xs-12 col-sm-9 col-sm-push-3">
+				<div class="sect1"> 
+ <h2 id="_fields_and_properties">Fields and Properties</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>In other languages you can have fields to store state and methods to manipulate state, or (like in C# and Scala) you can have properties. Properties store state like fields but have two associated methods called Accessor and Modifier. The accessor is the method called to obtain (get) the value of the property. The Modifier is the methods called to change (set) the value of the property.</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>From the design point of view, fields represent state and properties represent the access to that state with the added value of intercepting the state read and write operations or eventually calculating the state on the fly from other properties. Because of this, fields are not supposed to be public because it will break encapsulation (how to store state should be a private choice). On the other hand, properties never need to be private because if they are they, the object is using encapsulation to protect it from it self.</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>So, Lense does only have properties. The compiler will produce backing fields, accessor and modifier methods that read and write from/to the backing field. Backing fields are not accessible by other class members.</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>In Lense all properties are required to be initialized except for optional properties that are initialized automatic to <code>none</code>.</p> 
+  </div> 
+  <div class="listingblock"> 
+   <div class="content"> 
+    <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">public class Person {
+
+	public gender : Gender = male; // initialize to a default value
+	public name : String?;
+	public surname : String?;
+
+}</code></pre> 
+   </div> 
+  </div> 
+  <div class="paragraph"> 
+   <p>Since the accessor and modifier will be added by the compiler when not explicitly defined, this code is equivalent to:</p> 
+  </div> 
+  <div class="listingblock"> 
+   <div class="content"> 
+    <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">public class Person {
+
+	public gender : Gender = male {get;set;};
+	public name : String? = none {get;set;} ;
+	public surname : String? = none {get;set;} ;
+
+}</code></pre> 
+   </div> 
+  </div> 
+  <div class="paragraph"> 
+   <p>There is a serious reduction in boilerplate for the most common case.</p> 
+  </div> 
+  <div class="sect2"> 
+   <h3 id="_read_only_and_calculated_properties">Read-Only and Calculated Properties</h3> 
+   <div class="paragraph"> 
+    <p>When a property is read-only it’s value is obtained from other properties via some function.</p> 
+   </div> 
+   <div class="listingblock"> 
+    <div class="content"> 
+     <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">public class Person {
+
+	public name : String?;
+
+	public surname : String?;
+
+	public fullname : String? {
+		get {
+			return name.zip(surname, (n , s ) -&gt; "{{n }} {{s}}");
 		}
 	}
+}</code></pre> 
+    </div> 
+   </div> 
+   <div class="paragraph"> 
+    <p>Because the modifier is not explicitly defined, but the accessor is, the compiler will understand this is a read-only property. This syntax can be verbose at times, so you a use the shorter version:</p> 
+   </div> 
+   <div class="listingblock"> 
+    <div class="content"> 
+     <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">public class Person {
+
+	public name : String?;
+
+	public surname : String?;
+
+	public fullname : String? =&gt; name.zip(surname, (n , s ) -&gt; "{{n }} {{s}}");
+}</code></pre> 
+    </div> 
+   </div> 
+  </div> 
+  <div class="sect2"> 
+   <h3 id="_write_only_and_intercepting_modifications">Write-Only and Intercepting Modifications</h3> 
+   <div class="paragraph"> 
+    <p>You can use the full syntax when you need to code the accessor and the modifier. If you code the modifier explicitly you must explicitly declare the accessor, otherwise the compiler will assume it is a write-only property.</p> 
+   </div> 
+   <div class="listingblock"> 
+    <div class="content"> 
+     <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">public class Person {
+
+	public name : String?;
+
+	public surname : String?;
+
+	public fullname : String? =&gt; name.zip(surname, (n , s ) -&gt; "{{n }} {{s}}");
+
+	public birthday : Date? {
+		get {}
+		set(value){ // (a)
+			if (value != none &amp;&amp; value &gt; Date.today){
+				throw new IllegalArgumentException("A Person birthday cannot be in the future");
+			}
+
+			this.birthday = value; // (c)
+		}
+	}
+}</code></pre> 
+    </div> 
+   </div> 
+   <div class="paragraph"> 
+    <p>This code is quite interesting. We define the accessor and the modifier explicitly. The modifier receives a parameter <em>(a)</em> with the new value. You can call the parameter whatever you like and the type of the parameter is implicitly the same has that of the property. Then we make a simple validation and throw an exception if there is a problem. In this case, the <code>value</code> parameter is a optional type, so we use Lense’s type flow sensitivity to unbox the value and compare it to today’s date <em>(b)</em>. If all is well we assign the value the property <em>(c)</em>.</p> 
+   </div> 
+   <div class="paragraph"> 
+    <p>Note than assigning a value to the property inside the modifier simply assigns it the the backing field directly, since otherwise it would cause a infinite recursion of calls to the modifier. This is why, in Lense, there is not special syntax to access or modify the backing field (since no other meaning terminates).</p> 
+   </div> 
+  </div> 
+  <div class="sect2"> 
+   <h3 id="_properties_constructor">Properties Constructor</h3> 
+   <div class="paragraph"> 
+    <p>If the properties are mandatory is better to required then in the constructor:</p> 
+   </div> 
+   <div class="listingblock"> 
+    <div class="content"> 
+     <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">public class Person {
+
+	public constructor( name : String,  surname : String,  birthday : Date){
+		this.name = name;
+		this.surname = surname;
+		this.birthday = birthday;
+	}
+
+	public name : String;
+
+	public surname : String;
+
+	public fullname : String =&gt; "{{n }} {{s}}";
+
+	public birthday : Date {
+		get {}
+		set(value){ // (a)
+			if (value &gt; Date.Today){
+				throw new IllegalArgumentException("A Person birthday cannot be in the future");
+			}
+
+			this.birthday = value; // (b)
+		}
+	}
+
+}</code></pre> 
+    </div> 
+   </div> 
+   <div class="paragraph"> 
+    <p>Now we don’t need the optional types and we do not need to initialize the properties with dummy values. If you don’t like this boilerplate code , we can always use the <a href="constructors.html#primary">primary constructor</a>:</p> 
+   </div> 
+   <div class="listingblock"> 
+    <div class="content"> 
+     <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">public class Person {
+
+	public constructor( public var name : String, public var surname : String, public var birthday : Date);
+
+	public fullname : String =&gt; "{{n }} {{s}}";
+
+	public birthday : Date {
+		get {}
+		set(value){ // (a)
+			if (value &gt; Date.Today){
+				throw new IllegalArgumentException("A Person birthday cannot be in the future");
+			}
+
+			this.birthday = value; // (b)
+		}
+	}
+
+
+}</code></pre> 
+    </div> 
+   </div> 
+   <div class="paragraph"> 
+    <p>This will create the same properties as before with eventually the same code.</p> 
+   </div> 
+  </div> 
+  <div class="sect2"> 
+   <h3 id="_different_visibility">Different visibility</h3> 
+   <div class="paragraph"> 
+    <p>Sometimes you need to have a public accessor but a private modifier, or vice-versa. In that case you can use visibility modifiers to declare different visibilities</p> 
+   </div> 
+   <div class="listingblock"> 
+    <div class="content"> 
+     <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">public class Person {
+
+	public name : String? { public get; private set;}
+	public surname : String? { get; private set;}
+}</code></pre> 
+    </div> 
+   </div> 
+   <div class="paragraph"> 
+    <p>If you omit the modifier near the accessor or modifier declarations the standard visibility of the property will be used. The accessor and modifier visibility cannot be less restrictive than that of the property. Having a <code>public get</code> for a <code>private</code> property makes no sense.</p> 
+   </div> 
+  </div> 
+  <div class="sect2"> 
+   <h3 id="_interoperability">Interoperability</h3> 
+   <div class="paragraph"> 
+    <p>Some issues regarding how properties are translated to the native platform’s concepts.</p> 
+   </div> 
+   <div class="sect3"> 
+    <h4 id="_explicit_accessor_and_modifier">Explicit Accessor and Modifier</h4> 
+    <div class="paragraph"> 
+     <p>Each platform supports the concept of Property in a different way. The Lense back-end compiler will use the platform’s strategy of choice. In the JVM , for example, for property <code>xyz</code> is translated to a backing private field <code>xyz</code> accompanied by methods <code>getXyz()</code> and <code>setXyz()</code> with the correct visibility.</p> 
+    </div> 
+   </div> 
+   <div class="sect3"> 
+    <h4 id="_private_property_erasure">Private Property Erasure</h4> 
+    <div class="paragraph"> 
+     <p>When the target platform supports fields, the property is marked <code>private</code> and the accessor and modifier are not explicitly declared the compiler may erase the property and produce a private field that will be accessed directly.</p> 
+    </div> 
+    <div class="paragraph"> 
+     <p>In case the property is not public and the accessor and modifier are not explicitly declared, the compiler can bypass the accessor and modifier and use the backing field directly when reading and writing within the class.</p> 
+    </div> 
+   </div> 
+  </div> 
+ </div> 
+</div>
+			</div>
+			<div class="col-xs-6 col-sm-3 col-sm-pull-9 sidebar-offcanvas" id="sidebar"">
+
+<ul class="collapsible-menu">
+	<li><a href="index.html">Introduction</a></i></i>
+	<li><a href="status.html">Status</a></i>
+	<li class="has-children">
+		<a href="javascript:void(0)">Syntax and Semantics</a>
+		<ul >
+			<li><a href="identifiers.html">Reserved Words</a></li>
+			<li><a href="variables.html">Variables and Mutability</a></li>
+			<li><a href="nullability.html">Nullability</a></li>
+			
+			 <!--
+			
+			<li>Comments</li>
+			<li>Generics</li>
+			<li>Functions and Lambdas</li>
+			
+			-->
+			
+			<li class="has-children">
+				<a href="javascript:void(0)">Fundamental Types</a>
+				<ul>
+					<li><a href="booleans.html">Boolean</a></li>
+					<li><a href="strings.html">String</a></li>
+					<li><a href="numbers.html">Number</a></li>
+					<li><a href="binary.html">Binary</a></li>
+					<li><a href="interval.html">Interval</a></li>
+					<li><a href="iterable.html">Iterable</a></li>
+					<li class="has-children"> 
+						<a href="javascript:void(0)">Containers</a>
+						<ul> 
+							<li><a href="maybe.html">Maybe</a></li>
+							<li><a href="tuples.html">Tuple</a></li>
+							
+							<li>Range</li>
+							<li><a href="sequence.html">Sequence</a></li>
+							<li>Association</li>
+							
+						</ul>
+					</li>
+				</ul>
+			</li>
+			<li><a href="containerLiterals.html">Container Literals</a></li>
+			<li><a href="arrays.html">Arrays</a></li>
+			<li class="has-children">
+				<a href="javascript:void(0)">Control Statements</a>
+				<ul>
+					<li>Decision: if</li>
+					<li>Loop : while</li>
+					<li>Iteration : for</li>
+					<li>Selection/Matching : switch</li>
+				</ul>
+			</li>
+			<li class="has-children"> 
+				<a href="javascript:void(0)">Types</a>
+				<ul>	
+					<li><a href="classes.html">Classes</a></li>
+					<li><a href="objects.html">Objects</a></li>
+					<li><a href="interfaces.html">Interfaces</a></li>
+					<li>Enums</li>
+					<li><a href="enhancements.html">Enhancements</a></li>
+				</ul>
+			</li>
+			<li class="has-children"> 
+				<a href="javascript:void(0)">Type Members</a>
+				<ul>
+					<li><a href="constructors.html">Constructors</a></li>
+					<li><a href="properties.html">Fields and Properties</a></li>
+					<li><a href="indexers.html">Indexed Properties</a></li>
+					<li>Methods</li>
+				</ul>
+			</li>
+			<li><a href="casting.html">Casting</a></li>
+			<li><a href="operators.html">Operator Overloading</a></li>
+			
+		</ul>
+	</li>
+	<li class="has-children">
+		<a href="javascript:void(0)">Compilation</a>
+		<ul>
+			<li><a href="platforms.html">Platforms</a></li>
+			<li><a href="erasure.html">Erasure</a></li>
+		</ul>
+	</li>
+	<li><a href="concurrency.html">Concurrency</a>
+	</li>
+
+<ul>			</div>
+		</div>
+	</div>
 	
-	private calculateCell(Natural row, Natural column) : Natural{
-		return row * rowsCount + column;
-	}	
-}
-
-// use it like 
-
-val matrix : Matrix&lt;Integer, Integer&gt;  = new Matrix&lt;Integer,Integer&gt;(3,3, 0);
-
-matrix[1,2 ] = 4;
-
-val four = matrix [1,2];
-</code></pre><p>An indexer as no name, so it is not possible to overload it with the exact same number, and types, of indexes. </p></p>
 	
 		</div>
 		<div id="push"></div>
@@ -297,7 +486,7 @@ val four = matrix [1,2];
     
     <div id="footer">
       <div class="container">
-        <p class="muted credit">Lense is an open source project and a community driven effort</p>
+        <p class="muted credit">Lense is an open source project </p>
       </div>
     </div>
     
@@ -306,6 +495,16 @@ val four = matrix [1,2];
     <script src="js/bootstrap.min.js"></script>
     <script src="js/prettify.js"></script>
     <script>
+	
+		$(document).ready(function() {
+				$("code.language-lense").addClass("brush: lense");
+				$("code.language-java").addClass("brush: java");
+				$("code.language-c-sharp").addClass("brush: c-sharp");
+				$("code.language-typescript").addClass("brush: typescript");
+				$("code.language-dart").addClass("brush: dart");
+				$("code.language-swift").addClass("brush: swift");
+		});
+	
     	SyntaxHighlighter.config.tagName = 'code';
 		SyntaxHighlighter.defaults.toolbar = false;
 		SyntaxHighlighter.all();

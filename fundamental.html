@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8"/>
-    <title>Objects</title>
+    <title>Fundamental Types</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <meta name="author" content="">
@@ -165,68 +165,32 @@
 	<div class="container-fluid">
 		<div class="row row-offcanvas row-offcanvas-right">
 			 <div class="col-xs-12 col-sm-9 col-sm-push-3">
-				<div class="sect1"> 
- <h2 id="_objects">Objects</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>Instead of static members, Lense has object declarations. An object declaration instructs the compiler to create a singleton object that exists at the package level.</p> 
-  </div> 
-  <div class="listingblock"> 
-   <div class="content"> 
-    <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">public object Console {
-
-	public println(String text) {
-         // implementation goes here ...
-    }
-}</code></pre> 
-   </div> 
-  </div> 
-  <div class="paragraph"> 
-   <p>Objects are then imported normally like a type using the <code>import</code> statement:</p> 
-  </div> 
-  <div class="listingblock"> 
-   <div class="content"> 
-    <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">import somepackage.Console;
-
-public class OtherClass {
-
-	public doIt() {
-	     Console.println("Hello, world");
-	}
-}</code></pre> 
-   </div> 
-  </div> 
-  <div class="paragraph"> 
-   <p>As you can see from this example, calling methods on the object is very much like a static call in other languages.</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>When declaring an object Lense will really create a single instance of the given anonymous class in the parent scope. Objects can implement interfaces and inherit from other classes but not from other objects.</p> 
-  </div> 
- </div> 
+				<div class="paragraph"> 
+ <p>==Fundamental Types</p> 
 </div> 
-<div class="sect1"> 
- <h2 id="_nested_objects_under_consideration">Nested Objects (Under Consideration)</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>Objects can be nested in other types and other objects. In this case the object will have access to the private members of the surrounding type. Nested objects calls must be prefixed with the type they are in:</p> 
-  </div> 
-  <div class="listingblock"> 
-   <div class="content"> 
-    <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">public class OtherClass {
-
-	public object SomeObject {
-
-	      public doItInTheObject () {}
-	}
-
-	public doItInTheOtherClass() {}
-}
-
-// called like
-
-OtherClass.SomeObject.doItInTheObject()</code></pre> 
-   </div> 
-  </div> 
+<div class="paragraph"> 
+ <p>Lense distinguishes primitive types from fundamental types. Fundamental types are those types the compiler can reason about and/or provide special support. Primitive types are those types that are not objects. In Java, for example, <code>int</code> is a primtitive type and all primitive types are also fundamental. However, <code>String</code> is also a fundamental type (as special support from the compiler and the runtime), but is not a primitive, since it is an object allocated in the heap derived from a class.</p> 
+</div> 
+<div class="paragraph"> 
+ <p>Lense supports several fundamental types, but does not support primitives. All things in Lense are objects.</p> 
+</div> 
+<div class="paragraph"> 
+ <p>Fundamental types receive support in two main forms: literals and directives. Many of the fundamental type have literal support in code and some fundamental types have special relevance in directives. For example, the <code>if</code> directive only works with expressions that evaluate to a <code>Boolean</code>, and the <code>for</code> directive only works on `Iterable`s.</p> 
+</div> 
+<div class="paragraph"> 
+ <p>Operators are not fundamental in Lense so when you write <code>2 + 3</code> this is not specific to numbers, any operator can be used in an class (if it implements a specific interface). For more on operators see <a href="operators.html">Operator Overloading</a>.</p> 
+</div> 
+<div class="paragraph"> 
+ <p>&lt;ul&gt; &lt;li&gt;&lt;a href="booleans.html"&gt;Boolean&lt;/a&gt;&lt;/li&gt; &lt;li&gt;&lt;a href="strings.html"&gt;String&lt;/a&gt;&lt;/li&gt; &lt;li&gt;&lt;a href="numbers.html"&gt;Number&lt;/a&gt;&lt;/li&gt; &lt;li&gt;&lt;a href="binary.html"&gt;Binary&lt;/a&gt;&lt;/li&gt; &lt;li&gt;&lt;a href="interval.html"&gt;Interval&lt;/a&gt;&lt;/li&gt; &lt;li&gt;&lt;a href="iterable.html"&gt;Iterable&lt;/a&gt;&lt;/li&gt; &lt;li&gt; Containers &lt;ul&gt; &lt;li&gt;&lt;a href="maybe.html"&gt;Maybe&lt;/a&gt;&lt;/li&gt; &lt;li&gt;&lt;a href="tuples.html"&gt;Tuple&lt;/a&gt;&lt;/li&gt;</p> 
+</div> 
+<div class="literalblock"> 
+ <div class="content"> 
+  <pre>			&lt;li&gt;Range&lt;/li&gt;
+			&lt;li&gt;&lt;a href="sequence.html"&gt;Sequence&lt;/a&gt;&lt;/li&gt;
+			&lt;li&gt;Association&lt;/li&gt;
+		&lt;/ul&gt;
+	&lt;/li&gt;
+&lt;/ul&gt;</pre> 
  </div> 
 </div>
 			</div>

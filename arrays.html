@@ -20,48 +20,32 @@
 
 	</script>
   
+	<script src="js/jquery-1.11.1.min.js"></script>
+  
 	<script src="js/shCore.js"></script>
 
 	<script src="js/shBrushScala.js"></script>
 	<script src="js/shBrushCSharp.js"></script>
 	<script src="js/shBrushDart.js"></script>
 	<script src="js/shBrushJava.js"></script>
-		
 	<script src="js/shBrushLense.js"></script>
-
 
     <!-- Le styles -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
-    <link href="css/asciidoctor.css" rel="stylesheet">
+    
     <link href="css/base.css" rel="stylesheet">
-    <link href="css/prettify.css" rel="stylesheet">
+	<link href="css/asciidoctor.css" rel="stylesheet">
+ 
   	<link rel="stylesheet" type="text/css" href="css/shCore.css"  >
 	<link rel="stylesheet" type="text/css" href="css/shThemeLense.css" >
 	<link rel="stylesheet" type="text/css" href="css/shThemeDefault.css" >
-	
+	<link rel="stylesheet" type="text/css" href="css/site.css" >
+
 	<style>
-	 .console {
-	    background : black;
-	    color: white;
-	    width: 500px;
-	 }
-	 p {
-	 	text-align:justified;
-	 }
-	 pre {
-	 	background-color:white !important;
-	 	border:0px !important;
-	 	padding:0px !important;
-	 	overflow: visible !important;
-	 }
-	 pre code {
-	 	padding:2px !important;
-	 	margin : 0px !important;
-	 }
-	 
-	.syntaxhighlighter table .container:before {
-		display: none !important;
-	}
+		.navbar-toggle{
+			float:left;
+			margin-left:7px;
+		}
 	</style>
 	
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
@@ -72,20 +56,56 @@
     <!-- Fav and touch icons -->
 
     <link rel="shortcut icon" href="icon.png">
+	
+	<script>
+	$(document).ready(function() {
+	  $(".collapsible-menu").on("click", "li > a", function(e) {
+		var p = $(this).parent();
+		if (p.hasClass("has-children")) {
+			p.toggleClass("open").siblings(".open").removeClass("open");
+		}
+	  });
+	  
+	  var url = window.location.pathname;
+		var filename = url.substring(url.lastIndexOf('/')+1);
+		
+	  $(".collapsible-menu a").each(function(){
+		var link = $(this).attr("href");
+		
+		if (filename == link) {
+			var item = $(this).parent();
+			
+			while (!item.hasClass("collapsible-menu")){
+				if (item.hasClass("has-children")) {
+					item.toggleClass("open").siblings(".open").removeClass("open");
+				}
+				item = $(item).parent()
+			}
+		}
+
+	  })
+	  
+	});
+	</script>
   </head>
   <body onload="prettyPrint()">
     <div id="wrap">
 	
 	<!-- Fixed navbar -->
-    <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <nav class="navbar navbar-default navbar-fixed-top" >
       <div class="container">
         <div class="navbar-header">
+		  <button type="button" data-target="#navbar" data-toggle="collapse" class="navbar-toggle"> 
+			  <span class="sr-only">Toggle navigation</span> 
+			  <span class="icon-bar"></span> 
+			  <span class="icon-bar"></span> 
+		  </button>
           <a class="navbar-brand" href="index.html">Lense</a>
         </div>
-        <div class="navbar-collapse collapse">
+        <div id="navbar" class="navbar-collapse collapse">
           <ul class="nav navbar-nav">
             <li class="dropdown">
-				<a href="#" class="dropdown-toggle" data-toggle="dropdown">Get Started<b class="caret"></b></a>
+				<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Get Started<b class="caret"></b></a>
 				<ul class="dropdown-menu">
 					<li class="disabled"><a href="learn.html">Learn Lense</a></li>
 					<li class="disabled"><a href="try.html">Try Lense</a></li>
@@ -93,7 +113,7 @@
 				</ul>
 			</li>
             <li class="dropdown">
-				<a href="#" class="dropdown-toggle" data-toggle="dropdown">Fundamentals<b class="caret"></b></a>
+				<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Fundamentals<b class="caret"></b></a>
 				<ul class="dropdown-menu">
 					<li><a href="tour/tour.html">Language Tour</a></li>
 					<li class="disabled"><a href="guide.html">Programmer's Guide</a></li>
@@ -103,7 +123,7 @@
             </li>
 			
             <li class="dropdown">
-              <a href="#" class="dropdown-toggle" data-toggle="dropdown">Details<b class="caret"></b></a>
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Details<b class="caret"></b></a>
 				<ul class="dropdown-menu">
 					<li><a href="nullability.html">Nullability</a></li>
 					<li><a href="numbers.html">Numbers</a></li>
@@ -137,46 +157,242 @@
           </ul>
         </div><!--/.nav-collapse -->
       </div>
-    </div>
+    </nav>
+	
 	<div class="corner-ribbon top-right sticky shadow"><a href="status.html">Exploration Stage</a></div>
-    <div class="container">
-	<p><h1>Arrays</h1><p>In other languages arrays are normally <a href="glossary.html#primtiveTypes">primitive types</a> or at least <a href="glossary.html#fundamentalTypes">fundamental types</a>. In Lense arrays are simply objects of the <code>Array</code> class. This class belongs to the Collections API and receive no special handling by the language or the compiler. The Collections API is a set of common object structures like hash table and linked list implemented in coherent framework.</p><p>This means you create arrays as you would any other class (i.e invoking the constructor). There is no <code>new someArray[2]</code> sintax for array definition. Arrays in Lense are the default implementation of the <code>EditableSequence</code> interface that behave like arrays in other languages. They have fixed length and values can be edited, but must be pre-initialized. </p><h1>Inicialization</h1><p>Because Lense does not have the concept of <code>null</code> all arrays must be inicialized correctly to a specified value. There are no default values. If you cannot determine the initialization values you will be better using a <code>List</code>( or any other <code>ResizableSequence</code> like <code>LinkedList</code>) that allows you to start with zero elements in que collection and add the elements as you go. When you use <code>Array</code> you need to supply the elements at creation time. The easiest way to do this is with a literal:</p>
-<pre><code class="brush: lense">    val numbers : Array&lt;Natural&gt; = [1, 2, 3 , 4 , 5];
-</code></pre><p>Remember <code>Array</code> is not a fundamental type in Lense. That literal above really creates a <code>Sequence</code> object that is read-only by definition. The compiler then uses a <a href="constructors.html#conversion">conversion constructor</a> to create the <code>Array</code> from the <code>Sequence</code>. If you wish to initilize all position in the array to the same value you can use a special <a href="constructors.html#named">named constructor</a>:</p>
-<pre><code class="brush: lense">    // this code creates an array with 5 elements all equal to zero.
-    val numbers : Array&lt;Natural&gt;  = new Array.filled&lt;Natural&gt;(5, 0);
-</code></pre><p>Here we will be writing the examples with no generic type inference, but normally you would write with less ceremony:</p>
-<pre><code class="brush: lense">    var numbers = new Array.filled(5, 0);
-</code></pre><p>Its all the same.</p><p>If a constant is not a good option in your case, you can, alternativly, use the overloaded version that receives a initialization function.</p>
-<pre><code class="brush: lense">    // this code creates an array with 5 elements corresponding to the first 5 even numbers.
-    val numbers = new Array.filled&lt;Natural&gt;(5, i -&gt; 2 * i);
-</code></pre><p>This constructor receives a lambda expression to inicialize each elements. The <code>i</code> parameter (can be any variable name) is the position in the array from 0 to the size array exclusivly. In the example we inicialize the arrays with the first 5 even numbers.</p><h1>Optional values</h1><p>Alternativly you can create an array with an optional type. This means each position of the array can have an absent value. You can create an array of optional type the same way you create it for any other type:</p>
-<pre><code class="brush: lense">    // this code creates an array with 5 elements all equal to none.
-    val numbers : Array&lt;Natural?&gt; = new Array.filled&lt;Natural?&gt;(5, none);
-</code></pre><p>Remember <code>none</code> is the single value of type <code>None</code> that is equivalent to <code>Maybe&lt;Nothing&gt;</code>. You can also use the shorter constructor:</p>
-<pre><code class="brush: lense">    // this code creates an array with 5 elements all equal to none.
-    val numbers : Array&lt;Natural?&gt; = new Array.ofAbsent&lt;Natural?&gt;(5);
-</code></pre><h1>Empty Arrays</h1><p>In practice is useful to be able to create an empty array. The empty constructor solves this problem creating an array with no elements at all. </p>
-<pre><code class="brush: lense">    // creates an array of non-optional elements with no elements in it
-    val numbers :  Array&lt;Natural&gt; = new Array.empty&lt;Natural&gt;(); 
+    
+	<div class="container">
+	<div class="container-fluid">
+		<div class="row row-offcanvas row-offcanvas-right">
+			 <div class="col-xs-12 col-sm-9 col-sm-push-3">
+				<div class="sect1"> 
+ <h2 id="_arrays">Arrays</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>In some other languages arrays are normally <a href="glossary.html#primtiveTypes">primitive types</a> or at least <a href="glossary.html#fundamentalTypes">fundamental types</a>. In Lense, arrays are simply objects of the <code>Array</code> class. This class belongs to the Collections API and receives no special handling by the language or the compiler. The Collections API is a set of common object structures like hash tables and linked lists implemented in a coherent framework.</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>You create arrays as you would create any other class, by invoking one of its constructors. There is no <code>new SomeArray[2]</code> syntax for array definition. Arrays in Lense are the default implementation of the <code>EditableSequence</code> interface that behaves like arrays in other languages. `EditableSequence`s have fixed length and values can be set at given positions, but new objects cannot be added to the sequence. However , because Lense has no `null`s, arrays must always be pre-initialized.</p> 
+  </div> 
+  <div class="sect2"> 
+   <h3 id="_initialization">Initialization</h3> 
+   <div class="paragraph"> 
+    <p>Because Lense does not have the concept of <code>null</code> arrays must be initialized correctly with a specified value. There are no default values. If you cannot determine the initialization values you will be better using a <code>List</code>( or any other <code>ResizableSequence</code> like <code>LinkedList</code>) that allows you to start with zero elements in the collection and add the elements as you go. When you use <code>Array</code> you need to supply the elements at creation time. The easiest way to do this is with a <a href="containerLiterals$sequence-literal">sequence literal</a>:</p> 
+   </div> 
+   <div class="listingblock"> 
+    <div class="content"> 
+     <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">	// with type annotation
+    let numbers : Array&lt;Natural&gt; = [1, 2, 3 , 4 , 5];
+	// with no type annotation, using type inference
+    let numbers = [1, 2, 3 , 4 , 5];</code></pre> 
+    </div> 
+   </div> 
+   <div class="paragraph"> 
+    <p>Remember <code>Array</code> is not a fundamental type in Lense. That literal above really creates a <code>Sequence</code> object that is read-only by definition. The compiler then uses a constructors.html#conversion[conversion constructor] to create the <code>Array</code> from the <code>Sequence</code>. If you wish to initialize all position in the array to the same value you can use a special constructors.html#named[named constructor]. The next example crates array with 5 elements all equal to zero.</p> 
+   </div> 
+   <div class="listingblock"> 
+    <div class="content"> 
+     <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">    // with type annotation
+    let numbers : Array&lt;Natural&gt;  = new Array.filled(5, 0);
+	// with no type annotation, using type inference
+	let numbers = new Array.filled(5, 0);</code></pre> 
+    </div> 
+   </div> 
+   <div class="paragraph"> 
+    <p>If a constant is not a good option in your case, you can, alternatively, use the overloaded version that receives a initialization function. This code also creates an array with 5 elements, but in this case they correspond to the first 5 even numbers.</p> 
+   </div> 
+   <div class="listingblock"> 
+    <div class="content"> 
+     <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">    // this code creates an array with 5 elements corresponding to the first 5 even numbers.
+    let numbers = new Array.filled(5, i -&gt; 2 * i);</code></pre> 
+    </div> 
+   </div> 
+   <div class="paragraph"> 
+    <p>This constructor receives a lambda expression to initialize each elements from the position in the array represented by the <code>i</code> parameter (can be any variable name). This parameter assumes all values for the position in the array from 0 to the size array exclusively (4 in this case). In the example we initialize the arrays with the first 5 even numbers.</p> 
+   </div> 
+  </div> 
+  <div class="sect2"> 
+   <h3 id="_optional_values">Optional values</h3> 
+   <div class="paragraph"> 
+    <p>Alternatively you can create an array with an optional type. This means each position of the array can have an absent value. You can create an array of an optional type the same way you create it for any other type. The following also created an array with 5 positions, but this time they hold the <code>none</code> value</p> 
+   </div> 
+   <div class="listingblock"> 
+    <div class="content"> 
+     <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">    // with type annotation
+    let numbers : Array&lt;Natural?&gt; = new Array.filled(5, none);
+	// with no type annotation, using type inference
+	let numbers = new Array.filled(5, none);</code></pre> 
+    </div> 
+   </div> 
+   <div class="paragraph"> 
+    <p>Remember <code>none</code> is the single value of type <code>None</code> that is equivalent to <code>Maybe&lt;Nothing&gt;</code>. You can also use the shorter constructor:</p> 
+   </div> 
+   <div class="listingblock"> 
+    <div class="content"> 
+     <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">	let numbers = new Array.ofAbsent&lt;Natural&gt;(5);</code></pre> 
+    </div> 
+   </div> 
+  </div> 
+  <div class="sect2"> 
+   <h3 id="_empty_arrays">Empty Arrays</h3> 
+   <div class="paragraph"> 
+    <p>In practice is useful to be able to create an empty array. The empty constructor solves this problem creating an array with no elements at all.</p> 
+   </div> 
+   <div class="listingblock"> 
+    <div class="content"> 
+     <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">    // creates an array of non-optional elements with no elements in it
+    let numbers :  Array&lt;Natural&gt; = new Array.empty&lt;Natural&gt;();
 
     // creates an array of optional elements with no elements in it
-    val numbers : Array&lt;Natural?&gt; = new Array.empty&lt;Natural?&gt;(); 
-</code></pre><p>In this case there is no diference if you use optional types because the arrays have no elements (its size is zero).</p><h1>Indexing</h1><p>Arrays are specially useful because the values of at each position can be access by a second variable : the index. Normally this index is an integer.<br/>In java , for example, you would write:</p>
-<pre><code class="brush: java">    int[] array = new int[]{1,2,3};
-	
+    let numbers : Array&lt;Natural?&gt; = new Array.empty&lt;Natural?&gt;();</code></pre> 
+    </div> 
+   </div> 
+   <div class="paragraph"> 
+    <p>In this case there is no difference if you use optional types because the arrays have no elements (its size is zero) so not elements can be retrieved any way</p> 
+   </div> 
+  </div> 
+  <div class="sect2"> 
+   <h3 id="_indexing">Indexing</h3> 
+   <div class="paragraph"> 
+    <p>Arrays are specially useful because the values at each position can be access by a second variable : the index. Normally, in other languages, this index is an integer. In java, for example, you would write:</p> 
+   </div> 
+   <div class="listingblock"> 
+    <div class="content"> 
+     <pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">    int[] array = new int[]{1,2,3};
+
 	int x = array[1]; // x is 2
-	
-	array[2] = 6; // array position 2 is now 6 instead of 3.
-</code></pre><p>In java, and other languages, the array is a fundamental type and so the language and the compiler have special treatment for the index operator <code>[]</code>. In Lense arrays are not fundamental, but the index operator is.<br/>In reallity is not an operator is the way you use <a href="properties.html#indexed">indexed properties</a>. Indexer properties are a type of member of types that allow to read and write values based on indexes.<br/>In Lense all <code>Sequence</code>s have an indexed property for reading values at a given position in the sequence, and for <code>Array</code>s is also possible to write to that property. </p><p>This means you can still use the <code>array[i]</code> sintax to read from and write to array positions.</p>
-<pre><code class="brush: lense">public updateArray( numbers : Array&lt;Natural&gt; ) {
+
+	array[2] = 6; // array position 2 is now 6 instead of 3.</code></pre> 
+    </div> 
+   </div> 
+   <div class="paragraph"> 
+    <p>In java, and other languages, the array is a fundamental type and so the language and the compiler have special treatment for the index operator <code>[]</code>. In Lense arrays are not fundamental, but the index operator is. In reality is not an operator, is the way you use <a href="properties.html#indexed">indexed properties</a>. Indexer properties are members of types that allow to read and write values based on one or more indexes. In Lense all <code>Sequence`s have an indexed property for reading values at a given position in the sequence, and for `Array`s is also possible to write to that property since it is a `EditableSequence</code>.</p> 
+   </div> 
+   <div class="paragraph"> 
+    <p>In practice you can still use the <code>array[i]</code> syntax to read from, and write to, array positions , like in other languages:</p> 
+   </div> 
+   <div class="listingblock"> 
+    <div class="content"> 
+     <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">public updateArray( numbers : Array&lt;Natural&gt; ) {
     numbers[0] = 1;
     numbers[1] = 2;
     numbers[2] = 3;
     numbers[3] = 2 * numbers[1];
     numbers[4] = numbers[1] + numbers[2];
-}
-</code></pre><p>Addicionally indexes for all <code>Sequences</code> are <code>Natural</code>s. Natural ranges from zero onwards in the positive direction, so no "negative index" validation is necessary.</p><h1>Interoperability</h1><p><code>Array</code>s and other <code>Sequence</code> types have some <a href="nullability.html">issues in interop</a> mode because they can be null and contains nulls. </p><p>On the other hand, when creating instances of arrays, Lense will leverage native arrays to minimize space consumptidon and optimize speed. This is done by leveraging Lense's <a href="constructors.html#factory">factory like constructors</a> and reified generics to provide the more specific/eficient implementation possible. Obviously this is only possible in some platforms.</p></p>
+}</code></pre> 
+    </div> 
+   </div> 
+   <div class="paragraph"> 
+    <p>But you can also using indexes with other classes.</p> 
+   </div> 
+   <div class="paragraph"> 
+    <p>Additionally, indexes for all <code>Sequences</code> are `Natural`s. Natural ranges from zero onwards in the positive direction, so no "negative index" validation is necessary.</p> 
+   </div> 
+  </div> 
+  <div class="sect2"> 
+   <h3 id="_interoperability">Interoperability</h3> 
+   <div class="paragraph"> 
+    <p><code>Array`s and other `Sequence`s have some <a href="nullability.html">issues in interop</a> mode because they counterparts in other languages can be `null</code> and contain `null`s.</p> 
+   </div> 
+   <div class="paragraph"> 
+    <p>On the other hand, when creating instances of arrays, Lense will leverage native arrays to minimize space consumption and optimize speed. This is done by leveraging Lense’s <a href="constructors.html#factory">factory like constructors</a> and reified generics to provide the more specific/efficient implementation possible. Obviously this is only possible in some platforms.</p> 
+   </div> 
+  </div> 
+ </div> 
+</div>
+			</div>
+			<div class="col-xs-6 col-sm-3 col-sm-pull-9 sidebar-offcanvas" id="sidebar"">
+
+<ul class="collapsible-menu">
+	<li><a href="index.html">Introduction</a></i></i>
+	<li><a href="status.html">Status</a></i>
+	<li class="has-children">
+		<a href="javascript:void(0)">Syntax and Semantics</a>
+		<ul >
+			<li><a href="identifiers.html">Reserved Words</a></li>
+			<li><a href="variables.html">Variables and Mutability</a></li>
+			<li><a href="nullability.html">Nullability</a></li>
+			
+			 <!--
+			
+			<li>Comments</li>
+			<li>Generics</li>
+			<li>Functions and Lambdas</li>
+			
+			-->
+			
+			<li class="has-children">
+				<a href="javascript:void(0)">Fundamental Types</a>
+				<ul>
+					<li><a href="booleans.html">Boolean</a></li>
+					<li><a href="strings.html">String</a></li>
+					<li><a href="numbers.html">Number</a></li>
+					<li><a href="binary.html">Binary</a></li>
+					<li><a href="interval.html">Interval</a></li>
+					<li><a href="iterable.html">Iterable</a></li>
+					<li class="has-children"> 
+						<a href="javascript:void(0)">Containers</a>
+						<ul> 
+							<li><a href="maybe.html">Maybe</a></li>
+							<li><a href="tuples.html">Tuple</a></li>
+							
+							<li>Range</li>
+							<li><a href="sequence.html">Sequence</a></li>
+							<li>Association</li>
+							
+						</ul>
+					</li>
+				</ul>
+			</li>
+			<li><a href="containerLiterals.html">Container Literals</a></li>
+			<li><a href="arrays.html">Arrays</a></li>
+			<li class="has-children">
+				<a href="javascript:void(0)">Control Statements</a>
+				<ul>
+					<li>Decision: if</li>
+					<li>Loop : while</li>
+					<li>Iteration : for</li>
+					<li>Selection/Matching : switch</li>
+				</ul>
+			</li>
+			<li class="has-children"> 
+				<a href="javascript:void(0)">Types</a>
+				<ul>	
+					<li><a href="classes.html">Classes</a></li>
+					<li><a href="objects.html">Objects</a></li>
+					<li><a href="interfaces.html">Interfaces</a></li>
+					<li>Enums</li>
+					<li><a href="enhancements.html">Enhancements</a></li>
+				</ul>
+			</li>
+			<li class="has-children"> 
+				<a href="javascript:void(0)">Type Members</a>
+				<ul>
+					<li><a href="constructors.html">Constructors</a></li>
+					<li><a href="properties.html">Fields and Properties</a></li>
+					<li><a href="indexers.html">Indexed Properties</a></li>
+					<li>Methods</li>
+				</ul>
+			</li>
+			<li><a href="casting.html">Casting</a></li>
+			<li><a href="operators.html">Operator Overloading</a></li>
+			
+		</ul>
+	</li>
+	<li class="has-children">
+		<a href="javascript:void(0)">Compilation</a>
+		<ul>
+			<li><a href="platforms.html">Platforms</a></li>
+			<li><a href="erasure.html">Erasure</a></li>
+		</ul>
+	</li>
+	<li><a href="concurrency.html">Concurrency</a>
+	</li>
+
+<ul>			</div>
+		</div>
+	</div>
+	
 	
 		</div>
 		<div id="push"></div>
@@ -184,7 +400,7 @@
     
     <div id="footer">
       <div class="container">
-        <p class="muted credit">Lense is an open source project and a community driven effort</p>
+        <p class="muted credit">Lense is an open source project </p>
       </div>
     </div>
     
@@ -193,6 +409,16 @@
     <script src="js/bootstrap.min.js"></script>
     <script src="js/prettify.js"></script>
     <script>
+	
+		$(document).ready(function() {
+				$("code.language-lense").addClass("brush: lense");
+				$("code.language-java").addClass("brush: java");
+				$("code.language-c-sharp").addClass("brush: c-sharp");
+				$("code.language-typescript").addClass("brush: typescript");
+				$("code.language-dart").addClass("brush: dart");
+				$("code.language-swift").addClass("brush: swift");
+		});
+	
     	SyntaxHighlighter.config.tagName = 'code';
 		SyntaxHighlighter.defaults.toolbar = false;
 		SyntaxHighlighter.all();

@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8"/>
-    <title>Objects</title>
+    <title>Indexed properties</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <meta name="author" content="">
@@ -166,66 +166,58 @@
 		<div class="row row-offcanvas row-offcanvas-right">
 			 <div class="col-xs-12 col-sm-9 col-sm-push-3">
 				<div class="sect1"> 
- <h2 id="_objects">Objects</h2> 
+ <h2 id="index-properties">Indexed Properties</h2> 
  <div class="sectionbody"> 
   <div class="paragraph"> 
-   <p>Instead of static members, Lense has object declarations. An object declaration instructs the compiler to create a singleton object that exists at the package level.</p> 
+   <p>&lt;a name="indexed" &gt;&lt;/a&gt;Indexed properties are anonymous properties that allow you to associate a value of the property with one or more values of parameters called indexes. The most common examples are arrays that use numeric indexes and maps that use key object for indexes.</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>The rules of normal <a href="properties.html">properties</a> apply to indexed properties , you need to define an accessor, or a modifier, or both. Indexed properties never have backing fields associated with them.</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>Indexed properties are not limited to one index. In the next example we use an array to implement a matrix using a mathematical trick of calculating the cell position in the array. We use the indexed property in the array to read and write values in the array.</p> 
   </div> 
   <div class="listingblock"> 
    <div class="content"> 
-    <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">public object Console {
+    <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">// define the Matrix class
+public class Matrix&lt;T&gt; {
 
-	public println(String text) {
-         // implementation goes here ...
-    }
-}</code></pre> 
-   </div> 
-  </div> 
-  <div class="paragraph"> 
-   <p>Objects are then imported normally like a type using the <code>import</code> statement:</p> 
-  </div> 
-  <div class="listingblock"> 
-   <div class="content"> 
-    <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">import somepackage.Console;
+	private let cells : Array&lt;T&gt;;
+	private let rowsCount : Natural;
+	private let columnsCount: Natural;
 
-public class OtherClass {
+	contructor (private rowsCount : Natural, private columnsCount: Natural, private seed : T){
+		this.rowsCount = rowsCount;
+		this.columnsCount = columnsCount;
 
-	public doIt() {
-	     Console.println("Hello, world");
-	}
-}</code></pre> 
-   </div> 
-  </div> 
-  <div class="paragraph"> 
-   <p>As you can see from this example, calling methods on the object is very much like a static call in other languages.</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>When declaring an object Lense will really create a single instance of the given anonymous class in the parent scope. Objects can implement interfaces and inherit from other classes but not from other objects.</p> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="_nested_objects_under_consideration">Nested Objects (Under Consideration)</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>Objects can be nested in other types and other objects. In this case the object will have access to the private members of the surrounding type. Nested objects calls must be prefixed with the type they are in:</p> 
-  </div> 
-  <div class="listingblock"> 
-   <div class="content"> 
-    <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">public class OtherClass {
-
-	public object SomeObject {
-
-	      public doItInTheObject () {}
+		this.cells = new Array.filled&lt;T&gt;(rowsCount * columnsCount, seed);
 	}
 
-	public doItInTheOtherClass() {}
+	public [Natural row, Natural column] : T {
+		get {
+			return items[calculateCell(row, column)];
+		}
+		set (value){
+		   items[calculateCell(row, column] = value;
+		}
+	}
+
+	private calculateCell(Natural row, Natural column) : Natural{
+		return row * rowsCount + column;
+	}
 }
 
-// called like
+// then use it like so:
 
-OtherClass.SomeObject.doItInTheObject()</code></pre> 
+let matrix = new Matrix(3, 3, 0);
+
+matrix[1,2 ] = 4;
+
+let four = matrix [1,2];</code></pre> 
    </div> 
+  </div> 
+  <div class="paragraph"> 
+   <p>An indexed property as no name, so it is not possible to overload it with the exact same number, and types, of indexes.</p> 
   </div> 
  </div> 
 </div>

@@ -1,0 +1,111 @@
+ .console {
+    background : black;
+    color: white;
+    width: 500px;
+	display: block;
+ }
+ p {
+ 	text-align:justified;
+ }
+ pre {
+ 	background-color:white !important;
+ 	border:0px !important;
+ 	padding:0px !important;
+ 	overflow: visible !important;
+ }
+ pre code {
+ 	padding:2px !important;
+ 	margin : 0px !important;
+ }
+ 
+.syntaxhighlighter table .container:before {
+	display: none !important;
+}
+
+table.listing  th, td{
+	padding:5px;
+}
+
+table.set th{
+	
+	padding:5px;
+}
+
+table.set td{
+	
+	padding:5px;
+}
+
+
+.collapsible-menu {
+  padding: 0px;
+  margin: 0px;
+  font-size: 12px;
+  list-style: none;
+  width: 200px;
+}
+.collapsible-menu > li {
+  //border-top: 1px solid gainsboro;
+}
+.collapsible-menu li {
+  padding: 0px;
+  margin: 0px;
+  position: relative;
+  list-style: none;
+  //background: #f5f5f5;
+}
+.collapsible-menu li.has-children.open > ul, .collapsible-menu li.has-children.active > ul {
+  display: block;
+}
+.collapsible-menu li.has-children.open > a > i, .collapsible-menu li.has-children.active > a > i {
+  display: block;
+  line-height: 0px;
+  border-style: solid;
+  border-width: 4px;
+ // border-color: #333 transparent transparent transparent;
+  margin-top: -2px;
+  right: 8px;
+}
+.collapsible-menu li.has-children > a > i {
+  display: block;
+  line-height: 0px;
+  border-style: solid;
+  border-width: 4px;
+  border-color: transparent transparent transparent #999;
+}
+.collapsible-menu li.open, .collapsible-menu li.active {
+  //background: #cfcfcf;
+}
+.collapsible-menu li.open > a, .collapsible-menu li.active > a {
+  //color: #333;
+}
+.collapsible-menu li ul {
+  padding: 0px;
+  margin: 0px;
+  display: none;
+}
+.collapsible-menu li ul li {
+  padding-left: 1em;
+}
+.collapsible-menu li ul li li {
+ // background: #ededed;
+}
+.collapsible-menu li ul li li li {
+  //background: #e8e8e8;
+}
+.collapsible-menu li ul li li li li {
+  //background: #e3e3e3;
+}
+.collapsible-menu li a {
+  display: block;
+  //color: #999;
+  padding: 9px;
+  position: relative;
+  text-decoration: none;
+}
+.collapsible-menu li a i {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  margin-top: -4px;
+}

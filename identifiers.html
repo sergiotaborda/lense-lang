@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8"/>
-    <title>Objects</title>
+    <title>Identifiers</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <meta name="author" content="">
@@ -166,67 +166,98 @@
 		<div class="row row-offcanvas row-offcanvas-right">
 			 <div class="col-xs-12 col-sm-9 col-sm-push-3">
 				<div class="sect1"> 
- <h2 id="_objects">Objects</h2> 
+ <h2 id="_valid_identifiers">Valid identifiers</h2> 
  <div class="sectionbody"> 
   <div class="paragraph"> 
-   <p>Instead of static members, Lense has object declarations. An object declaration instructs the compiler to create a singleton object that exists at the package level.</p> 
-  </div> 
-  <div class="listingblock"> 
-   <div class="content"> 
-    <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">public object Console {
-
-	public println(String text) {
-         // implementation goes here ...
-    }
-}</code></pre> 
-   </div> 
+   <p>In Lense, identifiers must start with a letter, followed by any combination of characters and digits. No special symbols allowed.</p> 
   </div> 
   <div class="paragraph"> 
-   <p>Objects are then imported normally like a type using the <code>import</code> statement:</p> 
-  </div> 
-  <div class="listingblock"> 
-   <div class="content"> 
-    <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">import somepackage.Console;
-
-public class OtherClass {
-
-	public doIt() {
-	     Console.println("Hello, world");
-	}
-}</code></pre> 
-   </div> 
-  </div> 
-  <div class="paragraph"> 
-   <p>As you can see from this example, calling methods on the object is very much like a static call in other languages.</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>When declaring an object Lense will really create a single instance of the given anonymous class in the parent scope. Objects can implement interfaces and inherit from other classes but not from other objects.</p> 
+   <p>Identifiers are all names you use in the programs to name variables, methods, properties, fields, classes and modules</p> 
   </div> 
  </div> 
 </div> 
 <div class="sect1"> 
- <h2 id="_nested_objects_under_consideration">Nested Objects (Under Consideration)</h2> 
+ <h2 id="_reserved_words_and_keywords">Reserved words and keywords</h2> 
  <div class="sectionbody"> 
   <div class="paragraph"> 
-   <p>Objects can be nested in other types and other objects. In this case the object will have access to the private members of the surrounding type. Nested objects calls must be prefixed with the type they are in:</p> 
+   <p>Lense, like all languages, reserves some words that cannot be used as identifiers. Some of these reserved works are keywords, e.i. they have special meaning to the compiler. Some other are reserved to prevent use or for use in future versions.</p> 
   </div> 
-  <div class="listingblock"> 
-   <div class="content"> 
-    <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">public class OtherClass {
-
-	public object SomeObject {
-
-	      public doItInTheObject () {}
-	}
-
-	public doItInTheOtherClass() {}
-}
-
-// called like
-
-OtherClass.SomeObject.doItInTheObject()</code></pre> 
-   </div> 
-  </div> 
+  <table class="tableblock frame-all grid-all spread"> 
+   <colgroup> 
+    <col style="width: 14.2857%;"> 
+    <col style="width: 14.2857%;"> 
+    <col style="width: 14.2857%;"> 
+    <col style="width: 14.2857%;"> 
+    <col style="width: 14.2857%;"> 
+    <col style="width: 14.2857%;"> 
+    <col style="width: 14.2858%;"> 
+   </colgroup> 
+   <tbody> 
+    <tr> 
+     <td class="tableblock halign-left valign-top"><p class="tableblock">abstract</p></td> 
+     <td class="tableblock halign-left valign-top"><p class="tableblock">as</p></td> 
+     <td class="tableblock halign-left valign-top"><p class="tableblock">annotation</p></td> 
+     <td class="tableblock halign-left valign-top"><p class="tableblock">break</p></td> 
+     <td class="tableblock halign-left valign-top"><p class="tableblock">case</p></td> 
+     <td class="tableblock halign-left valign-top"><p class="tableblock">catch</p></td> 
+     <td class="tableblock halign-left valign-top"><p class="tableblock">class</p></td> 
+    </tr> 
+    <tr> 
+     <td class="tableblock halign-left valign-top"><p class="tableblock">continue</p></td> 
+     <td class="tableblock halign-left valign-top"><p class="tableblock">constructor</p></td> 
+     <td class="tableblock halign-left valign-top"><p class="tableblock">default</p></td> 
+     <td class="tableblock halign-left valign-top"><p class="tableblock">do</p></td> 
+     <td class="tableblock halign-left valign-top"><p class="tableblock">else</p></td> 
+     <td class="tableblock halign-left valign-top"><p class="tableblock">enhancement</p></td> 
+     <td class="tableblock halign-left valign-top"><p class="tableblock">enum</p></td> 
+    </tr> 
+    <tr> 
+     <td class="tableblock halign-left valign-top"><p class="tableblock">export</p></td> 
+     <td class="tableblock halign-left valign-top"><p class="tableblock">extends</p></td> 
+     <td class="tableblock halign-left valign-top"><p class="tableblock">finally</p></td> 
+     <td class="tableblock halign-left valign-top"><p class="tableblock">for</p></td> 
+     <td class="tableblock halign-left valign-top"><p class="tableblock">get</p></td> 
+     <td class="tableblock halign-left valign-top"><p class="tableblock">if</p></td> 
+     <td class="tableblock halign-left valign-top"><p class="tableblock">implements</p></td> 
+    </tr> 
+    <tr> 
+     <td class="tableblock halign-left valign-top"><p class="tableblock">implicit</p></td> 
+     <td class="tableblock halign-left valign-top"><p class="tableblock">import</p></td> 
+     <td class="tableblock halign-left valign-top"><p class="tableblock">interface</p></td> 
+     <td class="tableblock halign-left valign-top"><p class="tableblock">in</p></td> 
+     <td class="tableblock halign-left valign-top"><p class="tableblock">is</p></td> 
+     <td class="tableblock halign-left valign-top"><p class="tableblock">module</p></td> 
+     <td class="tableblock halign-left valign-top"><p class="tableblock">native</p></td> 
+    </tr> 
+    <tr> 
+     <td class="tableblock halign-left valign-top"><p class="tableblock">new</p></td> 
+     <td class="tableblock halign-left valign-top"><p class="tableblock">none</p></td> 
+     <td class="tableblock halign-left valign-top"><p class="tableblock">out</p></td> 
+     <td class="tableblock halign-left valign-top"><p class="tableblock">object</p></td> 
+     <td class="tableblock halign-left valign-top"><p class="tableblock">package</p></td> 
+     <td class="tableblock halign-left valign-top"><p class="tableblock">public</p></td> 
+     <td class="tableblock halign-left valign-top"><p class="tableblock">private</p></td> 
+    </tr> 
+    <tr> 
+     <td class="tableblock halign-left valign-top"><p class="tableblock">protected</p></td> 
+     <td class="tableblock halign-left valign-top"><p class="tableblock">return</p></td> 
+     <td class="tableblock halign-left valign-top"><p class="tableblock">set</p></td> 
+     <td class="tableblock halign-left valign-top"><p class="tableblock">super</p></td> 
+     <td class="tableblock halign-left valign-top"><p class="tableblock">switch</p></td> 
+     <td class="tableblock halign-left valign-top"><p class="tableblock">this</p></td> 
+     <td class="tableblock halign-left valign-top"><p class="tableblock">throw</p></td> 
+    </tr> 
+    <tr> 
+     <td class="tableblock halign-left valign-top"><p class="tableblock">trait</p></td> 
+     <td class="tableblock halign-left valign-top"><p class="tableblock">try</p></td> 
+     <td class="tableblock halign-left valign-top"><p class="tableblock">let</p></td> 
+     <td class="tableblock halign-left valign-top"><p class="tableblock">var</p></td> 
+     <td class="tableblock halign-left valign-top"><p class="tableblock">while</p></td> 
+     <td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td> 
+     <td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td> 
+    </tr> 
+   </tbody> 
+  </table> 
  </div> 
 </div>
 			</div>

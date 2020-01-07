@@ -20,48 +20,32 @@
 
 	</script>
   
+	<script src="js/jquery-1.11.1.min.js"></script>
+  
 	<script src="js/shCore.js"></script>
 
 	<script src="js/shBrushScala.js"></script>
 	<script src="js/shBrushCSharp.js"></script>
 	<script src="js/shBrushDart.js"></script>
 	<script src="js/shBrushJava.js"></script>
-		
 	<script src="js/shBrushLense.js"></script>
-
 
     <!-- Le styles -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
-    <link href="css/asciidoctor.css" rel="stylesheet">
+    
     <link href="css/base.css" rel="stylesheet">
-    <link href="css/prettify.css" rel="stylesheet">
+	<link href="css/asciidoctor.css" rel="stylesheet">
+ 
   	<link rel="stylesheet" type="text/css" href="css/shCore.css"  >
 	<link rel="stylesheet" type="text/css" href="css/shThemeLense.css" >
 	<link rel="stylesheet" type="text/css" href="css/shThemeDefault.css" >
-	
+	<link rel="stylesheet" type="text/css" href="css/site.css" >
+
 	<style>
-	 .console {
-	    background : black;
-	    color: white;
-	    width: 500px;
-	 }
-	 p {
-	 	text-align:justified;
-	 }
-	 pre {
-	 	background-color:white !important;
-	 	border:0px !important;
-	 	padding:0px !important;
-	 	overflow: visible !important;
-	 }
-	 pre code {
-	 	padding:2px !important;
-	 	margin : 0px !important;
-	 }
-	 
-	.syntaxhighlighter table .container:before {
-		display: none !important;
-	}
+		.navbar-toggle{
+			float:left;
+			margin-left:7px;
+		}
 	</style>
 	
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
@@ -72,20 +56,56 @@
     <!-- Fav and touch icons -->
 
     <link rel="shortcut icon" href="icon.png">
+	
+	<script>
+	$(document).ready(function() {
+	  $(".collapsible-menu").on("click", "li > a", function(e) {
+		var p = $(this).parent();
+		if (p.hasClass("has-children")) {
+			p.toggleClass("open").siblings(".open").removeClass("open");
+		}
+	  });
+	  
+	  var url = window.location.pathname;
+		var filename = url.substring(url.lastIndexOf('/')+1);
+		
+	  $(".collapsible-menu a").each(function(){
+		var link = $(this).attr("href");
+		
+		if (filename == link) {
+			var item = $(this).parent();
+			
+			while (!item.hasClass("collapsible-menu")){
+				if (item.hasClass("has-children")) {
+					item.toggleClass("open").siblings(".open").removeClass("open");
+				}
+				item = $(item).parent()
+			}
+		}
+
+	  })
+	  
+	});
+	</script>
   </head>
   <body onload="prettyPrint()">
     <div id="wrap">
 	
 	<!-- Fixed navbar -->
-    <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <nav class="navbar navbar-default navbar-fixed-top" >
       <div class="container">
         <div class="navbar-header">
+		  <button type="button" data-target="#navbar" data-toggle="collapse" class="navbar-toggle"> 
+			  <span class="sr-only">Toggle navigation</span> 
+			  <span class="icon-bar"></span> 
+			  <span class="icon-bar"></span> 
+		  </button>
           <a class="navbar-brand" href="index.html">Lense</a>
         </div>
-        <div class="navbar-collapse collapse">
+        <div id="navbar" class="navbar-collapse collapse">
           <ul class="nav navbar-nav">
             <li class="dropdown">
-				<a href="#" class="dropdown-toggle" data-toggle="dropdown">Get Started<b class="caret"></b></a>
+				<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Get Started<b class="caret"></b></a>
 				<ul class="dropdown-menu">
 					<li class="disabled"><a href="learn.html">Learn Lense</a></li>
 					<li class="disabled"><a href="try.html">Try Lense</a></li>
@@ -93,7 +113,7 @@
 				</ul>
 			</li>
             <li class="dropdown">
-				<a href="#" class="dropdown-toggle" data-toggle="dropdown">Fundamentals<b class="caret"></b></a>
+				<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Fundamentals<b class="caret"></b></a>
 				<ul class="dropdown-menu">
 					<li><a href="tour/tour.html">Language Tour</a></li>
 					<li class="disabled"><a href="guide.html">Programmer's Guide</a></li>
@@ -103,7 +123,7 @@
             </li>
 			
             <li class="dropdown">
-              <a href="#" class="dropdown-toggle" data-toggle="dropdown">Details<b class="caret"></b></a>
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Details<b class="caret"></b></a>
 				<ul class="dropdown-menu">
 					<li><a href="nullability.html">Nullability</a></li>
 					<li><a href="numbers.html">Numbers</a></li>
@@ -137,31 +157,136 @@
           </ul>
         </div><!--/.nav-collapse -->
       </div>
-    </div>
+    </nav>
+	
 	<div class="corner-ribbon top-right sticky shadow"><a href="status.html">Exploration Stage</a></div>
-    <div class="container">
-	<p><h1>Erasure</h1><p>Erasure is a process that removes type information or transforms types to more primitive types at compile time.</p><p>Lense does not uses parametric types (aka Generics) facilities from the underlying plataform because they may not be compatible with Lense's variance rules , or not even exist (think javascript).<br/>Thus all types are compiled as if they where not generic. However, Lense records all type information in metadata, for later use. This is similar to the strategy used for the java language. </p><p>Lense itself has reified generics, but at compile time some tricks happen so no parametric type information exists in the code. This is similar to the strategy used by java's array where the type of the array is reified in the array object itself.</p><h2>Primitive Erasure</h2><p>The underlying Virtual Machine handles some types more eficiently such as booleans , numbers and strings.<br/>Primitive erasure tries to gain this optimization by automaticly change type signature from the Lense types to the pimitive ones. This is only possible when values are not being used inside other values, so automathic boxing and unboxing are performed when necessary.<br/>Primtive erasure allows for the compiled code to be more compatible with the plataforms native code and thus more efficient, similar to the code you would write youself by hand.</p><p>Where is the list of erased types so far. </p>
-<table>
-  <thead>
-    <tr>
-      <th align="left">Lense type </th>
-      <th align="center">Erased to </th>
-      <th align="center"> </th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td align="left"><code>lense.core.lang.Void</code></td>
-      <td align="center">plataform's primitive <em>void</em> </td>
-      <td align="center"> </td>
-    </tr>
-    <tr>
-      <td align="left"><code>lense.core.lang.Boolean</code></td>
-      <td align="center">plataform's primitive <em>boolean</em> </td>
-      <td align="center">Boolean constants (Boolean.False, Boolean.True) are also erased to their primitive conterparts (false, true). </td>
-    </tr>
-  </tbody>
-</table><p>Other candidates to consider are <code>lense.core.lang.String</code> and the bounded numeric types.</p></p>
+    
+	<div class="container">
+	<div class="container-fluid">
+		<div class="row row-offcanvas row-offcanvas-right">
+			 <div class="col-xs-12 col-sm-9 col-sm-push-3">
+				<div class="sect1"> 
+ <h2 id="_erasure">Erasure</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>Erasure is a process that removes type information or transforms types to more primitive types at compile time.</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>Lense does not uses parametric types (aka Generics) facilities from the underlying plataform because they may not be compatible with Lense’s variance rules , or not even exist (think javascript). Thus all types are compiled as if they where not generic. However, Lense records all type information in metadata, for later use. This is similar to the strategy used for the java language.</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>Lense itself has reified generics, but at compile time some tricks happen so no parametric type information exists in the code. This is similar to the strategy used by java’s array where the type of the array is reified in the array object itself.</p> 
+  </div> 
+  <div class="sect2"> 
+   <h3 id="_primitive_erasure">Primitive Erasure</h3> 
+   <div class="paragraph"> 
+    <p>The underlying Virtual Machine handles some types more eficiently such as booleans , numbers and strings. Primitive erasure tries to gain this optimization by automaticly change type signature from the Lense types to the pimitive ones. This is only possible when values are not being used inside other values, so automathic boxing and unboxing are performed when necessary. Primtive erasure allows for the compiled code to be more compatible with the plataforms native code and thus more efficient, similar to the code you would write youself by hand.</p> 
+   </div> 
+   <div class="paragraph"> 
+    <p>Where is the list of erased types so far.</p> 
+   </div> 
+   <div class="paragraph"> 
+    <p>| Lense type | Erased to | | | :----------- | :-----------: | :-------------------: | | &lt;code&gt;lense.core.lang.Void&lt;/code&gt;| plataform’s primitive <strong>void</strong> | | | &lt;code&gt;lense.core.lang.Boolean&lt;/code&gt;| plataform’s primitive <strong>boolean</strong> | Boolean constants (Boolean.False, Boolean.True) are also erased to their primitive conterparts (false, true). |</p> 
+   </div> 
+   <div class="paragraph"> 
+    <p>Other candidates to consider are &lt;code&gt;lense.core.lang.String&lt;/code&gt; and the bounded numeric types.</p> 
+   </div> 
+  </div> 
+ </div> 
+</div>
+			</div>
+			<div class="col-xs-6 col-sm-3 col-sm-pull-9 sidebar-offcanvas" id="sidebar"">
+
+<ul class="collapsible-menu">
+	<li><a href="index.html">Introduction</a></i></i>
+	<li><a href="status.html">Status</a></i>
+	<li class="has-children">
+		<a href="javascript:void(0)">Syntax and Semantics</a>
+		<ul >
+			<li><a href="identifiers.html">Reserved Words</a></li>
+			<li><a href="variables.html">Variables and Mutability</a></li>
+			<li><a href="nullability.html">Nullability</a></li>
+			
+			 <!--
+			
+			<li>Comments</li>
+			<li>Generics</li>
+			<li>Functions and Lambdas</li>
+			
+			-->
+			
+			<li class="has-children">
+				<a href="javascript:void(0)">Fundamental Types</a>
+				<ul>
+					<li><a href="booleans.html">Boolean</a></li>
+					<li><a href="strings.html">String</a></li>
+					<li><a href="numbers.html">Number</a></li>
+					<li><a href="binary.html">Binary</a></li>
+					<li><a href="interval.html">Interval</a></li>
+					<li><a href="iterable.html">Iterable</a></li>
+					<li class="has-children"> 
+						<a href="javascript:void(0)">Containers</a>
+						<ul> 
+							<li><a href="maybe.html">Maybe</a></li>
+							<li><a href="tuples.html">Tuple</a></li>
+							
+							<li>Range</li>
+							<li><a href="sequence.html">Sequence</a></li>
+							<li>Association</li>
+							
+						</ul>
+					</li>
+				</ul>
+			</li>
+			<li><a href="containerLiterals.html">Container Literals</a></li>
+			<li><a href="arrays.html">Arrays</a></li>
+			<li class="has-children">
+				<a href="javascript:void(0)">Control Statements</a>
+				<ul>
+					<li>Decision: if</li>
+					<li>Loop : while</li>
+					<li>Iteration : for</li>
+					<li>Selection/Matching : switch</li>
+				</ul>
+			</li>
+			<li class="has-children"> 
+				<a href="javascript:void(0)">Types</a>
+				<ul>	
+					<li><a href="classes.html">Classes</a></li>
+					<li><a href="objects.html">Objects</a></li>
+					<li><a href="interfaces.html">Interfaces</a></li>
+					<li>Enums</li>
+					<li><a href="enhancements.html">Enhancements</a></li>
+				</ul>
+			</li>
+			<li class="has-children"> 
+				<a href="javascript:void(0)">Type Members</a>
+				<ul>
+					<li><a href="constructors.html">Constructors</a></li>
+					<li><a href="properties.html">Fields and Properties</a></li>
+					<li><a href="indexers.html">Indexed Properties</a></li>
+					<li>Methods</li>
+				</ul>
+			</li>
+			<li><a href="casting.html">Casting</a></li>
+			<li><a href="operators.html">Operator Overloading</a></li>
+			
+		</ul>
+	</li>
+	<li class="has-children">
+		<a href="javascript:void(0)">Compilation</a>
+		<ul>
+			<li><a href="platforms.html">Platforms</a></li>
+			<li><a href="erasure.html">Erasure</a></li>
+		</ul>
+	</li>
+	<li><a href="concurrency.html">Concurrency</a>
+	</li>
+
+<ul>			</div>
+		</div>
+	</div>
+	
 	
 		</div>
 		<div id="push"></div>
@@ -169,7 +294,7 @@
     
     <div id="footer">
       <div class="container">
-        <p class="muted credit">Lense is an open source project and a community driven effort</p>
+        <p class="muted credit">Lense is an open source project </p>
       </div>
     </div>
     
@@ -178,6 +303,16 @@
     <script src="js/bootstrap.min.js"></script>
     <script src="js/prettify.js"></script>
     <script>
+	
+		$(document).ready(function() {
+				$("code.language-lense").addClass("brush: lense");
+				$("code.language-java").addClass("brush: java");
+				$("code.language-c-sharp").addClass("brush: c-sharp");
+				$("code.language-typescript").addClass("brush: typescript");
+				$("code.language-dart").addClass("brush: dart");
+				$("code.language-swift").addClass("brush: swift");
+		});
+	
     	SyntaxHighlighter.config.tagName = 'code';
 		SyntaxHighlighter.defaults.toolbar = false;
 		SyntaxHighlighter.all();

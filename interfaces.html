@@ -166,66 +166,39 @@
 		<div class="row row-offcanvas row-offcanvas-right">
 			 <div class="col-xs-12 col-sm-9 col-sm-push-3">
 				<div class="sect1"> 
- <h2 id="_objects">Objects</h2> 
+ <h2 id="_interfaces">Interfaces</h2> 
  <div class="sectionbody"> 
   <div class="paragraph"> 
-   <p>Instead of static members, Lense has object declarations. An object declaration instructs the compiler to create a singleton object that exists at the package level.</p> 
+   <p>Interfaces are constract declarations with no implementation.</p> 
   </div> 
   <div class="listingblock"> 
    <div class="content"> 
-    <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">public object Console {
-
-	public println(String text) {
-         // implementation goes here ...
-    }
+    <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">public interface Validator&lt;in T&gt; {
+     public validate( T candidate) : ValidatorResult;
 }</code></pre> 
    </div> 
   </div> 
   <div class="paragraph"> 
-   <p>Objects are then imported normally like a type using the <code>import</code> statement:</p> 
+   <p>Interfaces can extend other interfaces an are implemented by classes or objects.</p> 
   </div> 
   <div class="listingblock"> 
    <div class="content"> 
-    <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">import somepackage.Console;
+    <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">public let class MailValidator implements Validator&lt;String&gt; {
 
-public class OtherClass {
+     public validate( String candidate) : ValidatorResult{
+            let result = new ValidatorResult ();
 
-	public doIt() {
-	     Console.println("Hello, world");
-	}
+            if (!candidate.indexOf('@').isPresent){
+                result.addReason("Invalid email");
+            }
+
+            return result;
+     }
 }</code></pre> 
    </div> 
   </div> 
   <div class="paragraph"> 
-   <p>As you can see from this example, calling methods on the object is very much like a static call in other languages.</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>When declaring an object Lense will really create a single instance of the given anonymous class in the parent scope. Objects can implement interfaces and inherit from other classes but not from other objects.</p> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="_nested_objects_under_consideration">Nested Objects (Under Consideration)</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>Objects can be nested in other types and other objects. In this case the object will have access to the private members of the surrounding type. Nested objects calls must be prefixed with the type they are in:</p> 
-  </div> 
-  <div class="listingblock"> 
-   <div class="content"> 
-    <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">public class OtherClass {
-
-	public object SomeObject {
-
-	      public doItInTheObject () {}
-	}
-
-	public doItInTheOtherClass() {}
-}
-
-// called like
-
-OtherClass.SomeObject.doItInTheObject()</code></pre> 
-   </div> 
+   <p>Interfaces can only define public properties and public methods.</p> 
   </div> 
  </div> 
 </div>
