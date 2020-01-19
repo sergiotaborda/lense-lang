@@ -23,7 +23,9 @@ public interface Whole extends Number , Comparable {
     public boolean isZero();
     public boolean isOne();
 
-
+    public boolean isNegative();
+    public boolean isPositive();
+    
     @Override
     public boolean equalsTo(Any other);
 

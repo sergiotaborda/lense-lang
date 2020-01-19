@@ -152,7 +152,7 @@ public value class BigFloat implements Float {
 				}
 			}
 	
-			let diff = this &- other;
+			let diff = this - other;
 			
 		    if (diff >0){
 				return greater;
@@ -236,7 +236,7 @@ public value class BigFloat implements Float {
 	
 	}
 
-	public wrapPlus (other: Float) : Float {
+	public plus (other: Float) : Float {
 		 let r : BigFloat = other;
 
 		 return simplify(
@@ -246,7 +246,7 @@ public value class BigFloat implements Float {
 
 	}
 
-	public wrapMinus (other: Float) : Float {
+	public minus (other: Float) : Float {
 		 let r : BigFloat = other;
 
 		 return simplify(
@@ -256,7 +256,7 @@ public value class BigFloat implements Float {
 
 	}
 
-	public wrapMultiply (other: Float) : Float {
+	public multiply (other: Float) : Float {
 		 let r : BigFloat = other;
 
 		 return simplify(
@@ -302,7 +302,7 @@ public value class BigFloat implements Float {
 			return new BigFloat(0,1);
 		}
 			
-		return this.numerator.log() &- this.denominator.log();
+		return this.numerator.log() - this.denominator.log();
 		
 	}
 
@@ -331,9 +331,9 @@ public value class BigFloat implements Float {
                            
          for(let i in 1 .. 36){
 			factorial *= i;
-			xpowi = xpowi &* this;
+			xpowi *= this;
 			let c = xpowi / factorial;
-			sum = sum &+ c;
+			sum += c;
  			if ( xpowi.abs() < i && c.abs() < 0.5 ){
   				break;
  			}                               
@@ -341,78 +341,23 @@ public value class BigFloat implements Float {
 
 		return sum;
 
-
-		/{
-		
-		
-		let s = this &* this;
-		let t = this &* s;
-		let q = s &* s;
-
-		return 1 
-			&+ (this)
-		    &+ (s /2) 
-			&+ (t /6) 
-			&+ (q / 24) 
-			&+ (t &* s / 120) 
-			&+ (q &* s / 720)
-			&+ (t &* q / 5040)
-			&+ (q &* q / 40320)
-			&+ (t &* q &* s / 362880)
-			&+ (q &* q &* s / 3628800)
-			&+ (t &* q &* q / 39916800)
-			&+ (q &* q &* q / 479001600)
-			;
-		
-
-		var hi: Float;
-		var lo: Float;
-		var k : Integer;
-
-		let Ln2 = ;
-		let ln2_L = 
-		let ln2_H
-
-		var x = this;
-		let t = x.abs();
-
-		if (t > 0.5 * Ln2){
-			if (t < 1.5 * Ln2){
-				hi = t - ln2_H
-                lo = Ln2_L;
-				k = 1;
-			} else {
-				k = (Inv_ln2 * t + 0.5).floor();
-				hi = t - k * Ln2_H;
-				lo = k * Ln2_L;
-			}
-
-			if (x < 0 ){
-				hi = -hi;
-				lo = -lo;
-				k = -k;
-			}
-			x = hi - lo;
-		} else if ( t < 1 / Two_28){
-			return new BigDecimal(1,1);
-		} else {
-			hi = 0;
-			lo = 0;
-			k = 0;
-		}
-
-		t = x &* x; 
-		let c = x - t &* ( P1 + t &* (P2 + t &* ( P3 + t &* ( P4 + t &* P5))));
-		if (k == 0 ){
-			return 1 - ( x * c / (c - 2) - x);
-		} else {
-			return = 1 ( lo = x * c / (2 - c ) - hi);
-			
-		}
-			}/
 	}
 	
 	public raiseTo(other : Float) : Float {
-		return (this.log() &* other).exp();
+		return (this.log() * other).exp();
+	}
+
+	public raiseTo(other : Whole) : Float {
+
+
+		var n = other.abs();
+
+		var power =  simplify(this.numerator ^^ n, this.denominator ^^ n);
+	
+		if (other < 0 ){
+			power =  power.invert();
+		}
+
+		return power;
 	}
 }

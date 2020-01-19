@@ -33,9 +33,9 @@ public  interface Float extends SignedNumber, Comparable<Float> {
 	public ceil() : Integer;
 	public floor() : Integer;
 
-	public wrapPlus (other: Float): Float;
-	public wrapMinus (other: Float): Float;
-	public wrapMultiply (other: Float): Float;
+	public plus (other: Float): Float;
+	public minus (other: Float): Float;
+	public multiply (other: Float): Float;
 	public divide (other: Float): Float;
 	
 	public raiseTo(other : Float) : Float;
