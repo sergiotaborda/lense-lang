@@ -165,166 +165,207 @@
 	<div class="container-fluid">
 		<div class="row row-offcanvas row-offcanvas-right">
 			 <div class="col-xs-12 col-sm-9 col-sm-push-3">
-				<p>This a simple tour of the language. At <a href="../status.html">this stage</a> some feature are not decided upon, so sintax may change and features may be added or removed.<br> Features that may change are marked as <em>Under Consideration</em>.</p> 
-<h1>Guideline Principles</h1> 
-<p>Lense is base in some principles. These principles are used as guidelines during the language's design :</p> 
-<ul> 
- <li> <p>One Language , Many runtimes: Lense aims to be a universal language in the sense it can be executed on several different target runtime platforms that behave like the same logic platform.<br> But this mean the plataform limits the possibilites. For example, a file system is not available for the JavaScript platform targeting browsers, since browser have no native access to file systems, but is available in the Javscript plataform running on servers. On the other hand only a web application targeting JavaScript on a browser can call a DOM API and receive events and such.<br> Lense resolves this using modules. Some modules will only be available in some target plataforms.<br> For more on target platforms read the <a href="../platforms.html">plataforms guide</a></p> </li> 
- <li> <p>Everything is an object : Everything you can place in a variable is an object, and every object is an instance of a class.<br> Even numbers and functions are objects. All classes inherit from the <code>Any</code> class and <a href="../nullability.html">there are no <em>nulls</em></a><br> There is no explicit static scope. Hence, there is no <code>static</code> keyword. All members are objects that belong to objects. However, the <code>object</code> declaration allows to the definition of singleton objects that exist in a <em>static-like</em> context. You refer to these objects by their names as the name are unique.</p> </li> 
- <li> <p>Modular : Modules, and not classes, are the units of deployment. All code compiled in Lense will produce a Module.<br> Modules can be organized in packages. Classes live in packages. Modules are compiled depending on the target platform. The same module source code can produce several module archives, one for deployment in each platform. (Under revision)</p> </li> 
- <li> <p>Strong Type System : Lense is strong typed and supports type inference, type variance and reification. Specifying types in code allows the compiler, and other tools, to reason about your intent and infer some things.However, more often than not, the compiler will infer the types and you will not have to specify them.</p> </li> 
- <li> <p>Easy to Read : When you look at a code you wrote 1 year before is hard to remember what the code does, less alone 10 years before. Code must be simple to read. <a href="../identifiers.html">Identifiers</a> must start with a letter, followed by any combination of characters and digits. No special symbols allowed.</p> </li> 
- <li> <p>Easy to Write : Writing must be fluent an coerent a keep to the minimum information necessary. Easy to write does not mean shorter words, or the heavy use of acronyms. It means reduction of boiler plate. Each word types is meaningfull and necessary.</p> </li> 
- <li> <p>Expression of intension is more important that performance. Lense introduces many concepts that may not be easy to implement from a performance point of view, like Complex numbers for example. Lense conception cannot be limited by the performance restrictions because those are manly a runtime problem, and since we are trying to run the same abstractions on different environments is not possible to performatic on all of them. So abstraction and expression of intension comes first. Performance is a problem of the runtime implementation.</p> </li> 
-</ul> 
-<h1>A basic Lense program (Under consideration)</h1> 
-<p>The most basic program is a console interaction program. The famous <em>Hello, word!</em> in Lense would look like this:</p> 
+				<p>This a simple tour of the language. At <a href="../status.html">this stage</a> some feature are not decided upon, so sintax may change and features may be added or removed.<br />
+Features that may change are marked as <em>Under Consideration</em>.</p>
+<h1>Guideline Principles</h1>
+<p>Lense is base in some principles. These principles are used as guidelines during the language's design :</p>
+<ul>
+<li>
+<p>One Language , Many runtimes: Lense aims to be a universal language in the sense it can be executed on several different target runtime platforms that behave like the same logic platform.<br />
+But this mean the plataform limits the possibilites. For example, a file system is not available for the JavaScript platform targeting browsers, since browser have no native access to file systems, but is available in the Javscript plataform running on servers. On the other hand only a web application targeting JavaScript on a browser can call a DOM API and receive events and such.<br />
+Lense resolves this using modules. Some modules will only be available in some target plataforms.<br />
+For more on target platforms read the <a href="../platforms.html">plataforms guide</a></p>
+</li>
+<li>
+<p>Everything is an object : Everything you can place in a variable is an object, and every object is an instance of a class.<br />
+Even numbers and functions are objects. All classes inherit from the <code>Any</code> class and <a href="../nullability.html">there are no <em>nulls</em></a><br />
+There is no explicit static scope. Hence, there is no <code>static</code> keyword. All members are objects that belong to objects. However, the <code>object</code> declaration allows to the definition of singleton objects that exist in a <em>static-like</em> context. You refer to these objects by their names as the name are unique.</p>
+</li>
+<li>
+<p>Modular : Modules, and not classes, are the units of deployment. All code compiled in Lense will produce a Module.<br />
+Modules can be organized in packages. Classes live in packages. Modules are compiled depending on the target platform. The same module source code can produce several module archives, one for deployment in each platform. (Under revision)</p>
+</li>
+<li>
+<p>Strong Type System : Lense is strong typed and supports type inference, type variance and reification. Specifying types in code allows the compiler, and other tools, to reason about your intent and infer some things.However, more often than not, the compiler will infer the types and you will not have to specify them.</p>
+</li>
+<li>
+<p>Easy to Read : When you look at a code you wrote 1 year before is hard to remember what the code does, less alone 10 years before. Code must be simple to read. <a href="../identifiers.html">Identifiers</a> must start with a letter,  followed by any combination of characters and digits. No special symbols allowed.</p>
+</li>
+<li>
+<p>Easy to Write : Writing must be fluent an coerent a keep to the minimum information necessary. Easy to write does not mean shorter words, or the heavy use of acronyms. It means reduction of boiler plate. Each word types is meaningfull and necessary.</p>
+</li>
+<li>
+<p>Expression of intension is more important that performance. Lense introduces many concepts that may not be easy to implement from a performance point of view, like Complex numbers for example. Lense conception cannot be limited by the performance restrictions because those are manly a runtime problem, and since we are trying to run the same abstractions on different environments is not possible to performatic on all of them. So abstraction and expression of intension comes first. Performance is a problem of the runtime implementation.</p>
+</li>
+</ul>
+<h1>A basic Lense program (Under consideration)</h1>
+<p>The most basic program is a console interaction program. The famous <em>Hello, word!</em> in Lense would look like this:</p>
 <pre><code class="language-brush:">public object MyApplication extends ConsoleApplication {
 
 	public run (){
 		let name : String = this.arguments[0];
 		
-		this.console.println("Hello, {{ name }}!");
+		this.console.println(&quot;Hello, {{ name }}!&quot;);
 	}
 }
-</code></pre> 
-<p>The program's entry point is an <code>Application</code> object. In this case a <code>ConsoleApplication</code>. Lense does not support static members like other languages because everything is an object.<br> However is supports the singleton pattern out of the box. By using an <code>object</code> declaration you define an object of type, in this case, <code>ConsoleApplication</code> that has a <code>run()</code> method.<br> The <code>run</code> method is the program's entry point.</p> 
-<p>A program must be package into a module to be runnable. Lense supports modules out of the box:</p> 
+</code></pre>
+<p>The program's entry point is an <code>Application</code> object. In this case a <code>ConsoleApplication</code>. Lense does not support static members like other languages because everything is an object.<br />
+However is supports the singleton pattern out of the box. By using an <code>object</code> declaration you define an object of type, in this case, <code>ConsoleApplication</code> that has a <code>run()</code> method.<br />
+The <code>run</code> method is the program's entry point.</p>
+<p>A program must be package into a module to be runnable. Lense supports modules out of the box:</p>
 <pre><code class="language-brush:">module MyApplicationModule (1.0.0) {
 
 	imports lense.core 1.0.0;
 }
-</code></pre> 
-<p>There must always exist a module in you application (you application <em>is</em> a module).<br> A module can be executable if it contains an <code>Application</code> object. If it does not contain an <code>Application</code> oject it's library module to be used by other modules.<br> A module can not contain more than one <code>Application</code> object.</p> 
-<p>Each module must have a name and a version. In this case the name is <em>MyApplicationModule</em> and the version is <em>1.0.0</em>. Lense understands version literals, no need to wrap the version in a string.<br> If you need access to passed arguments you can read them from the <code>arguments</code> property in <code>Application</code>.<br> This property holds a <code>Sequence&lt;String&gt;</code> with the parameters given in the command line. If no arguments were passed or the application is running in an environment<br> without access to arguments (like a web browser) the sequence is empty.</p> 
-<h2>Numbers</h2> 
-<p>Numbers are separated in specific algebraic structures that conform to their mathematical rules.<br> All numbers are descendent types of the <code>Number</code> class. Operations are defined for each type independently.<br> Lense supports Natural, Integer, Real, Complex and Imaginary numbers. A byte is not a number in Lense, its a <code>Binary</code> object.</p> 
-<p>Natural is used as an indexer for sequences. It is non-negative and has big as you need. Limits for the size of collections like arrays, lists and maps are only bound by their implementation. Using a Natural to index sequences removes the necessity to check for negative indexes and as Arrays always have a upper limit and always are constructed by <a href="constructors.html">factory like constructors</a><br> the implementation for each platform can accommodate different implementations according to maximum length demand.<br> For more information on how <code>Natural</code> relates to index of sequences, see how <a href="arrays.html">Arrays</a> work in Lense.</p> 
-<p>Arithmetic operations are defined by <a href="operators.html">Operator Interfaces</a> so you can implement you own versions of the common operators.</p> 
-<p>For more detail on number visit the dedicated <a href="numbers.html">numbers</a> page</p> 
-<h2>Strings</h2> 
-<p>A string in Lense is a Sequence of Character. Characters are UTF-16 code points. A string literal is just a text enclosed in double quotes.</p> 
-<pre><code class="language-brush:">let greating : String = "Hello, world";
-</code></pre> 
-<p>You can interpolate values inside literal strings using <code>{{</code> and <code>}}</code> as delimiters.</p> 
-<pre><code class="language-brush:">let  name : String= "Alice";
-let  greating : String = "Hello, {{ name }}";
-</code></pre> 
-<p>You can concatenate strings using the <code>+</code> operator.</p> 
-<pre><code class="language-brush:">let name : String = "Alice";
-let greating : String = "Hello, " + name;
-</code></pre> 
-<p>String are mulit-line, so you can simply right</p> 
-<pre><code class="language-brush:">let greating : String = "Hello, 
-	wold";
-</code></pre> 
-<p>The line break , tab and spaces in the second line will be preserved.</p> 
-<p>If you need to use a Unicode a special character enclosing an hexadecimal natural value with <code>\{</code> and <code>}</code> delimiters.</p> 
-<pre><code class="language-brush:">let definePi : String = "The value of \{#03C0} is the ratio between the circumference and the diameter of a circle"
-</code></pre> 
-<h1>Collections</h1> 
-<p>Lense offers a rich API to handle collections. All collections in Lense are <a href="../monads.html">monads</a>.<br> All collections inherit from the <code>Assortment</code> class and are read-only and immutable by design. Mutable implementations exist.</p> 
-<h2>Sequence</h2> 
-<p>Sequences are assortments that let you assign a <code>Natural</code> index to each element. The elements can be iterated in the order of their indexes.<br> Sequences are immutable and read-only. Sequences are fundamental in Lense and not arrays as in other languages (like Java).<br> Lense provides a very familiar syntax for sequences:</p> 
-<pre><code class="language-brush:">let cities : Sequence&lt;String&gt;  = ["New York", "London", "Paris"];
+</code></pre>
+<p>There must always exist a module in you application (you application <em>is</em> a module).<br />
+A module can be executable if it contains an <code>Application</code> object. If it does not contain an <code>Application</code> oject it's library module to be used by other modules.<br />
+A module can not contain more than one <code>Application</code> object.</p>
+<p>Each module must have a name and a version. In this case the name is <em>MyApplicationModule</em> and the version is <em>1.0.0</em>. Lense understands version literals, no need to wrap the version in a string.<br />
+If you need access to passed arguments you can read them from the <code>arguments</code> property in <code>Application</code>.<br />
+This property holds a <code>Sequence&lt;String&gt;</code> with the parameters given in the command line. If no arguments were passed or the application is running in an environment<br />
+without access to arguments (like a web browser) the sequence is empty.</p>
+<h2>Numbers</h2>
+<p>Numbers are separated in specific algebraic structures that conform to their mathematical rules.<br />
+All numbers are descendent types of the <code>Number</code> class. Operations are defined for each type independently.<br />
+Lense supports Natural, Integer, Real,  Complex and Imaginary numbers. A byte is not a number in Lense, its a <code>Binary</code> object.</p>
+<p>Natural is used as an indexer for sequences. It is non-negative and has big as you need. Limits for the size of collections like arrays, lists and maps are only bound by their implementation. Using a Natural to index sequences removes the necessity to check for negative indexes and as Arrays always have a upper limit and always are constructed by <a href="constructors.html">factory like constructors</a><br />
+the implementation for each platform can accommodate different implementations according to maximum length demand.<br />
+For more information on how <code>Natural</code> relates to index of sequences, see how <a href="arrays.html">Arrays</a> work in Lense.</p>
+<p>Arithmetic operations are defined by <a href="operators.html">Operator Interfaces</a> so you can implement you own versions of the common operators.</p>
+<p>For more detail on number visit the dedicated <a href="numbers.html">numbers</a> page</p>
+<h2>Strings</h2>
+<p>A string in Lense is a Sequence of Character. Characters are UTF-16 code points. A string literal is just a text enclosed in double quotes.</p>
+<pre><code class="language-brush:">let greating : String = &quot;Hello, world&quot;;
+</code></pre>
+<p>You can interpolate values inside literal strings using <code>{{</code> and <code>}}</code> as delimiters.</p>
+<pre><code class="language-brush:">let  name : String= &quot;Alice&quot;;
+let  greating : String = &quot;Hello, {{ name }}&quot;;
+</code></pre>
+<p>You can concatenate strings using the <code>+</code> operator.</p>
+<pre><code class="language-brush:">let name : String = &quot;Alice&quot;;
+let greating : String = &quot;Hello, &quot; + name;
+</code></pre>
+<p>String are mulit-line, so you can simply right</p>
+<pre><code class="language-brush:">let greating : String = &quot;Hello, 
+	wold&quot;;
+</code></pre>
+<p>The line break , tab and spaces in the second line will be preserved.</p>
+<p>If you need to use a Unicode a special character enclosing an hexadecimal natural value with <code>\{</code> and <code>}</code> delimiters.</p>
+<pre><code class="language-brush:">let definePi : String = &quot;The value of \{#03C0} is the ratio between the circumference and the diameter of a circle&quot;
+</code></pre>
+<h1>Collections</h1>
+<p>Lense offers a rich API to handle collections. All collections in Lense are <a href="../monads.html">monads</a>.<br />
+All collections inherit from the <code>Assortment</code> class and are read-only and immutable by design. Mutable implementations exist.</p>
+<h2>Sequence</h2>
+<p>Sequences are assortments that let you assign a <code>Natural</code> index to each element. The elements can be iterated in the order of their indexes.<br />
+Sequences are immutable and read-only. Sequences are fundamental in Lense and not arrays as in other languages (like Java).<br />
+Lense provides a very familiar syntax for sequences:</p>
+<pre><code class="language-brush:">let cities : Sequence&lt;String&gt;  = [&quot;New York&quot;, &quot;London&quot;, &quot;Paris&quot;];
 
 let london = cities[1]; // access by a Natural index
-</code></pre> 
-<h3>Arrays</h3> 
-<p>In Lense an <code>Array</code>in an implementation of <code>EditableSequence</code>s. This means you can chance the values in each position of the sequence but you cannot change the sequence's size.<br> Arrays in Lense are fixed in size. To add a new element to the array you need to create a new array. Also keep in mind arrays in Lense are objects of the <code>Array&lt;T&gt;</code> class and not primitive types like in Java.</p> 
-<pre><code class="language-brush:">let cities : Array&lt;String&gt; = ["New York", "London", "Paris"];
+</code></pre>
+<h3>Arrays</h3>
+<p>In Lense an <code>Array</code>in an implementation of <code>EditableSequence</code>s. This means you can chance the values in each position of the sequence but you cannot change the sequence's size.<br />
+Arrays in Lense are fixed in size. To add a new element to the array you need to create a new array. Also keep in mind arrays in Lense are objects of the <code>Array&lt;T&gt;</code> class and not primitive types like in Java.</p>
+<pre><code class="language-brush:">let cities : Array&lt;String&gt; = [&quot;New York&quot;, &quot;London&quot;, &quot;Paris&quot;];
 
 let london = cities[1]; // access by a natural index
 
-cities[1] = "São Paulo"; // position 1 now refers to "São Paulo" and not to "London" any more.
-</code></pre> 
-<p>Because of Lense's <a href="../constructors.html">conversion constructors</a> you can initialize an Array with a Sequence literal.</p> 
-<h3>Lists</h3> 
-<p><code>List</code> is an implementation of <code>ResizeableSequence</code> that is both editable (like Arrays) and resizeable. This means you can add and remove elements from a list after the list is created.<br> <code>List</code> implementation is equivalent to <code>ArrayList</code> in Java.</p> 
-<pre><code class="language-brush:">let cities : List&lt;String&gt; = ["New York", "London", "Paris"];
+cities[1] = &quot;São Paulo&quot;; // position 1 now refers to &quot;São Paulo&quot; and not to &quot;London&quot; any more.
+</code></pre>
+<p>Because of Lense's <a href="../constructors.html">conversion constructors</a> you can initialize an Array with a Sequence literal.</p>
+<h3>Lists</h3>
+<p><code>List</code> is an implementation of  <code>ResizeableSequence</code> that is both editable (like Arrays) and resizeable. This means you can add and remove elements from a list after the list is created.<br />
+<code>List</code> implementation is equivalent to <code>ArrayList</code> in Java.</p>
+<pre><code class="language-brush:">let cities : List&lt;String&gt; = [&quot;New York&quot;, &quot;London&quot;, &quot;Paris&quot;];
 
-cities.remove(1); // removes element at index 1, "London" in this example
-cities.add("São Paulo"); // add a new element at end of the list
-</code></pre> 
-<h3>Range</h3> 
-<p>Lense supports Ranges. A Range is a special sequence of elements that has a <em>start</em> and an <em>end</em> and knows how to iterate elements from the start to the end.<br> A Range is normally created from a Rangeable. A Rangeable defines an <code>upTo</code> method that returns a Range.</p> 
+cities.remove(1); // removes element at index 1, &quot;London&quot; in this example
+cities.add(&quot;São Paulo&quot;); // add a new element at end of the list
+</code></pre>
+<h3>Range</h3>
+<p>Lense supports Ranges. A Range is a special sequence of elements that has a <em>start</em> and an <em>end</em> and knows how to iterate elements from the start to the end.<br />
+A Range is normally created from a Rangeable. A Rangeable defines an <code>upTo</code> method that returns a Range.</p>
 <pre><code class="language-brush:">let  range Range&lt;Natural&gt; = 1.upTo(9);
-</code></pre> 
-<p>This constructs a Range from 1 inclusive to 9 inclusive. Lense also supports an operator called <code>..</code> that you can use instead of <code>upTo</code>.</p> 
+</code></pre>
+<p>This constructs a Range from 1 inclusive to 9 inclusive. Lense also supports an operator called <code>..</code> that you can use instead of <code>upTo</code>.</p>
 <pre><code class="language-brush:">let range Range&lt;Natural&gt;  = 1..9;
-</code></pre> 
-<p>This is usefull in interations</p> 
+</code></pre>
+<p>This is usefull in interations</p>
 <pre><code class="language-brush:">for (Natural n in 1..9){
   // do something
 }
-</code></pre> 
-<h2>Association</h2> 
-<p>Associations are like sequences, but instead of attributing a Natural index to each element, you can attribute an object to each element. This object act like a key to later retrive the stored object. Lense also provides a familiar literal for Associations. Associations, like sequences, are imutable.</p> 
-<pre><code class="language-brush:">let personsAndJobs : Association&lt;String, String&gt;  = { "Alice": "CEO", "Bob":"CIO" , "Claude":"CFO" };
-</code></pre> 
-<p>Like Sequences, Associations are immutable and read-only.</p> 
-<h3>Dictionary</h3> 
-<p><code>Dictionary</code> is an implementation of <code>EditableAssociation</code> that allows for the edition of the values associated with keys, but does not allow the modification of the keys.</p> 
-<pre><code class="language-brush:">let personsAndJobs  Dictionary&lt;String, String&gt; = { "Alice": "CEO", "Bob":"CIO" , "Claude":"CFO" };
+</code></pre>
+<h2>Association</h2>
+<p>Associations are like sequences, but instead of attributing a Natural index to each element, you can attribute an object to each element. This object act like a key to later retrive the stored object. Lense also provides a familiar literal for Associations. Associations, like sequences, are imutable.</p>
+<pre><code class="language-brush:">let personsAndJobs : Association&lt;String, String&gt;  = { &quot;Alice&quot;: &quot;CEO&quot;, &quot;Bob&quot;:&quot;CIO&quot; , &quot;Claude&quot;:&quot;CFO&quot; };
+</code></pre>
+<p>Like Sequences, Associations are immutable and read-only.</p>
+<h3>Dictionary</h3>
+<p><code>Dictionary</code> is an implementation of <code>EditableAssociation</code> that allows for the edition of the values associated with keys, but does not allow the modification of the keys.</p>
+<pre><code class="language-brush:">let personsAndJobs  Dictionary&lt;String, String&gt; = { &quot;Alice&quot;: &quot;CEO&quot;, &quot;Bob&quot;:&quot;CIO&quot; , &quot;Claude&quot;:&quot;CFO&quot; };
 
-personsAndJobs.replace("Alice", "CTO"); // replaces the value pointed by the 
-</code></pre> 
-<h3>Maps</h3> 
-<p><code>Map</code> is an implementation of <code>ResizableAssociation</code> that you can use to manipulate editable and resizeable associations. In Lense, Map implementation is similar to that of HashMap in Java.</p> 
-<pre><code class="language-brush:">let personsAndJobs  Map&lt;String, String&gt; = { "Alice": "CEO", "Bob":"CIO" , "Claude":"CFO" };
+personsAndJobs.replace(&quot;Alice&quot;, &quot;CTO&quot;); // replaces the value pointed by the 
+</code></pre>
+<h3>Maps</h3>
+<p><code>Map</code> is an implementation of <code>ResizableAssociation</code> that you can use to manipulate editable and resizeable associations.  In Lense, Map implementation is similar to that of HashMap in Java.</p>
+<pre><code class="language-brush:">let personsAndJobs  Map&lt;String, String&gt; = { &quot;Alice&quot;: &quot;CEO&quot;, &quot;Bob&quot;:&quot;CIO&quot; , &quot;Claude&quot;:&quot;CFO&quot; };
 
-personsAndJobs.removeKey("Alice"); // removes the key and its value.
-</code></pre> 
-<h2>Tuples</h2> 
-<p>Tuples are special assortments. They are like sequences of objects in the sense each element has an index. The difference is that each element can be of a different type with no relation to the other elements (has in a sequence all elements are off the same class or inherit from it).</p> 
-<pre><code class="language-brush:">let  personsAndJobs : (String, Natural , Boolean) = ("Alice", 42 , true);
-</code></pre> 
-<p>Lense provides the abose short sintax to create tuple's types and values. the compiler will translate that notation to the following notation that you can also use.</p> 
-<pre><code class="language-brush:">let personsAndJobs : Tuple&lt;String, Tuple&lt;Natural , Tuple&lt;Boolean, Nothing&gt;&gt;&gt;  = ("Alice", 42 , true);
-</code></pre> 
-<p>If you are interested, you can read <a href="../containerLiterals.html">more on container literals</a>.</p> 
-<p>Lense understands that a variable of type X can be considered a variable of type 1-tuple of X, so 1-tuples can be assigned to variables directly and vice-versa:</p> 
-<pre><code class="language-brush:">let tuple1 : (String)  = ("Alice"); // commom pattern
-let tuple1 : (String)  = "Alice"; // also valid
-let name : String  = "Alice"; // commom pattern
-let name : String  = ("Alice"); // also valid
+personsAndJobs.removeKey(&quot;Alice&quot;); // removes the key and its value.
+</code></pre>
+<h2>Tuples</h2>
+<p>Tuples are special assortments. They are like sequences of objects in the sense each element has an index. The difference is that each element can be of a different type with no relation to the other elements (has in a sequence all elements are off the same class or inherit from it).</p>
+<pre><code class="language-brush:">let  personsAndJobs : (String, Natural , Boolean) = (&quot;Alice&quot;, 42 , true);
+</code></pre>
+<p>Lense provides the abose short sintax to create tuple's types and values. the compiler will translate that notation to the following notation that you can also use.</p>
+<pre><code class="language-brush:">let personsAndJobs : Tuple&lt;String, Tuple&lt;Natural , Tuple&lt;Boolean, Nothing&gt;&gt;&gt;  = (&quot;Alice&quot;, 42 , true);
+</code></pre>
+<p>If you are interested, you can read <a href="../containerLiterals.html">more on container literals</a>.</p>
+<p>Lense understands that a variable of type X can be considered a variable of type 1-tuple of X, so 1-tuples can be assigned to variables directly and vice-versa:</p>
+<pre><code class="language-brush:">let tuple1 : (String)  = (&quot;Alice&quot;); // commom pattern
+let tuple1 : (String)  = &quot;Alice&quot;; // also valid
+let name : String  = &quot;Alice&quot;; // commom pattern
+let name : String  = (&quot;Alice&quot;); // also valid
 let name : String  = tuple1; //  also valid
-</code></pre> 
-<h1>Functions</h1> 
-<p>Functions allow for algorithms to be encapsulated. Normally these algorithms depend on parameters that the function declares explicitly and return a value.</p> 
+</code></pre>
+<h1>Functions</h1>
+<p>Functions allow for algorithms to be  encapsulated. Normally these algorithms depend on parameters that the function declares explicitly and return a value.</p>
 <pre><code class="language-brush:">	 public doSomething() : Void { 
-	 	Console.print("Did something");
+	 	Console.print(&quot;Did something&quot;);
 	 }
 	 
 	  square ( x : Natural) : Natural { 
 		return x*x; 
 	 }
-</code></pre> 
-<p>Functions always return a value. <code>Void</code> is not a keyword, is an actual type. <code>Void</code> only has one instance denoted <code>()</code> (the empty tuple). All functions have an implicit return of the instance of <code>Void</code> at the end. This is correct unless the method return another type.<br> You can explicitly write a return of the instance of <code>Void</code>.</p> 
+</code></pre>
+<p>Functions always return a value. <code>Void</code> is not a keyword, is an actual type. <code>Void</code> only has one instance denoted <code>()</code> (the empty tuple). All functions have an implicit return of the instance of <code>Void</code> at the end. This is correct unless the method return another type.<br />
+You can explicitly write a return of the instance of <code>Void</code>.</p>
 <pre><code class="language-brush:">	 public doSomething() : Void  { 
-	 	Console.print("Did something");
+	 	Console.print(&quot;Did something&quot;);
 	 	return; // implicitly returns the instance of Void.
 	 };
-</code></pre> 
+</code></pre>
 <pre><code class="language-brush:">	 public  doSomething() : Void { 
-	 	Console.print("Did something");
+	 	Console.print(&quot;Did something&quot;);
 	 	return (); // explicit returns the instance of Void.
 	 };
-</code></pre> 
-<p>Functions are objects of type <em>Function</em>. There is a type for each number of parameters. So <code>Function&lt;R&gt;</code> is for a function with no parameters that returns a type <code>R</code>. <code>Function&lt;R,T&gt;</code> if for a single parameter function.<br> <code>Function&lt;R,T,U&gt;</code> is for a function of two parameters, and do on ...</p> 
+</code></pre>
+<p>Functions are objects of type <em>Function</em>. There is a type for each number of parameters. So <code>Function&lt;R&gt;</code> is for a function with no parameters that returns a type <code>R</code>. <code>Function&lt;R,T&gt;</code> if for a single parameter function.<br />
+<code>Function&lt;R,T,U&gt;</code> is for a function of two parameters, and do on ...</p>
 <pre><code class="language-brush:">	 let f : Function&lt;Int, Int&gt; = x -&gt; x*x; 
 	 let g : Function&lt;Int, Int, Int&gt;= (x,y) -&gt; x*y;
 	 
 	 Console.println(f(3));  
 	 Console.println(g(3,2));
-</code></pre> 
-<p>Prints</p> 
+</code></pre>
+<p>Prints</p>
 <pre><code class="language-console">9
 6
-</code></pre> 
-<p>When functions are defined in the context of a class we talk about methods. Methods are functions bound to an instance of a class.<br> Method can make calls to the <code>this</code> variable that implicitly represent the instance the function is bonded to.</p> 
-<h2>Transforming Methods into Functions (Under Consideration)</h2> 
-<p>Using reflection, methods can be converter to functions that can be invoked if the instance object is passed explicitly</p> 
+</code></pre>
+<p>When functions are defined in the context of a class we talk about methods. Methods are functions bound to an instance of a class.<br />
+Method can make calls to the <code>this</code> variable that implicitly represent the instance the function is bonded to.</p>
+<h2>Transforming Methods into Functions (Under Consideration)</h2>
+<p>Using reflection, methods can be converter to functions that can be invoked if the instance object is passed explicitly</p>
 <pre><code class="language-brush:">	let  one : Integer= 1;
 
     let  minusOne: Integer = one.negative();
@@ -334,23 +375,26 @@ let name : String  = tuple1; //  also valid
 
     let  alsoMinusOne : Integer = negativeOf(one);
 	let  minusTwo : Integer = negativeOf(2);
-</code></pre> 
-<p>Note the use of the <code>::</code> operator to detach members from object instances.<br> You can do the same using the class instead of the instance.</p> 
+</code></pre>
+<p>Note the use of the <code>::</code> operator to detach members from object instances.<br />
+You can do the same using the class instead of the instance.</p>
 <pre><code class="language-brush:">    // extract the underlying function
     let negativeOf : Function&lt;Number,Number&gt; = Integer::negative(); // f has a parameter of type Number representing the bounded value of *negative*.
 
     let alsoMinusOne : Integer = negativeOf(one);
 	let minusTwo : Integer = negativeOf(2);
-</code></pre> 
-<h1>Operators</h1> 
-<p>Lense does not support operator overloading but lets you use operators like <code>+</code> and <code>*</code> in your own classes. Each operator is defined in a interface.<br> For example , for the <code>+</code> operator is the <code>Summable&lt;A,D,S&gt;</code> interface. These special interfaces are called <em>Operator Interfaces</em> in the documentation.</p> 
-<p>Note that this interfaces do not define the result or the parameters must be of the same type. They as generic as you can get.</p> 
-<p>Another family of interfaces define algebraic structures. These structures enforce other rules (like the types all be the same) and provide properties for the underlying type.<br> Algebraic structures help model some more abstract algebra concepts like <em>Magma</em>, <em>Group</em> , <em>Ring</em> or <em>Field</em>.</p> 
-<p>The different algebraic structures are the reason not all number types have the same operations. Integer, for example, do not have division, and so cannot for a <em>Field</em>.</p> 
-<h1>Control Flow Statements</h1> 
-<p>Lense control flow is pretty much what you would expect and are a costumed to see in other languages.</p> 
-<h2>if-then-else</h2> 
-<p>The <em>if-then-else</em> decision statement is pretty much the same as in Java , C# and other languages.</p> 
+</code></pre>
+<h1>Operators</h1>
+<p>Lense does not support operator overloading but lets you use operators like <code>+</code> and <code>*</code> in your own classes. Each operator is defined in a interface.<br />
+For example , for the <code>+</code> operator is the <code>Summable&lt;A,D,S&gt;</code> interface. These special interfaces are called <em>Operator Interfaces</em> in the documentation.</p>
+<p>Note that this interfaces do not define the result or the parameters must be of the same type. They as generic as you can get.</p>
+<p>Another family of interfaces define algebraic structures. These structures enforce other rules (like the types all be the same) and provide properties for the underlying type.<br />
+Algebraic structures help model some more abstract algebra concepts like <em>Magma</em>, <em>Group</em> , <em>Ring</em>  or <em>Field</em>.</p>
+<p>The different algebraic structures are the reason not all number types have the same operations. Integer, for example, do not have division, and so cannot for a <em>Field</em>.</p>
+<h1>Control Flow Statements</h1>
+<p>Lense control flow is pretty much what you would expect and are a costumed to see in other languages.</p>
+<h2>if-then-else</h2>
+<p>The <em>if-then-else</em> decision statement is pretty much the same as in Java , C# and other languages.</p>
 <pre><code class="language-brush:">if (condition){
    // do somthing
 } else if (otherCondition){
@@ -358,38 +402,41 @@ let name : String  = tuple1; //  also valid
 } else {
    // do something else.
 }
-</code></pre> 
-<p>The <code>if</code> clause demands a Boolean condition to be evaluated. The condition must be of type boolean. Any other type will throw a compilation error.<br> You can chain and nest <em>if-then-else</em> as much as you like.</p> 
-<h2>while-do</h2> 
-<p>The <em>while-do</em> repetition structure is also pretty much the same as in Java , C# and other languages.</p> 
+</code></pre>
+<p>The <code>if</code> clause demands a Boolean condition to be evaluated. The condition must be of type boolean. Any other type will throw a compilation error.<br />
+You can chain and nest <em>if-then-else</em> as much as you like.</p>
+<h2>while-do</h2>
+<p>The <em>while-do</em> repetition structure is also pretty much the same as in Java , C# and other languages.</p>
 <pre><code class="language-brush:">while (condition){
 	// repeat this if condition is true
 }
-</code></pre> 
-<h2>for-each</h2> 
-<p>A very common task in object oriented programming is iterating over a collection of elements. Lense provides the <em>for-each</em> structure to help in this very common task.</p> 
+</code></pre>
+<h2>for-each</h2>
+<p>A very common task in object oriented programming is iterating over a collection of elements. Lense provides the <em>for-each</em> structure to help in this very common task.</p>
 <pre><code class="language-brush:">for (let element in collection){
 	// repeat this code for each element 
 }
-</code></pre> 
-<p>You can use <em>for-each</em> with any object that implements the <code>Iterable</code> interface.<br> You can use type of the variable instead of var. If you use <code>var</code> the type will be infered from the collection signature.</p> 
+</code></pre>
+<p>You can use <em>for-each</em> with any object that implements the <code>Iterable</code> interface.<br />
+You can use type of the variable instead of var. If you use <code>var</code> the type will be infered from the collection signature.</p>
 <pre><code class="language-brush:">for (String element in collection){
 	// repeat this code for each element 
 }
-</code></pre> 
-<p>Lense does not have the traditional increment base <em>for</em> like it exist in Java or C#.</p> 
+</code></pre>
+<p>Lense does not have the traditional increment base <em>for</em> like it exist in Java or C#.</p>
 <pre><code class="language-brush:">// java and others
 for (int i = 1; i &lt;= 9  ; i++){  // this exists in Java and C#, not in Lense
 	// repeat for each i
 }
-</code></pre> 
-<p>Instead you can use a Progression.</p> 
+</code></pre>
+<p>Instead you can use a Progression.</p>
 <pre><code class="language-brush:">for (var i in 1..9){
 	// repeat for each i
 }
-</code></pre> 
-<h1>Exceptions</h1> 
-<p>Lense supports throwing Exceptions. An Exception is a special object. When an Exception is thrown the execution of the code stops and the method returns.<br> You can that catch the exception with a <em>try-catch-finally</em> statement.</p> 
+</code></pre>
+<h1>Exceptions</h1>
+<p>Lense supports throwing Exceptions. An Exception is a special object. When an Exception is thrown the execution of the code stops and the method returns.<br />
+You can that catch the exception with a <em>try-catch-finally</em> statement.</p>
 <pre><code class="language-brush:">try {
   // do something that can throw an exception
   throw new ArithmenticException();
@@ -398,37 +445,42 @@ for (int i = 1; i &lt;= 9  ; i++){  // this exists in Java and C#, not in Lense
 } finally {
   // do something either if the exception occurred or not.
 }
-</code></pre> 
-<p>Lense does not support checked exception like Java does.</p> 
-<h1>Classes</h1> 
-<p>Lense supports classes and class inheritance to define objects and relations betweeen them.<br> Lense also supports interfaces, object delcarations and traits (under consideration).</p> 
-<p>All Lense types suport fields, properties , methods and constructors as members.<br> Lense also supports overloading of methods and genric types.</p> 
-<p>More on types on the <a href="objects.html">types page</a>.</p> 
-<h1>Generics</h1> 
-<p>Lense supports reified generics with variance control.</p> 
+</code></pre>
+<p>Lense does not support checked exception like Java does.</p>
+<h1>Classes</h1>
+<p>Lense supports classes and class inheritance to define objects and relations betweeen them.<br />
+Lense also supports interfaces, object delcarations and traits (under consideration).</p>
+<p>All Lense types suport fields, properties , methods and constructors as members.<br />
+Lense also supports overloading of methods and genric types.</p>
+<p>More on types on the <a href="objects.html">types page</a>.</p>
+<h1>Generics</h1>
+<p>Lense supports reified generics with variance control.</p>
 <pre><code class="language-brush:">public interface Sequence&lt;out T&gt; { }
 
 public interface Validator&lt;in T&gt; { }
 
 public interface List&lt;T&gt; { }
-</code></pre> 
-<p>Lense support co-variant types (out), contra-variant types (in) and invariant types (default)</p> 
-<h1>Modules and visibility (Under Consideration)</h1> 
-<p>Lense supports modules. Every application or library is packaged as a module. A modulue is similar to a jar file in java or a dll in .Net,<br> but contains a little more structure.</p> 
-<p>Modules can import types from other modules and can export they own types to other modules to use.</p> 
-<p>Visibility modifies like <code>private</code>, <code>public</code> and <code>protected</code> have the same semantics an in java or C#, however there is no <em>default</em> level like in java.<br> If visibility is not explicit , <code>private</code> is used.</p> 
-<p>A litte diference is that a type being maked as <code>public</code> adicionaly means that any other module can used it and are exported by default. If you do not want to export a classe use the <code>internal</code> visibility modifier.</p> 
-<h1>Parallelism and Concurrency (Under Consideration)</h1> 
-<p>Lense does not support creating an control of threads directly nor support the commom memory model.<br> Instead Lense provides an actor based API to handle concurrency and parallelism. Parallelism is also ofered by special APIs lik Parallelism is supported by APIs like <code>Iterable.asParallel()</code>.</p> 
-<h1>Reflection (Under Consideration)</h1> 
-<p>Lense offer a reflection API based on the <code>Type</code> class.</p> 
+</code></pre>
+<p>Lense support co-variant types (out), contra-variant types (in) and invariant types (default)</p>
+<h1>Modules and visibility (Under Consideration)</h1>
+<p>Lense supports modules. Every application or library is packaged as a module. A modulue is similar to a jar file in java or a dll in .Net,<br />
+but contains a little more structure.</p>
+<p>Modules can import types from other modules and can export they own types to other modules to use.</p>
+<p>Visibility modifies like <code>private</code>, <code>public</code> and <code>protected</code> have the same semantics an in java or C#, however there is no <em>default</em> level like in java.<br />
+If visibility is not explicit , <code>private</code> is used.</p>
+<p>A litte diference is that a type being maked as <code>public</code> adicionaly means that any other module can used it and are exported by default. If you do not want to export a classe use the <code>internal</code> visibility modifier.</p>
+<h1>Parallelism and Concurrency (Under Consideration)</h1>
+<p>Lense does not support creating an control of threads directly nor support the commom memory model.<br />
+Instead Lense provides an actor based API to handle concurrency and parallelism. Parallelism is also ofered by special APIs lik Parallelism is supported by APIs like <code>Iterable.asParallel()</code>.</p>
+<h1>Reflection (Under Consideration)</h1>
+<p>Lense offer a reflection API based on the <code>Type</code> class.</p>
 <pre><code class="language-brush:">   let stringType : Type = typeOf(String);
-   let alsoStringType : Type = "some String".getType(); 
+   let alsoStringType : Type = &quot;some String&quot;.getType(); 
 
-   Console.println("String has {{ stringType.Methods.size }} methods");
-</code></pre> 
-<h1>Comments</h1> 
-<p>Lense supports inline comments with <code>//</code> and multi-line comments with <code>/{</code> and <code>}/</code></p> 
+   Console.println(&quot;String has {{ stringType.Methods.size }} methods&quot;);
+</code></pre>
+<h1>Comments</h1>
+<p>Lense supports inline comments with <code>//</code> and multi-line comments with <code>/{</code> and <code>}/</code></p>
 <pre><code class="language-brush:">/{
     this is a multi-line comment
 
@@ -441,8 +493,10 @@ public class Client {
      // the following line uses a single line comment to inform the role of the field
       let  name : Natural; // the name of the client       
 }
-</code></pre> 
-<p>As in other languages comments should be avoid by renaming your types and members with better names, but some times<br> you will need them to explain some complex algorithm.</p>
+</code></pre>
+<p>As in other languages comments should be avoid by renaming your types and members with better names, but some times<br />
+you will need them to explain some complex algorithm.</p>
+
 			</div>
 			<div class="col-xs-6 col-sm-3 col-sm-pull-9 sidebar-offcanvas" id="sidebar"">
 

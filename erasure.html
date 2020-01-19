@@ -165,65 +165,62 @@
 	<div class="container-fluid">
 		<div class="row row-offcanvas row-offcanvas-right">
 			 <div class="col-xs-12 col-sm-9 col-sm-push-3">
-				<div class="sect1"> 
- <h2 id="_erasure">Erasure</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>Erasure is a process that removes type information or transforms types to more primitive types at compile time.</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>Lense does not uses parametric types (aka Generics) facilities from the underlying plataform because they may not be compatible with Lense’s variance rules , or not even exist (think javascript). Thus all types are compiled as if they where not generic. However, Lense records all type information in metadata, for later use. This is similar to the strategy used for the java language.</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>Lense itself has reified generics, but at compile time some tricks happen so no parametric type information exists in the code. This is similar to the strategy used by java’s array where the type of the array is reified in the array object itself.</p> 
-  </div> 
-  <div class="sect2"> 
-   <h3 id="_primitive_erasure">Primitive Erasure</h3> 
-   <div class="paragraph"> 
-    <p>The underlying Virtual Machine handles some types more eficiently such as booleans , numbers and strings. Primitive erasure tries to gain this optimization by automaticly change type signature from the Lense types to the pimitive ones. This is only possible when values are not being used inside other values, so automathic boxing and unboxing are performed when necessary. Primtive erasure allows for the compiled code to be more compatible with the plataforms native code and thus more efficient, similar to the code you would write youself by hand.</p> 
-   </div> 
-   <div class="paragraph"> 
-    <p>Where is the list of erased types so far.</p> 
-   </div> 
-   <table class="tableblock frame-all grid-all spread"> 
-    <colgroup> 
-     <col style="width: 33.3333%;"> 
-     <col style="width: 33.3333%;"> 
-     <col style="width: 33.3334%;"> 
-    </colgroup> 
-    <tbody> 
-     <tr> 
-      <td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Lense type</strong></p></td> 
-      <td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Erased to</strong></p></td> 
-      <td class="tableblock halign-left valign-top"></td> 
-     </tr> 
-     <tr> 
-      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>lense.core.lang.Void</code></p></td> 
-      <td class="tableblock halign-left valign-top"><p class="tableblock">plataform’s primitive <strong>void</strong></p></td> 
-      <td class="tableblock halign-left valign-top"></td> 
-     </tr> 
-     <tr> 
-      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>lense.core.lang.Boolean</code></p></td> 
-      <td class="tableblock halign-left valign-top"><p class="tableblock">plataform’s primitive <strong>boolean</strong></p></td> 
-      <td class="tableblock halign-left valign-top"><p class="tableblock">Boolean constants (Boolean.False, Boolean.True) are also erased to their primitive conterparts (false, true).</p></td> 
-     </tr> 
-     <tr> 
-      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>lense.core.math.Int32</code></p></td> 
-      <td class="tableblock halign-left valign-top"><p class="tableblock">plataform’s primitive <strong>32 bits integer</strong></p></td> 
-      <td class="tableblock halign-left valign-top"></td> 
-     </tr> 
-     <tr> 
-      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>lense.core.math.Int64</code></p></td> 
-      <td class="tableblock halign-left valign-top"><p class="tableblock">plataform’s primitive <strong>64 bits integer</strong></p></td> 
-      <td class="tableblock halign-left valign-top"></td> 
-     </tr> 
-    </tbody> 
-   </table> 
-   <div class="paragraph"> 
-    <p>Other candidates to consider are <code>lense.core.lang.String</code> , <code>lense.core.lang.Maybe</code> and the bounded numeric types.</p> 
-   </div> 
-  </div> 
- </div> 
+				<div class="sect1">
+<h2 id="_erasure">Erasure</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Erasure is a process that removes type information or transforms types to more primitive types at compile time.</p>
+</div>
+<div class="paragraph">
+<p>Lense does not uses parametric types (aka Generics) facilities from the underlying platform because they may not be compatible with Lense&#8217;s variance rules , or not even exist (think javascript).
+Thus all types are compiled as if they where not generic. However, Lense records all type information in metadata, for later use. This is similar to the strategy used for the java language.</p>
+</div>
+<div class="paragraph">
+<p>Lense itself has reified generics, but at compile time some tricks happen so no parametric type information exists in the code. This is similar to the strategy used by java&#8217;s array where the type of the array is reified in the array object itself.</p>
+</div>
+<div class="sect2">
+<h3 id="_primitive_erasure">Primitive Erasure</h3>
+<div class="paragraph">
+<p>The underlying Virtual Machine handles some types more deficiently such as booleans , numbers and strings.
+Primitive erasure tries to gain this optimization by automatically change type signature from the Lense types to the primitive ones. This is only possible when values are not being used inside other values, so automatic boxing and unboxing are performed when necessary.
+Privative erasure allows for the compiled code to be more compatible with the platforms native code and thus more efficient, similar to the code you would write yourself by hand.</p>
+</div>
+<div class="paragraph">
+<p>Where is the list of erased types so far.</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Lense type</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Erased to</strong></p></td>
+<td class="tableblock halign-left valign-top"></td>
+<td class="tableblock halign-left valign-top"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>lense.core.lang.Void</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">plataform&#8217;s primitive <strong>void</strong></p></td>
+<td class="tableblock halign-left valign-top"></td>
+<td class="tableblock halign-left valign-top"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>lense.core.lang.Boolean</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">plataform&#8217;s primitive <strong>boolean</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Boolean constants (Boolean.False, Boolean.True) are also erased to their primitive counterparts (false, true).</p></td>
+<td class="tableblock halign-left valign-top"></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>Other candidates to consider are <code>lense.core.lang.String</code> and the bounded numeric types.</p>
+</div>
+</div>
+</div>
 </div>
 			</div>
 			<div class="col-xs-6 col-sm-3 col-sm-pull-9 sidebar-offcanvas" id="sidebar"">

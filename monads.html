@@ -165,40 +165,42 @@
 	<div class="container-fluid">
 		<div class="row row-offcanvas row-offcanvas-right">
 			 <div class="col-xs-12 col-sm-9 col-sm-push-3">
-				<div class="paragraph"> 
- <p>==Monads</p> 
-</div> 
-<div class="paragraph"> 
- <p>Lense supports the concept of Monad. A monad is a special container type that allows operations to occur on the contained type without explicitly requiring the boxing and unboxing of the contained instances. Monads are a special case of the Decorator pattern where all operations return a new object and transform the decorated type in some way.</p> 
-</div> 
-<div class="paragraph"> 
- <p>Because all monads are containers, they rely on decorating a contained object. In Lense we do this simply by calling the monads constructor. You can also create <a href="enhancements.html">enhancements</a> to facilitate some more common encapsulations.</p> 
-</div> 
-<div class="sect2"> 
- <h3 id="_strong_map_strong"><strong>map</strong></h3> 
- <div class="paragraph"> 
-  <p>The most common operation is to transform a monad object to another monad object of the same type operating in the contained elements. This is done by the <strong>map</strong> function.</p> 
- </div> 
- <div class="listingblock"> 
-  <div class="content"> 
-   <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">public calculateNameLength( name : Monad&lt;String&gt;) : Monad&lt;Natural&gt; {
+				<div class="paragraph">
+<p>==Monads</p>
+</div>
+<div class="paragraph">
+<p>Lense supports the concept of Monad. A monad is a special container type that allows operations to occur on the contained type without explicitly requiring
+the boxing and unboxing of the contained instances. Monads are a special case of the Decorator pattern where all operations return a new object and transform the decorated type in some way.</p>
+</div>
+<div class="paragraph">
+<p>Because all monads are containers, they rely on decorating a contained object. In Lense we do this simply by calling the monads constructor.
+You can also create <a href="enhancements.html">enhancements</a> to facilitate some more common encapsulations.</p>
+</div>
+<div class="sect2">
+<h3 id="_map"><strong>map</strong></h3>
+<div class="paragraph">
+<p>The most common operation is to transform a monad object to another monad object of the same type operating in the contained elements. This is done by the <strong>map</strong> function.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">public calculateNameLength( name : Monad&lt;String&gt;) : Monad&lt;Natural&gt; {
 	return name.map(m -&gt; m.size());
-}</code></pre> 
-  </div> 
- </div> 
-</div> 
-<div class="sect2"> 
- <h3 id="_strong_flatmap_strong"><strong>flatMap</strong></h3> 
- <div class="paragraph"> 
-  <p>Some times a map operation will end up in an object of type <code>Monad&lt;Monad&lt;T&gt;&gt;</code>. Normally we would like to end up in a <code>Monad&lt;T&gt;</code> type, so we can use the <strong>flatMap</strong> operation:</p> 
- </div> 
- <div class="listingblock"> 
-  <div class="content"> 
-   <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">var name : String?
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_flatmap"><strong>flatMap</strong></h3>
+<div class="paragraph">
+<p>Some times a map operation will end up in an object of type <code>Monad&lt;Monad&lt;T&gt;&gt;</code>. Normally we would like to end up in a <code>Monad&lt;T&gt;</code> type, so we can use the <strong>flatMap</strong> operation:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">var name : String?
 
-var length : Natural? = name.flaMap(m -&gt; calculateNameLength(m));</code></pre> 
-  </div> 
- </div> 
+var length : Natural? = name.flaMap(m -&gt; calculateNameLength(m));</code></pre>
+</div>
+</div>
 </div>
 			</div>
 			<div class="col-xs-6 col-sm-3 col-sm-pull-9 sidebar-offcanvas" id="sidebar"">

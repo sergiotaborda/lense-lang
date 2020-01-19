@@ -165,21 +165,21 @@
 	<div class="container-fluid">
 		<div class="row row-offcanvas row-offcanvas-right">
 			 <div class="col-xs-12 col-sm-9 col-sm-push-3">
-				<div class="sect1"> 
- <h2 id="index-properties">Indexed Properties</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>&lt;a name="indexed" &gt;&lt;/a&gt;Indexed properties are anonymous properties that allow you to associate a value of the property with one or more values of parameters called indexes. The most common examples are arrays that use numeric indexes and maps that use key object for indexes.</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>The rules of normal <a href="properties.html">properties</a> apply to indexed properties , you need to define an accessor, or a modifier, or both. Indexed properties never have backing fields associated with them.</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>Indexed properties are not limited to one index. In the next example we use an array to implement a matrix using a mathematical trick of calculating the cell position in the array. We use the indexed property in the array to read and write values in the array.</p> 
-  </div> 
-  <div class="listingblock"> 
-   <div class="content"> 
-    <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">// define the Matrix class
+				<div class="sect1">
+<h2 id="index-properties">Indexed Properties</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>&lt;a name="indexed" &gt;&lt;/a&gt;Indexed properties are anonymous properties that allow you to associate a value of the property with one or more values of parameters called indexes. The most common examples are arrays that use numeric indexes and maps that use key object for indexes.</p>
+</div>
+<div class="paragraph">
+<p>The rules of normal <a href="properties.html">properties</a> apply to indexed properties , you need to define an accessor, or a modifier, or both. Indexed properties never have backing fields associated with them.</p>
+</div>
+<div class="paragraph">
+<p>Indexed properties are not limited to one index. In the next example we use an array to implement a matrix using a mathematical trick of calculating the cell position in the array. We use the indexed property in the array to read and write values in the array.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">// define the Matrix class
 public class Matrix&lt;T&gt; {
 
 	private let cells : Array&lt;T&gt;;
@@ -213,13 +213,13 @@ let matrix = new Matrix(3, 3, 0);
 
 matrix[1,2 ] = 4;
 
-let four = matrix [1,2];</code></pre> 
-   </div> 
-  </div> 
-  <div class="paragraph"> 
-   <p>An indexed property as no name, so it is not possible to overload it with the exact same number, and types, of indexes.</p> 
-  </div> 
- </div> 
+let four = matrix [1,2];</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>An indexed property as no name, so it is not possible to overload it with the exact same number, and types, of indexes.</p>
+</div>
+</div>
 </div>
 			</div>
 			<div class="col-xs-6 col-sm-3 col-sm-pull-9 sidebar-offcanvas" id="sidebar"">

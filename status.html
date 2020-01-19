@@ -165,46 +165,56 @@
 	<div class="container-fluid">
 		<div class="row row-offcanvas row-offcanvas-right">
 			 <div class="col-xs-12 col-sm-9 col-sm-push-3">
-				<div class="sect1"> 
- <h2 id="_status">Status</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>Lense is currently in the <strong>Exploration Stage</strong>. The language features are being defined and experimentaion is underway to understand how they interact together. Compilation to targets (like java) is being taken into account on development but not activly persueed at the time. Feel free to contribute.</p> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="_roadmap">Roadmap</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>In a given stage we focus on reaching the stage goals. This does not mean no work is done in other stages but this work is done to explore some decision consequences or ascertain future difficulties and can change once we move to that stage.</p> 
-  </div> 
-  <div class="olist arabic"> 
-   <ol class="arabic"> 
-    <li> <p>Exploration Stage</p> </li> 
-    <li> <p>Java Virtual Machine backend</p> </li> 
-    <li> <p>JavaScript backend</p> </li> 
-   </ol> 
-  </div> 
-  <div class="sect2"> 
-   <h3 id="_exploration_stage">Exploration Stage</h3> 
-   <div class="paragraph"> 
-    <p>Decide on the core concepts, the supporting syntax and related keywords. At this stage the work is mainly de definition of a BNF grammar and testing the parser to obtain the Abstract Syntax Tree (AST) for the language. Work for this stage also focus on how to assure the core feature can be available in a multi-platform scenario. Also some exploratory work is made on the infrastructure necessary to transform the Lense AST to other intermediary representations and finally to bytecodes.</p> 
-   </div> 
-  </div> 
-  <div class="sect2"> 
-   <h3 id="_java_virtual_machine_backend">Java Virtual Machine backend</h3> 
-   <div class="paragraph"> 
-    <p>At this stage the AST obtained in the previous stage is translated into to a Java Virtual Machine compatible intermediary representation and then that is transformed to bytecode and a .class file. Once the .class files are compiled, they are packed into a .jar file.</p> 
-   </div> 
-  </div> 
-  <div class="sect2"> 
-   <h3 id="_javascript_backend">JavaScript backend</h3> 
-   <div class="paragraph"> 
-    <p>At this stage the AST obtained in the previous stage is translate into a Javascript compatible AST, then that AST is transform to javascript code and stored in a .js file.</p> 
-   </div> 
-  </div> 
- </div> 
+				<div class="sect1">
+<h2 id="_status">Status</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Lense is currently in the <strong>Exploration Stage</strong>. The language features are being defined and experimentaion is underway to understand how they interact together.
+Compilation to targets (like java) is being taken into account on development but not activly persueed at the time. Feel free to contribute.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_roadmap">Roadmap</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>In a given stage we focus on reaching the stage goals. This does not mean no work is done in other stages but this work is done
+to explore some decision consequences or ascertain future difficulties and can change once we move to that stage.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Exploration Stage</p>
+</li>
+<li>
+<p>Java Virtual Machine backend</p>
+</li>
+<li>
+<p>JavaScript backend</p>
+</li>
+</ol>
+</div>
+<div class="sect2">
+<h3 id="_exploration_stage">Exploration Stage</h3>
+<div class="paragraph">
+<p>Decide on the core concepts, the supporting syntax and related keywords. At this stage the work is mainly de definition of a BNF grammar
+and testing the parser to obtain the Abstract Syntax Tree (AST) for the language. Work for this stage also focus on how to assure the core feature can be available in a multi-platform scenario.
+Also some exploratory work is made on the infrastructure necessary to transform the Lense AST to other intermediary representations and finally to bytecodes.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_java_virtual_machine_backend">Java Virtual Machine backend</h3>
+<div class="paragraph">
+<p>At this stage the AST obtained in the previous stage is translated into to a Java Virtual Machine compatible intermediary representation and then that is transformed to bytecode and a .class file. Once the .class files are compiled, they are packed into a .jar file.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_javascript_backend">JavaScript backend</h3>
+<div class="paragraph">
+<p>At this stage the AST obtained in the previous stage is translate into a Javascript compatible AST, then that AST is transform to javascript code and stored in a .js file.</p>
+</div>
+</div>
+</div>
 </div>
 			</div>
 			<div class="col-xs-6 col-sm-3 col-sm-pull-9 sidebar-offcanvas" id="sidebar"">

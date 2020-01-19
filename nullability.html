@@ -165,156 +165,160 @@
 	<div class="container-fluid">
 		<div class="row row-offcanvas row-offcanvas-right">
 			 <div class="col-xs-12 col-sm-9 col-sm-push-3">
-				<div class="sect1"> 
- <h2 id="_nullability">Nullability</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>Lense does not allow variables to hold <strong>null</strong>. <strong>null</strong> is used in other languages to indicate the variable has not set. However when trying to dereference the object in the variable (i.e. use the dot operator) an exception is raized. It is easy to overlook the variable may contain null.</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>Lense take a more object oriented aproach. Every variable refers to an <strong>existing</strong> object. No <strong>null</strong>s are allowed, hence, no nulls exist.</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>However the concept of an absent value is very usefull. Some data that is not yet calculated or the user as yet to inform has no value. So Lense supports the concept of an absent value using the tradiconal <a href="maybe.html">Maybe</a> type. <code>String?</code> is a shorthand notation for <a href="maybe.html">Maybe&lt;String&gt;</a> and <code>none</code> is the only instance of type <code>None</code>.</p> 
-  </div> 
-  <div class="listingblock"> 
-   <div class="content"> 
-    <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">let h : String = "Hello";
-let w : String? = none;</code></pre> 
-   </div> 
-  </div> 
-  <div class="paragraph"> 
-   <p>The first line created a value of type &lt;code&gt;String&lt;/code&gt; with value <strong>"Hello"</strong>. The second line create a possible absent value of a &lt;code&gt;String&lt;/code&gt; type and initializes it to <code>none</code>. Please note that <code>none</code> is an object so the variable really refers to an object. No nulls are allowed.</p> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="_interoperatibility">Interoperatibility</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>In Lense world no *null*s exist, but in the underlying platform , like java, javascript or .net, they may exist. Any method can return or aceppt null. We can not know if the value returned can be null or not. Let us take an example in java</p> 
-  </div> 
-  <div class="listingblock"> 
-   <div class="content"> 
-    <pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">// java
+				<div class="sect1">
+<h2 id="_nullability">Nullability</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Lense does not allow variables to hold <strong>null</strong>. <strong>null</strong> is used in other languages to indicate the variable has not set. However when trying to dereference the object in the variable (i.e. use the dot operator) an exception is raized. It is easy to overlook the variable may contain null.</p>
+</div>
+<div class="paragraph">
+<p>Lense take a more object oriented aproach. Every variable refers to an <strong>existing</strong> object. No <strong>null</strong>s are allowed, hence, no nulls exist.</p>
+</div>
+<div class="paragraph">
+<p>However the concept of an absent value is very usefull. Some data that is not yet calculated or the user as yet to inform has no value. So Lense supports the concept of an absent value using the tradiconal <a href="maybe.html">Maybe</a> type. <code>String?</code> is a shorthand notation for <a href="maybe.html">Maybe&lt;String&gt;</a> and <code>none</code> is  the only instance of type <code>None</code>.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">let h : String = "Hello";
+let w : String? = none;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The first line created a value of type &lt;code&gt;String&lt;/code&gt; with value <strong>"Hello"</strong>. The second line create a possible absent value of a &lt;code&gt;String&lt;/code&gt; type and initializes it to <code>none</code>.
+Please note that <code>none</code> is an object so the variable really refers to an object. No nulls are allowed.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_interoperatibility">Interoperatibility</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>In Lense world no *null*s exist, but in the underlying platform , like java, javascript or .net, they may exist. Any method can return or aceppt null. We can not know if the value returned can be null or not. Let us take an example in java</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">// java
 String[] names = resolveNames();
-List&lt;Address&gt; addresses = resolveAddressesFor(names);</code></pre> 
-   </div> 
-  </div> 
-  <div class="paragraph"> 
-   <p>Has we have no way of knowing if the methods will return null this would be mapped to Lense as:</p> 
-  </div> 
-  <div class="listingblock"> 
-   <div class="content"> 
-    <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">var names : Array&lt;String&gt;? = resolveNames();
-var addresses : List&lt;Address&gt;? = resolveAddressesFor(names);</code></pre> 
-   </div> 
-  </div> 
-  <div class="paragraph"> 
-   <p>At this point we can test if the collections exists, but how about the elements ? Have we certain no nulls exist inside the array or the list ? This problem is more general and exists everywhere the objets are boxed in other objects. We then have to be sure and write:</p> 
-  </div> 
-  <div class="listingblock"> 
-   <div class="content"> 
-    <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">var names : Array&lt;String?&gt;? = resolveNames();
+List&lt;Address&gt; addresses = resolveAddressesFor(names);</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Has we have no way of knowing if the methods will return null this would be mapped to Lense as:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">var names : Array&lt;String&gt;? = resolveNames();
+var addresses : List&lt;Address&gt;? = resolveAddressesFor(names);</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>At this point we can test if the collections exists, but how about the elements ? Have we certain no nulls exist inside the array or the list ?
+This problem is more general and exists everywhere the objets are boxed in other objects. We then have to be sure and write:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">var names : Array&lt;String?&gt;? = resolveNames();
 var addresses : List&lt;Address?&gt;? = resolveAddressesFor(names);
-var box : Box&lt;Element?&gt;? = resolveBoxedElements();</code></pre> 
-   </div> 
-  </div> 
-  <div class="paragraph"> 
-   <p>This may prove cumbersome in code that tries to use native APIs.</p> 
-  </div> 
-  <div class="sect2"> 
-   <h3 id="_rules_of_none">Rules of None</h3> 
-   <div class="sect3"> 
-    <h4 id="_when_reading">When Reading</h4> 
-    <div class="paragraph"> 
-     <p>For interop code , i.e. everytime the compiler identifies a native method is being called it let’s you apply automatic filters according to the type you write. If no type is defined, the full optional type is used. This works by automaticly matching the type of the native method with the type prefered by the lense program.</p> 
-    </div> 
-    <div class="listingblock"> 
-     <div class="content"> 
-      <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">var names  = resolveNames();
+var box : Box&lt;Element?&gt;? = resolveBoxedElements();</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This may prove cumbersome in code that tries to use native APIs.</p>
+</div>
+<div class="sect2">
+<h3 id="_rules_of_none">Rules of None</h3>
+<div class="sect3">
+<h4 id="_when_reading">When Reading</h4>
+<div class="paragraph">
+<p>For interop code , i.e. everytime the compiler identifies a native method is being called it let&#8217;s you apply automatic filters according to the type you write. If no type is defined, the full optional type is used. This works by automaticly matching the type of the native method with the type prefered by the lense program.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">var names  = resolveNames();
 var names : Array&lt;String&gt;? = resolveNames();  // same as  names = new Maybe.of(resolveNames()).map( a -&gt; a.compact());
 var names : Array&lt;String&gt; = resolveNames();  // same as names = new Maybe.of(resolveNames()).map( a -&gt; a.compact()).or(new Array.empty&lt;string&gt;())
-var names : Array&lt;String?&gt; = resolveNames();  // same as names = new Maybe.of(resolveNames()).or(new Array.empty&lt;string&gt;())</code></pre> 
-     </div> 
-    </div> 
-    <div class="paragraph"> 
-     <p>In line <strong>(1)</strong> the original native return type is used. The Lense compiler will wrap the native array to a lense array. No special rules are needed. In line <strong>(2)</strong> the original native type is transformed by removing all possible <code>none</code> values. The equivalent code would be:</p> 
-    </div> 
-    <div class="listingblock"> 
-     <div class="content"> 
-      <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">var names : Array&lt;String&gt;? = resolveNames().map( a -&gt; a.compact());</code></pre> 
-     </div> 
-    </div> 
-    <div class="paragraph"> 
-     <p>In line <strong>(3)</strong> the original native type is further transformed by removing all possible <code>none</code> values and using an empty array in case the original is <strong>null</strong>. The equivalent code would be:</p> 
-    </div> 
-    <div class="listingblock"> 
-     <div class="content"> 
-      <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">var names : Array&lt;String&gt; = resolveNames().map( a -&gt; a.compact()).or(new Array.empty&lt;string&gt;());</code></pre> 
-     </div> 
-    </div> 
-    <div class="paragraph"> 
-     <p>In line <strong>(4)</strong> the original native type is further transformed by using an empty array in case the original is <strong>null</strong>. The equivalent code would be:</p> 
-    </div> 
-    <div class="listingblock"> 
-     <div class="content"> 
-      <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">var names : Array&lt;String&gt; = resolveNames().or(new Array.empty&lt;string&gt;());</code></pre> 
-     </div> 
-    </div> 
-    <div class="paragraph"> 
-     <p>Lense interop geeration will understand native <code>null</code> as equivalent to <code>none</code> and wrap the array in a possible absent type.</p> 
-    </div> 
-    <div class="paragraph"> 
-     <p>The above rules apply to all &lt;code&gt;Iterable&lt;/code&gt;s, not only arrays. In the general case, for other boxed types that are not &lt;code&gt;Iterable&lt;/code&gt;s the options are limited. We have to raise a compilation error for the cases the compiler cannot sort (as it normally would).</p> 
-    </div> 
-    <div class="listingblock"> 
-     <div class="content"> 
-      <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">var box  = resolveBoxedElements();  // same as box : Box&lt;Element?&gt;? = resolveBoxedElements()
+var names : Array&lt;String?&gt; = resolveNames();  // same as names = new Maybe.of(resolveNames()).or(new Array.empty&lt;string&gt;())</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>In line <strong>(1)</strong> the original native return type is used. The Lense compiler will wrap the native array to a lense array. No special rules are needed.
+In line <strong>(2)</strong> the original native type is transformed by removing all possible <code>none</code> values. The equivalent code would be:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">var names : Array&lt;String&gt;? = resolveNames().map( a -&gt; a.compact());</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>In line <strong>(3)</strong> the original native type is further transformed by removing all possible <code>none</code> values and using an empty array in case the original is <strong>null</strong>. The equivalent code would be:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">var names : Array&lt;String&gt; = resolveNames().map( a -&gt; a.compact()).or(new Array.empty&lt;string&gt;());</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>In line <strong>(4)</strong> the original native type is further transformed by using an empty array in case the original is <strong>null</strong>. The equivalent code would be:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">var names : Array&lt;String&gt; = resolveNames().or(new Array.empty&lt;string&gt;());</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Lense interop geeration will understand native <code>null</code> as equivalent to <code>none</code> and wrap the array in a possible absent type.</p>
+</div>
+<div class="paragraph">
+<p>The above rules apply to all &lt;code&gt;Iterable&lt;/code&gt;s, not only arrays. In the general case, for other boxed types that are not &lt;code&gt;Iterable&lt;/code&gt;s the options are limited. We have to raise a compilation error for the cases the compiler cannot sort (as it normally would).</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">var box  = resolveBoxedElements();  // same as box : Box&lt;Element?&gt;? = resolveBoxedElements()
 var box : Box&lt;Element&gt;? = resolveNames();  // compilation error , cannot verify Element is not null.
 var box : Box&lt;String&gt; = resolveNames();  // compilation error , cannot verify Element is not null.
-var box : Box&lt;String?&gt; = resolveNames(); // compiles to resolveNames().get() to force get the value from the maybe.</code></pre> 
-     </div> 
-    </div> 
-    <div class="paragraph"> 
-     <p>Using the last line, will force the compiler to get the value inside the Maybe. This will raise &lt;code&gt;ValueAbsentException&lt;/code&gt; if the box is absent.</p> 
-    </div> 
-    <div class="paragraph"> 
-     <p>In Java 8, and above, types can be annotated with <code>@NotNull</code> or <code>@Nullable</code>. These type annotations can made it possible to the compiler to determine if its possible to the value to be absent or not. When the compiler can determine it is safe the more restrict types will be allowed and no compilation errors would be raised. However, at this point in time, most APIs do not use these annotations.</p> 
-    </div> 
-    <div class="paragraph"> 
-     <p>Even them, the problem will persist for interop with other platforms.</p> 
-    </div> 
-   </div> 
-   <div class="sect3"> 
-    <h4 id="_when_writing">When writing</h4> 
-    <div class="paragraph"> 
-     <p>When passing a value to a native method the compiler will generate code that transforms the Lense type to the native type. In the case a Maybe is being used a native <code>orNull</code> method will be called. This method does not exist in the Maybe type, is a native enviroment only method. So, for a method implemented in java like</p> 
-    </div> 
-    <div class="listingblock"> 
-     <div class="content"> 
-      <pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">// Java
-public void calculate(List&lt;String&gt; names, String other, int factor) { ... }</code></pre> 
-     </div> 
-    </div> 
-    <div class="paragraph"> 
-     <p>It is not relevant what the methods does do, only what the parameters are. Lense will produce an interop code similar to</p> 
-    </div> 
-    <div class="listingblock"> 
-     <div class="content"> 
-      <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">var names : Array&lt;String&gt; = ...
+var box : Box&lt;String?&gt; = resolveNames(); // compiles to resolveNames().get() to force get the value from the maybe.</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Using the last line, will force the compiler to get the value inside the Maybe. This will raise &lt;code&gt;ValueAbsentException&lt;/code&gt; if the box is absent.</p>
+</div>
+<div class="paragraph">
+<p>In Java 8, and above, types can be annotated with <code>@NotNull</code> or <code>@Nullable</code>. These type annotations can made it possible to the compiler to determine if its possible to the value to be absent or not.
+When the compiler can determine it is safe the more restrict types will be allowed and no compilation errors would be raised. However, at this point in time, most APIs do not use these annotations.</p>
+</div>
+<div class="paragraph">
+<p>Even them, the problem will persist for interop with other platforms.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_when_writing">When writing</h4>
+<div class="paragraph">
+<p>When passing a value to a native method the compiler will generate code that transforms the Lense type to the native type. In the case a Maybe is being used a native <code>orNull</code> method will be called. This method does not exist in the Maybe type, is a native enviroment only method. So, for a method implemented in java like</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">// Java
+public void calculate(List&lt;String&gt; names, String other, int factor) { ... }</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>It is not relevant what the methods does do, only what the parameters are. Lense will produce an interop code similar to</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">var names : Array&lt;String&gt; = ...
 var other String? = none;
 var factor : Integer? = none;
 
-calculate(asJavaList(names), other.orNull(), asJavaPrimitiveInt(factor.get()) { ... }</code></pre> 
-     </div> 
-    </div> 
-    <div class="paragraph"> 
-     <p>Lense will try to use native <code>null</code> values where appliable. For primitives, a <code>get</code> is used to access the value. If the value is absent an excpetion will occur on lense side before calling the native method. This is to garantee native calls are not corrrupted.</p> 
-    </div> 
-   </div> 
-  </div> 
- </div> 
+calculate(asJavaList(names), other.orNull(), asJavaPrimitiveInt(factor.get()) { ... }</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Lense will try to use native <code>null</code> values where appliable. For primitives, a <code>get</code> is used to access the value. If the value is absent an excpetion will occur on lense side before calling the native method. This is to garantee native calls are not corrrupted.</p>
+</div>
+</div>
+</div>
+</div>
 </div>
 			</div>
 			<div class="col-xs-6 col-sm-3 col-sm-pull-9 sidebar-offcanvas" id="sidebar"">

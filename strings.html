@@ -165,100 +165,101 @@
 	<div class="container-fluid">
 		<div class="row row-offcanvas row-offcanvas-right">
 			 <div class="col-xs-12 col-sm-9 col-sm-push-3">
-				<div class="sect1"> 
- <h2 id="_strings">Strings</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>A string in Lense is a sequence of characters and implements <code>Sequence&lt;Character&gt;</code>. Characters are UTF-16 code points. Strings are <a href="glossary.html#fundamental">fundamental types</a> in Lense so they are specially supported by the language.</p> 
-  </div> 
-  <div class="sect2"> 
-   <h3 id="_string_literals">String Literals</h3> 
-   <div class="paragraph"> 
-    <p>A string literal is just a text enclosed in double quotes.</p> 
-   </div> 
-   <div class="listingblock"> 
-    <div class="content"> 
-     <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">	let  greating : String = "Hello, world";</code></pre> 
-    </div> 
-   </div> 
-   <div class="paragraph"> 
-    <p>String are mulit-line, so you can simply right</p> 
-   </div> 
-   <div class="listingblock"> 
-    <div class="content"> 
-     <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">let greating : String = "Hello,
-	wold";</code></pre> 
-    </div> 
-   </div> 
-   <div class="paragraph"> 
-    <p>The line break , tab and spaces in the second line will be preserved.</p> 
-   </div> 
-  </div> 
-  <div class="sect2"> 
-   <h3 id="_special_characters">Special characters</h3> 
-   <div class="paragraph"> 
-    <p>If you need to use a Unicode special character, simply enclose its hexadecimal code as a natural within <code>\{</code> and <code>}</code> delimiters.</p> 
-   </div> 
-   <div class="listingblock"> 
-    <div class="content"> 
-     <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">	let definitionOfPi = "The value of \{#03C0} is the ratio between the circumference and the diameter of a circle"</code></pre> 
-    </div> 
-   </div> 
-  </div> 
-  <div class="sect2"> 
-   <h3 id="_concatenation">Concatenation</h3> 
-   <div class="paragraph"> 
-    <p>You can concatenate strings using the <code>++</code> operator.</p> 
-   </div> 
-   <div class="listingblock"> 
-    <div class="content"> 
-     <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">	let name : String = "Alice";
-	let greating : String = "Hello, " ++ name;</code></pre> 
-    </div> 
-   </div> 
-   <div class="paragraph"> 
-    <p>However, you probably use interpolation a lot more that concatenation.</p> 
-   </div> 
-  </div> 
-  <div class="sect2"> 
-   <h3 id="_interpolation">Interpolation</h3> 
-   <div class="paragraph"> 
-    <p>You can interpolate values inside literal strings using <code>{{</code> and <code>}}</code> as delimiters.</p> 
-   </div> 
-   <div class="listingblock"> 
-    <div class="content"> 
-     <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">	let name : String = "Alice";
-	let greating : String = "Hello, {{ name }}";</code></pre> 
-    </div> 
-   </div> 
-   <div class="paragraph"> 
-    <p>You can interpolate any expression</p> 
-   </div> 
-   <div class="listingblock"> 
-    <div class="content"> 
-     <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">	for (var i in 1..10){
+				<div class="sect1">
+<h2 id="_strings">Strings</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>A string in Lense is a sequence of characters and implements <code>Sequence&lt;Character&gt;</code>. Characters are UTF-16 code points.
+Strings are <a href="glossary.html#fundamental">fundamental types</a> in Lense so they are specially supported by the language.</p>
+</div>
+<div class="sect2">
+<h3 id="_string_literals">String Literals</h3>
+<div class="paragraph">
+<p>A string literal is just a text enclosed in double quotes.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">	let  greating : String = "Hello, world";</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>String are mulit-line, so you can simply right</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">let greating : String = "Hello,
+	wold";</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The line break , tab and spaces in the second line will be preserved.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_special_characters">Special characters</h3>
+<div class="paragraph">
+<p>If you need to use a Unicode special character, simply enclose its hexadecimal code as a natural  within <code>\{</code> and <code>}</code> delimiters.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">	let definitionOfPi = "The value of \{#03C0} is the ratio between the circumference and the diameter of a circle"</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_concatenation">Concatenation</h3>
+<div class="paragraph">
+<p>You can concatenate strings using the <code>++</code> operator.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">	let name : String = "Alice";
+	let greating : String = "Hello, " ++ name;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>However, you probably use interpolation a lot more that concatenation.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_interpolation">Interpolation</h3>
+<div class="paragraph">
+<p>You can interpolate values inside literal strings using <code>{{</code> and <code>}}</code> as delimiters.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">	let name : String = "Alice";
+	let greating : String = "Hello, {{ name }}";</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>You can interpolate any expression</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">	for (var i in 1..10){
 		Console.println("The {{ i }}th even number is {{  (i-1) * 2 }}")
-	}</code></pre> 
-    </div> 
-   </div> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="_character">Character</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>Character corresponds to a UTF-16 code point. Literals are inclosed in a single quotes like <code>'a'</code>. A character is an <code>Enumerable</code>, not a number (like in java) however you can still use some operators and some operations with `Natural`s.</p> 
-  </div> 
-  <div class="listingblock"> 
-   <div class="content"> 
-    <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">	var a = 'a';
+	}</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_character">Character</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Character corresponds to a UTF-16 code point. Literals are inclosed in a single quotes like <code>'a'</code>. A character is an <code>Enumerable</code>, not a number (like in java) however you can still use some operators and some operations with `Natural`s.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">	var a = 'a';
 
 	var b = ++a; //  'b'
-	var c = a + 2; // 'c'</code></pre> 
-   </div> 
-  </div> 
- </div> 
+	var c = a + 2; // 'c'</code></pre>
+</div>
+</div>
+</div>
 </div>
 			</div>
 			<div class="col-xs-6 col-sm-3 col-sm-pull-9 sidebar-offcanvas" id="sidebar"">

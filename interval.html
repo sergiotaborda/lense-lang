@@ -165,58 +165,58 @@
 	<div class="container-fluid">
 		<div class="row row-offcanvas row-offcanvas-right">
 			 <div class="col-xs-12 col-sm-9 col-sm-push-3">
-				<div class="paragraph"> 
- <p>==Category</p> 
-</div> 
-<div class="paragraph"> 
- <p>A categoy is an assortement of elements that is not iterable and not contable. It defines a <code>contains</code> method that can be invoked directly of by means of the <code>in</code> operator.</p> 
-</div> 
-<div class="listingblock"> 
- <div class="content"> 
-  <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">	if (5 in |[2 , 6)|) {
+				<div class="paragraph">
+<p>==Category</p>
+</div>
+<div class="paragraph">
+<p>A categoy is an assortement of elements that is not iterable and not contable. It defines a <code>contains</code> method that can be invoked directly of by means of the <code>in</code> operator.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">	if (5 in |[2 , 6)|) {
 	    // 5 is in the interval
-	}</code></pre> 
- </div> 
-</div> 
-<div class="paragraph"> 
- <p>is the same as</p> 
-</div> 
-<div class="listingblock"> 
- <div class="content"> 
-  <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">	if ( |[2 , 6)|.contains(5)) {
+	}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>is the same as</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">	if ( |[2 , 6)|.contains(5)) {
 	    // 5 is in the interval
-	}</code></pre> 
- </div> 
-</div> 
-<div class="paragraph"> 
- <p>==Interval</p> 
-</div> 
-<div class="paragraph"> 
- <p>Lense support intervals as fundamental types. An <code>Interval</code> forms a ordered <code>Category</code> of <code>Comparable</code> elements that contain values between a start and an end element. So you can test if an element exists in the interval.</p> 
-</div> 
-<div class="listingblock"> 
- <div class="content"> 
-  <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">	if (5 in |[2 , 6)|) {
+	}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>==Interval</p>
+</div>
+<div class="paragraph">
+<p>Lense support intervals as fundamental types. An <code>Interval</code> forms a ordered <code>Category</code> of <code>Comparable</code> elements that contain values between a start and an end element. So you can test if an element exists in the interval.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">	if (5 in |[2 , 6)|) {
 	    // 5 is in the interval
-	}</code></pre> 
- </div> 
-</div> 
-<div class="paragraph"> 
- <p>However you cannot iterate over the elements.</p> 
-</div> 
-<div class="listingblock"> 
- <div class="content"> 
-  <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">	for (i in |[2 , 6)|) { // Compilation error : Interval is not Iterable
+	}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>However you cannot iterate over the elements.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">	for (i in |[2 , 6)|) { // Compilation error : Interval is not Iterable
 
-	}</code></pre> 
- </div> 
-</div> 
-<div class="paragraph"> 
- <p>Interval literals in lense follow the mathematical convention of using square brakets for included values and parentesis for excluded values. So <code>|[2 , 6)|</code> represents an interval between 2 , inclusive, and 6 exlusive; meaning 6 does not belong in the interval. Lense also supports open intervals. For example <code>|( * , 7 ]|</code> represent the open start interval that contains all elements from negative infinity to 7, inclusive. Here are some examples of the possibilities:</p> 
-</div> 
-<div class="listingblock"> 
- <div class="content"> 
-  <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">if ( x in |link: [ 3 , 7]{
+	}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Interval literals in lense follow the mathematical convention of using square brakets for included values and parentesis for excluded values. So <code>|[2 , 6)|</code> represents an interval between 2 , inclusive, and 6 exlusive; meaning 6 does not belong in the interval. Lense also supports open intervals. For example <code>|( * , 7 ]|</code> represent the open start interval that contains all elements  from negative infinity to 7, inclusive. Here are some examples of the possibilities:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">if ( x in |link: [ 3 , 7]{
 	// x is &gt;=3 and &lt;= 7
 }
 
@@ -246,15 +246,15 @@ if ( x in Interval&lt;Natural&gt;.empty() ){
 
 if ( x in Interval&lt;Natural&gt;.all() ){
 	// always true. the full interval covers all possible values.
-}</code></pre> 
- </div> 
-</div> 
-<div class="paragraph"> 
- <p>Intervals can be used in switch statements as any <code>Category</code> can</p> 
-</div> 
-<div class="listingblock"> 
- <div class="content"> 
-  <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">	let x = 9;
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Intervals can be used in switch statements as any <code>Category</code> can</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">	let x = 9;
 	switch (x) {
 	   case (in |link:[ 0, 9] {
 		  return "Single digit number";
@@ -262,57 +262,65 @@ if ( x in Interval&lt;Natural&gt;.all() ){
 	   case (in |(9, *)|) {
 		  return "Multidigits number"
 	   }
-	}</code></pre> 
- </div> 
-</div> 
-<div class="paragraph"> 
- <p>==Ranges</p> 
-</div> 
-<div class="paragraph"> 
- <p>Ranges are closely related to intervals. Ranges are also <code>Categories</code>, but of <code>Enumerable`s making them `Iterable</code>. Ranges can be understood as intervals of <code>Enumerable</code> values as <code>Enumerable</code> types are also <code>Comparable</code>. Because <code>Enumerable</code> values can produce a sequence of value ranges are iterable. Ranges cannot have open ends. Ranges are also fundamental types in Lense and have their own literal.</p> 
-</div> 
-<div class="listingblock"> 
- <div class="content"> 
-  <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">	if (5 in 2..6) {
+	}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>==Ranges</p>
+</div>
+<div class="paragraph">
+<p>Ranges are closely related to intervals. Ranges are also <code>Categories</code>, but of <code>Enumerable`s making them `Iterable</code>.  Ranges can be understood as intervals of <code>Enumerable</code> values as <code>Enumerable</code> types are also <code>Comparable</code>. Because <code>Enumerable</code> values can produce a sequence of value ranges are iterable. Ranges cannot have open ends. Ranges are also fundamental types in Lense and have their own literal.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">	if (5 in 2..6) {
 	    // 5 is in the range from 2, inclusive, to 6, inclusive
-	}</code></pre> 
- </div> 
-</div> 
-<div class="paragraph"> 
- <p>By default both ends of the range are included in the range. We can iterate the values in the range with the for-each directive.</p> 
-</div> 
-<div class="listingblock"> 
- <div class="content"> 
-  <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">	for (i in 2..6) {
+	}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>By default both ends of the range are included in the range. We can iterate the values in the range with the for-each directive.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">	for (i in 2..6) {
 	    console.println(i);
-	}</code></pre> 
- </div> 
-</div> 
-<div class="paragraph"> 
- <p>this prints:</p> 
-</div> 
-<div class="listingblock"> 
- <div class="content"> 
-  <pre>2
+	}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>this prints:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>2
 3
 4
 5
-6</pre> 
- </div> 
-</div> 
-<div class="paragraph"> 
- <p>So for an <code>Enumerable</code> type, intervals have a correspondence to ranges</p> 
-</div> 
-<div class="ulist"> 
- <ul> 
-  <li> <p>|[ x, y]| correspondes to x..y</p> </li> 
-  <li> <p>|( x, y]| correspondes to x&gt;..y</p> </li> 
-  <li> <p>|( x, y)| correspondes to x&gt;..&lt;y</p> </li> 
-  <li> <p>|[ x, y)| correspondes to x..&lt;y</p> </li> 
- </ul> 
-</div> 
-<div class="paragraph"> 
- <p>Open intervals like <code>|(*, y]|</code> and <code>|( x, *)|</code> have no correspondence with ranges. The empty interval corresponds to <code>Range&lt;T&gt;.empty()</code> and does not exist a full Range.</p> 
+6</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>So for an <code>Enumerable</code> type, intervals have a correspondence to ranges</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>|[ x, y]|  correspondes to x..y</p>
+</li>
+<li>
+<p>|( x, y]|  correspondes to x&gt;..y</p>
+</li>
+<li>
+<p>|( x, y)|  correspondes to x&gt;..&lt;y</p>
+</li>
+<li>
+<p>|[ x, y)|  correspondes to x..&lt;y</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Open intervals like <code>|(*, y]|</code> and <code>|( x, *)|</code> have no correspondence with ranges. The empty interval corresponds to <code>Range&lt;T&gt;.empty()</code> and does not exist a full Range.</p>
 </div>
 			</div>
 			<div class="col-xs-6 col-sm-3 col-sm-pull-9 sidebar-offcanvas" id="sidebar"">

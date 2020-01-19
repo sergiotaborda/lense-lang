@@ -165,25 +165,25 @@
 	<div class="container-fluid">
 		<div class="row row-offcanvas row-offcanvas-right">
 			 <div class="col-xs-12 col-sm-9 col-sm-push-3">
-				<div class="sect1"> 
- <h2 id="_interfaces">Interfaces</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>Interfaces are constract declarations with no implementation.</p> 
-  </div> 
-  <div class="listingblock"> 
-   <div class="content"> 
-    <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">public interface Validator&lt;in T&gt; {
+				<div class="sect1">
+<h2 id="_interfaces">Interfaces</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Interfaces are constract declarations with no implementation.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">public interface Validator&lt;in T&gt; {
      public validate( T candidate) : ValidatorResult;
-}</code></pre> 
-   </div> 
-  </div> 
-  <div class="paragraph"> 
-   <p>Interfaces can extend other interfaces an are implemented by classes or objects.</p> 
-  </div> 
-  <div class="listingblock"> 
-   <div class="content"> 
-    <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">public let class MailValidator implements Validator&lt;String&gt; {
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Interfaces can extend other interfaces an are implemented by classes or objects.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">public let class MailValidator implements Validator&lt;String&gt; {
 
      public validate( String candidate) : ValidatorResult{
             let result = new ValidatorResult ();
@@ -194,13 +194,13 @@
 
             return result;
      }
-}</code></pre> 
-   </div> 
-  </div> 
-  <div class="paragraph"> 
-   <p>Interfaces can only define public properties and public methods.</p> 
-  </div> 
- </div> 
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Interfaces can only define public properties and public methods.</p>
+</div>
+</div>
 </div>
 			</div>
 			<div class="col-xs-6 col-sm-3 col-sm-pull-9 sidebar-offcanvas" id="sidebar"">

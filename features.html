@@ -165,50 +165,67 @@
 	<div class="container-fluid">
 		<div class="row row-offcanvas row-offcanvas-right">
 			 <div class="col-xs-12 col-sm-9 col-sm-push-3">
-				<div class="sect1"> 
- <h2 id="_fundamental_types">Fundamental Types</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>Some types have fundamental support from the compiler. This means these types have build-in integration with the language. Lense fundamental types are : <a href="strings.html"><code>String</code></a> , <a href="numbers.html"><code>Number</code></a>, <code>Boolean</code>, <a href="nullability.html"><code>Maybe</code></a>, <code>Range</code>, <a href="interval.html"><code>Interval</code></a> , <code>Sequence</code> and <code>Iterable</code>.</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>| Lense type | Literal | Support | :----------- | :-----------: | :-------------------: | | <code>String</code> | "Hello, World" | <a href="strings.html">Interpolation</a> : "Hello, {{ name }}". | | <code>Number</code> | <strong>1</strong> , <strong>3.14</strong> or <strong>4+5i</strong> | Creates whole , rational and complex numbers from they literals | | <code>Boolean</code>| <code>true</code> and <code>false</code> | <a href="erasure.html">Erasured</a> to the runtime plataform’s boolean. Flow control conditions must evaluate to a <code>Boolean</code> | | <code>Maybe</code> | <code>none</code> , String? | Compiler translates any type X followed by a ? (like X?) to Maybe&lt;X&gt; | | <code>Range</code> | 1..4 or 5..&lt;7 | Generates a <code>Range</code> from the literal. Ranges are imutable. | | <code>Interval</code> | <code>|(3, 8]|</code> | Generates an <code>Interval</code> from the literal.Intervals are imutable. | | <code>Sequence</code>| [1,2,3,4] | Generates a <code>Sequence</code> from the literal. Sequences are imutable. | | <code>Iterable</code> || Allows for iteration with <code>for</code> directive, and map-reduce like operations. |</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>In addition specific sub-types of <code>Sequence</code> also receive <a href="containerLiterals.html">literal support</a>:</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>| Lense type | Literal | Support | :----------- | :-----------: | :-------------------: | | <code>Sequence</code>| [1,2,3,4] | Standard representation ordered sequences like lists and arrays. | | <code>Association</code> | { 1 : "en", 2 : "pt" , 3 : "es" } | Standard representation for key-value associations | | <code>Tuple</code> | (1, "Hello", false) | Standard representation for tuples |</p> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="_classes_interfaces_and_inheritance">Classes, interfaces and inheritance</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>Lense supports structuring code in objects and use classes to template objects and interfaces to template contracts. Lense also supports concepts like inheritance and traits.</p> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="_algebric_data_types">Algebric Data Types</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>Lense supports defining a type that limits it’s possible values or it’s possible subtypes.</p> 
-  </div> 
-  <div class="listingblock"> 
-   <div class="content"> 
-    <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">public class Awnser is yes, no{
+				<div class="sect1">
+<h2 id="_fundamental_types">Fundamental Types</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Some types have fundamental support from the compiler. This means these types have build-in integration with the language.
+Lense fundamental types are : <a href="strings.html"><code>String</code></a> , <a href="numbers.html"><code>Number</code></a>, <code>Boolean</code>, <a href="nullability.html"><code>Maybe</code></a>, <code>Range</code>, <a href="interval.html"><code>Interval</code></a> , <code>Sequence</code> and <code>Iterable</code>.</p>
+</div>
+<div class="paragraph">
+<p>| Lense type | Literal | Support
+| :----------- | :-----------: | :-------------------: |
+| <code>String</code> | "Hello, World" |  <a href="strings.html">Interpolation</a> : "Hello, {{ name }}". |
+| <code>Number</code> | <strong>1</strong> , <strong>3.14</strong> or <strong>4+5i</strong> | Creates whole , rational and complex numbers from they literals |
+| <code>Boolean</code>|  <code>true</code> and <code>false</code> | <a href="erasure.html">Erasured</a> to the runtime plataform&#8217;s boolean. Flow control conditions must evaluate to a <code>Boolean</code>  |
+| <code>Maybe</code>  | <code>none</code> , String? | Compiler translates any type X followed by a ? (like X?) to Maybe&lt;X&gt; |
+| <code>Range</code> | 1..4 or 5..&lt;7 | Generates a <code>Range</code> from  the literal. Ranges are imutable. |
+| <code>Interval</code> |  <code>|(3, 8]|</code> | Generates an <code>Interval</code> from the literal.Intervals are imutable. |
+| <code>Sequence</code>| [1,2,3,4] | Generates a <code>Sequence</code> from the literal. Sequences are imutable. |
+| <code>Iterable</code> || Allows for iteration with <code>for</code> directive, and map-reduce like operations. |</p>
+</div>
+<div class="paragraph">
+<p>In addition specific sub-types of <code>Sequence</code> also receive <a href="containerLiterals.html">literal support</a>:</p>
+</div>
+<div class="paragraph">
+<p>| Lense type | Literal | Support
+| :----------- | :-----------: | :-------------------: |
+| <code>Sequence</code>| [1,2,3,4] |  Standard representation ordered sequences like lists and arrays. |
+| <code>Association</code> | { 1 : "en", 2 : "pt" , 3 : "es" } | Standard representation for key-value associations |
+| <code>Tuple</code> | (1, "Hello", false) | Standard representation for tuples |</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_classes_interfaces_and_inheritance">Classes, interfaces and inheritance</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Lense supports structuring code in objects and use classes to template objects and interfaces to template contracts.
+Lense also supports concepts like inheritance and traits.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_algebric_data_types">Algebric Data Types</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Lense supports defining a type that limits it&#8217;s possible values or it&#8217;s possible subtypes.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">public class Awnser is yes, no{
 
-}</code></pre> 
-   </div> 
-  </div> 
-  <div class="paragraph"> 
-   <p>The compiler will create objects <code>yes</code> and <code>no</code> and proibit <code>Anwser</code> from being instanciated marking it <strong>abstract</strong>. When we want to define subtypes we need to explicitly define the other types so the compiler does not create objects instead. Here’s an example:</p> 
-  </div> 
-  <div class="listingblock"> 
-   <div class="content"> 
-    <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">public class Maybe&lt;T&gt; is Some&lt;T&gt;, None {
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The compiler will create objects <code>yes</code> and <code>no</code> and proibit <code>Anwser</code> from being instanciated marking it <strong>abstract</strong>.
+When we want to define subtypes we need to explicitly define the other types so the compiler does not create objects instead.
+Here&#8217;s an example:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">public class Maybe&lt;T&gt; is Some&lt;T&gt;, None {
 
 	public abstract isAbsent() : Boolean;
 	public abstract value : T { get; }
@@ -236,89 +253,100 @@ public class None extends Maybe&lt;Nothing&gt; is none{
 	}
 }
 
-public object none extends None {}</code></pre> 
-   </div> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="_tuples">Tuples</h2> 
- <div class="sectionbody"> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="_records">Records</h2> 
- <div class="sectionbody"> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="_interval_literals">Interval Literals</h2> 
- <div class="sectionbody"> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="_inlined_calls">Inlined Calls</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p><strong>under consideration</strong></p> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="_iterators">Iterators</h2> 
- <div class="sectionbody"> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="_local_functions_and_closures">Local functions and Closures</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p><strong>under consideration</strong></p> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="_annotations">Annotations</h2> 
- <div class="sectionbody"> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="_enhancements">Enhancements</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>Enhancments are extentions for existing types that allow to add functionality without having access to the type source code.</p> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="_string_interpolation">String Interpolation</h2> 
- <div class="sectionbody"> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="_pattern_matching">Pattern Matching</h2> 
- <div class="sectionbody"> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="_properties">Properties</h2> 
- <div class="sectionbody"> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="_type_parameters_constraints_and_variance">Type Parameters, Constraints and Variance</h2> 
- <div class="sectionbody"> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="_flow_sensitive_typing">Flow sensitive typing</h2> 
- <div class="sectionbody"> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="_rational_and_complex_numbers">Rational and Complex Numbers</h2> 
- <div class="sectionbody"> 
- </div> 
+public object none extends None {}</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_tuples">Tuples</h2>
+<div class="sectionbody">
+
+</div>
+</div>
+<div class="sect1">
+<h2 id="_records">Records</h2>
+<div class="sectionbody">
+
+</div>
+</div>
+<div class="sect1">
+<h2 id="_interval_literals">Interval Literals</h2>
+<div class="sectionbody">
+
+</div>
+</div>
+<div class="sect1">
+<h2 id="_inlined_calls">Inlined Calls</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p><strong>under consideration</strong></p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_iterators">Iterators</h2>
+<div class="sectionbody">
+
+</div>
+</div>
+<div class="sect1">
+<h2 id="_local_functions_and_closures">Local functions and Closures</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p><strong>under consideration</strong></p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_annotations">Annotations</h2>
+<div class="sectionbody">
+
+</div>
+</div>
+<div class="sect1">
+<h2 id="_enhancements">Enhancements</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Enhancments are extentions for existing types that allow to add functionality without having access to the type source code.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_string_interpolation">String Interpolation</h2>
+<div class="sectionbody">
+
+</div>
+</div>
+<div class="sect1">
+<h2 id="_pattern_matching">Pattern Matching</h2>
+<div class="sectionbody">
+
+</div>
+</div>
+<div class="sect1">
+<h2 id="_properties">Properties</h2>
+<div class="sectionbody">
+
+</div>
+</div>
+<div class="sect1">
+<h2 id="_type_parameters_constraints_and_variance">Type Parameters, Constraints and Variance</h2>
+<div class="sectionbody">
+
+</div>
+</div>
+<div class="sect1">
+<h2 id="_flow_sensitive_typing">Flow sensitive typing</h2>
+<div class="sectionbody">
+
+</div>
+</div>
+<div class="sect1">
+<h2 id="_rational_and_complex_numbers">Rational and Complex Numbers</h2>
+<div class="sectionbody">
+
+</div>
 </div>
 			</div>
 			<div class="col-xs-6 col-sm-3 col-sm-pull-9 sidebar-offcanvas" id="sidebar"">

@@ -165,18 +165,20 @@
 	<div class="container-fluid">
 		<div class="row row-offcanvas row-offcanvas-right">
 			 <div class="col-xs-12 col-sm-9 col-sm-push-3">
-				<div class="paragraph"> 
- <p>Lense does not have <a href="glossary.html#primtiveTypes">primitive types</a> and thus all values are objects , all objects descend from some class and all variables are references. The Lense back-end compiler may try to use the native plataform’s primitives as much as possible to enhance performance, but this is an optimization. Conceptually primitives do not exist.</p> 
-</div> 
-<div class="sect1"> 
- <h2 id="_classes">Classes</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>Classes are the main tool for defining your own objects. A class to represent fraction objects could be implemented like so:</p> 
-  </div> 
-  <div class="listingblock"> 
-   <div class="content"> 
-    <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">public let class Fraction {
+				<div class="paragraph">
+<p>Lense does not have <a href="glossary.html#primtiveTypes">primitive types</a> and thus all values are objects , all objects descend from some class and all variables are references.
+The Lense back-end compiler may try to use the native plataform&#8217;s primitives as much as possible to enhance performance, but this is an optimization. Conceptually primitives do not exist.</p>
+</div>
+<div class="sect1">
+<h2 id="_classes">Classes</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Classes are the main tool for defining your own objects.
+A class to represent fraction objects could be implemented like so:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">public let class Fraction {
 
     private constructor ( public let numerator: Integer, public let denominator: Integer);
 
@@ -208,15 +210,17 @@
         return new Fraction (this.denominator, this.numerator);
     }
 
-}</code></pre> 
-   </div> 
-  </div> 
-  <div class="paragraph"> 
-   <p>Classes in Lense support <a href="properties.html">properties</a>, <a href="properties.html#indexed">indexers</a>, methods and <a href="constructors.html">constructors</a> as you would expect. Lense also support immutability declaration for classes with <code>let class</code>. Any type or member can also have generic type parameters.</p> 
-  </div> 
-  <div class="listingblock"> 
-   <div class="content"> 
-    <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">public class Matrix&lt;T&gt; {
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Classes in Lense support <a href="properties.html">properties</a>, <a href="properties.html#indexed">indexers</a>, methods and <a href="constructors.html">constructors</a> as you would expect.
+Lense also support immutability declaration for classes with <code>let class</code>.
+Any type or member can also have generic type parameters.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">public class Matrix&lt;T&gt; {
 
     private backingArray : Array&lt;T&gt;;
     private rowsCount : Natural;
@@ -238,25 +242,26 @@
         }
     }
 
-}</code></pre> 
-   </div> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="sum-types">Sealed Type Hierarchies</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>In Lense is possible to define an abstract type that can only be implemented by a limited list of other types. This is called a Sealed Type Hierarchy. This mechanism is known in other languages as "sum type" or "algebraic type".</p> 
-  </div> 
-  <div class="sect2"> 
-   <h3 id="_sealed_classes">Sealed Classes</h3> 
-   <div class="paragraph"> 
-    <p>The classic example is the Node type. Normally we have a Branch node and a Leaf node. Traditionally we would write:</p> 
-   </div> 
-   <div class="listingblock"> 
-    <div class="content"> 
-     <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">public abstract class Node &lt;T&gt; {
+}</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="sum-types">Sealed Type Hierarchies</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>In Lense is possible to define an abstract type that can only be implemented by a limited list of other types.
+This is called a Sealed Type Hierarchy. This mechanism is known in other languages as "sum type" or "algebraic type".</p>
+</div>
+<div class="sect2">
+<h3 id="_sealed_classes">Sealed Classes</h3>
+<div class="paragraph">
+<p>The classic example is the Node type. Normally we have a Branch node and a Leaf node. Traditionally we would write:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">public abstract class Node &lt;T&gt; {
 
 }
 
@@ -266,15 +271,15 @@ public class Branch&lt;T&gt; extends Node&lt;T&gt;{
 
 public class Leaf &lt;T&gt; extends Node&lt;T&gt;{
 	constructor (value : T );
-}</code></pre> 
-    </div> 
-   </div> 
-   <div class="paragraph"> 
-    <p>If we now need to collect all leafs in a tree, traditionally, we would need to do some recursive algorithm that would decide what to do based on the type of the Node. For example, in java would be:</p> 
-   </div> 
-   <div class="listingblock"> 
-    <div class="content"> 
-     <pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">// java
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If we now need to collect all leafs in a tree, traditionally, we would need to do some recursive algorithm that would decide what to do based on the type of the Node. For example, in java would be:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">// java
 public &lt;T&gt; void colectLeafs(Node&lt;T&gt; node, List&lt;T&gt; leafs){
 
 	if (node instanceof Branch){
@@ -284,15 +289,17 @@ public &lt;T&gt; void colectLeafs(Node&lt;T&gt; node, List&lt;T&gt; leafs){
 	} else if (node instanceof Leaf){
 	    leafs.add(((Leaf)node).value);
 	}
-}</code></pre> 
-    </div> 
-   </div> 
-   <div class="paragraph"> 
-    <p>Of course this is not good Object Oriented design because we could add a method to Node and make use of polymorphism, but suppose Node is given by some third party code and we cannot add the polymorphic method. Then, we need to make a decision based on the type of the object, then cast it, then capture the properties and use them. In Lense we could use a similar construction using <a href="https://en.wikipedia.org/wiki/Flow-sensitive_typing">flow-sensitive typing</a>:</p> 
-   </div> 
-   <div class="listingblock"> 
-    <div class="content"> 
-     <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">public colectLeafs&lt;T&gt;(Node&lt;T&gt; node, List&lt;T&gt; leafs): Void {
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Of course this is not good Object Oriented design because we could add a method to Node and make use of polymorphism, but suppose Node is given by some third party code and we cannot add the polymorphic  method.
+Then, we need to make a decision based on the type of the object, then cast it, then capture the properties and use them.
+In Lense we could use a similar construction using <a href="https://en.wikipedia.org/wiki/Flow-sensitive_typing">flow-sensitive typing</a>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">public colectLeafs&lt;T&gt;(Node&lt;T&gt; node, List&lt;T&gt; leafs): Void {
 
 	if (node is Branch&lt;T&gt;){
 	     collectLeafs(node.left, leafs);
@@ -300,15 +307,16 @@ public &lt;T&gt; void colectLeafs(Node&lt;T&gt; node, List&lt;T&gt; leafs){
 	} else if (node is Leaf&lt;T&gt;){
 	    leafs.add(node.value);
 	}
-}</code></pre> 
-    </div> 
-   </div> 
-   <div class="paragraph"> 
-    <p>However the compiler would be blind to the fact <code>Node</code> is a sum type. If we did not had a <code>else if</code> to test for leafs the compiler would not complain. When we need the be sure all sub types are covered we can use the <code>switch</code> statement.</p> 
-   </div> 
-   <div class="listingblock"> 
-    <div class="content"> 
-     <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">public colectLeafs&lt;T&gt;(Node&lt;T&gt; node, List&lt;T&gt; leafs) : Void {
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>However the compiler would be blind to the fact <code>Node</code> is a sum type. If we did not had a <code>else if</code> to test for leafs the compiler
+would not complain.  When we need the be sure all sub types are covered we can use the <code>switch</code> statement.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">public colectLeafs&lt;T&gt;(Node&lt;T&gt; node, List&lt;T&gt; leafs) : Void {
 
 	switch(node) {
 		case is Branch&lt;T&gt; {
@@ -319,15 +327,15 @@ public &lt;T&gt; void colectLeafs(Node&lt;T&gt; node, List&lt;T&gt; leafs){
 			leafs.add(node.value);
 		}
 	}
-}</code></pre> 
-    </div> 
-   </div> 
-   <div class="paragraph"> 
-    <p>Flow-sensitive typing mechanism still applies inside the switch case, but for this to work as expect we need to inform the compiler all children types of <code>Node</code> are limited to <code>Brunch</code> and <code>Leaf</code>:</p> 
-   </div> 
-   <div class="listingblock"> 
-    <div class="content"> 
-     <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">// the root type must be abstract and have an is clause
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Flow-sensitive typing mechanism still applies inside the switch case, but for this to work as expect we need to inform the compiler all children types of <code>Node</code> are limited to <code>Brunch</code> and <code>Leaf</code>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">// the root type must be abstract and have an is clause
 public abstract class Node&lt;T&gt; is Brunch&lt;T&gt; , Leaf&lt;T&gt; {
 
 }
@@ -339,21 +347,21 @@ public case class Brunch&lt;T&gt; extends Node&lt;T&gt; {
 
 public case class Leaf&lt;T&gt; extends Node&lt;T&gt; {
 	constructor (var value : T);
-}</code></pre> 
-    </div> 
-   </div> 
-   <div class="paragraph"> 
-    <p>With this new code the compiler knows that <code>Brunch</code> and <code>Leaf</code> are the only possible sub types of <code>Node</code>.</p> 
-   </div> 
-   <div class="paragraph"> 
-    <p>With this syntax the case classes can be defined in any file. The <code>is</code> clause marks the type as the root of the Sealed Type Hierarchy. The <code>case</code> keyword informs the compiler this is a child type of <code>Node</code> so the compiler checks to see if <code>Node</code> has defined it in the <code>is</code> clause.</p> 
-   </div> 
-   <div class="paragraph"> 
-    <p>The hierarchy can continue has a child of a sum type can the be the root of a new sealed type hierarchy. Take <a href="maybe.html">Maybe</a> as an example :</p> 
-   </div> 
-   <div class="listingblock"> 
-    <div class="content"> 
-     <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">public abstract class Maybe&lt;T&gt; is None , Some&lt;T&gt; {
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>With this new code the compiler knows that <code>Brunch</code> and <code>Leaf</code> are the only possible sub types of <code>Node</code>.</p>
+</div>
+<div class="paragraph">
+<p>With this syntax the case classes can be defined in any file. The <code>is</code> clause marks the type as the root of the Sealed Type Hierarchy. The <code>case</code> keyword informs the compiler this is a child type of <code>Node</code> so the compiler checks to see if  <code>Node</code> has defined it in the <code>is</code> clause.</p>
+</div>
+<div class="paragraph">
+<p>The hierarchy can continue has a child of a sum type can the be the root of a new sealed type hierarchy.  Take <a href="maybe.html">Maybe</a> as an example :</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">public abstract class Maybe&lt;T&gt; is None , Some&lt;T&gt; {
 
 	// methods
 
@@ -369,24 +377,25 @@ public case object none extends None {}
 public case class Some&lt;T&gt; extends Maybe&lt;T&gt; {
 
 	// methods
-}</code></pre> 
-    </div> 
-   </div> 
-   <div class="paragraph"> 
-    <p>Note as <code>none</code> is a <code>case object</code> on <code>None</code>.</p> 
-   </div> 
-   <div class="paragraph"> 
-    <p>You can define each type in a separate file for each, or group them together in a single file. It is not relevant for the compiler. The only rule is that the entire hierarchy must exist in a single module.</p> 
-   </div> 
-  </div> 
-  <div class="sect2"> 
-   <h3 id="_sealed_interfaces">Sealed interfaces</h3> 
-   <div class="paragraph"> 
-    <p>You can also define a sealed type hierarchy with interfaces:</p> 
-   </div> 
-   <div class="listingblock"> 
-    <div class="content"> 
-     <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">public interface FileSystemElement is File , Folder , Drive {
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Note as <code>none</code> is a <code>case object</code> on <code>None</code>.</p>
+</div>
+<div class="paragraph">
+<p>You can define each type in a separate file for each, or group them together in a single file. It is not relevant for the compiler.
+The only rule is that the entire hierarchy must exist in a single module.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_sealed_interfaces">Sealed interfaces</h3>
+<div class="paragraph">
+<p>You can also define a sealed type hierarchy with interfaces:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">public interface FileSystemElement is File , Folder , Drive {
 	// methods
 }
 
@@ -409,46 +418,46 @@ public class ContentFile implements File {
 
 public class CompactedFileSystem implements File {
 	// methods for zip like files
-}</code></pre> 
-    </div> 
-   </div> 
-  </div> 
-  <div class="sect2"> 
-   <h3 id="_sealed_instances">Sealed Instances</h3> 
-   <div class="paragraph"> 
-    <p>Lense does no have enums like Java or C# , sealed types are used instead</p> 
-   </div> 
-   <div class="listingblock"> 
-    <div class="content"> 
-     <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">public abstract class Suit is hearts , diamonds , clubs , spades {
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_sealed_instances">Sealed Instances</h3>
+<div class="paragraph">
+<p>Lense does no have enums like Java or C# , sealed types are used instead</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">public abstract class Suit is hearts , diamonds , clubs , spades {
 }
 
 public case object hearts extends Suit();
 public case object diamonds extends Suit();
 public case object clubs extends Suit();
-public case object spades extends Suit();</code></pre> 
-    </div> 
-   </div> 
-   <div class="paragraph"> 
-    <p>If no override or overload is necessary, you can reduce boilerplate by defining the cases in a nested form</p> 
-   </div> 
-   <div class="listingblock"> 
-    <div class="content"> 
-     <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">public abstract class Suit { // the is clause is not necessary if all the cases are nested
+public case object spades extends Suit();</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If no override or overload is necessary, you can reduce boilerplate by defining the cases in a nested form</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">public abstract class Suit { // the is clause is not necessary if all the cases are nested
 
 	 case object hearts;   // assumed public and that extends the encompassing type
 	 case object diamonds; // assumed public and that extends the encompassing type
 	 case object clubs;    // assumed public and that extends the encompassing type
 	 case object spades;   // assumed public and that extends the encompassing type
 
-}</code></pre> 
-    </div> 
-   </div> 
-   <div class="paragraph"> 
-    <p>You can do this is class types also, but because you need to implement methods it is not quite convenient in that scenario.</p> 
-   </div> 
-  </div> 
- </div> 
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>You can do this is class types also, but because you need to implement methods it is not quite convenient in that scenario.</p>
+</div>
+</div>
+</div>
 </div>
 			</div>
 			<div class="col-xs-6 col-sm-3 col-sm-pull-9 sidebar-offcanvas" id="sidebar"">

@@ -165,34 +165,35 @@
 	<div class="container-fluid">
 		<div class="row row-offcanvas row-offcanvas-right">
 			 <div class="col-xs-12 col-sm-9 col-sm-push-3">
-				<div class="sect2"> 
- <h3 id="_sequences">Sequences</h3> 
- <div class="paragraph"> 
-  <p>Lense supports the concept of <code>Sequence</code>. A <code>Sequence&lt;T&gt;</code> is an ordered <code>Iterable&lt;T&gt;</code> of elements of some type <code>T</code>. `Sequence`s are imutable.</p> 
- </div> 
- <div class="paragraph"> 
-  <p>In other languages the array is the primitive of choice for aggregating multiple values. However, is not imutable. There is not an imutable aggregation primitive in these languages. In Lense, you can use a <code>Sequence</code> most of the time, and arrays only when you are interested in modifying the contents. You can create arrays from sequences like so:</p> 
- </div> 
- <div class="listingblock"> 
-  <div class="content"> 
-   <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">let sequence : Sequence&lt;Natural&gt;   = [1, 2, 3];
-let array : Array&lt;Natural&gt;  = [1, 2, 3];</code></pre> 
-  </div> 
- </div> 
- <div class="paragraph"> 
-  <p>The first line creates a sequence of elements 1, 2 and 3. The second line creates an array of the elements 1, 2 and 3 by first creating a sequence and them promoting it to an <code>Array</code> by calling its <a href="constructors.html#conversion">conversion constructor</a>. In practice the compiler is free to optimize these literal constructions and not really call the conversion constructor on <code>Array&lt;T&gt;</code>.</p> 
- </div> 
- <div class="paragraph"> 
-  <p>Lense uses common brackets to represent <code>Sequence</code> literals. Keep in mind arrays are not fundamental types in Lense, sequences are. An array is a special (mutable) sub type of sequence.</p> 
- </div> 
- <div class="sect3"> 
-  <h4 id="_concatenation">Concatenation</h4> 
-  <div class="paragraph"> 
-   <p>`Sequence`s are imutable , but you can create new sequences by concatenating other sequences.</p> 
-  </div> 
-  <div class="listingblock"> 
-   <div class="content"> 
-    <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">let even  = [2, 4, 6];
+				<div class="sect2">
+<h3 id="_sequences">Sequences</h3>
+<div class="paragraph">
+<p>Lense supports the concept of <code>Sequence</code>. A <code>Sequence&lt;T&gt;</code> is an ordered <code>Iterable&lt;T&gt;</code> of elements of some type <code>T</code>. `Sequence`s are imutable.</p>
+</div>
+<div class="paragraph">
+<p>In other languages the array is the primitive of choice for aggregating multiple values. However, is not imutable. There is not an imutable aggregation primitive in these languages.
+In Lense, you can use a <code>Sequence</code> most of the time, and arrays only when you are interested in modifying the contents. You can create arrays from sequences like so:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">let sequence : Sequence&lt;Natural&gt;   = [1, 2, 3];
+let array : Array&lt;Natural&gt;  = [1, 2, 3];</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The first line creates a sequence of elements 1, 2 and 3. The second line creates an array of the elements 1, 2 and 3 by first creating a sequence and them promoting it to an <code>Array</code> by calling its <a href="constructors.html#conversion">conversion constructor</a>. In practice the compiler is free to optimize these literal constructions and not really call the conversion constructor on <code>Array&lt;T&gt;</code>.</p>
+</div>
+<div class="paragraph">
+<p>Lense uses common brackets to represent <code>Sequence</code> literals. Keep in mind arrays are not fundamental types in Lense, sequences are. An array is a special (mutable) sub type of sequence.</p>
+</div>
+<div class="sect3">
+<h4 id="_concatenation">Concatenation</h4>
+<div class="paragraph">
+<p>`Sequence`s are imutable , but you can create new sequences by concatenating other sequences.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">let even  = [2, 4, 6];
 let odd = [1, 3, 5];
 
 let all = even ++ odd;
@@ -201,44 +202,44 @@ assert(link:== all[2,4,6,1,3,5];
 
 var doubleFive = all ++ 5;
 
-assert(link:== doubleFive[2,4,6,1,3,5,5];</code></pre> 
-   </div> 
-  </div> 
-  <div class="paragraph"> 
-   <p>The <code>++</code> is the concatenation operator.</p> 
-  </div> 
- </div> 
- <div class="sect3"> 
-  <h4 id="_sub_sequence">Sub Sequence</h4> 
-  <div class="paragraph"> 
-   <p>You can obtain sequences that are views of an original sequence by using the range indexer property:</p> 
-  </div> 
-  <div class="listingblock"> 
-   <div class="content"> 
-    <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">let sequence  = [1, 2, 3, 4, 5, 6, 7, 8];
+assert(link:== doubleFive[2,4,6,1,3,5,5];</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The <code>++</code> is the concatenation operator.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_sub_sequence">Sub Sequence</h4>
+<div class="paragraph">
+<p>You can obtain sequences that are views of an original sequence by using the range indexer property:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">let sequence  = [1, 2, 3, 4, 5, 6, 7, 8];
 let subsequence = sequence[3..5];
 
-assert(link:== subsequence[4,5,6];</code></pre> 
-   </div> 
-  </div> 
- </div> 
- <div class="sect3"> 
-  <h4 id="_mapping_and_filtering">Mapping and Filtering</h4> 
-  <div class="paragraph"> 
-   <p>`Sequence`s are `Iterable`s so you can use mapping and filtering options</p> 
-  </div> 
-  <div class="listingblock"> 
-   <div class="content"> 
-    <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">let evenSquares  = link:filter(i -&gt; i.isEven[1, 2, 3, 4, 5, 6, 7, 8].map( i -&gt; i ** 2 );</code></pre> 
-   </div> 
-  </div> 
- </div> 
- <div class="sect3"> 
-  <h4 id="_strings_are_sequences">Strings are Sequences</h4> 
-  <div class="paragraph"> 
-   <p><code>String`s are `Sequences&lt;Character&gt;</code> so operations on strings are basicly the same you can do over sequences. See <a href="strings.html"><code>String</code></a> for more details.</p> 
-  </div> 
- </div> 
+assert(link:== subsequence[4,5,6];</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_mapping_and_filtering">Mapping and Filtering</h4>
+<div class="paragraph">
+<p>`Sequence`s are `Iterable`s so you can use mapping and filtering options</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">let evenSquares  = link:filter(i -&gt; i.isEven[1, 2, 3, 4, 5, 6, 7, 8].map( i -&gt; i ** 2 );</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_strings_are_sequences">Strings are Sequences</h4>
+<div class="paragraph">
+<p><code>String`s are `Sequences&lt;Character&gt;</code> so operations on strings are basicly the same you can do over sequences. See <a href="strings.html"><code>String</code></a> for more details.</p>
+</div>
+</div>
 </div>
 			</div>
 			<div class="col-xs-6 col-sm-3 col-sm-pull-9 sidebar-offcanvas" id="sidebar"">

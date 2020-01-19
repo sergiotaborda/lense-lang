@@ -165,58 +165,67 @@
 	<div class="container-fluid">
 		<div class="row row-offcanvas row-offcanvas-right">
 			 <div class="col-xs-12 col-sm-9 col-sm-push-3">
-				<div class="sect1"> 
- <h2 id="_target_platforms">Target Platforms</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>Lense compiles for each target platform in way you an use it directly in that platform. For this reason some API libraries are only available for a specific platform or a group of platforms. Only the core Lense module is guaranteed to exist and compile for all platforms.</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>For a status on the platform support completion see the <a href="status.html">project status page</a>.</p> 
-  </div> 
-  <div class="sect2"> 
-   <h3 id="_java_virtual_machine">Java Virtual Machine</h3> 
-   <div class="paragraph"> 
-    <p>Lense can compile to .class files. More specifically to .jar files. Each Lense module corresponds to a .jar file. This modules are executable directly in a Java Virtual Machine.</p> 
-   </div> 
-  </div> 
-  <div class="sect2"> 
-   <h3 id="_javascript_embedded_in_a_browser">JavaScript (Embedded in a Browser)</h3> 
-   <div class="paragraph"> 
-    <p>Lense can compile to .js files that can be executed inside a browser. Each Lense module corresponds to a .js file. Possibly in practice would be better to compile to some more hight level script like TypeScript or CoffeScript to better support Object Oriented features.</p> 
-   </div> 
-   <div class="paragraph"> 
-    <p>Please keep in mind that being able to compile to JavaScript does not mean that’s all it is necessary to build a web application. You would still create you application with your preferred client-side technology (like, Angular, for example) and use Lense where you would use JavaScript.</p> 
-   </div> 
-  </div> 
-  <div class="sect2"> 
-   <h3 id="_common_language_runtime_under_consideration">Common Language Runtime (Under consideration)</h3> 
-   <div class="paragraph"> 
-    <p>Lense could compile to CRL (the .NET runtime). More specifically to .dll files. This is a possibility at the moment and care is being taken in the design so feature can be compatible with this runtime, however creating a backend compiler to CRL will be an effort to pursue in the far future.</p> 
-   </div> 
-   <div class="paragraph"> 
-    <p>If you are interested in a Lense CRL runtime please, feel free to contribute</p> 
-   </div> 
-  </div> 
-  <div class="sect2"> 
-   <h3 id="_android_runtime_under_consideration">Android Runtime (Under consideration)</h3> 
-   <div class="paragraph"> 
-    <p>Lense could compile to the Android platform. This could be an effort related with compiling to java .class first and then use android’s tools to convert from that to .dex files, or we could compile directly to .dex files without compiling to java.</p> 
-   </div> 
-   <div class="paragraph"> 
-    <p>If you are interested in a Lense Android runtime please, feel free to contribute</p> 
-   </div> 
-  </div> 
-  <div class="sect2"> 
-   <h3 id="_dart_runtime_under_consideration">Dart Runtime (Under consideration)</h3> 
-   <div class="paragraph"> 
-    <p>Lense could compile to the Dart platform. Dart has a higher level language with a concept similar to JavaScript to run in a Dart VM. Dart code can even be translated to javascript so compiling to Dart can be a way to also compile to javascript.</p> 
-   </div> 
-   <div class="paragraph"> 
-    <p>If you are interested in a Lense Dart runtime please, feel free to contribute</p> 
-   </div> 
-  </div> 
- </div> 
+				<div class="sect1">
+<h2 id="_target_platforms">Target Platforms</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Lense compiles for each target platform in way you an use it directly in that platform.
+For this reason some API libraries are only available for a specific platform or a group of platforms.
+Only the core Lense module is guaranteed to exist and compile for all platforms.</p>
+</div>
+<div class="paragraph">
+<p>For a status on the platform support completion see the <a href="status.html">project status page</a>.</p>
+</div>
+<div class="sect2">
+<h3 id="_java_virtual_machine">Java Virtual Machine</h3>
+<div class="paragraph">
+<p>Lense can compile to .class files. More specifically to .jar files. Each Lense module corresponds to a .jar file.
+This modules are executable directly in a Java Virtual Machine.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_javascript_embedded_in_a_browser">JavaScript (Embedded in a Browser)</h3>
+<div class="paragraph">
+<p>Lense can compile to .js files that can be executed inside a browser.  Each Lense module corresponds to a .js file.
+Possibly in practice would be better to compile to some more hight level script like TypeScript or CoffeScript to better support Object Oriented features.</p>
+</div>
+<div class="paragraph">
+<p>Please keep in mind that being able to compile to JavaScript does not mean that&#8217;s all it is necessary to build a web application. You would still create you application
+with your preferred client-side technology  (like, Angular, for example) and use Lense where you would use JavaScript.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_common_language_runtime_under_consideration">Common Language Runtime  (Under consideration)</h3>
+<div class="paragraph">
+<p>Lense could compile to CRL (the .NET runtime). More specifically to .dll files.
+This is a possibility at the moment and care is being taken in the design so feature can be compatible with this runtime, however creating
+a backend compiler to CRL will be an effort to pursue in the far future.</p>
+</div>
+<div class="paragraph">
+<p>If you are interested in a Lense CRL runtime please, feel free to contribute</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_android_runtime_under_consideration">Android Runtime (Under consideration)</h3>
+<div class="paragraph">
+<p>Lense could compile to the Android platform. This could be an effort related with compiling to java .class first and then use android&#8217;s tools to convert from that to .dex files, or
+we could compile directly to .dex files without compiling to java.</p>
+</div>
+<div class="paragraph">
+<p>If you are interested in a Lense Android runtime please, feel free to contribute</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_dart_runtime_under_consideration">Dart Runtime (Under consideration)</h3>
+<div class="paragraph">
+<p>Lense could compile to the Dart platform. Dart has a higher level language with a concept similar to JavaScript to run in a Dart VM. Dart code can even be translated to javascript so
+compiling to Dart can be a way to also compile to javascript.</p>
+</div>
+<div class="paragraph">
+<p>If you are interested in a Lense Dart runtime please, feel free to contribute</p>
+</div>
+</div>
+</div>
 </div>
 			</div>
 			<div class="col-xs-6 col-sm-3 col-sm-pull-9 sidebar-offcanvas" id="sidebar"">

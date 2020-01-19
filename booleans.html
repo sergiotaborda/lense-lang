@@ -165,68 +165,82 @@
 	<div class="container-fluid">
 		<div class="row row-offcanvas row-offcanvas-right">
 			 <div class="col-xs-12 col-sm-9 col-sm-push-3">
-				<div class="sect1"> 
- <h2 id="_booleans">Booleans</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>To represent boolean values, Lense has the <code>Boolean</code> type. Only two objects have type <code>Boolean</code>: <code>true</code> and <code>false</code>. Lense decision directives only allow <code>Boolean</code> values and expressions as argument. For example, the following code will not compile:</p> 
-  </div> 
-  <div class="listingblock"> 
-   <div class="content"> 
-    <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">let name : String = "Alice";
+				<div class="sect1">
+<h2 id="_booleans">Booleans</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>To represent boolean values, Lense has the <code>Boolean</code> type. Only two objects have type <code>Boolean</code>: <code>true</code> and <code>false</code>.
+Lense decision directives only allow <code>Boolean</code> values and expressions as argument. For example, the following code will not compile:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">let name : String = "Alice";
 if (name){  // Compilation error. Expected Boolean expression
 	printName(name);
-}</code></pre> 
-   </div> 
-  </div> 
-  <div class="paragraph"> 
-   <p>Operations upon booleans are divided in two categories Bitwise Operations and Logic Operations</p> 
-  </div> 
-  <div class="sect2"> 
-   <h3 id="_bitwise_operations">Bitwise Operations</h3> 
-   <div class="paragraph"> 
-    <p><code>Boolean</code> implements <code>Injuctable</code>, <code>Dijunctable</code> , <code>ExclusiveDijunctable</code> in order to allow the use of the following bitwise operators:</p> 
-   </div> 
-   <div class="ulist"> 
-    <ul> 
-     <li> <p><strong>&amp;</strong> from <code>Injuctable</code> : the bitwise AND operator</p> </li> 
-     <li> <p><strong>|</strong> from <code>Dijunctable</code> : the bitwise OR operator</p> </li> 
-     <li> <p><strong>^</strong> from <code>ExclusiveDijunctable</code>: the bitwise XOR (Exclusive-OR) operator</p> </li> 
-    </ul> 
-   </div> 
-   <div class="paragraph"> 
-    <p>These operators are commutative as the order of the operands is not relevant and both operands are evaluated.</p> 
-   </div> 
-   <div class="paragraph"> 
-    <p>These operators are not exclusive to type <code>Boolean</code>, but when applied, these operators, regard <code>Boolean</code> values as being equivalent to a single bit an operate bitwise according to they respective traditional <a href="https://en.wikipedia.org/wiki/Truth_table">Truth Tables</a>.</p> 
-   </div> 
-  </div> 
-  <div class="sect2"> 
-   <h3 id="_logic_operators">Logic Operators</h3> 
-   <div class="paragraph"> 
-    <p>Logic operators can only operate on <code>Boolean</code> expressions. In Lense, logical operators are <a href="operators.html#intrinsic">intrinsic</a> and cannot be overloaded. They are:</p> 
-   </div> 
-   <div class="ulist"> 
-    <ul> 
-     <li> <p><strong>&amp;&amp;</strong> the logic AND operator</p> </li> 
-     <li> <p><strong>||</strong> the logic OR operator</p> </li> 
-     <li> <p><strong>!</strong> the logic NOT operator</p> </li> 
-    </ul> 
-   </div> 
-   <div class="paragraph"> 
-    <p>Logic operators <code>&amp;&amp;</code> and <code>||</code> have <a href="https://en.wikipedia.org/wiki/Short-circuit_evaluation">short-circuit evaluation</a>. The <code>&amp;&amp;</code> operator evaluates the right side only if the left side is <code>true</code>. The <code>||</code> operator evaluates the right side only if the left side is <code>false</code>. These operators are not considered commutative because, even-thought the end logic result is the same, the side effects may not be. Since Lense is not a pure functional language side effects must be considered in the operators definition.</p> 
-   </div> 
-   <div class="paragraph"> 
-    <p>In most cases you will use Logic operators instead of Bitwise operators.</p> 
-   </div> 
-  </div> 
-  <div class="sect2"> 
-   <h3 id="_erasure">Erasure</h3> 
-   <div class="paragraph"> 
-    <p>Boolean values are very common is method signatures so whenever possible the compiler will leverage the platforms native boolean type by means of <a href="erasure.html">erasure</a> in order to perform better. Auto-boxing and auto-unboxing will be used when necessary to maintain consistency.</p> 
-   </div> 
-  </div> 
- </div> 
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Operations upon booleans are divided in two categories Bitwise Operations and Logic Operations</p>
+</div>
+<div class="sect2">
+<h3 id="_bitwise_operations">Bitwise Operations</h3>
+<div class="paragraph">
+<p><code>Boolean</code> implements <code>Injuctable</code>, <code>Dijunctable</code> ,  <code>ExclusiveDijunctable</code> in order to allow the use of the following bitwise operators:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>&amp;</strong>  from <code>Injuctable</code> : the bitwise AND operator</p>
+</li>
+<li>
+<p><strong>|</strong>  from <code>Dijunctable</code> : the bitwise OR operator</p>
+</li>
+<li>
+<p><strong>^</strong>  from <code>ExclusiveDijunctable</code>: the bitwise XOR (Exclusive-OR) operator</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>These operators are commutative as the order of the operands is not relevant and both operands are evaluated.</p>
+</div>
+<div class="paragraph">
+<p>These operators are not exclusive to type <code>Boolean</code>, but when applied, these operators, regard <code>Boolean</code> values as being equivalent to a single bit an operate bitwise according to they respective traditional <a href="https://en.wikipedia.org/wiki/Truth_table">Truth Tables</a>.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_logic_operators">Logic Operators</h3>
+<div class="paragraph">
+<p>Logic operators can only operate on <code>Boolean</code> expressions. In Lense, logical operators are <a href="operators.html#intrinsic">intrinsic</a> and cannot be overloaded.
+They are:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>&amp;&amp;</strong> the logic AND operator</p>
+</li>
+<li>
+<p><strong>||</strong> the logic OR operator</p>
+</li>
+<li>
+<p><strong>!</strong> the logic NOT operator</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Logic operators <code>&amp;&amp;</code> and <code>||</code> have <a href="https://en.wikipedia.org/wiki/Short-circuit_evaluation">short-circuit evaluation</a>. The <code>&amp;&amp;</code> operator evaluates the right side only if the left side is <code>true</code>. The <code>||</code> operator evaluates the right side only if the left side is <code>false</code>. These operators are not considered commutative because, even-thought the end logic result is the same, the side effects may not be. Since Lense is not a pure functional language side effects must be considered in the operators definition.</p>
+</div>
+<div class="paragraph">
+<p>In most cases you will use Logic operators instead of Bitwise operators.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_erasure">Erasure</h3>
+<div class="paragraph">
+<p>Boolean values are very common is method signatures so whenever possible the compiler will leverage the platforms native boolean type by means of <a href="erasure.html">erasure</a> in order to perform better. Auto-boxing and auto-unboxing will be used when necessary to maintain consistency.</p>
+</div>
+</div>
+</div>
 </div>
 			</div>
 			<div class="col-xs-6 col-sm-3 col-sm-pull-9 sidebar-offcanvas" id="sidebar"">

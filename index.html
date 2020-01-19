@@ -165,42 +165,71 @@
 	<div class="container-fluid">
 		<div class="row row-offcanvas row-offcanvas-right">
 			 <div class="col-xs-12 col-sm-9 col-sm-push-3">
-				<div id="preamble"> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>Lense is a strong typed, pure object oriented programming language that aims to be a familiar simple languages that could compile to any object oriented platform. First focusing on the Java Virtual Machine (JVM) and then on other possible platforms like Javascript and CRL (.NET).</p> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="_features">Features</h2> 
- <div class="sectionbody"> 
-  <div class="ulist checklist"> 
-   <ul class="checklist"> 
-    <li> <p>✓ Familiar Syntax - from the C family similar to Java, C# and TypeScript</p> </li> 
-    <li> <p>✓ Object Oriented - every variable holds an object, no nulls. No primitives, every object is an instance of a Type (classes or interfaces)</p> </li> 
-    <li> <p>✓ Modular - the compiler produces modules with dependency and version information on other modules.</p> </li> 
-    <li> <p>✓ Strong Static Typing with Inference - all objects have a type at compile time, and the compiler can infer most types</p> </li> 
-    <li> <p>✓ Single Inheritance for classes , multiple inheritance for interface</p> </li> 
-    <li> <p>✓ Support for External Extension - you can use Enhancements to add methods to types you don’t control.</p> </li> 
-    <li> <p>✓ Immutability first - you have to opt out of immutability explicitly</p> </li> 
-    <li> <p>✓ Support for Sealed Type Hierarchies - you can limit the instances of a type and/or the types that inherit from it.</p> </li> 
-    <li> <p>✓ Operator Overloading with no noise - Operators are related to type interfaces and follow mathematical concepts like Magma, Monoid and Group</p> </li> 
-    <li> <p>✓ Flow Sensitive Typing - casts are not necessary when the compiler knows a variable is already of a given type.</p> </li> 
-    <li> <p>✓ Math and Science friendly - support for Natural, Integer , Rational, Imaginary and Complex numbers. Support for the power operator and units like <code>2 kg</code></p> </li> 
-    <li> <p>✓ Native code inter-op - Call you favourite platform native library</p> </li> 
-    <li> <p>✓ Reflection and Reification - make your own generics types, control variance and query then via reflection thank to reifiation support.</p> </li> 
-    <li> <p>✓ Support for Monads , Lambdas and higher order functions</p> </li> 
-   </ul> 
-  </div> 
-  <div class="sect2"> 
-   <h3 id="Familiar_Syntax">Familiar Syntax</h3> 
-   <div class="paragraph"> 
-    <p>The syntax is based in the C family of syntaxes ( methods delimited with <strong>{</strong> and <strong>}</strong> ) but moves the type declaration to the end like TypeScript or Swift. This is because types can be inferred when not declared and omitting the type is simpler than using some afterthought keyword.</p> 
-   </div> 
-   <div class="listingblock"> 
-    <div class="content"> 
-     <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">public class Main extends ConsoleApplication {
+				<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>Lense is a strong typed, pure object oriented programming language that aims to be a familiar simple languages that could compile to any object oriented platform. First  focusing on the Java Virtual Machine (JVM) and then on other possible platforms like Javascript and CRL (.NET).</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_features">Features</h2>
+<div class="sectionbody">
+<div class="ulist checklist">
+<ul class="checklist">
+<li>
+<p>&#10003; Familiar Syntax - from the C family similar to Java, C# and TypeScript</p>
+</li>
+<li>
+<p>&#10003; Object Oriented - every variable holds an object, no nulls. No primitives, every object is an instance of a Type (classes or interfaces)</p>
+</li>
+<li>
+<p>&#10003; Modular - the compiler produces modules with dependency and version information on other modules.</p>
+</li>
+<li>
+<p>&#10003; Strong Static Typing with Inference - all objects have a type at compile time, and the compiler can infer most types</p>
+</li>
+<li>
+<p>&#10003; Single Inheritance for classes , multiple inheritance for interface</p>
+</li>
+<li>
+<p>&#10003; Support for External Extension - you can use Enhancements to add methods to types you don&#8217;t control.</p>
+</li>
+<li>
+<p>&#10003; Immutability first - you have to opt out of immutability explicitly</p>
+</li>
+<li>
+<p>&#10003; Support for Sealed Type Hierarchies - you can limit the instances of a type and/or the types that inherit from it.</p>
+</li>
+<li>
+<p>&#10003; Operator Overloading with no noise - Operators are related to type interfaces and follow mathematical concepts like Magma, Monoid and Group</p>
+</li>
+<li>
+<p>&#10003; Flow Sensitive Typing - casts are not necessary when the compiler  knows a variable is already of a given type.</p>
+</li>
+<li>
+<p>&#10003; Math and Science friendly - support for Natural, Integer , Rational, Imaginary and Complex numbers. Support for the power operator and units like <code>2 kg</code></p>
+</li>
+<li>
+<p>&#10003; Native code inter-op - Call you favourite platform native library</p>
+</li>
+<li>
+<p>&#10003; Reflection and Reification - make your own generics types, control variance and query then via reflection  thank to reifiation support.</p>
+</li>
+<li>
+<p>&#10003; Support for Monads , Lambdas and higher order functions</p>
+</li>
+</ul>
+</div>
+<div class="sect2">
+<h3 id="Familiar_Syntax">Familiar Syntax</h3>
+<div class="paragraph">
+<p>The syntax is based in the C family of syntaxes  ( methods delimited with <strong>{</strong> and <strong>}</strong> ) but moves the type declaration to the end like TypeScript or Swift.
+This is because types can be inferred when not declared and omitting the type is simpler than using some afterthought keyword.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">public class Main extends ConsoleApplication {
 
 	public override onStart(){
 
@@ -210,35 +239,35 @@
 
 		console.println("Hello, {{ name }}")
 	}
-}</code></pre> 
-    </div> 
-   </div> 
-  </div> 
-  <div class="sect2"> 
-   <h3 id="_object_oriented">Object Oriented</h3> 
-   <div class="paragraph"> 
-    <p>All variables are treated as holding objects. All objects are instances of some type. All methods and properties belong to a type. Some <a href="glossary.html#fundamentalType">fundamental types</a> receive special handling from the compiler in the form of literals or specific operators.</p> 
-   </div> 
-   <div class="paragraph"> 
-    <p>At compile time, the platform-specific compiler backend is free to optimize types to platform’s primitives (see <a href="erasure.html">erasure</a>).</p> 
-   </div> 
-   <div class="paragraph"> 
-    <p>Instances of types are just that, no special properties like mutators are implicitly defined.</p> 
-   </div> 
-   <div class="sect3"> 
-    <h4 id="_no_nulls">No Nulls</h4> 
-    <div class="paragraph"> 
-     <p>Because everything is an object all variables must have been initialized at some point and cannot hold <strong>null</strong>. The concept of "absent value" is support by introducing the <a href="monads.html">Maybe monad</a> (see <a href="nullability.html">nullability</a>).</p> 
-    </div> 
-   </div> 
-   <div class="sect3"> 
-    <h4 id="_no_static_scope_and_support_for_singleton_objects">No Static scope and Support for singleton objects</h4> 
-    <div class="paragraph"> 
-     <p>All things are objects or exist within an object, including methods and properties.On the other hand, Lesne, supports singleton object definition.</p> 
-    </div> 
-    <div class="listingblock"> 
-     <div class="content"> 
-      <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">// define
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_object_oriented">Object Oriented</h3>
+<div class="paragraph">
+<p>All variables are treated as holding objects. All objects are instances of some type. All methods and properties belong to a type.  Some <a href="glossary.html#fundamentalType">fundamental types</a> receive special handling from the compiler in the form of literals or specific operators.</p>
+</div>
+<div class="paragraph">
+<p>At compile time, the platform-specific compiler backend is free to optimize types to platform&#8217;s primitives (see <a href="erasure.html">erasure</a>).</p>
+</div>
+<div class="paragraph">
+<p>Instances of types are just that, no special properties like mutators are implicitly defined.</p>
+</div>
+<div class="sect3">
+<h4 id="_no_nulls">No Nulls</h4>
+<div class="paragraph">
+<p>Because everything is an object all variables must have been initialized at some point and cannot hold <strong>null</strong>. The concept of "absent value" is support by introducing the <a href="monads.html">Maybe monad</a> (see <a href="nullability.html">nullability</a>).</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_no_static_scope_and_support_for_singleton_objects">No Static scope and Support for singleton objects</h4>
+<div class="paragraph">
+<p>All things are objects or exist within an object, including methods and properties.On the other hand, Lesne, supports singleton object definition.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">// define
 public object ServiceRegistry  {
 
 	private services = new Map&lt;String, object&gt;();
@@ -249,72 +278,72 @@ public object ServiceRegistry  {
 }
 
 // then you can write
-ServiceRegistry.register("nameService", new NameService());</code></pre> 
-     </div> 
-    </div> 
-   </div> 
-  </div> 
-  <div class="sect2"> 
-   <h3 id="_strong_static_typing_with_inference">Strong Static Typing with Inference</h3> 
-   <div class="paragraph"> 
-    <p>The declaration of constants is preferred and explicitly different from declaring variables.</p> 
-   </div> 
-   <div class="listingblock"> 
-    <div class="content"> 
-     <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">let n : Natural = 4; // defines a Natural constant of value 4
-var r : Rational = 5.6; // defines a Rational variable initialized to 5.6</code></pre> 
-    </div> 
-   </div> 
-   <div class="paragraph"> 
-    <p>Omitting the types, and letting the compiler infer them , you can simply write:</p> 
-   </div> 
-   <div class="listingblock"> 
-    <div class="content"> 
-     <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">let n = 4; // defines a Natural constant of value 4
-var r = 5.6; // defines a Rational variable initialized to 5.6</code></pre> 
-    </div> 
-   </div> 
-   <div class="paragraph"> 
-    <p>Expressions can be easy inserted within a string using a simple syntax (see <a href="strings.html">string</a>).</p> 
-   </div> 
-   <div class="listingblock"> 
-    <div class="content"> 
-     <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">let age = 34;
+ServiceRegistry.register("nameService", new NameService());</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_strong_static_typing_with_inference">Strong Static Typing with Inference</h3>
+<div class="paragraph">
+<p>The declaration of constants is preferred and explicitly different from declaring variables.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">let n : Natural = 4; // defines a Natural constant of value 4
+var r : Rational = 5.6; // defines a Rational variable initialized to 5.6</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Omitting the types, and letting the compiler infer them , you can simply write:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">let n = 4; // defines a Natural constant of value 4
+var r = 5.6; // defines a Rational variable initialized to 5.6</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Expressions can be easy inserted within a string using a simple syntax (see <a href="strings.html">string</a>).</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">let age = 34;
 var name = "John";
 
-console.print("{{ name }} is {{ age }} year old");</code></pre> 
-    </div> 
-   </div> 
-   <div class="paragraph"> 
-    <p>Prints:</p> 
-   </div> 
-   <div class="listingblock"> 
-    <div class="content"> 
-     <pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">John is 34 years old</code></pre> 
-    </div> 
-   </div> 
-  </div> 
-  <div class="sect2"> 
-   <h3 id="_single_inheritance_for_classes_multiple_inheritance_for_interface">Single Inheritance for classes , multiple inheritance for interface</h3> 
-   <div class="paragraph"> 
-    <p>This the is same inheritance model present in Java, C# or TypeScript.</p> 
-   </div> 
-   <div class="listingblock"> 
-    <div class="content"> 
-     <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">public class SomeClass extends ParentClass implements InterfaceA, InterfaceB {
+console.print("{{ name }} is {{ age }} year old");</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Prints:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">John is 34 years old</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_single_inheritance_for_classes_multiple_inheritance_for_interface">Single Inheritance for classes , multiple inheritance for interface</h3>
+<div class="paragraph">
+<p>This the is same inheritance model present in Java, C# or TypeScript.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">public class SomeClass extends ParentClass implements InterfaceA, InterfaceB {
 	...
-}</code></pre> 
-    </div> 
-   </div> 
-  </div> 
-  <div class="sect2"> 
-   <h3 id="_support_for_external_extension_with_enhancements">Support for External Extension with Enhancements</h3> 
-   <div class="paragraph"> 
-    <p>Enhancements allow for extension of types you do not control. Extending types means add methods and or calculated properties, like adding a <code>repeat</code> to <code>String</code></p> 
-   </div> 
-   <div class="listingblock"> 
-    <div class="content"> 
-     <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">// define
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_support_for_external_extension_with_enhancements">Support for External Extension with Enhancements</h3>
+<div class="paragraph">
+<p>Enhancements allow for extension of types you do not control. Extending types means add methods and or calculated properties, like adding a <code>repeat</code> to <code>String</code></p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">// define
 public enhancement StringRepetition extends String {
 
 	public String repeat(n : Natural){
@@ -331,21 +360,22 @@ public enhancement StringRepetition extends String {
 // use like
 
 let santaHello = "ho".repeat(3);
-assert ( "hohoho" == santaHello);</code></pre> 
-    </div> 
-   </div> 
-   <div class="paragraph"> 
-    <p>After defining the enhancement the <code>repeat</code> method is available to call on <code>String</code> even though it is not defined in the <code>String</code> class. This functionality is closely related to Extension Methods in C#, Gosu or Kotlin but without recurring to the concept of <code>static</code>.</p> 
-   </div> 
-  </div> 
-  <div class="sect2"> 
-   <h3 id="_immutability_first">Immutability first</h3> 
-   <div class="paragraph"> 
-    <p>Lense is designed with immutability in mind allows you to declare your types <code>immutable</code> so they can be validated by the compiler:</p> 
-   </div> 
-   <div class="listingblock"> 
-    <div class="content"> 
-     <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">public immutable class Fraction implements Serializable {
+assert ( "hohoho" == santaHello);</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>After defining the enhancement the <code>repeat</code> method is available to call on <code>String</code> even though it is not defined in the <code>String</code> class.
+This functionality is closely related to Extension Methods in C#, Gosu or Kotlin but without recurring to the concept of <code>static</code>.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_immutability_first">Immutability first</h3>
+<div class="paragraph">
+<p>Lense is designed with immutability in mind allows you to declare your types <code>immutable</code> so they can be validated by the compiler:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">public immutable class Fraction implements Serializable {
 
 	private numerator : Integer;
 	private denominator : Integer;
@@ -363,21 +393,22 @@ assert ( "hohoho" == santaHello);</code></pre>
 		this.numerator = this.denominator; // compilation error
 		this.denominator = this.numerator; // compilation error
 	}
-}</code></pre> 
-    </div> 
-   </div> 
-   <div class="paragraph"> 
-    <p>Marking the class <code>immutable</code> instructs the compiler to stop you from changing the class fields.</p> 
-   </div> 
-  </div> 
-  <div class="sect2"> 
-   <h3 id="_support_for_sealed_algebraic_type_hierarchies">Support for Sealed Algebraic Type Hierarchies</h3> 
-   <div class="paragraph"> 
-    <p>With Sealed Algebraic Type Hierarchies you can define a type Hierarchy that cannot be extended out side of you code. First you define your types using the <code>is - case</code> syntax. Use <code>is</code> to enumerate the hierarchy types and <code>case</code> to mark a type belongs to the hierarchy.</p> 
-   </div> 
-   <div class="listingblock"> 
-    <div class="content"> 
-     <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">public abstract class Node is Branch , Leaf {
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Marking the class <code>immutable</code> instructs the compiler to stop you from changing the class fields.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_support_for_sealed_algebraic_type_hierarchies">Support for Sealed Algebraic Type Hierarchies</h3>
+<div class="paragraph">
+<p>With Sealed Algebraic Type Hierarchies you can define a type Hierarchy that cannot be extended out side of you code.
+First you define your types using the <code>is - case</code> syntax. Use <code>is</code> to enumerate the hierarchy types and <code>case</code> to mark a type belongs to the hierarchy.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">public abstract class Node is Branch , Leaf {
 
 }
 
@@ -387,25 +418,25 @@ public case class Branch extends Node {
 
 public case class Leaf extends Node {
 	...
-}</code></pre> 
-    </div> 
-   </div> 
-   <div class="paragraph"> 
-    <p>Then, is some on else tries to create another type in the hierarchy, an error is raised:</p> 
-   </div> 
-   <div class="listingblock"> 
-    <div class="content"> 
-     <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">public case class Other extends Node { // compilation error
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Then, is some on else tries to create another type in the hierarchy, an error is raised:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">public case class Other extends Node { // compilation error
 	...
-}</code></pre> 
-    </div> 
-   </div> 
-   <div class="paragraph"> 
-    <p>Algebraic types can be used together with <code>switch</code> , like so :</p> 
-   </div> 
-   <div class="listingblock"> 
-    <div class="content"> 
-     <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">public void gatherElements (node : Node, list : List&lt;Object&gt;){
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Algebraic types can be used together with <code>switch</code> , like so :</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">public void gatherElements (node : Node, list : List&lt;Object&gt;){
 	switch (node){
 		case is Branch {
 			// recursive call
@@ -416,24 +447,25 @@ public case class Leaf extends Node {
 			list.add(node.element);
 		}
 	}
-}</code></pre> 
-    </div> 
-   </div> 
-   <div class="paragraph"> 
-    <p>Due to sealed algebraic types hierarchies the compiler knows no other options exist, so it does not complains about a missing <code>default</code> clause. Cast is not necessary due to flow sensitive typing.</p> 
-   </div> 
-  </div> 
-  <div class="sect2"> 
-   <h3 id="_operator_overloading_with_no_noise">Operator Overloading with no noise</h3> 
-   <div class="paragraph"> 
-    <p>Operators symbols are predefined and associated with specific interfaces so classes like numbers and strings can use operators.However defining you own operator symbol is not allowed in order to maintain the code simple to read and avoid symbolic noise. The use of interfaces to define operations follows an algebraic structure paradigm so the compiler can reason about the operations (example : altering the order of operations to enhance performance if the operation is commutative)</p> 
-   </div> 
-   <div class="paragraph"> 
-    <p>Support to Rational, Imaginary and Complex numbers. It is important for Lense that all these numeric types are supported even if the performance is not optimal. Peformance is a problem for the runtime , not the language. In Lense expression of intention is more important that performance.</p> 
-   </div> 
-   <div class="listingblock"> 
-    <div class="content"> 
-     <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">var n : Natural = 3; // numbers are naturals by default. naturals are non negative
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Due to sealed algebraic types hierarchies the compiler knows no other options exist, so it does not complains about a missing <code>default</code> clause.
+Cast is not necessary due to flow sensitive typing.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_operator_overloading_with_no_noise">Operator Overloading with no noise</h3>
+<div class="paragraph">
+<p>Operators symbols are predefined and associated with specific interfaces so classes like numbers and strings can use operators.However defining you own operator symbol is not allowed in order to maintain the code simple to read and avoid symbolic noise. The use of interfaces to define operations follows an algebraic structure paradigm so the compiler can reason about the operations (example : altering the order of operations to enhance performance if the operation is commutative)</p>
+</div>
+<div class="paragraph">
+<p>Support to Rational, Imaginary and Complex numbers. It is important for Lense that all these numeric types are supported even if the performance is not optimal. Peformance is a problem for the runtime , not the language. In Lense expression of intention is more important that performance.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">var n : Natural = 3; // numbers are naturals by default. naturals are non negative
 var d : Integer = -2; // integer holds negative whole numbers
 
 var r : Rational = -1.5; // decimal literals are rational numbers by default.
@@ -452,50 +484,50 @@ if (complex == 3 + 4i){
 }
 
 // you can use the power operator even to take roots
-let distance = (x^^2 + y^^2) ^^ 1/2;</code></pre> 
-    </div> 
-   </div> 
-   <div class="paragraph"> 
-    <p>Lense also supports <a href="interval.html">Intervals and Ranges</a>.</p> 
-   </div> 
-   <div class="listingblock"> 
-    <div class="content"> 
-     <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">for ( x in 3..7 ){ // iterate a range
+let distance = (x^^2 + y^^2) ^^ 1/2;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Lense also supports <a href="interval.html">Intervals and Ranges</a>.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">for ( x in 3..7 ){ // iterate a range
 	// iterate from 3 to 7
 }
 
 if ( x in |[ 3 , 7)| ){
 	// test if x is &gt;=3 and &lt; 7
-}</code></pre> 
-    </div> 
-   </div> 
-  </div> 
-  <div class="sect2"> 
-   <h3 id="_modular">Modular</h3> 
-   <div class="paragraph"> 
-    <p>Lense is Modular. The compiler merges code and meta information into a "module bundle" (think .jar or .dll) with information about their respective dependencies. This allows for the runtime to determine the modules that are needed for a given module to run.</p> 
-   </div> 
-   <div class="listingblock"> 
-    <div class="content"> 
-     <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">module my.application 1.2.0 {
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_modular">Modular</h3>
+<div class="paragraph">
+<p>Lense is Modular. The compiler merges code and meta information into a "module bundle" (think .jar or .dll) with information about their respective dependencies. This  allows for the runtime to determine the modules that are needed for a given module to run.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">module my.application 1.2.0 {
 
 	require other.some.library 1.0.0;
 	require other.some.other.library 1.3.5;
 
 	export my.application.api;
 	export my.application.api.data;
-}</code></pre> 
-    </div> 
-   </div> 
-  </div> 
-  <div class="sect2"> 
-   <h3 id="_flow_sensitive_typing">Flow Sensitive Typing</h3> 
-   <div class="paragraph"> 
-    <p>Casting is reduced with the introduction of flow sensitive typing:</p> 
-   </div> 
-   <div class="listingblock"> 
-    <div class="content"> 
-     <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">public class SomeClass {
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_flow_sensitive_typing">Flow Sensitive Typing</h3>
+<div class="paragraph">
+<p>Casting is reduced with the introduction of flow sensitive typing:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">public class SomeClass {
 
 	private innerValue: Natural;
 
@@ -504,24 +536,24 @@ if ( x in |[ 3 , 7)| ){
 	}
 
 	// other methods omitted
-}</code></pre> 
-    </div> 
-   </div> 
-   <div class="paragraph"> 
-    <p>Notice how the cast when accessing <code>other.innerValue</code> is not needed. The program just checked <code>other</code> is of the correct type, so the compiler includes the cast implicitly.</p> 
-   </div> 
-  </div> 
-  <div class="sect2"> 
-   <h3 id="_math_and_science_friendly">Math and Science friendly</h3> 
-   <div class="paragraph"> 
-    <p>Lense enables handling all major algebraic structures like Naturals, Integers, Rational , Imaginary and Complex numbers while also supporting IEEE Float numbers. Operations are defined using concepts like Magma, Groups and Ring.</p> 
-   </div> 
-   <div class="paragraph"> 
-    <p>Lense also enables juxtaposition that enables writing things like:</p> 
-   </div> 
-   <div class="listingblock"> 
-    <div class="content"> 
-     <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">let a : Complex = 3 - 4i;
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Notice how the cast when accessing <code>other.innerValue</code> is not needed. The program just checked <code>other</code> is of the correct type, so the compiler includes the cast implicitly.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_math_and_science_friendly">Math and Science friendly</h3>
+<div class="paragraph">
+<p>Lense enables handling all major algebraic structures like Naturals, Integers, Rational , Imaginary and Complex numbers while also supporting IEEE Float numbers. Operations are defined using concepts like Magma, Groups and Ring.</p>
+</div>
+<div class="paragraph">
+<p>Lense also enables juxtaposition that enables writing things like:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">let a : Complex = 3 - 4i;
 let b : Complex = 3 + 4i;
 
 assert ( 5 == (a * b) ^^ 0.5 );
@@ -541,18 +573,18 @@ let distance = 2 km; // or with spaces
 let velocity = distance / time;
 
 assert(  1 km/s  == velocity );
-assert( velocity is Measure);</code></pre> 
-    </div> 
-   </div> 
-  </div> 
-  <div class="sect2"> 
-   <h3 id="_native_code_inter_op">Native code inter-op</h3> 
-   <div class="paragraph"> 
-    <p>Lense can interact with the platform native language like Java or Javascript.</p> 
-   </div> 
-   <div class="listingblock"> 
-    <div class="content"> 
-     <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">import native(java) java.lang.System;
+assert( velocity is Measure);</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_native_code_inter_op">Native code inter-op</h3>
+<div class="paragraph">
+<p>Lense can interact with the platform native language like Java or Javascript.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">import native(java) java.lang.System;
 import native(java) java.time.Duration;
 
 public class StopWatch {
@@ -568,18 +600,18 @@ public class StopWatch {
 		// invoke java
 		return Duration.ofMillis(System.currentTimeMillis​() - mark);
 	}
-}</code></pre> 
-    </div> 
-   </div> 
-  </div> 
-  <div class="sect2"> 
-   <h3 id="_reflection_and_reification">Reflection and Reification</h3> 
-   <div class="paragraph"> 
-    <p>Generics are reified and the type information of the generic type parameters can be inspected at runtime. This is really works well with <a href="constructors.html">constructors</a> that can control the correct instance to return:</p> 
-   </div> 
-   <div class="listingblock"> 
-    <div class="content"> 
-     <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">public class Bag&lt;T&gt; {
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_reflection_and_reification">Reflection and Reification</h3>
+<div class="paragraph">
+<p>Generics are reified and the type information of the generic type parameters can be inspected at runtime. This is really works well with <a href="constructors.html">constructors</a> that can control the correct instance to return:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">public class Bag&lt;T&gt; {
 
 	constructor (){
 		if (T is Boolean){
@@ -595,44 +627,45 @@ class BooleanBag extends Bag&lt;Boolean&gt;{
 
 class ObjectBag&lt;T&gt; extends Bag&lt;T&gt;{
 	...
-}</code></pre> 
-    </div> 
-   </div> 
-   <div class="paragraph"> 
-    <p>Types can have generic parameters and these parameters can declare their intended variance on site.</p> 
-   </div> 
-   <div class="listingblock"> 
-    <div class="content"> 
-     <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">public interface Sequence&lt;out T&gt; { ... }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Types can have generic parameters and these parameters can declare their intended variance on site.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">public interface Sequence&lt;out T&gt; { ... }
 
-public interface Validator&lt;in T&gt; { ... }</code></pre> 
-    </div> 
-   </div> 
-  </div> 
-  <div class="sect2"> 
-   <h3 id="_support_for_lambdas_and_higher_order_functions">Support for lambdas and higher order functions</h3> 
-   <div class="paragraph"> 
-    <p>Lense supports functional programming with lambdas:</p> 
-   </div> 
-   <div class="listingblock"> 
-    <div class="content"> 
-     <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">let first100EvenNumbers = 0..100.map( i -&gt; i*2);</code></pre> 
-    </div> 
-   </div> 
-  </div> 
-  <div class="sect2"> 
-   <h3 id="_innovative">Innovative</h3> 
-   <div class="paragraph"> 
-    <p>Constructors act like factory methods. A class is a factory and constructors really construct the object (not only initialize it). All calls to create new objects are calls to factory methods present in an object thus enforcing the <strong>static factory method</strong> design pattern out-of the box.</p> 
-   </div> 
-   <div class="paragraph"> 
-    <p>Meta classes allow to program methods that apply to classes instead of instances, like operators.</p> 
-   </div> 
-   <div class="paragraph"> 
-    <p>Enhancements allow you to add methods in classes that originally did not support them.</p> 
-   </div> 
-  </div> 
- </div> 
+public interface Validator&lt;in T&gt; { ... }</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_support_for_lambdas_and_higher_order_functions">Support for lambdas and higher order functions</h3>
+<div class="paragraph">
+<p>Lense supports functional programming with lambdas:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">let first100EvenNumbers = 0..100.map( i -&gt; i*2);</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_innovative">Innovative</h3>
+<div class="paragraph">
+<p>Constructors act like factory methods. A class is a factory and constructors really construct the object (not only initialize it).
+All calls to create new objects are calls to factory methods present in an object thus enforcing the <strong>static factory method</strong> design pattern out-of the box.</p>
+</div>
+<div class="paragraph">
+<p>Meta classes allow to program methods that apply to classes instead of instances, like operators.</p>
+</div>
+<div class="paragraph">
+<p>Enhancements allow you to add methods in classes that originally did not support them.</p>
+</div>
+</div>
+</div>
 </div>
 			</div>
 			<div class="col-xs-6 col-sm-3 col-sm-pull-9 sidebar-offcanvas" id="sidebar"">
