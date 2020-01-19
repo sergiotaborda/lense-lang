@@ -281,9 +281,14 @@ public final class BigInt implements Integer , BigIntegerConvertable , AnyValue 
 
 	@Override
 	public Rational divide(Whole other) {
-		return Rational.fraction(this, other.asInteger());
+		return Rational.fraction(this, other);
 	}
 
+	@Override
+	public Rational divide(Integer other) {
+		return Rational.fraction(this, other);
+	}
+	
 	@Override
 	public Real asReal() {
 		return Rational.valueOf(this);

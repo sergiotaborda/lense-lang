@@ -382,10 +382,7 @@ public final class Int32  implements Integer, Binary , BigIntegerConvertable, An
 	}
 
 
-	@Override
-	public Rational divide(Whole other) {
-		return Rational.fraction(this, other.asInteger());
-	}
+
 
 
 	@Override
@@ -515,5 +512,16 @@ public final class Int32  implements Integer, Binary , BigIntegerConvertable, An
 	@Override
 	public Float log() {
 		return Float64.valueOfNative(Math.log(this.value));
+	}
+
+	
+	@Override
+	public Rational divide(Integer other) {
+		return Rational.fraction(this, other);
+	}
+	
+	@Override
+	public Rational divide(Whole other) {
+		return Rational.fraction(this, other);
 	}
 }
