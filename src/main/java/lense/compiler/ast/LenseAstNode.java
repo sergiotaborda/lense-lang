@@ -76,4 +76,22 @@ public abstract class LenseAstNode extends AstNode{
         
         return found;
     }
+
+	public <N extends AstNode> Optional<N> findParent(Class<N> type ){
+		
+		AstNode parent = this.getParent();
+		while (parent != null ) {
+			
+			if (type.isInstance(parent)) {
+			
+				return Optional.of(type.cast(parent));
+			}
+			parent = parent.getParent();
+		}
+		
+		return Optional.empty();
+		
+		
+	}
+
 }

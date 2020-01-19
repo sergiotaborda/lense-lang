@@ -30,6 +30,7 @@ import lense.compiler.type.TypeMember;
 import lense.compiler.type.variable.TypeVariable;
 import lense.compiler.typesystem.LenseTypeSystem;
 import lense.compiler.typesystem.Visibility;
+import lense.compiler.utils.Strings;
 
 /**
  * 
@@ -62,7 +63,12 @@ public final class NativeVerificationVisitor implements Visitor<AstNode>{
             return def;
         }
 
-        File classFile = nativeTypes.get(name);
+        int pos = name.lastIndexOf('.');
+        
+        String packageName = name.substring(0, pos);
+        String className = Strings.cammelToPascalCase(name.substring( pos + 1));
+        
+        File classFile = nativeTypes.get(packageName + "." + className);
         def =  (LenseTypeDefinition)asmReader.readNative(classFile);
 
         loadDependencies(def);
@@ -100,7 +106,12 @@ public final class NativeVerificationVisitor implements Visitor<AstNode>{
 
             if (n.isNative()){
                 if (!nativeTypes.containsKey(n.getName())){
-                    throw new lense.compiler.CompilationError(node, "Native implementation for type " + n.getName() + " is missing");
+                	
+                	String objectName = n.getPackageName() + "." + Strings.cammelToPascalCase(n.getSimpleName());
+                	   
+                	if (!nativeTypes.containsKey(objectName)){
+                		throw new lense.compiler.CompilationError(node, "Native implementation for type " + n.getName() + " is missing");
+                    }
                 }
 
                 if (n.getName().equals("lense.core.lang.Any")){
@@ -126,7 +137,7 @@ public final class NativeVerificationVisitor implements Visitor<AstNode>{
                     List<Constructor> construtors = type.getMembers().stream().filter( c -> c.isConstructor()).map(c -> (Constructor)c).collect(Collectors.toList());
                     List<Constructor> nativeConstrutors = nativeType.getMembers().stream().filter( c -> c.isConstructor()).map(c -> (Constructor)c).collect(Collectors.toList());
 
-                    List<Method> methods = type.getAllMembers().stream().filter( c -> c.isMethod()).map(c -> (Method)c).collect(Collectors.toList());
+                    List<Method> methods = type.getAllMembers().stream().filter( c -> c.isMethod() && !((Method)c).isPropertyBridge()).map(c -> (Method)c).collect(Collectors.toList());
                     List<Method> nativeMethods = nativeType.getAllMembers().stream().filter( c -> c.isMethod()).map(c -> (Method)c).collect(Collectors.toList());
 
 

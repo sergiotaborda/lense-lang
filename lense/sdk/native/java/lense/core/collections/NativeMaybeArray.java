@@ -112,7 +112,7 @@ final class NativeMaybeArray extends Array implements SmallArray {
 		Maybe maybe = (Maybe)other;
 
 		for(Any a : array){
-			if ((a == null && maybe.isAbsent()) || (a != null && maybe.is(a))){ 
+			if ((a == null && maybe.isAbsent()) || (a != null && maybe.valueEqualsTo(a))){ 
 				return true;
 			} 
 		}
@@ -171,8 +171,8 @@ final class NativeMaybeArray extends Array implements SmallArray {
 
 		for(int i =0; i < array.length; i++){
 			Any a = array[i];
-			if ((a == null && maybe.isAbsent()) || (a != null && maybe.is(a))){ 
-				return Some.constructor( JavaReifiedArguments.getInstance().addType(lense.core.math.Natural.TYPE_RESOLVER) , Natural64.valueOfNative(i));
+			if ((a == null && maybe.isAbsent()) || (a != null && maybe.valueEqualsTo(a))){ 
+				return Some.constructor( JavaReifiedArguments.getInstance().addType(NativeNumberFactory.NATURAL_TYPE_RESOLVER) , Natural64.valueOfNative(i));
 			} 
 		}
 		return None.NONE;

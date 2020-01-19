@@ -382,15 +382,12 @@ public final class Int32  implements Integer, Binary , BigIntegerConvertable, An
 	}
 
 
-	@Override
-	public Rational divide(Whole other) {
-		return Rational.constructor(this, other.asInteger());
-	}
+
 
 
 	@Override
 	public Real asReal() {
-		return Rational.constructor(this, ONE);
+		return Rational.valueOf(this);
 	}
 
 
@@ -440,13 +437,13 @@ public final class Int32  implements Integer, Binary , BigIntegerConvertable, An
 	@Override
 	public Real raiseTo(Real other) {
 		if ( other.isZero()) {
-			return Rational.ONE;
+			return Rational.one();
 		} else if (other.isOne()) {
 			return this.asReal();
 		} else if (other.isWhole()) {
 			Integer whole = other.floor();
 	
-			Rational power = Rational.constructor(raiseTo(whole.abs()), ONE);
+			Rational power = Rational.fraction(raiseTo(whole.abs()), ONE);
 			
 			if (whole.sign().isNegative()) {
 				power = power.invert();
@@ -454,27 +451,27 @@ public final class Int32  implements Integer, Binary , BigIntegerConvertable, An
 			
 			return power;
 		}
-		return BigDecimal.constructor(Rational.constructor(this, ONE)).raiseTo(other);
+		return BigDecimal.constructor(Rational.valueOf(this)).raiseTo(other);
 	}
 
 	@Override
 	public Complex plus(Imaginary n) {
-		return Complex.retangular(this.asReal(), n.real());
+		return Complex.rectangular(this.asReal(), n.real());
 	}
 
 	@Override
 	public Complex minus(Imaginary n) {
-		return Complex.retangular(this.asReal(), n.real().symmetric());
+		return Complex.rectangular(this.asReal(), n.real().symmetric());
 	}
 
 	@Override
 	public Imaginary multiply(Imaginary n) {
-		return Imaginary.valueOf(this.asReal().multiply(n.real()));
+		return ImaginaryOverReal.valueOf(this.asReal().multiply(n.real()));
 	}
 
 	@Override
 	public Imaginary divide(Imaginary n) {
-		return Imaginary.valueOf(this.asReal().divide(n.real()));
+		return ImaginaryOverReal.valueOf(this.asReal().divide(n.real()));
 	}
 
 	@Override
@@ -511,4 +508,20 @@ public final class Int32  implements Integer, Binary , BigIntegerConvertable, An
     public boolean equals(Object other){
         return other instanceof Any && equalsTo((Any)other);
     }
+
+	@Override
+	public Float log() {
+		return Float64.valueOfNative(Math.log(this.value));
+	}
+
+	
+	@Override
+	public Rational divide(Integer other) {
+		return Rational.fraction(this, other);
+	}
+	
+	@Override
+	public Rational divide(Whole other) {
+		return Rational.fraction(this, other);
+	}
 }

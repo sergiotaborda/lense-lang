@@ -63,8 +63,8 @@ public class TestTypeSystem {
 		TypeVariable declare = new DeclaringTypeBoundedTypeVariable(LenseTypeSystem.Sequence(), 0, "T", Variance.Invariant);
 		
 		
-		assertTrue(LenseTypeSystem.getInstance().isAssignableTo(range, declare));
-		assertTrue(LenseTypeSystem.getInstance().isAssignableTo(declare, range));
+		assertTrue(LenseTypeSystem.getInstance().isAssignableTo(range, declare).matches() );
+		assertTrue(LenseTypeSystem.getInstance().isAssignableTo(declare, range).matches() );
 	}
 	
 	@Test
@@ -79,8 +79,8 @@ public class TestTypeSystem {
 		
 		TypeVariable generic = new GenericTypeBoundToDeclaringTypeVariable(array, array, 0, "T", Variance.Invariant);
 		
-		assertTrue(LenseTypeSystem.getInstance().isAssignableTo(array, generic));
-		assertTrue(LenseTypeSystem.getInstance().isAssignableTo(generic, array));
+		assertTrue(LenseTypeSystem.getInstance().isAssignableTo(array, generic).matches() );
+		assertTrue(LenseTypeSystem.getInstance().isAssignableTo(generic, array).matches() );
 	}
 	
 	@Test
@@ -100,8 +100,8 @@ public class TestTypeSystem {
 				Arrays.asList((TypeVariable) new DeclaringTypeBoundedTypeVariable(array, 0, "T", Variance.Invariant))
 		);
 		
-		assertTrue(LenseTypeSystem.getInstance().isAssignableTo(array, otherArray));
-		assertTrue(LenseTypeSystem.getInstance().isAssignableTo(otherArray, array));
+		assertTrue(LenseTypeSystem.getInstance().isAssignableTo(array, otherArray).matches() );
+		assertTrue(LenseTypeSystem.getInstance().isAssignableTo(otherArray, array).matches() );
 		
 	}
 	

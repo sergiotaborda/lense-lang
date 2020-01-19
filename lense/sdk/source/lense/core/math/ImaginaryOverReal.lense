@@ -1,0 +1,64 @@
+
+import lense.core.math.Number;
+import lense.core.math.Real;
+import lense.core.math.Whole;
+import lense.core.math.Equal;
+import lense.core.math.ComplexOverReal;
+
+public value class ImaginaryOverReal implements Imaginary {
+
+
+	public implicit constructor valueOf ( private value : Real);
+	
+	public constructor (){
+		return new ImaginaryOverReal.valueOf(0.0);
+	}
+	
+	public real() => value;
+
+	public plus( other : Imaginary) => new ImaginaryOverReal(this.value + other.real());
+
+	public minus( other: Imaginary ) => new ImaginaryOverReal(this.value - other.real());
+	
+	public multiply( other: Imaginary) => -(this.value * other.real());
+	
+	public divide( other: Imaginary) => this.value.divide(other.real());
+
+	public plus( other: Whole ) =>  plus( other.divide(1) );
+
+	public minus( other : Whole) =>  minus( other.divide(1) );
+
+	public multiply( other: Whole) => multiply( other.divide(1) );
+
+	public divide( other : Whole) => divide( other.divide(1) );
+
+	public plus( other: Real) => new Complex.rectangular(other, this.value);
+
+	public minus( other: Real ) => new Complex.rectangular(-other, this.value);
+
+	public multiply( other: Real) => new ImaginaryOverReal(this.value * other);
+
+	public divide( other: Real) => new ImaginaryOverReal(this.value / other);
+	
+	public override asString() => this.value.asString() ++ "i";
+
+	public symmetric() => new ImaginaryOverReal(-this.value);
+	
+	public sign() => value.sign();
+	
+	public override equalsTo( other : Any) {
+		return (other is Imaginary) && this.value.equalsTo(other.real());
+	}
+
+	public isZero() : Boolean => this.value.isZero();
+
+	public isPositive() : Boolean => this.value.isPositive();
+
+	public isNegative() : Boolean => this.value.isNegative();
+
+	public override hashValue() => value.hashValue();
+	
+	public compareWith(other : Imaginary) {
+		return this.value <=> other.real(); 
+	}
+}

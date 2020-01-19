@@ -59,8 +59,8 @@ public class Main extends ConsoleApplication {
 	
 	private applyNames<T, U> ( from : T , to : U) : String {
 
-		let list = new Array<T>();
-		let other = new Array<U>();
+		let list = new Array<T>.empty();
+		let other = new Array<U>.empty();
 
 		return "";
 	}
@@ -458,7 +458,7 @@ public class Main extends ConsoleApplication {
   	    
   	 	var dc = 0.5 + 4i;
   	 	
-		assert ( new Complex.retangular(0.5, 4)  == dc , " Complex is not 0.5+4i");
+		assert ( new Complex.rectangular(0.5, 4)  == dc , " Complex is not 0.5+4i");
 
   	 	var n = #EFA2;
   	 	
@@ -585,17 +585,19 @@ public class Main extends ConsoleApplication {
 
 
 		
-	   console.println(" max = {{ max }}");
-	   console.println(" min = {{ min }}");
+	    console.println(" max = {{ max }}");
+	    console.println(" min = {{ min }}");
 		
 		let r = min / max ;
 		
-		  console.println("r = {{ r }}");
-		  let k = r ^^ 2;
-		    console.println("r ^^ 2 = {{ k }}");
-		 console.println("j = {{ 1.0 + k }}");
+		console.println("r = {{ r }}");
+		
+		let k = r ^^ 2;
 		 
-		return max * (1.0 + r ^^ 2) ^^ 0.5;
+		console.println("r ^^ 2 = {{ k }}");
+		console.println("j = {{ 1.0 + k }}");
+		 
+		return max * ((1.0 + r ^^ 2) ^^ 0.5);
 
 	}
 	

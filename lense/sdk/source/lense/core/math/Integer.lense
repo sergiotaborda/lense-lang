@@ -10,6 +10,10 @@ import lense.core.math.Progressable;
 public interface Integer extends Whole , SignedNumber,  Ordinal<Integer>, Progressable<Integer>{
 
 
+		public implicit constructor  valueOf(other : Whole) {
+			return other.asInteger();
+		}
+
 		public implicit constructor  valueOf(other : Natural) {
 			return other.asInteger();
 		}
@@ -37,5 +41,7 @@ public interface Integer extends Whole , SignedNumber,  Ordinal<Integer>, Progre
 		public raiseTo (other : Real) : Real; 
 		
 		public symmetric() : Integer;
+
+		public log(): Float;
 	
 }

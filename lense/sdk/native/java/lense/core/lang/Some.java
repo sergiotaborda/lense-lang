@@ -1,11 +1,11 @@
 package lense.core.lang;
 
 import lense.core.lang.java.Constructor;
+import lense.core.lang.java.MethodSignature;
 import lense.core.lang.java.Signature;
 import lense.core.lang.reflection.ReifiedArguments;
 import lense.core.lang.reflection.Type;
 import lense.core.lang.reflection.TypeResolver;
-import lense.core.math.Natural;
 import lense.core.math.Natural64;
 
 @Signature("[=T<lense.core.lang.Any]::")
@@ -60,12 +60,14 @@ public class Some extends Maybe{
     }
 
 	@Override
+	@lense.core.lang.java.Property( name = "value")
+	@MethodSignature( returnSignature = "T" , paramsSignature = "", declaringType = "lense.core.lang.Maybe")
 	public Any getValue() {
 		return value;
 	}
 
 	@Override
-	public boolean is(Any content) {
+	public boolean valueEqualsTo(Any content) {
 		return value.equalsTo(content);
 	}
 	
