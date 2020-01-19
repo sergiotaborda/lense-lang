@@ -1,12 +1,13 @@
 package lense.sdk.math;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
 import lense.core.math.Complex;
-import lense.core.math.Float64;
 import lense.core.math.Imaginary;
+import lense.core.math.ImaginaryOverReal;
 import lense.core.math.Int32;
 import lense.core.math.NativeNumberFactory;
 import lense.core.math.Natural;
@@ -18,7 +19,7 @@ public class TestComplex {
 
 	@Test
 	public void testComplexAbs () {
-		Imaginary img = Imaginary.valueOf(Rational.valueOf(NativeNumberFactory.newNatural(4)));
+		Imaginary img = ImaginaryOverReal.valueOf(Rational.valueOf(NativeNumberFactory.newNatural(4)));
 		Natural n = NativeNumberFactory.newNatural(3);
 		Real r = Rational.valueOf(n);
 		
@@ -49,6 +50,6 @@ public class TestComplex {
 	}
 	
 	private Real dist(lense.core.math.Integer a, lense.core.math.Integer b){
-	    return a.raiseTo(Natural64.valueOfNative(2)).plus(b.raiseTo(Natural64.valueOfNative(2))).raiseTo(Rational.constructor(Int32.ONE, Int32.TWO));
+	    return a.raiseTo(Natural64.valueOfNative(2)).plus(b.raiseTo(Natural64.valueOfNative(2))).raiseTo(Rational.fraction(Int32.ONE, Int32.TWO));
 	}
 }

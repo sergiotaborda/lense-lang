@@ -1,7 +1,17 @@
 import lense.core.math.Real;
+import lense.core.math.Whole;
+import lense.core.math.BigFloat;
 import lense.core.math.SignedNumber;
 
-public  interface Float extends SignedNumber {
+public  interface Float extends SignedNumber, Comparable<Float> {
+
+	public implicit constructor  valueOf(other : Whole) {
+		return new BigFloat.valueOf(other.asInteger());
+	}
+
+	public implicit constructor  valueOf(other : Real) {
+		return new BigFloat.valueOf(other);
+	}
 
 	public isNaN(): Boolean;
 	public isNegativeZero() : Boolean;
@@ -18,6 +28,8 @@ public  interface Float extends SignedNumber {
 	
     public isWhole() : Boolean;
 
+ 	public invert() : Float;
+
 	public ceil() : Integer;
 	public floor() : Integer;
 
@@ -27,4 +39,6 @@ public  interface Float extends SignedNumber {
 	public divide (other: Float): Float;
 	
 	public raiseTo(other : Float) : Float;
+	public log() : Float;
+	public exp() : Float;
 }

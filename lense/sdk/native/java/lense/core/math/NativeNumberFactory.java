@@ -3,9 +3,14 @@ package lense.core.math;
 import java.math.BigInteger;
 
 import lense.core.lang.java.PlatformSpecific;
+import lense.core.lang.reflection.Type;
+import lense.core.lang.reflection.TypeResolver;
 
 @PlatformSpecific
 public final class NativeNumberFactory {
+
+	public static final TypeResolver NATURAL_TYPE_RESOLVER = TypeResolver.lazy(() -> new Type(Natural.class));
+	
 
     public static int naturalToPrimitiveInt(Natural natural) {
         if (natural instanceof Natural64) {
@@ -49,7 +54,7 @@ public final class NativeNumberFactory {
     }
 
     public static Imaginary newImaginary(long nativeValue) {
-        return Imaginary.valueOf(Rational.valueOf(newInteger(nativeValue)));
+        return ImaginaryOverReal.valueOf(Rational.valueOf(newInteger(nativeValue)));
     }
 
     public static Integer newInteger(long nativeValue) {
@@ -64,8 +69,17 @@ public final class NativeNumberFactory {
         return BigDecimal.valueOfNative(nativeValue);
     }
 
+    
+    public static Float newFloat(String nativeValue) {
+        return Float64.valueOfNative(Double.parseDouble(nativeValue));
+    }
+    
+    public static BigFloat newBigFloat(String nativeValue) {
+        return BigFloat.parse(lense.core.lang.String.valueOfNative(nativeValue));
+    }
+    
     public static Imaginary newImaginary(String nativeValue) {
-        return Imaginary.valueOf(newReal(nativeValue));
+        return ImaginaryOverReal.valueOf(newReal(nativeValue));
     }
 
     public static Integer newInteger(String nativeValue) {

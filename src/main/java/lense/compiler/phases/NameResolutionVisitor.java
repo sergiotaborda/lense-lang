@@ -734,8 +734,8 @@ public class NameResolutionVisitor extends AbstractScopedVisitor {
 
 			TypeNode typeNode = variableDeclaration.getTypeNode();
 			if (typeNode != null) {
-				LenseTypeDefinition type = new LenseTypeDefinition(typeNode.getName(), null, null);
-				this.getSemanticContext().currentScope().defineVariable(variableDeclaration.getName(),type, node);
+				//LenseTypeDefinition type = new LenseTypeDefinition(typeNode.getName(), null, null);
+				this.getSemanticContext().currentScope().defineVariable(variableDeclaration.getName(),typeNode.getTypeVariable(), node);
 			}
 
 		} else if (node instanceof LiteralTupleInstanceCreation) {

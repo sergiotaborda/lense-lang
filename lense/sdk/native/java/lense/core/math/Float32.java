@@ -4,12 +4,15 @@ package lense.core.math;
 import lense.core.lang.Any;
 import lense.core.lang.AnyValue;
 import lense.core.lang.HashValue;
+import lense.core.lang.java.Base;
 import lense.core.lang.java.Constructor;
 import lense.core.lang.java.Primitives;
+import lense.core.lang.java.ValueClass;
 import lense.core.lang.reflection.Type;
 import lense.core.lang.reflection.TypeResolver;
 
-public final class Float32 implements Float , AnyValue{
+@ValueClass
+public final class Float32 extends Base implements Float , AnyValue{
 
 	private static Float32 ZERO = new Float32(0.0f);
 	private static Float32 NaN = new Float32(java.lang.Float.NaN);
@@ -65,11 +68,8 @@ public final class Float32 implements Float , AnyValue{
 		return new HashValue(java.lang.Float.hashCode(value));
 	}
 
-	private Float64 promoteNext() {
-		return new Float64(this.value);
-	}
 	@Override
-	public Float warpPlus(Float other) {
+	public Float plus(Float other) {
 		if (other instanceof Float32){
 			return new Float32(this.value + ((Float32)other).value);
 		} else {
@@ -78,7 +78,7 @@ public final class Float32 implements Float , AnyValue{
 	}
 
 	@Override
-	public Float warpMinus(Float other) {
+	public Float minus(Float other) {
 		if (other instanceof Float32){
 			return new Float32(this.value - ((Float32)other).value);
 		} else {
@@ -87,7 +87,7 @@ public final class Float32 implements Float , AnyValue{
 	}
 
 	@Override
-	public Float wrapMultiply(Float other) {
+	public Float multiply(Float other) {
 		if (other instanceof Float32){
 			return new Float32(this.value * ((Float32)other).value);
 		} else {
@@ -96,7 +96,7 @@ public final class Float32 implements Float , AnyValue{
 	}
 
 	@Override
-	public Float wrapDivide(Float other) {
+	public Float divide(Float other) {
 		if (other instanceof Float32){
 			return new Float32(this.value / ((Float32)other).value);
 		} else {
@@ -104,26 +104,6 @@ public final class Float32 implements Float , AnyValue{
 		} 
 	}
 	
-	@Override
-	public Float plus(Float other) {
-		return warpPlus(other);
-	}
-
-	@Override
-	public Float minus(Float other) {
-		return warpMinus(other);
-	}
-
-	@Override
-	public Float multiply(Float other) {
-		return wrapMultiply(other);
-	}
-
-	@Override
-	public Float divide(Float other) {
-		return wrapDivide(other);
-	}
-
 	@Override
 	public boolean isZero() {
 		return java.lang.Float.compare(this.value, 0.0f) == 0;
@@ -145,15 +125,7 @@ public final class Float32 implements Float , AnyValue{
 		return new Int32((int)Math.signum(this.value));
 	}
 	
-	@Override
-    public Float raiseTo(Float other) {
-        if (other instanceof Float32){
-            return new Float64(Math.pow(this.value, ((Float32)other).value));
-        }  else {
-            return new Float64(Math.pow(this.value, ((Float64)other).value));
-        }
-    }
-	
+
     @Override
     public Integer floor() {
     	// TODO handle infinites and nan
@@ -236,15 +208,40 @@ public final class Float32 implements Float , AnyValue{
     }
     
     @Override
-    public boolean equals(Object other){
-        return other instanceof Any && equalsTo((Any)other);
-    }
-    
-    @Override
     public int hashCode(){
         return hashValue().hashCode();
     }
+	
+    @Override
+	public Float log() {
+		return new Float64(Math.log(this.value));
+	}
 
+	@Override
+	public Float exp() {
+		return new Float64(Math.exp(this.value));
+	}
+
+	@Override
+	public Float invert() {
+		return new Float32(1 / this.value);
+	}
+	
+	@Override
+    public Float raiseTo(Float other) {
+        if (other instanceof Float32){
+            return new Float64(Math.pow(this.value, ((Float32)other).value));
+        } else if (other instanceof Float64){
+            return new Float64(Math.pow(this.value, ((Float64)other).value));
+        } 
+        
+        return BigFloat.valueOf(this).raiseTo(other);
+    }
+	
+	@Override
+	public Float raiseTo(Whole other) {
+	    return BigFloat.valueOf(this).raiseTo(other);
+	}
 
 
 }

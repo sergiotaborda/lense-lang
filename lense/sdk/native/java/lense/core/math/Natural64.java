@@ -8,7 +8,6 @@ import lense.core.collections.Progression;
 import lense.core.lang.Any;
 import lense.core.lang.AnyValue;
 import lense.core.lang.HashValue;
-import lense.core.lang.Ordinal;
 import lense.core.lang.java.NonNull;
 import lense.core.lang.java.PlatformSpecific;
 import lense.core.lang.java.Primitives;
@@ -188,8 +187,6 @@ public final class Natural64 implements Natural , BigDecimalConvertable , BigInt
 		return (int)(this.value % n);
 	}
 
-
-
 	public Natural remainder(Natural other) {
 		if (other instanceof Natural64){
 			return new Natural64(this.value % ((Natural64)other).value);
@@ -249,13 +246,13 @@ public final class Natural64 implements Natural , BigDecimalConvertable , BigInt
 	
 	@Override
 	public Rational divide(Whole other) {
-		return Rational.constructor(this.asInteger(), other.asInteger());
+		return Rational.fraction(this.asInteger(), other.asInteger());
 	}
 	
 
 	@Override
 	public Real asReal() {
-		return Rational.constructor(this.asInteger(), Int32.ONE);
+		return Rational.valueOf(this.asInteger());
 	}
 	
 
@@ -302,18 +299,18 @@ public final class Natural64 implements Natural , BigDecimalConvertable , BigInt
 	
 
 	@Override
-	public Progression upTo(Any other) {
+	public Progression upTo(Natural other) {
 		if (other instanceof Natural) {
-			return new NativeOrdinalProgression(this, (Natural) other, true);
+			return new NativeOrdinalProgression(this, other, true);
 		}
 		throw new ClassCastException("other is not a Natural");
 	}
 	
 
 	@Override
-	public Progression upToExclusive(Any other) {
+	public Progression upToExclusive(Natural other) {
 		if (other instanceof Natural) {
-			return new NativeOrdinalProgression(this, (Natural) other, false);
+			return new NativeOrdinalProgression(this, other, false);
 		}
 		throw new ClassCastException("other is not a Natural");
 	}
@@ -381,11 +378,11 @@ public final class Natural64 implements Natural , BigDecimalConvertable , BigInt
 		} else if (other.isZero()){
 			return Rational.one();
 		} else if (other.isOne()){
-			return Rational.constructor(this.asInteger(), Int32.ONE);
+			return Rational.valueOf(this.asInteger());
 		}  else if (other.isNegative()){
-			return Rational.constructor(Int32.ONE, this.raiseTo(other.abs()).asInteger());
+			return Rational.fraction(Int32.ONE, this.raiseTo(other.abs()).asInteger());
 		} else {
-			return Rational.constructor( this.raiseTo(other.abs()).asInteger(), Int32.ONE);
+			return Rational.valueOf( this.raiseTo(other.abs()).asInteger());
 		}
 	}
 
@@ -401,22 +398,22 @@ public final class Natural64 implements Natural , BigDecimalConvertable , BigInt
 
 	@Override
 	public Complex plus(Imaginary n) {
-		return Complex.retangular(this.asReal(), n.real());
+		return Complex.rectangular(this.asReal(), n.real());
 	}
 
 	@Override
 	public Complex minus(Imaginary n) {
-		return Complex.retangular(this.asReal(), n.real().symmetric());
+		return Complex.rectangular(this.asReal(), n.real().symmetric());
 	}
 
 	@Override
 	public Imaginary multiply(Imaginary n) {
-		return Imaginary.valueOf(this.asReal().multiply(n.real()));
+		return ImaginaryOverReal.valueOf(this.asReal().multiply(n.real()));
 	}
 
 	@Override
 	public Imaginary divide(Imaginary n) {
-		return Imaginary.valueOf(this.asReal().divide(n.real()));
+		return ImaginaryOverReal.valueOf(this.asReal().divide(n.real()));
 	}
 
 	@Override

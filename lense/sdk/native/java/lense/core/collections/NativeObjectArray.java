@@ -109,7 +109,7 @@ final class NativeObjectArray extends Array implements SmallArray{
 	public Maybe indexOf(Any element) {
 		for(int i =0; i < array.length; i++){
 			if (array[i].equalsTo(element)){ 
-				return Some.constructor( JavaReifiedArguments.getInstance().addType(lense.core.math.Natural.TYPE_RESOLVER) , Natural64.valueOfNative(i));
+				return Some.constructor( JavaReifiedArguments.getInstance().addType(NativeNumberFactory.NATURAL_TYPE_RESOLVER) , Natural64.valueOfNative(i));
 			}
 		}
 		return None.NONE;

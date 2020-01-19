@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import org.omg.CORBA.FREE_MEM;
+
 import compiler.CompilerListener;
 import compiler.syntax.AstNode;
 import compiler.trees.TreeTransverser;
@@ -45,6 +47,7 @@ import lense.compiler.type.MethodSignature;
 import lense.compiler.type.TypeDefinition;
 import lense.compiler.type.TypeMember;
 import lense.compiler.type.variable.DeclaringTypeBoundedTypeVariable;
+import lense.compiler.type.variable.MethodFreeTypeVariable;
 import lense.compiler.type.variable.RangeTypeVariable;
 import lense.compiler.type.variable.TypeVariable;
 import lense.compiler.typesystem.LenseTypeSystem;
@@ -238,7 +241,7 @@ public class StructureVisitor extends AbstractScopedVisitor {
 
 			TypeVariable returnTypeVariable = resolveTypeDefinition(m.getReturnType(), Variance.Covariant);
 
-
+		  // handle method bound parameters
 			ParametersListNode parameters = m.getParameters();
 			MethodParameter[] params = asMethodParameters(parameters);
 
@@ -249,9 +252,7 @@ public class StructureVisitor extends AbstractScopedVisitor {
 					}
 				}
 			}
-			
 		
-						
 			Visibility visiblity = m.getVisibility();
 			
 			if (visiblity == null){
@@ -265,6 +266,16 @@ public class StructureVisitor extends AbstractScopedVisitor {
 			MethodSignature signature = new MethodSignature(m.getName(), params);
 			
 			Method method = new Method(m.isProperty(), visiblity, m.getName(), new MethodReturn(returnTypeVariable), params);
+			
+			int index = 0;
+			for (GenericTypeParameterNode g : m.getMethodScopeGenerics().getChildren(GenericTypeParameterNode.class)) {
+				
+				
+				MethodFreeTypeVariable free = new MethodFreeTypeVariable(index++);
+				free.setDeclaringMember(method);
+				method.add(free);
+
+			}
 			
 			Optional<Method> declaredMethodBySignature = currentType.getDeclaredMethodBySignature(signature);
 			if (declaredMethodBySignature.isPresent()){

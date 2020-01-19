@@ -3,64 +3,31 @@ import lense.core.math.Number;
 import lense.core.math.Imaginary;
 import lense.core.math.Real;
 import lense.core.math.ArithmeticException;
+import lense.core.math.ComplexOverReal;
 
-public value class Complex implements Number {
+public interface Complex extends Number {
 
 
-	private constructor (real: Real, imaginary: Real);
-
-	public implicit constructor valueOfReal(real: Real){
-		return new Complex(real, 0.0);
+	public constructor rectangular(r : Real, img : Real) {
+		return new ComplexOverReal.rectangular(r, img);
 	}
 
-	public implicit constructor valueOf(img: Imaginary){
-		return new Complex(0.0, img.real());
-	}
+	public let real : Real;
+	public let imaginary : Real;
 
-	public implicit constructor retangular(real: Real, img: Real){
-		return new Complex(real, img);
-	}
+	public plus( other : Complex) : Complex;
 
-	public real() => this.real;
+	public minus( other : Complex) : Complex;
 
-	public imaginary() => this.imaginary;
+	public multiply( other : Complex) : Complex;
 
-	public plus( other : Complex) => new Complex(this.real + other.real, this.imaginary + other.imaginary);
-
-	public minus( other : Complex) => new Complex(this.real - other.real, this.imaginary - other.imaginary);
-
-	public  multiply( other : Complex) {
-		return new Complex(
-				(this.real * other.real) - (this.imaginary * other.imaginary) ,
-				(this.real * other.imaginary) + (this.imaginary * other.real)
-		);
-	}
-
-	public divide( denominator : Complex ) : Complex {
-		let magnitude : Real =  denominator.abs();
-		if (magnitude.isZero()){
-			throw new ArithmeticException("Cannot divide by zero");
-		}
-		return this.multiply(denominator.conjugate()).divide(magnitude);
-	}
+	public divide( denominator : Complex ) : Complex;
 	
-	public divide( denominator: Real ) => new Complex(this.real.divide(denominator), this.imaginary.divide(denominator));
+	public divide( denominator: Real ) : Complex;
 
-	public conjugate() =>  new Complex(this.real, -this.imaginary);
-	
-	public isZero() => real == 0 && imaginary == 0;
+	public conjugate() : Complex;
 
-	public abs() => real.multiply(real).plus(this.imaginary.multiply(this.imaginary));
+	public abs() : Real;
 
-	public override equalsTo( other : Any) =>  other is Complex && this.real.equalsTo(other.real) && this.imaginary.equalsTo(other.imaginary);
 
-	public override hashValue() => this.real.hashValue().concat(this.imaginary.hashValue());
-
-	public override asString() : String {
-	    var sign : String = "+";
-	    if (imaginary.sign() < 0){
-	    	sign = " - ";
-	    }
-		return real.asString() ++ sign ++  imaginary.abs().asString() ++ "i";
-	}
 }

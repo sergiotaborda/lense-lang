@@ -500,7 +500,7 @@ public class LenseTypeSystem {
 	}
 
 
-	public static boolean isAssignableTo(TypeVariable type, TypeVariable target) {
+	public static TypeMatch isAssignableTo(TypeVariable type, TypeVariable target) {
 		
 		if (type == null) {
 			throw new IllegalArgumentException("Type cannot be null");
@@ -513,7 +513,7 @@ public class LenseTypeSystem {
 		if (type instanceof UnionType){
 		    UnionType union = (UnionType)type;
 		    
-		    return isAssignableTo(union.getLeft(), target) && isAssignableTo(union.getRight(), target);
+		    return isAssignableTo(union.getLeft(), target).and(isAssignableTo(union.getRight(), target));
 
 		} else if (type.isSingleType()) {
 			if (target.isSingleType()) {
@@ -521,35 +521,38 @@ public class LenseTypeSystem {
 			} else {
 				TypeVariable interval = (TypeVariable) target;
 				// interval contains type ?
-				return isAssignableTo(type, interval.getUpperBound()) && isAssignableTo(interval.getLowerBound(), type);
+				return isAssignableTo(type, interval.getUpperBound()).and(isAssignableTo(interval.getLowerBound(), type));
 			}
 		} else {
-			return isAssignableTo(type.getLowerBound(), target.getLowerBound())
-					&& isAssignableTo(type.getUpperBound(), target.getUpperBound());
+			return isAssignableTo(type.getLowerBound(), target.getLowerBound()).and(isAssignableTo(type.getUpperBound(), target.getUpperBound()));
 
 		}
 	}
 
-	public static boolean isAssignableTo(TypeDefinition type, TypeDefinition target) {
+	public static TypeMatch isAssignableTo(TypeDefinition type, TypeDefinition target) {
 
 		if (type == null || target == null) {
-			return false;
+			return TypeMatch.NoMatch;
 		}
 
 		if (type == target) {
-			return true;
+			return TypeMatch.Exact;
 		}
 		if (target.getName().equals("lense.core.lang.Any")) {
-			return true; // all types are assignable to Any
+			// all types are assignable to Any
+			return type.getName().equals("lense.core.lang.Any")
+					? TypeMatch.Exact
+					: TypeMatch.UpCast; 
 		}
 		if (type.getName().equals("lense.core.lang.Nothing")) {
-			return true; // nothing is assignable to all types
+			return TypeMatch.UpCast; // nothing is assignable to all types
 		}
 		if (target.getName().equals("lense.core.lang.Nothing")) {
-			return false; // only nothing is assignable to nothing
+			return TypeMatch.NoMatch; // only nothing is assignable to nothing
 		}
 		if (type.getName().equals("lense.core.lang.Any")) {
-			return false;
+			// any is assignble to no one but it self
+			return TypeMatch.NoMatch;
 		}
 
 		if (type.getName().equals(
@@ -558,23 +561,26 @@ public class LenseTypeSystem {
 				 * target.getGenericParameters().size()
 				 */ ) {
 			
-			boolean assignable = true;
+			TypeMatch assignable = TypeMatch.Exact;
 			for (int i = 0; i < type.getGenericParameters().size(); i++) {
-				if (!isAssignableTo(type.getGenericParameters().get(i), target.getGenericParameters().get(i))) {
-					assignable = false;
+				assignable = assignable.and(isAssignableTo(type.getGenericParameters().get(i), target.getGenericParameters().get(i)));
+				
+				if (!assignable.matches()) {
 					break;
 				}
 			}
-			if (assignable) {
-				return true;
+			
+			if (assignable.matches()) {
+				return assignable;
 			}
 		}
 
 		if (target.getKind() == LenseUnitKind.Interface) {
 			// interface implementation
 			for (TypeDefinition interfaceDefiniton : type.getInterfaces()) {
-				if (isAssignableTo(interfaceDefiniton, target)) {
-					return true;
+				TypeMatch match = isAssignableTo(interfaceDefiniton, target);
+				if (match.matches()) {
+					return TypeMatch.UpCast;
 				}
 			}
 		}
@@ -586,13 +592,17 @@ public class LenseTypeSystem {
 				for (int i = 0; i < types.length; i++) {
 					types[i] = type.getGenericParameters().get(i);
 				}
-				return isAssignableTo(specify(type.getSuperDefinition(), types), target);
+				if( isAssignableTo(specify(type.getSuperDefinition(), types), target).matches()) {
+					return TypeMatch.UpCast;
+				}
 			} else {
-				return isAssignableTo(type.getSuperDefinition(), target);
+				if( isAssignableTo(type.getSuperDefinition(), target).matches()) {
+					return TypeMatch.UpCast;
+				}
 			}
 		}
 
-		return false;
+		return TypeMatch.NoMatch;
 
 		// return type.equals(Nothing()) || ( type.getName() == target.getName()
 		// && type.getGenericParameters().size() ==
@@ -663,12 +673,8 @@ public class LenseTypeSystem {
 
 		if (a == b) {
 			return true;
-		} else if (isAssignableTo(a, b)) {
+		} else if (isAssignableTo(a, b).matches()) {
 			return true;
-			// } else if (
-			// a.getTypeDefinition().equals(LenseTypeSystem.String()) &&
-			// b.getTypeDefinition().equals(LenseTypeSystem.TextRepresentable())){
-			// return true;
 		} 
 
 		if (b.isFixed()) {
@@ -705,9 +711,9 @@ public class LenseTypeSystem {
 			if (isMaybe(a)) {
 				return a;
 			}
-		} else if (isAssignableTo(a, b)) {
+		} else if (isAssignableTo(a, b).matches()) {
 			return b;
-		} else if (isAssignableTo(b, a)) {
+		} else if (isAssignableTo(b, a).matches()) {
 			return a;
 		} 
 			
@@ -722,31 +728,36 @@ public class LenseTypeSystem {
 		final List<CallableMemberMember<M>> signatureParameters = signature.getParameters();
 
 		return signature.getName().equals(m.getName())
-				&& areSignatureParametersImplementedBy(signatureParameters, memberParameters);
+				&& areSignatureParametersImplementedBy(signatureParameters, memberParameters).matches();
 
 	}
 	
-	public static <M extends CallableMember<M>> boolean areSignatureParametersImplementedBy(
+	public static <M extends CallableMember<M>> TypeMatch areSignatureParametersImplementedBy(
 			List<CallableMemberMember<M>> signatureParameters, List<CallableMemberMember<M>> memberParameters) {
 
 		if (signatureParameters.size() == memberParameters.size()) {
 
+			TypeMatch match = TypeMatch.Exact;
 			for (int i = 0; i < signatureParameters.size(); i++) {
-				if (!isAssignableTo(signatureParameters.get(i).getType(), memberParameters.get(i).getType())) {
-					return false;
+				match = match.and(isAssignableTo(signatureParameters.get(i).getType(), memberParameters.get(i).getType()));
+				if (!match.matches()) {
+					return TypeMatch.NoMatch;
 				}
 			}
-			return true;
+			return match;
 		}
-		return false;
+		return TypeMatch.NoMatch;
 
 	}
 
 	public boolean isSignatureAssignableTo(MethodSignature from, MethodSignature to) {
 		if (from.getName().equals(to.getName()) && from.getParameters().size() == to.getParameters().size()) {
 
+			TypeMatch match = TypeMatch.Exact;
+			
 			for (int i = 0; i < from.getParameters().size(); i++) {
-				if (!isAssignableTo(from.getParameters().get(i).getType(), to.getParameters().get(i).getType())) {
+				match = match.and(isAssignableTo(from.getParameters().get(i).getType(), to.getParameters().get(i).getType()));
+				if (!match.matches()) {
 					return false;
 				}
 			}
@@ -805,7 +816,7 @@ public class LenseTypeSystem {
 	public boolean isMethodImplementedBy(Method reference, Method candidate) {
 
 		return reference.getName().equals(candidate.getName())
-				&& areSignatureParametersImplementedBy(reference.getParameters(), candidate.getParameters());
+				&& areSignatureParametersImplementedBy(reference.getParameters(), candidate.getParameters()).matches();
 	}
 
 	public boolean areNomallyEquals(TypeDefinition a, TypeDefinition b) {
@@ -817,7 +828,7 @@ public class LenseTypeSystem {
 	}
 
 	public static boolean isNumber(TypeDefinition maxType) {
-		return isAssignableTo(maxType, Number()) || maxType.getName().startsWith("lense.core.math") && (
+		return isAssignableTo(maxType, Number()).matches() || maxType.getName().startsWith("lense.core.math") && (
 				maxType.getName().endsWith("Natural")
 				|| maxType.getName().endsWith("Integer") 
 				|| maxType.getName().endsWith("Real")

@@ -28,7 +28,24 @@ public final class BigInt implements Integer , BigIntegerConvertable , AnyValue 
 
 	@Constructor(isImplicit = false, paramsSignature = "lense.core.lang.String")
     public static BigInt parse(lense.core.lang.String other) {
-	    return new BigInt(new BigInteger(other.toString()));
+		String s = other.toString();
+		
+		int pos = s.indexOf("E");
+		if (pos > 0) {
+			String p = s.substring(0, pos );
+			int exp = java.lang.Integer.parseInt(s.substring(pos + 1));
+			 
+			BigInteger b = new BigInteger(p);
+			
+			b = b.multiply(BigInteger.TEN.pow(exp));
+			
+			return new BigInt(b);
+		} else {
+			  
+			return new BigInt(new BigInteger(s));
+		}
+		
+	  
 	}
 	
 	@Constructor(isImplicit = true, paramsSignature = "lense.core.math.Natural")
@@ -264,12 +281,17 @@ public final class BigInt implements Integer , BigIntegerConvertable , AnyValue 
 
 	@Override
 	public Rational divide(Whole other) {
-		return Rational.constructor(this, other.asInteger());
+		return Rational.fraction(this, other);
 	}
 
 	@Override
+	public Rational divide(Integer other) {
+		return Rational.fraction(this, other);
+	}
+	
+	@Override
 	public Real asReal() {
-		return Rational.constructor(this, Int32.ONE);
+		return Rational.valueOf(this);
 	}
 
 	@Override
@@ -324,13 +346,13 @@ public final class BigInt implements Integer , BigIntegerConvertable , AnyValue 
 	@Override
 	public @NonNull Real raiseTo(Real other) {
 		if ( other.isZero()) {
-			return Rational.ONE;
+			return Rational.one();
 		} else if (other.isOne()) {
 			return this.asReal();
 		} else if (other.isWhole()) {
 			Integer whole = other.floor();
 	
-			Rational power = Rational.constructor(raiseTo(whole.abs()), Int32.ONE);
+			Rational power = Rational.fraction(raiseTo(whole.abs()), Int32.ONE);
 			
 			if (whole.sign().isNegative()) {
 				power = power.invert();
@@ -338,27 +360,27 @@ public final class BigInt implements Integer , BigIntegerConvertable , AnyValue 
 			
 			return power;
 		}
-		return BigDecimal.constructor(Rational.constructor(this, Int32.ONE)).raiseTo(other);
+		return BigDecimal.constructor(Rational.valueOf(this)).raiseTo(other);
 	}
 	
 	@Override
 	public Complex plus(Imaginary n) {
-		return Complex.retangular(this.asReal(), n.real());
+		return Complex.rectangular(this.asReal(), n.real());
 	}
 
 	@Override
 	public Complex minus(Imaginary n) {
-		return Complex.retangular(this.asReal(), n.real().symmetric());
+		return Complex.rectangular(this.asReal(), n.real().symmetric());
 	}
 
 	@Override
 	public Imaginary multiply(Imaginary n) {
-		return Imaginary.valueOf(this.asReal().multiply(n.real()));
+		return ImaginaryOverReal.valueOf(this.asReal().multiply(n.real()));
 	}
 
 	@Override
 	public Imaginary divide(Imaginary n) {
-		return Imaginary.valueOf(this.asReal().divide(n.real()));
+		return ImaginaryOverReal.valueOf(this.asReal().divide(n.real()));
 	}
 
 	@Override
@@ -389,6 +411,28 @@ public final class BigInt implements Integer , BigIntegerConvertable , AnyValue 
 	@Override
 	public Whole remainder(Whole other) {
 		return this.remainder(other.asInteger());
+	}
+
+	private static final int MAX_DIGITS_2 = 977;
+	public static final double LOG_2 = Math.log(2.0);
+	
+	@Override
+	public Float log() {
+		BigInteger val = this.value;
+	    if (val.signum() < 1) {
+            return val.signum() < 0 
+            		? Float64.NaN
+            		: Float64.NEGATIVE_INFINITY;
+	    }
+	    
+        int blex = this.value.bitLength() - MAX_DIGITS_2; // any value in 60..1023 works here
+        if (blex > 0) {
+            val = val.shiftRight(blex);
+        }
+        
+        double res = Math.log(val.doubleValue());
+        
+        return Float64.valueOfNative(blex > 0 ? res + blex * LOG_2 : res);
 	}
 
 }

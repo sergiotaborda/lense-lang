@@ -26,11 +26,12 @@ public abstract class CalculatedTypeVariable implements TypeVariable{
 	 */
 	@Override
 	public final TypeVariable getUpperBound() {
-		if (this.getVariance() == Variance.ContraVariant){
-			return original().getLowerBound();
-		} else {
-			return original().getUpperBound();
-		}
+		return original().getUpperBound();
+//		if (this.getVariance() == Variance.Covariant){
+//			return original().getLowerBound();
+//		} else {
+//			return original().getUpperBound();
+//		}
 	}
 
 	/**
@@ -38,11 +39,12 @@ public abstract class CalculatedTypeVariable implements TypeVariable{
 	 */
 	@Override
 	public final TypeVariable getLowerBound() {
-		if (this.getVariance() == Variance.ContraVariant){
-			return original().getUpperBound();
-		} else {
-			return original().getLowerBound();
-		}
+		return original().getLowerBound();
+//		if (this.getVariance() == Variance.Covariant){
+//			return original().getUpperBound();
+//		} else {
+//			return original().getLowerBound();
+//		}
 	}
 	
 	@Override

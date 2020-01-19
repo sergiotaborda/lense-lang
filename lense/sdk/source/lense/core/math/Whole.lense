@@ -1,7 +1,12 @@
 
 import lense.core.math.Number;
+import lense.core.math.BigInt;
 
 public interface Whole extends Number , Comparable<Whole> {
+
+	public constructor parse( other: String){
+		return new BigInt.parse(other);
+	}
 
 	public isOne() : Boolean;
 
@@ -13,9 +18,14 @@ public interface Whole extends Number , Comparable<Whole> {
 	public plus( n : Whole) : Whole;
 	public minus( n : Whole) : Whole;
 	public divide( n : Whole) : Rational;
+
 	public wholeDivide (other : Whole) : Whole; 
 	public remainder (other : Whole) : Whole; 	
 	
+
+	public isNegative() : Boolean;
+	public isPositive() : Boolean;
+
 	public abs () : Natural; 
 	public gcd( other : Whole) : Natural;
 

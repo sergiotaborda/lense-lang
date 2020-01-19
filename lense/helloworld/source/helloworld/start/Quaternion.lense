@@ -16,7 +16,7 @@ public value class Quaternion implements Number {
 	}
 
 	public implicit constructor valueOfComplex( c : Complex){
-		return new Quaternion(c.real(), c.imaginary() ,0,0);
+		return new Quaternion(c.real, c.imaginary ,0,0);
 	}
 
 	public constructor valueOfI(r : Real){
@@ -41,7 +41,7 @@ public value class Quaternion implements Number {
 
 	public plus(other : Complex ) : Quaternion {
 
-		return new Quaternion( this.real + other.real() , this.i + other.imaginary(), this.j, this.k);
+		return new Quaternion( this.real + other.real , this.i + other.imaginary, this.j, this.k);
 	}
 
 	public plus(other : Real ) : Quaternion {

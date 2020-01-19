@@ -1,5 +1,6 @@
 package lense.core.math;
 
+import java.math.MathContext;
 import java.math.RoundingMode;
 
 import lense.core.lang.Any;
@@ -34,11 +35,9 @@ public final class BigDecimal implements Real  , AnyValue {
         java.math.BigDecimal n = new java.math.BigDecimal( other.getNumerator().toString());
         java.math.BigDecimal d = new java.math.BigDecimal( other.getDenominator().toString());
         
-        return new BigDecimal(n.divide(d));
+        return new BigDecimal(n.divide(d, MathContext.DECIMAL128));
     }
 
-    
-  
     public static BigDecimal valueOfNative (java.lang.String value){
         return new BigDecimal(new java.math.BigDecimal(value));
     }
@@ -56,7 +55,6 @@ public final class BigDecimal implements Real  , AnyValue {
     public String asString(){
         return String.valueOfNative(value.toString());
     }
-
 
     @Override
     public boolean equalsTo(Any other) {
@@ -99,7 +97,7 @@ public final class BigDecimal implements Real  , AnyValue {
     	try {
     		return new BigDecimal(this.value.divide(devisor));
     	} catch (java.lang.ArithmeticException e) {
-    		return new BigDecimal(this.value.divide(devisor, RoundingMode.HALF_EVEN));
+    		return new BigDecimal(this.value.divide(devisor, MathContext.DECIMAL128));
     	}
     }
 
@@ -180,7 +178,8 @@ public final class BigDecimal implements Real  , AnyValue {
 			 while(full.charAt(i) == '0') {
 				 i++;
 			 }
-			 return Rational.constructor(new BigInt( new java.math.BigInteger(full.substring(i))), Int32.TEN.raiseTo(full.length() - pos));
+
+			 return new BigInt( new java.math.BigInteger(full.substring(i))).divide(Int32.TEN.raiseTo(full.length() - pos));
 		 }
 	}
 
@@ -210,24 +209,43 @@ public final class BigDecimal implements Real  , AnyValue {
 
 	@Override
 	public Complex plus(Imaginary other) {
-		return Complex.retangular(this, other.real());
+		return Complex.rectangular(this, other.real());
 	}
 
 	@Override
 	public Complex minus(Imaginary other) {
-		return Complex.retangular(this, other.real().symmetric());
+		return Complex.rectangular(this, other.real().symmetric());
 	}
 	
-
 	@Override
 	public Imaginary multiply(Imaginary other) {
-		return Imaginary.valueOf(this.multiply(other.real()));
+		return ImaginaryOverReal.valueOf(this.multiply(other.real()));
 	}
 	
-
 	@Override
 	public Imaginary divide(Imaginary other) {
-		return Imaginary.valueOf(this.divide(other.real()));
+		return ImaginaryOverReal.valueOf(this.divide(other.real()));
 	}
+
+//	private static final int MAX_DIGITS_10 = 294;
+//	public static final double LOG_10 = Math.log(10.0);
+	 
+//	public Float log() {
+//		java.math.BigDecimal val = this.value;
+//		if (val.signum() < 1) {
+//            return val.signum() < 0 
+//            		? Float64.NaN
+//            		: Float64.NEGATIVE_INFINITY;
+//		}
+//		
+//        int digits = val.precision() - val.scale();
+//        if (digits < MAX_DIGITS_10 && digits > -MAX_DIGITS_10) {
+//        	return Float64.valueOfNative(Math.log(val.doubleValue()));
+//        } else {
+//        	  return new BigInt(val.unscaledValue()).log().wrapMinus(Float64.valueOfNative(val.scale() * LOG_10));
+//        }
+//          	
+//	}
+	
 
 }
