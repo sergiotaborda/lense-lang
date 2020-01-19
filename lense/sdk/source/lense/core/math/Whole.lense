@@ -18,9 +18,11 @@ public interface Whole extends Number , Comparable<Whole> {
 	public plus( n : Whole) : Whole;
 	public minus( n : Whole) : Whole;
 	public divide( n : Whole) : Rational;
+
 	public wholeDivide (other : Whole) : Whole; 
 	public remainder (other : Whole) : Whole; 	
 	
+
 	public isNegative() : Boolean;
 	public isPositive() : Boolean;
 

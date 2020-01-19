@@ -7,9 +7,11 @@ import lense.core.lang.HashValue;
 import lense.core.lang.java.Base;
 import lense.core.lang.java.Constructor;
 import lense.core.lang.java.Primitives;
+import lense.core.lang.java.ValueClass;
 import lense.core.lang.reflection.Type;
 import lense.core.lang.reflection.TypeResolver;
 
+@ValueClass
 public final class Float64 extends Base implements Float, AnyValue {
  
 	private static Float64 ZERO = new Float64(0.0d);

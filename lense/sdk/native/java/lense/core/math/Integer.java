@@ -21,8 +21,10 @@ public interface Integer extends Whole , Comparable, SignedNumber, Ordinal, Prog
 	public Integer symmetric();
 
 	public Integer plus (Integer other);
-	public Integer multiply(Integer other);
 
+	public Integer minus(Integer other);
+	public Integer multiply(Integer other);
+	public Rational divide(Integer other);
 
 	public Integer minus (Natural other);
 	
@@ -30,8 +32,7 @@ public interface Integer extends Whole , Comparable, SignedNumber, Ordinal, Prog
 	
 	public Integer multiply (Natural other);
 	
-	public Integer minus(Integer other);
-	
+
 
 	public Integer wholeDivide(Integer other);
 	

@@ -4,12 +4,15 @@ package lense.core.math;
 import lense.core.lang.Any;
 import lense.core.lang.AnyValue;
 import lense.core.lang.HashValue;
+import lense.core.lang.java.Base;
 import lense.core.lang.java.Constructor;
 import lense.core.lang.java.Primitives;
+import lense.core.lang.java.ValueClass;
 import lense.core.lang.reflection.Type;
 import lense.core.lang.reflection.TypeResolver;
 
-public final class Float32 implements Float , AnyValue{
+@ValueClass
+public final class Float32 extends Base implements Float , AnyValue{
 
 	private static Float32 ZERO = new Float32(0.0f);
 	private static Float32 NaN = new Float32(java.lang.Float.NaN);
@@ -202,11 +205,6 @@ public final class Float32 implements Float , AnyValue{
     @Override
     public String toString(){
         return java.lang.Float.toString(value);
-    }
-    
-    @Override
-    public boolean equals(Object other){
-        return other instanceof Any && equalsTo((Any)other);
     }
     
     @Override
