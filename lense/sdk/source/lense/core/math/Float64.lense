@@ -8,4 +8,5 @@ public native class Float64 implements Float {
 
 	public native implicit constructor valueOf(other: Real);
 	public native implicit constructor valueOf(other: Whole);
+
 }

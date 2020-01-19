@@ -7,10 +7,13 @@ import compiler.trees.VisitorNext;
 import lense.compiler.CompilationError;
 import lense.compiler.ast.FormalParameterNode;
 import lense.compiler.ast.GenericTypeParameterNode;
+import lense.compiler.ast.MethodDeclarationNode;
 import lense.compiler.ast.TypeNode;
 import lense.compiler.context.SemanticContext;
+import lense.compiler.context.VariableInfo;
 import lense.compiler.type.LenseTypeDefinition;
 import lense.compiler.type.variable.DeclaringTypeBoundedTypeVariable;
+import lense.compiler.type.variable.MethodFreeTypeVariable;
 import lense.compiler.type.variable.TypeVariable;
 import lense.compiler.typesystem.LenseTypeSystem;
 import lense.compiler.typesystem.Variance;
@@ -34,47 +37,64 @@ public abstract class AbstractScopedVisitor extends AbstractLenseVisitor  {
 	
 	protected TypeVariable resolveTypeDefinition(TypeNode t, Variance positionVariance) {
 
-		if (t.getTypeParameter() != null){
-			return t.getTypeParameter();
-		}
+
 		
 		Optional<TypeVariable> namedType = this.getSemanticContext().resolveTypeForName(t.getName(), t.getTypeParametersCount());
 
+		VariableInfo freeType = this.getSemanticContext().currentScope().searchVariable(t.getName());
+		
 		TypeVariable type;
-		if (namedType.isPresent()) {
-			type = namedType.get();
-		} else {
-			// if is not a named type, then is a parameter
+		
+		// is the type it self
+		if (this.getCurrentType().map(c -> c.getName().equals(t.getName())).orElse(false)){
+			type = this.getCurrentType().get();
+		} 
 
+		// is a parameter of the type
+		Optional<Integer> index = this.getCurrentType().flatMap( c -> c.getGenericParameterIndexBySymbol(t.getName()));
 
-			if (this.getCurrentType().get().getName().equals(t.getName())) {
-				type = this.getCurrentType().get();
-			} 
-
-			Optional<Integer> index = this.getCurrentType().get().getGenericParameterIndexBySymbol(t.getName());
-
-			if (index.isPresent()) {
-				type = new DeclaringTypeBoundedTypeVariable(this.getCurrentType().get(), index.get(), t.getName(), positionVariance);
-			} else if (t.getParent() instanceof FormalParameterNode) {
+		if (index.isPresent()) {
+			type = new DeclaringTypeBoundedTypeVariable(this.getCurrentType().get(), index.get(), t.getName(), positionVariance);
+		} else if (t.getParent() instanceof FormalParameterNode) {
+			// is a parameter of the method ?
+			FormalParameterNode f = (FormalParameterNode)t.getParent();
+			if (!f.isMethodTypeBound()) {
 				
-				FormalParameterNode f = (FormalParameterNode)t.getParent();
-				if (!f.isMethodTypeBound()) {
-					throw new CompilationError(t, "Type "  + t.getName() + " is not recognized. Did you imported it?");
+				if (namedType.isPresent()) {
+					type = namedType.get();
+				} else {
+					if (t.getTypeParameter() != null){
+						return t.getTypeParameter();
+					}
+					throw new CompilationError(t.getParent(), "Type "  + t.getName() + " is not recognized. Did you imported it?");
 				}
-				
-				type = f.getTypeVariable();
-			} else {
-				throw new CompilationError(t, "Type "  + t.getName() + " is not recognized. Did you imported it?");
-			}
 
+			} else {
+				type = f.getTypeVariable();
+			}
+			
+		} else {
+			if (freeType != null) {
+
+				type = freeType.getTypeVariable();
+			} else if (namedType.isPresent()) {
+				type = namedType.get();
+			} else {
+				if (t.getTypeParameter() != null){
+					return t.getTypeParameter();
+				}
+				throw new CompilationError(t.getParent(), "Type "  + t.getName() + " is not recognized. Did you imported it?");
+			}
 		}
+
+		
 
 
 		// it type is parametric
 		if (t.getTypeParametersCount() > 0) {
 
 			TypeVariable[] genericParametersCapture = new TypeVariable[t.getTypeParametersCount()];
-			int index = 0;
+			int ind = 0;
 			for (AstNode n : t.getChildren()) {
 				GenericTypeParameterNode genericTypeParameterNode = (GenericTypeParameterNode)n;
 				
@@ -131,9 +151,9 @@ public abstract class AbstractScopedVisitor extends AbstractLenseVisitor  {
 //					genericParametersCapture[index] = typeVariable;
 //				}
 				
-				genericParametersCapture[index] = typeVariable;
-				innerTypeNode.setTypeVariable(genericParametersCapture[index]);
-				index++;
+				genericParametersCapture[ind] = typeVariable;
+				innerTypeNode.setTypeVariable(genericParametersCapture[ind]);
+				ind++;
 			}
 			type = type == null ? null : LenseTypeSystem.specify(type,genericParametersCapture);
 

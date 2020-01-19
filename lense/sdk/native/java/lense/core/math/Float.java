@@ -1,6 +1,6 @@
 package lense.core.math;
 
-public interface Float extends  Number, Comparable, SignedNumber{
+public interface Float extends  Number, Comparable, SignedNumber {
 
 
 	public boolean isNaN();
@@ -17,23 +17,20 @@ public interface Float extends  Number, Comparable, SignedNumber{
 	public boolean isZero();
 	
     public boolean isWhole();
-	
+    
+    public Float invert();
+    
     public Integer floor();
     public Integer ceil();
     
-	public Float warpPlus (Float other);
-	public Float warpMinus (Float other);
+	public Float wrapPlus (Float other);
+	public Float wrapMinus (Float other);
 	public Float wrapMultiply(Float other);
-	public Float wrapDivide(Float other);
-	
-	public Float plus (Float other);
-	public Float minus (Float other);
-	public Float multiply(Float other);
 	public Float divide(Float other);
-	
-	public Float raiseTo(Float other);
-	
 
+	public Float raiseTo(Float other);
+	public Float log();
+	public Float exp();
 
 
 }

@@ -7,10 +7,14 @@ import lense.core.collections.Progression;
 import lense.core.collections.Sequence;
 import lense.core.lang.java.Base;
 import lense.core.lang.java.Constructor;
+import lense.core.lang.java.MethodSignature;
 import lense.core.lang.java.PlatformSpecific;
+import lense.core.lang.java.Property;
 import lense.core.lang.java.Signature;
+import lense.core.lang.reflection.JavaReifiedArguments;
 import lense.core.lang.reflection.Type;
 import lense.core.lang.reflection.TypeResolver;
+import lense.core.math.NativeNumberFactory;
 import lense.core.math.Natural;
 import lense.core.math.Natural64;
 
@@ -39,6 +43,8 @@ public class String extends Base implements Sequence , CharSequence {
 	}
 	
 	@Override
+	@Property(name = "size")
+	@MethodSignature(returnSignature = "lense.core.math.Natural", paramsSignature = "", declaringType = "lense.core.collections.Sequence")
 	public Natural getSize() {
 
 		return Natural64.valueOfNative(str.length());
@@ -136,5 +142,39 @@ public class String extends Base implements Sequence , CharSequence {
 	@Override
 	public CharSequence subSequence(int start, int end) {
 		return subSequence(start, end);
+	}
+	
+	public String removeAt(Natural position) {
+		return String.valueOfNative(this.str.substring(0, NativeNumberFactory.naturalToPrimitiveInt(position)) + 
+		this.str.substring(NativeNumberFactory.naturalToPrimitiveInt(position) + 1));
+	}
+	
+	@MethodSignature(returnSignature = "lense.core.lang.Maybe<lense.core.math.Natural>" , paramsSignature = "lense.core.lang.String")
+	public Maybe indexOf(String candidate) {
+		int pos = this.str.indexOf(candidate.str);
+		
+		if (pos < 0) {
+			return None.constructor();
+		}
+		
+		return Some.constructor(JavaReifiedArguments.getInstance().addType(NativeNumberFactory.NATURAL_TYPE_RESOLVER), Natural64.valueOfNative(pos));
+				
+	}
+	
+	public String subString(Natural start, Natural length) {
+		return String.valueOfNative(this.str.substring(NativeNumberFactory.naturalToPrimitiveInt(start),NativeNumberFactory.naturalToPrimitiveInt(length)));
+	}
+	
+	public String subString(Natural start) {
+		
+		return String.valueOfNative(this.str.substring(NativeNumberFactory.naturalToPrimitiveInt(start)));
+	}
+	
+	public boolean starstWith( String other  ) {
+		return str.startsWith(other.str);
+	}
+	
+	public boolean endsWith(String other ) {
+		return str.endsWith(other.str);
 	}
 }

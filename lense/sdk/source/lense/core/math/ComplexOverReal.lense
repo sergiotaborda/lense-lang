@@ -1,0 +1,62 @@
+
+import lense.core.math.Number;
+import lense.core.math.Imaginary;
+import lense.core.math.Real;
+import lense.core.math.ArithmeticException;
+
+public value class ComplexOverReal implements Complex {
+
+
+	private constructor (public real: Real, public imaginary: Real);
+
+	public implicit constructor valueOfReal(real: Real){
+		return new ComplexOverReal(real, 0.0);
+	}
+
+	public implicit constructor valueOf(img: Imaginary){
+		return new ComplexOverReal(0.0, img.real());
+	}
+
+	public constructor rectangular(real: Real, img: Real){
+		return new ComplexOverReal(real, img);
+	}
+
+	public plus( other : Complex) => new ComplexOverReal(this.real + other.real, this.imaginary + other.imaginary);
+
+	public minus( other : Complex) => new ComplexOverReal(this.real - other.real, this.imaginary - other.imaginary);
+
+	public  multiply( other : Complex) {
+		return new ComplexOverReal(
+				(this.real * other.real) - (this.imaginary * other.imaginary) ,
+				(this.real * other.imaginary) + (this.imaginary * other.real)
+		);
+	}
+
+	public divide( denominator : Complex ) : Complex {
+		let magnitude : Real =  denominator.abs();
+		if (magnitude.isZero()){
+			throw new ArithmeticException("Cannot divide by zero");
+		}
+		return this.multiply(denominator.conjugate()).divide(magnitude);
+	}
+	
+	public divide( denominator: Real ) => new ComplexOverReal(this.real.divide(denominator), this.imaginary.divide(denominator));
+
+	public conjugate() =>  new ComplexOverReal(this.real, -this.imaginary);
+	
+	public isZero() => real == 0 && imaginary == 0;
+
+	public abs() => real.multiply(real).plus(this.imaginary.multiply(this.imaginary));
+
+	public override equalsTo( other : Any) =>  other is Complex && this.real.equalsTo(other.real) && this.imaginary.equalsTo(other.imaginary);
+
+	public override hashValue() => this.real.hashValue().concat(this.imaginary.hashValue());
+
+	public override asString() : String {
+	    var sign : String = "+";
+	    if (imaginary.sign() < 0){
+	    	sign = " - ";
+	    }
+		return real.asString() ++ sign ++  imaginary.abs().asString() ++ "i";
+	}
+}

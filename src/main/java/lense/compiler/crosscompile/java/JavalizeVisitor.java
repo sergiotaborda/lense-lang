@@ -143,7 +143,7 @@ public final class JavalizeVisitor implements Visitor<AstNode>{
         			FormalParameterNode n = (FormalParameterNode) m.getParameters().getChildren().get(i);
         			
         			
-        			if (!LenseTypeSystem.getInstance().isAssignableTo(superParameter.getType(), n.getTypeVariable())) {
+        			if (!LenseTypeSystem.getInstance().isAssignableTo(superParameter.getType(), n.getTypeVariable()).matches() ) {
         				
         				// no match
         				

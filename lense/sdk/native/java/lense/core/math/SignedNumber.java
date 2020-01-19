@@ -1,6 +1,6 @@
 package lense.core.math;
 
-public interface SignedNumber  {
+public interface SignedNumber extends Number {
 
     public abstract boolean isZero();
     public abstract boolean isNegative();

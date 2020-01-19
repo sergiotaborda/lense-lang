@@ -11,11 +11,32 @@ import lense.core.math.Equal;
 import lense.core.math.BigDecimal;
 import lense.core.math.equal;
 import lense.core.math.Comparable;
+import lense.core.math.BigRational;
 
 /{
 	A fraction n/d 
 }/
 public interface Rational extends Real {
+
+	public constructor fraction(numerator : Whole, denominator : Whole) {
+		return new BigRational(numerator.asInteger(), denominator.asInteger());
+	}
+
+	public constructor one() {
+		return new BigRational.one();
+	}
+
+	public constructor zero() {
+		return new BigRational.zero();
+	}
+
+	public implicit constructor valueOf(other : Whole) {
+		return new BigRational.valueOf(other);
+	}
+
+	public implicit constructor valueOf(other : Integer) {
+		return new BigRational.valueOf(other);
+	}
 
 	public let numerator : Integer;
 	public let denominator : Natural;

@@ -65,11 +65,8 @@ public final class Float32 implements Float , AnyValue{
 		return new HashValue(java.lang.Float.hashCode(value));
 	}
 
-	private Float64 promoteNext() {
-		return new Float64(this.value);
-	}
 	@Override
-	public Float warpPlus(Float other) {
+	public Float wrapPlus(Float other) {
 		if (other instanceof Float32){
 			return new Float32(this.value + ((Float32)other).value);
 		} else {
@@ -78,7 +75,7 @@ public final class Float32 implements Float , AnyValue{
 	}
 
 	@Override
-	public Float warpMinus(Float other) {
+	public Float wrapMinus(Float other) {
 		if (other instanceof Float32){
 			return new Float32(this.value - ((Float32)other).value);
 		} else {
@@ -96,7 +93,7 @@ public final class Float32 implements Float , AnyValue{
 	}
 
 	@Override
-	public Float wrapDivide(Float other) {
+	public Float divide(Float other) {
 		if (other instanceof Float32){
 			return new Float32(this.value / ((Float32)other).value);
 		} else {
@@ -104,26 +101,6 @@ public final class Float32 implements Float , AnyValue{
 		} 
 	}
 	
-	@Override
-	public Float plus(Float other) {
-		return warpPlus(other);
-	}
-
-	@Override
-	public Float minus(Float other) {
-		return warpMinus(other);
-	}
-
-	@Override
-	public Float multiply(Float other) {
-		return wrapMultiply(other);
-	}
-
-	@Override
-	public Float divide(Float other) {
-		return wrapDivide(other);
-	}
-
 	@Override
 	public boolean isZero() {
 		return java.lang.Float.compare(this.value, 0.0f) == 0;
@@ -244,7 +221,21 @@ public final class Float32 implements Float , AnyValue{
     public int hashCode(){
         return hashValue().hashCode();
     }
+	
+    @Override
+	public Float log() {
+		return new Float64(Math.log(this.value));
+	}
 
+	@Override
+	public Float exp() {
+		return new Float64(Math.exp(this.value));
+	}
+
+	@Override
+	public Float invert() {
+		return new Float32(1 / this.value);
+	}
 
 
 }

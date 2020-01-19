@@ -208,11 +208,8 @@ public class LenseToJavaCompiler extends LenseCompiler{
 	}
 
 
-	protected Optional<File> resolveNativeFile(File folder, String name) {
-		File file = new File( folder, name + ".class");
-		
-		return Optional.of(file).filter(f -> f.exists());
-		
+	protected File resolveNativeFile(File folder, String name) {
+		return new File( folder, name + ".class");
 	}
 
 	protected void collectNative(FileLocations fileLocations, Map<String, File> nativeTypes) throws IOException {
@@ -269,7 +266,7 @@ public class LenseToJavaCompiler extends LenseCompiler{
 				int pos = packageFile.indexOf(".java");
 				packageFile = packageFile.substring(0, pos) + ".class";
 
-				Optional<File> source = resolveNativeFile(n.getParentFile(), n.getName().substring(0,  n.getName().length() - 5));
+				File source = resolveNativeFile(n.getParentFile(), n.getName().substring(0,  n.getName().length() - 5));
 
 
 
@@ -277,10 +274,10 @@ public class LenseToJavaCompiler extends LenseCompiler{
 
 				target.getParentFile().mkdirs();
 
-				if (!source.isPresent()){
-					throw new CompilationError("Compiled file with java compiler does not exist");
+				if (!source.exists()){
+					throw new CompilationError("Compiled file with java compiler does not exist (" + source.toString() +"). ");
 				} else {
-					Files.move(source.get().toPath(), target.toPath());
+					Files.move(source.toPath(), target.toPath());
 					nativeTypes.put(packageFile.substring(1).replace(File.separatorChar, '.').replaceAll(".class",""), target);
 
 					//                    TypeDefinition type = reader.readNative(target);

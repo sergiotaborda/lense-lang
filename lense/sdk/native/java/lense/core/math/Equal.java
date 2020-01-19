@@ -7,7 +7,7 @@ import lense.core.lang.java.Constructor;
 import lense.core.lang.java.SingletonObject;
 
 @SingletonObject
-public final class Equal extends Comparison{
+public final class Equal extends Comparison {
 
 	public static Equal EQUAL = new Equal();
 

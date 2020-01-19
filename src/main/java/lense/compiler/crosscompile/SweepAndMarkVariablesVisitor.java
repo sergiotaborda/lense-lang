@@ -85,7 +85,11 @@ public class SweepAndMarkVariablesVisitor implements Visitor<AstNode> {
 		} else if (node instanceof VariableReadNode) {
 			VariableReadNode varNode  = (VariableReadNode)node;
 			
-			if (varNode.getVariableInfo().getTypeVariable().equals(type)) {
+			if (varNode.getVariableInfo() == null) {
+				this.getClass();
+			}
+			
+			if (varNode.getVariableInfo() != null && type.equals(varNode.getVariableInfo().getTypeVariable())) {
 				
 				Optional<MethodInvocationNode> m = findParentMethodInvocationNode(varNode);
 				

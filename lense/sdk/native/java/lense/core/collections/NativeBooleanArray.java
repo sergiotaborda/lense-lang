@@ -137,7 +137,7 @@ final class NativeBooleanArray extends Array implements SmallArray {
 		boolean val = ((Boolean)element).toPrimitiveBoolean();
 		for(int i =0; i < array.length; i++){
 			if (array[i] == val){ 
-				return Some.constructor( JavaReifiedArguments.getInstance().addType(lense.core.math.Natural.TYPE_RESOLVER), Natural64.valueOfNative(i));
+				return Some.constructor( JavaReifiedArguments.getInstance().addType(NativeNumberFactory.NATURAL_TYPE_RESOLVER), Natural64.valueOfNative(i));
 			}
 		}
 		return None.NONE;

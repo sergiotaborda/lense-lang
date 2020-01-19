@@ -15,8 +15,6 @@ import lense.core.lang.reflection.TypeResolver;
 public interface Natural extends Whole , Ordinal {
 
 
-	public static final TypeResolver TYPE_RESOLVER = TypeResolver.lazy(() -> new Type(Natural.class));
-	
 
 	@Constructor(isImplicit = false, paramsSignature = "lense.core.lang.String")
 	public static Natural parse(lense.core.lang.String text){
@@ -27,13 +25,13 @@ public interface Natural extends Whole , Ordinal {
 //		return new NativeOrdinalProgression(this, other, true);
 //	}
 
-	public  Progression upTo( Any other);
+	public  Progression upTo( Natural other);
 	
 //	public default @NonNull Progression upToExclusive(@NonNull Natural other) {
 //		return new NativeOrdinalProgression(this, other, false);
 //	}
 	
-	public Progression upToExclusive( Any other);
+	public Progression upToExclusive( Natural other);
 
     public Natural wholeDivide (Natural other);
     

@@ -110,6 +110,7 @@ import lense.compiler.ast.WhileNode;
 import lense.compiler.type.Constructor;
 import lense.compiler.type.ConstructorParameter;
 import lense.compiler.type.LenseUnitKind;
+import lense.compiler.type.Match;
 import lense.compiler.type.TypeDefinition;
 import lense.compiler.typesystem.Imutability;
 import lense.compiler.typesystem.LenseTypeSystem;
@@ -1740,14 +1741,14 @@ public class LenseGrammar extends AbstractLenseGrammar {
 
 		getNonTerminal("mapInitializerPair").addSemanticAction((p, r) -> {
 
-			Optional<Constructor> op = LenseTypeSystem.KeyValuePair().getConstructorByParameters(
+			List<Match<Constructor>> ops = LenseTypeSystem.KeyValuePair().getConstructorByParameters(
 					new ConstructorParameter(LenseTypeSystem.Any()),
 					new ConstructorParameter(LenseTypeSystem.Any())
 					);
 
 			NewInstanceCreationNode pair = NewInstanceCreationNode.of(
 					LenseTypeSystem.KeyValuePair(),
-					op.get(),
+					ops.get(0).getCandidate(),
 					r.get(0).getAstNode().get(), 
 					r.get(2).getAstNode().get()
 					);

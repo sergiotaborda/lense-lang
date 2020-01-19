@@ -21,7 +21,6 @@ import lense.compiler.ast.FieldDeclarationNode;
 import lense.compiler.ast.FormalParameterNode;
 import lense.compiler.ast.GenericTypeParameterNode;
 import lense.compiler.ast.ImutabilityNode;
-import lense.compiler.ast.IndexedPropertyReadNode;
 import lense.compiler.ast.LiteralCreation;
 import lense.compiler.ast.MethodDeclarationNode;
 import lense.compiler.ast.MethodInvocationNode;
@@ -296,7 +295,7 @@ public final class ReificationVisitor extends AbstractScopedVisitor {
 							
 								return new ArgumentTypeResolverNode(arg);
 								
-							} else if(arg.getExpectedType() != null && LenseTypeSystem.getInstance().isAssignableTo(g, arg.getExpectedType())) {
+							} else if(arg.getExpectedType() != null && LenseTypeSystem.isAssignableTo(g, arg.getExpectedType()).matches() ) {
 						
 								return new ArgumentTypeResolverNode(arg);
 						

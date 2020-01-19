@@ -1,0 +1,9 @@
+
+import lense.core.math.Integer;
+import lense.core.lang.Boolean;
+import lense.core.lang.reflection.Type;
+
+public native object debug {
+
+	public native log( msg : String);
+} 

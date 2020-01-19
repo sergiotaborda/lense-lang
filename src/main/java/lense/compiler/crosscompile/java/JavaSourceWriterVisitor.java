@@ -13,6 +13,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import org.omg.CORBA.FREE_MEM;
+
 import compiler.parser.IdentifierNode;
 import compiler.syntax.AstNode;
 import compiler.trees.TreeTransverser;
@@ -99,6 +101,7 @@ import lense.compiler.type.variable.CalculatedTypeVariable;
 import lense.compiler.type.variable.ContraVariantTypeVariable;
 import lense.compiler.type.variable.DeclaringTypeBoundedTypeVariable;
 import lense.compiler.type.variable.GenericTypeBoundToDeclaringTypeVariable;
+import lense.compiler.type.variable.MethodFreeTypeVariable;
 import lense.compiler.type.variable.RangeTypeVariable;
 import lense.compiler.type.variable.TypeVariable;
 import lense.compiler.typesystem.Imutability;
@@ -443,28 +446,37 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
                                 "lense.core.lang.BitArray.constructor(lense.core.collections.Array.booleanArrayfromNativeNumberString(\"")
                         .append(node.toString()).append("\"))");
                     } else if (name.equals("lense.core.math.Rational") || name.equals("lense.core.math.Real")) {
-                        // TODO test bounds (number could be to big , should use string
-                        int pos = n.getLiteralValue().indexOf('.');
-                        if (pos >= 0) {
-                            String intPart = n.getLiteralValue().substring(0, pos);
-                            String decPart = n.getLiteralValue().substring(pos + 1);
+                    	
+                    	if (n.isZero()) {
+                    		writer.append("lense.core.math.Rational.zero()");
+                    	} else if (n.isOne()) {
+                    		writer.append("lense.core.math.Rational.one()");
+                    	} else {
+                            // TODO test bounds (number could be to big , should use string
+                            int pos = n.getLiteralValue().indexOf('.');
+                            if (pos >= 0) {
+                                String intPart = n.getLiteralValue().substring(0, pos);
+                                String decPart = n.getLiteralValue().substring(pos + 1);
 
-                            int decPos = decPart.length();
-                            StringBuilder decimalPart = new StringBuilder("1");
-                            for (int i = 0; i < decPos; i++) {
-                                decimalPart.append("0");
-                            }
-                            if (intPart.equals("0")) {
-                                intPart = "";
-                            }
+                                int decPos = decPart.length();
+                                StringBuilder decimalPart = new StringBuilder("1");
+                                for (int i = 0; i < decPos; i++) {
+                                    decimalPart.append("0");
+                                }
+                                if (intPart.equals("0")) {
+                                    intPart = "";
+                                }
 
-                            writer.append("lense.core.math.BigRational")
-                            .append(".constructor(lense.core.math.NativeNumberFactory.newInteger(").append(intPart)
-                            .append(decPart).append("),lense.core.math.NativeNumberFactory.newInteger(")
-                            .append(decimalPart).append("))");
-	    				} else {
-							writer.append("lense.core.math.BigRational.valueOf(lense.core.math.NativeNumberFactory.newInteger(").append(n.toString()).append("))");
-	    				}
+                                writer.append("lense.core.math.Rational")
+                                .append(".fraction(lense.core.math.NativeNumberFactory.newInteger(").append(intPart)
+                                .append(decPart).append("),lense.core.math.NativeNumberFactory.newInteger(")
+                                .append(decimalPart).append("))");
+    	    				} else {
+    							writer.append("lense.core.math.Rational.valueOf(lense.core.math.NativeNumberFactory.newInteger(").append(n.toString()).append("))");
+    	    				}
+                    	}
+                    	
+            
                     } else {
                         // TODO test bounds (number could be to big , should use string
 
@@ -2067,6 +2079,18 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
         }
     }
 
+    private void writeType(TypeVariable type) {
+        if (type instanceof ErasedTypeDefinition) {
+            writer.print(((ErasedTypeDefinition) type).getPrimitiveType().getName());
+        } else if (type instanceof MethodFreeTypeVariable) {
+
+       	 	writer.print("lense.core.lang.Any");
+           
+        } else {
+            writer.print(type.getUpperBound().getTypeDefinition().getName());
+        }
+    }
+
     private void writeType(TypeNode t) {
         if (t.getName().equals("lense.core.lang.Void")) {
             writer.print("void");
@@ -2099,7 +2123,10 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
                 TypeDefinition def = type.getUpperBound().getTypeDefinition();
                 writer.print(def.getName());
                 writeGenerics(def);
+            } else if (type instanceof MethodFreeTypeVariable) {
 
+            	 writer.print("lense.core.lang.Any");
+                
             } else {
 
                 writer.print(type.getUpperBound().getTypeDefinition().getName());
@@ -2109,13 +2136,6 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
         }
     }
     
-    private void writeType(TypeVariable type) {
-        if (type instanceof ErasedTypeDefinition) {
-            writer.print(((ErasedTypeDefinition) type).getPrimitiveType().getName());
-        } else {
-            writer.print(type.getUpperBound().getTypeDefinition().getName());
-        }
-    }
 
     private void writeGenerics(final TypeDefinition type) {
         // if (!type.getGenericParameters().isEmpty()){
