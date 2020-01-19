@@ -66,7 +66,7 @@ public final class Float32 implements Float , AnyValue{
 	}
 
 	@Override
-	public Float wrapPlus(Float other) {
+	public Float plus(Float other) {
 		if (other instanceof Float32){
 			return new Float32(this.value + ((Float32)other).value);
 		} else {
@@ -75,7 +75,7 @@ public final class Float32 implements Float , AnyValue{
 	}
 
 	@Override
-	public Float wrapMinus(Float other) {
+	public Float minus(Float other) {
 		if (other instanceof Float32){
 			return new Float32(this.value - ((Float32)other).value);
 		} else {
@@ -84,7 +84,7 @@ public final class Float32 implements Float , AnyValue{
 	}
 
 	@Override
-	public Float wrapMultiply(Float other) {
+	public Float multiply(Float other) {
 		if (other instanceof Float32){
 			return new Float32(this.value * ((Float32)other).value);
 		} else {
@@ -122,15 +122,7 @@ public final class Float32 implements Float , AnyValue{
 		return new Int32((int)Math.signum(this.value));
 	}
 	
-	@Override
-    public Float raiseTo(Float other) {
-        if (other instanceof Float32){
-            return new Float64(Math.pow(this.value, ((Float32)other).value));
-        }  else {
-            return new Float64(Math.pow(this.value, ((Float64)other).value));
-        }
-    }
-	
+
     @Override
     public Integer floor() {
     	// TODO handle infinites and nan
@@ -235,6 +227,22 @@ public final class Float32 implements Float , AnyValue{
 	@Override
 	public Float invert() {
 		return new Float32(1 / this.value);
+	}
+	
+	@Override
+    public Float raiseTo(Float other) {
+        if (other instanceof Float32){
+            return new Float64(Math.pow(this.value, ((Float32)other).value));
+        } else if (other instanceof Float64){
+            return new Float64(Math.pow(this.value, ((Float64)other).value));
+        } 
+        
+        return BigFloat.valueOf(this).raiseTo(other);
+    }
+	
+	@Override
+	public Float raiseTo(Whole other) {
+	    return BigFloat.valueOf(this).raiseTo(other);
 	}
 
 

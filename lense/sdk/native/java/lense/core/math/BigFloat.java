@@ -16,6 +16,11 @@ public class BigFloat implements Float {
 		throw new NotReplacedPlaceholderException();
 	}
 
+	@Constructor(paramsSignature = "lense.core.math.Float")
+	public static BigFloat valueOf(Float n){
+		throw new NotReplacedPlaceholderException();
+	}
+	
 	@Constructor(paramsSignature = "lense.core.math.Real")
 	public static BigFloat valueOf(Real n){
 		throw new NotReplacedPlaceholderException();
@@ -148,19 +153,19 @@ public class BigFloat implements Float {
 	}
 
 	@Override
-	public Float wrapPlus(Float other) {
+	public Float plus(Float other) {
 		
 		throw new NotReplacedPlaceholderException();
 	}
 
 	@Override
-	public Float wrapMinus(Float other) {
+	public Float minus(Float other) {
 		
 		throw new NotReplacedPlaceholderException();
 	}
 
 	@Override
-	public Float wrapMultiply(Float other) {
+	public Float multiply(Float other) {
 		
 		throw new NotReplacedPlaceholderException();
 	}
@@ -191,6 +196,11 @@ public class BigFloat implements Float {
 
 	@Override
 	public Float invert() {
+		throw new NotReplacedPlaceholderException();
+	}
+
+	@Override
+	public Float raiseTo(Whole other) {
 		throw new NotReplacedPlaceholderException();
 	}
 

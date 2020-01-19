@@ -21,6 +21,9 @@ public interface Whole extends Number , Comparable<Whole> {
 	public wholeDivide (other : Whole) : Whole; 
 	public remainder (other : Whole) : Whole; 	
 	
+	public isNegative() : Boolean;
+	public isPositive() : Boolean;
+
 	public abs () : Natural; 
 	public gcd( other : Whole) : Natural;
 

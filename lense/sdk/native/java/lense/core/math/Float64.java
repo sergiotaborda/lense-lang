@@ -70,12 +70,12 @@ public final class Float64 extends Base implements Float, AnyValue {
 	}
 
 	@Override
-	public Float wrapPlus(Float other) {
+	public Float plus(Float other) {
 		return new Float64(this.value + java.lang.Double.parseDouble(other.toString()));
 	}
 
 	@Override
-	public Float wrapMinus(Float other) {
+	public Float minus(Float other) {
 		if (other instanceof Float64){
 			return new Float64(this.value - ((Float64)other).value);
 		} else if (other instanceof Float32){
@@ -86,7 +86,7 @@ public final class Float64 extends Base implements Float, AnyValue {
 	}
 
 	@Override
-	public Float wrapMultiply(Float other) {
+	public Float multiply(Float other) {
 		if (other instanceof Float64){
 			return new Float64(this.value * ((Float64)other).value);
 		} else if (other instanceof Float32){
@@ -126,16 +126,7 @@ public final class Float64 extends Base implements Float, AnyValue {
 		return new Int32((int)Math.signum(this.value));
 	}
 	
-	@Override
-    public Float raiseTo(Float other) {
-        if (other instanceof Float32){
-            return new Float64(Math.pow(this.value, ((Float32)other).value));
-        } else  if (other instanceof Float64){
-            return new Float64(Math.pow(this.value, ((Float64)other).value));
-        } else {
-            return new Float64(Math.pow(this.value, java.lang.Double.parseDouble(other.toString())));
-        }
-    }
+
 	
     @Override
     public Integer floor() {
@@ -227,4 +218,19 @@ public final class Float64 extends Base implements Float, AnyValue {
 		return new Float64(1 / this.value);
 	}
 	
+	@Override
+    public Float raiseTo(Float other) {
+        if (other instanceof Float32){
+            return new Float64(Math.pow(this.value, ((Float32)other).value));
+        } else if (other instanceof Float64){
+            return new Float64(Math.pow(this.value, ((Float64)other).value));
+        } 
+        
+        return BigFloat.valueOf(this).raiseTo(other);
+    }
+	
+	@Override
+	public Float raiseTo(Whole other) {
+	    return BigFloat.valueOf(this).raiseTo(other);
+	}
 }

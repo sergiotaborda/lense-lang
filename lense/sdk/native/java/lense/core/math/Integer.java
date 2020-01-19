@@ -48,7 +48,6 @@ public interface Integer extends Whole , Comparable, SignedNumber, Ordinal, Prog
 	public boolean isZero();
     public boolean isOne();
 
-    public boolean isNegative();
     
     public Integer raiseTo(Natural other);
 

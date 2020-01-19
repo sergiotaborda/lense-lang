@@ -23,11 +23,12 @@ public interface Float extends  Number, Comparable, SignedNumber {
     public Integer floor();
     public Integer ceil();
     
-	public Float wrapPlus (Float other);
-	public Float wrapMinus (Float other);
-	public Float wrapMultiply(Float other);
+	public Float plus (Float other);
+	public Float minus (Float other);
+	public Float multiply(Float other);
 	public Float divide(Float other);
 
+	public Float raiseTo(Whole other);
 	public Float raiseTo(Float other);
 	public Float log();
 	public Float exp();
