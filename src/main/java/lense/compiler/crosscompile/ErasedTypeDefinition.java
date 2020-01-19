@@ -9,6 +9,7 @@ import lense.compiler.type.Constructor;
 import lense.compiler.type.ConstructorParameter;
 import lense.compiler.type.Field;
 import lense.compiler.type.IndexerProperty;
+import lense.compiler.type.Match;
 import lense.compiler.type.Method;
 import lense.compiler.type.MethodSignature;
 import lense.compiler.type.Property;
@@ -17,6 +18,7 @@ import lense.compiler.type.TypeKind;
 import lense.compiler.type.TypeMember;
 import lense.compiler.type.variable.TypeVariable;
 import lense.compiler.typesystem.Variance;
+import lense.compiler.typesystem.Visibility;
 
 public final class ErasedTypeDefinition implements TypeDefinition{
 
@@ -108,10 +110,15 @@ public final class ErasedTypeDefinition implements TypeDefinition{
         return originalType.isCalculated();
     }
 
-    public Optional<Constructor> getConstructorByParameters(ConstructorParameter... parameters) {
+    public List<Match<Constructor>> getConstructorByParameters(ConstructorParameter... parameters) {
         return originalType.getConstructorByParameters(parameters);
     }
 
+	@Override
+	public List<Match<Constructor>> getConstructorByParameters(Visibility visbility, ConstructorParameter... parameters) {
+		return originalType.getConstructorByParameters(visbility, parameters);
+	}
+	
     public void ensureNotFundamental(Function<TypeDefinition, TypeDefinition> convert) {
         originalType.ensureNotFundamental(convert);
     }
@@ -120,7 +127,7 @@ public final class ErasedTypeDefinition implements TypeDefinition{
         return originalType.getConstructorByPromotableParameters(parameters);
     }
 
-    public Optional<Constructor> getConstructorByName(String name, ConstructorParameter... parameters) {
+    public List<Match<Constructor>> getConstructorByName(String name, ConstructorParameter... parameters) {
         return originalType.getConstructorByName(name, parameters);
     }
 
@@ -193,6 +200,8 @@ public final class ErasedTypeDefinition implements TypeDefinition{
     public List<TypeDefinition> getAllCases() {
         return originalType.getAllCases();
     }
+
+
 
     
 }

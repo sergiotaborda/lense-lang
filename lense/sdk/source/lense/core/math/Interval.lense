@@ -2,12 +2,13 @@
 
 import lense.core.math.Category;
 import lense.core.lang.Maybe;
+import lense.core.lang.Boolean;
 
 public class Interval<T> implements Category<T> { // TODO T extends Comparable
 
 	public constructor (public start : Maybe<T> , public end : Maybe<T> );
 
-	public override contains ( other : T)  {
+	public override contains ( other : T)  : Boolean {
 		return false; // TODO
 	}
 	

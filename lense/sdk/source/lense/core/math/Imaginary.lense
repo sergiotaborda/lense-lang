@@ -1,59 +1,42 @@
 
-import lense.core.math.Number;
+import lense.core.math.SignedNumber;
 import lense.core.math.Real;
 import lense.core.math.Whole;
 import lense.core.math.Equal;
+import lense.core.math.ImaginaryOverReal;
 
-public value class Imaginary implements Number , Comparable<Imaginary> {
+public interface Imaginary extends SignedNumber , Comparable<Imaginary> {
 
-
-	public implicit constructor valueOf ( private value : Real);
-	
-	public constructor (){
-		return new Imaginary.valueOf(0.0);
-	}
-	
-	public real() => value;
-
-	public plus( other : Imaginary) => new Imaginary(this.value + other.value);
-
-	public minus( other: Imaginary ) => new Imaginary(this.value - other.value);
-	
-	public multiply( other: Imaginary) => -(this.value * other.value);
-	
-	public divide( other: Imaginary) => this.value.divide(other.value);
-
-	public plus( other: Whole ) =>  plus( other.divide(1) );
-
-	public minus( other : Whole) =>  minus( other.divide(1) );
-
-	public multiply( other: Whole) => multiply( other.divide(1) );
-
-	public divide( other : Whole) => divide( other.divide(1) );
-
-	public plus( other: Real) => new Complex.retangular(other, this.value);
-
-	public minus( other: Real ) => new Complex.retangular(-other, this.value);
-
-	public multiply( other: Real) => new Imaginary(this.value * other);
-
-	public divide( other: Real) => new Imaginary(this.value / other);
-	
-	public override asString() => this.value.asString() ++ "i";
-
-	public symmetric() => new Imaginary(-this.value);
-	
-	public sign() => value.sign();
-	
-	public override equalsTo( other : Any) {
-		return (other is Imaginary) && this.value.equalsTo(other.value);
+	public implicit constructor valueOf(other : Real) {
+		return new ImaginaryOverReal.valueOf(other);
 	}
 
-	public isZero() : Boolean => this.value.isZero();
+	public real(): Real;
 
-	public override hashValue() => value.hashValue();
+	public plus( other : Imaginary) : Imaginary;
+
+	public minus( other: Imaginary ) : Imaginary;
 	
-	public compareWith(other : Imaginary) {
-		return this.value <=> other.value; 
-	}
+	public multiply(other: Imaginary) : Real;
+	
+	public divide(other: Imaginary): Real;
+
+	public plus(other: Whole) : Complex;
+
+	public minus( other : Whole) : Complex;
+
+	public multiply( other: Whole) : Imaginary;
+
+	public divide( other : Whole) : Imaginary;
+
+	public plus( other: Real) : Complex;
+
+	public minus( other: Real) : Complex;
+
+	public multiply( other: Real) : Imaginary;
+
+	public divide( other: Real) : Imaginary;
+
+	public symmetric() : Imaginary;
+
 }

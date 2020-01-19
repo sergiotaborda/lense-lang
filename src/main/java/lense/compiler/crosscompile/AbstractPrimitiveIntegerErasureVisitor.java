@@ -73,7 +73,7 @@ public class AbstractPrimitiveIntegerErasureVisitor implements Visitor<AstNode> 
 
             TypeVariable tv = r.getExpectedType();
 
-            if (tv != null && tv.isFixed() &&  LenseTypeSystem.isAssignableTo(tv, type)) {
+            if (tv != null && tv.isFixed() &&  LenseTypeSystem.isAssignableTo(tv, type).matches() ) {
 
 
                 r.setExpectedType(primitiveType);
@@ -84,7 +84,7 @@ public class AbstractPrimitiveIntegerErasureVisitor implements Visitor<AstNode> 
         } else if (node instanceof NumericValue){
             NumericValue n = (NumericValue) node;
 
-            if (sweeper.isPrimitive(node).orElse(  LenseTypeSystem.isAssignableTo(n.getTypeVariable(), type))){
+            if (sweeper.isPrimitive(node).orElse(  LenseTypeSystem.isAssignableTo(n.getTypeVariable(), type).matches() )){
                 n.setTypeVariable(primitiveType);
             }
         } else if (node instanceof MethodDeclarationNode) {
@@ -103,7 +103,7 @@ public class AbstractPrimitiveIntegerErasureVisitor implements Visitor<AstNode> 
 
             TypeVariable tv = t.getTypeVariable();
 
-            if (tv != null && tv.isFixed() && !isTupleAccess(node) && LenseTypeSystem.isAssignableTo(tv, type)) {
+            if (tv != null && tv.isFixed() && !isTupleAccess(node) && LenseTypeSystem.isAssignableTo(tv, type).matches() ) {
 
                 if (node instanceof CastNode){
                     CastNode c = (CastNode)node;
@@ -153,7 +153,7 @@ public class AbstractPrimitiveIntegerErasureVisitor implements Visitor<AstNode> 
             } else {
                 // test is another type
                 if (typeDefinition.equals(primitiveType)){
-                    node.getParent().replace(ion, new PrimitiveBooleanValue(LenseTypeSystem.isAssignableTo(type, targetType)));
+                    node.getParent().replace(ion, new PrimitiveBooleanValue(LenseTypeSystem.isAssignableTo(type, targetType).matches() ));
                 }
 
             }
@@ -402,7 +402,7 @@ public class AbstractPrimitiveIntegerErasureVisitor implements Visitor<AstNode> 
                     a.getParent().replace(a, val);
                 } else if (val instanceof NumericValue){
                     NumericValue n = (NumericValue)val;
-                    if(LenseTypeSystem.isAssignableTo(a.getTypeVariable(), LenseTypeSystem.Number())) {
+                    if(LenseTypeSystem.isAssignableTo(a.getTypeVariable(), LenseTypeSystem.Number()).matches() ) {
                         n.setTypeVariable(a.getTypeVariable());
                     }
                 

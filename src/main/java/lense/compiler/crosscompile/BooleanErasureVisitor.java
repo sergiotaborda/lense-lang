@@ -72,7 +72,7 @@ public class BooleanErasureVisitor extends AbstractScopedVisitor {
 
             TypeVariable tv = r.getExpectedType();
 
-            if (tv != null && tv.isFixed() &&  LenseTypeSystem.isAssignableTo(tv, type)) {
+            if (tv != null && tv.isFixed() &&  LenseTypeSystem.isAssignableTo(tv, type).matches() ) {
                 r.setExpectedType(erasedType);
                 if (r.getFirstChild() instanceof ErasurePointNode){
                     ErasurePointNode p =(ErasurePointNode)r.getFirstChild();
@@ -83,23 +83,40 @@ public class BooleanErasureVisitor extends AbstractScopedVisitor {
         } else if (node instanceof BooleanOperatorNode){
             BooleanOperatorNode op = ((BooleanOperatorNode)node);
 
-            final ExpressionNode right = op.getRight();
-            if (right instanceof ErasurePointNode){
-                ErasurePointNode p = (ErasurePointNode)right;
-                if (p.getTypeVariable().equals(type) && p.canElide()){
-                    op.replace(p, p.getFirstChild());
+            if (node.getChildren().size() == 1) {
+            	  final ExpressionNode expr = (ExpressionNode) node.getChildren().get(0);
+                  if (expr instanceof ErasurePointNode){
+                      ErasurePointNode p = (ErasurePointNode)expr;
+                      if (p.getTypeVariable().equals(type) && p.canElide()){
+                          op.replace(p, p.getFirstChild());
+                      } else {
+                    	  node.getParent().replace(node, node.getChildren().get(0));
+                      }
+                  } else {
+                	  node.getParent().replace(node, node.getChildren().get(0));
+                  }
+            	
+            } else {
+                final ExpressionNode right = op.getRight();
+                if (right instanceof ErasurePointNode){
+                    ErasurePointNode p = (ErasurePointNode)right;
+                    if (p.getTypeVariable().equals(type) && p.canElide()){
+                        op.replace(p, p.getFirstChild());
+                    }
                 }
-            }
 
-            final ExpressionNode left = op.getLeft();
-            if (left instanceof ErasurePointNode){
-                ErasurePointNode p = (ErasurePointNode)left;
-                if (p.getTypeVariable().equals(type) && p.canElide()){
-                    op.replace(p, p.getFirstChild());
+                final ExpressionNode left = op.getLeft();
+                if (left instanceof ErasurePointNode){
+                    ErasurePointNode p = (ErasurePointNode)left;
+                    if (p.getTypeVariable().equals(type) && p.canElide()){
+                        op.replace(p, p.getFirstChild());
+                    }
                 }
-            }
 
-            op.setTypeVariable(erasedType);
+                op.setTypeVariable(erasedType);
+            }
+            
+
         } else if (node instanceof ComparisonNode){
         	ComparisonNode op = ((ComparisonNode)node);
   
@@ -205,7 +222,7 @@ public class BooleanErasureVisitor extends AbstractScopedVisitor {
         }  else if (node instanceof PreBooleanUnaryExpression){
 
             final ExpressionNode condition =  (ExpressionNode)((PreBooleanUnaryExpression) node).getFirstChild();
-            if (condition instanceof ErasurePointNode && node.getParent() instanceof ConditionalStatement){
+            if (condition instanceof ErasurePointNode /*&& node.getParent() instanceof ConditionalStatement*/){
                 ErasurePointNode p = (ErasurePointNode)condition;
                 if (p.getTypeVariable().equals(type) && p.canElide()){
                     node.replace(p, p.getFirstChild());
@@ -258,7 +275,7 @@ public class BooleanErasureVisitor extends AbstractScopedVisitor {
 
             TypeVariable tv = t.getTypeVariable();
 
-            if (tv != null && tv.isFixed() && !isTupleAccess(node) && LenseTypeSystem.isAssignableTo(tv, type)) {
+            if (tv != null && tv.isFixed() && !isTupleAccess(node) && LenseTypeSystem.isAssignableTo(tv, type).matches() ) {
                 t.setTypeVariable(erasedType);
             } 
 

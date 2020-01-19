@@ -2,9 +2,21 @@
 import lense.core.lang.Character;
 import lense.core.collections.Sequence;
 import lense.core.lang.Any;
+import lense.core.lang.Boolean;
+import lense.core.math.Natural;
 
 public native class String implements Sequence<Character> {
 
 	public native concat( other : String): String;
 	public native concat( other : Any) : String;
+
+	public native indexOf( other : String) : Natural?;
+
+	public native subString( start : Natural, length: Natural) : String;
+	public native subString( start : Natural) : String;
+
+	public native removeAt( position : Natural) : String;
+
+	public native starstWith( other : String ) : Boolean;
+	public native endsWith( other : String ) : Boolean;
 } 

@@ -244,15 +244,15 @@ public class TestLenseGrammar {
 		TypeDefinition maybeNatural = instance.specify(LenseTypeSystem.Maybe(),
 				LenseTypeSystem.Natural());
 
-		assertTrue(instance.isAssignableTo(maybeNatural, maybeAny));
-		assertFalse(instance.isAssignableTo(maybeAny, maybeNatural));
+		assertTrue(instance.isAssignableTo(maybeNatural, maybeAny).matches() );
+		assertFalse(instance.isAssignableTo(maybeAny, maybeNatural).matches() );
 
-		assertTrue(instance.isAssignableTo(maybeNatural, maybeWhole));
-		assertFalse(instance.isAssignableTo(maybeWhole, maybeNatural));
+		assertTrue(instance.isAssignableTo(maybeNatural, maybeWhole).matches() );
+		assertFalse(instance.isAssignableTo(maybeWhole, maybeNatural).matches() );
 
-		assertTrue(instance.isAssignableTo(none, maybeAny));
-		assertTrue(instance.isAssignableTo(none, maybeWhole));
-		assertTrue(instance.isAssignableTo(none, maybeNatural));
+		assertTrue(instance.isAssignableTo(none, maybeAny).matches() );
+		assertTrue(instance.isAssignableTo(none, maybeWhole).matches() );
+		assertTrue(instance.isAssignableTo(none, maybeNatural).matches() );
 
 	}
 

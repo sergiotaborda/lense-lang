@@ -44,7 +44,7 @@ public class MethodAnnotVisitor extends MethodVisitor{
             } else if (name.equals("name")){
             	builder.propertyName = ((String)value);
             } else if (name.equals("setter")){
-            	builder. isSetter = ((Boolean)value).booleanValue();
+            	builder.isSetter = ((Boolean)value).booleanValue();
             } else if (name.equals("returnSignature")){
             	builder.returnSignature = ((String)value);
             } else if (name.equals("paramsSignature")){

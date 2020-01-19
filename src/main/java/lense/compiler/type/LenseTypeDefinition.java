@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -186,7 +187,6 @@ public class LenseTypeDefinition implements TypeDefinition {
             addDifferent(this.members, other.members);
             addDifferent(this.interfaces,other.interfaces); // TODO reset generics 
          
-            LenseTypeSystem instance = LenseTypeSystem.getInstance();
             for (TypeVariable a : other.genericParameters){
             	
             	boolean found = false;
@@ -194,7 +194,7 @@ public class LenseTypeDefinition implements TypeDefinition {
             	for (; i < this.genericParameters.size(); i++){
             		TypeVariable b = this.genericParameters.get(i);
             		
-					if (instance.isAssignableTo(a, b)) {
+					if (LenseTypeSystem.isAssignableTo(a, b).matches()) {
 						found = true;
 						break;
 					}
@@ -328,7 +328,23 @@ public class LenseTypeDefinition implements TypeDefinition {
 
 
     public Optional<Integer> getGenericParameterIndexBySymbol(String typeName) {
-        return Optional.ofNullable(genericParametersMapping.get(typeName));
+    	
+    	Optional<Integer> index = Optional.ofNullable(genericParametersMapping.get(typeName));
+    	
+    	if (!index.isPresent() && this.superDefinition!= null) {
+    		index = ((LenseTypeDefinition)this.superDefinition).getGenericParameterIndexBySymbol(typeName);
+    	}
+    	
+    	if (!index.isPresent()) {
+    		for( TypeDefinition n : this.interfaces) {
+        		index = ((LenseTypeDefinition)this.superDefinition).getGenericParameterIndexBySymbol(typeName);
+        		if (index.isPresent()) {
+        			break;
+        		}
+        	}
+    	}
+
+        return index;
     }
     
     public Optional<String> getGenericParameterSymbolByIndex(int index) {
@@ -481,7 +497,7 @@ public class LenseTypeDefinition implements TypeDefinition {
 
         for (int i = 0; i < indexes.length; i++){
             // TODO use TypeVariables
-            if (!LenseTypeSystem.getInstance().isAssignableTo(params[i], indexes[i])){
+            if (!LenseTypeSystem.isAssignableTo(params[i], indexes[i]).matches()){
                 return false;
             }
         }
@@ -678,7 +694,7 @@ public class LenseTypeDefinition implements TypeDefinition {
     }
 
 	@Override
-	public Optional<Constructor> getConstructorByName(String name , ConstructorParameter... parameters) {
+	public List<Match<Constructor>> getConstructorByName(String constructorName , ConstructorParameter... parameters) {
         // find exact local
 
         List<CallableMemberMember<Constructor>> list = Arrays.asList(parameters);
@@ -686,16 +702,38 @@ public class LenseTypeDefinition implements TypeDefinition {
                 .filter(m -> m.isConstructor())
                 .map(m -> (Constructor) m);
         
-    	if (name != null) {
-			map = map.filter(c -> c.getName().equals(name));
-		}
+    	if (constructorName != null) {
+			map = map.filter(c -> constructorName.equals(c.getName()));
+		} else {
+			map = map.filter(c -> c.getName() == null || "constructor".equals(c.getName()));
+		} 	
     	
-		return map.filter(c -> LenseTypeSystem.areSignatureParametersImplementedBy(list, c.getParameters())  ).findAny();
+    	return map.map(c -> Match.of(c , LenseTypeSystem.areSignatureParametersImplementedBy(list, c.getParameters()))  )
+				.filter( c-> c.getMatch().matches())
+				.sorted(Comparator.reverseOrder())
+				.collect(Collectors.toList());
 	}
 	
     @Override
-    public Optional<Constructor> getConstructorByParameters(ConstructorParameter... parameters) {
-    	return getConstructorByName(null, parameters);
+    public List<Match<Constructor>> getConstructorByParameters(ConstructorParameter... parameters) {
+       return getConstructorByParameters(Visibility.Undefined, parameters);
+    }
+    
+    @Override
+    public List<Match<Constructor>> getConstructorByParameters(Visibility visibility , ConstructorParameter... parameters) {
+        List<CallableMemberMember<Constructor>> list = Arrays.asList(parameters);
+        Stream<Constructor> map = members.stream()
+                .filter(m -> m.isConstructor())
+                .map(m -> (Constructor) m);
+        
+        if (visibility != Visibility.Undefined) {
+        	map = map.filter(c -> c.getVisibility() == visibility);
+        }
+        
+		return map.map(c -> Match.of(c , LenseTypeSystem.areSignatureParametersImplementedBy(list, c.getParameters()))  )
+				.filter( c-> c.getMatch().matches())
+				.sorted(Comparator.reverseOrder())
+				.collect(Collectors.toList());
     }
 	
 	@Override
@@ -707,7 +745,9 @@ public class LenseTypeDefinition implements TypeDefinition {
 		
 		Stream<Constructor> map = members.stream().filter(m -> m.isConstructor()).map(m -> (Constructor)m);
 		if (name != null) {
-			map = map.filter(c -> c.getName().equals(name));
+			map = map.filter(c -> name.equals(c.getName()));
+		} else if (name == null) {
+			map = map.filter(c -> name == null);
 		}
 		
 		if (implicit != null) {
@@ -745,7 +785,7 @@ public class LenseTypeDefinition implements TypeDefinition {
               CallableMemberMember<C> mp = constructor.getParameters().get(p);
               CallableMemberMember<C> sp = mostSpecific.getParameters().get(p);
               
-             if (!LenseTypeSystem.isAssignableTo(sp.getType(),mp.getType())) {
+             if (LenseTypeSystem.isAssignableTo(sp.getType(),mp.getType()).matches()) {
             	 return constructor;
                 
              }

@@ -1,6 +1,7 @@
 package lense.core.lang;
 
 import lense.core.lang.java.Constructor;
+import lense.core.lang.java.MethodSignature;
 import lense.core.lang.java.Signature;
 import lense.core.lang.reflection.Type;
 import lense.core.lang.reflection.TypeResolver;
@@ -48,12 +49,14 @@ public class None extends Maybe {
 
 	
     @Override
+	@lense.core.lang.java.Property( name = "value")
+	@MethodSignature( returnSignature = "T" , paramsSignature = "", declaringType = "lense.core.lang.Maybe")
 	public Any getValue() {
 		throw new IllegalIndexException();
 	}
 
 	@Override
-	public boolean is(Any content) {
+	public boolean valueEqualsTo(Any content) {
 		return false;
 	}
 

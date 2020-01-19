@@ -6,6 +6,10 @@ import lense.core.lang.java.Signature;
 @Signature("::lense.core.math.Whole&lense.core.math.SignedNumber&lense.core.math.Comparable<lense.core.math.Integer>")
 public interface Integer extends Whole , Comparable, SignedNumber, Ordinal, Progressable {
 
+    public static Integer valueOf(Whole other) {
+        return other.asInteger();
+    }
+    
     public static Integer valueOf(Natural other) {
         return other.asInteger();
     }
@@ -50,5 +54,6 @@ public interface Integer extends Whole , Comparable, SignedNumber, Ordinal, Prog
 
     public Real raiseTo(Real other) ;
     
+    public Float log();
 
 }

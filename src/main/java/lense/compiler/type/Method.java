@@ -66,6 +66,7 @@ public class Method implements CallableMember<Method> {
 		this.isDefault= method.isDefault;
 		this.isOverride= method.isOverride;
 		this.isNative= method.isNative;
+		this.methodFreeGenericTypes = method.methodFreeGenericTypes;
 	}
 
 	public void setDeclaringType(TypeDefinition type){

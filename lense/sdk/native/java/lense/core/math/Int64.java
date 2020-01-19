@@ -368,12 +368,12 @@ public class Int64 implements Integer , Binary , BigIntegerConvertable , AnyValu
 
 	@Override
 	public Rational divide(Whole other) {
-		return BigRational.constructor(this, other.asInteger());
+		return Rational.fraction(this, other.asInteger());
 	}
 
 	@Override
 	public Real asReal() {
-		return BigRational.constructor(this, ONE);
+		return Rational.valueOf(this);
 	}
 
 	@Override
@@ -420,13 +420,13 @@ public class Int64 implements Integer , Binary , BigIntegerConvertable , AnyValu
 	@Override
 	public @NonNull Real raiseTo(Real other) {
 		if ( other.isZero()) {
-			return BigRational.ONE;
+			return Rational.one();
 		} else if (other.isOne()) {
 			return this.asReal();
 		} else if (other.isWhole()) {
 			Integer whole = other.floor();
 	
-			Rational power = BigRational.constructor(raiseTo(whole.abs()), Int32.ONE);
+			Rational power = Rational.valueOf(raiseTo(whole.abs()));
 			
 			if (whole.sign().isNegative()) {
 				power = power.invert();
@@ -434,27 +434,27 @@ public class Int64 implements Integer , Binary , BigIntegerConvertable , AnyValu
 			
 			return power;
 		}
-		return BigDecimal.constructor(BigRational.constructor(this, Int32.ONE)).raiseTo(other);
+		return BigDecimal.constructor(Rational.valueOf(this)).raiseTo(other);
 	}
 
 	@Override
 	public Complex plus(Imaginary n) {
-		return Complex.retangular(this.asReal(), n.real());
+		return Complex.rectangular(this.asReal(), n.real());
 	}
 
 	@Override
 	public Complex minus(Imaginary n) {
-		return Complex.retangular(this.asReal(), n.real().symmetric());
+		return Complex.rectangular(this.asReal(), n.real().symmetric());
 	}
 
 	@Override
 	public Imaginary multiply(Imaginary n) {
-		return Imaginary.valueOf(this.asReal().multiply(n.real()));
+		return ImaginaryOverReal.valueOf(this.asReal().multiply(n.real()));
 	}
 
 	@Override
 	public Imaginary divide(Imaginary n) {
-		return Imaginary.valueOf(this.asReal().divide(n.real()));
+		return ImaginaryOverReal.valueOf(this.asReal().divide(n.real()));
 	}
 	
 	@Override
@@ -487,4 +487,8 @@ public class Int64 implements Integer , Binary , BigIntegerConvertable , AnyValu
 		return this.remainder(other.asInteger());
 	}
 	
+	@Override
+	public Float log() {
+		return Float64.valueOfNative(Math.log(this.value));
+	}
 }

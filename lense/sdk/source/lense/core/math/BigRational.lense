@@ -11,6 +11,8 @@ import lense.core.math.Equal;
 import lense.core.math.BigDecimal;
 import lense.core.math.equal;
 import lense.core.math.Comparable;
+import lense.core.math.Imaginary;
+import lense.core.math.Complex;
 
 /{
 	A fraction n/d 
@@ -310,15 +312,15 @@ public value class BigRational implements Rational {
 	} 
 
 	public plus( other : Imaginary) : Complex {
-		 return new Complex.retangular(this, other.real());
+		 return new Complex.rectangular(this, other.real());
 	}
 
 	public minus( other : Imaginary) : Complex {
-		return new Complex.retangular(this, -other.real());		 
+		return new Complex.rectangular(this, -other.real());		 
 	}
 
 	public multiply( other : Imaginary) : Imaginary {
-		 return new Imaginary.valueOf(this * other.real());
+		return new Imaginary.valueOf(this * other.real());
 	}
 
 	public divide( other : Imaginary) : Imaginary {

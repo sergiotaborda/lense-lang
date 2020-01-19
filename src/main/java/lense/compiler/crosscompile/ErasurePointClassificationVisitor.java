@@ -80,14 +80,14 @@ public final class ErasurePointClassificationVisitor implements Visitor<AstNode>
 		}else if (node instanceof IndexedPropertyReadNode) {
 			IndexedPropertyReadNode m = (IndexedPropertyReadNode)node;
 
-			if (!(LenseTypeSystem.isAssignableTo(m.getTypeVariable(), LenseTypeSystem.Void()))){
+			if (!(LenseTypeSystem.isAssignableTo(m.getTypeVariable(), LenseTypeSystem.Void())).matches() ){
 				// outbox return 
 				m.getParent().replace(m, ErasurePointNode.unbox(m, m.getTypeVariable()));
 			}	
 		}else if (node instanceof MethodInvocationNode){
 			MethodInvocationNode m = (MethodInvocationNode)node;
 
-			if (!m.isTupleAccessMethod() && !(LenseTypeSystem.isAssignableTo(m.getTypeVariable(), LenseTypeSystem.Void()))){
+			if (!m.isTupleAccessMethod() && !(LenseTypeSystem.isAssignableTo(m.getTypeVariable(), LenseTypeSystem.Void())).matches() ){
 				// outbox return 
 
 			

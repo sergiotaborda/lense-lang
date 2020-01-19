@@ -2,5 +2,5 @@
 
 public interface Category<T> {
 	
-		public contains ( obj : T) : Boolean;
+	public contains ( obj : T) : Boolean;
 }
