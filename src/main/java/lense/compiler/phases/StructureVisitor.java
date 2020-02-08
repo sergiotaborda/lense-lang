@@ -8,8 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import org.omg.CORBA.FREE_MEM;
-
 import compiler.CompilerListener;
 import compiler.syntax.AstNode;
 import compiler.trees.TreeTransverser;
@@ -264,6 +262,7 @@ public class StructureVisitor extends AbstractScopedVisitor {
 			}
 			
 			MethodSignature signature = new MethodSignature(m.getName(), params);
+			
 			
 			Method method = new Method(m.isProperty(), visiblity, m.getName(), new MethodReturn(returnTypeVariable), params);
 			
