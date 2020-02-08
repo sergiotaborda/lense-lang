@@ -55,7 +55,6 @@ import lense.compiler.ast.ComparisonNode.Operation;
 import lense.compiler.ast.ConditionalStatement;
 import lense.compiler.ast.ConstructorDeclarationNode;
 import lense.compiler.ast.ContinueNode;
-import lense.compiler.ast.DecisionNode;
 import lense.compiler.ast.ExpressionNode;
 import lense.compiler.ast.FieldDeclarationNode;
 import lense.compiler.ast.FieldOrPropertyAccessNode;
@@ -143,6 +142,8 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 	private final LenseTypeSystem lenseTypeSystem;
 
 	private CompilerListener listener;
+
+	private Set<TypeMember> declaredMembers = new HashSet<>();
 
 	public SemanticVisitor(SemanticContext sc, CompilerListener listener) {
 		super(sc);
@@ -246,11 +247,7 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 				PreBooleanUnaryExpression exp = (PreBooleanUnaryExpression) val;
 
 				if (exp.getOperation() == BooleanOperation.LogicNegate) {
-
-//					exp.getParent().replace(val, exp.getFirstChild());
-//
-//					r.setReferenceValue(false);
-//					
+		
 					AssertNode a = new AssertNode((ExpressionNode) exp.getFirstChild());
 					a.setReferenceValue(false);
 					r.getText().ifPresent(text -> a.setText(text));
@@ -408,6 +405,12 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 
 				}
 			}
+			
+			// verify duplication
+			
+			if (!this.declaredMembers.add(m.getMethod())) {
+				throw new CompilationError(node, "The method '" + m.getName() + "' was already declared");
+			};
 
 		} else if (node instanceof AccessorNode) {
 
@@ -837,7 +840,7 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 						TypeVariable p = current.getParameters().get(i).getType();
 						TypeVariable n = method.getParameters().get(i).getType();
 
-						if (lenseTypeSystem.isAssignableTo(p, n).matches()) {
+						if (LenseTypeSystem.isAssignableTo(p, n).matches()) {
 							it.remove();
 							add = true;
 							continue outter;
@@ -1918,7 +1921,8 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 							parameters.get(index).getVariance());
 
 				}
-
+				
+				TypeMember property;
 				if (p.isIndexed()) {
 
 					lense.compiler.type.variable.TypeVariable[] params = new lense.compiler.type.variable.TypeVariable[((IndexerPropertyDeclarationNode) p)
@@ -1931,9 +1935,9 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 						// type, p).setInitialized(true);
 					}
 
-					// IndexerProperty indexer = currentType.addIndexer(propertyType, p.getAcessor()
-					// != null,
-					// p.getModifier() != null, params);
+					property = currentType.addIndexer(propertyType, p.getAcessor()
+					 != null,
+					 p.getModifier() != null, params);
 
 					// ArrayList<TypeVariable> listParams = new ArrayList<>(Arrays.asList(params));
 
@@ -1948,18 +1952,17 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 					//
 
 				} else {
-					Property property = currentType.addProperty(p.getName(), propertyType, p.getAcessor() != null,
+					property = currentType.addProperty(p.getName(), propertyType, p.getAcessor() != null,
 							p.getModifier() != null);
 
-					// if (property.canWrite()) {
-					// removeExpected("set" + p.getName(), new
-					// ArrayList<>(Arrays.asList(propertyType)));
-					// }
-					//
-					// if (property.canRead()) {
-					// removeExpected("get"+ p.getName() , Collections.emptyList());
-					// }
+				
 				}
+				
+				// verify duplication
+				
+				if (!this.declaredMembers.add(property)) {
+					throw new CompilationError(node, "The property '" + property.getName() + "' was already declared");
+				};
 
 			} else if (node instanceof IndexedPropertyReadNode) {
 				IndexedPropertyReadNode m = (IndexedPropertyReadNode) node;

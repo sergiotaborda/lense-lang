@@ -165,9 +165,6 @@ public abstract class LenseCompiler {
    
         Map<String, File> nativeTypes = new HashMap<>();
 
-   
-
-
         listener.start();
         try {
         	
