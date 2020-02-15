@@ -199,7 +199,12 @@ public class BigRational implements Rational {
 
 	@Override
 	public Rational invert() {
+		throw new NotReplacedPlaceholderException();
+	}
+	
 
+	@Override
+	public Float asFloat() {
 		throw new NotReplacedPlaceholderException();
 	}
 

@@ -207,7 +207,9 @@ public class StructureVisitor extends AbstractScopedVisitor {
 
 			Constructor ctr = currentType.addConstructor(f.isImplicit(), f.getName(), params);
 			
-			f.setAssignedConstructor(ctr);
+			ctr.setVisibility(f.getVisibility());
+			
+			f.setConstructor(ctr);
 
 		} else 	if (node instanceof FieldDeclarationNode){
 			FieldDeclarationNode f = (FieldDeclarationNode)node;

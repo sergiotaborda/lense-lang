@@ -1,6 +1,9 @@
 package lense.core.math;
 
-public interface Float extends  Number, Comparable, SignedNumber {
+import lense.core.lang.java.Signature;
+
+@Signature("::lense.core.math.RealLineElement&lense.core.math.SignedNumber")
+public interface Float extends RealLineElement, SignedNumber {
 
 
 	public boolean isNaN();

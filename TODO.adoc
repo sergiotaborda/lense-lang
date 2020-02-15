@@ -18,9 +18,9 @@
 - [x] detect and report non used imports
 - [x] accept classes in lense.core module automatically
 - [x] save generic signatures in .class using annotations (java backend)
-- [ ] verifiy variable was already defined
-- [ ] verifiy constructors are not duplicated
-- [ ] verifiy all method in the inheritance chain are implemented
+- [ ] verify variable was already defined
+- [x] verify members are not duplicated
+- [ ] verify all method in the inheritance chain are implemented
 - [ ] implicit constructor must exactly have one single parameter
 
 == Language Features

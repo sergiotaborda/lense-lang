@@ -50,19 +50,29 @@ public final class Float32 extends Base implements Float , AnyValue{
 	
 
 	@Override
-	public boolean equalsTo(Any other) {
-	    if (other instanceof Float32) {
-			 return java.lang.Float.compare(((Float32)other).value ,this.value) == 0;
-		} else if (other instanceof Float64) {
-			return java.lang.Double.compare(((Float64)other).value ,this.value) == 0;
-		} else if (other instanceof Number && other instanceof Comparable) {
-			return BigDecimal.valueOfNative(java.lang.Float.toString(this.value)).equalsTo(other);
-		} else {
-			return false;
-		}
-		
+	public Float asFloat() {
+		return this;
 	}
 	
+    @Override
+    public Comparison compareWith(Any other) {
+    	
+    	if (other instanceof Float32) {
+    		return Primitives.comparisonFromNative(java.lang.Float.compare(this.value, ((Float32) other).value));
+    	} else if (other instanceof Float64) {
+    		return Primitives.comparisonFromNative(java.lang.Double.compare(this.value, ((Float64) other).value));
+    	} else if (other instanceof RealLineElement) {
+    		return NativeNumberFactory.compareFloat(this, ((RealLineElement)other).asFloat());
+    	}
+        
+    	throw new IllegalArgumentException("Cannot compare with " + other.toString());
+    }
+    
+    @Override
+    public boolean equalsTo(Any other) {
+    	return (other instanceof RealLineElement) && compareWith(other).isEqual();
+    }
+
 	@Override
 	public HashValue hashValue() {
 		return new HashValue(java.lang.Float.hashCode(value));
@@ -139,16 +149,7 @@ public final class Float32 extends Base implements Float , AnyValue{
         		&& this.value % 1 == 0;
     }
 
-    @Override
-    public Comparison compareWith(Any other) {
-        if (other instanceof Float32){
-            return Primitives.comparisonFromNative(java.lang.Float.compare(this.value, ((Float32) other).value));
-        } else if (other instanceof Number && other instanceof Comparable){
-        	return BigDecimal.valueOfNative(java.lang.Float.toString(this.value)).compareWith(other);
-        }
-        throw new ClassCastException("Cannot compare");
-            
-    }
+
 
     @Override
     public Float abs() {

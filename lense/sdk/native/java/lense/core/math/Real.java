@@ -3,8 +3,8 @@ package lense.core.math;
 import lense.core.lang.java.Signature;
 
 
-@Signature("::lense.core.math.Number&lense.core.math.Comparable<lense.core.math.Real>&lense.core.math.SignedNumber")
-public interface Real extends Number, Comparable , SignedNumber {
+@Signature("::lense.core.math.RealLineElement&lense.core.math.SignedNumber")
+public interface Real extends RealLineElement , SignedNumber {
 
 	public Real abs();
 

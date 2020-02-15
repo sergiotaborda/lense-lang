@@ -14,5 +14,5 @@ public @interface MethodSignature {
 	String paramsSignature();
 	String declaringType() default "";
 	String boundedTypes() default "";
-	boolean overloaded () default false;
+	boolean override () default false;
 }

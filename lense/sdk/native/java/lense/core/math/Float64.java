@@ -13,59 +13,69 @@ import lense.core.lang.reflection.TypeResolver;
 
 @ValueClass
 public final class Float64 extends Base implements Float, AnyValue {
- 
+
 	private static Float64 ZERO = new Float64(0.0d);
 	static Float64 NaN = new Float64(java.lang.Double.NaN);
 	static Float64 NEGATIVE_INFINITY = new Float64(java.lang.Double.NEGATIVE_INFINITY);
 	static Float64 POSITIVE_INIFNITY = new Float64(java.lang.Double.POSITIVE_INFINITY);
-	
+
 	@Constructor(paramsSignature = "")
 	public static Float64 constructor (){
 		return ZERO;
 	}
-	
+
 	@Constructor(isImplicit= true, paramsSignature = "lense.core.math.Real")
 	public static Float64 valueOf(Real other){
-		 if (other instanceof Rational) {
+		if (other instanceof Rational) {
 			return new Float64(java.lang.Double.parseDouble(BigDecimal.constructor((Rational)other).toString()));
 		}
 		return new Float64(java.lang.Double.parseDouble(other.toString()));
 	}
-	
+
 	@Constructor(isImplicit= true, paramsSignature = "lense.core.math.Whole")
 	public static Float64 valueOf(Whole other){ // TODO overload
 		return new Float64(java.lang.Double.parseDouble(other.toString()));
 	}
-	
+
 	public static Float64 valueOfNative(double other){
 		return new Float64(other);
 	}
-	
-    double value;
-	
+
+	double value;
+
 	Float64(double value){
 		this.value = value;
 	}
-	
+
 	public lense.core.lang.String asString(){
 		return lense.core.lang.String.valueOfNative(java.lang.Double.toString(value));
 	}
-	
+
 
 	@Override
-	public boolean equalsTo(Any other) {
-	    if (other instanceof Float64) {
-			 return java.lang.Double.compare(((Float64)other).value ,this.value) == 0;
-		} else if (other instanceof Float64) {
-			return java.lang.Double.compare(((Float64)other).value ,this.value) == 0;
-		} else if (other instanceof Number && other instanceof Comparable) {
-			return BigDecimal.valueOfNative(java.lang.Double.toString(this.value)).equalsTo(other);
-		} else {
-			return false;
-		}
-		
+	public Float asFloat() {
+		return this;
 	}
 	
+    @Override
+    public Comparison compareWith(Any other) {
+    	
+    	if (other instanceof Float32) {
+    		return Primitives.comparisonFromNative(java.lang.Double.compare(this.value, ((Float32) other).value));
+    	} else if (other instanceof Float64) {
+    		return Primitives.comparisonFromNative(java.lang.Double.compare(this.value, ((Float64) other).value));
+    	} else if (other instanceof RealLineElement) {
+    		return NativeNumberFactory.compareFloat(this, ((RealLineElement)other).asFloat());
+    	}
+        
+    	throw new IllegalArgumentException("Cannot compare with " + other.toString());
+    }
+    
+    @Override
+    public boolean equalsTo(Any other) {
+    	return (other instanceof RealLineElement) && compareWith(other).isEqual();
+    }
+
 	@Override
 	public HashValue hashValue() {
 		return new HashValue(java.lang.Double.hashCode(value));
@@ -106,7 +116,7 @@ public final class Float64 extends Base implements Float, AnyValue {
 			return new Float64(this.value / java.lang.Double.parseDouble(other.toString()));
 		}
 	}
-	
+
 	@Override
 	public boolean isZero() {
 		return java.lang.Double.compare(this.value, 0d) == 0;
@@ -117,45 +127,35 @@ public final class Float64 extends Base implements Float, AnyValue {
 		return java.lang.Double.compare(this.value, 1.0d) == 0;
 	}
 
-	
+
 	@Override
 	public Float symmetric() {
 		return new Float64(-this.value);
 	}
-	
+
 	@Override
 	public Integer sign() {
 		return new Int32((int)Math.signum(this.value));
 	}
-	
 
-	
-    @Override
-    public Integer floor() {
-    	// TODO handle infinites and nan
-        return Int64.valueOfNative((long)Math.floor(this.value));
-    }
 
-    @Override
-    public boolean isWhole() {
-        return this.value % 1 == 0;
-    }
 
-    @Override
-    public Comparison compareWith(Any other) {
-        if (other instanceof Float64){
-            return Primitives.comparisonFromNative(java.lang.Double.compare(this.value, ((Float64) other).value));
-        } else if (other instanceof Number && other instanceof Comparable){
-        	return BigDecimal.valueOfNative(java.lang.Double.toString(this.value)).compareWith(other);
-        }
-        throw new ClassCastException("Cannot compare");
-            
-    }
+	@Override
+	public Integer floor() {
+		// TODO handle infinites and nan
+		return Int64.valueOfNative((long)Math.floor(this.value));
+	}
 
-    @Override
-    public Float abs() {
-        return new Float64(Math.abs(this.value));
-    }
+	@Override
+	public boolean isWhole() {
+		return this.value % 1 == 0;
+	}
+
+
+	@Override
+	public Float abs() {
+		return new Float64(Math.abs(this.value));
+	}
 
 
 	@Override
@@ -168,7 +168,7 @@ public final class Float64 extends Base implements Float, AnyValue {
 		return java.lang.Double.compare(this.value, 0) > 0;
 	}
 	public static final TypeResolver TYPE_RESOLVER = TypeResolver.lazy(() -> new Type(Float64.class));
-	
+
 	@Override
 	public Type type() {
 		return TYPE_RESOLVER.resolveType();
@@ -200,39 +200,39 @@ public final class Float64 extends Base implements Float, AnyValue {
 	}
 
 
-    public boolean isNegativeZero() {
-        return (java.lang.Double.doubleToLongBits(this.value) & 0x8000000000000000L) < 0;
-    }
+	public boolean isNegativeZero() {
+		return (java.lang.Double.doubleToLongBits(this.value) & 0x8000000000000000L) < 0;
+	}
 
 	@Override
 	public Float log() {
 		return new Float64(Math.log(this.value));
 	}
-	
+
 
 	@Override
 	public Float exp() {
 		return new Float64(Math.exp(this.value));
 	}
-    
+
 	@Override
 	public Float invert() {
 		return new Float64(1 / this.value);
 	}
-	
+
 	@Override
-    public Float raiseTo(Float other) {
-        if (other instanceof Float32){
-            return new Float64(Math.pow(this.value, ((Float32)other).value));
-        } else if (other instanceof Float64){
-            return new Float64(Math.pow(this.value, ((Float64)other).value));
-        } 
-        
-        return BigFloat.valueOf(this).raiseTo(other);
-    }
-	
+	public Float raiseTo(Float other) {
+		if (other instanceof Float32){
+			return new Float64(Math.pow(this.value, ((Float32)other).value));
+		} else if (other instanceof Float64){
+			return new Float64(Math.pow(this.value, ((Float64)other).value));
+		} 
+
+		return BigFloat.valueOf(this).raiseTo(other);
+	}
+
 	@Override
 	public Float raiseTo(Whole other) {
-	    return BigFloat.valueOf(this).raiseTo(other);
+		return BigFloat.valueOf(this).raiseTo(other);
 	}
 }
