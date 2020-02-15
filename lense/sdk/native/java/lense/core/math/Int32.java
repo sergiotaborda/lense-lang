@@ -277,11 +277,6 @@ public final class Int32  implements Integer, Binary , BigIntegerConvertable, An
 		}
 	}
 
-	@Override
-	public HashValue hashValue() {
-		return new HashValue(this.value);
-	}
-
 
 
 	public Integer wholeDivide (Integer other){
@@ -345,20 +340,6 @@ public final class Int32  implements Integer, Binary , BigIntegerConvertable, An
 		return String.valueOf(this.value);
 	}
 
-	@Override
-	public Comparison compareWith(Any other) {
-		if (other instanceof Int32) {
-			return Primitives.comparisonFromNative(Long.compare(this.value, ((Int32) other).value));
-		} else if (other instanceof Int64) {
-			return Primitives.comparisonFromNative(Long.compare(this.value, ((Int64) other).value));
-		} else  if (other instanceof Number && other instanceof Comparable) {
-			if (this.toString().equals(other.toString())){
-				return Primitives.comparisonFromNative(0);
-			}
-			return BigDecimal.valueOfNative(this.toString()).compareWith(other);
-		} 
-		throw new ClassCastException("Cannot compare to " + other.getClass().getName());
-	}
 
 	@Override
 	public Progression upTo(Any end) {
@@ -372,18 +353,34 @@ public final class Int32  implements Integer, Binary , BigIntegerConvertable, An
 
 
 
+	@Override
+	public Float asFloat() {
+		return BigFloat.valueOf(this);
+	}
+	
+    @Override
+    public Comparison compareWith(Any other) {
+    	
+    	if (other instanceof Int32) {
+			return Primitives.comparisonFromNative(Long.compare(this.value, ((Int32) other).value));
+		} else if (other instanceof Int64) {
+			return Primitives.comparisonFromNative(Long.compare(this.value, ((Int64) other).value));
+		} else if (other instanceof RealLineElement){
+        	return NativeNumberFactory.compareNumbers(this, (RealLineElement)other);
+        }
+        
+    	throw new IllegalArgumentException("Cannot compare with " + other.toString());
+    }
+    
+    @Override
+    public boolean equalsTo(Any other) {
+    	return (other instanceof RealLineElement) && compareWith(other).isEqual();
+    }
 
 	@Override
-	public boolean equalsTo(Any other) {
-		if (!(other instanceof Number) && !(other instanceof Comparable)) {
-			return false;
-		}
-		return NativeNumberFactory.compareNumbers(this, (Number)other) == 0;
+	public HashValue hashValue() {
+		return new HashValue(this.value);
 	}
-
-
-
-
 
 	@Override
 	public Real asReal() {

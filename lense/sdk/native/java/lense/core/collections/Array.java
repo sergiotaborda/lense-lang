@@ -68,26 +68,26 @@ public abstract class Array extends AbstractAssortment implements EditableSequen
 	}
 	
 	@Override @Property(indexed = true ) 
-	@MethodSignature( returnSignature = "T" , paramsSignature = "lense.core.math.Natural",declaringType = "lense.core.collections.Sequence" , overloaded = true)
+	@MethodSignature( returnSignature = "T" , paramsSignature = "lense.core.math.Natural",declaringType = "lense.core.collections.Sequence" , override = true)
 	public abstract Any get(Natural index);
 	
 	@Override  @Property(indexed = true , setter = true)
-	@MethodSignature( returnSignature = "" , paramsSignature = "lense.core.math.Natural,T",declaringType = "lense.core.collections.EditableSequence" , overloaded = true)
+	@MethodSignature( returnSignature = "" , paramsSignature = "lense.core.math.Natural,T",declaringType = "lense.core.collections.EditableSequence" , override = true)
 	public abstract void  set(Natural index, Any value);
 	
 	@Override @Property(name = "size")
 	public abstract Natural getSize();
 
 	@Override @Property(name = "iterator")
-	@MethodSignature( returnSignature = "lense.core.collections.Iterator<T>", paramsSignature = "",declaringType = "lense.core.collections.Iterator" , overloaded = true)
+	@MethodSignature( returnSignature = "lense.core.collections.Iterator<T>", paramsSignature = "",declaringType = "lense.core.collections.Iterator" , override = true)
 	public abstract Iterator getIterator();
 	
 	@Override @Property(name = "indexes")
-	@MethodSignature( returnSignature = "lense.core.collections.Progression<lense.core.math.Natural>", paramsSignature = "",declaringType = "lense.core.collections.Sequence" , overloaded = true)
+	@MethodSignature( returnSignature = "lense.core.collections.Progression<lense.core.math.Natural>", paramsSignature = "",declaringType = "lense.core.collections.Sequence" , override = true)
 	public abstract Progression getIndexes();
 
 	@Override @Property(name = "empty")
-	@MethodSignature( returnSignature = "lense.core.lang.Boolean", paramsSignature = "",declaringType = "lense.core.collections.Countable" , overloaded = true)
+	@MethodSignature( returnSignature = "lense.core.lang.Boolean", paramsSignature = "",declaringType = "lense.core.collections.Countable" , override = true)
 	public abstract boolean getEmpty();
 	
 	public abstract boolean contains(Any other);

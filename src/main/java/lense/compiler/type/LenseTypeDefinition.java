@@ -738,10 +738,10 @@ public class LenseTypeDefinition implements TypeDefinition {
 	
 	@Override
 	public Optional<Constructor> getConstructorByNameAndPromotableParameters(String name , ConstructorParameter... parameters) {
-		return searchConstructorWithPromotableParameters(name, null, parameters);
+		return searchConstructorWithPromotableParameters(null,name, null, parameters);
 	}
 	
-	private Optional<Constructor> searchConstructorWithPromotableParameters(String name , Boolean implicit, ConstructorParameter... parameters) {
+	private Optional<Constructor> searchConstructorWithPromotableParameters(Visibility visibility ,String name , Boolean implicit, ConstructorParameter... parameters) {
 		
 		Stream<Constructor> map = members.stream().filter(m -> m.isConstructor()).map(m -> (Constructor)m);
 		if (name != null) {
@@ -753,15 +753,15 @@ public class LenseTypeDefinition implements TypeDefinition {
 		if (implicit != null) {
 			map = map.filter(c -> c.isImplicit() == implicit.booleanValue());
 		}
+		
+		if (visibility != null && visibility != Visibility.Undefined) {
+	        map = map.filter(c -> c.getVisibility() == visibility);
+	    }
+		 
 		Iterator<Constructor> iterator = map.iterator();
 		Constructor mostSpecific = null;
         while(iterator.hasNext()){
             Constructor constructor = iterator.next();
-            if (visibility != null) {
-            	if (constructor.getVisibility() != visibility) {
-            		continue;
-            	}
-            }
             if (constructor.getParameters().size() == parameters.length) {
                 for (int p = 0; p < parameters.length; p++) {
                     ConstructorParameter mp = parameters[p];
@@ -802,7 +802,7 @@ public class LenseTypeDefinition implements TypeDefinition {
 
 	@Override
 	public Optional<Constructor> getConstructorByImplicitAndPromotableParameters(boolean implicit, ConstructorParameter... parameters) {
-		return searchConstructorWithPromotableParameters(null, implicit, parameters);
+		return searchConstructorWithPromotableParameters(null, null, implicit, parameters);
 	}
 
 

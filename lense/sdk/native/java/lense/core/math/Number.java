@@ -6,5 +6,4 @@ public interface Number extends Any{
 
 	public boolean isZero();
 	
-	
 }

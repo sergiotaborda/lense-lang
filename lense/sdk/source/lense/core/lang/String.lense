@@ -8,7 +8,6 @@ import lense.core.math.Natural;
 public native class String implements Sequence<Character> {
 
 	public native concat( other : String): String;
-	public native concat( other : Any) : String;
 
 	public native indexOf( other : String) : Natural?;
 

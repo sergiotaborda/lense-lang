@@ -93,12 +93,12 @@ public class ConstructorDeclarationNode extends InvocableDeclarionNode implement
 	}
 
 
-	public Constructor getAssignedConstructor() {
+	public Constructor getConstructor() {
 		return assignedConstructor;
 	}
 
 
-	public void setAssignedConstructor(Constructor assignedConstructor) {
+	public void setConstructor(Constructor assignedConstructor) {
 		this.assignedConstructor = assignedConstructor;
 	}
 
