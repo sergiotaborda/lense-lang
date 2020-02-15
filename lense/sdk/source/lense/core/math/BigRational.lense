@@ -13,6 +13,8 @@ import lense.core.math.equal;
 import lense.core.math.Comparable;
 import lense.core.math.Imaginary;
 import lense.core.math.Complex;
+import lense.core.math.BigFloat;
+import lense.core.math.RealLineElement;
 
 /{
 	A fraction n/d 
@@ -88,6 +90,8 @@ public value class BigRational implements Rational {
 	
 	}
 	
+	public asFloat() => new BigFloat.valueOf(this);
+
 	public override equalsTo(other : Any) : Boolean {
 
 		if ( other is Whole && this.denominator == 1){
@@ -126,6 +130,13 @@ public value class BigRational implements Rational {
 		
 	}
 	
+	public plus( other : Rational) : Rational {
+		 return simplify(
+				 other.denominator * this.numerator + this.denominator * other.numerator , 
+				 this.denominator * other.denominator 
+		 );
+	}
+
 	private  promoteNext() : Real {
 		return promoteToBigDecimal(); 
 	}
@@ -134,12 +145,6 @@ public value class BigRational implements Rational {
 		return new BigDecimal(this);
 	}
 
-	public plus( other : Rational) : Rational {
-		 return simplify(
-				 other.denominator * this.numerator + this.denominator * other.numerator , 
-				 this.denominator * other.denominator 
-		 );
-	}
 
 	public minus( other : Real) : Real {
 		if (other is Rational){
@@ -293,17 +298,22 @@ public value class BigRational implements Rational {
 	  return new BigRational(n, this.denominator);
     }
 
-	public override compareWith (other : Real) : Comparison {
+	public override compareWith (other : RealLineElement) : Comparison {
 		
-		let diff = this - other;
+		if (other is Real){
 		
-	    if (diff >0){
-			return greater;
-		} else if (diff <0){
-			return smaller;
+			let diff = this - other;
+				
+		    if (diff >0){
+				return greater;
+			} else if (diff < 0){
+				return smaller;
+			}
+	
+		   return equal;
+		} else {
+		   return this.asFloat() <=> other.asFloat(); 
 		}
-
-	   return equal;
 
 	}  
 

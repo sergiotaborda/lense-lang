@@ -168,11 +168,6 @@ public final class BigNatural implements Natural , BigDecimalConvertable , BigIn
 		return new BigNatural(rest).reduce();
 	}
 
-
-	public final HashValue hashValue(){
-		return new HashValue(value.hashCode());
-	}
-
 	public String toString() {
 		return value.toString();
 	}
@@ -186,12 +181,31 @@ public final class BigNatural implements Natural , BigDecimalConvertable , BigIn
 	}
 
 	@Override
-	public boolean equalsTo(Any other) {
-		if (!(other instanceof Number) && !(other instanceof Comparable)) {
-			return false;
-		}
-		return NativeNumberFactory.compareNumbers(this, (Number)other) == 0;
+	public Float asFloat() {
+		return BigFloat.valueOf(this);
 	}
+	
+    @Override
+    public Comparison compareWith(Any other) {
+    	
+    	if (other instanceof BigNatural){
+            return Primitives.comparisonFromNative(this.value.compareTo(((BigNatural) other).value));
+        } else if (other instanceof RealLineElement){
+        	return NativeNumberFactory.compareNumbers(this, (RealLineElement)other);
+        }
+        
+    	throw new IllegalArgumentException("Cannot compare with " + other.toString());
+    }
+    
+    @Override
+    public boolean equalsTo(Any other) {
+    	return (other instanceof RealLineElement) && compareWith(other).isEqual();
+    }
+
+    @Override
+    public HashValue hashValue() {
+        return new HashValue(this.value.hashCode());
+    }	
 
 	@Override
 	public Whole plus(Whole other) {
@@ -222,19 +236,6 @@ public final class BigNatural implements Natural , BigDecimalConvertable , BigIn
 	@Override
 	public Type type() {
 		return Type.fromName(this.getClass().getName());
-	}
-
-	@Override
-	public Comparison compareWith(Any other) {
-		if (other instanceof BigIntegerConvertable) {
-			return Primitives.comparisonFromNative(this.toJavaBigInteger().compareTo(((BigIntegerConvertable) other).toJavaBigInteger()));
-		} else  if (other instanceof Number && other instanceof Comparable) {
-			if (this.toString().equals(other.toString())){
-				return Primitives.comparisonFromNative(0);
-			}
-			return BigDecimal.valueOfNative(this.toString()).compareWith(other);
-		} 
-		throw new ClassCastException("Cannot compare to " + other.getClass().getName());
 	}
 
 	@Override

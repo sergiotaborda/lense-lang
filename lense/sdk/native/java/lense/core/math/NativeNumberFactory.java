@@ -2,7 +2,9 @@ package lense.core.math;
 
 import java.math.BigInteger;
 
+import lense.core.lang.Any;
 import lense.core.lang.java.PlatformSpecific;
+import lense.core.lang.java.Primitives;
 import lense.core.lang.reflection.Type;
 import lense.core.lang.reflection.TypeResolver;
 
@@ -158,27 +160,88 @@ public final class NativeNumberFactory {
         }
     }
 
-    public static int compareNumbers(Number a, Number b) {
+    public static Comparison compareNumbers(RealLineElement a, RealLineElement b) {
 
-        java.math.BigDecimal ga;
-        if (a instanceof Rational) {
-            ga = lense.core.math.BigDecimal.constructor((Rational) a).value;
-        } else {
-            ga = a instanceof BigDecimalConvertable ? ((BigDecimalConvertable) a).toBigDecimal()
-                    : new java.math.BigDecimal(a.toString());
-        }
-
-        java.math.BigDecimal gb;
-        if (b instanceof Rational) {
-            gb = lense.core.math.BigDecimal.constructor((Rational) b).value;
-        } else {
-            gb = b instanceof BigDecimalConvertable ? ((BigDecimalConvertable) b).toBigDecimal()
-                    : new java.math.BigDecimal(b.toString());
-        }
-
-        return ga.compareTo(gb);
+    	if (a.getClass().isInstance(b)) {
+    		// if they are the same class. All classes compare to them selfs
+    		return a.compareWith(b);
+    	}
+    	
+        return compareFloat(a.asFloat(), b.asFloat());
     }
 
+    public static Comparison compareFloat(Float a , Float b) {
+    	
+    	if (a.getClass().isInstance(b)) {
+    		// if they are the same class. All classes compare to them selfs
+    		return a.compareWith(b);
+    	}
+    	
+		if (a.isNaN()) {
+			if (b.isNaN()) {
+				return Equal.EQUAL;
+			} 
+				
+			return Greater.GREATER;
+			
+		} else if (a.isNegativeInfinity()) {
+			if (b.isNegativeInfinity()) {
+				return Equal.EQUAL;
+			} 
+				
+			return Smaller.SMALLER;
+			
+		} else if (a.isPositiveInfinity()) {
+			if (b.isPositiveInfinity()) {
+				return Equal.EQUAL;
+			} 
+				
+			return Smaller.SMALLER;
+			
+		} else if (a.isNegativeZero()) {
+			if (b.isNegativeZero()) {
+				return Equal.EQUAL;
+			} else if (b.isNegative()){
+				return  Greater.GREATER;
+			}
+			return Smaller.SMALLER;
+		} else if (a.isZero()) {
+			if (b.isZero()) {
+				return Equal.EQUAL;
+			} else if (b.isNegativeZero()) {
+				return Greater.GREATER;
+			} else if (b.isNegative()){
+				return  Greater.GREATER;
+			}
+			return Smaller.SMALLER;
+		}
+		
+		return BigFloat.valueOf(a).compareWith(BigFloat.valueOf(b));
+	}
+    
+	public static Comparison compareFloat(Float a , RealLineElement b) {
+		if (b instanceof Float) {
+			return compareFloat(a, (Float)b);
+		}
+		
+		if (a.isNaN() || a.isPositiveInfinity()) {
+			return Greater.GREATER;
+			
+		} else if (a.isNegativeInfinity()) {
+	
+			return Smaller.SMALLER;
+
+		} else if (a.isNegativeZero()) {
+			if (b.isNegative()){
+				return  Greater.GREATER;
+			}
+			return Smaller.SMALLER;
+		} 
+		
+		return compareFloat(a, b.asFloat());
+	}
+
+    
     public static int toPrimitiveInt(Whole number){
         if (number instanceof Int32){
             return ((Int32) number).value;
@@ -202,4 +265,7 @@ public final class NativeNumberFactory {
             throw lense.core.math.ArithmeticException.constructor(e);
         }
     }
+
+	
+
 }

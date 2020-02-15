@@ -158,7 +158,7 @@ public class Method implements CallableMember<Method> {
 	}
 
 	public int hashCode(){
-		return this.name.hashCode();
+		return this.name.hashCode() + 31 * this.parameters.size();
 	}
 
 	/**

@@ -8,4 +8,5 @@ import lense.core.lang.String;
 public interface Number {
 
 	public isZero() : Boolean;
+
 }

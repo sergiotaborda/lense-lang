@@ -5,6 +5,7 @@ import lense.core.math.BigDecimal;
 import lense.core.math.Rational;
 import lense.core.lang.debug;
 import lense.core.math.ArithmeticException;
+import lense.core.math.RealLineElement;
 
 public value class BigFloat implements Float {
 
@@ -29,6 +30,14 @@ public value class BigFloat implements Float {
 	public implicit constructor valueOf( other: Float){
 		if (other is BigFloat){
 			return other;
+		} else if (other.isNaN()) {
+			return new BigFloat(0,0);
+		} else if (other.isPositiveInfinity()) {
+			return new BigFloat(1,0);
+		} else if (other.isNegativeInfinity()) {
+			return new BigFloat(-1,0);
+		} else if (other.isNegativeZero()) {
+			return new BigFloat(0,-1);
 		} else {
 			return new BigFloat.parse(other.asString());
 		}
@@ -62,6 +71,8 @@ public value class BigFloat implements Float {
 		}
 	}
 
+	public asFloat() => this;
+
 	public override asString(): String {
 
 		if (this.isNaN()){
@@ -80,21 +91,7 @@ public value class BigFloat implements Float {
 	} 
 
 	public override equalsTo(other: Any){
-
-		if ( other is BigFloat){
-			return this.numerator == other.numerator && this.denominator == other.denominator;
-
-		} else if ( other is Rational){
-			return this.numerator == other.numerator && this.denominator == other.denominator;
-		} else if (other is Imaginary || other is Complex){
-			return false;
-		} else if ( other is Number) {
-			return equalsTo(new BigFloat.parse(other.asString()));
-		}
- 
-
-		return false;
-		
+		return (other is RealLineElement) && this.compareWith(other).isEqual();
 	} 
 
 	public override hashValue() : HashValue {
@@ -114,13 +111,9 @@ public value class BigFloat implements Float {
 		return this.numerator.sign();
 	}
 
-	public override compareWith (other : Number) : Comparison {
+	public override compareWith (other : RealLineElement) : Comparison {
 		
-		if (other is Real){
-			return compareWith(new BigFloat.valueOf(other));
-		} else if (other is Whole){
-			return compareWith(new BigFloat.valueOf(other));
-		} else if (other is Float){
+		 if (other is BigFloat){
 
 			if (this.isNaN()){
 				if (other.isNaN()){
@@ -137,10 +130,18 @@ public value class BigFloat implements Float {
 					return greater;
 				}
 			} else if (this.isNegativeZero()){
-				if (other.isNaN() || other.isPositiveInfinity() ||  other.isZero() || other.sign() > 0){
-					return smaller;
-				} else if (other.isNegativeZero()) {
+				if (other.isNegativeZero()) {
 					return equal;
+				} else if (other.isNaN() || other.isPositiveInfinity() ||  other.isZero() || other.sign() > 0){
+					return smaller;
+				} else {
+					return greater;
+				}
+			} else if (this.isZero()){
+				if (other.isZero()) {
+					return equal;
+				} else if (other.isNaN() || other.isPositiveInfinity() || other.sign() > 0){
+					return smaller;
 				} else {
 					return greater;
 				}
@@ -154,15 +155,15 @@ public value class BigFloat implements Float {
 	
 			let diff = this - other;
 			
-		    if (diff >0){
+		    if (diff > 0){
 				return greater;
-			} else if (diff <0){
+			} else if (diff < 0){
 				return smaller;
 			}
 	
 		   return equal;
-	
-				
+		} else if (other is RealLineElement){
+		  return compareWith(new BigFloat.valueOf(other.asFloat()));
 		}
 
 		throw new ArithmeticException(); // TODO comparison exception
@@ -182,12 +183,19 @@ public value class BigFloat implements Float {
 
 	public isInfinity() => denominator == 0;
 	
-    public abs() => new BigFloat( this.numerator.abs() , this.denominator.abs());
+    public abs() => this.isNegative() ? this.symmetric() : this;
 
-	public symmetric() => new BigFloat( -this.numerator , -this.denominator);
+	public symmetric() {
+		if (this.isZero() || this.isNegativeZero()){
+			return new BigFloat( this.numerator , -this.denominator);
+		} else {
+			return new BigFloat( -this.numerator , -this.denominator);
+		}
+
+	}
 
 	public isOne() => numerator == 1 && denominator != 0;
-	public isZero() => numerator == 0 && denominator != 0;
+	public isZero() => numerator == 0 && denominator > 0;
 	
     public isWhole() : Boolean {
     	return this.numerator % this.denominator == 0;
@@ -237,6 +245,13 @@ public value class BigFloat implements Float {
 	}
 
 	public plus (other: Float) : Float {
+
+	     if (this.isNegativeZero() && other.isNegativeZero()){
+			return this;
+	     } else if ((this.isZero() || this.isNegativeZero() )   && (other.isZero() || other.isNegativeZero())) {
+			return new BigFloat(0, 1);
+		 } 
+
 		 let r : BigFloat = other;
 
 		 return simplify(
@@ -247,6 +262,16 @@ public value class BigFloat implements Float {
 	}
 
 	public minus (other: Float) : Float {
+
+ 		 if (this.isZero()) {
+			if (other.isZero()){
+				return this;
+			}
+			return other.symmetric();
+		 } else if (other.isZero()){
+			return this;
+		 }
+
 		 let r : BigFloat = other;
 
 		 return simplify(

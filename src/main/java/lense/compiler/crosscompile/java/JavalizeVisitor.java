@@ -17,6 +17,7 @@ import lense.compiler.ast.FormalParameterNode;
 import lense.compiler.ast.ImutabilityNode;
 import lense.compiler.ast.MethodDeclarationNode;
 import lense.compiler.ast.MethodInvocationNode;
+import lense.compiler.ast.QualifiedNameNode;
 import lense.compiler.ast.VariableDeclarationNode;
 import lense.compiler.ast.VariableReadNode;
 import lense.compiler.context.SemanticContext;
@@ -178,12 +179,15 @@ public final class JavalizeVisitor implements Visitor<AstNode>{
             			
             			
             			f.setTypeVariable(new ContraVariantTypeVariable(originalType));
+            			f.getTypeNode().setTypeVariable(new ContraVariantTypeVariable(originalType));
             			
             			if (!m.isAbstract()) {
             				String paramName = f.getName();
                 			String newName = "$$" + paramName;
                 			f.setName(newName);
-                			
+                			f.setTypeVariable(LenseTypeSystem.Any());
+                			f.getTypeNode().setTypeVariable(LenseTypeSystem.Any());
+                			f.getTypeNode().setName(new QualifiedNameNode(LenseTypeSystem.Any().getName()));
                 			// newName will be Any , so a cast is needed
                 			
                 			CastNode cast = new CastNode(new VariableReadNode(newName), originalType);

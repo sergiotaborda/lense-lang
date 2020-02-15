@@ -99,7 +99,7 @@ public final class NativeVerificationVisitor implements Visitor<AstNode>{
     		ConstructorDeclarationNode cn = ((ConstructorDeclarationNode)node);
     		
 
-    		construtors.add(cn.getAssignedConstructor());
+    		construtors.add(cn.getConstructor());
     		
     	} else if (node instanceof lense.compiler.ast.ClassTypeNode){
             ClassTypeNode n = (ClassTypeNode)node;

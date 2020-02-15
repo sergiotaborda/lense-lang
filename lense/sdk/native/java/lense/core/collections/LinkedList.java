@@ -38,13 +38,13 @@ public class LinkedList extends AbstractAssortment implements ResizableSequence 
 	}
 	
 	@Override @Property(indexed = true , name = "", setter = true)
-	@MethodSignature( returnSignature = "" , paramsSignature = "lense.core.math.Natural,T", declaringType = "lense.core.collections.EditableSequence" , overloaded = true)
+	@MethodSignature( returnSignature = "" , paramsSignature = "lense.core.math.Natural,T", declaringType = "lense.core.collections.EditableSequence" , override = true)
 	public void set(Natural index, Any element) {
 		list.set(NativeNumberFactory.naturalToPrimitiveInt(index), element);
 	}
 
 	@Override @Property(indexed = true , name = "")
-    @MethodSignature( returnSignature = "T" , paramsSignature = "lense.core.math.Natural",declaringType = "lense.core.collections.Sequence" , overloaded = true)
+    @MethodSignature( returnSignature = "T" , paramsSignature = "lense.core.math.Natural",declaringType = "lense.core.collections.Sequence" , override = true)
 	public Any get(Natural index) {
 		return list.get(NativeNumberFactory.naturalToPrimitiveInt(index));
 	}
@@ -55,7 +55,7 @@ public class LinkedList extends AbstractAssortment implements ResizableSequence 
 	}
 
 	@Override @Property(name = "iterator")
-    @MethodSignature( returnSignature = "lense.core.collections.Iterator<T>", paramsSignature = "",declaringType = "lense.core.collections.Iterable" , overloaded = true)
+    @MethodSignature( returnSignature = "lense.core.collections.Iterator<T>", paramsSignature = "",declaringType = "lense.core.collections.Iterable" , override = true)
 	public Iterator getIterator() {
 		return new IteratorAdapter(list.iterator());
 	}
@@ -71,7 +71,7 @@ public class LinkedList extends AbstractAssortment implements ResizableSequence 
 	}
 
     @Override @Property(name = "indexes")
-    @MethodSignature( returnSignature = "lense.core.collections.Progression<lense.core.math.Natural>", paramsSignature = "",declaringType = "lense.core.collections.Sequence" , overloaded = true)
+    @MethodSignature( returnSignature = "lense.core.collections.Progression<lense.core.math.Natural>", paramsSignature = "",declaringType = "lense.core.collections.Sequence" , override = true)
 	public Progression getIndexes() {
 		return new NativeProgression(0, list.size() -1);
 	}

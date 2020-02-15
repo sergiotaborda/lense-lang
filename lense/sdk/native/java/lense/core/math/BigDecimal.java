@@ -1,7 +1,6 @@
 package lense.core.math;
 
 import java.math.MathContext;
-import java.math.RoundingMode;
 
 import lense.core.lang.Any;
 import lense.core.lang.AnyValue;
@@ -56,21 +55,6 @@ public final class BigDecimal implements Real  , AnyValue {
         return String.valueOfNative(value.toString());
     }
 
-    @Override
-    public boolean equalsTo(Any other) {
-    	if (other instanceof BigDecimal) {
-    		return ((BigDecimal)other).value.compareTo(this.value) == 0;
-    	} else if (other instanceof Number  && other instanceof Comparable) {
-    		return new java.math.BigDecimal(other.toString()).compareTo(this.value) == 0;
-    	}
-    	
-        return false;
-    }
-
-    @Override
-    public HashValue hashValue() {
-        return new HashValue(this.value.hashCode());
-    }
 
     @Override
     public Real plus(Real other) {
@@ -144,24 +128,6 @@ public final class BigDecimal implements Real  , AnyValue {
     }
 
     @Override
-    public Comparison compareWith(Any other) {
-    	if (other == null) {
-    		throw new IllegalArgumentException("Cannot compare with null");
-    	}
-    	
-    	if (!(other instanceof Number) && !(other instanceof Comparable)) {
-    		throw new IllegalArgumentException("Can only compare with other comparable number");
-    	}
-    	
-        if (other instanceof BigDecimal){
-            return Primitives.comparisonFromNative(this.value.compareTo(((BigDecimal) other).value));
-        } else {
-        	return Primitives.comparisonFromNative(NativeNumberFactory.compareNumbers(this, (Number)other));
-        }
-   
-    }
-
-    @Override
     public Real abs() {
        return new BigDecimal(this.value.abs());
     }
@@ -226,6 +192,37 @@ public final class BigDecimal implements Real  , AnyValue {
 	public Imaginary divide(Imaginary other) {
 		return ImaginaryOverReal.valueOf(this.divide(other.real()));
 	}
+
+	
+	@Override
+	public Float asFloat() {
+		return BigFloat.parse(this.asString());
+	}
+	
+
+    @Override
+    public Comparison compareWith(Any other) {
+    	
+    	if (other instanceof BigDecimal){
+            return Primitives.comparisonFromNative(this.value.compareTo(((BigDecimal) other).value));
+        } else if (other instanceof RealLineElement){
+        	return NativeNumberFactory.compareNumbers(this, (RealLineElement)other);
+        }
+        
+    	throw new IllegalArgumentException("Cannot compare with " + other.toString());
+    }
+    
+    @Override
+    public boolean equalsTo(Any other) {
+    	return (other instanceof RealLineElement) && compareWith(other).isEqual();
+    }
+
+    @Override
+    public HashValue hashValue() {
+        return new HashValue(this.value.hashCode());
+    }
+
+
 
 //	private static final int MAX_DIGITS_10 = 294;
 //	public static final double LOG_10 = Math.log(10.0);

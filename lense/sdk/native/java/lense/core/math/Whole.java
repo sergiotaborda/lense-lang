@@ -3,8 +3,8 @@ package lense.core.math;
 import lense.core.lang.Any;
 import lense.core.lang.java.Signature;
 
-@Signature("::lense.core.math.Number&lense.core.math.Comparable<lense.core.math.Whole>")
-public interface Whole extends Number , Comparable {
+@Signature("::lense.core.math.RealLineElement")
+public interface Whole extends RealLineElement {
 
     public Whole plus (Whole other);
     public Whole minus (Whole other);

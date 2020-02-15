@@ -4,14 +4,10 @@ import java.util.Optional;
 
 import compiler.syntax.AstNode;
 import compiler.trees.VisitorNext;
-import lense.compiler.ast.ArgumentListItemNode;
-import lense.compiler.ast.ArgumentTypeResolverNode;
-import lense.compiler.ast.BlockNode;
 import lense.compiler.ast.ClassTypeNode;
 import lense.compiler.ast.FormalParameterNode;
 import lense.compiler.ast.MethodDeclarationNode;
 import lense.compiler.ast.VariableReadNode;
-import lense.compiler.ast.VariableReadTypeResolverNode;
 import lense.compiler.context.SemanticContext;
 import lense.compiler.type.LenseTypeDefinition;
 
