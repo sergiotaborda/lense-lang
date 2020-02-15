@@ -204,4 +204,8 @@ public class BigFloat implements Float {
 		throw new NotReplacedPlaceholderException();
 	}
 
+	@Override
+	public Float asFloat() {
+		throw new NotReplacedPlaceholderException();
+	}
 }

@@ -152,7 +152,7 @@ public class Constructor implements CallableMember<Constructor>{
 	}
 
 	public int hashCode (){
-		return this.name == null ? 0 : this.name.hashCode();
+		return this.name == null ? 0 : this.name.hashCode() + 31 * this.parameters.size();
 	}
 	
 	public boolean equals(Object other){
@@ -161,7 +161,8 @@ public class Constructor implements CallableMember<Constructor>{
 	
 	public boolean equals(Constructor other){
 		return (other.name == this.name || other.name.equals(this.name)) 
-				&& this.isImplicit == other.isImplicit && this.parameters.size() == other.parameters.size()
+				&& this.isImplicit == other.isImplicit 
+				&& this.parameters.size() == other.parameters.size()
 				&& this.parameters.equals(other.parameters);
 	}
 
@@ -215,4 +216,5 @@ public class Constructor implements CallableMember<Constructor>{
 	public void setNative(boolean isNative) {
 		this.isNative = isNative;
 	}
+	
 }

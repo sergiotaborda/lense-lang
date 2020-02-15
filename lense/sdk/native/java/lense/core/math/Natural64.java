@@ -121,19 +121,6 @@ public final class Natural64 implements Natural , BigDecimalConvertable , BigInt
 	}
 
 
-
-//	public int compareTo(Natural other ){
-//		if (other instanceof Natural64){
-//			return Long.compareUnsigned(this.value, ((Natural64)other).value );
-//		} else {
-//			return asJavaBigInteger().compareTo(other.asJavaBigInteger());
-//		}
-//	}
-
-	public final HashValue hashValue(){
-		return new HashValue (Long.hashCode(this.value));
-	}
-
 	public String toString() {
 		return java.lang.Long.toUnsignedString(value);
 	}
@@ -232,17 +219,32 @@ public final class Natural64 implements Natural , BigDecimalConvertable , BigInt
 	}
 
 	
-	
 	@Override
-	public boolean equalsTo(Any other) {
-    	if (!(other instanceof Number) && !(other instanceof Comparable)) {
-    		return false;
-    	} else if (other instanceof Natural64) {
-    		return ((Natural64) other).value == this.value;
-    	}
-    	return NativeNumberFactory.compareNumbers(this, (Number)other) == 0;
+	public Float asFloat() {
+		return BigFloat.valueOf(this);
 	}
+	
+    @Override
+    public Comparison compareWith(Any other) {
+    	
+    	if (other instanceof Natural64) {
+			return Primitives.comparisonFromNative(Long.compareUnsigned(this.value, ((Natural64) other).value));
+		} else if (other instanceof RealLineElement){
+        	return NativeNumberFactory.compareNumbers(this, (RealLineElement)other);
+        }
+        
+    	throw new IllegalArgumentException("Cannot compare with " + other.toString());
+    }
+    
+    @Override
+    public boolean equalsTo(Any other) {
+    	return (other instanceof RealLineElement) && compareWith(other).isEqual();
+    }
 
+	@Override
+	public final HashValue hashValue(){
+		return new HashValue(Long.hashCode(this.value));
+	}
 	
 	@Override
 	public Rational divide(Whole other) {
@@ -279,18 +281,6 @@ public final class Natural64 implements Natural , BigDecimalConvertable , BigInt
 		return Type.fromName(this.getClass().getName());
 	}
 
-	@Override
-	public Comparison compareWith(Any other) {
-		if (other instanceof BigIntegerConvertable) {
-			return Primitives.comparisonFromNative(this.toJavaBigInteger().compareTo(((BigIntegerConvertable) other).toJavaBigInteger()));
-		} else  if (other instanceof Number && other instanceof Comparable) {
-			if (this.toString().equals(other.toString())){
-				return Primitives.comparisonFromNative(0);
-			}
-			return lense.core.math.BigDecimal.valueOfNative(this.toString()).compareWith(other);
-		} 
-		throw new ClassCastException("Cannot compare to " + other.getClass().getName());
-	}
 
 	@Override
 	public BigDecimal toBigDecimal() {

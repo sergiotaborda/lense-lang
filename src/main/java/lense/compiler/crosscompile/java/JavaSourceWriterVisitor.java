@@ -12,9 +12,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-
-import org.omg.CORBA.FREE_MEM;
-
 import compiler.parser.IdentifierNode;
 import compiler.syntax.AstNode;
 import compiler.trees.TreeTransverser;
@@ -1940,13 +1937,13 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
             } else if (typeVar instanceof RangeTypeVariable) {
                 RangeTypeVariable c = (RangeTypeVariable) typeVar;
                 writer.print(signatureNameOf(c.getSymbol().get()));
-            } else {
+            }  else {
                 writer.print(signatureNameOf(typeVar.getTypeDefinition().getName())); // TODO, recursive generic parameters
             }
         }
 
         if (m.getSuperMethod() != null) {
-            writer.append("\" , overloaded = true , declaringType = \"")
+            writer.append("\" , override = true , declaringType = \"")
             .append(signatureNameOf(m.getSuperMethod().getDeclaringType().getTypeDefinition().getName()));
         }
 

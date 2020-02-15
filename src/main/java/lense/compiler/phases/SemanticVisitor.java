@@ -86,6 +86,7 @@ import lense.compiler.ast.PreExpression;
 import lense.compiler.ast.PropertyDeclarationNode;
 import lense.compiler.ast.QualifiedNameNode;
 import lense.compiler.ast.RangeNode;
+import lense.compiler.ast.ReceiveReifiedTypesNodes;
 import lense.compiler.ast.ReturnNode;
 import lense.compiler.ast.ScopedVariableDefinitionNode;
 import lense.compiler.ast.StringConcatenationNode;
@@ -114,6 +115,7 @@ import lense.compiler.type.LenseUnitKind;
 import lense.compiler.type.Match;
 import lense.compiler.type.Method;
 import lense.compiler.type.MethodParameter;
+import lense.compiler.type.MethodReturn;
 import lense.compiler.type.MethodSignature;
 import lense.compiler.type.Property;
 import lense.compiler.type.TypeDefinition;
@@ -201,12 +203,11 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 				currentType.addConstructor(ctr);
 			}
 
-			currentType.getConstructors().filter(m -> m.getName() == null)
-					.sorted((a, b) -> a.getParameters().size() - b.getParameters().size()).forEach(c -> {
+			currentType.getConstructors().filter(m -> m.getName() == null).forEach(c -> {
 
 						c.setName("constructor");
 
-					});
+			});
 
 			if (!currentType.isAbstract() && !currentType.isNative()) {
 				LinkedList<TypeDefinition> superTypes = new LinkedList<>(currentType.getInterfaces());
@@ -272,9 +273,12 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 
 			ConstructorDeclarationNode constructorDeclarationNode = (ConstructorDeclarationNode) node;
 
+			
+
+			
 			// defaults
 			if (constructorDeclarationNode.getVisibility() == null) {
-				constructorDeclarationNode.setVisibility(Visibility.Private); // TODO set the class visibility level
+				constructorDeclarationNode.setVisibility(currentType.getVisibility()); // set the class visibility level
 			}
 
 			constructorDeclarationNode
@@ -283,6 +287,42 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 			// define variable in the method scope. the current scope is block
 			this.getSemanticContext().currentScope().defineVariable("@returnOfMethod",
 					this.getSemanticContext().currentScope().getCurrentType(), node);
+
+
+		
+			var cparams = new LinkedList<ConstructorParameter>();
+
+
+			for (var  p : constructorDeclarationNode.getParameters().getChildren(FormalParameterNode.class)) {
+				if (!(p instanceof ReceiveReifiedTypesNodes)) {
+					cparams.add(new ConstructorParameter(p.getTypeVariable(),p.getName()));
+				}
+			}
+
+			if (constructorDeclarationNode.isImplicit() && cparams.size() != 1) {
+				throw new CompilationError(node, "An implicit constructor must have exactly one parameter. Found " + cparams.size());
+			}
+			
+		   var constructor = new Constructor(
+					constructorDeclarationNode.getName(), 
+					cparams,
+					constructorDeclarationNode.isImplicit(), 
+					constructorDeclarationNode.getVisibility());
+			
+			currentType.addConstructor(constructor);
+		
+
+			
+			constructorDeclarationNode.setConstructor(constructor);
+			
+			if (!this.declaredMembers.add(constructor)) {
+				if (constructor.getName() == null) {
+					throw new CompilationError(node, "The constructor " + constructor.getParameters().toString() + " was already declared in type " + this.currentType.getName());
+				} else {
+					throw new CompilationError(node, "The constructor '" + constructor.getName() + constructor.getParameters().toString() + "' was already declared in type " + this.currentType.getName());
+				}
+			
+			};
 
 		} else if (node instanceof AssignmentNode) {
 			AssignmentNode a = (AssignmentNode) node;
@@ -309,6 +349,20 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 			// define variable in the method scope. the current scope is block
 			this.getSemanticContext().currentScope().defineVariable("@returnOfMethod", LenseTypeSystem.Nothing(), node);
 
+			MethodParameter[] params = new MethodParameter[m.getParameters().getChildren().size()];
+			
+			int i = 0;
+			for (FormalParameterNode p : m.getParameters().getChildren(FormalParameterNode.class)) {
+				params[i] = new MethodParameter(p.getTypeVariable(), p.getName());
+				i++;
+			}
+			
+			var method = new Method (false, m.getVisibility(), m.getName(), new MethodReturn(m.getReturnType().getTypeVariable()), params);
+			
+			method.setDeclaringType(this.currentType);
+			
+			m.setMethod(method);
+			
 			// verify overriding
 			if (this.currentType != null) {
 				if (!m.isNative() && m.isAbstract() && !this.currentType.isAbstract()) {
@@ -409,7 +463,7 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 			// verify duplication
 			
 			if (!this.declaredMembers.add(m.getMethod())) {
-				throw new CompilationError(node, "The method '" + m.getName() + "' was already declared");
+				throw new CompilationError(node, "The method '" + m.getName() + "' was already declared in type " + this.currentType.getName());
 			};
 
 		} else if (node instanceof AccessorNode) {
@@ -1075,11 +1129,15 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 				}
 			} else if (node instanceof ClassBodyNode) {
 				ClassBodyNode n = (ClassBodyNode) node;
-				if (!currentType.hasConstructor() && !currentType.isAbstract()
+				if (!currentType.hasConstructor() 
+						&& !currentType.isAbstract()
 						&& currentType.getKind() == LenseUnitKind.Class) {
+					
 					// if no constructor exists, add a default one
-					currentType.addConstructor(
-							new Constructor("constructor", Collections.emptyList(), false, Visibility.Public));
+					
+					var constructor = new Constructor("constructor", Collections.emptyList(), false, Visibility.Public);
+					
+					currentType.addConstructor(constructor);
 
 					ConstructorDeclarationNode c = new ConstructorDeclarationNode();
 					c.setReturnType(new TypeNode(currentType));
@@ -1087,6 +1145,7 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 					c.setImplicit(false);
 					c.setVisibility(Visibility.Public);
 					n.add(c);
+
 				}
 
 			} else if (node instanceof TypeNode) {
@@ -1961,7 +2020,7 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 				// verify duplication
 				
 				if (!this.declaredMembers.add(property)) {
-					throw new CompilationError(node, "The property '" + property.getName() + "' was already declared");
+					throw new CompilationError(node, "The property '" + property.getName() + "' was already declared in type " + this.currentType.getName());
 				};
 
 			} else if (node instanceof IndexedPropertyReadNode) {
@@ -2788,12 +2847,12 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 				}
 
 				t.isAsStringDefined(t.getTypeDefinition().getMethodBySignature(new MethodSignature("asString"))
-						.map(m -> m.getSuperMethod() != null).orElse(false));
+						.map(m -> m.getSuperMethod() == null).orElse(false));
 				t.isHashValueDefined(t.getTypeDefinition().getMethodBySignature(new MethodSignature("hashValue"))
-						.map(m -> m.getSuperMethod() != null).orElse(false));
+						.map(m -> m.getSuperMethod() == null).orElse(false));
 				t.setEqualsToDefined(t.getTypeDefinition()
 						.getMethodBySignature(new MethodSignature("equalsTo", new MethodParameter(ANY)))
-						.map(m -> m.getSuperMethod() != null).orElse(false));
+						.map(m -> m.getSuperMethod() == null).orElse(false));
 
 				if (t.getKind().isValue()) {
 

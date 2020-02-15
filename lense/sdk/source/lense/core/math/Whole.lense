@@ -1,8 +1,9 @@
 
 import lense.core.math.Number;
 import lense.core.math.BigInt;
+import lense.core.math.RealLineElement;
 
-public interface Whole extends Number , Comparable<Whole> {
+public interface Whole extends RealLineElement {
 
 	public constructor parse( other: String){
 		return new BigInt.parse(other);
@@ -22,7 +23,6 @@ public interface Whole extends Number , Comparable<Whole> {
 	public wholeDivide (other : Whole) : Whole; 
 	public remainder (other : Whole) : Whole; 	
 	
-
 	public isNegative() : Boolean;
 	public isPositive() : Boolean;
 
