@@ -2,6 +2,7 @@ package lense.core.math;
 
 import java.math.BigInteger;
 
+import lense.core.lang.Any;
 import lense.core.lang.java.PlatformSpecific;
 import lense.core.lang.java.Primitives;
 import lense.core.lang.reflection.Type;
@@ -239,6 +240,7 @@ public final class NativeNumberFactory {
 		
 		return compareFloat(a, b.asFloat());
 	}
+
     
     public static int toPrimitiveInt(Whole number){
         if (number instanceof Int32){
@@ -263,4 +265,7 @@ public final class NativeNumberFactory {
             throw lense.core.math.ArithmeticException.constructor(e);
         }
     }
+
+	
+
 }
