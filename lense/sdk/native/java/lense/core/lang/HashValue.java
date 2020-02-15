@@ -5,9 +5,11 @@ import lense.core.lang.java.Constructor;
 import lense.core.lang.java.MethodSignature;
 import lense.core.lang.java.PlatformSpecific;
 import lense.core.lang.java.Signature;
+import lense.core.lang.java.ValueClass;
 
 @Signature ("::lense.core.lang.ExclusiveDijunctable<HashValue>")
-public final class HashValue extends Base implements ExclusiveDijunctable {
+@ValueClass
+public final class HashValue extends Base implements ExclusiveDijunctable, AnyValue {
 
     private int code;
     

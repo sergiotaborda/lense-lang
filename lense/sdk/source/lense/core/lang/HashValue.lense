@@ -3,7 +3,7 @@ import lense.core.math.Integer;
 import lense.core.lang.Boolean;
 import lense.core.lang.ExclusiveDijunctable;
 
-public native class HashValue  implements ExclusiveDijunctable<HashValue> {
+public native value class HashValue  implements ExclusiveDijunctable<HashValue> {
 
 	public native constructor();
 	
