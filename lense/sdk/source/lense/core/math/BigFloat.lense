@@ -130,10 +130,18 @@ public value class BigFloat implements Float {
 					return greater;
 				}
 			} else if (this.isNegativeZero()){
-				if (other.isNaN() || other.isPositiveInfinity() ||  other.isZero() || other.sign() > 0){
-					return smaller;
-				} else if (other.isNegativeZero()) {
+				if (other.isNegativeZero()) {
 					return equal;
+				} else if (other.isNaN() || other.isPositiveInfinity() ||  other.isZero() || other.sign() > 0){
+					return smaller;
+				} else {
+					return greater;
+				}
+			} else if (this.isZero()){
+				if (other.isZero()) {
+					return equal;
+				} else if (other.isNaN() || other.isPositiveInfinity() || other.sign() > 0){
+					return smaller;
 				} else {
 					return greater;
 				}
@@ -187,7 +195,7 @@ public value class BigFloat implements Float {
 	}
 
 	public isOne() => numerator == 1 && denominator != 0;
-	public isZero() => numerator == 0 && denominator != 0;
+	public isZero() => numerator == 0 && denominator > 0;
 	
     public isWhole() : Boolean {
     	return this.numerator % this.denominator == 0;
@@ -237,6 +245,13 @@ public value class BigFloat implements Float {
 	}
 
 	public plus (other: Float) : Float {
+
+	     if (this.isNegativeZero() && other.isNegativeZero()){
+			return this;
+	     } else if ((this.isZero() || this.isNegativeZero() )   && (other.isZero() || other.isNegativeZero())) {
+			return new BigFloat(0, 1);
+		 } 
+
 		 let r : BigFloat = other;
 
 		 return simplify(
@@ -247,6 +262,16 @@ public value class BigFloat implements Float {
 	}
 
 	public minus (other: Float) : Float {
+
+ 		 if (this.isZero()) {
+			if (other.isZero()){
+				return this;
+			}
+			return other.symmetric();
+		 } else if (other.isZero()){
+			return this;
+		 }
+
 		 let r : BigFloat = other;
 
 		 return simplify(

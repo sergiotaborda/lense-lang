@@ -73,7 +73,7 @@ public final class Float64 extends Base implements Float, AnyValue {
     
     @Override
     public boolean equalsTo(Any other) {
-    	return (other instanceof RealLineElement) && compareWith(other).isEqual();
+    	return (other instanceof RealLineElement) && this.compareWith(other).isEqual();
     }
 
 	@Override
@@ -83,38 +83,42 @@ public final class Float64 extends Base implements Float, AnyValue {
 
 	@Override
 	public Float plus(Float other) {
-		return new Float64(this.value + java.lang.Double.parseDouble(other.toString()));
+		if (other instanceof Float32){
+			return new Float64(this.value + ((Float32)other).value);
+		} else if (other instanceof Float64){
+			return new Float64(this.value + ((Float64)other).value);
+		}
+		return BigFloat.valueOf(this).plus(other);
 	}
 
 	@Override
 	public Float minus(Float other) {
-		if (other instanceof Float64){
-			return new Float64(this.value - ((Float64)other).value);
-		} else if (other instanceof Float32){
+		if (other instanceof Float32){
 			return new Float64(this.value - ((Float32)other).value);
-		}  else {
-			return new Float64(this.value - java.lang.Double.parseDouble(other.toString()));
-		}
+		} else  if (other instanceof Float64){
+			return new Float64(this.value - ((Float64)other).value);
+		} 
+		return BigFloat.valueOf(this).minus(other);
 	}
 
 	@Override
 	public Float multiply(Float other) {
-		if (other instanceof Float64){
-			return new Float64(this.value * ((Float64)other).value);
-		} else if (other instanceof Float32){
+		if (other instanceof Float32){
 			return new Float64(this.value * ((Float32)other).value);
-		}  else {
-			return new Float64(this.value * java.lang.Double.parseDouble(other.toString()));
-		}
+		} else  if (other instanceof Float64){
+			return new Float64(this.value * ((Float64)other).value);
+		} 
+		return BigFloat.valueOf(this).multiply(other);
 	}
 
 	@Override
 	public Float divide(Float other) {
-		if (other instanceof Float64){
+		if (other instanceof Float32){
+			return new Float64(this.value / ((Float32)other).value);
+		} else if (other instanceof Float64){
 			return new Float64(this.value / ((Float64)other).value);
-		} else {
-			return new Float64(this.value / java.lang.Double.parseDouble(other.toString()));
-		}
+		} 
+		return BigFloat.valueOf(this).divide(other);
 	}
 
 	@Override

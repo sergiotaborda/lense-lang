@@ -21,7 +21,7 @@
 - [ ] verify variable was already defined
 - [x] verify members are not duplicated
 - [ ] verify all method in the inheritance chain are implemented
-- [ ] implicit constructor must exactly have one single parameter
+- [x] implicit constructor must exactly have one single parameter
 
 == Language Features
 
@@ -40,9 +40,9 @@
 - [ ] Annotation
 - [ ] Enhancements
 * [x] methods
-* [ ] constructors
-* [ ] read only properties
-* [ ] native
+* [x] constructors
+* [x] read only properties
+* [x] native
 - [ ] data/record classes 
 - [x] value classes
 
