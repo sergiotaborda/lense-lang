@@ -369,12 +369,12 @@ public final class BigInt implements Integer , BigIntegerConvertable , AnyValue 
 	
 	@Override
 	public Complex plus(Imaginary n) {
-		return Complex.rectangular(this.asReal(), n.real());
+		return ComplexOverReal.rectangular(this.asReal(), n.real());
 	}
 
 	@Override
 	public Complex minus(Imaginary n) {
-		return Complex.rectangular(this.asReal(), n.real().symmetric());
+		return ComplexOverReal.rectangular(this.asReal(), n.real().symmetric());
 	}
 
 	@Override

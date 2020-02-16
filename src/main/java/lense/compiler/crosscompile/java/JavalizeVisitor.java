@@ -55,18 +55,6 @@ public final class JavalizeVisitor implements Visitor<AstNode>{
     }
 
     @Override
-    public void startVisit() {	}
-
-    @Override
-    public void endVisit() {}
-
-    @Override
-    public VisitorNext visitBeforeChildren(AstNode node) {
-        return VisitorNext.Children;
-    }
-
-
-    @Override
     public void visitAfterChildren(AstNode node) {	
 
         if (node instanceof lense.compiler.ast.ClassTypeNode){
@@ -96,9 +84,6 @@ public final class JavalizeVisitor implements Visitor<AstNode>{
 
             	 }
             }
-
-
-
         } 
         else if (node instanceof MethodInvocationNode){
             MethodInvocationNode m = (MethodInvocationNode)node;
@@ -131,7 +116,7 @@ public final class JavalizeVisitor implements Visitor<AstNode>{
         }
         else if (node instanceof MethodDeclarationNode){
         	MethodDeclarationNode m = (MethodDeclarationNode)node;
-        	
+
         	if (m.getSuperMethod() != null && !m.isAbstract()) {
         		
         		Method superMethod = m.getSuperMethod();
