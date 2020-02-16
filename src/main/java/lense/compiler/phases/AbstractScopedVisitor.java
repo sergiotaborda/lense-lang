@@ -8,11 +8,13 @@ import lense.compiler.CompilationError;
 import lense.compiler.ast.FormalParameterNode;
 import lense.compiler.ast.GenericTypeParameterNode;
 import lense.compiler.ast.MethodDeclarationNode;
+import lense.compiler.ast.PropertyDeclarationNode;
 import lense.compiler.ast.TypeNode;
 import lense.compiler.context.SemanticContext;
 import lense.compiler.context.VariableInfo;
 import lense.compiler.type.LenseTypeDefinition;
 import lense.compiler.type.variable.DeclaringTypeBoundedTypeVariable;
+import lense.compiler.type.variable.LazyTypeVariable;
 import lense.compiler.type.variable.MethodFreeTypeVariable;
 import lense.compiler.type.variable.TypeVariable;
 import lense.compiler.typesystem.LenseTypeSystem;
@@ -37,8 +39,6 @@ public abstract class AbstractScopedVisitor extends AbstractLenseVisitor  {
 	
 	protected TypeVariable resolveTypeDefinition(TypeNode t, Variance positionVariance) {
 
-
-		
 		Optional<TypeVariable> namedType = this.getSemanticContext().resolveTypeForName(t.getName(), t.getTypeParametersCount());
 
 		VariableInfo freeType = this.getSemanticContext().currentScope().searchVariable(t.getName());
@@ -65,6 +65,11 @@ public abstract class AbstractScopedVisitor extends AbstractLenseVisitor  {
 				} else {
 					if (t.getTypeParameter() != null){
 						return t.getTypeParameter();
+					} else if (t.getParent() instanceof PropertyDeclarationNode) {
+						var lazyType = new LazyTypeVariable(t.getName(), t.getTypeParametersCount(),this.getSemanticContext());
+						t.setTypeVariable(lazyType);
+						t.setTypeParameter(lazyType);
+						return lazyType;
 					}
 					throw new CompilationError(t.getParent(), "Type "  + t.getName() + " is not recognized. Did you imported it?");
 				}
@@ -82,6 +87,11 @@ public abstract class AbstractScopedVisitor extends AbstractLenseVisitor  {
 			} else {
 				if (t.getTypeParameter() != null){
 					return t.getTypeParameter();
+				} else if (t.getParent() instanceof PropertyDeclarationNode) {
+					var lazyType = new LazyTypeVariable(t.getName(), t.getTypeParametersCount(),this.getSemanticContext());
+					t.setTypeVariable(lazyType);
+					t.setTypeParameter(lazyType);
+					return lazyType;
 				}
 				throw new CompilationError(t.getParent(), "Type "  + t.getName() + " is not recognized. Did you imported it?");
 			}

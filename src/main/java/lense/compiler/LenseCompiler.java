@@ -8,7 +8,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -29,7 +30,6 @@ import compiler.FolderCompilationUnionSet;
 import compiler.ListCompilationUnitSet;
 import compiler.StringCompilationUnit;
 import compiler.trees.TreeTransverser;
-import lense.compiler.asm.ByteCodeTypeDefinitionReader;
 import lense.compiler.ast.ClassTypeNode;
 import lense.compiler.ast.ModuleNode;
 import lense.compiler.ast.QualifiedNameNode;
@@ -156,6 +156,7 @@ public abstract class LenseCompiler {
     protected abstract void collectNative(FileLocations fileLocations, Map<String, File> nativeTypes) throws IOException;
 	protected abstract File resolveNativeFile(File folder, String name);
 	
+	protected abstract List<TypeDefinition> extactTypeDefinitionFronNativeType(UpdatableTypeRepository currentTypeRepository , Collection<File> file) throws IOException;
     /**
      * @param moduleproject
      * @throws IOException 
@@ -254,24 +255,15 @@ public abstract class LenseCompiler {
             Set<String> referencedNames = new HashSet<>();
             Set<String> applications = new HashSet<>();
 
-            
-      		ByteCodeTypeDefinitionReader reader = new ByteCodeTypeDefinitionReader(currentModuleRepository);
-      		
+     
       		if (selfCompilation) {
                 currentModuleRepository.registerType(LenseTypeSystem.Any(), 0);
                 currentModuleRepository.registerType(LenseTypeSystem.Nothing(), 0);
                 currentModuleRepository.registerType(LenseTypeSystem.Void(), 0);
       		}
 
-
-      		List<TypeDefinition> nativeTypesDefs = new ArrayList<TypeDefinition>(nativeTypes.size());
-      		for( File target : nativeTypes.values()) {
-          		TypeDefinition type = reader.readNative(target);
-          		currentModuleRepository.registerType(type, type.getGenericParameters().size());
-          		
-          		nativeTypesDefs.add(type);
-      		}
-            
+      		List<TypeDefinition> nativeTypesDefs = this.extactTypeDefinitionFronNativeType(currentModuleRepository, nativeTypes.values());
+      	
             // init foundnames with nothing because it is a non denotable
             foundNames.add("lense.core.lang.Nothing");
             
@@ -342,6 +334,10 @@ public abstract class LenseCompiler {
                                 applications.add(dependency.getName());
                             }
                             graph.addEdge(new DependencyRelation(DependencyRelationship.Structural),  imported, dependency);
+                        } else  if (imp.isMemberSignatureElement()){
+                            trace(dependency.getName() + " members signatures depend on " + imported.getName());
+                 
+                           // graph.addEdge(new DependencyRelation(DependencyRelationship.Name),  imported, dependency);
                         } else if (dependency.getName().equals(imported.getName())){
                             trace(dependency.getName() + " referes by to it self ");
                             continue;
@@ -365,9 +361,9 @@ public abstract class LenseCompiler {
                 }
             }
 
-            if (!referencedNames.isEmpty()){
-                throw new CompilationError( "Type " + referencedNames.stream().filter(r -> r.length() > 0).findFirst().get() + " was referenced, but not found");
-            }
+//            if (!referencedNames.isEmpty()){
+//                throw new CompilationError( "Type " + referencedNames.stream().filter(r -> r.length() > 0).findFirst().get() + " was referenced, but not found");
+//            }
 
             trace("Compiling graph");
             
@@ -386,7 +382,7 @@ public abstract class LenseCompiler {
                     trace("Visiting : " + e.getVertex().getObject().getName());
                     CompiledUnit unit = e.getVertex().getObject().getCompiledUnit();
 
-                    applyCompilation(nativeTypes, locations, corePhase, currentModuleRepository, backend, reader, unit);
+                    applyCompilation(nativeTypes, locations, corePhase, currentModuleRepository, backend, unit);
 
   
                     trace("Visited : " + e.getVertex().getObject().getName());
@@ -405,7 +401,7 @@ public abstract class LenseCompiler {
             Optional<Vertex<DependencyNode, DependencyRelation>> any = graph.getVertices().stream().filter(v -> v.getObject().getName().equals(LenseTypeSystem.Any().getName())).findAny();
             
             if (selfCompilation && any.isPresent()) {
-                applyCompilation(nativeTypes, locations, corePhase, currentModuleRepository, backend, reader, any.map(v -> v.getObject().getCompiledUnit()).get());
+                applyCompilation(nativeTypes, locations, corePhase, currentModuleRepository, backend, any.map(v -> v.getObject().getCompiledUnit()).get());
 
                 graph.removeVertex(any.get());
             }
@@ -458,8 +454,7 @@ public abstract class LenseCompiler {
     }
     
     private void applyCompilation(Map<String, File> nativeTypes, FileLocations locations, CompositePhase corePhase,
-			ModuleCompilationScopeTypeRepository currentModuleRepository, final CompilerBackEnd backend,
-			ByteCodeTypeDefinitionReader reader, CompiledUnit unit) {
+			ModuleCompilationScopeTypeRepository currentModuleRepository, final CompilerBackEnd backend, CompiledUnit unit) {
 		if (unit != null){
         	UnitTypes types = (UnitTypes)unit.getAstRootNode();
     		
@@ -491,9 +486,10 @@ public abstract class LenseCompiler {
         			}
         			
         			try {
-						TypeDefinition typeDef = reader.readNative(nativeTypeFile);
-						typeDef = currentModuleRepository.registerType(typeDef, typeDef.getGenericParameters().size());
-						
+        				
+        				TypeDefinition typeDef = this.extactTypeDefinitionFronNativeType(currentModuleRepository, Arrays.asList(nativeTypeFile))
+        				.get(0);
+  
 						type.setTypeDefinition((LenseTypeDefinition)typeDef);
 
 					} catch (IOException e1) {

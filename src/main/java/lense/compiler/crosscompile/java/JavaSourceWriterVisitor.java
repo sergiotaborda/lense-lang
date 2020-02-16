@@ -98,6 +98,7 @@ import lense.compiler.type.variable.CalculatedTypeVariable;
 import lense.compiler.type.variable.ContraVariantTypeVariable;
 import lense.compiler.type.variable.DeclaringTypeBoundedTypeVariable;
 import lense.compiler.type.variable.GenericTypeBoundToDeclaringTypeVariable;
+import lense.compiler.type.variable.LazyTypeVariable;
 import lense.compiler.type.variable.MethodFreeTypeVariable;
 import lense.compiler.type.variable.RangeTypeVariable;
 import lense.compiler.type.variable.TypeVariable;
@@ -1889,6 +1890,8 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
         TypeVariable typeVar = m.getReturnType().getTypeVariable();
         if (typeVar == null) {
             writer.print(signatureNameOf(m.getReturnType().getName()));
+        } else if ( typeVar instanceof LazyTypeVariable ){
+            writer.print(signatureNameOf(typeVar.getTypeName().get()));
         } else if (typeVar.isFixed()) {
             writer.print(typeVar.getTypeDefinition().getName());
             if (typeVar.getTypeDefinition().isGeneric()) {
@@ -2102,6 +2105,8 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
                 TypeVariable upper = t.getTypeParameter().getUpperBound();
 
                 writer.print(upper.getTypeDefinition().getName());
+            } else if (type instanceof LazyTypeVariable) {
+                writer.print(type.getTypeName().get());
             } else if (type instanceof ErasedTypeDefinition) {
                 writer.print(((ErasedTypeDefinition) type).getPrimitiveType().getName());
             } else if (type.isFixed()) {

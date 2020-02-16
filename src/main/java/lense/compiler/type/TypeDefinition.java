@@ -17,6 +17,10 @@ import lense.compiler.typesystem.Visibility;
 public interface TypeDefinition extends TypeVariable {
 
 	public String getName();
+	
+	public default Optional<String> getTypeName(){
+		return Optional.of(getName());
+	}
 
 	public String getSimpleName();
 	

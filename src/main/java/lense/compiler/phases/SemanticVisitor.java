@@ -689,32 +689,8 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 			}
 
 			// algebric values
-			if (t.isAlgebric() && !t.isNative()) {
-				myType.setAlgebric(true);
-
-				List<TypeDefinition> chidlValues = new ArrayList<>(t.getAlgebricChildren().getChildren().size());
-				List<TypeDefinition> chidlTypes = new ArrayList<>(t.getAlgebricChildren().getChildren().size());
-
-				for (AstNode n : t.getAlgebricChildren().getChildren()) {
-					ChildTypeNode ctn = (ChildTypeNode) n;
-
-					TypeDefinition childType = this.getSemanticContext()
-							.resolveTypeForName(ctn.getType().getName(), ctn.getType().getTypeParametersCount())
-							.orElseThrow(() -> new CompilationError(ctn, "No type defined")).getTypeDefinition();
-
-					if (childType.getTypeDefinition().getKind().isObject()) {
-						chidlValues.add(childType);
-					} else {
-						chidlTypes.add(childType);
-					}
-
-					ctn.getType().setTypeVariable(childType);
-
-				}
-
-				myType.setCaseTypes(chidlTypes);
-				myType.setCaseValues(chidlValues);
-			}
+			myType.setAlgebric(t.isAlgebric());
+			
 
 			t.setTypeDefinition(myType);
 
@@ -2836,7 +2812,7 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 							throw new CompilationError(t,
 									t.getName() + " cannot implement " + typeVariable.getName() + " because "
 											+ typeVariable.getName() + " it is a " + typeVariable.getKind()
-											+ " and not an interface");
+											+ " and not an Interface");
 						}
 					}
 				}

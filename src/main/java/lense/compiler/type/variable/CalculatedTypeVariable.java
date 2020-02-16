@@ -3,7 +3,6 @@ package lense.compiler.type.variable;
 import java.util.List;
 
 import lense.compiler.type.TypeDefinition;
-import lense.compiler.typesystem.Variance;
 
 public abstract class CalculatedTypeVariable implements TypeVariable{
 

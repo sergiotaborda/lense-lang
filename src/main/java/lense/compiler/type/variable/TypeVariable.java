@@ -29,6 +29,14 @@ public interface TypeVariable {
 	 * @return
 	 */
 	public Optional<String> getSymbol();
+	
+	/**
+	 * A type name like lense.core.lang.Boolean
+	 * @return
+	 */
+	public default Optional<String> getTypeName() {
+		return Optional.empty();
+	}
 
 	public List<TypeVariable> getGenericParameters();
 

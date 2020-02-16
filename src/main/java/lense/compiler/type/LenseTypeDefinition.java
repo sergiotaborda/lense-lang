@@ -877,8 +877,6 @@ public class LenseTypeDefinition implements TypeDefinition {
         this.visibility = visibility;
     }
 
-
-
     @Override
     public Collection<TypeMember> getAllMembers() {
 

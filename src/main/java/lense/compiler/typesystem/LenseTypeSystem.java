@@ -325,7 +325,7 @@ public class LenseTypeSystem {
 				new ConstructorParameter(new DeclaringTypeBoundedTypeVariable(keyValue, 0, "K", Variance.Invariant)),
 				new ConstructorParameter(new DeclaringTypeBoundedTypeVariable(keyValue, 1, "v", Variance.Invariant)));
 
-		LenseTypeDefinition association = register(new FundamentalLenseTypeDefinition("lense.core.collections.Association", LenseUnitKind.Class,
+		LenseTypeDefinition association = register(new FundamentalLenseTypeDefinition("lense.core.collections.Association", LenseUnitKind.Interface,
 				null, new RangeTypeVariable("K", Variance.ContraVariant, any, nothing),
 				new RangeTypeVariable("V", Variance.Covariant, any, nothing)));
 
@@ -515,7 +515,32 @@ public class LenseTypeSystem {
 		    
 		    return isAssignableTo(union.getLeft(), target).and(isAssignableTo(union.getRight(), target));
 
-		} else if (type.isSingleType()) {
+		} 
+		
+		if (target.getTypeName().map(s -> s.equals("lense.core.lang.Any")).orElse(false)) {
+			// all types are assignable to Any
+			return type.getTypeName().map(s -> s.equals("lense.core.lang.Any")).orElse(false)
+					? TypeMatch.Exact
+					: TypeMatch.UpCast; 
+		}
+		if (type.getTypeName().map(s -> s.equals("lense.core.lang.Nothing")).orElse(false)) {
+			return TypeMatch.UpCast; // nothing is assignable to all types
+		}
+		if (target.getTypeName().map(s -> s.equals("lense.core.lang.Nothing")).orElse(false)) {
+			return TypeMatch.NoMatch; // only nothing is assignable to nothing
+		}
+		if (type.getTypeName().map(s -> s.equals("lense.core.lang.Any")).orElse(false)) {
+			// any is assignble to no one but it self
+			return TypeMatch.NoMatch;
+		}
+		
+		var valueMath = isValueAssignableTo(type, target);
+		
+		if (valueMath.isPresent()) {
+			return valueMath.get();
+		}
+
+		if (type.isSingleType()) {
 			if (target.isSingleType()) {
 				return isAssignableTo(type.getTypeDefinition(), target.getTypeDefinition());
 			} else {
@@ -527,6 +552,40 @@ public class LenseTypeSystem {
 			return isAssignableTo(type.getLowerBound(), target.getLowerBound()).and(isAssignableTo(type.getUpperBound(), target.getUpperBound()));
 
 		}
+	}
+
+	private static List<TypeDefinition> values = List.of(
+		Boolean(),
+		Int32(),
+		Int64()
+	);
+	
+	private static Optional<TypeMatch> isValueAssignableTo(TypeVariable type, TypeVariable target) {
+		
+		if (type instanceof RangeTypeVariable || target instanceof RangeTypeVariable) {
+			return Optional.empty();
+		}
+		
+		for (var valueType : values) {
+			if (target.getTypeName().map(s -> s.equals(valueType.getName())).orElse(false)) {
+				if(type.getTypeName().map(s -> s.equals(valueType.getName())).orElse(false)) {
+					return Optional.of(TypeMatch.Exact);
+				} else {
+					return Optional.of(TypeMatch.NoMatch);
+				}
+			} else if (type.getTypeName().map(s -> s.equals(valueType.getName())).orElse(false)) {
+				if(target.getTypeName().map(s -> s.equals(valueType.getName())).orElse(false)) {
+					return Optional.of(TypeMatch.Exact);
+				} else {
+					return Optional.of(TypeMatch.NoMatch);
+				}
+			}
+		}
+		
+		
+		return Optional.empty();
+		
+		
 	}
 
 	public static TypeMatch isAssignableTo(TypeDefinition type, TypeDefinition target) {

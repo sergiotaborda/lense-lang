@@ -103,7 +103,7 @@ public class AbstractPrimitiveIntegerErasureVisitor implements Visitor<AstNode> 
 
             TypeVariable tv = t.getTypeVariable();
 
-            if (tv != null && tv.isFixed() && !isTupleAccess(node) && LenseTypeSystem.isAssignableTo(tv, type).matches() ) {
+            if (tv != null && !isTupleAccess(node) && LenseTypeSystem.isAssignableTo(tv, type).matches() ) {
 
                 if (node instanceof CastNode){
                     CastNode c = (CastNode)node;

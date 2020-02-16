@@ -15,6 +15,7 @@ import java.nio.file.FileVisitor;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -30,6 +31,7 @@ import compiler.CompilerListener;
 import lense.compiler.CompilationError;
 import lense.compiler.FileLocations;
 import lense.compiler.LenseCompiler;
+import lense.compiler.asm.ByteCodeTypeDefinitionReader;
 import lense.compiler.ast.ModuleNode;
 import lense.compiler.crosscompile.ErasurePhase;
 import lense.compiler.crosscompile.java.JavaCompilerBackEndFactory.JavaCompilerBackEnd;
@@ -39,6 +41,7 @@ import lense.compiler.phases.DesugarPhase;
 import lense.compiler.phases.EnhancementPhase;
 import lense.compiler.phases.ReificationPhase;
 import lense.compiler.repository.UpdatableTypeRepository;
+import lense.compiler.type.TypeDefinition;
 
 /**
  * 
@@ -291,6 +294,27 @@ public class LenseToJavaCompiler extends LenseCompiler{
 			throw new CompilationError("Cannot compile source with java compile");
 		}
 
+	}
+
+	@Override
+	protected List<TypeDefinition> extactTypeDefinitionFronNativeType(
+			UpdatableTypeRepository currentModuleRepository,
+			Collection<File> nativeFiles
+	) throws IOException {
+		
+	    var nativeTypesDefs = new LinkedList<TypeDefinition>();
+	      
+  		var reader = new ByteCodeTypeDefinitionReader(currentModuleRepository);
+  		
+		
+		for( File target : nativeFiles) {
+  			TypeDefinition type =  reader.readNative(target);
+      		currentModuleRepository.registerType(type, type.getGenericParameters().size());
+      		
+      		nativeTypesDefs.add(type);
+  		}
+		
+		return nativeTypesDefs;
 	}
 
 

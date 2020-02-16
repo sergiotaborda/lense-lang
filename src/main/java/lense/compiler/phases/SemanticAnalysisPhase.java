@@ -3,6 +3,7 @@
  */
 package lense.compiler.phases;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -56,10 +57,11 @@ public class SemanticAnalysisPhase implements CompilerPhase {
 			return new CompilationResult(new RuntimeException("Unexpected Error. Result as no node."));
 		}
 
-		boolean hasAlgebric = false;
+	
 
 		try {
 			
+			// read enhancements
 			Map<TypeVariable, List<TypeDefinition>> enhancements = new HashMap<>();
 			if (types.getImports().isPresent()) {
 				
@@ -80,6 +82,8 @@ public class SemanticAnalysisPhase implements CompilerPhase {
 					}
 				}
 			}
+			
+			boolean hasAlgebric = false;
 			
 			for (ClassTypeNode ct : types.getTypes()){
 				// cannot share semantic context among classes
@@ -121,6 +125,44 @@ public class SemanticAnalysisPhase implements CompilerPhase {
 							
 							}
 						}
+						
+						
+
+						List<TypeDefinition> chidlValues = new ArrayList<>(ct.getAlgebricChildren().getChildren().size());
+						List<TypeDefinition> chidlTypes = new ArrayList<>(ct.getAlgebricChildren().getChildren().size());
+
+						
+						var myType = ct.getTypeDefinition();
+						
+						for (AstNode n : ct.getAlgebricChildren().getChildren()) {
+							ChildTypeNode ctn = (ChildTypeNode) n;
+
+							if ("lense.core.lang.true".equals(ctn.getType().getName()) || "lense.core.lang.false".equals(ctn.getType().getName())) {
+								//no-op implicit
+							} else if ("lense.core.lang.none".equals(ctn.getType().getName())) {
+								//no-op implicit
+							} else {
+								TypeDefinition childType = ct.getSemanticContext()
+										.resolveTypeForName(ctn.getType().getName(), ctn.getType().getTypeParametersCount())
+										.orElseThrow(() -> new CompilationError(ctn, "Type definition for  " + ctn.getType().getName() + " was not found")).getTypeDefinition();
+
+								if (childType.getTypeDefinition().getKind().isObject()) {
+									chidlValues.add(childType);
+								} else {
+									chidlTypes.add(childType);
+								}
+
+								ctn.getType().setTypeVariable(childType);
+							}
+							
+
+						}
+
+						myType.setCaseTypes(chidlTypes);
+						myType.setCaseValues(chidlValues);
+						
+						
+						
 					} else if (ct.getTypeDefinition().getSuperDefinition().isAlgebric()){
 						if (!ct.getTypeDefinition().getSuperDefinition().getAllCases().contains(ct.getTypeDefinition())) {
 							throw new CompilationError(ct, "Type " + ct.getTypeDefinition().getName() + " cannot extend " + ct.getTypeDefinition().getSuperDefinition().getName() + " becasue it is not a declared case");
