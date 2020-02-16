@@ -39,10 +39,10 @@ public final class EnhancementVisitor extends AbstractScopedVisitor {
 			
 			return VisitorNext.Siblings;
 		} else if (node instanceof ClassTypeNode) {
-			ClassTypeNode c  = (ClassTypeNode)node;
-			if (c.getKind().isEnhancement()) {
-				c.setSuperType(null);
-			}
+//			ClassTypeNode c  = (ClassTypeNode)node;
+//			if (c.getKind().isEnhancement()) {
+//				c.setSuperType(null);
+//			}
 		} 
 		return VisitorNext.Children;
 	}

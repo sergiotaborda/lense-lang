@@ -127,6 +127,7 @@ import lense.compiler.type.variable.TypeVariable;
 import lense.compiler.typesystem.FundamentalLenseTypeDefinition;
 import lense.compiler.typesystem.Imutability;
 import lense.compiler.typesystem.LenseTypeSystem;
+import lense.compiler.typesystem.TypeMatch;
 import lense.compiler.typesystem.Variance;
 import lense.compiler.typesystem.Visibility;
 
@@ -139,7 +140,7 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 	// private LenseTypeDefinition NOTHING;
 	protected LenseTypeDefinition currentType;
 
-	private Map<TypeVariable, List<TypeDefinition>> enhancements = new HashMap<>();
+	private final Map<TypeVariable, List<TypeDefinition>> enhancements;
 
 	private final LenseTypeSystem lenseTypeSystem;
 
@@ -147,7 +148,15 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 
 	private Set<TypeMember> declaredMembers = new HashSet<>();
 
-	public SemanticVisitor(SemanticContext sc, CompilerListener listener) {
+//	public SemanticVisitor(SemanticContext sc, CompilerListener listener) {
+//		this(sc, listener, Collections.emptyMap());
+//	}
+
+	public SemanticVisitor(
+			SemanticContext sc,
+			CompilerListener listener,
+			Map<TypeVariable, List<TypeDefinition>> enhancements
+			) {
 		super(sc);
 
 		this.listener = listener;
@@ -156,14 +165,8 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 
 		ANY = (LenseTypeDefinition) sc.resolveTypeForName("lense.core.lang.Any", 0).get();
 		VOID = (LenseTypeDefinition) sc.resolveTypeForName("lense.core.lang.Void", 0).get();
-		// NOTHING = (LenseTypeDefinition)
-		// sc.resolveTypeForName("lense.core.lang.Nothing", 0).get();
-	}
-
-	public SemanticVisitor(SemanticContext sc, Map<TypeVariable, List<TypeDefinition>> enhancements,
-			CompilerListener listener) {
-		this(sc, listener);
-		this.enhancements = enhancements;
+		
+		this.enhancements = Collections.unmodifiableMap(enhancements);
 
 	}
 
@@ -273,9 +276,8 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 
 			ConstructorDeclarationNode constructorDeclarationNode = (ConstructorDeclarationNode) node;
 
-			
+		
 
-			
 			// defaults
 			if (constructorDeclarationNode.getVisibility() == null) {
 				constructorDeclarationNode.setVisibility(currentType.getVisibility()); // set the class visibility level
@@ -302,6 +304,7 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 			if (constructorDeclarationNode.isImplicit() && cparams.size() != 1) {
 				throw new CompilationError(node, "An implicit constructor must have exactly one parameter. Found " + cparams.size());
 			}
+
 			
 		   var constructor = new Constructor(
 					constructorDeclarationNode.getName(), 
@@ -527,8 +530,7 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 			Optional<TypeVariable> maybeMyType = this.getSemanticContext().resolveTypeForName(t.getName(),
 					genericParametersCount);
 
-			TypeNode superTypeNode = t.getSuperType();
-
+		
 			LenseTypeDefinition myType;
 			if (maybeMyType.isPresent()) {
 				myType = (LenseTypeDefinition) maybeMyType.get();
@@ -585,7 +587,15 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 				t.setFinal(true);
 				myType.setFinal(true);
 			}
+			
+			TypeNode superTypeNode = t.getSuperType();
 
+			if (t.getKind().isEnhancement() ) {
+				if (superTypeNode == null) {
+					throw new CompilationError(node, t.getName() + " enhancement must define a type for extention");
+				}
+			}
+			 
 			TypeDefinition superType = ANY;
 			if (superTypeNode != null) {
 
@@ -664,10 +674,7 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 
 				superTypeNode.setTypeVariable(superType);
 
-			} else if (t.getKind().isEnhancement()) {
-				throw new CompilationError(node, t.getName() + " enhancement must define a type for extention");
-
-			}
+			} 
 
 			if (superType.equals(myType)) {
 				if (!myType.equals(ANY)) {
@@ -729,7 +736,7 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 
 			}
 
-			TreeTransverser.transverse(t, new StructureVisitor(this.listener, myType, this.getSemanticContext(), true));
+			TreeTransverser.transverse(t, new StructureVisitor(this.listener, myType, this.getSemanticContext(), this.enhancements, true));
 
 			if (t.getInterfaces() != null) {
 				for (AstNode n : t.getInterfaces().getChildren()) {
@@ -770,7 +777,7 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 
 			ForEachNode n = (ForEachNode) node;
 
-			TreeTransverser.transverse(n.getContainer(), new SemanticVisitor(this.getSemanticContext(), this.listener));
+			TreeTransverser.transverse(n.getContainer(), new SemanticVisitor(this.getSemanticContext(), this.listener, this.enhancements));
 
 			TypeVariable containerTypeVariable = n.getContainer().getTypeVariable();
 
@@ -2612,7 +2619,7 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 
 							applyMethodCall(node, m, found.get(0));
 
-							m.setStaticInvocation(true);
+							m.setEnchamentCall(true);
 
 							return;
 						} else if (found.size() > 1) {
@@ -2649,9 +2656,48 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 							: def.getConstructorByNameAndPromotableParameters(n.getName(), parameters);
 
 					if (!constructor.isPresent()) {
-						throw new CompilationError(n, "Constructor " + def.getName() + "("
-								+ Stream.of(parameters).map(cp -> cp.toString()).collect(Collectors.joining(","))
-								+ ") is not defined");
+						
+						
+						if (!this.enhancements.isEmpty() && n.getName() != null) {
+
+							// only constructos with name can be enchanced
+							LinkedList<Constructor> found = new LinkedList<>();
+
+							for (Map.Entry<TypeVariable, List<TypeDefinition>> entry : this.enhancements.entrySet()) {
+
+								if (LenseTypeSystem.isAssignableTo(def, entry.getKey()).matches()) {
+
+									for (TypeDefinition enhancement : entry.getValue()) {
+										
+										var enhancedConstructor = enhancement.getConstructorByNameAndPromotableParameters(n.getName(), parameters);
+
+										if (enhancedConstructor.isPresent()) {
+											found.add(enhancedConstructor.get());
+										}
+									}
+
+								}
+							}
+
+							if (found.size() == 1) {
+								// set method return type
+
+								constructor = Optional.of(found.getFirst());
+
+							} else if (found.size() > 1) {
+								throw new CompilationError(node,
+										"More than one enhancement matches call to constructor '" + n.getName() + "' in type '" + def.getName()
+												+ "' with arguments " + Arrays.toString(parameters)
+												+ ". Please, desambiguate");
+							}
+
+						} else {
+							throw new CompilationError(n, "Constructor " + def.getName() + "("
+									+ Stream.of(parameters).map(cp -> cp.toString()).collect(Collectors.joining(","))
+									+ ") is not defined");
+						}
+						
+						
 					}
 				} else if (constructors.size() == 1) {
 
@@ -2752,8 +2798,18 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 				MethodDeclarationNode m = (MethodDeclarationNode) node;
 				TypeVariable returnType = m.getReturnType().getTypeParameter();
 
+				if (m.isNative() && m.getBlock() != null) {
+					throw new CompilationError(node, "Method " + m.getName() + " cannot be native and have and implementation");
+				}
+				
+				if (m.isAbstract() && m.getBlock() != null) {
+					throw new CompilationError(node, "Method " + m.getName() + " cannot be abstract and have and implementation");
+				} else if (!m.isAbstract() && m.getBlock() == null && !m.isNative()) {
+					throw new CompilationError(node, "Method " + m.getName() + " must have and implementation");
+				}
+				
 				if (!m.isAbstract()) {
-
+	
 					if (!m.getReturnType().needsInference()) {
 						if (returnType.getTypeDefinition().equals(VOID)) {
 							VariableInfo variable = this.getSemanticContext().currentScope()

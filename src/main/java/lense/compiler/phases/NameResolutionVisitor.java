@@ -659,7 +659,10 @@ public class NameResolutionVisitor extends AbstractScopedVisitor {
 		} else if (node instanceof MethodDeclarationNode) {
 			MethodDeclarationNode m = (MethodDeclarationNode)node;
 
-			if (m.getReturnType().getName() != null && m.getBlock() != null && !genericNames.contains(m.getReturnType().getName()) && !this.getSemanticContext().currentScope().getCurrentType().getName().endsWith(m.getReturnType().getName())){
+			if (m.getReturnType().getName() != null 
+					//&& m.getBlock() != null 
+					&& !genericNames.contains(m.getReturnType().getName())
+					&& !this.getSemanticContext().currentScope().getCurrentType().getName().endsWith(m.getReturnType().getName())){
 				Optional<Import> match = matchImports(ct, m.getReturnType().getName());
 
 				if (match.isPresent()) {

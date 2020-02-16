@@ -8,7 +8,6 @@ import lense.core.lang.Any;
 import lense.core.lang.AnyValue;
 import lense.core.lang.HashValue;
 import lense.core.lang.java.Constructor;
-import lense.core.lang.java.NonNull;
 import lense.core.lang.java.Primitives;
 import lense.core.lang.java.ValueClass;
 import lense.core.lang.reflection.Type;
@@ -244,21 +243,21 @@ public final class BigNatural implements Natural , BigDecimalConvertable , BigIn
 	}
 
 	@Override
-	public @NonNull Progression upTo( Natural other) {
+	public Progression upTo(Any other) {
 		if (other instanceof Natural) {
-			return new NativeOrdinalProgression(this, other, true);
+			return new NativeOrdinalProgression(this, (Natural)other, true);
 		}
 		throw new ClassCastException("other is not a Natural");
 	}
 
 	@Override
-	public Progression upToExclusive(Natural other) {
+	public Progression upToExclusive(Any other) {
 		if (other instanceof Natural) {
-			return new NativeOrdinalProgression(this, other, false);
+			return new NativeOrdinalProgression(this, (Natural)other, false);
 		}
 		throw new ClassCastException("other is not a Natural");
 	}
-
+	
 	@Override
 	public Integer wholeDivide(Integer other) {
 		return divide(other).floor();
@@ -330,12 +329,12 @@ public final class BigNatural implements Natural , BigDecimalConvertable , BigIn
 	
 	@Override
 	public Complex plus(Imaginary n) {
-		return Complex.rectangular(this.asReal(), n.real());
+		return ComplexOverReal.rectangular(this.asReal(), n.real());
 	}
 
 	@Override
 	public Complex minus(Imaginary n) {
-		return Complex.rectangular(this.asReal(), n.real().symmetric());
+		return ComplexOverReal.rectangular(this.asReal(), n.real().symmetric());
 	}
 
 	@Override

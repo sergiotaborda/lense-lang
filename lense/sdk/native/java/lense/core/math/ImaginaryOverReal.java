@@ -61,11 +61,11 @@ public final class ImaginaryOverReal implements Imaginary {
 	}
 	
 	public Complex plus(Real other) {
-		return Complex.rectangular(other, value);
+		return ComplexOverReal.rectangular(other, value);
 	}
 
 	public Complex minus(Real other) {
-		return Complex.rectangular(value.symmetric(), value);
+		return ComplexOverReal.rectangular(value.symmetric(), value);
 	}
 
 	public Imaginary multiply(Real other) {

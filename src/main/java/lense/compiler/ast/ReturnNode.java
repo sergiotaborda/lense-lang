@@ -19,6 +19,12 @@ public class ReturnNode extends StatementNode implements TypedNode {
 	}
 	
 	
+	public ReturnNode(MethodInvocationNode invoke) {
+		this.add(invoke);
+	}
+	
+
+
 	/**
 	 * @param expressionNode
 	 */

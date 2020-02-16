@@ -7,9 +7,7 @@ import lense.core.math.RealLineElement;
 public interface Real extends SignedNumber , RealLineElement {
 
 
-	public implicit constructor  valueOf(other : Whole) {
-		return other.asReal();
-	}
+	public native implicit constructor  valueOf(other : Whole);
 
 	public abs(): Real;
 

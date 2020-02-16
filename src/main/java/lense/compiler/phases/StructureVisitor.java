@@ -61,12 +61,14 @@ public class StructureVisitor extends AbstractScopedVisitor {
 	private LenseTypeDefinition currentType;
 	private boolean secondPass;
 	private CompilerListener listener;
+	private final Map<TypeVariable, List<TypeDefinition>> enhancements;
 
-	public StructureVisitor (CompilerListener listener, LenseTypeDefinition currentType, SemanticContext semanticContext , boolean secondPass){
+	public StructureVisitor (CompilerListener listener, LenseTypeDefinition currentType, SemanticContext semanticContext ,Map<TypeVariable, List<TypeDefinition>> enhancements,  boolean secondPass){
 		super(semanticContext);
 		this.currentType = currentType;
 		this.secondPass = secondPass;
 		this.listener = listener;
+		this.enhancements = enhancements;
 	}
 	
     @Override
@@ -228,7 +230,7 @@ public class StructureVisitor extends AbstractScopedVisitor {
 					
 					ReturnNode r = op.get();
 					
-					SemanticVisitor sv = new SemanticVisitor(this.getSemanticContext(), this.listener);
+					SemanticVisitor sv = new SemanticVisitor(this.getSemanticContext(), this.listener, this.enhancements);
 
 					TreeTransverser.transverse( node, sv);
 					

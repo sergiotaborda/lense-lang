@@ -32,6 +32,7 @@ import lense.compiler.FileLocations;
 import lense.compiler.LenseCompiler;
 import lense.compiler.ast.ModuleNode;
 import lense.compiler.crosscompile.ErasurePhase;
+import lense.compiler.crosscompile.NativePeersPhase;
 import lense.compiler.crosscompile.java.JavaCompilerBackEndFactory.JavaCompilerBackEnd;
 import lense.compiler.modules.ModulesRepository;
 import lense.compiler.phases.CompositePhase;
@@ -60,6 +61,7 @@ public class LenseToJavaCompiler extends LenseCompiler{
 			.add(new EnhancementPhase(compilerListener))
 			.add(new ReificationPhase(compilerListener))
 			.add(new ErasurePhase(compilerListener))
+			.add(new NativePeersPhase(compilerListener,nativeTypes))
 			.add(new JavalizePhase(compilerListener,nativeTypes, typeContainer));
 			//.add(ir);
 
