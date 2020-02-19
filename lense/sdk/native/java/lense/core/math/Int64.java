@@ -437,12 +437,12 @@ public class Int64 implements Integer , Binary , BigIntegerConvertable , AnyValu
 
 	@Override
 	public Complex plus(Imaginary n) {
-		return Complex.rectangular(this.asReal(), n.real());
+		return ComplexOverReal.rectangular(this.asReal(), n.real());
 	}
 
 	@Override
 	public Complex minus(Imaginary n) {
-		return Complex.rectangular(this.asReal(), n.real().symmetric());
+		return ComplexOverReal.rectangular(this.asReal(), n.real().symmetric());
 	}
 
 	@Override

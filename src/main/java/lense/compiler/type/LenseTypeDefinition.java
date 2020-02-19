@@ -743,7 +743,11 @@ public class LenseTypeDefinition implements TypeDefinition {
 	
 	private Optional<Constructor> searchConstructorWithPromotableParameters(Visibility visibility ,String name , Boolean implicit, ConstructorParameter... parameters) {
 		
-		Stream<Constructor> map = members.stream().filter(m -> m.isConstructor()).map(m -> (Constructor)m);
+		Stream<Constructor> map = members.stream()
+				.filter(m -> m.isConstructor())
+				.map(m -> (Constructor)m)
+				.filter(c -> c.getParameters().size() == parameters.length);
+		
 		if (name != null) {
 			map = map.filter(c -> name.equals(c.getName()));
 		} else if (name == null) {
@@ -757,24 +761,34 @@ public class LenseTypeDefinition implements TypeDefinition {
 		if (visibility != null && visibility != Visibility.Undefined) {
 	        map = map.filter(c -> c.getVisibility() == visibility);
 	    }
+		
+		var f = map.collect(Collectors.toList());
 		 
-		Iterator<Constructor> iterator = map.iterator();
+		Iterator<Constructor> iterator = f.iterator();
+		
+		if ( parameters.length == 0) {
+			if (iterator.hasNext()) {
+				Optional.ofNullable(iterator.next());
+			}
+			return Optional.empty();
+		}
+		
 		Constructor mostSpecific = null;
         while(iterator.hasNext()){
             Constructor constructor = iterator.next();
-            if (constructor.getParameters().size() == parameters.length) {
-                for (int p = 0; p < parameters.length; p++) {
-                    ConstructorParameter mp = parameters[p];
-                    if (LenseTypeSystem.getInstance().isPromotableTo(mp.getType(), constructor.getParameters().get(p).getType())) {
-                    	if (mostSpecific == null) {
-                    		mostSpecific = constructor;
-                    	} else {
-                    		mostSpecific = mostSpecific(mostSpecific, constructor);
-                    	}
-                       
-                    }
+          
+            for (int p = 0; p < parameters.length; p++) {
+                ConstructorParameter mp = parameters[p];
+                if (LenseTypeSystem.getInstance().isPromotableTo(mp.getType(), constructor.getParameters().get(p).getType())) {
+                	if (mostSpecific == null) {
+                		mostSpecific = constructor;
+                	} else {
+                		mostSpecific = mostSpecific(mostSpecific, constructor);
+                	}
+                   
                 }
             }
+            
         }
         return Optional.ofNullable(mostSpecific);
 	}

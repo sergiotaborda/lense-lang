@@ -41,7 +41,7 @@ public class TestComplex {
 	@Test
 	public void testNumberCompare () {
 	       
-	    assertTrue(NativeNumberFactory.compareNumbers(Rational.one(), Rational.zero()) > 0);
+	    assertTrue(NativeNumberFactory.compareNumbers(Rational.one(), Rational.zero()).isGreater());
 	       
 	    Real dist = dist(Int32.valueOfNative(3),Int32.valueOfNative(4));
 	    

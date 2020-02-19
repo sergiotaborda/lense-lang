@@ -24,6 +24,7 @@ public class MethodInvocationNode extends NeedTypeCalculationNode {
 	private Map<String, TypeVariable> boundedTypes;
 	private TypeMember member;
 	private boolean staticInvocation;
+	private boolean enchamentCall;
 	private boolean tupleAccessMethod;
 
     public MethodInvocationNode (){}
@@ -165,5 +166,17 @@ public class MethodInvocationNode extends NeedTypeCalculationNode {
 
 	public void setTupleAccessMethod(boolean tupleAccessMethod) {
 		this.tupleAccessMethod = tupleAccessMethod;
+	}
+
+	public boolean isEnchamentCall() {
+		return enchamentCall;
+	}
+
+	public void setEnchamentCall(boolean enchamentCall) {
+		this.enchamentCall = enchamentCall;
+		if (enchamentCall) {
+			this.staticInvocation = true;
+		}
+	
 	}
 }

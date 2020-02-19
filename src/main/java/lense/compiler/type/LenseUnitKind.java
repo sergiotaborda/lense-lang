@@ -14,7 +14,8 @@ public enum LenseUnitKind implements TypeKind{
 	Annotation,
 	Enum,
 	Enhancement,
-	Object
+	Object,
+	Peer
 	;
 
 	public boolean isInterface() {

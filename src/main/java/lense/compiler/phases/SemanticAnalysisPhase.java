@@ -90,7 +90,7 @@ public class SemanticAnalysisPhase implements CompilerPhase {
 
 					
 					TreeTransverser.transverse(ct,new IdentifiersVerifierVisitor(ctx));
-					TreeTransverser.transverse(ct,new SemanticVisitor(ctx, enhancements, listener));
+					TreeTransverser.transverse(ct,new SemanticVisitor(ctx,listener, enhancements));
 					TreeTransverser.transverse(ct,new EnsureNotFundamentalTypesVisitor(ctx));
 
 					hasAlgebric = hasAlgebric || ct.isAlgebric();
