@@ -35,9 +35,6 @@ public interface Natural extends Whole , Ordinal<Natural>, Progressable<Natural>
 	public wholeDivide (other : Natural) : Natural; 	
 	public wholeDivide (other : Integer) : Integer; 	
 	
-	public upTo( other: Natural) : Progression<Natural>;
-	public upToExclusive( other: Natural) : Progression<Natural>;
-
 	public isPositive() : Boolean; 
 	public isNegative() : Boolean; 
 	public symmetric() : Integer;  

@@ -25,7 +25,7 @@
 
 == Language Features
 
-- [ ] understand that -0.0 may be a different thing than 0.0 if the target is Float. Also 0.0.symetric() == -0.0 in Float and that -0.0 = new Float32(0.0).symetric()  but not  -0.0 =/= new Float32(new Rational(0.0)); 
+- [x] understand that -0.0 may be a different thing than 0.0 if the target is Float. Also 0.0.symetric() == -0.0 in Float and that -0.0 = new Float32(0.0).symetric()  but not  -0.0 =/= new Float32(new Rational(0.0)); 
 - [ ] validade literal number range at compile time.
 - [ ] consider target typing and/or mapping literals to objects with special `Literal` (not instanciable) object and implicit constructors 
 - [x] define variables with `let` and values with `val`. make `let` the default when not expliclity declared
@@ -38,7 +38,7 @@
 * [x] case objects   ( via algebric types)
 - [x] enums (via sealed types)
 - [ ] Annotation
-- [ ] Enhancements
+- [x] Enhancements
 * [x] methods
 * [x] constructors
 * [x] read only properties
@@ -89,7 +89,7 @@
 - [ ] Define Annotations
 - [ ] Define Enhancements (useful for operations on numbers of different types. enhancements can be native)
 * [x] Define enhancement methods
-* [ ] Define enhancement named constructors
+* [x] Define enhancement named constructors
 * [ ] Define enhancement read only/calculated properties
 * [ ] Define native enhancement
 - [ ] data/record classes 
@@ -99,7 +99,7 @@
 * [x] save immutability as an interface
 - [ ] Native Types
 * [x] full native types 
-* [ ] native peers
+* [x] native peers
 * [ ] native import like :  import native (js) jquery;
 
 ==== Fundamental Types 
@@ -117,9 +117,9 @@
 * [x] assume all whole numeric literals are natural numbers 
 * [x] assume all fractional numeric literals are rational numbers 
 * [x] define imaginary unit is 'i' and `2i` means  `Rational("2") * Complex.I`
-- [ ] Support Sequence
+- [x] Support Sequence
 * [x] define sequence literals `[1,2,3,4]`
-- [ ] Support Association
+- [x] Support Association
 * [x] define map literals `{ "a": 1, "b": 2 , "c" : 3}`
 - [x] Support String
 * [ ] implement string as a lightweight rope
@@ -155,9 +155,9 @@
 - [ ] support auto-boxing and auto-unboxing of _native primitives_
 * [x] use auto-boxing to erase `Boolean` with primitive `boolean`  (java back-end) 
 * [x] identity bound limits in loops  
-- [/] erase numeric values to they primitive conterparts
-* [ ] erase Int32 explicitly declared variables
-* [ ] erase Int64 explicitly declared variables
+- [.] erase numeric values to they primitive conterparts
+* [x] erase Int32 explicitly declared variables
+* [x] erase Int64 explicitly declared variables
 * [ ] erase Natural declared variables accounting for bound limits are known (like in ranges). 
 * [ ] erase Integer declared variables accounting for bound limits are known (like in ranges). 
 - [ ] erase string to native charSequence. 

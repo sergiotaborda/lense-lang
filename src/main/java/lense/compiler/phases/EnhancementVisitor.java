@@ -4,7 +4,6 @@ import java.util.Optional;
 
 import compiler.syntax.AstNode;
 import compiler.trees.VisitorNext;
-import lense.compiler.ast.ClassTypeNode;
 import lense.compiler.ast.FormalParameterNode;
 import lense.compiler.ast.MethodDeclarationNode;
 import lense.compiler.ast.VariableReadNode;
@@ -38,12 +37,7 @@ public final class EnhancementVisitor extends AbstractScopedVisitor {
 			transformReferenceToThis(m.getBlock());
 			
 			return VisitorNext.Siblings;
-		} else if (node instanceof ClassTypeNode) {
-			ClassTypeNode c  = (ClassTypeNode)node;
-			if (c.getKind().isEnhancement()) {
-				c.setSuperType(null);
-			}
-		} 
+		}
 		return VisitorNext.Children;
 	}
 

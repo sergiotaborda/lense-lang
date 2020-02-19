@@ -1,18 +1,15 @@
 package lense.core.math;
 
 import lense.core.collections.Progression;
-import lense.core.lang.Any;
 import lense.core.lang.Ordinal;
 import lense.core.lang.java.Constructor;
 import lense.core.lang.java.NonNull;
 import lense.core.lang.java.PlatformSpecific;
 import lense.core.lang.java.Signature;
-import lense.core.lang.reflection.Type;
-import lense.core.lang.reflection.TypeResolver;
 
 @Signature("::lense.core.math.Whole&lense.core.math.Ordinal")
 @PlatformSpecific
-public interface Natural extends Whole , Ordinal {
+public interface Natural extends Whole , Ordinal , Progressable, Comparable {
 
 
 
@@ -20,33 +17,10 @@ public interface Natural extends Whole , Ordinal {
 	public static Natural parse(lense.core.lang.String text){
 	    return BigNatural.parse(text).reduce();
 	}
-	
-//	public default @NonNull Progression upTo(@NonNull Natural other) {
-//		return new NativeOrdinalProgression(this, other, true);
-//	}
-
-	public  Progression upTo( Natural other);
-	
-//	public default @NonNull Progression upToExclusive(@NonNull Natural other) {
-//		return new NativeOrdinalProgression(this, other, false);
-//	}
-	
-	public Progression upToExclusive( Natural other);
 
     public Natural wholeDivide (Natural other);
     
     public Integer wholeDivide(Integer other) ;
-    
-//    public default Integer wholeDivide(Integer other) {
-//        BigInteger div = asJavaBigInteger().divide(other.asJavaBigInteger());
-//        
-//        if (div.bitLength() < 32){
-//            return new Int32(div.intValue());
-//        } else if (div.bitLength() < 64){
-//            return new Int64(div.longValue());
-//        }
-//        return new BigInt(div);
-//    }
 
     public int modulus(int n);
 
@@ -54,24 +28,12 @@ public interface Natural extends Whole , Ordinal {
 
     public Whole minus( Whole other);
     
-//    @Override
-//    public default @NonNull Whole minus(@NonNull Whole other) {
-//    	return this.asInteger().minus(other);
-//    }
-    
     public Natural wrapPlus(Natural other);
     
-//	public default Natural wrapPlus(Natural other) {
-//		return this.plus(other);
-//	}
-
 	public Natural wrapMinus(Natural other);
 	
 	public Natural wrapMultiply(Natural other);
-	
-//	public default Natural wrapMultiply(Natural other) {
-//		return this.multiply(other);
-//	}
+
 	
     public Integer minus( Natural other);
 

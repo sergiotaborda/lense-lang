@@ -3,13 +3,10 @@ import lense.core.math.SignedNumber;
 import lense.core.math.Real;
 import lense.core.math.Whole;
 import lense.core.math.Equal;
-import lense.core.math.ImaginaryOverReal;
 
 public interface Imaginary extends SignedNumber , Comparable<Imaginary> {
 
-	public implicit constructor valueOf(other : Real) {
-		return new ImaginaryOverReal.valueOf(other);
-	}
+	public native implicit constructor valueOf(other : Real);
 
 	public real(): Real;
 

@@ -21,6 +21,11 @@ public final class BlockNode extends LenseAstNode implements ScopeDelimiter{
 	
 	public BlockNode(){}
 
+	public BlockNode(ReturnNode node) {
+		this.add(node);
+	}
+	
+
 	@Override
 	public String getScopeName() {
 		return "block";
