@@ -25,6 +25,7 @@
 
 == Language Features
 
+- [ ] use -> instead of : in association literals. this frees : for other uses
 - [x] understand that -0.0 may be a different thing than 0.0 if the target is Float. Also 0.0.symetric() == -0.0 in Float and that -0.0 = new Float32(0.0).symetric()  but not  -0.0 =/= new Float32(new Rational(0.0)); 
 - [ ] validade literal number range at compile time.
 - [ ] consider target typing and/or mapping literals to objects with special `Literal` (not instanciable) object and implicit constructors 
@@ -43,8 +44,9 @@
 * [x] constructors
 * [x] read only properties
 * [x] native
-- [ ] data/record classes 
+- [ ] record classes 
 - [x] value classes
+- [ ] limit tuples to only be used inside methods , or remove them altogehter in preference of records
 
 - [ ] validate variables used are effectively final ( so they can be used in lambdas)
      
@@ -65,7 +67,10 @@
 - [x] support properties in interfaces
 - [x] support only propeties and not fields. 
 - [x] support simple delegation using `=>` like in  `size {get = list.size}` can be  `size => list.size`
-- [ ] support type inference
+- [ ] support type inference and type classes
+- [ ] support operators in type interfaces and the 'operator' keyword
+- [ ] support serialization using type classes as factories
+- [ ] support constructors in type classes equivalent to static constructors
 - [x] support void return inference
 - [ ] support generics of generics like T<U>
 - [x] support `Type` type as base for reflection
