@@ -294,6 +294,6 @@ Ad elvis operator since transparent maybe is no good ?:
 
 Scala way of "all are functions" collapses the Collections variance intuition becasue functions are contravariant 
 	and collections concepts are covariant the result is an invariant collections api
-	http://www.stackoverflow.dluat.com/questions/676615/why-is-scalas-immutable-set-not-covariant-in-its-type	 
+	http://www.stackoverflow.com/questions/676615/why-is-scalas-immutable-set-not-covariant-in-its-type	 
 
 	
