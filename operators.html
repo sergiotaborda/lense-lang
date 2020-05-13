@@ -169,38 +169,275 @@
  <h2 id="_operators">Operators</h2> 
  <div class="sectionbody"> 
   <div class="paragraph"> 
-   <p>Lense supports operators with a special kind of operator overloading. There are two types of operators : intrinsic and redefinable.</p> 
+   <p>Lense supports operators with a special kind of operator overloading. There are two types of operators : intrinsic and definable.</p> 
   </div> 
   <div class="paragraph"> 
-   <p>Intrinsic operators are native to the language and their behavior cannot be redefined. On the other hand, the set of available operators for redefinition is limited ( we do not what symbolic noise ) but extended enought to be usefull in a mathematical or engineering context. Redefinable operators are translated to calls to methods. Intrinsic operators are not translated to method calls.</p> 
+   <p>Intrinsic operators are native to the language and their behaviour cannot be redefined. On the other hand, the set of available operators for redefinition is limited ( we do not what symbolic noise ) but extended enought to be usefull in a mathematical or engineering context. Definable operators are translated to calls to methods. Intrinsic operators are not translated to method calls.</p> 
   </div> 
   <div class="paragraph"> 
-   <p>Symbols are gathered from differente sources. Lense pays special attention to algebric structures that are related to the operators and symbols, this means, for example, that the symbol implies if the operation is comutable or not. As a rule of thumb, doubled symbols always represent non-comutative operations. For example,we use <code>^^</code> for exponentiation that we now is always non-comutative and <code>^</code> for the XOR operator that is always comutative. On te same token we use <code>+</code> for comutative sum and <code>++</code> for non cumutative concatenation.</p> 
+   <p>Symbols are gathered from different sources. Lense pays special attention to algebraic structures that are related to the operators and symbols, this means, for example, that the symbol implies if the operation is comutable or not. As a rule of thumb, doubled symbols always represent non-comutative operations. For example,we use <code>^^</code> for exponentiation that we now is always non-comutative and <code>^</code> for the XOR operator that is always comutative. On te same token we use <code>+</code> for comutative sum and <code>++</code> for non cumutative concatenation.</p> 
   </div> 
   <div class="sect2"> 
    <h3 id="_intrinsic_operators">Intrinsic Operators</h3> 
    <div class="paragraph"> 
     <p>Intrinsic operators cannot be redefined and are specially handled by the compiler.</p> 
    </div> 
-   <div class="paragraph"> 
-    <p>&lt;table class="listing"&gt; &lt;tr&gt; &lt;th&gt;Operator&lt;/th&gt; &lt;th&gt;Example&lt;/th&gt; &lt;th&gt;&lt;/th&gt; &lt;/tr&gt; &lt;tr&gt; &lt;td&gt; === &lt;/td&gt; &lt;td&gt; a === b &lt;/td&gt; &lt;td&gt; Determines if two objects have the same identity. Only objects of type &lt;code&gt;Identifiable&lt;/code&gt; can use this operator &lt;/td&gt; &lt;/tr&gt; &lt;tr&gt; &lt;td&gt; !== &lt;/td&gt; &lt;td&gt; a !== b &lt;/td&gt; &lt;td&gt; Determines if two objects have <strong>not</strong> the same identity. Only objects of type &lt;code&gt;Identifiable&lt;/code&gt; can use this operator &lt;/td&gt; &lt;/tr&gt; &lt;/tr&gt; &lt;tr&gt; &lt;td&gt; :: &lt;/td&gt; &lt;td&gt; var plusOperator = Natural::plus; &lt;/td&gt; &lt;td&gt; Allows for easy reflection of class members &lt;/td&gt; &lt;/tr&gt; &lt;tr&gt; &lt;td&gt; + (infix) &lt;/td&gt; &lt;td&gt; a&lt;/td&gt; &lt;td&gt; Does nothing. An infix &lt;code&gt;&lt;/code&gt; signed is ignored after parsing. It does not turn a negative value into a positive value.&lt;/td&gt; &lt;/tr&gt; &lt;tr&gt; &lt;td&gt; &amp;&amp; &lt;/td&gt; &lt;td&gt; a &amp;&amp; b&lt;/td&gt; &lt;td&gt; <strong>a</strong> and <strong>b</strong> must be &lt;code&gt;Boolean&lt;/code&gt;. Performs an AND logic operation on the operands but only is <strong>a</strong> is true. Otherwise simply return <code>false</code>. Because of the short-circuit behavior this is not a comutative operator. &lt;/td&gt; &lt;/tr&gt; &lt;tr&gt; &lt;td&gt; || &lt;/td&gt; &lt;td&gt; a || b&lt;/td&gt; &lt;td&gt; <strong>a</strong> and <strong>b</strong> must be &lt;code&gt;Boolean&lt;/code&gt;. Performs an OR logic operation on the operands but only is <strong>a</strong> is false. Otherwise simply return <code>true</code>.Because of the short-circuit behavior this is not a comutative operator. &lt;/td&gt; &lt;/tr&gt; &lt;tr&gt; &lt;td&gt; ! &lt;/td&gt; &lt;td&gt; !a&lt;/td&gt; &lt;td&gt; <strong>a</strong> must be &lt;code&gt;Boolean&lt;/code&gt;. Inverts the logic value of <strong>a</strong>. &lt;/td&gt; &lt;/tr&gt; &lt;/table&gt;</p> 
-   </div> 
+   <table class="tableblock frame-all grid-all spread"> 
+    <caption class="title">
+     Table 1. Intrinsic Operators
+    </caption> 
+    <colgroup> 
+     <col style="width: 16.6666%;"> 
+     <col style="width: 16.6666%;"> 
+     <col style="width: 66.6668%;"> 
+    </colgroup> 
+    <tbody> 
+     <tr> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Operator</strong></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Example</strong></p></td> 
+      <td class="tableblock halign-left valign-top"></td> 
+     </tr> 
+     <tr> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>===</code></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>a === b</code></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock">Determines if two objects have the same identity. Only objects of type <code>Identifiable</code> can use this operator</p></td> 
+     </tr> 
+     <tr> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>!==</code></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>a !== b</code></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock">Determines if two objects have <strong>not</strong> the same identity. Only objects of type <code>Identifiable</code> can use this operator</p></td> 
+     </tr> 
+     <tr> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>+</code> (infix)</p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>+a</code></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock">Does nothing. An infix <code>+</code> signed is ignored after parsing. It does not turn a negative value into a positive value.</p></td> 
+     </tr> 
+     <tr> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>&amp;&amp;</code></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>a &amp;&amp; b</code></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><strong>a</strong> and <strong>b</strong> must be <code>Boolean</code>. Performs an <strong>AND</strong> logic operation on the operands but only if <strong>a</strong> is <code>true</code>. Otherwise simply return <code>false</code>. Because of the short-circuit behaviour this is not a commutative operator.</p></td> 
+     </tr> 
+     <tr> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>||</code></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>a || b</code></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><strong>a</strong> and <strong>b</strong> must be <code>Boolean</code>. Performs an <strong>OR</strong> logic operation on the operands but only if <strong>a</strong> is <code>false</code>. Otherwise simply return <code>true</code>.Because of the short-circuit behaviour this is not a commutative operator.</p></td> 
+     </tr> 
+     <tr> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>!</code> (infix)</p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>!a</code></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><strong>a</strong> must be <code>Boolean</code>. Returns the logic complement of <strong>a</strong>.</p></td> 
+     </tr> 
+    </tbody> 
+   </table> 
   </div> 
   <div class="sect2"> 
    <h3 id="_definable_operators">Definable Operators</h3> 
    <div class="paragraph"> 
-    <p>Lense supports the following overridable operators:</p> 
+    <p>Lense supports the following definable operators:</p> 
    </div> 
-   <div class="paragraph"> 
-    <p>&lt;table class="listing"&gt; &lt;tr&gt; &lt;th&gt;Operator&lt;/th&gt; &lt;th&gt;Example&lt;/th&gt; &lt;th&gt;Translates to&lt;/th&gt; &lt;th&gt;Operator Interface&lt;/th&gt; &lt;th&gt;&lt;/th&gt; &lt;/tr&gt; &lt;tr&gt; &lt;td&gt; == &lt;/td&gt; &lt;td&gt; a == b &lt;/td&gt; &lt;td&gt; a.equals(b) &lt;/td&gt; &lt;td&gt; Equatable &lt;/td&gt; &lt;td&gt; Determines if two objects are equal. &lt;/td&gt; &lt;/tr&gt; &lt;tr&gt; &lt;td&gt; !=&lt;/td&gt; &lt;td&gt; a != b &lt;/td&gt; &lt;td&gt; !a.equals(b) &lt;/td&gt; &lt;td&gt; Equatable &lt;/td&gt; &lt;td&gt; Determines if two objects are <strong>not</strong> equal. &lt;/td&gt; &lt;/tr&gt; &lt;tr&gt; &lt;td&gt; + &lt;/td&gt; &lt;td&gt; a + b &lt;/td&gt; &lt;td&gt; a.plus(b) &lt;/td&gt; &lt;td&gt; Summable&lt;A,D,S&gt; &lt;/td&gt; &lt;td&gt; Sums two values and returns a third value. Prefer the + operator for comutative monoid operations with zero as identity element.&lt;/td&gt; &lt;/tr&gt; &lt;tr&gt; &lt;td&gt; &lt;/td&gt; &lt;td&gt; a b &lt;/td&gt; &lt;td&gt; a.concat(b) &lt;/td&gt; &lt;td&gt; Concatenatable&lt;A,D,S&gt; &lt;/td&gt; &lt;td&gt; Concatenates two values and returns a third value. Prefer the operator for non comutative monoid operations with empty as identity element &lt;/td&gt; &lt;/tr&gt; &lt;tr&gt; &lt;td&gt; - &lt;/td&gt; &lt;td&gt; a - b &lt;/td&gt; &lt;td&gt; a.minus(b) &lt;/td&gt; &lt;td&gt; Subtractable&lt;D,A,S&gt; &lt;/td&gt; &lt;td&gt; Substracts two values and returns in a third value. This operator represents a non-comutative operation. &lt;/td&gt; &lt;/tr&gt; &lt;tr&gt; &lt;td&gt; * &lt;/td&gt; &lt;td&gt; a * b &lt;/td&gt; &lt;td&gt; a.multiply(b) &lt;/td&gt; &lt;td&gt; Multiplyable&lt;P,A,B&gt; &lt;/td&gt; &lt;td&gt; Multiplies the two values and returns in a third value. Prefer the * operator for comutative monoid operations with one as identity. &lt;/td&gt; &lt;/tr&gt; &lt;tr&gt; &lt;td&gt; ^^ &lt;/td&gt; &lt;td&gt; a ^^ b &lt;/td&gt; &lt;td&gt; a.raiseTo(b) &lt;/td&gt; &lt;td&gt; Powerable&lt;P,B,E&gt; &lt;/td&gt; &lt;td&gt; Raises the first operand to the power of the second operand and returns the result in a third value. Prefer the ^^ operator for non-comutative monoid operations with one as identity. &lt;/td&gt; &lt;/tr&gt; &lt;tr&gt; &lt;td&gt; / &lt;/td&gt; &lt;td&gt; a / b &lt;/td&gt; &lt;td&gt; a.divide(b) &lt;/td&gt; &lt;td&gt; Dividable&lt;Q,N,D&gt; &lt;/td&gt; &lt;td&gt; Divides the two values and returns a third value. The operand values are not changed in any way. This operator represents a non-comutative operation. Note that Whole numbers implement Dividable&amp;lt;Rational, Whole,Whole&amp;gt; and Decimals implement Dividable&amp;lt;Decimals,Decimals,Decimals&amp;lt;. &lt;/td&gt; &lt;/tr&gt; &lt;tr&gt; &lt;td&gt; \ &lt;/td&gt; &lt;td&gt; a \ b &lt;/td&gt; &lt;td&gt; a.wholeDivide(b) &lt;/td&gt; &lt;td&gt; WholeDividable&lt;W&gt; &lt;/td&gt; &lt;td&gt; Performs whole division the two values and returns a third value. The operand values are not changed in any way. This operator represents a non-comutative operation. Note that Whole numbers implement WholeDividable&amp;lt;Whole&amp;gt; &lt;/td&gt; &lt;/tr&gt; &lt;tr&gt; &lt;td&gt; % &lt;/td&gt; &lt;td&gt; a % b &lt;/td&gt; &lt;td&gt; a.remainder(b) &lt;/td&gt; &lt;td&gt; WholeDividable&lt;W&gt; &lt;/td&gt; &lt;td&gt; Divides the two values and returns the remainder of integer devision. This operator represents a non-comutative operation. Note that it should true that &lt;i&gt;a = a \ b + a % b&lt;/i&gt; &lt;/td&gt; &lt;/tr&gt; &lt;tr&gt; &lt;td&gt; - (infix) &lt;/td&gt; &lt;td&gt; -a &lt;/td&gt; &lt;td&gt; a.symetric() &lt;/td&gt; &lt;td&gt; Symmetrical&lt;T,R&gt; &lt;/td&gt; &lt;td&gt; Returns the symmetric value. Keep in mind the type needs not be closed for subtraction. For `Natural`s, for example the symetric value is an `Integer`. &lt;/td&gt; &lt;/tr&gt; &lt;tr&gt; &lt;td&gt; ~ (infix) &lt;/td&gt; &lt;td&gt; ~a &lt;/td&gt; &lt;td&gt; a.complement() &lt;/td&gt; &lt;td&gt; Complementable&lt;T,R&gt; &lt;/td&gt; &lt;td&gt; Returns the complement of the value. For Binary values it is equivalent to fliping all bits. For complex numbers is represents the conjugate so that &lt;i&gt;~(a + ib) = a - ib&lt;/i&gt; &lt;/td&gt; &lt;/tr&gt; &lt;tr&gt; &lt;td&gt; (infix) &lt;/td&gt; &lt;td&gt; ++a &lt;/td&gt; &lt;td&gt; a.successor() &lt;/td&gt; &lt;td&gt; Ordable&lt;T&gt; &lt;/td&gt; &lt;td&gt; Obtain the next value in the enumeration.&lt;/td&gt; &lt;/tr&gt; &lt;tr&gt; &lt;td&gt; — (infix) &lt;/td&gt; &lt;td&gt; --a &lt;/td&gt; &lt;td&gt; a.predecessor() &lt;/td&gt; &lt;td&gt; Ordable&lt;T&gt; &lt;/td&gt; &lt;td&gt;Obtain the previous value in the enumeration.&lt;/td&gt; &lt;/tr&gt; &lt;tr&gt; &lt;td&gt; &amp; &lt;/td&gt; &lt;td&gt; a &amp; b &lt;/td&gt; &lt;td&gt; a.and(b) &lt;/td&gt; &lt;td&gt; Injunctable&lt;R,A,B&gt; &lt;/td&gt; &lt;td&gt; Injucts the two values and returns a third value. For binary forms, this implements a bitwise AND. For sets this implements intersection&lt;/td&gt; &lt;/tr&gt; &lt;tr&gt; &lt;td&gt; | &lt;/td&gt; &lt;td&gt; a | b &lt;/td&gt; &lt;td&gt; a.or(b) &lt;/td&gt; &lt;td&gt; Dijunctable&lt;R,A,B&gt; &lt;/td&gt; &lt;td&gt; Dijuncts the two values and returns a third value. For binary forms, this implements a bitwise OR . For sets this implements union&lt;/td&gt; &lt;/tr&gt; &lt;tr&gt; &lt;td&gt; ^ &lt;/td&gt; &lt;td&gt; a ^ b &lt;/td&gt; &lt;td&gt; a.xor(b) &lt;/td&gt; &lt;td&gt; ExclusivelyDijunctable&lt;R,A,B&gt; &lt;/td&gt; &lt;td&gt; Exclusively dijunsts the two values and returns a third value. For binary forms, this implements a bitwise XOR &lt;/td&gt; &lt;/tr&gt; &lt;tr&gt; &lt;td&gt; &lt;⇒ &lt;/td&gt; &lt;td&gt; a &lt;⇒ b &lt;/td&gt; &lt;td&gt; a.compareTo(b) &lt;/td&gt; &lt;td&gt; Comparable&lt;T&gt; &lt;/td&gt; &lt;td&gt; Compared the order of the values of <strong>a</strong> and <strong>b</strong>. Returns &lt;code&gt;Comparison.Equals&lt;/code&gt;, &lt;code&gt;Comparison.Greater&lt;/code&gt; or &lt;code&gt;Comparison.Lesser&lt;/code&gt; if , respectively, a = b, a &gt; b and a &lt; b. The operand values are not changed in any way. &lt;/td&gt; &lt;/tr&gt; &lt;tr&gt; &lt;td&gt; &gt; &lt;/td&gt; &lt;td&gt; a &gt; b &lt;/td&gt; &lt;td&gt; a.compareTo(b) &gt; 0 &lt;/td&gt; &lt;td&gt; Comparable&lt;T&gt; &lt;/td&gt; &lt;td&gt; Returns <code>true</code> if <strong>a</strong> is great than <strong>b</strong>, <code>false</code> otherwise. The operand values are not changed in any way. &lt;/td&gt; &lt;/tr&gt; &lt;tr&gt; &lt;td&gt; &gt;= &lt;/td&gt; &lt;td&gt; a &gt;= b &lt;/td&gt; &lt;td&gt; a.compareTo(b) &gt;= 0 &lt;/td&gt; &lt;td&gt; Comparable&lt;T&gt; &lt;/td&gt; &lt;td&gt; Returns <code>true</code> if <strong>a</strong> is great or equals to <strong>b</strong>, <code>false</code> otherwise. The operand values are not changed in any way. &lt;/td&gt; &lt;/tr&gt; &lt;tr&gt; &lt;td&gt; &lt; &lt;/td&gt; &lt;td&gt; a &lt; b &lt;/td&gt; &lt;td&gt; a.compareTo(b) &lt; 0 &lt;/td&gt; &lt;td&gt; Comparable&lt;T&gt; &lt;/td&gt; &lt;td&gt; Returns <code>true</code> if <strong>a</strong> is less than <strong>b</strong>, <code>false</code> otherwise. The operand values are not changed in any way. &lt;/td&gt; &lt;/tr&gt; &lt;tr&gt; &lt;td&gt; ⇐ &lt;/td&gt; &lt;td&gt; a ⇐ b &lt;/td&gt; &lt;td&gt; a.compareTo(b) ⇐ 0 &lt;/td&gt; &lt;td&gt; Comparable&lt;T&gt; &lt;/td&gt; &lt;td&gt; Returns <code>true</code> if <strong>a</strong> is less or equal to <strong>b</strong>, <code>false</code> otherwise. The operand values are not changed in any way. &lt;/td&gt; &lt;/tr&gt; &lt;tr&gt; &lt;td&gt; .. &lt;/td&gt; &lt;td&gt; a..b &lt;/td&gt; &lt;td&gt; a.upTo(b)&lt;/td&gt; &lt;td&gt; Progressable&lt;T&gt; &lt;/td&gt; &lt;td&gt; Returns a Progression that starts at <strong>a</strong> and ends at <strong>b</strong>. The operand values are not changed in any way. &lt;/td&gt; &lt;/tr&gt; &lt;tr&gt; &lt;td&gt; &gt;&gt; &lt;/td&gt; &lt;td&gt; a &gt;&gt; n &lt;/td&gt; &lt;td&gt; a.rightShiftBy(n)&lt;/td&gt; &lt;td&gt; Binary&lt;T&gt; &lt;/td&gt; &lt;td&gt; The arithmetic right shift operator returns a value equivalent to the original with bits moved to the right <strong>n</strong> times. This is equivalent to division by 2 <strong>n</strong> times for positieve numeric values.The operand values are not changed in any way. &lt;/td&gt; &lt;/tr&gt; &lt;tr&gt; &lt;td&gt; &lt;&lt; &lt;/td&gt; &lt;td&gt; a &lt;&lt; n &lt;/td&gt; &lt;td&gt; a.leftShiftBy(n)&lt;/td&gt; &lt;td&gt; Binary&lt;T&gt; &lt;/td&gt; &lt;td&gt; The arithmetic left shift operator returns a value equivalent to the original with bits moved to the left <strong>n</strong> times. This is equivalent to multiplication by 2 <strong>n</strong> times for positieve numeric values. The operand values are not changed in any way. &lt;/td&gt; &lt;/tr&gt; &lt;tr&gt; &lt;td&gt; &lt;i&gt;empty space&lt;/i&gt; &lt;/td&gt; &lt;td&gt; a b &lt;/td&gt; &lt;td&gt; a.juxtapose(b)&lt;/td&gt; &lt;td&gt; Juxtaposable&lt;T&gt; &lt;/td&gt; &lt;td&gt; (Under consideration) This is an operator with no symbol that means the two operands are simply "put together". This may mean a kind of multiplication like in <code>2 Kg</code> , or in matrix multiplication like <code>A B</code>. The juxtapose operator is non-comutative in general. &lt;/td&gt; &lt;/tr&gt; &lt;/table&gt;</p> 
-   </div> 
+   <table class="tableblock frame-all grid-all spread"> 
+    <caption class="title">
+     Table 2. Definable Operators
+    </caption> 
+    <colgroup> 
+     <col style="width: 14.2857%;"> 
+     <col style="width: 14.2857%;"> 
+     <col style="width: 14.2857%;"> 
+     <col style="width: 14.2857%;"> 
+     <col style="width: 42.8572%;"> 
+    </colgroup> 
+    <tbody> 
+     <tr> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Operator</strong></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Example</strong></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Translates To</strong></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Operator Interface</strong></p></td> 
+      <td class="tableblock halign-left valign-top"></td> 
+     </tr> 
+     <tr> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>==</code></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>a == b</code></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>a.equals(b)</code></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>Equatable</code></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock">Determines if two objects are equal.</p></td> 
+     </tr> 
+     <tr> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>!=</code></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>a != b</code></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>!a.equals(b)</code></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>Equatable</code></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock">Determines if two objects are <strong>not</strong> equal.</p></td> 
+     </tr> 
+     <tr> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>+</code></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>a + b</code></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>a.plus(b)</code></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>Summable&lt;A,D,S&gt;</code></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock">Sums two values and returns a third value. Prefer the + operator for <strong>commutative</strong> monoid operations with zero as identity element.</p></td> 
+     </tr> 
+     <tr> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>++</code></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>a ++ b</code></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>a.concat(b)</code></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>Concatenatable&lt;A,D,S&gt;</code></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock">Concatenates two values and returns a third value. Prefer the ++ operator for <strong>non commutative</strong> monoid operations with empty as identity element</p></td> 
+     </tr> 
+     <tr> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-</code></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>a - b</code></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>a.minus(b)</code></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>Subtractable&lt;A,D,S&gt;</code></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock">Substracts two values and returns a third value. This operator represents a <strong>non commutative</strong> operation</p></td> 
+     </tr> 
+     <tr> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>*</code></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>a * b</code></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>a.multiply(b)</code></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>Multiplyable&lt;P,A,B&gt;</code></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock">Multiplies the two values and returns in a third value. Prefer the * operator for <strong>commutative</strong> monoid operations with one as identity.</p></td> 
+     </tr> 
+     <tr> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>^^</code></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>a ^^ b</code></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>a.raiseTo(b)</code></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>Dividable&lt;Q,N,D&gt;</code></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock">Raises the first operand to the power of the second operand and returns the result in a third value. Prefer the ^^ operator for <strong>non commutative</strong> monoid operations with one as identity.</p></td> 
+     </tr> 
+     <tr> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>/</code></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>a / b</code></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>a.divide(b)</code></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>Dividable&lt;Q,N,D&gt;</code></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock">Divides the two values and returns a third value. The operand values are not changed in any way. This operator represents a <strong>non commutative</strong> operation.</p></td> 
+     </tr> 
+     <tr> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>\</code></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>a \ b</code></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>a.wholeDivide(b)</code></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>WholeDividable&lt;W&gt;</code></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock">Performs whole division the two values and returns a third value. The operand values are not changed in any way. This operator represents a <strong>non commutative</strong> operation.</p></td> 
+     </tr> 
+     <tr> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>%</code></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>a % b</code></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>a.remainder(b)</code></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>WholeDividable&lt;W&gt;</code></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock">Divides the two values and returns the remainder of integer division. This operator represents a <strong>non commutative</strong> operation. Note that it always should be true that <code>a == a \ b + a % b</code></p></td> 
+     </tr> 
+     <tr> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-</code> (infix)</p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-a</code></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>a.symmetric()</code></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>Symmetrical&lt;T,R&gt;</code></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock">Returns the symmetric value. Keep in mind the type needs not be closed for subtraction. For <code>Natural`s, for example the symmetric value is an `Integer</code>.</p></td> 
+     </tr> 
+     <tr> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>~</code> (infix)</p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>~a</code></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>a.complement()</code></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>Complementable&lt;T,R&gt;</code></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock">Returns the complement of the value. For <code>Binary</code> values it is equivalent to flipping all bits. For complex numbers is represents the conjugate so that <code>~(a + ib) == a - ib</code></p></td> 
+     </tr> 
+     <tr> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>&amp;</code></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>a &amp; b</code></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>a.and(b)</code></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>Injunctable&lt;R,A,B&gt;</code></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock">Injucts the two values and returns a third value. For binary forms, this implements a bitwise AND. For sets this implements intersection</p></td> 
+     </tr> 
+     <tr> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>|</code></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>a | b</code></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>a.or(b)</code></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock">Dijunctable&lt;R,A,B&gt;</p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock">Dijuncts the two values and returns a third value. For binary forms, this implements a bitwise OR . For sets this implements union</p></td> 
+     </tr> 
+     <tr> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>^</code></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>a ^ b</code></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>a.xor(b)</code></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>ExclusivelyDijunctable&lt;R,A,B&gt;</code></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock">Exclusively dijunsts the two values and returns a third value. For binary forms, this implements a bitwise XOR</p></td> 
+     </tr> 
+     <tr> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>&lt;⇒</code></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>a &lt;⇒ b</code></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>a.compareTo(b)</code></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>Comparable&lt;T&gt;</code></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock">Compared the order of the values of <strong>a</strong> and <strong>b</strong>. Returns <code>Comparison.equal</code>, <code>Comparison.greater</code> or <code>Comparison.lesser</code> if , respectively, a = b, a &gt; b and a &lt; b. The operand values are not changed in any way.</p></td> 
+     </tr> 
+     <tr> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>&gt;</code></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>a &gt; b</code></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>a.compareTo(b) == Comparison.greater</code></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>Comparable&lt;T&gt;</code></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock">Returns <code>true</code> if <strong>a</strong> is great than <strong>b</strong>, <code>false</code> otherwise.</p></td> 
+     </tr> 
+     <tr> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>&gt;=</code></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>a &gt; b</code></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>a.compareTo(b) != Comparison.lesser</code></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>Comparable&lt;T&gt;</code></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock">Returns <code>true</code> if <strong>a</strong> is great or equals to <strong>b</strong>, <code>false</code> otherwise.</p></td> 
+     </tr> 
+     <tr> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>&lt;</code></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>a &lt; b</code></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>a.compareTo(b) == Comparison.lesser</code></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>Comparable&lt;T&gt;</code></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock">Returns <code>true</code> if <strong>a</strong> is less than <strong>b</strong>, <code>false</code> otherwise.</p></td> 
+     </tr> 
+     <tr> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>⇐</code></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>a ⇐ b</code></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>a.compareTo(b) != Comparison.greater</code></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>Comparable&lt;T&gt;</code></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock">Returns <code>true</code> if <strong>a</strong> is less or equal to <strong>b</strong>, <code>false</code> otherwise.</p></td> 
+     </tr> 
+     <tr> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>..</code></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>a .. b</code></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>a.upTo(b)</code></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>Progressable&lt;T&gt;</code></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock">Returns a Progression that starts at <strong>a</strong> and ends at <strong>b</strong>.</p></td> 
+     </tr> 
+     <tr> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>..&lt;</code></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>a ..&lt; b</code></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>a.upToExclude(b)</code></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>Progressable&lt;T&gt;</code></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock">Returns a Progression that starts at <strong>a</strong> and ends at <strong>b</strong> but not contains <strong>b</strong>.</p></td> 
+     </tr> 
+     <tr> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>&gt;&gt;</code></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>a &gt;&gt; n</code></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>a.rightShiftBy(n)</code></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>Binary&lt;T&gt;</code></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock">The arithmetic right shift operator returns a value equivalent to the original with bits moved to the right <strong>n</strong> times. This is equivalent to division by 2 <strong>n</strong> times for positive numeric values.</p></td> 
+     </tr> 
+     <tr> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>&lt;&lt;</code></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>a &lt;&lt; n</code></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>a.leftShiftBy(n)</code></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>Binary&lt;T&gt;</code></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock">The arithmetic left shift operator returns a value equivalent to the original with bits moved to the left <strong>n</strong> times. This is equivalent to multiplication by 2 <strong>n</strong> times for positive numeric values.</p></td> 
+     </tr> 
+     <tr> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><em>empty space</em></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>a b</code></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>a.juxtapose(b)</code></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>Juxtaposable&lt;A,B,R&gt;</code></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock">This is an operator with no symbol that means the two operands are simply "put together". This may mean a kind of multiplication like in <code>2 Kg</code> , or in matrix multiplication like <code>A B</code>. The juxtapose operator is <strong>non commutative</strong>.</p></td> 
+     </tr> 
+    </tbody> 
+   </table> 
   </div> 
   <div class="sect2"> 
    <h3 id="_ternary_operators">Ternary operators</h3> 
    <div class="sect3"> 
     <h4 id="_ternary_select_operator">Ternary Select operator</h4> 
     <div class="paragraph"> 
-     <p>This operator test for the first term to be true. In the positieve case returns the second term. Otherwise returns the third.</p> 
+     <p>This operator test for the first term to be true. In the positive case returns the second term. Otherwise returns the third.</p> 
     </div> 
     <div class="listingblock"> 
      <div class="content"> 
@@ -308,11 +545,36 @@ a = a + 5;</code></pre>
    <div class="paragraph"> 
     <p>All composed assignment operator are decomposed by the compiler in an assignment an a call to the root operator.</p> 
    </div> 
+   <table class="tableblock frame-all grid-all spread"> 
+    <caption class="title">
+     Table 3. Composed assignment operators
+    </caption> 
+    <colgroup> 
+     <col style="width: 20%;"> 
+     <col style="width: 20%;"> 
+     <col style="width: 20%;"> 
+     <col style="width: 20%;"> 
+     <col style="width: 20%;"> 
+    </colgroup> 
+    <tbody> 
+     <tr> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>+=</code></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-=</code></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>*=</code></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>/=</code></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>\=</code></p></td> 
+     </tr> 
+     <tr> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>&amp;=</code></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>|=</code></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>^=</code></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>&lt;⇐</code></p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock"><code>&gt;&gt;=</code></p></td> 
+     </tr> 
+    </tbody> 
+   </table> 
    <div class="paragraph"> 
-    <p>&lt;table class="listing"&gt; &lt;tr&gt; &lt;td&gt;+=&lt;/td&gt; &lt;td&gt;-=&lt;/td&gt; &lt;td&gt;*=&lt;/td&gt; &lt;td&gt;/=&lt;/td&gt; &lt;td&gt;\=&lt;/td&gt; &lt;/tr&gt; &lt;tr&gt; &lt;td&gt;&amp;=&lt;/td&gt; &lt;td&gt;|=&lt;/td&gt; &lt;td&gt;^=&lt;/td&gt; &lt;td&gt;&lt;⇐&lt;/td&gt; &lt;td&gt;&gt;&gt;=&lt;/td&gt; &lt;/tr&gt; &lt;/table&gt;</p> 
-   </div> 
-   <div class="paragraph"> 
-    <p>Remember that assignments are statemets in Lense, so the following code does not compile:</p> 
+    <p>Remember that assignments are statements in Lense, so the following code does not compile:</p> 
    </div> 
    <div class="listingblock"> 
     <div class="content"> 

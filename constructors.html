@@ -327,38 +327,39 @@ let aThird = new Fraction(1, 3);</code></pre>
     <div class="paragraph"> 
      <p>There is no boilerplate and there is no repetition of the class’s name and the keyword clearly states that the instruction is a constructor.</p> 
     </div> 
-    <div class="paragraph"> 
-     <p>&lt;a name="named"&gt;&lt;/a&gt; === Named Constructors</p> 
-    </div> 
-    <div class="paragraph"> 
-     <p>All is fine when the class only needs one constructor. But more times, than not, people would realize an object can be created by different forms. Design can argument this other forms should be handled by factory object and the class itself as only a set of parameters. While this can obviously accomplished is not practical.</p> 
-    </div> 
-    <div class="paragraph"> 
-     <p>If we intend to have a <code>Color</code> type that can be created from RGB or HSL values the two algorithms are different and one or both require calculations before we can set the object private fields. On the other hand we need some practical way of distinguishing between them. Here the static method factory comes handy because it provides a name to the construction form. So in java we could write</p> 
-    </div> 
-    <div class="listingblock"> 
-     <div class="content"> 
-      <pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">// java
+   </div> 
+  </div> 
+  <div class="sect2"> 
+   <h3 id="named">Named Constructors</h3> 
+   <div class="paragraph"> 
+    <p>All is fine when the class only needs one constructor. But more times, than not, people would realize an object can be created by different forms. Design can argument this other forms should be handled by factory object and the class itself as only a set of parameters. While this can obviously accomplished is not practical.</p> 
+   </div> 
+   <div class="paragraph"> 
+    <p>If we intend to have a <code>Color</code> type that can be created from RGB or HSL values the two algorithms are different and one or both require calculations before we can set the object private fields. On the other hand we need some practical way of distinguishing between them. Here the static method factory comes handy because it provides a name to the construction form. So in java we could write</p> 
+   </div> 
+   <div class="listingblock"> 
+    <div class="content"> 
+     <pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">// java
 Color a = Color.fromRGB(1.0 , 1.0 , 1.0);
 Color b = Color.fromHSL(60 , 0.5 , 0.5);</code></pre> 
-     </div> 
     </div> 
-    <div class="paragraph"> 
-     <p>However there is no <code>new</code> keyword being used. Dart provides the same sintax but using <code>new</code>:</p> 
-    </div> 
-    <div class="listingblock"> 
-     <div class="content"> 
-      <pre class="highlightjs highlight"><code class="language-dart hljs" data-lang="dart">// dart
+   </div> 
+   <div class="paragraph"> 
+    <p>However there is no <code>new</code> keyword being used. Dart provides the same sintax but using <code>new</code>:</p> 
+   </div> 
+   <div class="listingblock"> 
+    <div class="content"> 
+     <pre class="highlightjs highlight"><code class="language-dart hljs" data-lang="dart">// dart
 Color a = new Color.fromRGB(1.0 , 1.0 , 1.0);
 Color b = new Color.fromHSL(60 , 0.5 , 0.5);</code></pre> 
-     </div> 
     </div> 
-    <div class="paragraph"> 
-     <p>In Dart you can provide named constructors like</p> 
-    </div> 
-    <div class="listingblock"> 
-     <div class="content"> 
-      <pre class="highlightjs highlight"><code class="language-dart hljs" data-lang="dart">// dart
+   </div> 
+   <div class="paragraph"> 
+    <p>In Dart you can provide named constructors like</p> 
+   </div> 
+   <div class="listingblock"> 
+    <div class="content"> 
+     <pre class="highlightjs highlight"><code class="language-dart hljs" data-lang="dart">// dart
  class Color {
 
     Color.fromRGB(red, greee, blue){
@@ -370,14 +371,14 @@ Color b = new Color.fromHSL(60 , 0.5 , 0.5);</code></pre>
     }
 
 }</code></pre> 
-     </div> 
     </div> 
-    <div class="paragraph"> 
-     <p>Its a little odd to have dots in the name of the constructor , but at least is consistent with the traditional constructor syntax. In Lense because we have the <code>constructor</code> key word we simply write the same as:</p> 
-    </div> 
-    <div class="listingblock"> 
-     <div class="content"> 
-      <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">class Color {
+   </div> 
+   <div class="paragraph"> 
+    <p>Its a little odd to have dots in the name of the constructor , but at least is consistent with the traditional constructor syntax. In Lense because we have the <code>constructor</code> key word we simply write the same as:</p> 
+   </div> 
+   <div class="listingblock"> 
+    <div class="content"> 
+     <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">class Color {
 
     constructor fromRGB( red: Rational, green: Rational, blue : Rational){
          // code goes here
@@ -388,26 +389,26 @@ Color b = new Color.fromHSL(60 , 0.5 , 0.5);</code></pre>
     }
 
 }</code></pre> 
-     </div> 
     </div> 
-    <div class="paragraph"> 
-     <p>and invoke them in the same way</p> 
-    </div> 
-    <div class="listingblock"> 
-     <div class="content"> 
-      <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">let a = new Color.fromRGB(1.0 , 1.0 , 1.0);
+   </div> 
+   <div class="paragraph"> 
+    <p>and invoke them in the same way</p> 
+   </div> 
+   <div class="listingblock"> 
+    <div class="content"> 
+     <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">let a = new Color.fromRGB(1.0 , 1.0 , 1.0);
 let b = new Color.fromHSL(60 , 0.5 , 0.5);</code></pre> 
-     </div> 
     </div> 
-    <div class="paragraph"> 
-     <p>Note the similarity with the anonymous constructor invocation.</p> 
-    </div> 
-    <div class="paragraph"> 
-     <p>The named constructors must, at some point, directly or indirectly, invoke the primary constructor. So the final code should be something like</p> 
-    </div> 
-    <div class="listingblock"> 
-     <div class="content"> 
-      <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">public class Color {
+   </div> 
+   <div class="paragraph"> 
+    <p>Note the similarity with the anonymous constructor invocation.</p> 
+   </div> 
+   <div class="paragraph"> 
+    <p>The named constructors must, at some point, directly or indirectly, invoke the primary constructor. So the final code should be something like</p> 
+   </div> 
+   <div class="listingblock"> 
+    <div class="content"> 
+     <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">public class Color {
 
 	private constructor( private let rgb : Natural);
 
@@ -427,20 +428,20 @@ let b = new Color.fromHSL(60 , 0.5 , 0.5);</code></pre>
     }
 
 }</code></pre> 
-     </div> 
     </div> 
-    <div class="paragraph"> 
-     <p>Notice how the <code>new</code> keyword is used to call the other constructors. In fact constructors in Lense act as factory methods and can return any object that could be assigned to the class.</p> 
-    </div> 
-    <div class="paragraph"> 
-     <p>&lt;a name="factory"&gt;&lt;/a&gt; === Factory Constructor</p> 
-    </div> 
-    <div class="paragraph"> 
-     <p>Constructors in Lense are real factory methods and can create and return any instance that could be assigned to the class. This means constructors can control the number of instances being created and choose to create specific sub types. For instances the <code>Array</code> constructor is :</p> 
-    </div> 
-    <div class="listingblock"> 
-     <div class="content"> 
-      <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">public class Array&lt;T&gt; implements EditableSequence&lt;T&gt; {
+   </div> 
+   <div class="paragraph"> 
+    <p>Notice how the <code>new</code> keyword is used to call the other constructors. In fact constructors in Lense act as factory methods and can return any object that could be assigned to the class.</p> 
+   </div> 
+  </div> 
+  <div class="sect2"> 
+   <h3 id="factory">Factory Constructor</h3> 
+   <div class="paragraph"> 
+    <p>Constructors in Lense are real factory methods and can create and return any instance that could be assigned to the class. This means constructors can control the number of instances being created and choose to create specific sub types. For instances the <code>Array</code> constructor is :</p> 
+   </div> 
+   <div class="listingblock"> 
+    <div class="content"> 
+     <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">public class Array&lt;T&gt; implements EditableSequence&lt;T&gt; {
 
         constructor filled( size: Natural, value : T){
         	if (T is Int32){
@@ -460,14 +461,14 @@ let b = new Color.fromHSL(60 , 0.5 , 0.5);</code></pre>
 
 		// other methods
 }</code></pre> 
-     </div> 
     </div> 
-    <div class="paragraph"> 
-     <p>The <code>Natural</code> constructor is equivalent to:</p> 
-    </div> 
-    <div class="listingblock"> 
-     <div class="content"> 
-      <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">public class Natural extends Whole {
+   </div> 
+   <div class="paragraph"> 
+    <p>The <code>Natural</code> constructor is equivalent to:</p> 
+   </div> 
+   <div class="listingblock"> 
+    <div class="content"> 
+     <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">public class Natural extends Whole {
 
 	object cache {
 		let values = new Array.absent&lt;Natural&gt;(10);
@@ -507,91 +508,90 @@ let b = new Color.fromHSL(60 , 0.5 , 0.5);</code></pre>
     	return new Natural(value);
     }
 }</code></pre> 
-     </div> 
     </div> 
-    <div class="paragraph"> 
-     <p>It uses and <a href="objects.html#object"><code>object</code></a> to hold the cache data. If the given <code>String</code> is not valid the constructor throws a <code>ParseException</code>. This is valid because a constructors is like a factory, however the compiler will only allow the <code>throw</code> clause on a named constructor.</p> 
+   </div> 
+   <div class="paragraph"> 
+    <p>It uses and <a href="objects.html#object"><code>object</code></a> to hold the cache data. If the given <code>String</code> is not valid the constructor throws a <code>ParseException</code>. This is valid because a constructors is like a factory, however the compiler will only allow the <code>throw</code> clause on a named constructor.</p> 
+   </div> 
+   <div class="paragraph"> 
+    <p>&lt;a name="conversion"&gt;&lt;/a&gt; === Conversion Constructor</p> 
+   </div> 
+   <div class="paragraph"> 
+    <p>A conversion constructor is used to obtain the state of the object from another object of a different type. For instance:</p> 
+   </div> 
+   <div class="listingblock"> 
+    <div class="content"> 
+     <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">let k : Integer = 23;</code></pre> 
     </div> 
-    <div class="paragraph"> 
-     <p>&lt;a name="conversion"&gt;&lt;/a&gt; === Conversion Constructor</p> 
-    </div> 
-    <div class="paragraph"> 
-     <p>A conversion constructor is used to obtain the state of the object from another object of a different type. For instance:</p> 
-    </div> 
-    <div class="listingblock"> 
-     <div class="content"> 
-      <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">let k : Integer = 23;</code></pre> 
-     </div> 
-    </div> 
-    <div class="paragraph"> 
-     <p>Because all whole literals are parser by the compiler as <code>Natural`s, 23 is really a `Natural</code>. On the other hand, because <code>Natural`s are not `Integer`s the assignment would not be valid. Before a compilation error is risen, the compiler tries to find a constructor in the class Integer that is marked as `implicit</code> and has a single parameter of type <code>Natural</code>.</p> 
-    </div> 
-    <div class="listingblock"> 
-     <div class="content"> 
-      <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">public class Integer extends Whole {
+   </div> 
+   <div class="paragraph"> 
+    <p>Because all whole literals are parser by the compiler as <code>Natural`s, 23 is really a `Natural</code>. On the other hand, because <code>Natural`s are not `Integer`s the assignment would not be valid. Before a compilation error is risen, the compiler tries to find a constructor in the class Integer that is marked as `implicit</code> and has a single parameter of type <code>Natural</code>.</p> 
+   </div> 
+   <div class="listingblock"> 
+    <div class="content"> 
+     <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">public class Integer extends Whole {
 
 	implicit constructor ( other : Natural){
 		return new BigInt(other.toString()); // this is not the real code, just an example.
 	}
 }</code></pre> 
-     </div> 
     </div> 
-    <div class="paragraph"> 
-     <p>If it exists, the compiler changes the assignment to:</p> 
+   </div> 
+   <div class="paragraph"> 
+    <p>If it exists, the compiler changes the assignment to:</p> 
+   </div> 
+   <div class="listingblock"> 
+    <div class="content"> 
+     <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">let k : Integer = new Integer(23);</code></pre> 
     </div> 
-    <div class="listingblock"> 
-     <div class="content"> 
-      <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">let k : Integer = new Integer(23);</code></pre> 
-     </div> 
+   </div> 
+   <div class="paragraph"> 
+    <p>The <code>implicit</code> keyword is necessary because not every constructor with a single parameter is meant to be a conversion constructor. The <code>List&lt;T&gt;</code> class (used above) has a constructor that receives a <code>Natural</code> to set the array size,but that, without the implicit keyword would mean that:</p> 
+   </div> 
+   <div class="listingblock"> 
+    <div class="content"> 
+     <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">let list : List&lt;Integer&gt; = 3;</code></pre> 
     </div> 
-    <div class="paragraph"> 
-     <p>The <code>implicit</code> keyword is necessary because not every constructor with a single parameter is meant to be a conversion constructor. The <code>List&lt;T&gt;</code> class (used above) has a constructor that receives a <code>Natural</code> to set the array size,but that, without the implicit keyword would mean that:</p> 
+   </div> 
+   <div class="paragraph"> 
+    <p>was really</p> 
+   </div> 
+   <div class="listingblock"> 
+    <div class="content"> 
+     <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">let list : List&lt;Integer&gt; = new List&lt;Integer&gt;(3);</code></pre> 
     </div> 
-    <div class="listingblock"> 
-     <div class="content"> 
-      <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">let list : List&lt;Integer&gt; = 3;</code></pre> 
-     </div> 
+   </div> 
+   <div class="paragraph"> 
+    <p>The instruction would be (wrongly) trying to assign the number 3 to the list but the compiler would try to promote the value. This would not be a very coherent form to create arrays because can be confused with:</p> 
+   </div> 
+   <div class="listingblock"> 
+    <div class="content"> 
+     <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">let list : List&lt;Integer&gt; = [3];</code></pre> 
     </div> 
-    <div class="paragraph"> 
-     <p>was really</p> 
-    </div> 
-    <div class="listingblock"> 
-     <div class="content"> 
-      <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">let list : List&lt;Integer&gt; = new List&lt;Integer&gt;(3);</code></pre> 
-     </div> 
-    </div> 
-    <div class="paragraph"> 
-     <p>The instruction would be (wrongly) trying to assign the number 3 to the list but the compiler would try to promote the value. This would not be a very coherent form to create arrays because can be confused with:</p> 
-    </div> 
-    <div class="listingblock"> 
-     <div class="content"> 
-      <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">let list : List&lt;Integer&gt; = [3];</code></pre> 
-     </div> 
-    </div> 
-    <div class="paragraph"> 
-     <p>The programmer may have forgotten to surround the value with brackets.</p> 
-    </div> 
-    <div class="paragraph"> 
-     <p>Also, this other example could be made to be valid code using an implicit conversion constructor:</p> 
-    </div> 
-    <div class="listingblock"> 
-     <div class="content"> 
-      <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">let address : Uri = "http://www.google.com"
+   </div> 
+   <div class="paragraph"> 
+    <p>The programmer may have forgotten to surround the value with brackets.</p> 
+   </div> 
+   <div class="paragraph"> 
+    <p>Also, this other example could be made to be valid code using an implicit conversion constructor:</p> 
+   </div> 
+   <div class="listingblock"> 
+    <div class="content"> 
+     <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">let address : Uri = "http://www.google.com"
 
 // equivalent to
 
 let address : Uri = new Uri("http://www.google.com");</code></pre> 
-     </div> 
     </div> 
-    <div class="paragraph"> 
-     <p>Implicit constructors, like primary constructors, are not recommended for object creation that can throw exceptions (under consideration). For a parsing operation, or other, that possibly could go wrong, is not suited to a conversion constructor. It is recommended that a constructor based on a string be a named constructor like <code>parse(String)</code>. Only named constructors can throw exceptions.</p> 
-    </div> 
-    <div class="paragraph"> 
-     <p>As we can see from the above examples, the conversion constructor is a simple way to promote values of one class to another but only if it is guaranteed that conversion will never fail.</p> 
-    </div> 
-    <div class="paragraph"> 
-     <p>As a limitation of conversion constructors the process only works if the class on the left side of the assignment accepts the instances of the class on the right side as a valid argument. This means than , if A is convertible to B and B to C , A <strong>is not</strong> convertible directly to C.</p> 
-    </div> 
+   </div> 
+   <div class="paragraph"> 
+    <p>Implicit constructors, like primary constructors, are not recommended for object creation that can throw exceptions (under consideration). For a parsing operation, or other, that possibly could go wrong, is not suited to a conversion constructor. It is recommended that a constructor based on a string be a named constructor like <code>parse(String)</code>. Only named constructors can throw exceptions.</p> 
+   </div> 
+   <div class="paragraph"> 
+    <p>As we can see from the above examples, the conversion constructor is a simple way to promote values of one class to another but only if it is guaranteed that conversion will never fail.</p> 
+   </div> 
+   <div class="paragraph"> 
+    <p>As a limitation of conversion constructors the process only works if the class on the left side of the assignment accepts the instances of the class on the right side as a valid argument. This means than , if A is convertible to B and B to C , A <strong>is not</strong> convertible directly to C.</p> 
    </div> 
   </div> 
   <div class="sect2"> 

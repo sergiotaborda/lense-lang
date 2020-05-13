@@ -165,33 +165,33 @@
 	<div class="container-fluid">
 		<div class="row row-offcanvas row-offcanvas-right">
 			 <div class="col-xs-12 col-sm-9 col-sm-push-3">
-				<div class="paragraph"> 
- <p>==Iterable</p> 
-</div> 
-<div class="paragraph"> 
- <p>Iterable is a <a href="monads.html">monad</a> that allows for the iteration of elements by means of an <code>Iterator</code>. All `Sequence`s , `Association`s , `Tuple`s and `Range`s are `Iterable`s. Iteration can be implicit or explicit.</p> 
-</div> 
-<div class="sect2"> 
- <h3 id="_explicit_iteration">Explicit Iteration</h3> 
- <div class="paragraph"> 
-  <p>You can explicitly iterate over the elements of any <code>Iterable&lt;T&gt;</code> with the <strong>for-each</strong> directive</p> 
- </div> 
- <div class="listingblock"> 
-  <div class="content"> 
-   <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">let cities : Sequence&lt;String&gt; = ["New York", "London", "Paris"];
+				<div class="sect1"> 
+ <h2 id="_iterable">Iterable</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>Iterable is a <a href="monads.html">monad</a> that allows for the iteration of elements by means of an <code>Iterator</code>. All `Sequence`s , `Association`s , `Tuple`s and `Range`s are `Iterable`s. Iteration can be implicit or explicit.</p> 
+  </div> 
+  <div class="sect2"> 
+   <h3 id="_explicit_iteration">Explicit Iteration</h3> 
+   <div class="paragraph"> 
+    <p>You can explicitly iterate over the elements of any <code>Iterable&lt;T&gt;</code> with the <strong>for-each</strong> directive</p> 
+   </div> 
+   <div class="listingblock"> 
+    <div class="content"> 
+     <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">let cities : Sequence&lt;String&gt; = ["New York", "London", "Paris"];
 let lengths : List&lt;Natural&gt; = new List&lt;Natural&gt;();
 
 for (String city in cities){
 	lengths.add(city.size());
 }</code></pre> 
-  </div> 
- </div> 
- <div class="paragraph"> 
-  <p>The <strong>for-each</strong> directive can be used on any type that implements <code>Iterable</code>. The compiler will transform this code to the use of an <code>Iterator</code>. Something like:</p> 
- </div> 
- <div class="listingblock"> 
-  <div class="content"> 
-   <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">let cities : Sequence&lt;String&gt; = ["New York", "London", "Paris"];
+    </div> 
+   </div> 
+   <div class="paragraph"> 
+    <p>The <strong>for-each</strong> directive can be used on any type that implements <code>Iterable</code>. The compiler will transform this code to the use of an <code>Iterator</code>. Something like:</p> 
+   </div> 
+   <div class="listingblock"> 
+    <div class="content"> 
+     <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">let cities : Sequence&lt;String&gt; = ["New York", "London", "Paris"];
 let lengths : List&lt;Natural&gt; = new List&lt;Natural&gt;();
 
 Iterator&lt;Natural&gt; it = cities.iterator();
@@ -199,50 +199,52 @@ while (it.moveNext()){
     String city = it.current;
 	lengths.add(city.size());
 }</code></pre> 
+    </div> 
+   </div> 
+   <div class="paragraph"> 
+    <p>You can see from this example that Lense `Iterator`s are not like Java iterators.</p> 
+   </div> 
   </div> 
- </div> 
- <div class="paragraph"> 
-  <p>You can see from this example that Lense `Iterator`s are not like Java iterators.</p> 
- </div> 
-</div> 
-<div class="sect2"> 
- <h3 id="_implicit_iteration">Implicit Iteration</h3> 
- <div class="paragraph"> 
-  <p>Because all Iterables are monads , they have a <code>map</code> method that receives a lambda to operate over all elements.</p> 
- </div> 
- <div class="listingblock"> 
-  <div class="content"> 
-   <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">let cities : Sequence&lt;String&gt; = ["New York", "London", "Paris"];
+  <div class="sect2"> 
+   <h3 id="_implicit_iteration">Implicit Iteration</h3> 
+   <div class="paragraph"> 
+    <p>Because all Iterables are monads , they have a <code>map</code> method that receives a lambda to operate over all elements.</p> 
+   </div> 
+   <div class="listingblock"> 
+    <div class="content"> 
+     <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">let cities : Sequence&lt;String&gt; = ["New York", "London", "Paris"];
 let lengths : Sequence&lt;Natural&gt;  =  cities.map( city -&gt; city.size());</code></pre> 
-  </div> 
- </div> 
- <div class="paragraph"> 
-  <p>This code simply applies a transformation to all elements of the original container (<strong>cities</strong>) and produces a new <strong>Sequence&lt;Natural&gt;</strong> with the lenghts of the cities names. The main diference from explicit iteration is that explicit iteration normally involves some kind of mutable object , like <code>List</code> in this example, while implicit iteration does not.</p> 
- </div> 
- <div class="paragraph"> 
-  <p>You can use several other methods like <code>filter</code> that allows you to exclude some values. For example, if we want to calculate the cubes of only odd numbers between 1 and 100 we can use a <code>Range</code> and write:</p> 
- </div> 
- <div class="listingblock"> 
-  <div class="content"> 
-   <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">var cubes : Sequence&lt;Natural&gt; = 1..100.filter(n -&gt; n.isOdd()).map( n -&gt; n ** 3));</code></pre> 
-  </div> 
- </div> 
- <div class="paragraph"> 
-  <p>This a very simple, readable, code that means the same that:</p> 
- </div> 
- <div class="listingblock"> 
-  <div class="content"> 
-   <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">let  cubes = new List&lt;Natural&gt;();
+    </div> 
+   </div> 
+   <div class="paragraph"> 
+    <p>This code simply applies a transformation to all elements of the original container (<strong>cities</strong>) and produces a new <strong>Sequence&lt;Natural&gt;</strong> with the lenghts of the cities names. The main difference from explicit iteration is that explicit iteration normally involves some kind of mutable object , like <code>List</code> in this example, while implicit iteration does not.</p> 
+   </div> 
+   <div class="paragraph"> 
+    <p>You can use several other methods like <code>filter</code> that allows you to exclude some values. For example, if we want to calculate the cubes of only odd numbers between 1 and 100 we can use a <code>Range</code> and write:</p> 
+   </div> 
+   <div class="listingblock"> 
+    <div class="content"> 
+     <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">var cubes : Sequence&lt;Natural&gt; = 1..100.filter(n -&gt; n.isOdd()).map( n -&gt; n ^^ 3));</code></pre> 
+    </div> 
+   </div> 
+   <div class="paragraph"> 
+    <p>This a very simple, readable, code that means the same that:</p> 
+   </div> 
+   <div class="listingblock"> 
+    <div class="content"> 
+     <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">let  cubes = new List&lt;Natural&gt;();
 
-for (Natural n in 1..100) {
+for (n in 1..100) {
 	if (n.isOdd()) {
-		lengths.add(n ** 3);
+		lengths.add(n ^^ 3);
 	}
 }</code></pre> 
+    </div> 
+   </div> 
+   <div class="paragraph"> 
+    <p>But does not use mutable objects.</p> 
+   </div> 
   </div> 
- </div> 
- <div class="paragraph"> 
-  <p>But does not use mutable objects.</p> 
  </div> 
 </div>
 			</div>

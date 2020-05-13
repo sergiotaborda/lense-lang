@@ -166,7 +166,7 @@
 		<div class="row row-offcanvas row-offcanvas-right">
 			 <div class="col-xs-12 col-sm-9 col-sm-push-3">
 				<div class="paragraph"> 
- <p>Lense does not have <a href="glossary.html#primtiveTypes">primitive types</a> and thus all values are objects , all objects descend from some class and all variables are references. The Lense back-end compiler may try to use the native plataform’s primitives as much as possible to enhance performance, but this is an optimization. Conceptually primitives do not exist.</p> 
+ <p>Lense does not have <a href="glossary.html#primtiveTypes">primitive types</a> and thus all instances are objects, all objects descend from some class and all variables are references. The Lense back-end compiler may try to use the native plataform’s primitives as much as possible to enhance performance, but this is an optimization. Conceptually primitives do not exist.</p> 
 </div> 
 <div class="sect1"> 
  <h2 id="_classes">Classes</h2> 
@@ -181,7 +181,7 @@
     private constructor ( public let numerator: Integer, public let denominator: Integer);
 
     public constructor valueOf ( value: Decimal){
-        return new Fraction(value.toString());
+        return new Fraction.parse(value.toString());
     }
 
     public constructor parse (value : String){
@@ -212,7 +212,7 @@
    </div> 
   </div> 
   <div class="paragraph"> 
-   <p>Classes in Lense support <a href="properties.html">properties</a>, <a href="properties.html#indexed">indexers</a>, methods and <a href="constructors.html">constructors</a> as you would expect. Lense also support immutability declaration for classes with <code>let class</code>. Any type or member can also have generic type parameters.</p> 
+   <p>Classes in Lense support <a href="properties.html">properties</a>, <a href="properties.html#indexed">indexers</a>, methods and <a href="constructors.html">constructors</a> as you would expect. Lense also support immutability declaration for classes with <code>immutable class</code>. Any type or member can also have generic type parameters.</p> 
   </div> 
   <div class="listingblock"> 
    <div class="content"> 

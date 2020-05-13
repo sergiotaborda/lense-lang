@@ -168,7 +168,7 @@
 				<div class="sect2"> 
  <h3 id="_tuples">Tuples</h3> 
  <div class="paragraph"> 
-  <p>Tuples are similar to <a href="sequence.html">sequences</a>, but each index has its own type. Tuples are fundamental types in Lense. Structurally a Tuple is a node in a linked-list kind of structure. But <code>Tuple`s are not `Sequence`s, eventhought they are `Iterable&lt;Any&gt;</code> The literal syntax is similar to `Sequence`s, but with parentesis instead of brakets.</p> 
+  <p>Tuples are similar to <a href="sequence.html">sequences</a>, but each index has its own type. Tuples are fundamental types in Lense. Structurally a Tuple is a node in a linked-list kind of structure. But a <code>Tuple</code> is not a <code>Sequence</code>, eventhought it is an <code>Iterable&lt;Any&gt;</code> The literal syntax is similar to `Sequence`s, but with parentesis instead of brakets.</p> 
  </div> 
  <div class="listingblock"> 
   <div class="content"> 
@@ -179,7 +179,7 @@
   <p>This creates a tuple of 3 elements where the first is a <code>Natural</code>, the second a <code>String</code> and the third a <code>Boolean</code>. You can also observe that the type of the tupe is a tuple of the types.</p> 
  </div> 
  <div class="paragraph"> 
-  <p>The tuple is a fundamental type with a lot of syntax sugar in Lense. That code wil be compiler like so :</p> 
+  <p>The tuple is a fundamental type with a lot of syntax sugar in Lense. That code may be compiler as:</p> 
  </div> 
  <div class="listingblock"> 
   <div class="content"> 
@@ -187,12 +187,12 @@
   </div> 
  </div> 
  <div class="paragraph"> 
-  <p>You can write that, but Lense assumes you don’t wish to, so it enables literals for tuple values and types.</p> 
+  <p>You can write it like that, if you really want to, but Lense assumes you don’t wish to. Lense supports literals for tuple instances and types.</p> 
  </div> 
  <div class="sect3"> 
   <h4 id="_accessing_elements">Accessing elements</h4> 
   <div class="paragraph"> 
-   <p>To access an element in the tuple you use it like a sequence:</p> 
+   <p>To access an element in the tuple you use it’s index property:</p> 
   </div> 
   <div class="listingblock"> 
    <div class="content"> 
@@ -204,7 +204,7 @@ var predicate = tuple[2];</code></pre>
    </div> 
   </div> 
   <div class="paragraph"> 
-   <p>Tuples do not have indexers like sequencs do because the type depends on the index, but the compiler can translate that code to:</p> 
+   <p>Tuples do not really have indexers like sequencs do, but the compiler can translate that code to:</p> 
   </div> 
   <div class="listingblock"> 
    <div class="content"> 
@@ -234,7 +234,12 @@ var value : Natural  = 1;</code></pre>
  <div class="sect3"> 
   <h4 id="_void">Void</h4> 
   <div class="paragraph"> 
-   <p>The <code>Void</code> is a special case of a tuple. The 0-tuple. A 0-tuple can only have one element. This element is designated by the <code>()</code> literal.</p> 
+   <p>The <code>Void</code> type is a special case of a tuple. The 0-tuple. A 0-tuple can only have one element. This element is designated by the <code>()</code> literal.</p> 
+  </div> 
+  <div class="listingblock"> 
+   <div class="content"> 
+    <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">public class Void extends Tuple&lt;Nothing, Nothing&gt; {}</code></pre> 
+   </div> 
   </div> 
  </div> 
 </div>

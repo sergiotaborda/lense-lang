@@ -171,15 +171,92 @@
   <div class="paragraph"> 
    <p>Some types have fundamental support from the compiler. This means these types have build-in integration with the language. Lense fundamental types are : <a href="strings.html"><code>String</code></a> , <a href="numbers.html"><code>Number</code></a>, <code>Boolean</code>, <a href="nullability.html"><code>Maybe</code></a>, <code>Range</code>, <a href="interval.html"><code>Interval</code></a> , <code>Sequence</code> and <code>Iterable</code>.</p> 
   </div> 
-  <div class="paragraph"> 
-   <p>| Lense type | Literal | Support | :----------- | :-----------: | :-------------------: | | <code>String</code> | "Hello, World" | <a href="strings.html">Interpolation</a> : "Hello, {{ name }}". | | <code>Number</code> | <strong>1</strong> , <strong>3.14</strong> or <strong>4+5i</strong> | Creates whole , rational and complex numbers from they literals | | <code>Boolean</code>| <code>true</code> and <code>false</code> | <a href="erasure.html">Erasured</a> to the runtime plataform’s boolean. Flow control conditions must evaluate to a <code>Boolean</code> | | <code>Maybe</code> | <code>none</code> , String? | Compiler translates any type X followed by a ? (like X?) to Maybe&lt;X&gt; | | <code>Range</code> | 1..4 or 5..&lt;7 | Generates a <code>Range</code> from the literal. Ranges are imutable. | | <code>Interval</code> | <code>|(3, 8]|</code> | Generates an <code>Interval</code> from the literal.Intervals are imutable. | | <code>Sequence</code>| [1,2,3,4] | Generates a <code>Sequence</code> from the literal. Sequences are imutable. | | <code>Iterable</code> || Allows for iteration with <code>for</code> directive, and map-reduce like operations. |</p> 
-  </div> 
+  <table class="tableblock frame-all grid-all spread"> 
+   <colgroup> 
+    <col style="width: 33.3333%;"> 
+    <col style="width: 33.3333%;"> 
+    <col style="width: 33.3334%;"> 
+   </colgroup> 
+   <tbody> 
+    <tr> 
+     <td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Lense type</strong></p></td> 
+     <td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Literal</strong></p></td> 
+     <td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Support</strong></p></td> 
+    </tr> 
+    <tr> 
+     <td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td> 
+     <td class="tableblock halign-left valign-top"><p class="tableblock">"Hello, World"</p></td> 
+     <td class="tableblock halign-left valign-top"><p class="tableblock"><a href="strings.html">Interpolation</a> : "Hello, {{ name }}".</p></td> 
+    </tr> 
+    <tr> 
+     <td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td> 
+     <td class="tableblock halign-left valign-top"><p class="tableblock"><strong>1</strong> , <strong>3.14</strong> or <strong>4+5i</strong></p></td> 
+     <td class="tableblock halign-left valign-top"><p class="tableblock">Creates whole , rational and complex numbers from they literals</p></td> 
+    </tr> 
+    <tr> 
+     <td class="tableblock halign-left valign-top"><p class="tableblock"><code>Boolean</code></p></td> 
+     <td class="tableblock halign-left valign-top"><p class="tableblock"><code>true</code> and <code>false</code></p></td> 
+     <td class="tableblock halign-left valign-top"><p class="tableblock"><a href="erasure.html">Erasured</a> to the runtime plataform’s boolean. Flow control conditions must evaluate to a <code>Boolean</code></p></td> 
+    </tr> 
+    <tr> 
+     <td class="tableblock halign-left valign-top"><p class="tableblock"><code>Maybe</code></p></td> 
+     <td class="tableblock halign-left valign-top"><p class="tableblock"><code>none</code> , String?</p></td> 
+     <td class="tableblock halign-left valign-top"><p class="tableblock">Compiler translates any type X followed by a ? (like X?) to Maybe&lt;X&gt;</p></td> 
+    </tr> 
+    <tr> 
+     <td class="tableblock halign-left valign-top"><p class="tableblock"><code>Range</code></p></td> 
+     <td class="tableblock halign-left valign-top"><p class="tableblock">1..4 or 5..&lt;7</p></td> 
+     <td class="tableblock halign-left valign-top"><p class="tableblock">Generates a <code>Range</code> from the literal. Ranges are immutable.</p></td> 
+    </tr> 
+    <tr> 
+     <td class="tableblock halign-left valign-top"><p class="tableblock"><code>Interval</code></p></td> 
+     <td class="tableblock halign-left valign-top"><p class="tableblock"><code>|(3, 8]|</code></p></td> 
+     <td class="tableblock halign-left valign-top"><p class="tableblock">Generates an <code>Interval</code> from the literal.Intervals are immutable.</p></td> 
+    </tr> 
+    <tr> 
+     <td class="tableblock halign-left valign-top"><p class="tableblock"><code>Sequence</code></p></td> 
+     <td class="tableblock halign-left valign-top"><p class="tableblock">[1,2,3,4]</p></td> 
+     <td class="tableblock halign-left valign-top"><p class="tableblock">Generates a <code>Sequence</code> from the literal. Sequences are immutable.</p></td> 
+    </tr> 
+    <tr> 
+     <td class="tableblock halign-left valign-top"><p class="tableblock"><code>Iterable</code></p></td> 
+     <td class="tableblock halign-left valign-top"></td> 
+     <td class="tableblock halign-left valign-top"><p class="tableblock">Allows for iteration with <code>for</code> directive, and map-reduce like operations.</p></td> 
+    </tr> 
+   </tbody> 
+  </table> 
   <div class="paragraph"> 
    <p>In addition specific sub-types of <code>Sequence</code> also receive <a href="containerLiterals.html">literal support</a>:</p> 
   </div> 
-  <div class="paragraph"> 
-   <p>| Lense type | Literal | Support | :----------- | :-----------: | :-------------------: | | <code>Sequence</code>| [1,2,3,4] | Standard representation ordered sequences like lists and arrays. | | <code>Association</code> | { 1 : "en", 2 : "pt" , 3 : "es" } | Standard representation for key-value associations | | <code>Tuple</code> | (1, "Hello", false) | Standard representation for tuples |</p> 
-  </div> 
+  <table class="tableblock frame-all grid-all spread"> 
+   <colgroup> 
+    <col style="width: 33.3333%;"> 
+    <col style="width: 33.3333%;"> 
+    <col style="width: 33.3334%;"> 
+   </colgroup> 
+   <tbody> 
+    <tr> 
+     <td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Lense type</strong></p></td> 
+     <td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Literal</strong></p></td> 
+     <td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Support</strong></p></td> 
+    </tr> 
+    <tr> 
+     <td class="tableblock halign-left valign-top"><p class="tableblock"><code>Sequence</code></p></td> 
+     <td class="tableblock halign-left valign-top"><p class="tableblock">[1,2,3,4]</p></td> 
+     <td class="tableblock halign-left valign-top"><p class="tableblock">Standard representation ordered sequences like lists and arrays.</p></td> 
+    </tr> 
+    <tr> 
+     <td class="tableblock halign-left valign-top"><p class="tableblock"><code>Association</code></p></td> 
+     <td class="tableblock halign-left valign-top"><p class="tableblock">{ 1 : "en", 2 : "pt" , 3 : "es" }</p></td> 
+     <td class="tableblock halign-left valign-top"><p class="tableblock">Standard representation for key-value associations</p></td> 
+    </tr> 
+    <tr> 
+     <td class="tableblock halign-left valign-top"><p class="tableblock"><code>Tuple</code></p></td> 
+     <td class="tableblock halign-left valign-top"><p class="tableblock">(1, "Hello", false)</p></td> 
+     <td class="tableblock halign-left valign-top"><p class="tableblock">Standard representation for tuples</p></td> 
+    </tr> 
+   </tbody> 
+  </table> 
  </div> 
 </div> 
 <div class="sect1"> 
