@@ -14,6 +14,7 @@ public class Import {
 	private QualifiedNameNode name;
 	private boolean isUsed = false;
 	private boolean isMemberCalled = false; 
+	private boolean isSuper = false; 
 	private boolean container;
 	private String alias;
 	
@@ -99,6 +100,14 @@ public class Import {
 
 	public String getAlias(){
 		return alias;
+	}
+
+	public boolean isSuper() {
+		return isSuper;
+	}
+
+	public void setSuper(boolean isSuper) {
+		this.isSuper = isSuper;
 	}
 	
 

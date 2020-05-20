@@ -19,9 +19,7 @@ public interface Integer extends Whole , SignedNumber,  Ordinal<Integer>, Progre
 			return other.asInteger();
 		}
 		
-		public constructor  parse(other : String) {
-			return new BigInt.parse(other);
-		}
+		public native constructor  parse(other : String);
 
 		public abs(): Natural;
 	
