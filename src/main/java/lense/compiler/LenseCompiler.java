@@ -1,5 +1,8 @@
 package lense.compiler;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -16,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import compiler.AstCompiler;
 import compiler.CompilationResult;
@@ -34,6 +38,7 @@ import lense.compiler.ast.ClassTypeNode;
 import lense.compiler.ast.ModuleNode;
 import lense.compiler.ast.QualifiedNameNode;
 import lense.compiler.ast.UnitTypes;
+import lense.compiler.dependency.CyclicDependencyResolver;
 import lense.compiler.dependency.DependencyGraph;
 import lense.compiler.dependency.DependencyNode;
 import lense.compiler.dependency.DependencyRelation;
@@ -357,7 +362,17 @@ public abstract class LenseCompiler {
 
             }).sendToList();
 
+
             referencedNames.removeAll(foundNames);
+            
+    		var cycle = new CyclicDependencyResolver().resolveIncidentCycle(graph);
+
+    		if (cycle.isPresent()) {
+    			var path = cycle.get().stream().map(v -> v.getObject().getName()).collect(Collectors.joining("->"));
+        		
+        		throw new CompilationError("Cycle found: " + path);
+    		}
+    
 
             for(Iterator<String> it = referencedNames.iterator(); it.hasNext(); ){
                 if (currentModuleRepository.resolveType(new TypeSearchParameters(it.next())).isPresent()){
