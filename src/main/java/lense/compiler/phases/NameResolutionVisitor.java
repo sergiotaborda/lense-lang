@@ -127,6 +127,9 @@ public class NameResolutionVisitor extends AbstractScopedVisitor {
 
 						this.getSemanticContext().currentScope().defineVariable("super", type.get(), node);
 					} else {
+						
+						match.get().setSuper(true);
+						
 						String typeName = match.get().getTypeName().toString();
 
 						type = this.getSemanticContext().resolveTypeForName( typeName,n.getSuperType().getTypeParametersCount());
@@ -662,12 +665,12 @@ public class NameResolutionVisitor extends AbstractScopedVisitor {
 			if (m.getReturnType().getName() != null 
 					&& !genericNames.contains(m.getReturnType().getName())
 					&& !this.getSemanticContext().currentScope().getCurrentType().getName().endsWith(m.getReturnType().getName())){
-				Optional<Import> match = matchImports(ct, m.getReturnType().getName());
+				Optional<Import> returnTypeMatch = matchImports(ct, m.getReturnType().getName());
 
-				if (match.isPresent()) {
-					match.get().setMemberCalled(true);
-
-					m.getReturnType().setName(match.get().getTypeName());
+				if (returnTypeMatch.isPresent()) {
+					
+					
+					m.getReturnType().setName(returnTypeMatch.get().getTypeName());
 					return;
 				}
 
@@ -788,7 +791,22 @@ public class NameResolutionVisitor extends AbstractScopedVisitor {
 			if (match.isPresent() && isNotSelf(match)) {
 				match.get().setMemberCalled(true);
 			}
-		}
+		}  
+//		else if (node instanceof MethodInvocationNode) {
+//			MethodInvocationNode invokeNode = (MethodInvocationNode) node;
+//
+//			AstNode access = invokeNode.getAccess();
+//			if (access instanceof MethodInvocationNode) {
+//				MethodInvocationNode typed = (MethodInvocationNode)access;
+//				
+//				Optional<Import> match = matchImports(ct, typed.getTypeVariable().getTypeDefinition().getName());
+//
+//				if (match.isPresent() && isNotSelf(match)) {
+//					match.get().setMemberCalled(true);
+//				}
+//			}
+//			
+//		}
 
 
 	}
