@@ -5,9 +5,7 @@ import lense.core.math.RealLineElement;
 
 public interface Whole extends RealLineElement {
 
-	public constructor parse( other: String){
-		return new BigInt.parse(other);
-	}
+	public native implicit  constructor parse( other: String);
 
 	public isOne() : Boolean;
 

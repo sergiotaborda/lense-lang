@@ -18,25 +18,15 @@ import lense.core.math.BigRational;
 }/
 public interface Rational extends Real {
 
-	public constructor fraction(numerator : Whole, denominator : Whole) {
-		return new BigRational(numerator.asInteger(), denominator.asInteger());
-	}
+	public native constructor fraction(numerator : Whole, denominator : Whole);
 
-	public constructor one() {
-		return new BigRational.one();
-	}
+	public native constructor one();
 
-	public constructor zero() {
-		return new BigRational.zero();
-	}
+	public native constructor zero();
 
-	public implicit constructor valueOf(other : Whole) {
-		return new BigRational.valueOf(other);
-	}
+	public native implicit  constructor valueOf(other : Whole);
 
-	public implicit constructor valueOf(other : Integer) {
-		return new BigRational.valueOf(other);
-	}
+	public native implicit  constructor valueOf(other : Integer);
 
 	public let numerator : Integer;
 	public let denominator : Natural;
