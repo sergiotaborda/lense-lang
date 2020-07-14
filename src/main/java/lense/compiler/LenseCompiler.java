@@ -29,6 +29,7 @@ import compiler.CompiledUnit;
 import compiler.CompilerBackEnd;
 import compiler.CompilerListener;
 import compiler.CompilerMessage;
+import compiler.ComposedCompilerBackEnd;
 import compiler.FolderCompilationUnionSet;
 import compiler.ListCompilationUnitSet;
 import compiler.ReaderCompilationUnit;
@@ -438,7 +439,7 @@ public abstract class LenseCompiler {
             trace("Compiling graph");
             
          
-            final CompilerBackEnd backend = backendFactory.create(locations);
+            final CompilerBackEnd backend = new ComposedCompilerBackEnd().add(backendFactory.create(locations)).add(new DefinitionsBackEnd(locations));
   
     		GraphTransversor<DependencyRelation, DependencyNode> tt = new TopologicOrderTransversor<>();
                
