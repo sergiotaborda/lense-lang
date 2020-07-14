@@ -64,7 +64,7 @@ public final class OutToJavaSource implements CompilerBackEnd {
 					continue;
 				}
 
-				String[] names = Strings.split(t.getName(), ".");
+				String[] names = Strings.split(t.getFullname(), ".");
 				
 				if (t.getKind().isObject()) {
 					names[names.length -1 ] = Strings.cammelToPascalCase(names[names.length - 1]);

@@ -527,7 +527,7 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 
 			int genericParametersCount = t.getGenerics() == null ? 0 : t.getGenerics().getChildren().size();
 
-			Optional<TypeVariable> maybeMyType = this.getSemanticContext().resolveTypeForName(t.getName(),
+			Optional<TypeVariable> maybeMyType = this.getSemanticContext().resolveTypeForName(t.getFullname(),
 					genericParametersCount);
 
 		
@@ -554,7 +554,7 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 
 				}
 
-				myType = new LenseTypeDefinition(t.getName(), t.getKind(), ANY, genericVariables);
+				myType = new LenseTypeDefinition(t.getFullname(), t.getKind(), ANY, genericVariables);
 				myType = (LenseTypeDefinition) this.getSemanticContext().registerType(myType, genericParametersCount);
 			}
 
@@ -579,7 +579,7 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 			if (t.getKind().isValue() && t.isExplicitlyImmutable()) {
 				this.listener.warn(new CompilerMessage(
 						"Value classes are already immutable. You may remove the immutable modifier for "
-								+ t.getName()));
+								+ t.getFullname()));
 			}
 
 			if (t.getKind().isValue()) {
@@ -592,7 +592,7 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 
 			if (t.getKind().isEnhancement() ) {
 				if (superTypeNode == null) {
-					throw new CompilationError(node, t.getName() + " enhancement must define a type for extention");
+					throw new CompilationError(node, t.getFullname() + " enhancement must define a type for extention");
 				}
 			}
 			 
@@ -668,7 +668,7 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 
 				if (!t.getKind().isEnhancement() && superType.getKind() == LenseUnitKind.Interface
 						&& !lenseTypeSystem.isAny(superType)) {
-					throw new CompilationError(node, t.getName() + " cannot extend interface " + superType.getName()
+					throw new CompilationError(node, t.getFullname() + " cannot extend interface " + superType.getName()
 							+ ". Did you meant to use 'implements' instead of 'extends' ?.");
 				}
 
@@ -678,7 +678,7 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 
 			if (superType.equals(myType)) {
 				if (!myType.equals(ANY)) {
-					throw new CompilationError(node, t.getName() + " cannot extend it self");
+					throw new CompilationError(node, t.getFullname() + " cannot extend it self");
 				}
 			} else {
 				myType.setSuperTypeDefinition(superType);
@@ -2890,7 +2890,7 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 						TypeDefinition typeVariable = ensureNotFundamental(tn.getTypeVariable().getTypeDefinition());
 						if (typeVariable.getKind() != LenseUnitKind.Interface) {
 							throw new CompilationError(t,
-									t.getName() + " cannot implement " + typeVariable.getName() + " because "
+									t.getFullname() + " cannot implement " + typeVariable.getName() + " because "
 											+ typeVariable.getName() + " it is a " + typeVariable.getKind()
 											+ " and not an interface");
 						}
@@ -2898,7 +2898,7 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 				}
 
 				if (t.isAlgebric() && !t.isAbstract()) {
-					throw new CompilationError(t, t.getName()
+					throw new CompilationError(t, t.getFullname()
 							+ " is algebric but is not marked abstract. Make it abstract or remove children types declarations.");
 				}
 

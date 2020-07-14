@@ -909,7 +909,7 @@ public class Ecma5JavascriptWriterVisitor implements Visitor<AstNode> {
         if (t.isNative()){
             // TODO 
             
-            File nativeFile = new File(nativeFolder, t.getName() + ".js");
+            File nativeFile = new File(nativeFolder, t.getFullname() + ".js");
             if (nativeFile.exists()){
                 
                 try (BufferedReader reader = new BufferedReader(new FileReader(nativeFile))){
@@ -923,13 +923,13 @@ public class Ecma5JavascriptWriterVisitor implements Visitor<AstNode> {
                 }
                 
             } else {
-                writer.println("/* absent native " + t.getName() + "*/");
+                writer.println("/* absent native " + t.getFullname() + "*/");
             }
             
             return;
         }
 
-        writer.append(t.getName());
+        writer.append(t.getFullname());
         
         writer.append(" = function ");
 

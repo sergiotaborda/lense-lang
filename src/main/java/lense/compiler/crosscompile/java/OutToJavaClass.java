@@ -137,7 +137,7 @@ public class OutToJavaClass implements CompilerBackEnd, Opcodes {
 			if (t.isNative()){
 				return;
 			}
-			String path = toJavaQN(t.getName());
+			String path = toJavaQN(t.getFullname());
 			int pos = path.lastIndexOf('/');
 			String filename = path.substring(pos+1) + ".class";
 			File folder;
@@ -161,7 +161,7 @@ public class OutToJavaClass implements CompilerBackEnd, Opcodes {
 
 				String superType = t.getSuperType() == null ? "java/lang/Object": toJavaQN(t.getSuperType().getName());
 				
-				cw.visit(52, ACC_PUBLIC + ACC_SUPER, toJavaQN(t.getName()), null, superType, null);
+				cw.visit(52, ACC_PUBLIC + ACC_SUPER, toJavaQN(t.getFullname()), null, superType, null);
 
 				cw.visitSource(unit.getUnit().getName(), null);
 
