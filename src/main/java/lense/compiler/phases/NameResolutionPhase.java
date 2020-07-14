@@ -72,11 +72,15 @@ public class NameResolutionPhase implements CompilerPhase {
 			for (ClassTypeNode ct :  t.getTypes()){
 				// cannot share semantic context among classes
 
-				String packageName = packageResolver.resolveUnitPackageName(ct.getScanPosition().getCompilationUnit());
-						
-				ct.setName(packageName + '.' + ct.getName());
+					
+				if(ct.getPackageName() == null) {
+					String packageName = packageResolver.resolveUnitPackageName(ct.getScanPosition().getCompilationUnit());
+					
+					
+					ct.setPackageName(packageName);
+				}
 				
-				SemanticContext ctx = new SemanticContext(naming, packageName, ct); 
+				SemanticContext ctx = new SemanticContext(naming, ct.getPackageName(), ct); 
 				
 				ct.setSemanticContext(ctx);
 				
@@ -98,7 +102,7 @@ public class NameResolutionPhase implements CompilerPhase {
 				for(Iterator<Import> it = ct.imports().iterator(); it.hasNext();){
 					Import imp = it.next();
 					if (imp.isContainer() || !imp.isUsed()) {
-						listener.warn(new CompilerMessage(imp.getTypeName().getName() + " import is declared but not used in " + ct.getName()));
+						listener.warn(new CompilerMessage(imp.getTypeName().getName() + " import is declared but not used in " + ct.getFullname()));
 						it.remove();
 					}
 				}

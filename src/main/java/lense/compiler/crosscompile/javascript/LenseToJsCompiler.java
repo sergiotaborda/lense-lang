@@ -3,6 +3,8 @@ package lense.compiler.crosscompile.javascript;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -14,6 +16,7 @@ import lense.compiler.modules.ModulesRepository;
 import lense.compiler.phases.CompositePhase;
 import lense.compiler.phases.DesugarPhase;
 import lense.compiler.repository.UpdatableTypeRepository;
+import lense.compiler.type.TypeDefinition;
 
 public class LenseToJsCompiler extends LenseCompiler{
 
@@ -47,6 +50,13 @@ public class LenseToJsCompiler extends LenseCompiler{
 	@Override
 	protected File resolveNativeFile(File folder, String name) {
 		return  new File( folder, name + ".js");
+	}
+
+	@Override
+	protected List<TypeDefinition> extactTypeDefinitionFronNativeType(UpdatableTypeRepository currentTypeRepository,
+			Collection<File> files) throws IOException {
+
+		return List.of();
 	}
 
 }

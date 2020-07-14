@@ -29,6 +29,11 @@ public class PathPackageResolver implements PackageResolver {
 	 */
 	@Override
 	public String resolveUnitPackageName(CompilationUnit compilationUnit) {
+		
+		if(compilationUnit.getOrigin() == null) {
+			return "";
+		}
+		
 		Path packagePath = sourcePath.relativize(compilationUnit.getOrigin()).getParent();
 		
 		if (packagePath== null){

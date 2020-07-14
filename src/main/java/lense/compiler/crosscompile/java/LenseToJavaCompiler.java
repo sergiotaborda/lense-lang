@@ -10,15 +10,17 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.CopyOption;
 import java.nio.file.FileVisitResult;
 import java.nio.file.FileVisitor;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 import java.util.jar.Attributes;
@@ -30,6 +32,7 @@ import compiler.CompilerListener;
 import lense.compiler.CompilationError;
 import lense.compiler.FileLocations;
 import lense.compiler.LenseCompiler;
+import lense.compiler.asm.ByteCodeTypeDefinitionReader;
 import lense.compiler.ast.ModuleNode;
 import lense.compiler.crosscompile.ErasurePhase;
 import lense.compiler.crosscompile.NativePeersPhase;
@@ -40,6 +43,7 @@ import lense.compiler.phases.DesugarPhase;
 import lense.compiler.phases.EnhancementPhase;
 import lense.compiler.phases.ReificationPhase;
 import lense.compiler.repository.UpdatableTypeRepository;
+import lense.compiler.type.TypeDefinition;
 
 /**
  * 
@@ -260,6 +264,10 @@ public class LenseToJavaCompiler extends LenseCompiler{
 		});
 
 
+		if(files.isEmpty()) {
+			return;
+		}
+		
 		if (javaCompilerBackEndFactory.create(fileLocations).compile(files)){
 
 			// compile all files
@@ -279,7 +287,7 @@ public class LenseToJavaCompiler extends LenseCompiler{
 				if (!source.exists()){
 					throw new CompilationError("Compiled file with java compiler does not exist (" + source.toString() +"). ");
 				} else {
-					Files.move(source.toPath(), target.toPath());
+					Files.move(source.toPath(), target.toPath(), StandardCopyOption.REPLACE_EXISTING);
 					nativeTypes.put(packageFile.substring(1).replace(File.separatorChar, '.').replaceAll(".class",""), target);
 
 					//                    TypeDefinition type = reader.readNative(target);
@@ -293,6 +301,27 @@ public class LenseToJavaCompiler extends LenseCompiler{
 			throw new CompilationError("Cannot compile source with java compile");
 		}
 
+	}
+	
+	@Override
+	protected List<TypeDefinition> extactTypeDefinitionFronNativeType(
+			UpdatableTypeRepository currentModuleRepository,
+			Collection<File> nativeFiles
+	) throws IOException {
+
+	    var nativeTypesDefs = new LinkedList<TypeDefinition>();
+
+  		var reader = new ByteCodeTypeDefinitionReader(currentModuleRepository);
+
+
+		for( File target : nativeFiles) {
+  			TypeDefinition type =  reader.readNative(target);
+      		currentModuleRepository.registerType(type, type.getGenericParameters().size());
+
+      		nativeTypesDefs.add(type);
+  		}
+
+		return nativeTypesDefs;
 	}
 
 
