@@ -53,7 +53,7 @@ public class JsCompilerBackEndFactory implements CompilerBackEndFactory {
             for ( AstNode it : ((LenseAstNode)unit.getAstRootNode()).findChilds(c -> c instanceof ClassTypeNode)){
 
                 ClassTypeNode classNode = (ClassTypeNode)it;
-                QualifiedNameNode original = new QualifiedNameNode(classNode.getName());
+                QualifiedNameNode original = new QualifiedNameNode(classNode.getFullname());
 
                 QualifiedNameNode name = original.getPrevious();
                 NamespaceNode subNode = new NamespaceNode(original.getName());
