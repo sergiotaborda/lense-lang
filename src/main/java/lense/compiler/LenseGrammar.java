@@ -340,24 +340,36 @@ public class LenseGrammar extends AbstractLenseGrammar {
 				p.setSemanticAttribute("node", types);
 			} else {
 
-				int index = 0;
-
+				types = new UnitTypes();
+				String packageName= null;
 				ImportDeclarationsListNode imports = new ImportDeclarationsListNode();
-				if (r.get(index).getAstNode().isPresent()
-						&& r.get(index).getAstNode().get() instanceof ImportDeclarationsListNode) {
-					imports = (ImportDeclarationsListNode) r.get(index).getSemanticAttribute("node").get();
-					index++;
+				
+				for (int index = 0 ; index < r.size(); index++) {
+					Optional<AstNode> node = r.get(index).getAstNode();
+					if (node.isPresent() && node.get() instanceof ImportDeclarationsListNode) {
+						
+						imports = (ImportDeclarationsListNode) r.get(index).getSemanticAttribute("node").get();
+					} else if (node.isPresent() && node.get() instanceof QualifiedNameNode){
+						packageName = ((QualifiedNameNode)node.get()).getName();
+					} else if (node.isPresent() && node.get() instanceof ClassTypeNode){
+						types.add((ClassTypeNode) node.get());
+					} else if (node.isPresent() && node.get() instanceof UnitTypes){
+						for(var f : ((UnitTypes)node.get()).getChildren()) {
+							types.add(f);
+						}
+						
+					}
+
 				}
-
-				AstNode node = r.get(index).getAstNode().get();
-				if (node instanceof ClassTypeNode) {
-					types = new UnitTypes();
-
-					types.add((ClassTypeNode) node);
-
-				} else {
-					types = (UnitTypes) node;
+				
+				if(packageName != null) {
+					for(var t : types.getChildren(ClassTypeNode.class)) {
+						t.setPackageName(packageName);
+					}
 				}
+				
+			
+				
 				types.add(imports);
 
 				p.setSemanticAttribute("node", types);
@@ -727,7 +739,7 @@ public class LenseGrammar extends AbstractLenseGrammar {
 				QualifiedNameNode qname = r.get(nextNodeIndex).getAstNode(QualifiedNameNode.class).get();
 
 				n.setScanPosition(r.get(nextNodeIndex).getParserTreeNode().getScanPosition());
-				n.setName(qname.getName());
+				n.setSimpleName(qname.getName());
 
 				if (modifiers.getAnnotations() != null) {
 					n.setAnnotations(modifiers.getAnnotations());
@@ -793,7 +805,7 @@ public class LenseGrammar extends AbstractLenseGrammar {
 			    ClassTypeNode n = new ClassTypeNode(modifiers.getImplementationModifier().isValueClass() ? LenseUnitKind.ValueClass : LenseUnitKind.Class);
 
 				n.setScanPosition(r.get(nextNodeIndex).getParserTreeNode().getScanPosition());
-				n.setName(qname.getName());
+				n.setSimpleName(qname.getName());
 
 				if (modifiers.getAnnotations() != null) {
 					n.setAnnotations(modifiers.getAnnotations());
@@ -884,7 +896,7 @@ public class LenseGrammar extends AbstractLenseGrammar {
 				QualifiedNameNode qname = r.get(nextNodeIndex).getAstNode(QualifiedNameNode.class).get();
 
 				n.setScanPosition(r.get(nextNodeIndex).getParserTreeNode().getScanPosition());
-				n.setName(qname.getName());
+				n.setSimpleName(qname.getName());
 
 				if (modifiers.getAnnotations() != null) {
 					n.setAnnotations(modifiers.getAnnotations());
@@ -946,7 +958,7 @@ public class LenseGrammar extends AbstractLenseGrammar {
 				QualifiedNameNode qname = r.get(nextNodeIndex).getAstNode(QualifiedNameNode.class).get();
 
 				n.setScanPosition(r.get(nextNodeIndex).getParserTreeNode().getScanPosition());
-				n.setName(qname.getName());
+				n.setSimpleName(qname.getName());
 
 				if (modifiers.getAnnotations() != null) {
 					n.setAnnotations(modifiers.getAnnotations());
