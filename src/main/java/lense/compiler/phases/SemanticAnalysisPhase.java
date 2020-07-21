@@ -49,7 +49,6 @@ public class SemanticAnalysisPhase implements CompilerPhase {
 		if (result.isError()){
 			return result;
 		}
-
 		UnitTypes types = result.getCompiledUnit() == null ? null : (UnitTypes)result.getCompiledUnit().getAstRootNode();
 
 		if (types == null){

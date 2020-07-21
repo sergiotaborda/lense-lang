@@ -57,6 +57,7 @@ import lense.compiler.modules.ModulesRepository;
 import lense.compiler.phases.CompositePhase;
 import lense.compiler.phases.ConstructorDesugarPhase;
 import lense.compiler.phases.NameResolutionPhase;
+import lense.compiler.phases.OtimizationPhase;
 import lense.compiler.phases.SemanticAnalysisPhase;
 import lense.compiler.repository.ClasspathRepository;
 import lense.compiler.repository.ModuleCompilationScopeTypeRepository;
@@ -297,9 +298,9 @@ public abstract class LenseCompiler {
 
             collectNative(locations, nativeTypes);
    
-            SemanticAnalysisPhase semantic = new SemanticAnalysisPhase(currentModuleRepository, listener);
-
-            CompositePhase corePhase = new CompositePhase().add(semantic);
+            CompositePhase corePhase = new CompositePhase()
+            		.add(new SemanticAnalysisPhase(currentModuleRepository, listener))
+            		.add(new OtimizationPhase(listener));
 
             initCorePhase (corePhase, nativeTypes, currentModuleRepository);
 
@@ -439,7 +440,9 @@ public abstract class LenseCompiler {
             trace("Compiling graph");
             
          
-            final CompilerBackEnd backend = new ComposedCompilerBackEnd().add(backendFactory.create(locations)).add(new DefinitionsBackEnd(locations));
+            final CompilerBackEnd backend = new ComposedCompilerBackEnd().add(backendFactory.create(locations))
+//            		.add(new DefinitionsBackEnd(locations))
+            		;
   
     		GraphTransversor<DependencyRelation, DependencyNode> tt = new TopologicOrderTransversor<>();
                
@@ -453,9 +456,13 @@ public abstract class LenseCompiler {
                     trace("Visiting : " + e.getVertex().getObject().getName());
                     CompiledUnit unit = e.getVertex().getObject().getCompiledUnit();
 
-                    applyCompilation(nativeTypes, locations, corePhase, currentModuleRepository, backend, unit);
-
-  
+                    if (unit != null && !unit.getProperty("visited", Boolean.class).orElse(false)) {
+                    	
+                       applyCompilation(nativeTypes, locations, corePhase, currentModuleRepository, backend, unit);
+                       unit.setProperty("visited", Boolean.TRUE);
+                    } 
+                   
+   
                     trace("Visited : " + e.getVertex().getObject().getName());
                 }
 

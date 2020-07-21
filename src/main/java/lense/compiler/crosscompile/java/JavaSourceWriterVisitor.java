@@ -387,22 +387,12 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
             } else if (node instanceof PrimitiveBox) {
                 PrimitiveBox pu = (PrimitiveBox)node;
 
-
-                if (pu.getTypeVariable().equals(PrimitiveTypeDefinition.BOOLEAN)){
-                    writer.print("/* PRIMITIVE BOXING IN */ lense.core.lang.Boolean.valueOfNative(");
-                    TreeTransverser.transverse(node.getChildren().get(0), this);
-                    writer.print(")");
-                } else if (pu.getTypeVariable().equals(PrimitiveTypeDefinition.INT)){
-                    writer.print("/* PRIMITIVE BOXING IN */  lense.core.math.Int32.valueOfNative(");
-                    TreeTransverser.transverse(node.getChildren().get(0), this);
-                    writer.print(")");
-                } else if (pu.getTypeVariable().equals(PrimitiveTypeDefinition.LONG)){
-                    writer.print("/* PRIMITIVE BOXING IN */  lense.core.math.Int64.valueOfNative(");
-                    TreeTransverser.transverse(node.getChildren().get(0), this);
-                    writer.print(")");
-                } else {
-                    throw new UnsupportedOperationException("not implemented yet ");
-                }
+            	writer.print("/* PRIMITIVE BOXING IN */");
+            	writer.print(pu.getTypeVariable().getTypeDefinition().getName());
+            	writer.print(".valueOfNative(");
+            	TreeTransverser.transverse(node.getFirstChild(), this);
+                writer.print(")");
+    
 
 
 

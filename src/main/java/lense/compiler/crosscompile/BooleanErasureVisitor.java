@@ -61,6 +61,15 @@ public class BooleanErasureVisitor extends AbstractScopedVisitor {
                
     }
 
+    private boolean isTupleAccess(AstNode node) {
+        if (node instanceof CastNode) {
+            return ((CastNode) node).isTupleAccessMethod();
+        } else if (node instanceof MethodInvocationNode) {
+            return ((MethodInvocationNode) node).isTupleAccessMethod();
+        }
+        return false;
+    }
+
     @Override
     public VisitorNext doVisitBeforeChildren(AstNode node) {
         if (node instanceof ClassTypeNode) {
@@ -186,7 +195,6 @@ public class BooleanErasureVisitor extends AbstractScopedVisitor {
                         } 
                     } 
                 }
-  
             } else {
             	// assume all fixed Boolean returns will be erased to boolean primitive
                 
@@ -284,15 +292,33 @@ public class BooleanErasureVisitor extends AbstractScopedVisitor {
         return VisitorNext.Children;
     }
 
-    private boolean isTupleAccess(AstNode node) {
-        if (node instanceof CastNode) {
-            return ((CastNode) node).isTupleAccessMethod();
-        } else if (node instanceof MethodInvocationNode) {
-            return ((MethodInvocationNode) node).isTupleAccessMethod();
-        }
-        return false;
-    }
 
+    private AstNode primitiveBooleanOperation(AstNode original, BooleanOperation operation) {
+    	
+    	if (operation == BooleanOperation.LogicNegate && original instanceof PrimitiveBox ) {
+    		AstNode inner = original.getFirstChild();
+    		
+    		return new PrimitiveBox (((PrimitiveBox)original).getTypeVariable().getTypeDefinition(), primitiveBooleanOperation(inner, operation));
+    		
+    	} else if(operation == BooleanOperation.LogicNegate && original instanceof BooleanValue) {
+    		return ((BooleanValue)original).negate();
+    	} else if(operation == BooleanOperation.LogicNegate 
+    			&& original instanceof PrimitiveBooleanOperationsNode 
+    			&& ((PrimitiveBooleanOperationsNode)original).getOperation() == BooleanOperation.LogicNegate) {
+//    		double negate
+    		return ((PrimitiveBooleanOperationsNode)original).getFirstChild();
+    	}
+    	return new PrimitiveBooleanOperationsNode(original, operation);
+    }
+    
+    private AstNode unbox(AstNode original) {
+    	if(original instanceof PrimitiveBox) {
+    		return original.getFirstChild();
+    	}
+    	return new PrimitiveUnbox(primitiveType, original);
+    }
+    
+    
     @Override
     public void doVisitAfterChildren(AstNode node) {
 
@@ -301,10 +327,12 @@ public class BooleanErasureVisitor extends AbstractScopedVisitor {
 
             if (!a.getCondition().getTypeVariable().equals(primitiveType)){
 
-                a.replace(a.getCondition(), new PrimitiveUnbox(primitiveType, a.getCondition()));
+            	
+                a.replace(a.getCondition(), unbox(a.getCondition()));
             }
 
-        } else if (node instanceof MethodInvocationNode) {
+        } else
+        	if (node instanceof MethodInvocationNode) {
             MethodInvocationNode m = (MethodInvocationNode) node;
 
             if (m.getCall().getName().equals("equalsTo")){
@@ -318,7 +346,7 @@ public class BooleanErasureVisitor extends AbstractScopedVisitor {
                     BooleanValue bool = (BooleanValue)val;
                     if (!bool.isValue()) {
                         // remove call to equals method and negate
-                        m.getParent().replace(m, new PrimitiveBooleanOperationsNode(m.getAccess(), BooleanOperation.LogicNegate));
+                        m.getParent().replace(m, primitiveBooleanOperation(m.getAccess(), BooleanOperation.LogicNegate));
                     }
                 }
             } else if (m.getCall().getName().equals("asString")){
@@ -333,10 +361,10 @@ public class BooleanErasureVisitor extends AbstractScopedVisitor {
                 if (m.getAccess() instanceof ErasurePointNode){
                     ErasurePointNode accessPoint  = (ErasurePointNode) m.getAccess();
                     if (primitiveType.equals(accessPoint.getTypeVariable())){
-                        m.getParent().replace(m, new PrimitiveBooleanOperationsNode(m.getAccess(), BooleanOperation.LogicNegate));
+                        m.getParent().replace(m, primitiveBooleanOperation(m.getAccess(), BooleanOperation.LogicNegate));
                     }
                 } else {
-                    m.getParent().replace(m, new PrimitiveBooleanOperationsNode(m.getAccess(), BooleanOperation.LogicNegate));
+                    m.getParent().replace(m, primitiveBooleanOperation(m.getAccess(), BooleanOperation.LogicNegate));
                 }
             } else {
                 Optional<BooleanOperation> op = recognizeBooleanOperation(m.getCall().getName());
@@ -387,13 +415,13 @@ public class BooleanErasureVisitor extends AbstractScopedVisitor {
                     } else if (isBooleanNode(inner) || inner.getTypeVariable().equals(primitiveType)) {
                         boxingPoint.getParent().replace(boxingPoint, inner);
                     } else {
-                        boxingPoint.getParent().replace(boxingPoint, new PrimitiveUnbox(primitiveType, inner));
+                        boxingPoint.getParent().replace(boxingPoint, unbox(inner));
                     }
 
 
                 } else if (primitiveType.equals(originalType) && type.equals(targetType)){
                     // convert to object type by boxing
-                    boxingPoint.getParent().replace(boxingPoint, new PrimitiveBox(erasedType, inner));
+                    boxingPoint.getParent().replace(boxingPoint, new PrimitiveBox(type, inner));
                 } else if (( type.equals(targetType) || primitiveType.equals(targetType)) && targetType.equals(originalType)){
                     // the types are expected and already are the same, remove erasure point
                     boxingPoint.getParent().replace(boxingPoint, inner);
@@ -417,12 +445,15 @@ public class BooleanErasureVisitor extends AbstractScopedVisitor {
                 } else if (primitiveType.equals(originalType) && (targetType.equals(type) || targetType.equals(any))){
                     // the original type is a primitive
 
-                    if ((inner instanceof VariableReadNode && boxingPoint.canElide()) || inner instanceof PrimitiveBooleanOperationsNode) {
-                        // if can be elided, does not box , simple remove the box arround inner
+                    if ((inner instanceof VariableReadNode && boxingPoint.canElide()) ) {
+                        // if can be elided, does not box , simple remove the box around inner
                         boxingPoint.getParent().replace(boxingPoint, inner);
+                    } else  if (inner instanceof PrimitiveBox){
+                        // already correct
+                        boxingPoint.getParent().replace(boxingPoint,inner);
                     } else {
                         // box the primitive
-                        boxingPoint.getParent().replace(boxingPoint, new PrimitiveBox(erasedType, inner));
+                        boxingPoint.getParent().replace(boxingPoint, new PrimitiveBox(type, inner));
                     }
 
                 } // else, some other type not interest in
@@ -440,9 +471,11 @@ public class BooleanErasureVisitor extends AbstractScopedVisitor {
 
                         boxingPoint.getParent().replace(boxingPoint, inner.getFirstChild());
                     }
-                } else if (boxingPoint.getTypeVariable() != null && !originalType.isFixed() && targetType.getTypeDefinition().equals(primitiveType)){
+                } else if (boxingPoint.getTypeVariable() != null 
+                		&& !originalType.isFixed() 
+                		&& !targetType.getTypeDefinition().equals(primitiveType)){
 
-                    boxingPoint.getParent().replace(boxingPoint, new PrimitiveUnbox(primitiveType, inner));
+//                    boxingPoint.getParent().replace(boxingPoint, unbox(inner));
 
 
                 } // else, some other type not interest in
@@ -464,7 +497,4 @@ public class BooleanErasureVisitor extends AbstractScopedVisitor {
         } 
 
         return Optional.empty();
-    }
-
-
-}
+    }}

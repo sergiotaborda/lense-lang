@@ -22,7 +22,7 @@ import lense.compiler.typesystem.Visibility;
 
 public final class ErasedTypeDefinition implements TypeDefinition{
 
-    private final TypeDefinition originalType;
+    final TypeDefinition originalType;
     private final PrimitiveTypeDefinition primitiveType;
 
     public ErasedTypeDefinition(TypeDefinition originalType, PrimitiveTypeDefinition primitiveType){
