@@ -44,4 +44,9 @@ public class BooleanValue extends LiteralExpressionNode {
 	    return  value ? "true" : "false";
 	}
 
+	
+	public BooleanValue negate() {
+		return new BooleanValue(!this.value);
+	}
+
 }

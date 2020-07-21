@@ -315,8 +315,8 @@ public class AbstractPrimitiveIntegerErasureVisitor implements Visitor<AstNode> 
                         m.getParent().replace(m, new MethodInvocationOnPrimitiveNode(primitiveType, m));
                     } else {
                         // box then again
-                        PrimitiveBox boxAccess = new PrimitiveBox(erasedType, m.getAccess());
-                        PrimitiveBox boxArgument = new PrimitiveBox(erasedType, m.getCall().getArguments().getFirstArgument().getFirstChild());
+                        PrimitiveBox boxAccess = new PrimitiveBox(type, m.getAccess());
+                        PrimitiveBox boxArgument = new PrimitiveBox(type, m.getCall().getArguments().getFirstArgument().getFirstChild());
 
                         // m.replace(m.getAccess(), boxAccess);
                         // m.getCall().getFirstChild().getFirstChild().replace(m.getCall().getFirstChild().getFirstChild().getFirstChild() ,boxArgument );
@@ -412,13 +412,13 @@ public class AbstractPrimitiveIntegerErasureVisitor implements Visitor<AstNode> 
                     if ((val instanceof VariableReadNode && a.canElide()) || val instanceof PrimitiveArithmeticOperationsNode) {
                         a.getParent().replace(a, val);
                     } else {
-                        a.getParent().replace(a, new PrimitiveBox(erasedType, val));
+                        a.getParent().replace(a, new PrimitiveBox(type, val));
                     }
 
                 } else if (val instanceof MethodInvocationNode) {
                     MethodInvocationNode m = (MethodInvocationNode)val;
                     if ( m.getTypeVariable().isSingleType() && m.getTypeVariable().getTypeDefinition().getName().equals(type.getName())) {
-                        a.getParent().replace(a, new PrimitiveBox(erasedType, val));
+                        a.getParent().replace(a, new PrimitiveBox(type, val));
                     }
                 } else if (val instanceof CastNode) {
                     // no-op

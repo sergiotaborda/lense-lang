@@ -22,6 +22,10 @@
 - [x] verify members are not duplicated
 - [ ] verify all method in the inheritance chain are implemented
 - [x] implicit constructor must exactly have one single parameter
+- [ ] remove transformations from semantic analyzer
+- [ ] place transformations as a strategy depending on backend
+- [ ] place reification as a strategy depending on backend
+- [ ] compile pim (platform independent module)
 
 == Language Features
 

@@ -159,10 +159,13 @@ public final class ReificationVisitor extends AbstractScopedVisitor {
 					optimizedCapture = vr;
 				}
 				
+				var captureArg = new ArgumentListItemNode(0, optimizedCapture);
+				captureArg.setReificiationArgument(true);
+				
 				if (n.getArguments() == null) {
-					n.setArguments(new ArgumentListNode(new ArgumentListItemNode(0, optimizedCapture)));
+					n.setArguments(new ArgumentListNode(captureArg));
 				} else {
-					n.getArguments().addFirst(new ArgumentListItemNode(0, optimizedCapture));
+					n.getArguments().addFirst(captureArg);
 				}
 			}
 
@@ -220,7 +223,9 @@ public final class ReificationVisitor extends AbstractScopedVisitor {
 					}
 
 
-					ArgumentListItemNode arg = new ArgumentListItemNode(0, capture);
+					var arg = new ArgumentListItemNode(0, capture);
+					arg.setReificiationArgument(true);
+					
 					arg.setExpectedType(LenseTypeSystem.ReifiedArguments());
 					
 					m.getCall().getArguments().addFirst(arg);

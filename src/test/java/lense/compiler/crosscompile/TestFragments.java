@@ -1,0 +1,157 @@
+package lense.compiler.crosscompile;
+
+import java.io.File;
+
+import org.junit.Ignore;
+import org.junit.Test;
+
+import lense.compiler.LenseCompiler;
+import lense.compiler.crosscompile.java.LenseToJavaCompiler;
+import lense.compiler.repository.ClasspathRepository;
+
+public class TestFragments {
+
+	File base = new File(new File(".").getAbsoluteFile().getParentFile(), "lense/sdk/compilation/modules");
+	ClasspathRepository repo = new ClasspathRepository(base);
+
+    LenseCompiler compiler = new LenseToJavaCompiler(repo);
+	
+	@Test  
+	public void testMatrixCompilation() {
+		
+		compiler.compileUnit("""
+				package test;
+				
+				import lense.core.collections.Array;
+				
+				public class Matrix<T> {
+
+				  	private  constructor (public rowsCount : Natural, public columnsCount: Natural,  private cells : Array<T>);
+				     
+				     
+				    public constructor ( rowsCount : Natural,  columnsCount: Natural,  seed : T){
+				    	return new Matrix<T> (  rowsCount, columnsCount, new Array<T>(rowsCount * columnsCount, seed));
+				    }
+				    
+				  
+				    public [ row : Natural, column: Natural] : T {
+				        get { 
+				            return cells[calculateCell(row, column)];
+				        }
+				        set (value){
+				           cells[calculateCell(row, column)] = value;
+				        }
+				    }
+				     
+				    private calculateCell( row : Natural,  column: Natural) : Natural{
+				        return row * rowsCount + column;
+				    }   
+				}
+				
+			    public class Test  {
+
+					public method (){
+					
+					  		let matrix = new Matrix<Integer>(3,3,0);
+
+							assert(matrix[0,0] == 0, "matrix[0,0] is not zero");
+					}
+				}
+
+				""");
+		      
+	}
+	
+	@Test  @Ignore
+	public void testBinaryArrayCompilation() {
+		
+		compiler.compileUnit("""
+				package test;
+				
+				import lense.core.collections.Array;
+				
+			    public class Test  {
+
+					public method (){
+					
+					  		let barray : Array<Boolean> = [false, true, true, false];
+
+							let empty = barray.empty;
+							
+							barray[0] = empty;
+							barray[0] = !!empty;
+							barray[1] = !empty;
+							
+							assert(!barray.empty, "List size is empty");
+									
+					  		assert(!barray[0], "barray[0] is not false");
+					  		assert(barray[1], "barray[1] is not true");
+					  		assert(barray[2], "barray[2] is not true");
+					  		assert(!barray[3], "barray[3] is not false");
+					  		
+					  		barray[0] = !!true;
+
+					}
+				}
+
+				""");
+		
+//		  TODO no error when editing sequence
+	        
+	}
+	
+	@Test  @Ignore
+	public void testStringInterpolation() {
+		
+		compiler.compileUnit("""
+				package test;
+				
+				import lense.core.collections.Array;
+				
+			    public class Test  {
+
+					public method (){
+					
+					  		let c = 2;
+					  		
+					  		assert(c == 2);
+					  		assert(c == 2, "c is not 2");
+
+							let s = "New value of {{ c }}";
+							
+							let u = "[" ++ c ++ "," ++ c ++ "," ++ c ++  "," ++ c ++ "]";
+							
+							var sign : String = "+";
+						    if (c < 0){
+						    	sign = " - ";
+						    }
+							return c.asString() ++ sign ++  c.asString() ++ "i";
+					}
+				}
+
+				""");
+
+	        
+	}
+	
+	@Test  @Ignore
+	public void testAssociationLiteral() {
+		
+		compiler.compileUnit("""
+				package test;
+				
+				import lense.core.collections.Array;
+				
+			    public class Test  {
+
+					public method (){
+					
+					  		let a = { "a" : 1, "b" : 2};
+					}
+				}
+
+				""");
+		       
+	}
+
+}
