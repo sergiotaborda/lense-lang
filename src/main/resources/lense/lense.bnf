@@ -1,4 +1,4 @@
-unit = moduleDeclaration | packageDeclaration |  importDeclarations?, typeDeclarations;
+unit = moduleDeclaration | packageDeclaration?,  importDeclarations?, typeDeclarations;
 	imutabilityModifier = 'var' | 'let';
 	visibilityModifier = 'public' | 'private' | 'protected';
 	varianceModifier = 'in' | 'out' | 'inv' | empty;

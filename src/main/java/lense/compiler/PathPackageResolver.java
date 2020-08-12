@@ -3,10 +3,8 @@
  */
 package lense.compiler;
 
-import java.io.File;
-import java.nio.file.Path;
-
 import compiler.CompilationUnit;
+import compiler.filesystem.SourcePath;
 import lense.compiler.typesystem.PackageResolver;
 
 /**
@@ -14,13 +12,13 @@ import lense.compiler.typesystem.PackageResolver;
  */
 public class PathPackageResolver implements PackageResolver {
 
-	private Path sourcePath;
+	private SourcePath sourcePath;
 
 	/**
 	 * Constructor.
 	 * @param path
 	 */
-	public PathPackageResolver(Path sourcePath) {
+	public PathPackageResolver(SourcePath sourcePath) {
 		this.sourcePath = sourcePath;
 	}
 
@@ -29,15 +27,20 @@ public class PathPackageResolver implements PackageResolver {
 	 */
 	@Override
 	public String resolveUnitPackageName(CompilationUnit compilationUnit) {
-		Path packagePath = sourcePath.relativize(compilationUnit.getOrigin()).getParent();
 		
-		if (packagePath== null){
+		if(compilationUnit.getOrigin() == null) {
 			return "";
 		}
-		String relative = sourcePath.relativize(compilationUnit.getOrigin()).getParent().toString();
 		
+		var packagePath = sourcePath.relativize(compilationUnit.getOrigin()).getParent();
 		
-		return relative.replace(File.separatorChar, '.');
+		if (packagePath == null){
+			return "";
+		}
+		
+		return packagePath.join(".");
+		
+
 		
 	}
 

@@ -61,7 +61,7 @@ public final class JavalizeVisitor implements Visitor<AstNode>{
             ClassTypeNode n = (ClassTypeNode)node;
 
             if (n.getKind() == lense.compiler.type.LenseUnitKind.Object ){
-            	TypeDefinition type = n.getSemanticContext().resolveTypeForName(n.getName(), n.getGenericParametersCount()).get().getTypeDefinition();
+            	TypeDefinition type = n.getSemanticContext().resolveTypeForName(n.getFullname(), n.getGenericParametersCount()).get().getTypeDefinition();
 
             	 boolean hashValue = type.getAllMembers().stream().filter( c -> c.isMethod()).map(c -> (Method)c).filter(m -> m.isOverride() && m.getName().equals("hashValue")).findFirst().isPresent();
             	 boolean equals = type.getAllMembers().stream().filter( c -> c.isMethod()).map(c -> (Method)c).filter(m -> m.isOverride() &&m.getName().equals("equalsTo")).findFirst().isPresent();

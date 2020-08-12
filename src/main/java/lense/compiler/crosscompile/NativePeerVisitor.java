@@ -1,8 +1,8 @@
 package lense.compiler.crosscompile;
 
-import java.io.File;
 import java.util.Map;
 
+import compiler.filesystem.SourceFile;
 import compiler.syntax.AstNode;
 import compiler.trees.Visitor;
 import lense.compiler.CompilationError;
@@ -23,9 +23,9 @@ import lense.compiler.typesystem.Visibility;
 
 public final class NativePeerVisitor implements Visitor<AstNode>{
 
-	Map<String, File> nativeTypes;
+	Map<String, SourceFile> nativeTypes;
 	
-	public NativePeerVisitor(Map<String, File> nativeTypes) {
+	public NativePeerVisitor(Map<String, SourceFile> nativeTypes) {
 		this.nativeTypes = nativeTypes;
 	}
 

@@ -1,8 +1,6 @@
 package lense.compiler.crosscompile.javascript;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -12,6 +10,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
+import compiler.filesystem.SourceFileSystemException;
+import compiler.filesystem.SourceFolder;
 import compiler.parser.IdentifierNode;
 import compiler.syntax.AstNode;
 import compiler.trees.TreeTransverser;
@@ -69,10 +69,10 @@ import lense.compiler.ast.VariableReadNode;
 import lense.compiler.ast.VariableWriteNode;
 import lense.compiler.ast.WhileNode;
 import lense.compiler.crosscompile.ErasurePointNode;
-import lense.compiler.crosscompile.PrimitiveBox;
 import lense.compiler.crosscompile.PrimitiveBooleanOperationsNode;
-import lense.compiler.crosscompile.PrimitiveUnbox;
 import lense.compiler.crosscompile.PrimitiveBooleanValue;
+import lense.compiler.crosscompile.PrimitiveBox;
+import lense.compiler.crosscompile.PrimitiveUnbox;
 import lense.compiler.crosscompile.java.JavaSourceWriterVisitor;
 import lense.compiler.type.TypeDefinition;
 import lense.compiler.type.variable.TypeVariable;
@@ -80,7 +80,7 @@ import lense.compiler.type.variable.TypeVariable;
 public class Ecma5JavascriptWriterVisitor implements Visitor<AstNode> {
 
     private PrintWriter writer;
-    private File nativeFolder;
+    private SourceFolder nativeFolder;
 	private String rootNameSpace;
 
     /**
@@ -89,7 +89,7 @@ public class Ecma5JavascriptWriterVisitor implements Visitor<AstNode> {
      * 
      * @param writer
      */
-    public Ecma5JavascriptWriterVisitor(File nativeFolder, PrintWriter writer, String rootNameSpace) {
+    public Ecma5JavascriptWriterVisitor(SourceFolder nativeFolder, PrintWriter writer, String rootNameSpace) {
         this.writer = writer;
         this.rootNameSpace = rootNameSpace;
         this.nativeFolder = nativeFolder;
@@ -909,27 +909,27 @@ public class Ecma5JavascriptWriterVisitor implements Visitor<AstNode> {
         if (t.isNative()){
             // TODO 
             
-            File nativeFile = new File(nativeFolder, t.getName() + ".js");
+            var nativeFile = nativeFolder.file(t.getFullname() + ".js");
             if (nativeFile.exists()){
                 
-                try (BufferedReader reader = new BufferedReader(new FileReader(nativeFile))){
+                try (BufferedReader reader = new BufferedReader(nativeFile.reader())){
                     String line;
                     while ((line = reader.readLine()) != null){
                         writer.println(line);
                     }
                     
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    throw new SourceFileSystemException(e);
                 }
                 
             } else {
-                writer.println("/* absent native " + t.getName() + "*/");
+                writer.println("/* absent native " + t.getFullname() + "*/");
             }
             
             return;
         }
 
-        writer.append(t.getName());
+        writer.append(t.getFullname());
         
         writer.append(" = function ");
 

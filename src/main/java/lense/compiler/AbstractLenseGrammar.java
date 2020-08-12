@@ -176,7 +176,7 @@ public abstract class AbstractLenseGrammar extends AbstractGrammar {
 		NonTerminal noneLiteral = addNonTerminal(NonTerminal.of("noneLiteral"));
 
 
-		unit.setRule(moduleDeclaration.or(packageDeclaration.or(importDeclarations.add(typeDeclarations).or(typeDeclarations))));
+		unit.setRule(moduleDeclaration.or(packageDeclaration.add(importDeclarations).add(typeDeclarations).or(packageDeclaration.add(typeDeclarations)).or(importDeclarations.add(typeDeclarations)).or(typeDeclarations)));
 		imutabilityModifier.setRule(Terminal.of("var").or(Terminal.of("let")));
 		visibilityModifier.setRule(Terminal.of("public").or(Terminal.of("private").or(Terminal.of("protected"))));
 		varianceModifier.setRule(Terminal.of("in").or(Terminal.of("out").or(Terminal.of("inv").or(EmptyTerminal.instance()))));

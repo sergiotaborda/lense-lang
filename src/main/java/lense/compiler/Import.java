@@ -14,6 +14,7 @@ public class Import {
 	private QualifiedNameNode name;
 	private boolean isUsed = false;
 	private boolean isMemberCalled = false; 
+	private boolean isMemberSignatureElement = false;
 	private boolean isSuper = false; 
 	private boolean container;
 	private String alias;
@@ -108,6 +109,14 @@ public class Import {
 
 	public void setSuper(boolean isSuper) {
 		this.isSuper = isSuper;
+	}
+
+	public boolean isMemberSignatureElement() {
+		return isMemberSignatureElement;
+	}
+
+	public void setMemberSignatureElement(boolean isMemberSignatureElement) {
+		this.isMemberSignatureElement = isMemberSignatureElement;
 	}
 	
 
