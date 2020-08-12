@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import compiler.filesystem.SourceFile;
 import compiler.syntax.AstNode;
 import compiler.trees.Visitor;
 import compiler.trees.VisitorNext;
@@ -39,12 +40,12 @@ import lense.compiler.utils.Strings;
  */
 public final class NativeVerificationVisitor implements Visitor<AstNode>{
 
-    private final Map<String, File> nativeTypes;
+    private final Map<String, SourceFile> nativeTypes;
     private final Map<String, LenseTypeDefinition> nativeLoadedTypes = new HashMap<>();
     private final ByteCodeTypeDefinitionReader asmReader;
 	private final SemanticContext semanticContext;
 
-    public NativeVerificationVisitor(SemanticContext semanticContext, Map<String, File> nativeTypes, UpdatableTypeRepository typeContainer) {
+    public NativeVerificationVisitor(SemanticContext semanticContext, Map<String, SourceFile> nativeTypes, UpdatableTypeRepository typeContainer) {
     	this.semanticContext = semanticContext;
         this.nativeTypes = nativeTypes;
         this.asmReader = new ByteCodeTypeDefinitionReader(typeContainer);
@@ -68,7 +69,7 @@ public final class NativeVerificationVisitor implements Visitor<AstNode>{
         String packageName = name.substring(0, pos);
         String className = Strings.cammelToPascalCase(name.substring( pos + 1));
         
-        File classFile = nativeTypes.get(packageName + "." + className);
+        SourceFile classFile = nativeTypes.get(packageName + "." + className);
         def =  (LenseTypeDefinition)asmReader.readNative(classFile);
 
         loadDependencies(def);

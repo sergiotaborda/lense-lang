@@ -1,13 +1,12 @@
 package lense.compiler;
 
-import java.io.File;
-
 import compiler.CompilerBackEnd;
+import compiler.filesystem.SourceFolder;
 
 public interface CompilerBackEndFactory {
 
 	CompilerBackEnd create(FileLocations locations);
 
-	void setClasspath(File base);
+	void setClasspath(SourceFolder base);
 
 }

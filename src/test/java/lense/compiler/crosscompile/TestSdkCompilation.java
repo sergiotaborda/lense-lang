@@ -14,6 +14,8 @@ import java.util.Optional;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import compiler.filesystem.DiskSourceFileSystem;
+import compiler.filesystem.SourceFolder;
 import lense.compiler.ast.LenseCompilerListener;
 import lense.compiler.ast.SystemOutCompilerListener;
 import lense.compiler.crosscompile.java.LenseToJavaCompiler;
@@ -27,13 +29,13 @@ import lense.compiler.modules.ModulesRepository;
  */
 public class TestSdkCompilation {
 
+	SourceFolder sdkFolder = DiskSourceFileSystem.instance().folder(new File(new File(".").getAbsoluteFile().getParentFile(), "/lense/sdk/"));
 
 	 @Test 
 	public void testCompileLibrary() throws IOException {
-		File folder = new File(new File(".").getAbsoluteFile().getParentFile(), "/lense/sdk/");
-
 		
 
+	   
 		ModulesRepository repo = new ModulesRepository() {
             
             @Override
@@ -49,13 +51,12 @@ public class TestSdkCompilation {
         new LenseToJavaCompiler(repo)
 		//.setCompilerListener(LenseCompilerListener.error(msg -> fail(msg.getMessage())))
         .setCompilerListener(new SystemOutCompilerListener())
-		.compileModuleFromDirectory(folder);
+		.compileModuleFromDirectory(sdkFolder);
 	}
 
 	 @Ignore @Test 
     public void testCompileLibraryJavascript() throws IOException {
-        File folder = new File(new File(".").getAbsoluteFile().getParentFile(), "/lense/sdk/");
-
+        
         ModulesRepository repo = new ModulesRepository() {
             
             @Override
@@ -71,7 +72,7 @@ public class TestSdkCompilation {
 
         new LenseToJsCompiler(repo)
         .setCompilerListener(LenseCompilerListener.error(msg -> fail(msg.getMessage())))
-        .compileModuleFromDirectory(folder);
+        .compileModuleFromDirectory(sdkFolder);
     }
 
 }

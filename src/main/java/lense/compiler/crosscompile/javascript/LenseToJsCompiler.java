@@ -1,6 +1,5 @@
 package lense.compiler.crosscompile.javascript;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Collection;
@@ -8,6 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import compiler.filesystem.SourceFile;
+import compiler.filesystem.SourceFolder;
 import lense.compiler.FileLocations;
 import lense.compiler.LenseCompiler;
 import lense.compiler.ast.ModuleNode;
@@ -25,14 +26,14 @@ public class LenseToJsCompiler extends LenseCompiler{
     }
 
     @Override
-    protected void createModuleArchive(FileLocations locations, ModuleNode module, File base, Set<String> applications)
+    protected void createModuleArchive(FileLocations locations, ModuleNode module, SourceFolder base, Set<String> applications)
             throws IOException, FileNotFoundException {
         // no-to
         // TODO pack with a web packer like commons-js
     }
 
     @Override
-    protected void initCorePhase(CompositePhase corePhase, Map<String, File> nativeTypes, UpdatableTypeRepository typeContainer) {
+    protected void initCorePhase(CompositePhase corePhase, Map<String, SourceFile> nativeTypes, UpdatableTypeRepository typeContainer) {
         DesugarPhase desugarProperties = new DesugarPhase(this.getCompilerListener());
         desugarProperties.setInnerPropertyPrefix("_");
         
@@ -43,18 +44,18 @@ public class LenseToJsCompiler extends LenseCompiler{
     }
 
     @Override
-    protected void collectNative(FileLocations fileLocations, Map<String, File> nativeTypes) throws IOException {
+    protected void collectNative(FileLocations fileLocations, Map<String, SourceFile> nativeTypes) throws IOException {
         // no-op for now
     }
 
 	@Override
-	protected File resolveNativeFile(File folder, String name) {
-		return  new File( folder, name + ".js");
+	protected SourceFile resolveNativeFile(SourceFolder folder, String name) {
+		return folder.file( name + ".js");
 	}
 
 	@Override
 	protected List<TypeDefinition> extactTypeDefinitionFronNativeType(UpdatableTypeRepository currentTypeRepository,
-			Collection<File> files) throws IOException {
+			Collection<SourceFile> files) throws IOException {
 
 		return List.of();
 	}

@@ -1,6 +1,5 @@
 package lense.compiler.repository;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -10,6 +9,8 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
+import compiler.filesystem.DiskSourceFileSystem;
+import compiler.filesystem.SourceFolder;
 import lense.compiler.asm.ByteCodeTypeDefinitionReader;
 import lense.compiler.modules.ModuleIdentifier;
 import lense.compiler.modules.ModuleTypeContents;
@@ -22,26 +23,27 @@ public class ClasspathRepository implements TypeRepository, ModulesRepository{
 
     private List<ModuleTypeContents> modules = new LinkedList<>();
 	private Map<TypeSearchParameters, TypeDefinition> types = new HashMap<>();
-	private File baseFolder;
+	private SourceFolder baseFolder;
 
-	public File getBase(){
+	public SourceFolder getBase(){
 		return baseFolder;
 	}
 	
-	public ClasspathRepository(File folder){
+	public ClasspathRepository(SourceFolder folder){
 		this.baseFolder = folder;
 		
+		var fileSystem = DiskSourceFileSystem.instance();
 		
 		try {
 			// TODO handle inter module dependencies
 			
-			for (File jarFile : folder.listFiles(f -> f.isFile() && f.getName().endsWith(".jar"))){
+			for (var jarFile : folder.children(f -> f.isFile() && f.asFile().getName().endsWith(".jar"))){
 				ModuleTypeContents moduleRepo = new ModuleTypeContents();
 
 				ByteCodeTypeDefinitionReader reader = new ByteCodeTypeDefinitionReader(moduleRepo);
 				
 				modules.add(moduleRepo);
-				try(java.util.jar.JarFile jar = new java.util.jar.JarFile(jarFile)){
+				try(java.util.jar.JarFile jar = new java.util.jar.JarFile(fileSystem.convertToFile(jarFile))){
 				  //Manifest manifest = jar.getManifest();
 
 			

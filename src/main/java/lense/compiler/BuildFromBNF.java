@@ -7,26 +7,32 @@ import java.io.File;
 import java.io.PrintWriter;
 
 import compiler.AstCompiler;
-import compiler.FileCompilationUnit;
 import compiler.ListCompilationUnitSet;
+import compiler.SourceFileCompilationUnit;
 import compiler.bnf.BnfCompiler;
 import compiler.bnf.RuleRef;
 import compiler.bnf.ToJavaBackEnd;
+import compiler.filesystem.DiskSourceFileSystem;
+import compiler.filesystem.SourcePath;
 
 /**
  * 
  */
 public class BuildFromBNF {
-
+	
+	
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		File file = new File(new File(".").getAbsoluteFile().getParentFile(), "src/main/resources/lense/lense.bnf");
-		File javaOut = new File(new File(".").getAbsoluteFile().getParentFile(), "src/main/java/lense/compiler/AbstractLenseGrammar.java");
+		var rootFolder = DiskSourceFileSystem.instance().folder(new File(".").getAbsoluteFile().getParentFile());
+		
+		var file =  rootFolder.file(SourcePath.of("src","main","resources","lense", "lense.bnf")); 
+
+		var javaOut =  rootFolder.file(SourcePath.of("src","main","java","lense","compiler", "AbstractLenseGrammar.java")); 
 
 		ListCompilationUnitSet unitSet = new ListCompilationUnitSet();
-		unitSet.add(new FileCompilationUnit(file));
+		unitSet.add(new SourceFileCompilationUnit(file));
 
 		final AstCompiler compiler = new BnfCompiler();
 

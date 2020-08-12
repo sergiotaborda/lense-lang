@@ -1,16 +1,14 @@
 package lense.compiler;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 
 import compiler.CompiledUnit;
 import compiler.CompilerBackEnd;
+import compiler.filesystem.SourceFolder;
 import compiler.syntax.AstNode;
 import compiler.trees.TreeTransverser;
 import lense.compiler.ast.ClassTypeNode;
-import lense.compiler.crosscompile.java.JavaSourceWriterVisitor;
 import lense.compiler.utils.Strings;
 
 public class DefinitionsBackEnd implements CompilerBackEnd {
@@ -27,7 +25,7 @@ public class DefinitionsBackEnd implements CompilerBackEnd {
 		var target= locations.getTargetFolder();
 		for (AstNode node : unit.getAstRootNode().getChildren()) {
 
-			if (target.isDirectory()){
+			if (target.isFolder()){
 
 				if (!(node instanceof ClassTypeNode)){
 					continue;
@@ -47,24 +45,20 @@ public class DefinitionsBackEnd implements CompilerBackEnd {
 				String path =  Strings.join(names, "/");
 				int pos = path.lastIndexOf('/');
 				String filename = path.substring(pos+1) + ".def.lense";
-				File folder;
+				SourceFolder folder;
 				if (pos >=0){
 					path = path.substring(0, pos);
-					folder = new File(target, path );
+					folder = target.folder(path);
 				} else {
 					folder = target;
 				}
 
-				folder.mkdirs();
+				folder.ensureExists();
 
-				File compiled = new File(folder, filename);
-				try {
-					compiled.createNewFile();
-					try(PrintWriter writer = new PrintWriter(new FileWriter(compiled))){
-						TreeTransverser.transverse(node, new DefinitionsVisitor(writer));
-					}
-				} catch (IOException e) {
-					e.printStackTrace();
+				var compiled = folder.file(filename); 
+		
+				try(PrintWriter writer = new PrintWriter(new OutputStreamWriter(compiled.outputStream()))){
+					TreeTransverser.transverse(node, new DefinitionsVisitor(writer));
 				}
 
 			}

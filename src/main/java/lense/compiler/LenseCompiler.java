@@ -4,11 +4,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.Reader;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -30,10 +25,13 @@ import compiler.CompilerBackEnd;
 import compiler.CompilerListener;
 import compiler.CompilerMessage;
 import compiler.ComposedCompilerBackEnd;
-import compiler.FolderCompilationUnionSet;
 import compiler.ListCompilationUnitSet;
 import compiler.ReaderCompilationUnit;
+import compiler.SourceFolderCompilationUnitSet;
 import compiler.StringCompilationUnit;
+import compiler.filesystem.DiskSourceFileSystem;
+import compiler.filesystem.SourceFile;
+import compiler.filesystem.SourceFolder;
 import compiler.trees.TreeTransverser;
 import lense.compiler.ast.ClassTypeNode;
 import lense.compiler.ast.ModuleNode;
@@ -120,48 +118,41 @@ public abstract class LenseCompiler {
         return this.listener;
     }
 
-    private FileLocations defineFileLocations(File moduleproject) throws IOException{
-        File sources = new File(moduleproject, "source");
+    private FileLocations defineFileLocations(SourceFolder moduleprojectFolder) throws IOException{
+    	
+        var sources = moduleprojectFolder.folder("source"); 
 
         if (!sources.exists()){
-            listener.error(new CompilerMessage("No sources found. No folder " + sources.getAbsolutePath() + " exists"));
+            listener.error(new CompilerMessage("No sources found. No folder " + sources.toString() + " exists"));
         }
 
-        File modulesOut = new File(moduleproject, "compilation/" + nativeLanguageName + "/bin");
+        var modulesOut = moduleprojectFolder.folder("compilation").folder(nativeLanguageName).folder("bin");  
         if (!modulesOut.exists()){
-            modulesOut.mkdirs();
+            modulesOut.ensureExists();
         }
 
-        File nativeSources = new File(moduleproject, "native/" + nativeLanguageName);
+        var nativeSources = moduleprojectFolder.folder("native").folder(nativeLanguageName);
 
 
-        File target = new File(moduleproject, "compilation/" + nativeLanguageName + "/target");
+        var target = moduleprojectFolder.folder("compilation").folder(nativeLanguageName).folder("target"); 
 
 
         // delete previous run
         if (!target.exists()){
-            target.mkdirs();
+            target.ensureExists();
         } else {
-            Path directory = target.toPath();
-            Files.walkFileTree(directory, new SimpleFileVisitor<Path>() {
-                @Override
-                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-                    Files.delete(file);
-                    return FileVisitResult.CONTINUE;
-                }
-
-            });
+        	target.delete();
         }
 
-        File modules = new File(moduleproject, "compilation/modules");
+        var modules = moduleprojectFolder.folder("compilation").folder("modules"); 
 
         return new FileLocations(target, nativeSources, sources, modules);
     }
 
-    protected abstract void createModuleArchive(FileLocations locations, ModuleNode module, File base, Set<String> applications) throws IOException, FileNotFoundException;
-    protected abstract void initCorePhase(CompositePhase corePhase, Map<String, File> nativeTypes, UpdatableTypeRepository typeContainer);
-    protected abstract void collectNative(FileLocations fileLocations, Map<String, File> nativeTypes) throws IOException;
-	protected abstract File resolveNativeFile(File folder, String name);
+    protected abstract void createModuleArchive(FileLocations locations, ModuleNode module, SourceFolder base, Set<String> applications) throws IOException, FileNotFoundException;
+    protected abstract void initCorePhase(CompositePhase corePhase, Map<String, SourceFile> nativeTypes, UpdatableTypeRepository typeContainer);
+    protected abstract void collectNative(FileLocations fileLocations, Map<String, SourceFile> nativeTypes) throws IOException;
+	protected abstract SourceFile resolveNativeFile(SourceFolder folder, String name);
 	
 	public void compileUnit(Reader reader)  {
 	
@@ -172,34 +163,23 @@ public abstract class LenseCompiler {
 		compileUnit(new StringCompilationUnit(code));
 	}
 	
-	private static void deleteFolder(File folder) {
-	    File[] files = folder.listFiles();
-	    if(files!=null) { //some JVMs return null for empty dirs
-	        for(File f: files) {
-	            if(f.isDirectory()) {
-	                deleteFolder(f);
-	            } else {
-	                f.delete();
-	            }
-	        }
-	    }
-	    folder.delete();
-	}
-	
 	public void compileUnit(CompilationUnit unit)  {
 
 		ListCompilationUnitSet set = new ListCompilationUnitSet();
 		set.add(unit);
 		
-		File temp = new File("./temp");
-		if(temp.exists()) {
-			deleteFolder(temp);
-		}
-		temp.mkdirs();
+		var rootfolder = DiskSourceFileSystem.instance().folder(new File("."));
+    	
+		var temp = rootfolder.folder("temp");
 		
-		File target = new File(temp,"target");
+//		if(temp.exists()) {
+//			temp.delete();
+//		}
+		temp.ensureExists();
 		
-		target.mkdirs();
+		var target = temp.folder("target");
+		
+		target.ensureExists();
 		
 		FileLocations locations = new  FileLocations(target,temp,temp,temp);
 				 
@@ -211,14 +191,14 @@ public abstract class LenseCompiler {
 		
 	}
 	
-     public void compileModuleFromDirectory(File moduleproject){
+     public void compileModuleFromDirectory(SourceFolder moduleproject){
 
 		 try {
 			 FileLocations locations = this.defineFileLocations(moduleproject);
 		 
-			 CompilationUnitSet moduleUnit = new FolderCompilationUnionSet(locations.getSourceFolder() , fileName -> fileName.equals("module.lense"));
+			 CompilationUnitSet moduleUnit = new SourceFolderCompilationUnitSet(locations.getSourceFolder() , fileName -> fileName.equals("module.lense"));
 			 
-			 CompilationUnitSet unitSet = new FolderCompilationUnionSet(locations.getSourceFolder() , name -> !name.equals("module.lense") && name.endsWith(".lense"));
+			 CompilationUnitSet unitSet = new SourceFolderCompilationUnitSet(locations.getSourceFolder() , name -> !name.equals("module.lense") && name.endsWith(".lense"));
 
 			 compileCompilationUnitSet(moduleUnit, unitSet, locations);
 		 } catch (Exception e) {
@@ -229,12 +209,12 @@ public abstract class LenseCompiler {
 		}
 	 }
 	 
- 	 protected abstract List<TypeDefinition> extactTypeDefinitionFronNativeType(UpdatableTypeRepository currentTypeRepository , Collection<File> files) throws IOException;
+ 	 protected abstract List<TypeDefinition> extactTypeDefinitionFronNativeType(UpdatableTypeRepository currentTypeRepository , Collection<SourceFile> files) throws IOException;
  	
      public void compileCompilationUnitSet(CompilationUnitSet moduleUnit,CompilationUnitSet unitSet, FileLocations locations){
 
 		   
-        Map<String, File> nativeTypes = new HashMap<>();
+        Map<String, SourceFile> nativeTypes = new HashMap<>();
 
         listener.start();
         try {
@@ -288,7 +268,7 @@ public abstract class LenseCompiler {
                 
             }
 
-            File base = null;
+            SourceFolder base = null;
             if (globalRepository instanceof ClasspathRepository){
                 base = ((ClasspathRepository)globalRepository).getBase();
                 backendFactory.setClasspath(base);
@@ -333,7 +313,7 @@ public abstract class LenseCompiler {
             
             CompositePhase prePhase = new CompositePhase()
                     .add(new ConstructorDesugarPhase(listener)) // TODO must be here ?
-                    .add(new NameResolutionPhase(new PathPackageResolver(locations.getSourceFolder().toPath()), listener));
+                    .add(new NameResolutionPhase(new PathPackageResolver(locations.getSourceFolder().getPath()), listener));
 
             trace("Creating dependency graph");
             
@@ -495,12 +475,13 @@ public abstract class LenseCompiler {
 
                 // TODO list types in package
 
-                Path path = locations.getSourceFolder().toPath().resolve(pack.getName().replace('.', File.separatorChar)).resolve("Package$$Info.lense");
+                var path = locations.getSourceFolder().folder(PackageSourcePathUtils.fromPackageName(pack.getName())).file("Package$$Info.lense").getPath();
+           
                 all.add(new StringCompilationUnit(builder.toString(), path));
             }
 
             parser.parse(all)
-            .passBy(new NameResolutionPhase(new PathPackageResolver(locations.getSourceFolder().toPath()), listener))
+            .passBy(new NameResolutionPhase(new PathPackageResolver(locations.getSourceFolder().getPath()), listener))
             .passBy(corePhase)
             .sendTo(backend);
 
@@ -508,16 +489,16 @@ public abstract class LenseCompiler {
 
             StringBuilder builder = writeModule(module, packages);
             all = new ListCompilationUnitSet();
-            all.add(new StringCompilationUnit(builder.toString(), locations.getSourceFolder().toPath().resolve(module.getName().replace('.', File.separatorChar)).resolve("Module$$Info.lense"))); // TODO specify package
+            all.add(new StringCompilationUnit(builder.toString(), locations.getSourceFolder().folder(PackageSourcePathUtils.fromPackageName(module.getName())).file("Module$$Info.lense").getPath())); // TODO specify package
 
             parser.parse(all)
-            .passBy(new NameResolutionPhase(new PathPackageResolver(locations.getSourceFolder().toPath()), listener))
+            .passBy(new NameResolutionPhase(new PathPackageResolver(locations.getSourceFolder().getPath()), listener))
             .passBy(corePhase)
             .sendTo(backend);
 
-            File modules = locations.getModulesFolder();
+            var modules = locations.getModulesFolder();
             if (!modules.exists()){
-                modules.mkdirs();
+                modules.ensureExists();
             }
 
             createModuleArchive(locations, module, base, applications);
@@ -531,7 +512,7 @@ public abstract class LenseCompiler {
 
     }
     
-    private void applyCompilation(Map<String, File> nativeTypes, FileLocations locations, CompositePhase corePhase,
+    private void applyCompilation(Map<String, SourceFile> nativeTypes, FileLocations locations, CompositePhase corePhase,
 			ModuleCompilationScopeTypeRepository currentModuleRepository, final CompilerBackEnd backend,
 		   CompiledUnit unit) {
 		if (unit != null){
@@ -541,7 +522,7 @@ public abstract class LenseCompiler {
         		
         		if (type.isNative()) {
         			
-        			File nativeTypeFile = nativeTypes.get(type.getFullname());
+        			SourceFile nativeTypeFile = nativeTypes.get(type.getFullname());
                   
         			if (nativeTypeFile == null) {
     					if (type.getKind().isObject()) {

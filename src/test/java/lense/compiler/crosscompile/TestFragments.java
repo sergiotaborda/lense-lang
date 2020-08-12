@@ -2,9 +2,9 @@ package lense.compiler.crosscompile;
 
 import java.io.File;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
+import compiler.filesystem.DiskSourceFileSystem;
 import lense.compiler.LenseCompiler;
 import lense.compiler.crosscompile.java.LenseToJavaCompiler;
 import lense.compiler.repository.ClasspathRepository;
@@ -12,7 +12,8 @@ import lense.compiler.repository.ClasspathRepository;
 public class TestFragments {
 
 	File base = new File(new File(".").getAbsoluteFile().getParentFile(), "lense/sdk/compilation/modules");
-	ClasspathRepository repo = new ClasspathRepository(base);
+	
+	ClasspathRepository repo = new ClasspathRepository(DiskSourceFileSystem.instance().folder(base));
 
     LenseCompiler compiler = new LenseToJavaCompiler(repo);
 	
@@ -62,7 +63,7 @@ public class TestFragments {
 		      
 	}
 	
-	@Test  @Ignore
+	@Test  
 	public void testBinaryArrayCompilation() {
 		
 		compiler.compileUnit("""
@@ -100,7 +101,7 @@ public class TestFragments {
 	        
 	}
 	
-	@Test  @Ignore
+	@Test  
 	public void testStringInterpolation() {
 		
 		compiler.compileUnit("""
@@ -134,7 +135,7 @@ public class TestFragments {
 	        
 	}
 	
-	@Test  @Ignore
+	@Test 
 	public void testAssociationLiteral() {
 		
 		compiler.compileUnit("""
