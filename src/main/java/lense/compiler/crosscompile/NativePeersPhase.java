@@ -1,12 +1,12 @@
 package lense.compiler.crosscompile;
 
-import java.io.File;
 import java.util.Map;
 
 import compiler.CompilationResult;
 import compiler.CompilerListener;
 import compiler.CompilerMessage;
 import compiler.CompilerPhase;
+import compiler.filesystem.SourceFile;
 import compiler.trees.TreeTransverser;
 import lense.compiler.CompilationError;
 import lense.compiler.ast.ClassTypeNode;
@@ -16,9 +16,9 @@ import lense.compiler.context.SemanticContext;
 public class NativePeersPhase implements CompilerPhase{
    
     private CompilerListener listener;
-	private Map<String, File> nativeTypes;
+	private Map<String, SourceFile> nativeTypes;
 
-    public NativePeersPhase (CompilerListener listener, Map<String, File> nativeTypes){
+    public NativePeersPhase (CompilerListener listener, Map<String, SourceFile> nativeTypes){
         this.listener = listener;
         this.nativeTypes = nativeTypes;
     }

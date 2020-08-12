@@ -21,7 +21,9 @@ import lense.compiler.typesystem.Visibility;
 public class ClassTypeNode extends AnnotadedLenseAstNode implements ScopeDelimiter{
 
 	private LenseUnitKind kind;
-	private String name;
+	private String packageName;
+	private String simpleName;
+	
 	private ClassBodyNode body;
 	private TypeNode superType;
 	private TypeParametersListNode parametricTypesNode;
@@ -54,7 +56,7 @@ public class ClassTypeNode extends AnnotadedLenseAstNode implements ScopeDelimit
 	 * @param import1
 	 */
 	public void addImport(Import imp) {
-		if (!imp.getTypeName().toString().equals(this.name)){
+		if (!imp.getTypeName().toString().equals(this.getFullname())){
 			imports.add(imp);
 		}		
 	}
@@ -70,13 +72,26 @@ public class ClassTypeNode extends AnnotadedLenseAstNode implements ScopeDelimit
 	public LenseUnitKind getKind(){
 		return kind;
 	}
-	public String getName() {
-		return name;
+	
+	public String getFullname() {
+		if (this.packageName == null) {
+			return simpleName;
+		}
+		
+		return packageName + "." + simpleName;
+	}
+	
+	public String getPackageName() {
+		return packageName;
+	}
+	
+	public String getSimpleName() {
+		return simpleName;
 	}
 
 	
-	public void setName(String name) {
-		this.name = name;
+	public void setSimpleName(String name) {
+		this.simpleName = name;
 	}
 
 	public ClassBodyNode getBody() {
@@ -196,21 +211,7 @@ public class ClassTypeNode extends AnnotadedLenseAstNode implements ScopeDelimit
 		return isImmutable && this.isValueClass();
 	}
 	
-	public String getPackageName() {
-		int pos = name.lastIndexOf('.');
-		if (pos >0){
-			return name.substring(0, pos);
-		}
-		return "";
-	}
-	
-	public String getSimpleName() {
-		int pos = name.lastIndexOf('.');
-		if (pos >0){
-			return name.substring(pos+1);
-		}
-		return name;
-	}
+
 
 	public boolean isAbstract() {
 		return isAbstract;
@@ -291,6 +292,11 @@ public class ClassTypeNode extends AnnotadedLenseAstNode implements ScopeDelimit
     public boolean isEqualsToDefined() {
         return isEqualsToDefined;
     }
+
+	
+    public void setPackageName(String packageName) {
+		this.packageName = packageName;
+	}
 
 
 

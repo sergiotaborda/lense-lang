@@ -18,14 +18,17 @@ import org.junit.Test;
 
 import compiler.AstCompiler;
 import compiler.CompilerMessage;
-import compiler.FileCompilationUnit;
 import compiler.FirstFollowTable;
 import compiler.FirstFollowTableCalculator;
 import compiler.ListCompilationUnitSet;
 import compiler.PrintOutBackEnd;
 import compiler.PromisseSet;
 import compiler.RealizedPromisseSet;
+import compiler.SourceFileCompilationUnit;
 import compiler.StringCompilationUnit;
+import compiler.filesystem.DiskSourceFileSystem;
+import compiler.filesystem.SourceFolder;
+import compiler.filesystem.SourcePath;
 import compiler.parser.Identifier;
 import compiler.parser.LRZeroAutomatonFactory;
 import compiler.parser.LookupTable;
@@ -58,6 +61,9 @@ import lense.compiler.typesystem.LenseTypeSystem;
  */
 public class TestLenseGrammar {
 
+	SourceFolder baseFolder = DiskSourceFileSystem.instance().folder(new File(".").getAbsoluteFile().getParentFile());
+	
+	
 	@Test
 	@Ignore
 	public void testFirstAndFollow() {
@@ -166,70 +172,67 @@ public class TestLenseGrammar {
 
 	@Test @Ignore
 	public void testLambda() throws IOException {
-		File file = new File(new File(".").getAbsoluteFile().getParentFile(),
-				"src/main/lense/lambda.lense");
-		File out = new File(new File(".").getAbsoluteFile().getParentFile(),
-				"src/main/out/lambda.java");
+		
+		
+		var file = baseFolder.file(SourcePath.of("src","main","lense","lambda.lense"));
+		var out = baseFolder.file(SourcePath.of("src", "main","out","lambda.java"));
 
 		assertTrue("File does not exist", file.exists());
 
 		ListCompilationUnitSet unitSet = new ListCompilationUnitSet();
-		unitSet.add(new FileCompilationUnit(file));
+		unitSet.add(new SourceFileCompilationUnit(file));
 
 		new LenseSourceCompiler().parse(unitSet).sendTo(
-				new OutToJavaSource(new FileLocations(out, null, null,null) ));
+				new OutToJavaSource(new FileLocations(out.parentFolder(), null, null,null) ));
 
 	}
 
 
 	@Test @Ignore
 	public void testStringInterpolation() throws IOException {
-		File file = new File(new File(".").getAbsoluteFile().getParentFile(),
-				"src/main/lense/interpolation.lense");
-		File out = new File(new File(".").getAbsoluteFile().getParentFile(),
-				"src/main/out/interpolation.java");
+		
+		var file = baseFolder.file(SourcePath.of("src","main","lense","interpolation.lense"));
+		var out = baseFolder.file(SourcePath.of("src", "main","out","interpolation.java"));
 
 		assertTrue("File does not exist", file.exists());
 
 		ListCompilationUnitSet unitSet = new ListCompilationUnitSet();
-		unitSet.add(new FileCompilationUnit(file));
+		unitSet.add(new SourceFileCompilationUnit(file));
 
 		new LenseSourceCompiler().parse(unitSet).sendTo(
-				new OutToJavaSource(new FileLocations(out, null, null,null) ));
+				new OutToJavaSource(new FileLocations(out.parentFolder(), null, null,null) ));
 
 	}
 
 	@Test @Ignore
 	public void testMaybeAssingment() throws IOException {
-		File file = new File(new File(".").getAbsoluteFile().getParentFile(),
-				"src/main/lense/maybeTest.lense");
-		File out = new File(new File(".").getAbsoluteFile().getParentFile(),
-				"src/main/out/maybeTest.java");
+
+		var file = baseFolder.file(SourcePath.of("src","main","lense","maybeTest.lense"));
+		var out = baseFolder.file(SourcePath.of("src", "main","out","maybeTest.java"));
 
 		assertTrue("File does not exist", file.exists());
 
 		ListCompilationUnitSet unitSet = new ListCompilationUnitSet();
-		unitSet.add(new FileCompilationUnit(file));
+		unitSet.add(new SourceFileCompilationUnit(file));
 
 		new LenseSourceCompiler().parse(unitSet).sendTo(
-				new OutToJavaSource(new FileLocations(out, null, null,null) ));
+				new OutToJavaSource(new FileLocations(out.parentFolder(), null, null,null) ));
 
 	}
 	
 	@Test @Ignore
 	public void testSequenceLiterals() throws IOException {
-		File file = new File(new File(".").getAbsoluteFile().getParentFile(),
-				"src/main/lense/literals.lense");
-		File out = new File(new File(".").getAbsoluteFile().getParentFile(),
-				"src/main/out/literals.java");
+
+		var file = baseFolder.file(SourcePath.of("src","main","lense","literals.lense"));
+		var out = baseFolder.file(SourcePath.of("src", "main","out","literals.java"));
 
 		assertTrue("File does not exist", file.exists());
 
 		ListCompilationUnitSet unitSet = new ListCompilationUnitSet();
-		unitSet.add(new FileCompilationUnit(file));
+		unitSet.add(new SourceFileCompilationUnit(file));
 
 		new LenseSourceCompiler().parse(unitSet).sendTo(
-				new OutToJavaSource(new FileLocations(out, null, null,null) ));
+				new OutToJavaSource(new FileLocations(out.parentFolder(), null, null,null) ));
 
 	}
 
@@ -265,76 +268,73 @@ public class TestLenseGrammar {
 
 	@Test @Ignore
 	public void testField() throws IOException {
-		File file = new File(new File(".").getAbsoluteFile().getParentFile(),
-				"src/main/lense/field.lense");
-		File out = new File(new File(".").getAbsoluteFile().getParentFile(),
-				"src/main/out/field.java");
+
+		var file = baseFolder.file(SourcePath.of("src","main","lense","field.lense"));
+		var out = baseFolder.file(SourcePath.of("src", "main","out","field.java"));
 
 		assertTrue("File does not exist", file.exists());
 
 		ListCompilationUnitSet unitSet = new ListCompilationUnitSet();
-		unitSet.add(new FileCompilationUnit(file));
+		unitSet.add(new SourceFileCompilationUnit(file));
 
 		new LenseSourceCompiler().parse(unitSet).sendTo(
-				new OutToJavaSource(new FileLocations(out, null, null,null) ));
+				new OutToJavaSource(new FileLocations(out.parentFolder(), null, null,null) ));
 
 	}
 
 	@Test @Ignore
 	public void testCompileExpression() throws IOException {
-		File file = new File(new File(".").getAbsoluteFile().getParentFile(),
-				"src/main/lense/expressions.lense");
-		File out = new File(new File(".").getAbsoluteFile().getParentFile(),
-				"src/main/out/expressions.java");
+
+		var file = baseFolder.file(SourcePath.of("src","main","lense","expressions.lense"));
+		var out = baseFolder.file(SourcePath.of("src", "main","out","expressions.java"));
 
 		assertTrue("File does not exist", file.exists());
 
 		ListCompilationUnitSet unitSet = new ListCompilationUnitSet();
-		unitSet.add(new FileCompilationUnit(file));
+		unitSet.add(new SourceFileCompilationUnit(file));
 
 		new LenseSourceCompiler().parse(unitSet).sendTo(
-				new OutToJavaSource(new FileLocations(out, null, null,null) ));
+				new OutToJavaSource(new FileLocations(out.parentFolder(), null, null,null) ));
 
 	}
  
 	@Test @Ignore
 	public void testCompileNativeClass() throws IOException {
-		File file = new File(new File(".").getAbsoluteFile().getParentFile(),
-				"src/main/lense/collections/Array.lense");
-		File out = new File(new File(".").getAbsoluteFile().getParentFile(),
-				"src/main/out/collections/Array.java");
 
+		var file = baseFolder.file(SourcePath.of("src","main","lense","Array.lense"));
+		var out = baseFolder.file(SourcePath.of("src", "main","out","Array.java"));
+
+		
 		ListCompilationUnitSet unitSet = new ListCompilationUnitSet();
-		unitSet.add(new FileCompilationUnit(file));
+		unitSet.add(new SourceFileCompilationUnit(file));
 
 		new LenseSourceCompiler().parse(unitSet).sendTo(
-				new OutToJavaSource(new FileLocations(out, null, null,null) ));
+				new OutToJavaSource(new FileLocations(out.parentFolder(), null, null,null) ));
 	}
 
 	@Test @Ignore
 	public void testCompileGenericClass() throws IOException {
-		File file = new File(new File(".").getAbsoluteFile().getParentFile(),
-				"src/main/lense/collections/Sequence.lense");
-		File out = new File(new File(".").getAbsoluteFile().getParentFile(),
-				"src/main/out/collections/Sequence.java");
 
+		var file = baseFolder.file(SourcePath.of("src","main","lense","Sequence.lense"));
+		var out = baseFolder.file(SourcePath.of("src", "main","out","Sequence.java"));
+		
 		assertTrue("File does not exist", file.exists());
 		ListCompilationUnitSet unitSet = new ListCompilationUnitSet();
-		unitSet.add(new FileCompilationUnit(file));
+		unitSet.add(new SourceFileCompilationUnit(file));
 
 		new LenseSourceCompiler().parse(unitSet).sendTo(
-				new OutToJavaSource(new FileLocations(out, null, null,null) ));
+				new OutToJavaSource(new FileLocations(out.parentFolder(), null, null,null) ));
 
 	}
 
 	@Test @Ignore
 	public void testCompileModule() throws IOException {
-		File file = new File(new File(".").getAbsoluteFile().getParentFile(),
-				"src/main/lense/module.lense");
+
+		var file = baseFolder.file(SourcePath.of("src","main","lense","module.lense"));
 
 		assertTrue("File does not exist", file.exists());
 		ListCompilationUnitSet unitSet = new ListCompilationUnitSet();
-		unitSet.add(new FileCompilationUnit(file));
+		unitSet.add(new SourceFileCompilationUnit(file));
 
 		final AstCompiler compiler = new LenseSourceCompiler();
 		compiler.parse(unitSet).sendTo(new PrintOutBackEnd());
@@ -366,47 +366,46 @@ public class TestLenseGrammar {
 
 	@Test @Ignore
 	public void testVoid() throws IOException {
-		File file = new File(new File(".").getAbsoluteFile().getParentFile(),
-				"src/main/lense/void.lense");
-		File out = new File(new File(".").getAbsoluteFile().getParentFile(),
-				"src/main/out/void.java");
+
+		var file = baseFolder.file(SourcePath.of("src","main","lense","void.lense"));
+		var out = baseFolder.file(SourcePath.of("src", "main","out","void.java"));
+		
 
 		assertTrue("File does not exist", file.exists());
 
 		ListCompilationUnitSet unitSet = new ListCompilationUnitSet();
-		unitSet.add(new FileCompilationUnit(file));
+		unitSet.add(new SourceFileCompilationUnit(file));
 
 		new LenseSourceCompiler().parse(unitSet).sendTo(
-				new OutToJavaSource(new FileLocations(out, null, null,null) ));
+				new OutToJavaSource(new FileLocations(out.parentFolder(), null, null,null) ));
 
 	}
 
 	@Test @Ignore
 	public void testCompilerProgram() throws IOException {
-		File file = new File(new File(".").getAbsoluteFile().getParentFile(),
-				"src/main/lense/program.lense");
-		File out = new File(new File(".").getAbsoluteFile().getParentFile(),
-				"src/main/out/program.java");
 
+		var file = baseFolder.file(SourcePath.of("src","main","lense","program.lense"));
+		var out = baseFolder.file(SourcePath.of("src", "main","out","program.java"));
+		
 		assertTrue("File does not exist", file.exists());
 
 		ListCompilationUnitSet unitSet = new ListCompilationUnitSet();
-		unitSet.add(new FileCompilationUnit(file));
+		unitSet.add(new SourceFileCompilationUnit(file));
 
 		new LenseSourceCompiler().parse(unitSet).sendTo(
-				new OutToJavaSource(new FileLocations(out, null, null,null) ));
+				new OutToJavaSource(new FileLocations(out.parentFolder(), null, null,null) ));
 
 	}
 
 	@Test @Ignore
 	public void testCompilerInterface() throws IOException {
-		File file = new File(new File(".").getAbsoluteFile().getParentFile(),
-				"src/main/lense/Comparable.lense");
+
+		var file = baseFolder.file(SourcePath.of("src","main","lense","Comparable.lense"));
 
 		assertTrue("File does not exist", file.exists());
 
 		ListCompilationUnitSet unitSet = new ListCompilationUnitSet();
-		unitSet.add(new FileCompilationUnit(file));
+		unitSet.add(new SourceFileCompilationUnit(file));
 
 		new LenseSourceCompiler().parse(unitSet).sendTo(new PrintOutBackEnd());
 
@@ -414,18 +413,18 @@ public class TestLenseGrammar {
 
 	@Test @Ignore
 	public void testNameResolution() throws IOException {
-		File file = new File(new File(".").getAbsoluteFile().getParentFile(),
-				"src/main/lense/testImports.lense");
+
+		var file = baseFolder.file(SourcePath.of("src","main","lense","testImports.lense"));
 
 		assertTrue("File does not exist", file.exists());
 
 		ListCompilationUnitSet unitSet = new ListCompilationUnitSet();
-		unitSet.add(new FileCompilationUnit(file));
+		unitSet.add(new SourceFileCompilationUnit(file));
 
 		AstCompiler parser = new AstCompiler(new LenseLanguage());
 		AstNode unitTypes = parser
 				.parse(unitSet)
-				.passBy(new NameResolutionPhase(new PathPackageResolver(file.toPath()), new TestListener())).sendToList().get(0).getAstRootNode();
+				.passBy(new NameResolutionPhase(new PathPackageResolver(file.getPath()), new TestListener())).sendToList().get(0).getAstRootNode();
 
 		UnitTypes t = (UnitTypes) unitTypes;
 
@@ -440,19 +439,19 @@ public class TestLenseGrammar {
 
 	@Test @Ignore
 	public void testSequenceNameResolution() throws IOException {
-		File file = new File(new File(".").getAbsoluteFile().getParentFile(),
-				"src/main/lense/sequenceImports.lense");
+
+		var file = baseFolder.file(SourcePath.of("src","main","lense","sequenceImports.lense"));
 
 		assertTrue("File does not exist", file.exists());
 
 		ListCompilationUnitSet unitSet = new ListCompilationUnitSet();
-		unitSet.add(new FileCompilationUnit(file));
+		unitSet.add(new SourceFileCompilationUnit(file));
 
 		AstCompiler parser = new AstCompiler(new LenseLanguage());
 		AstNode unitTypes = parser
 				.parse(unitSet)
 				.passBy(new NameResolutionPhase(new PathPackageResolver(
-						file.toPath()), new TestListener())).sendToList().get(0).getAstRootNode();
+						file.getPath()), new TestListener())).sendToList().get(0).getAstRootNode();
 
 		UnitTypes t = (UnitTypes) unitTypes;
 

@@ -80,7 +80,7 @@ public class NameResolutionVisitor extends AbstractScopedVisitor {
 		if (node instanceof ClassTypeNode) {
 			ClassTypeNode n = (ClassTypeNode) node;
 
-			String name = n.getName();
+			String name = n.getFullname();
 			Optional<TypeVariable> type = this.getSemanticContext().resolveTypeForName(name, n.getGenericParametersCount());
 
 			LenseTypeDefinition currentType;
@@ -157,7 +157,7 @@ public class NameResolutionVisitor extends AbstractScopedVisitor {
 		} else if (node instanceof NumericValue){
 			NumericValue n = (NumericValue)node;
 
-			if (!ct.getName().equals(n.getTypeVariable().getTypeDefinition().getSimpleName())){
+			if (!ct.getFullname().equals(n.getTypeVariable().getTypeDefinition().getSimpleName())){
 				Optional<Import> match = matchImports(ct, n.getTypeVariable().getTypeDefinition().getSimpleName());
 
 				if (match.isPresent()) {
@@ -239,7 +239,7 @@ public class NameResolutionVisitor extends AbstractScopedVisitor {
 				return VisitorNext.Siblings;
 			}
 
-			handleTypeMissing(ct.getName(), node, fieldDeclarationNode.getTypeNode());
+			handleTypeMissing(ct.getFullname(), node, fieldDeclarationNode.getTypeNode());
 
 		} else if (node instanceof TypeNode) {
 			TypeNode typeNode = (TypeNode) node;
@@ -304,7 +304,7 @@ public class NameResolutionVisitor extends AbstractScopedVisitor {
 				return VisitorNext.Children;
 			}
 
-			if (!ct.getName().endsWith(typeNode.getName())) {
+			if (!ct.getFullname().endsWith(typeNode.getName())) {
 				// its not the type it self.
 
 				if (node.getParent() instanceof GenericTypeParameterNode) {
@@ -312,7 +312,7 @@ public class NameResolutionVisitor extends AbstractScopedVisitor {
 					return VisitorNext.Siblings;
 				}
 
-				this.handleTypeMissing(ct.getName(), node.getParent(), typeNode);
+				this.handleTypeMissing(ct.getFullname(), node.getParent(), typeNode);
 
 			}
 
@@ -591,7 +591,7 @@ public class NameResolutionVisitor extends AbstractScopedVisitor {
 	private Optional<Import> matchImports(ClassTypeNode ct, String nameAlias) {
 
 		if (ct.getSimpleName().equals(nameAlias)){
-			return Optional.of(new Import(new QualifiedNameNode(ct.getName()), nameAlias, false));
+			return Optional.of(new Import(new QualifiedNameNode(ct.getFullname()), nameAlias, false));
 		}
 
 		for (Import i : ct.imports()) {
@@ -612,7 +612,7 @@ public class NameResolutionVisitor extends AbstractScopedVisitor {
 				ClassTypeNode cc = (ClassTypeNode)other;
 
 				if (cc.getSimpleName().equals(nameAlias)){
-					return Optional.of(new Import(new QualifiedNameNode(cc.getName()), nameAlias, false));
+					return Optional.of(new Import(new QualifiedNameNode(cc.getFullname()), nameAlias, false));
 				}
 
 			}
@@ -674,7 +674,7 @@ public class NameResolutionVisitor extends AbstractScopedVisitor {
 					return;
 				}
 
-				this.handleTypeMissing(ct.getName(), node, m.getReturnType());
+				this.handleTypeMissing(ct.getFullname(), node, m.getReturnType());
 
 			}
 
@@ -698,7 +698,7 @@ public class NameResolutionVisitor extends AbstractScopedVisitor {
 					n.getType().setName(match.get().getTypeName());
 					return;
 				}
-				this.handleTypeMissing(ct.getName(), node, n.getType());
+				this.handleTypeMissing(ct.getFullname(), node, n.getType());
 
 			}
 
@@ -837,7 +837,7 @@ public class NameResolutionVisitor extends AbstractScopedVisitor {
 
 
 	private boolean isNotSelf(Optional<Import> match) {
-		return match.map(imp -> !ct.getName().equals(imp.getTypeName().toString())).orElse(true);
+		return match.map(imp -> !ct.getFullname().equals(imp.getTypeName().toString())).orElse(true);
 	}
 
 }

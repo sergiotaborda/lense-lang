@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import compiler.filesystem.SourceFile;
 import compiler.syntax.AstNode;
 import compiler.trees.Visitor;
 import compiler.trees.VisitorNext;
@@ -39,12 +40,12 @@ import lense.compiler.utils.Strings;
  */
 public final class NativeVerificationVisitor implements Visitor<AstNode>{
 
-    private final Map<String, File> nativeTypes;
+    private final Map<String, SourceFile> nativeTypes;
     private final Map<String, LenseTypeDefinition> nativeLoadedTypes = new HashMap<>();
     private final ByteCodeTypeDefinitionReader asmReader;
 	private final SemanticContext semanticContext;
 
-    public NativeVerificationVisitor(SemanticContext semanticContext, Map<String, File> nativeTypes, UpdatableTypeRepository typeContainer) {
+    public NativeVerificationVisitor(SemanticContext semanticContext, Map<String, SourceFile> nativeTypes, UpdatableTypeRepository typeContainer) {
     	this.semanticContext = semanticContext;
         this.nativeTypes = nativeTypes;
         this.asmReader = new ByteCodeTypeDefinitionReader(typeContainer);
@@ -68,7 +69,7 @@ public final class NativeVerificationVisitor implements Visitor<AstNode>{
         String packageName = name.substring(0, pos);
         String className = Strings.cammelToPascalCase(name.substring( pos + 1));
         
-        File classFile = nativeTypes.get(packageName + "." + className);
+        SourceFile classFile = nativeTypes.get(packageName + "." + className);
         def =  (LenseTypeDefinition)asmReader.readNative(classFile);
 
         loadDependencies(def);
@@ -105,26 +106,26 @@ public final class NativeVerificationVisitor implements Visitor<AstNode>{
             ClassTypeNode n = (ClassTypeNode)node;
 
             if (n.isNative()){
-                if (!nativeTypes.containsKey(n.getName())){
+                if (!nativeTypes.containsKey(n.getFullname())){
                 	
                 	String objectName = n.getPackageName() + "." + Strings.cammelToPascalCase(n.getSimpleName());
                 	   
                 	if (!nativeTypes.containsKey(objectName)){
-                		throw new lense.compiler.CompilationError(node, "Native implementation for type " + n.getName() + " is missing");
+                		throw new lense.compiler.CompilationError(node, "Native implementation for type " + n.getFullname() + " is missing");
                     }
                 }
 
-                if (n.getName().equals("lense.core.lang.Any")){
+                if (n.getFullname().equals("lense.core.lang.Any")){
                     return;
                 }
 
                 // verify correct contract
 
                 try {
-                    TypeDefinition nativeType = loadByName(n.getName());
+                    TypeDefinition nativeType = loadByName(n.getFullname());
 
 
-                     Optional<TypeVariable> stype = semanticContext.resolveTypeForName(n.getName(), n.getTypeDefinition().getGenericParameters().size());
+                     Optional<TypeVariable> stype = semanticContext.resolveTypeForName(n.getFullname(), n.getTypeDefinition().getGenericParameters().size());
                     
                      
                      if (!stype.isPresent()) {
@@ -205,13 +206,13 @@ public final class NativeVerificationVisitor implements Visitor<AstNode>{
 
 
             } else if (n.getKind() == lense.compiler.type.LenseUnitKind.Class ){
-                if (nativeTypes.containsKey(n.getName())){
+                if (nativeTypes.containsKey(n.getFullname())){
    
                     try {
-                        LenseTypeDefinition nativeType = loadByName(n.getName());
+                        LenseTypeDefinition nativeType = loadByName(n.getFullname());
 
                         if (nativeType.isNative()){
-                            throw new lense.compiler.CompilationError(node, "Found native implementation for type " + n.getName() + " but type is not marked as native. Did you intended to mark " + n.getName() + " as native ?");	
+                            throw new lense.compiler.CompilationError(node, "Found native implementation for type " + n.getFullname() + " but type is not marked as native. Did you intended to mark " + n.getFullname() + " as native ?");	
                         }
 
                         if (nativeType.getKind() != n.getKind()){ 
@@ -224,13 +225,13 @@ public final class NativeVerificationVisitor implements Visitor<AstNode>{
 
                 }
             } else if (n.getKind() == lense.compiler.type.LenseUnitKind.Interface ){
-                if (nativeTypes.containsKey(n.getName())){
+                if (nativeTypes.containsKey(n.getFullname())){
    
                     try {
-                        LenseTypeDefinition nativeType = loadByName(n.getName());
+                        LenseTypeDefinition nativeType = loadByName(n.getFullname());
 
                         if (nativeType.isNative()){
-                            throw new lense.compiler.CompilationError(node, "Found native implementation for type " + n.getName() + " but type is not marked as native. Did you intended to mark " + n.getName() + " as native ?"); 
+                            throw new lense.compiler.CompilationError(node, "Found native implementation for type " + n.getFullname() + " but type is not marked as native. Did you intended to mark " + n.getFullname() + " as native ?"); 
                         }
 
                         if (nativeType.getKind() != n.getKind()){ 
@@ -258,7 +259,7 @@ public final class NativeVerificationVisitor implements Visitor<AstNode>{
         // allow for the native to be abstract if the source is not
         // NOT allow for the native to be NOT abstract if the source is 
         
-        if ( declaredMember.getDeclaringType().getName().equals(node.getName()) 
+        if ( declaredMember.getDeclaringType().getName().equals(node.getFullname()) 
         		&& declaredMember.getDeclaringType().getKind() != LenseUnitKind.Interface 
         		&& declaredMember.isAbstract() 
         		&& !nativeMember.isAbstract()

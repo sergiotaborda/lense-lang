@@ -49,14 +49,13 @@ public class SemanticAnalysisPhase implements CompilerPhase {
 		if (result.isError()){
 			return result;
 		}
-
 		UnitTypes types = result.getCompiledUnit() == null ? null : (UnitTypes)result.getCompiledUnit().getAstRootNode();
 
 		if (types == null){
 			return new CompilationResult(new RuntimeException("Unexpected Error. Result as no node."));
 		}
 
-		boolean hasAlgebric = false;
+		
 
 		try {
 			
@@ -81,6 +80,8 @@ public class SemanticAnalysisPhase implements CompilerPhase {
 				}
 			}
 			
+			boolean hasAlgebric = false;
+			
 			for (ClassTypeNode ct : types.getTypes()){
 				// cannot share semantic context among classes
 				
@@ -102,7 +103,7 @@ public class SemanticAnalysisPhase implements CompilerPhase {
 				Map<String,ClassTypeNode> mapping = new HashMap<>();
 
 				for (ClassTypeNode ct : types.getTypes()){
-					mapping.put(ct.getName(), ct);
+					mapping.put(ct.getFullname(), ct);
 					mapping.put(ct.getSimpleName(), ct);
 				}
 

@@ -22,6 +22,15 @@
 - [x] verify members are not duplicated
 - [ ] verify all method in the inheritance chain are implemented
 - [x] implicit constructor must exactly have one single parameter
+- [ ] remove transformations from semantic analyzer
+- [ ] place transformations as a strategy depending on backend
+- [ ] place reification as a strategy depending on backend
+- [ ] compile pim (platform independent module)
+- [x] use source file system (virtual file system)
+- [ ] create assemblers for each technology (vm and deployment)
+- [ ] modules lookup and validation
+- [ ] modules metadata
+
 
 == Language Features
 
@@ -34,9 +43,9 @@
 - [x] Indexes support multiple parameters `array[i]` , `matrix[i,j]` , `cube[i,j,k]`
 
 - [x] Object type 
-- [x] Sealed algebric types like: `class Boolean is true , false; `
-* [x] case classes,  ( via algebric types)
-* [x] case objects   ( via algebric types)
+- [x] Sealed algebraic types like: `class Boolean is true , false; `
+* [x] case classes,  ( via algebraic types)
+* [x] case objects   ( via algebraic types)
 - [x] enums (via sealed types)
 - [ ] Annotation
 - [x] Enhancements
@@ -46,11 +55,11 @@
 * [x] native
 - [ ] record classes 
 - [x] value classes
-- [ ] limit tuples to only be used inside methods , or remove them altogehter in preference of records
+- [ ] limit tuples to only be used inside methods , or remove them altogether in preference of records
 
 - [ ] validate variables used are effectively final ( so they can be used in lambdas)
      
-- [ ] Ensure  fields/properties  not initialized produce compilation erros
+- [ ] Ensure  fields/properties  not initialized produce compilation errors
 - [ ] allow to place `module.lense` in source root folder
 - [x] allow for package in files to be  optional.
 - [x] if present validate it matches the folder structure
