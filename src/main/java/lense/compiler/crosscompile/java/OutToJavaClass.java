@@ -3,8 +3,6 @@
  */
 package lense.compiler.crosscompile.java;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -20,8 +18,11 @@ import org.objectweb.asm.Opcodes;
 
 import compiler.CompiledUnit;
 import compiler.CompilerBackEnd;
+import compiler.filesystem.DiskSourceFileSystem;
+import compiler.filesystem.SourceFolder;
 import compiler.syntax.AstNode;
 import lense.compiler.FileLocations;
+import lense.compiler.PackageSourcePathUtils;
 import lense.compiler.ast.ClassTypeNode;
 import lense.compiler.ast.ConstructorDeclarationNode;
 import lense.compiler.ast.FieldDeclarationNode;
@@ -110,23 +111,25 @@ public class OutToJavaClass implements CompilerBackEnd, Opcodes {
 		ClassTypeNode t = (ClassTypeNode)node;
 
 		if (t.isNative()){
-			File sourceFile = new File (out.getNativeFolder(), t.getPackageName().replace('.', File.separatorChar) + File.separatorChar +  t.getSimpleName() + ".java");
-			File compiledFile = new File (out.getNativeFolder(), t.getPackageName().replace('.', File.separatorChar) + File.separatorChar +  t.getSimpleName() + ".class");
-			
+			var fileSystem =  DiskSourceFileSystem.instance();
+	
+			var sourceFile = fileSystem.convertToFile(out.getNativeFolder().folder(PackageSourcePathUtils.fromPackageName(t.getPackageName())).file(t.getSimpleName() + ".java"));
+			var compiledFile = fileSystem.convertToFile(out.getNativeFolder().folder(PackageSourcePathUtils.fromPackageName(t.getPackageName())).file(t.getSimpleName() + ".class"));
+
 			JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 			compiler.run(null,null, null, sourceFile.getPath());
 			
-			File targetCompiledFile = new File (out.getTargetFolder(), t.getPackageName().replace('.', File.separatorChar) + File.separatorChar +  t.getSimpleName() + ".class");
+			var targetCompiledFile = fileSystem.convertToFile(out.getTargetFolder().folder(PackageSourcePathUtils.fromPackageName(t.getPackageName())).file(t.getSimpleName() + ".class"));
 			
 			compiledFile.renameTo(targetCompiledFile);
 		}
 	}
 
 	private void writeClassFile(CompiledUnit unit) {
-		File target = out.getTargetFolder();
-		File compiled = target;
+		var target = out.getTargetFolder();
+		
 		int constructorsCount = 0;
-		if (target.isDirectory()){
+		if (target.isFolder()){
 			AstNode node = unit.getAstRootNode().getChildren().get(0);
 
 			if (!(node instanceof ClassTypeNode)){
@@ -140,19 +143,19 @@ public class OutToJavaClass implements CompilerBackEnd, Opcodes {
 			String path = toJavaQN(t.getFullname());
 			int pos = path.lastIndexOf('/');
 			String filename = path.substring(pos+1) + ".class";
-			File folder;
+			SourceFolder folder;
 			if (pos >=0){
 				path = path.substring(0, pos);
-				folder = new File(target, path );
+				folder = target.folder( path );
 			} else {
 				folder = target;
 			}
 
-			folder.mkdirs();
+			folder.ensureExists();
 
-			compiled = new File(folder, filename);
+			var compiled = folder.file(filename);
 			try {
-				compiled.createNewFile();
+				compiled.ensureExists();
 
 				ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS & ClassWriter.COMPUTE_FRAMES);
 
@@ -272,7 +275,7 @@ public class OutToJavaClass implements CompilerBackEnd, Opcodes {
 
 				cw.visitEnd();
 
-				FileOutputStream  out = new FileOutputStream (compiled);
+				var  out = compiled.outputStream();
 				out.write(cw.toByteArray());
 				out.close();
 				

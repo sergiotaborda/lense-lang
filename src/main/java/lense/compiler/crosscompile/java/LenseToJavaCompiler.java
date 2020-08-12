@@ -10,6 +10,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Writer;
 import java.nio.file.FileVisitResult;
 import java.nio.file.FileVisitor;
 import java.nio.file.Files;
@@ -28,9 +29,15 @@ import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 
 import compiler.CompilerListener;
+import compiler.filesystem.SourceFile;
+import compiler.filesystem.SourceFileSystemNode;
+import compiler.filesystem.SourceFolder;
+import compiler.filesystem.SourceWalker;
+import compiler.filesystem.SourceWalkerResult;
 import lense.compiler.CompilationError;
 import lense.compiler.FileLocations;
 import lense.compiler.LenseCompiler;
+import lense.compiler.PackageSourcePathUtils;
 import lense.compiler.asm.ByteCodeTypeDefinitionReader;
 import lense.compiler.ast.ModuleNode;
 import lense.compiler.crosscompile.ErasurePhase;
@@ -56,7 +63,7 @@ public class LenseToJavaCompiler extends LenseCompiler{
 		super("java",globalModulesRepository,javaCompilerBackEndFactory); 
 	}
 
-	protected void initCorePhase(CompositePhase corePhase, Map<String, File> nativeTypes, UpdatableTypeRepository typeContainer){
+	protected void initCorePhase(CompositePhase corePhase, Map<String, SourceFile> nativeTypes, UpdatableTypeRepository typeContainer){
 
 		CompilerListener compilerListener = this.getCompilerListener();
 		corePhase
@@ -70,7 +77,7 @@ public class LenseToJavaCompiler extends LenseCompiler{
 
 	}
 
-	protected void createModuleArchive(FileLocations locations, ModuleNode module, File base, Set<String> applications) throws IOException, FileNotFoundException {
+	protected void createModuleArchive(FileLocations locations, ModuleNode module, SourceFolder base, Set<String> applications) throws IOException, FileNotFoundException {
 		StringBuilder builder;
 		Manifest jarManifest = new Manifest();
 		jarManifest.getMainAttributes().put(Attributes.Name.MANIFEST_VERSION, "1.0");
@@ -90,8 +97,8 @@ public class LenseToJavaCompiler extends LenseCompiler{
 
 			builder = writeBootstrap(mainType, pack);
 
-			File sourceFile = new File(locations.getTargetFolder().getAbsolutePath() + "/" + pack.replace('.', '/') , "Bootstrap.java");
-			try(FileWriter writer = new FileWriter(sourceFile)){
+			var sourceFile = locations.getTargetFolder().folder(PackageSourcePathUtils.fromPackageName(pack)).file("Bootstrap.java");
+			try(Writer writer = sourceFile.writer()){
 				writer.write(builder.toString());
 				writer.close();
 			}
@@ -118,15 +125,15 @@ public class LenseToJavaCompiler extends LenseCompiler{
 		}
 
 
-		File file = new File (locations.getModulesFolder(), module.getName() + ".jar");
+		var file = locations.getModulesFolder().file(module.getName() + ".jar");
 
 		Properties p = new Properties();
 
 		p.put("module.name", module.getName());
 		p.put("module.version", module.getVersion().toString());
 
-		File moduleProperties = new File(locations.getTargetFolder(), "module.properties");
-		p.store(new FileOutputStream(moduleProperties), "Lense module definition");
+		var moduleProperties = locations.getTargetFolder().file("module.properties");
+		p.store(moduleProperties.outputStream(), "Lense module definition");
 
 		createJar(locations.getTargetFolder(), file,jarManifest);
 	}
@@ -149,24 +156,24 @@ public class LenseToJavaCompiler extends LenseCompiler{
 		return builder;
 	}
 
-	private void createJar(File source, File output, Manifest manifest) throws IOException {
+	private void createJar(SourceFolder source, SourceFile output, Manifest manifest) throws IOException {
 
-		JarOutputStream target = new JarOutputStream(new FileOutputStream(output), manifest);
+		JarOutputStream target = new JarOutputStream(output.outputStream(), manifest);
 
-		String name = source.getPath().replace("\\", "/") + "/";
-		for (File nestedFile: source.listFiles()){
+		String name = source.getPath().join("/") + "/";
+		for (var nestedFile: source.children()){
 			addToJar(name, nestedFile, target);
 		}
 		target.close();
 	}
 
-	private void addToJar(String base, File source, JarOutputStream target) throws IOException
+	private void addToJar(String base, SourceFileSystemNode source, JarOutputStream target) throws IOException
 	{
 		BufferedInputStream in = null;
 		try
 		{
-			String name = source.getPath().replace("\\", "/").replaceAll(base, "");
-			if (source.isDirectory())
+			String name = source.getPath().join("/").substring(base.length());
+			if (source.isFolder())
 			{
 
 				if (!name.isEmpty())
@@ -180,9 +187,11 @@ public class LenseToJavaCompiler extends LenseCompiler{
 					target.putNextEntry(entry);
 					target.closeEntry();
 				}
-				for (File nestedFile: source.listFiles()){
+				
+				for (var nestedFile: source.asFolder().children()){
 					addToJar(base, nestedFile, target);
 				}
+				
 				return;
 			} else if (! (source.getName().endsWith(".class") || source.getName().endsWith(".properties"))){
 				return;
@@ -191,7 +200,7 @@ public class LenseToJavaCompiler extends LenseCompiler{
 			JarEntry entry = new JarEntry(name);
 			entry.setTime(source.lastModified());
 			target.putNextEntry(entry);
-			in = new BufferedInputStream(new FileInputStream(source));
+			in = new BufferedInputStream(source.asFile().inputStream());
 
 
 			byte[] buffer = new byte[1024];	
@@ -213,55 +222,31 @@ public class LenseToJavaCompiler extends LenseCompiler{
 	}
 
 
-	protected File resolveNativeFile(File folder, String name) {
-		return new File( folder, name + ".class");
+	protected SourceFile resolveNativeFile(SourceFolder folder, String name) {
+		return folder.file(name + ".class");
 	}
 
-	protected void collectNative(FileLocations fileLocations, Map<String, File> nativeTypes) throws IOException {
+	protected void collectNative(FileLocations fileLocations, Map<String, SourceFile> nativeTypes) throws IOException {
 
 		if (!fileLocations.getNativeFolder().exists()){
 			return;
 		}
 
-		//		ByteCodeTypeDefinitionReader reader = new ByteCodeTypeDefinitionReader(typeContainer);
+		List<SourceFile> files = new LinkedList<>();
 
-		List<File> files = new LinkedList<>();
-
-		final Path rootDir = fileLocations.getNativeFolder().toPath();
-
-
-		Files.walkFileTree(rootDir, new FileVisitor<Path>() {
+		var rootDir = fileLocations.getNativeFolder();
+	    
+		rootDir.walkTree(new SourceWalker(){
 
 			@Override
-			public FileVisitResult preVisitDirectory(Path path, BasicFileAttributes atts) throws IOException {
-				return FileVisitResult.CONTINUE;
-			}
-
-			@Override
-			public FileVisitResult visitFile(Path path, BasicFileAttributes mainAtts)
-					throws IOException {
-
-				if (path.toString().endsWith(".java")){
-					files.add(path.toFile());
+			public SourceWalkerResult visitFile(SourceFile file) {
+				if (file.getName().endsWith(".java")){
+					files.add(file);
 				}
-				return FileVisitResult.CONTINUE;
+				return SourceWalkerResult.CONTINUE;
 			}
 
-			@Override
-			public FileVisitResult postVisitDirectory(Path path,
-					IOException exc) throws IOException {
-				return FileVisitResult.CONTINUE;
-			}
-
-			@Override
-			public FileVisitResult visitFileFailed(Path path, IOException exc)
-					throws IOException {
-				exc.printStackTrace();
-
-				return path.equals(rootDir)? FileVisitResult.TERMINATE:FileVisitResult.CONTINUE;
-			}
 		});
-
 
 		if(files.isEmpty()) {
 			return;
@@ -270,27 +255,26 @@ public class LenseToJavaCompiler extends LenseCompiler{
 		if (javaCompilerBackEndFactory.create(fileLocations).compile(files)){
 
 			// compile all files
-			for (File n : files){
-				String packageFile = n.getAbsolutePath().substring(rootDir.toString().length());
-				int pos = packageFile.indexOf(".java");
-				packageFile = packageFile.substring(0, pos) + ".class";
+			for (var n : files){
+				
+				var name = n.getName().substring(0,  n.getName().length() - 5);
+				var source = resolveNativeFile(n.parentFolder(), name);
 
-				File source = resolveNativeFile(n.getParentFile(), n.getName().substring(0,  n.getName().length() - 5));
+				var packagePath = rootDir.getPath().relativize(n.getPath()).getParent();
+				var packageFolder = fileLocations.getTargetFolder().folder(packagePath);
+				
+				var target =  packageFolder.file(name  + ".class");
 
-
-
-				File target = new File(fileLocations.getTargetFolder(),packageFile);
-
-				target.getParentFile().mkdirs();
+				target.parentFolder().ensureExists();
 
 				if (!source.exists()){
 					throw new CompilationError("Compiled file with java compiler does not exist (" + source.toString() +"). ");
 				} else {
-					Files.move(source.toPath(), target.toPath(), StandardCopyOption.REPLACE_EXISTING);
-					nativeTypes.put(packageFile.substring(1).replace(File.separatorChar, '.').replaceAll(".class",""), target);
+					source.moveTo(target);
+					
+				
+					nativeTypes.put(packagePath.join(".") + "." + name, target);
 
-					//                    TypeDefinition type = reader.readNative(target);
-					//                    typeContainer.registerType(type, type.getGenericParameters().size());
 				}
 
 			}
@@ -305,7 +289,7 @@ public class LenseToJavaCompiler extends LenseCompiler{
 	@Override
 	protected List<TypeDefinition> extactTypeDefinitionFronNativeType(
 			UpdatableTypeRepository currentModuleRepository,
-			Collection<File> nativeFiles
+			Collection<SourceFile> nativeFiles
 	) throws IOException {
 
 	    var nativeTypesDefs = new LinkedList<TypeDefinition>();
@@ -313,7 +297,7 @@ public class LenseToJavaCompiler extends LenseCompiler{
   		var reader = new ByteCodeTypeDefinitionReader(currentModuleRepository);
 
 
-		for( File target : nativeFiles) {
+		for( var target : nativeFiles) {
   			TypeDefinition type =  reader.readNative(target);
       		currentModuleRepository.registerType(type, type.getGenericParameters().size());
 

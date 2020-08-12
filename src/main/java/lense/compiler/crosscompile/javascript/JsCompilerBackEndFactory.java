@@ -1,24 +1,21 @@
 package lense.compiler.crosscompile.javascript;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 import compiler.CompiledUnit;
 import compiler.CompilerBackEnd;
+import compiler.filesystem.SourceFolder;
 import compiler.syntax.AstNode;
 import compiler.trees.TreeTransverser;
 import lense.compiler.CompilerBackEndFactory;
 import lense.compiler.FileLocations;
 import lense.compiler.ast.ClassTypeNode;
 import lense.compiler.ast.LenseAstNode;
-import lense.compiler.crosscompile.java.JavaSourceWriterVisitor;
 import lense.compiler.ast.QualifiedNameNode;
 
 public class JsCompilerBackEndFactory implements CompilerBackEndFactory {
@@ -28,11 +25,7 @@ public class JsCompilerBackEndFactory implements CompilerBackEndFactory {
         return new JsCompilerBackEnd(locations);
     }
 
-    @Override
-    public void setClasspath(File base) {
-        // TODO Auto-generated method stub
-
-    }
+ 
 
     static class JsCompilerBackEnd implements CompilerBackEnd {
 
@@ -87,37 +80,34 @@ public class JsCompilerBackEndFactory implements CompilerBackEndFactory {
         public void afterAll() {
             List<NamespaceNode> roots = namespaces.values().stream().filter(ns -> ns.getParent() == null).collect(Collectors.toList());
            
-            File target = locations.getTargetFolder();
+            var target = locations.getTargetFolder();
            
             for (NamespaceNode root : roots ){
                 
                 String path = root.getName().replace('.', '/');
                 int pos = path.lastIndexOf('/');
                 String filename = path.substring(pos+1) + ".js";
-                File folder;
+                SourceFolder folder;
                 if (pos >=0){
                     path = path.substring(0, pos);
-                    folder = new File(target, path );
+                    folder = target.folder(path);
                 } else {
                     folder = target;
                 }
 
-                folder.mkdirs();
+                folder.ensureExists();
 
-                File compiled = new File(folder, filename);
-                try {
-                    compiled.createNewFile();
+                var compiled = folder.file(filename);
+            
+                compiled.ensureExists();
 
-                    try(PrintWriter writer = new PrintWriter(new FileWriter(compiled))){
-                        
-                        // add header
-                        printNameSpace("",root, writer);
-                        
-                    } 
+                try(PrintWriter writer = new PrintWriter(new OutputStreamWriter(compiled.outputStream()))){
                     
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                    // add header
+                    printNameSpace("",root, writer);
+                    
+                } 
+           
             }
         }
 
@@ -150,5 +140,12 @@ public class JsCompilerBackEndFactory implements CompilerBackEndFactory {
 
 
     }
+
+
+
+	@Override
+	public void setClasspath(SourceFolder base) {
+		// no-op
+	}
 
 }

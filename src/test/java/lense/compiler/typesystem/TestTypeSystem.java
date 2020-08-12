@@ -14,6 +14,8 @@ import java.util.Optional;
 
 import org.junit.Test;
 
+import compiler.filesystem.DiskSourceFileSystem;
+import compiler.filesystem.SourcePath;
 import lense.compiler.asm.ByteCodeTypeDefinitionReader;
 import lense.compiler.repository.UpdatableTypeRepository;
 import lense.compiler.type.LenseTypeDefinition;
@@ -107,6 +109,8 @@ public class TestTypeSystem {
 	
 	@Test
 	public void testReadingAnyFromNativeFile() throws IOException {
+		var basefolder = DiskSourceFileSystem.instance().folder(new File(".").getAbsoluteFile().getParentFile());
+		
 		ByteCodeTypeDefinitionReader reader = new ByteCodeTypeDefinitionReader(new UpdatableTypeRepository() {
 			
 			@Override
@@ -125,8 +129,8 @@ public class TestTypeSystem {
 			}
 		});
 		
-		File nativeTypeFile = new File( new File(".") ,"lense/sdk/compilation/java/target/lense/core/lang/Any.class" );
-		
+		var nativeTypeFile =  basefolder.file(SourcePath.of("lense","sdk","compilation","java","target","lense","core","lang", "Any.lense")); 
+
 		TypeDefinition typeDef = reader.readNative(nativeTypeFile);
 		
 		assertNotNull(typeDef);

@@ -4,6 +4,7 @@ import java.io.File;
 
 import compiler.CompilerListener;
 import compiler.CompilerMessage;
+import compiler.filesystem.DiskSourceFileSystem;
 import lense.compiler.Arguments;
 import lense.compiler.LenseCompiler;
 import lense.compiler.crosscompile.java.LenseToJavaCompiler;
@@ -31,7 +32,8 @@ public class LenseCompilerTool implements LenseTool{
         	 println("No repository found at " + base);
              return;
         }
-       ClasspathRepository repo = new ClasspathRepository(base);
+       
+        ClasspathRepository repo = new ClasspathRepository(DiskSourceFileSystem.instance().folder(base));
 
         println("Using repository at " + base);
         
@@ -78,7 +80,7 @@ public class LenseCompilerTool implements LenseTool{
             	 System.out.println("[TRACE]:" + error.getMessage());
             }
         });
-        compiler.compileModuleFromDirectory(moduleproject);
+        compiler.compileModuleFromDirectory(DiskSourceFileSystem.instance().folder(moduleproject));
         
         long elapsed = System.currentTimeMillis() - time;
         
