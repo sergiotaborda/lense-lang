@@ -5,11 +5,14 @@ package lense.compiler;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.Comparator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import compiler.SymbolBasedToken;
 import compiler.TokenSymbol;
@@ -1753,14 +1756,22 @@ public class LenseGrammar extends AbstractLenseGrammar {
 
 		getNonTerminal("mapInitializerPair").addSemanticAction((p, r) -> {
 
-			List<Match<Constructor>> ops = LenseTypeSystem.KeyValuePair().getConstructorByParameters(
-					new ConstructorParameter(LenseTypeSystem.Any()),
-					new ConstructorParameter(LenseTypeSystem.Any())
-					);
+			//TODO create literal node to pass foward
+			
+			var candidate = LenseTypeSystem.KeyValuePair().getAllMembers().stream()
+            .filter(m -> m.isConstructor())
+            .map(m -> (Constructor) m)
+            .filter(c -> c.getParameters().size() == 2) 
+			.findFirst().get();
+	
+//			List<Match<Constructor>> ops = LenseTypeSystem.KeyValuePair().getConstructorByParameters(
+//					new ConstructorParameter(LenseTypeSystem.Any()),
+//					new ConstructorParameter(LenseTypeSystem.Any())
+//					);
 
 			NewInstanceCreationNode pair = NewInstanceCreationNode.of(
 					LenseTypeSystem.KeyValuePair(),
-					ops.get(0).getCandidate(),
+					candidate,
 					r.get(0).getAstNode().get(), 
 					r.get(2).getAstNode().get()
 					);

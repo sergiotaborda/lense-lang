@@ -53,6 +53,7 @@ import lense.compiler.ast.ClassTypeNode;
 import lense.compiler.ast.UnitTypes;
 import lense.compiler.crosscompile.java.OutToJavaSource;
 import lense.compiler.phases.NameResolutionPhase;
+import lense.compiler.type.LenseTypeAssistant;
 import lense.compiler.type.TypeDefinition;
 import lense.compiler.typesystem.LenseTypeSystem;
 
@@ -238,7 +239,9 @@ public class TestLenseGrammar {
 
 	@Test @Ignore
 	public void testVariance() {
-		final LenseTypeSystem instance = LenseTypeSystem.getInstance();
+		
+		final var instance =  new LenseTypeAssistant(null);
+		
 		TypeDefinition maybeAny = instance.specify(LenseTypeSystem.Maybe(),
 				LenseTypeSystem.Any());
 		TypeDefinition none = LenseTypeSystem.None();

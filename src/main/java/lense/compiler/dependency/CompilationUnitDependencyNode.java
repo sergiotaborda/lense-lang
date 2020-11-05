@@ -8,12 +8,12 @@ import lense.compiler.ast.LenseAstNode;
 /**
  * 
  */
-public class DependencyNode {
+public class CompilationUnitDependencyNode implements Dependency{
 
 	private CompiledUnit unit;
 	private String name;
 	
-	public DependencyNode(CompiledUnit unit, String name) {
+	public CompilationUnitDependencyNode(CompiledUnit unit, String name) {
 		super();
 		this.unit = unit;
 		this.name = name;
@@ -36,7 +36,7 @@ public class DependencyNode {
 	}
 	
 	public boolean equals(Object other){
-		return other instanceof DependencyNode && ((DependencyNode)other).name.equals(this.name);
+		return other instanceof CompilationUnitDependencyNode && ((CompilationUnitDependencyNode)other).name.equals(this.name);
 	}
 	
 	public int hashCode (){
@@ -48,6 +48,12 @@ public class DependencyNode {
 	 */
 	public void setUnit(CompiledUnit unit) {
 		this.unit= unit;
+	}
+
+
+	@Override
+	public String getDependencyIdentifier() {
+		return name;
 	}
 
 

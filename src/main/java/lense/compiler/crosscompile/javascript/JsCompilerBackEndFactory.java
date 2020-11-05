@@ -144,8 +144,9 @@ public class JsCompilerBackEndFactory implements CompilerBackEndFactory {
 
 
 	@Override
-	public void setClasspath(SourceFolder base) {
-		// no-op
+	public void setClasspath(List<SourceFolder> classpath) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

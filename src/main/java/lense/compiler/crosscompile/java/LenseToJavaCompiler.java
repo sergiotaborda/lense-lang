@@ -4,19 +4,9 @@
 package lense.compiler.crosscompile.java;
 
 import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
-import java.nio.file.FileVisitResult;
-import java.nio.file.FileVisitor;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -39,6 +29,7 @@ import lense.compiler.FileLocations;
 import lense.compiler.LenseCompiler;
 import lense.compiler.PackageSourcePathUtils;
 import lense.compiler.asm.ByteCodeTypeDefinitionReader;
+import lense.compiler.ast.ModuleImportNode;
 import lense.compiler.ast.ModuleNode;
 import lense.compiler.crosscompile.ErasurePhase;
 import lense.compiler.crosscompile.NativePeersPhase;
@@ -77,7 +68,7 @@ public class LenseToJavaCompiler extends LenseCompiler{
 
 	}
 
-	protected void createModuleArchive(FileLocations locations, ModuleNode module, SourceFolder base, Set<String> applications) throws IOException, FileNotFoundException {
+	protected void createModuleArchive(FileLocations locations, ModuleNode module,Set<String> applications) throws IOException, FileNotFoundException {
 		StringBuilder builder;
 		Manifest jarManifest = new Manifest();
 		jarManifest.getMainAttributes().put(Attributes.Name.MANIFEST_VERSION, "1.0");
@@ -131,7 +122,22 @@ public class LenseToJavaCompiler extends LenseCompiler{
 
 		p.put("module.name", module.getName());
 		p.put("module.version", module.getVersion().toString());
-
+		
+		var requirements = module.getImports().getChildren(ModuleImportNode.class);
+				
+		if(!requirements.isEmpty()) {
+			var buffer= new StringBuffer();
+			for(var m : requirements) {
+				if(buffer.length() >0) {
+					buffer.append(";");
+				}
+				buffer.append(m.getQualifiedNameNode().toString()).append("@").append(m.getVersionNode().getVersion().toString());
+			}
+			
+			p.put("module.requires", buffer.toString());
+		}
+	
+		
 		var moduleProperties = locations.getTargetFolder().file("module.properties");
 		p.store(moduleProperties.outputStream(), "Lense module definition");
 

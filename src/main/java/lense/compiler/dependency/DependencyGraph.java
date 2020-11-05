@@ -1,19 +1,12 @@
-/**
- * 
- */
 package lense.compiler.dependency;
 
 import java.util.Optional;
 
 import lense.compiler.graph.DirectGraph;
 
-/**
- * 
- */
-public class DependencyGraph extends DirectGraph<DependencyRelation,DependencyNode>{
+public class DependencyGraph<D extends Dependency> extends DirectGraph<DependencyRelation,D>{
 
-	
-	public Optional<DependencyNode> findDependencyNode(String name){
-		return getVertices().stream().filter(v -> v.getObject().getName().equals(name)).map(v -> v.getObject()).findAny();
+	public Optional<D> findDependencyNode(String name){
+		return getVertices().stream().filter(v -> v.getObject().getDependencyIdentifier().equals(name)).map(v -> v.getObject()).findAny();
 	}
 }

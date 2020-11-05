@@ -20,5 +20,15 @@ public final class ModuleIdentifier {
         return name;
     }
 
-
+    public boolean equals(Object other) {
+    	return other instanceof ModuleIdentifier && equals((ModuleIdentifier)other);
+    }
+    
+    public boolean equals(ModuleIdentifier other) {
+    	return this.name.equals(other.name) && this.version.equals(other.version);
+    }
+    
+    public int hashCode() {
+    	return this.name.hashCode() + 31 * this.version.hashCode();
+    }
 }

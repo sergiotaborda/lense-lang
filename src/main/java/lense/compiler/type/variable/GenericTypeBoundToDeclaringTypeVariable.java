@@ -42,16 +42,16 @@ public class GenericTypeBoundToDeclaringTypeVariable extends CalculatedTypeVaria
     }
 
     public String toString(){
-        return genericType.getName() + "<" + super.toString() + ">";
+        return getGenericType().getName() + "<" + super.toString() + ">";
     }
 
     @Override
     public TypeVariable changeBaseType(TypeDefinition concrete) {
-        return new GenericTypeBoundToDeclaringTypeVariable(genericType, concrete, parameterIndex, name, variance);
+        return new GenericTypeBoundToDeclaringTypeVariable(getGenericType(), concrete, parameterIndex, name, variance);
     }
 
     protected TypeVariable original() {
-        return new DeclaringTypeBoundedTypeVariable(declaringType,parameterIndex, name, variance);
+        return new DeclaringTypeBoundedTypeVariable(getDeclaringType(),parameterIndex, name, variance);
     }
 
     public Optional<String> getSymbol() {
@@ -60,9 +60,18 @@ public class GenericTypeBoundToDeclaringTypeVariable extends CalculatedTypeVaria
 
     @Override
     public void ensureNotFundamental(Function<TypeDefinition, TypeDefinition> convert) {
-        this.declaringType = convert.apply(this.declaringType);
-        this.genericType = convert.apply(this.genericType);
+        this.declaringType = convert.apply(this.getDeclaringType());
+        this.genericType = convert.apply(this.getGenericType());
     }
+
+	
+    public TypeDefinition getGenericType() {
+		return genericType;
+	}
+
+	public TypeDefinition getDeclaringType() {
+		return declaringType;
+	}
 
 
 

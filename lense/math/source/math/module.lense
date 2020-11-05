@@ -1,0 +1,6 @@
+module math (0.1.0) {
+
+	import lense.core 0.1.0; 
+	
+	export math.*;
+}

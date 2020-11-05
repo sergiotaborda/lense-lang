@@ -31,12 +31,12 @@ import lense.core.math.equal;
 import lense.core.math.smaller;
 import lense.core.math.greater;
 import lense.core.math.Comparison;
-import helloworld.start.Sum;
+import math.numbers.Sum;
 import helloworld.start.Sequences;
 import helloworld.start.Kilometer;
-import helloworld.start.Quaternion;
-import helloworld.start.j;
-import helloworld.start.k;
+import math.numbers.Quaternion;
+import math.numbers.j;
+import math.numbers.k;
 
 public class Main extends ConsoleApplication {
 

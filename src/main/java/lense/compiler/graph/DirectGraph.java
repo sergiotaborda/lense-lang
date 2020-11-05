@@ -2,6 +2,7 @@ package lense.compiler.graph;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -10,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import lense.compiler.dependency.CyclicDependencyResolver;
 import lense.compiler.graph.VertextInfoManager.VertexInfo;
 
 /**
@@ -520,7 +522,7 @@ public class DirectGraph<E,V> implements Graph<E,V>{
 			}
 
 			if (!toVisit.isEmpty()){
-				throw new CycleFoundException();
+				throw new CycleFoundException(new CyclicDependencyResolver().resolveIncidentCycle(this).orElse(Collections.emptyList()));
 			}
 
 		}

@@ -38,9 +38,11 @@ import lense.compiler.ast.VisibilityNode;
 import lense.compiler.context.SemanticContext;
 import lense.compiler.context.VariableInfo;
 import lense.compiler.type.CallableMemberMember;
+import lense.compiler.type.LenseTypeAssistant;
 import lense.compiler.type.LenseTypeDefinition;
 import lense.compiler.type.LenseUnitKind;
 import lense.compiler.type.Method;
+import lense.compiler.type.TypeAssistant;
 import lense.compiler.type.variable.DeclaringTypeBoundedTypeVariable;
 import lense.compiler.type.variable.GenericTypeBoundToDeclaringTypeVariable;
 import lense.compiler.type.variable.RangeTypeVariable;
@@ -57,9 +59,11 @@ public final class ReificationVisitor extends AbstractScopedVisitor {
 
 	private LenseTypeDefinition currentType;
 	private MethodDeclarationNode currentMethod;
+	private TypeAssistant typeAssistant;
 	
 	public ReificationVisitor(SemanticContext semanticContext) {
 		super(semanticContext);
+		this.typeAssistant= new LenseTypeAssistant(semanticContext);
 	}
 
 	@Override
@@ -300,7 +304,7 @@ public final class ReificationVisitor extends AbstractScopedVisitor {
 							
 								return new ArgumentTypeResolverNode(arg);
 								
-							} else if(arg.getExpectedType() != null && LenseTypeSystem.isAssignableTo(g, arg.getExpectedType()).matches() ) {
+							} else if(arg.getExpectedType() != null && typeAssistant.isAssignableTo(g, arg.getExpectedType()).matches() ) {
 						
 								return new ArgumentTypeResolverNode(arg);
 						

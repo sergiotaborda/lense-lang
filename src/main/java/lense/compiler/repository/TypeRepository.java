@@ -3,12 +3,9 @@
  */
 package lense.compiler.repository;
 
-import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
-import lense.compiler.ast.QualifiedNameNode;
-import lense.compiler.modules.ModuleIdentifier;
-import lense.compiler.modules.ModuleTypeContents;
 import lense.compiler.type.TypeDefinition;
 import lense.compiler.typesystem.TypeSearchParameters;
 
@@ -23,7 +20,7 @@ public interface TypeRepository {
 	 */
 	Optional<TypeDefinition> resolveType(TypeSearchParameters filter);
 
-
+	Map<Integer, TypeDefinition> resolveTypesMap(String name);
 	
 
 }

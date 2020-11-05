@@ -10,7 +10,6 @@ import java.util.stream.Collectors;
 
 import lense.compiler.crosscompile.PrimitiveTypeDefinition;
 import lense.compiler.type.IndexerProperty;
-import lense.compiler.type.LenseTypeDefinition;
 import lense.compiler.type.Method;
 import lense.compiler.type.MethodParameter;
 import lense.compiler.type.MethodReturn;
@@ -38,6 +37,9 @@ public class MethodBuilder {
 	public String declaringType;
 	public String boundedTypes;
 	public boolean isOverride;
+	public boolean isConstructor;
+	public boolean isStatic;
+	public boolean isImplicit;
 
 	public MethodBuilder(LoadedClassBuilder loadedClassBuilder, MethodAsmInfo info) {
 		this.loadedClassBuilder  = loadedClassBuilder;
@@ -46,16 +48,52 @@ public class MethodBuilder {
 		loadedClassBuilder.addMethod(this);
 	}
 
+	
+	public ConstructorBuilder asConstructorBuilder() {
+		var constructor = new ConstructorBuilder(loadedClassBuilder, info);
+		
+		constructor.isImplicit = isImplicit;
+		constructor.paramsSignature = paramsSignature;
+		
+		return constructor;
+	}
+	
+	
 	private TypeVariable resolveRelativeType(LoadedLenseTypeDefinition def, String name) {
-		Optional<Integer> index = def.getGenericParameterIndexBySymbol(name);
-
-		if(index.isPresent()) {
-			return new DeclaringTypeBoundedTypeVariable(def, index.get(),name,Variance.Covariant);
-		} else {
+		
 			
 			int pos = name.indexOf('<');
 			if (pos < 0) {
-				return typeForName(def,name);
+				if ("V".equals(name)) {
+					return LenseTypeSystem.Void();
+				} else if (name.startsWith("Z")) {
+					return LenseTypeSystem.Boolean();
+				} else if ("I".equals(name)) {
+					return PrimitiveTypeDefinition.INT;
+				} else 	if ("C".equals(name)) {
+					return PrimitiveTypeDefinition.CHAR;
+				} else  {
+					String qualifiedName;
+					if (name.startsWith("L")) {
+					   qualifiedName = name.substring(1, name.length() - 1).replace('/', '.');
+					   
+					   if (declaringType != null && qualifiedName.equals(def.getName())) {
+							return def;
+					   }
+					   
+					   return loadedClassBuilder.resolveTypeByNameAndKind(qualifiedName, null);
+					} else if( def.getKind().isEnhancement()) {
+						return loadedClassBuilder.resolveTypeByNameAndKind(name, null);
+					} else {
+						Optional<Integer> index = def.getGenericParameterIndexBySymbol(name);
+
+						if(index.isPresent()) {
+							return new DeclaringTypeBoundedTypeVariable(def, index.get(),name,Variance.Covariant);
+						} else {
+							return loadedClassBuilder.resolveTypeByNameAndKind(name, null);
+						}
+					}
+				}
 			} else {
 
 				String otherTypeName = name.substring(0,  pos);
@@ -64,41 +102,23 @@ public class MethodBuilder {
 				TypeVariable[] params = new TypeVariable[parameterNames.length];
 				
 				int i = 0;
-				LenseTypeDefinition type = null;
+				TypeDefinition type = null;
 				for (String parameterName : parameterNames) {
-					index = def.getGenericParameterIndexBySymbol(parameterName);
+					var index = def.getGenericParameterIndexBySymbol(parameterName);
 
 					if(index.isPresent()) {
-						
-						if (otherTypeName.equals(def.getName())) {
-							type = def;
-							params[i] = new DeclaringTypeBoundedTypeVariable(def, index.get(),parameterName,  Variance.Covariant);
-						} else {
-							//return new GenericTypeBoundToDeclaringTypeVariable(otherType, def, index.get(),parameterName,Variance.Covariant);
-							TypeVariable paramType = new RangeTypeVariable(parameterName, Variance.Covariant, LenseTypeSystem.Any(), LenseTypeSystem.Nothing());
-							
-						    type = loadedClassBuilder.resolveTypeByNameWithVariables(otherTypeName, Arrays.asList(paramType));
-							
-							params[i] = new DeclaringTypeBoundedTypeVariable(def, index.get(),parameterName,  Variance.Covariant);
-						}
-						
-					
-						
+						params[i] = new DeclaringTypeBoundedTypeVariable(def, index.get(),parameterName,  Variance.Covariant);
 					} else {
-						TypeDefinition paramType = typeForName(def,parameterName);
-						
-						
-						type = loadedClassBuilder.resolveTypeByNameWithVariables(otherTypeName, Arrays.asList(paramType));
-						
-						params[i] = paramType;
+						params[i] = typeForName(def,parameterName);
 					}
 					i++;
-					
 				}
-			
-				return LenseTypeSystem.specify(type, params);
+				
+				type = loadedClassBuilder.resolveTypeByNameWithVariables(otherTypeName, Arrays.asList(params));
+				
+				return LenseTypeSystem.getInstance().specify(type, params);
 			}
-		}
+		
 	}
 	
 	public void buildAndAdd(LoadedLenseTypeDefinition def) {
@@ -141,9 +161,7 @@ public class MethodBuilder {
 				String name = desc.substring(s, a);
 				
 				String sname = signatureParams.length > params.size() ?  signatureParams[params.size()]  : name;
-				
-		
-				
+
 				if (boundedTypesParams.contains(name)) {
 					MethodParameter mp = new MethodParameter(new RangeTypeVariable(sname, Variance.Invariant, LenseTypeSystem.Any(), LenseTypeSystem.Nothing()));
 					mp.setMethodTypeBound(true);
@@ -162,6 +180,10 @@ public class MethodBuilder {
 			}
 		}
 
+		if (loadedClassBuilder.getKind().isEnhancement()) {
+			params.remove(0);
+		}
+		
 		Method m = new Method(isProperty, info.getVisibility(), info.getName(), r, params);
 	
 		m.setAbstract(info.isAbstract());
@@ -268,4 +290,77 @@ public class MethodBuilder {
 		}
 
 	}
+
+	
+	public void addInfo(TypeDefinitionInfo info) {
+		
+		if (isPlataformSpecific) {
+			return;
+		}
+		
+		String desc = this.info.getDesc();
+		int pos = desc.lastIndexOf(')');
+
+		if (returnSignature == null || returnSignature.isEmpty()) {
+			returnSignature = desc.substring(pos + 1);
+		} 
+		
+		if(returnSignature.startsWith("L")) {
+			LoadedClassBuilder.convertJavaType(Strings.join(Strings.split(returnSignature.substring(1,returnSignature.length()-1), "/"), "."))
+			.ifPresent(n -> info.addImport(new TypeDefinitionInfo(n,null)));
+		} else if(returnSignature.startsWith("Z")) {
+			info.addImport(new TypeDefinitionInfo(LenseTypeSystem.Boolean().getName(), LenseTypeSystem.Boolean().getKind()) );
+		} else if(returnSignature.startsWith("L")) {
+			info.addImport(new TypeDefinitionInfo(LenseTypeSystem.Int64().getName(), LenseTypeSystem.Int64().getKind()) );
+		} else if(returnSignature.startsWith("I")) {
+			info.addImport(new TypeDefinitionInfo(LenseTypeSystem.Int32().getName(), LenseTypeSystem.Int32().getKind()) );
+		}  else if(returnSignature.startsWith("V")) {
+			info.addImport(new TypeDefinitionInfo(LenseTypeSystem.Void().getName(), LenseTypeSystem.Void().getKind()) );
+		} else {
+			
+			Strings.parseGenerics(Strings.join(Strings.split(returnSignature.substring(0,returnSignature.length()), "/"), "."))
+			.stream().map(s -> LoadedClassBuilder.convertJavaType(s)).forEach(op -> op.ifPresent(n -> info.addImport(new TypeDefinitionInfo(n,null))));
+
+			
+		}
+	
+		String[] signatureParams = Strings.split(paramsSignature, ",");
+		List<MethodParameter> params = new LinkedList<>();
+		Set<String> boundedTypesParams = new HashSet<>(Arrays.asList(Strings.split(boundedTypes, ",")));
+		
+		int a = 1;
+		while (a < pos) {
+			int s = a;
+			char type = desc.charAt(s);
+			if (type == 'L') {
+				a = desc.indexOf(';', s) + 1;
+				
+				String name = desc.substring(s, a);
+				
+				String sname = signatureParams.length > params.size() ?  signatureParams[params.size()]  : name;
+
+				if (boundedTypesParams.contains(name)) {
+//					no-op
+				} else if( sname.startsWith("L")){
+					LoadedClassBuilder.convertJavaType(Strings.join(Strings.split(sname.substring(1,sname.length()-1), "/"), "."))
+					.ifPresent(n -> info.addImport(new TypeDefinitionInfo(n,null)));
+				} else {
+					LoadedClassBuilder.convertJavaType(sname)
+					.ifPresent(n -> info.addImport(new TypeDefinitionInfo(n,null)));
+				}
+				
+				
+			} else if (type == 'Z') {
+				info.addImport(new TypeDefinitionInfo(LenseTypeSystem.Boolean().getName(), LenseTypeSystem.Boolean().getKind()) );
+				a = a + 1;
+			} else if (type == 'V') {
+				info.addImport(new TypeDefinitionInfo(LenseTypeSystem.Void().getName(), LenseTypeSystem.Void().getKind()) );
+				a = a + 1;
+			} else {
+				a = a + 1;
+			}
+		}
+	}
+	
+	
 }

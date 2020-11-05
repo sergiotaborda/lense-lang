@@ -14,8 +14,10 @@ import compiler.lexer.ScanPosition;
 import lense.compiler.ast.ClassTypeNode;
 import lense.compiler.ast.TypeNode;
 import lense.compiler.repository.UpdatableTypeRepository;
+import lense.compiler.type.LenseTypeDefinition;
 import lense.compiler.type.TypeDefinition;
 import lense.compiler.type.TypeNotFoundException;
+import lense.compiler.type.UnionType;
 import lense.compiler.type.variable.TypeVariable;
 import lense.compiler.typesystem.LenseTypeSystem;
 import lense.compiler.typesystem.TypeSearchParameters;
@@ -198,6 +200,49 @@ public class SemanticContext {
 
 
 
+	public <T extends TypeDefinition> T ensureNotFundamental(T type) {
+		if (type instanceof LenseTypeDefinition && !(type instanceof UnionType)) {
+			var rawType =  resolveTypeForName(type.getName(), type.getGenericParameters().size())
+					.orElseThrow(() -> 
+					new RuntimeException(type.getName() + " has not found")
+					)
+					.getTypeDefinition();
+			
+			if(!((LenseTypeDefinition) type).getGenericParameters().isEmpty()) {
+				var spec = ((LenseTypeDefinition) type);
+				
+				var respec = LenseTypeSystem.getInstance().specify(rawType, spec.getGenericParameters());
+				
+				return (T)type.getClass().cast(respec);
+				
+			} else {
+				
+				
+				return  (T)rawType;
+			}
+		
+		}
+		return type;
 
+	}
+
+	public TypeVariable ensureNotFundamental(TypeVariable type) {
+
+		if (type == null) {
+			return null;
+		}
+		
+		TypeVariable ensured = type;
+		if (type instanceof TypeDefinition) {
+			ensured = ensureNotFundamental((TypeDefinition)type);
+		}
+
+		ensured.ensureNotFundamental(t -> 
+		resolveTypeForName(t.getName(),t.getGenericParameters() == null ? 0 : t.getGenericParameters().size()).get().getTypeDefinition()
+		);
+
+		return ensured;
+
+	}
 
 }

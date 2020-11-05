@@ -47,7 +47,15 @@ public class ByteCodeReader extends ClassVisitor {
 			return new NativeAnnotationVisitor();
 		} else if (desc.equals("Llense/core/lang/java/PlataformSpecific;")) {
 			loadedClassBuilder.setPlataformSpecific(true);
+		} else if (desc.equals("Llense/core/lang/java/PlataformSpecific;")) {
+			loadedClassBuilder.setPlataformSpecific(true);
+		} else if (desc.equals("Llense/core/lang/java/ValueClass;")) {
+			loadedClassBuilder.setKind(LenseUnitKind.ValueClass);
+		} else if (desc.equals("Llense/core/lang/java/EnhancementClass;")) {
+			loadedClassBuilder.setKind(LenseUnitKind.Enhancement);
 		}
+		
+		
 		return null;
 
 	}
@@ -84,15 +92,14 @@ public class ByteCodeReader extends ClassVisitor {
 		loadedClassBuilder.setInterfaces(interfaces);
 		
 		lense.compiler.type.TypeKind kind = lense.compiler.type.LenseUnitKind.Class;
-		if ((access & ACC_INTERFACE) != 0) {
+		if ((access & ACC_ANNOTATION) != 0) {
+			kind = lense.compiler.type.LenseUnitKind.Annotation;
+		} else if ((access & ACC_INTERFACE) != 0) {
 			kind = lense.compiler.type.LenseUnitKind.Interface;
 		} else if ((access & ACC_ENUM) != 0) {
 			kind = lense.compiler.type.LenseUnitKind.Enum;
-		} else if ((access & ACC_ANNOTATION) != 0) {
-			kind = lense.compiler.type.LenseUnitKind.Annotation;
-		}
+		} 
 
-		
 		loadedClassBuilder.setKind((LenseUnitKind)kind);
 		
 	}
@@ -116,16 +123,19 @@ public class ByteCodeReader extends ClassVisitor {
 			MethodAsmInfo info = new MethodAsmInfo(name, desc, signature, exceptions, readVisibility(access), readAbstract(access), readDefault(access));
 
 
-			if ((access & ACC_STATIC) != 0) {
-				// constructors
-				ConstructorBuilder builder = new ConstructorBuilder(loadedClassBuilder,info);
-				return new ConstructorAnnotVisitor(builder);
-			} else {
+//			if ((access & ACC_STATIC) != 0) {
+//				// constructors
+//				ConstructorBuilder builder = new ConstructorBuilder(loadedClassBuilder,info);
+//				return new ConstructorAnnotVisitor(builder);
+//			} else {
 				// instance methods
 				
 				MethodBuilder builder = new MethodBuilder(loadedClassBuilder,info);
+				
+				builder.isStatic = (access & ACC_STATIC) != 0;
+				
 				return new MethodAnnotVisitor(builder);
-			}
+//			}
 		} catch (IllegalArgumentException e) {
 			return null;
 		}

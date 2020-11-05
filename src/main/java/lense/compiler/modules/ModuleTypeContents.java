@@ -8,11 +8,21 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
+import lense.compiler.asm.UnkownTypeVariable;
 import lense.compiler.repository.UpdatableTypeRepository;
-import lense.compiler.repository.Version;
+import lense.compiler.type.Constructor;
+import lense.compiler.type.ConstructorParameter;
+import lense.compiler.type.LenseTypeAssistant;
 import lense.compiler.type.LenseTypeDefinition;
 import lense.compiler.type.TypeDefinition;
+import lense.compiler.type.variable.ContraVariantTypeVariable;
+import lense.compiler.type.variable.DeclaringTypeBoundedTypeVariable;
+import lense.compiler.type.variable.GenericTypeBoundToDeclaringTypeVariable;
+import lense.compiler.type.variable.MethodFreeTypeVariable;
+import lense.compiler.type.variable.RangeTypeVariable;
+import lense.compiler.type.variable.TypeVariable;
 import lense.compiler.typesystem.LenseTypeSystem;
 import lense.compiler.typesystem.TypeSearchParameters;
 import lense.compiler.utils.Sequences;
@@ -22,27 +32,19 @@ import lense.compiler.utils.Sequences;
  */
 public class ModuleTypeContents implements UpdatableTypeRepository {
 
-	private String moduleName;
-	private Version version;
 
 	// type name -> type generics count -> type def
 	private final Map<String,Map< Integer, TypeDefinition>> types = new HashMap<>();
-
-
-	public ModuleTypeContents() {
-		
-	}
+	private final ModuleDescription descriptor;
 
 	public ModuleTypeContents(ModuleDescription descriptor) {
-		this.moduleName =descriptor.getName();
+		this.descriptor = descriptor;
 	}
 
-	/**
-	 * @return
-	 */
-	public String getName() {
-		return moduleName;
+	public ModuleDescription getDescription(){
+		return descriptor;
 	}
+	
 	
 	@Override
 	public Map<Integer, TypeDefinition> resolveTypesMap(String name) {
@@ -62,15 +64,15 @@ public class ModuleTypeContents implements UpdatableTypeRepository {
 		Map<Integer, TypeDefinition> map = types.get(filter.getName());
 
 		if (map != null && map.size() == 1){
-			if (filter.getGenericParametersCount().isPresent()){
-				if (map.keySet().iterator().next().equals(filter.getGenericParametersCount().get())){
-					return Optional.of(map.values().iterator().next());
-				} 
+			var registeredCount = map.keySet().iterator().next();
+			
+			if (registeredCount != null && filter.getGenericParametersCount().isPresent() && filter.getGenericParametersCount().get().equals(registeredCount)){
+				return Optional.of(map.values().iterator().next());
 			} else {
 				return Optional.of(map.values().iterator().next());
 			}
 		}
-		TypeDefinition it = map == null ? null : map.get(filter.getGenericParametersCount());
+		TypeDefinition it = map == null ? null : map.get(filter.getGenericParametersCount().get());
 
 		if (it != null){
 			return Optional.of(it);
@@ -80,17 +82,51 @@ public class ModuleTypeContents implements UpdatableTypeRepository {
 
 	}
 
-
-
-
-	/**
-	 * @return
-	 */
-	public Version getVersion() {
-		return version;
+	private Optional<TypeDefinition> resolveType(TypeDefinition type) {
+		return resolveType(new TypeSearchParameters(type.getName(), type.getGenericParameters().size()));
 	}
-
-
+	
+	private Optional<TypeVariable> resolveType(TypeVariable type) {
+		
+		
+		if(type.isSingleType()) {
+			return resolveType(type.getTypeDefinition()).map(c -> (TypeVariable)c);
+		}
+		
+	    if(type instanceof MethodFreeTypeVariable || type instanceof UnkownTypeVariable) {
+	    	 return Optional.of(type);
+		} else if(type instanceof RangeTypeVariable) {
+			RangeTypeVariable range = (RangeTypeVariable)type;
+			
+			return Optional.of(new RangeTypeVariable(range.getSymbol(),range.getVariance(),resolveType(range.getUpperBound()).get() , resolveType(range.getLowerBound()).get()));
+			
+		} else if(type instanceof DeclaringTypeBoundedTypeVariable) {
+			DeclaringTypeBoundedTypeVariable original = (DeclaringTypeBoundedTypeVariable)type;
+			
+			return Optional.of(new DeclaringTypeBoundedTypeVariable(resolveType(original.getDeclaringType()).get(), original.getParameterIndex(), original.getSymbol().get(),original.getVariance()));
+			
+		} else if(type instanceof GenericTypeBoundToDeclaringTypeVariable) {
+			GenericTypeBoundToDeclaringTypeVariable original = (GenericTypeBoundToDeclaringTypeVariable)type;
+			
+			return Optional.of(new GenericTypeBoundToDeclaringTypeVariable(resolveType(original.getGenericType()).get(), resolveType(original.getDeclaringType()).get(),original.getParameterIndex(), original.getSymbol().get(),original.getVariance()));
+			
+		} else if(type instanceof ContraVariantTypeVariable) {
+			ContraVariantTypeVariable original = (ContraVariantTypeVariable)type;
+			
+			return Optional.of(new ContraVariantTypeVariable(resolveType(original.getOriginal()).get()));
+			
+		}  else {
+			
+			throw new RuntimeException("Not supported consolidation for " + type.getClass().getName());
+		}
+		
+	}
+	
+	
+	public void removeType(String name) {
+		 types.remove(name);
+	}
+	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -115,7 +151,7 @@ public class ModuleTypeContents implements UpdatableTypeRepository {
 			TypeDefinition cached = map == null ? null : map.get(genericParametersCount);
 
 			if (cached != null){
-				cached.updateFrom(type);
+				cached.updateFrom(type, new LenseTypeAssistant(null));
 				return cached;
 			} else {
 			    // a type is already registered with another params count
@@ -129,12 +165,12 @@ public class ModuleTypeContents implements UpdatableTypeRepository {
 			        		if (isMoreGeneric(type, cached)) {
 			        			cached  = type;
 			        		} else {
-			        			cached.updateFrom(type);
+			        			cached.updateFrom(type, new LenseTypeAssistant(null));
 			        		}
 			        	
 			        		
 			        	} else {
-			        		cached.updateFrom(type);
+			        		cached.updateFrom(type, new LenseTypeAssistant(null));
 			        	}
 			        	
 			            
@@ -158,6 +194,8 @@ public class ModuleTypeContents implements UpdatableTypeRepository {
 
 	}
 	
+
+
 	private boolean isMoreGeneric(TypeDefinition type, TypeDefinition cached) {
 		
 		if (type.isGeneric() && !cached.isGeneric()) {
@@ -171,13 +209,6 @@ public class ModuleTypeContents implements UpdatableTypeRepository {
 		});
 	}
 
-	public void setVersion(Version version) {
-		this.version = version;
-	}
-
-	public void setName(String moduleName ) {
-		this.moduleName = moduleName;
-	}
 
 	public void consolidate() {
 
@@ -202,7 +233,7 @@ public class ModuleTypeContents implements UpdatableTypeRepository {
 					} else if (m.size() == 1){
 						op = Optional.of(m.values().iterator().next());
 					} else {
-						op = resolveType(new TypeSearchParameters(type.getSuperDefinition().getName(), type.getSuperDefinition().getGenericParameters().size()));
+						op = resolveType(type.getSuperDefinition());
 					}
 					
 				
@@ -212,7 +243,7 @@ public class ModuleTypeContents implements UpdatableTypeRepository {
 					if (m.size() == 1){
 						op = Optional.of(m.values().iterator().next());
 					} else {
-						op = resolveType(new TypeSearchParameters(type.getSuperDefinition().getName(), type.getSuperDefinition().getGenericParameters().size()));
+						op = resolveType(type.getSuperDefinition());
 					}
 
 				}
@@ -223,9 +254,29 @@ public class ModuleTypeContents implements UpdatableTypeRepository {
 				type.setSuperTypeDefinition(op.get());
 
 				loadInterfaces(type);
+				
+				loadConstructors(type.getConstructors().collect(Collectors.toList()));
 			}
 		}
 	}
+	
+
+	private void loadConstructors(List<Constructor> all) {
+		for(var c : all) {
+			for (var p : c.getParameters()) {
+				ConstructorParameter cp = (ConstructorParameter)p;
+				
+				var op = resolveType(cp.getType());
+				
+				if(op.isEmpty()) {
+					op = resolveType(cp.getType());
+					throw new RuntimeException("Cannot consolidate parameter " + cp.getType());
+				}
+				cp.setType(op.get());
+			}
+		}
+	}
+
 	private void loadInterfaces(LenseTypeDefinition type) {
 		if (!type.getInterfaces().isEmpty()){
 			List<TypeDefinition> newInterfaces = new ArrayList<>(type.getInterfaces().size());
@@ -239,7 +290,7 @@ public class ModuleTypeContents implements UpdatableTypeRepository {
 					LenseTypeDefinition realInterface = (LenseTypeDefinition)m.values().iterator().next();
 					if (realInterface.isGeneric()){
 						loadInterfaces(realInterface);
-						newInterfaces.add(LenseTypeSystem.specify(realInterface, matchInterface.getGenericParameters()));
+						newInterfaces.add(LenseTypeSystem.getInstance().specify(realInterface, matchInterface.getGenericParameters()));
 					} else {
 						newInterfaces.add(realInterface);
 					}

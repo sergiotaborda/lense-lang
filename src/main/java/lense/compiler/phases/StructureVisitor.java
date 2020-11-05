@@ -36,12 +36,14 @@ import lense.compiler.context.SemanticContext;
 import lense.compiler.context.VariableInfo;
 import lense.compiler.type.Constructor;
 import lense.compiler.type.ConstructorParameter;
+import lense.compiler.type.LenseTypeAssistant;
 import lense.compiler.type.LenseTypeDefinition;
 import lense.compiler.type.LenseUnitKind;
 import lense.compiler.type.Method;
 import lense.compiler.type.MethodParameter;
 import lense.compiler.type.MethodReturn;
 import lense.compiler.type.MethodSignature;
+import lense.compiler.type.TypeAssistant;
 import lense.compiler.type.TypeDefinition;
 import lense.compiler.type.TypeMember;
 import lense.compiler.type.variable.DeclaringTypeBoundedTypeVariable;
@@ -62,6 +64,7 @@ public class StructureVisitor extends AbstractScopedVisitor {
 	private boolean secondPass;
 	private CompilerListener listener;
 	private final Map<TypeVariable, List<TypeDefinition>> enhancements;
+	private TypeAssistant typeAssitant;
 
 	public StructureVisitor (CompilerListener listener, LenseTypeDefinition currentType, SemanticContext semanticContext ,Map<TypeVariable, List<TypeDefinition>> enhancements,  boolean secondPass){
 		super(semanticContext);
@@ -69,6 +72,7 @@ public class StructureVisitor extends AbstractScopedVisitor {
 		this.secondPass = secondPass;
 		this.listener = listener;
 		this.enhancements = enhancements;
+		this.typeAssitant = new LenseTypeAssistant(semanticContext);
 	}
 	
     @Override
@@ -280,7 +284,7 @@ public class StructureVisitor extends AbstractScopedVisitor {
 
 			}
 			
-			Optional<Method> declaredMethodBySignature = currentType.getDeclaredMethodBySignature(signature);
+			Optional<Method> declaredMethodBySignature = typeAssitant.getDeclaredMethodBySignature(currentType, signature);
 			if (declaredMethodBySignature.isPresent()){
 				if (secondPass) {
 					method = declaredMethodBySignature.get();

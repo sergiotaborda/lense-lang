@@ -7,7 +7,7 @@ import lense.core.lang.java.Signature;
 import lense.core.math.Natural;
 
 
-@Signature("[+T<lense.core.lang.Any]::lense.core.collections.Assortment<T>")
+@Signature("[+T<lense.core.lang.Any]:lense.core.collections.Assortment<T>:")
 public interface Sequence extends Assortment {
 
 	@Property(indexed = true)

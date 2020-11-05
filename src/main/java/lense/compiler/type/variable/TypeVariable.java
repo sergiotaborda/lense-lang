@@ -15,8 +15,6 @@ import lense.compiler.typesystem.Variance;
  */
 public interface TypeVariable {
 
-
-
 	TypeVariable getLowerBound();
 
 	TypeVariable getUpperBound();

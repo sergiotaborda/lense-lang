@@ -22,10 +22,12 @@ import lense.compiler.type.CallableMember;
 import lense.compiler.type.CallableMemberMember;
 import lense.compiler.type.Constructor;
 import lense.compiler.type.IndexerProperty;
+import lense.compiler.type.LenseTypeAssistant;
 import lense.compiler.type.LenseTypeDefinition;
 import lense.compiler.type.LenseUnitKind;
 import lense.compiler.type.Method;
 import lense.compiler.type.Property;
+import lense.compiler.type.TypeAssistant;
 import lense.compiler.type.TypeDefinition;
 import lense.compiler.type.TypeMember;
 import lense.compiler.type.variable.TypeVariable;
@@ -44,11 +46,13 @@ public final class NativeVerificationVisitor implements Visitor<AstNode>{
     private final Map<String, LenseTypeDefinition> nativeLoadedTypes = new HashMap<>();
     private final ByteCodeTypeDefinitionReader asmReader;
 	private final SemanticContext semanticContext;
-
+	private final TypeAssistant typeAssistant;
+	
     public NativeVerificationVisitor(SemanticContext semanticContext, Map<String, SourceFile> nativeTypes, UpdatableTypeRepository typeContainer) {
     	this.semanticContext = semanticContext;
         this.nativeTypes = nativeTypes;
         this.asmReader = new ByteCodeTypeDefinitionReader(typeContainer);
+        this.typeAssistant = new LenseTypeAssistant(semanticContext);
     }
 
     @Override
@@ -321,7 +325,7 @@ public final class NativeVerificationVisitor implements Visitor<AstNode>{
                     CallableMemberMember<T> a = c.getParameters().get(i);
                     CallableMemberMember<T> b = n.getParameters().get(i);
 
-                    if (!(LenseTypeSystem.getInstance().areNomallyEquals(a.getType().getTypeDefinition(),b.getType().getTypeDefinition())  || LenseTypeSystem.getInstance().isPromotableTo( b.getType(), a.getType()))){
+                    if (!(typeAssistant.areNomallyEquals(a.getType().getTypeDefinition(),b.getType().getTypeDefinition())  || typeAssistant.isPromotableTo( b.getType(), a.getType()))){
                         continue outter;
                     }
                 }

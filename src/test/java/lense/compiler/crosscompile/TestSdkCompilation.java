@@ -22,6 +22,7 @@ import lense.compiler.crosscompile.java.LenseToJavaCompiler;
 import lense.compiler.crosscompile.javascript.LenseToJsCompiler;
 import lense.compiler.modules.ModuleIdentifier;
 import lense.compiler.modules.ModuleTypeContents;
+import lense.compiler.modules.ModuleUnit;
 import lense.compiler.modules.ModulesRepository;
 
 /**
@@ -38,15 +39,16 @@ public class TestSdkCompilation {
 	   
 		ModulesRepository repo = new ModulesRepository() {
             
-            @Override
-            public Optional<ModuleTypeContents> resolveModuleByNameAndVersion(ModuleIdentifier identifier) {
-                return Optional.empty();
-            }
-            
-            @Override
-            public List<ModuleTypeContents> resolveModuleByName(String qualifiedNameNode) {
-                return Collections.emptyList();
-            }
+           
+			@Override
+			public List<SourceFolder> getClassPath() {
+				return Collections.emptyList();
+			}
+
+			@Override
+			public Optional<ModuleUnit> resolveModuleByNameAndVersion(ModuleIdentifier identifier) {
+				return Optional.empty();
+			}
         };
         new LenseToJavaCompiler(repo)
 		//.setCompilerListener(LenseCompilerListener.error(msg -> fail(msg.getMessage())))
@@ -60,14 +62,16 @@ public class TestSdkCompilation {
         ModulesRepository repo = new ModulesRepository() {
             
             @Override
-            public Optional<ModuleTypeContents> resolveModuleByNameAndVersion(ModuleIdentifier identifier) {
+            public Optional<ModuleUnit> resolveModuleByNameAndVersion(ModuleIdentifier identifier) {
                 return Optional.empty();
             }
             
+			
             @Override
-            public List<ModuleTypeContents> resolveModuleByName(String qualifiedNameNode) {
-                return Collections.emptyList();
-            }
+			public List<SourceFolder> getClassPath() {
+				// TODO Auto-generated method stub
+				return null;
+			}
         };
 
         new LenseToJsCompiler(repo)

@@ -1,7 +1,4 @@
 
-
-import lense.core.lang.None;
-
 public interface Function<out R, in T> {
 
 	public apply( argument : T): R;

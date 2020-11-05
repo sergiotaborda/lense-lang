@@ -7,6 +7,7 @@ import compiler.AstCompiler;
 import compiler.CompilationResultSet;
 import compiler.CompilationUnit;
 import compiler.CompilationUnitSet;
+import lense.compiler.modules.EditableModuleDescriptor;
 import lense.compiler.phases.NameResolutionPhase;
 import lense.compiler.phases.SemanticAnalysisPhase;
 import lense.compiler.typesystem.PackageResolver;
@@ -24,7 +25,9 @@ public class LenseSourceCompiler extends AstCompiler {
 	}
 
 	public CompilationResultSet parse(CompilationUnitSet unitSet){
-		FundamentalTypesModuleContents repo = new FundamentalTypesModuleContents();
+		FundamentalTypesModuleContents repo = new FundamentalTypesModuleContents(
+			new EditableModuleDescriptor("lense.core", null)		
+		);
 		
 		PackageResolver resolver = new PackageResolver(){
 

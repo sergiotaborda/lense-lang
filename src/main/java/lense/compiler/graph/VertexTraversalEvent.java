@@ -15,7 +15,4 @@ public class VertexTraversalEvent<V, E> {
 		return vertex;
 	}
 
-
-	
-	
 }

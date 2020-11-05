@@ -15,6 +15,7 @@ import lense.compiler.type.Match;
 import lense.compiler.type.Method;
 import lense.compiler.type.MethodSignature;
 import lense.compiler.type.Property;
+import lense.compiler.type.TypeAssistant;
 import lense.compiler.type.TypeDefinition;
 import lense.compiler.type.TypeKind;
 import lense.compiler.type.TypeMember;
@@ -30,7 +31,6 @@ public class PrimitiveTypeDefinition implements TypeDefinition {
 	public static final PrimitiveTypeDefinition LONG = new PrimitiveTypeDefinition("long", "Int64");
 	
 	private String name;
-
 	private String wrapperName;
 
 	public PrimitiveTypeDefinition(String name, String wrapperName){
@@ -76,20 +76,6 @@ public class PrimitiveTypeDefinition implements TypeDefinition {
 		return Collections.emptyList();
 	}
 
-	@Override
-	public List<Match<Constructor>> getConstructorByParameters(ConstructorParameter... parameters) {
-		return Collections.emptyList();
-	}
-	
-	@Override
-	public List<Match<Constructor>> getConstructorByParameters(Visibility visbility, ConstructorParameter... parameters) {
-		return Collections.emptyList();
-	}
-
-	@Override
-	public Optional<Constructor> getConstructorByPromotableParameters(ConstructorParameter... parameters) {
-		return Optional.empty();
-	}
 
 	@Override
 	public Optional<Field> getFieldByName(String name) {
@@ -102,38 +88,18 @@ public class PrimitiveTypeDefinition implements TypeDefinition {
 	}
 
 	@Override
-	public Collection<Method> getMethodsByName(String string) {
-		return Collections.emptyList();
-	}
-
-	@Override
-	public Optional<Method> getMethodBySignature(MethodSignature signature) {
-		return Optional.empty();
-	}
-
-	@Override
-	public Optional<Method> getMethodByPromotableSignature(MethodSignature signature) {
-		return Optional.empty();
-	}
-
-	@Override
 	public List<TypeDefinition> getInterfaces() {
 		return Collections.emptyList();
 	}
 
 	@Override
-	public void updateFrom(TypeDefinition type) {
+	public void updateFrom(TypeDefinition type, TypeAssistant typeAssistant) {
 		// no-op
 	}
 
 	@Override
 	public boolean isGeneric() {
 		return false;
-	}
-
-	@Override
-	public Optional<IndexerProperty> getIndexerPropertyByTypeArray(TypeVariable[] type) {
-		return Optional.empty();
 	}
 
 	@Override
@@ -217,23 +183,6 @@ public class PrimitiveTypeDefinition implements TypeDefinition {
 		return Collections.emptyList();
 	}
 
-	@Override
-	public List<Match<Constructor>> getConstructorByName(String name, ConstructorParameter... parameters) {
-		return Collections.emptyList();
-	}
-
-	@Override
-	public Optional<Constructor> getConstructorByNameAndPromotableParameters(String name,
-			ConstructorParameter... parameters) {
-		return Optional.empty();
-	}
-
-	@Override
-	public Optional<Constructor> getConstructorByImplicitAndPromotableParameters(boolean implicit,
-			ConstructorParameter... parameters) {
-		return Optional.empty();
-	}
-	
 	public boolean equals(Object other){
 	    return other instanceof TypeDefinition && equals((TypeDefinition)other);
 	}
@@ -253,4 +202,6 @@ public class PrimitiveTypeDefinition implements TypeDefinition {
 	public int hashCode(){
 	    return this.name.hashCode();
 	}
+
+
 }
