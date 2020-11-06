@@ -7,13 +7,13 @@ import org.junit.Test;
 import compiler.filesystem.DiskSourceFileSystem;
 import lense.compiler.LenseCompiler;
 import lense.compiler.crosscompile.java.LenseToJavaCompiler;
-import lense.compiler.repository.ClasspathRepository;
+import lense.compiler.repository.ClasspathModulesRepository;
 
 public class TestFragments {
 
 	File base = new File(new File(".").getAbsoluteFile().getParentFile(), "lense/sdk/compilation/modules");
 	
-	ClasspathRepository repo = new ClasspathRepository(DiskSourceFileSystem.instance().folder(base));
+	ClasspathModulesRepository repo = new ClasspathModulesRepository(DiskSourceFileSystem.instance().folder(base));
 
     LenseCompiler compiler = new LenseToJavaCompiler(repo);
 	

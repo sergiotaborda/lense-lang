@@ -17,6 +17,8 @@ import lense.compiler.ast.MethodDeclarationNode;
 import lense.compiler.ast.MethodInvocationNode;
 import lense.compiler.ast.ReturnNode;
 import lense.compiler.ast.VariableDeclarationNode;
+import lense.compiler.context.SemanticContext;
+import lense.compiler.type.LenseTypeAssistant;
 import lense.compiler.type.variable.TypeVariable;
 import lense.compiler.typesystem.LenseTypeSystem;
 
@@ -27,7 +29,14 @@ import lense.compiler.typesystem.LenseTypeSystem;
 public final class ErasurePointClassificationVisitor implements Visitor<AstNode> {
 
 	private TypeVariable expectedType;
+	private LenseTypeAssistant typeAssistant;
 
+
+	
+	public ErasurePointClassificationVisitor(SemanticContext semanticContext) {
+		this.typeAssistant = new LenseTypeAssistant(semanticContext);
+	}
+	
 
 	@Override
 	public VisitorNext visitBeforeChildren(AstNode node) {
@@ -80,14 +89,14 @@ public final class ErasurePointClassificationVisitor implements Visitor<AstNode>
 		}else if (node instanceof IndexedPropertyReadNode) {
 			IndexedPropertyReadNode m = (IndexedPropertyReadNode)node;
 
-			if (!(LenseTypeSystem.isAssignableTo(m.getTypeVariable(), LenseTypeSystem.Void())).matches() ){
+			if (!(typeAssistant.isAssignableTo(m.getTypeVariable(), LenseTypeSystem.Void())).matches() ){
 				// outbox return 
 				m.getParent().replace(m, ErasurePointNode.unbox(m, m.getTypeVariable()));
 			}	
 		}else if (node instanceof MethodInvocationNode){
 			MethodInvocationNode m = (MethodInvocationNode)node;
 
-			if (!m.isTupleAccessMethod() && !(LenseTypeSystem.isAssignableTo(m.getTypeVariable(), LenseTypeSystem.Void())).matches() ){
+			if (!m.isTupleAccessMethod() && !(typeAssistant.isAssignableTo(m.getTypeVariable(), LenseTypeSystem.Void())).matches() ){
 				// outbox return 
 
 			

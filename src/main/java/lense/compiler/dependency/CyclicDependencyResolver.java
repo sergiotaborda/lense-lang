@@ -10,27 +10,28 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import lense.compiler.graph.Graph;
 import lense.compiler.graph.Graph.Vertex;
 
 public class CyclicDependencyResolver {
 
-	public Optional<List<Vertex<DependencyNode, DependencyRelation>>> resolveOutjacentCycle(DependencyGraph graph) {
+	public <E,V> Optional<List<Vertex<V,E>>> resolveOutjacentCycle(Graph<E, V> graph) {
 		return resolveCycle(graph, v -> v.getOutjacentEdges().stream().map(e -> e.getTargetVertex()).collect(Collectors.toSet()));
 	}
 	
-	public Optional<List<Vertex<DependencyNode, DependencyRelation>>> resolveIncidentCycle(DependencyGraph graph) {
+	public<E,V> Optional<List<Vertex<V, E>>> resolveIncidentCycle(Graph<E, V> graph) {
 		return resolveCycle(graph, v -> v.getIncidentEdges().stream().map(e -> e.getSourceVertex()).collect(Collectors.toSet()));
 	}
 
-	private Optional<List<Vertex<DependencyNode, DependencyRelation>>> resolveCycle(
-			DependencyGraph graph, 
-			Function<Vertex<DependencyNode, DependencyRelation>, Set<Vertex<DependencyNode, DependencyRelation>>> extractor) {
+	private <E,V> Optional<List<Vertex<V, E>>> resolveCycle(
+			Graph<E, V> graph, 
+			Function<Vertex<V, E>, Set<Vertex<V, E>>> extractor) {
 		
 		var whiteSet = new HashSet<>(graph.getVertices());
-		var backSet = new HashSet<Vertex<DependencyNode, DependencyRelation>>();
-		var greySet = new HashSet<Vertex<DependencyNode, DependencyRelation>>();
+		var backSet = new HashSet<Vertex<V, E>>();
+		var greySet = new HashSet<Vertex<V, E>>();
 		
-		var traceMap = new HashMap<Vertex<DependencyNode, DependencyRelation>,Vertex<DependencyNode, DependencyRelation>>();
+		var traceMap = new HashMap<Vertex<V, E>,Vertex<V, E>>();
 		
 		while(!whiteSet.isEmpty()) {
 			// take any element
@@ -47,18 +48,18 @@ public class CyclicDependencyResolver {
 		return Optional.empty(); 
 	}
 
-	private Optional<List<Vertex<DependencyNode, DependencyRelation>>> deepVisit(
-			Vertex<DependencyNode, DependencyRelation> parent, Vertex<DependencyNode, DependencyRelation> vertex,
-			Function<Vertex<DependencyNode, DependencyRelation>, Set<Vertex<DependencyNode, DependencyRelation>>> extractor, 
-			Set<Vertex<DependencyNode, DependencyRelation>> whiteSet,
-			Set<Vertex<DependencyNode, DependencyRelation>> backSet,
-			Set<Vertex<DependencyNode, DependencyRelation>> greySet, 
-			Map<Vertex<DependencyNode, DependencyRelation>, Vertex<DependencyNode, DependencyRelation>> traceMap) {
+	private <E,V> Optional<List<Vertex<V, E>>> deepVisit(
+			Vertex<V, E> parent, Vertex<V, E> vertex,
+			Function<Vertex<V, E>, Set<Vertex<V, E>>> extractor, 
+			Set<Vertex<V, E>> whiteSet,
+			Set<Vertex<V, E>> backSet,
+			Set<Vertex<V, E>> greySet, 
+			Map<Vertex<V, E>, Vertex<V, E>> traceMap) {
 		
 		if (greySet.contains(vertex)) {
 			// cycle
 		
-			var cyclePath = new LinkedList<Vertex<DependencyNode, DependencyRelation>>();
+			var cyclePath = new LinkedList<Vertex<V, E>>();
 			
 			cyclePath.add(vertex);
 			cyclePath.addFirst(parent);

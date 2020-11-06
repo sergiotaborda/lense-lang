@@ -223,7 +223,7 @@ public class NameResolutionVisitor extends AbstractScopedVisitor {
 					lense.compiler.typesystem.Variance.Invariant));
 			typeNode.addParametricType(new GenericTypeParameterNode(new TypeNode(value.getTypeVariable()),
 					lense.compiler.typesystem.Variance.Invariant));
-			typeNode.setTypeVariable(LenseTypeSystem.specify(typeNode.getTypeVariable(),
+			typeNode.setTypeVariable(LenseTypeSystem.getInstance().specify(typeNode.getTypeVariable(),
 					key.getTypeVariable(), value.getTypeVariable()));
 
 			return VisitorNext.Siblings;

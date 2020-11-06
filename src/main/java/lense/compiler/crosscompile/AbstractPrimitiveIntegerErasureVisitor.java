@@ -27,11 +27,12 @@ import lense.compiler.ast.TypeNode;
 import lense.compiler.ast.TypedNode;
 import lense.compiler.ast.VariableDeclarationNode;
 import lense.compiler.ast.VariableReadNode;
+import lense.compiler.context.SemanticContext;
 import lense.compiler.context.VariableInfo;
 import lense.compiler.crosscompile.java.JavaTypeKind;
+import lense.compiler.type.LenseTypeAssistant;
 import lense.compiler.type.TypeDefinition;
 import lense.compiler.type.variable.TypeVariable;
-import lense.compiler.typesystem.LenseTypeSystem;
 
 public class AbstractPrimitiveIntegerErasureVisitor implements Visitor<AstNode> {
 
@@ -42,11 +43,14 @@ public class AbstractPrimitiveIntegerErasureVisitor implements Visitor<AstNode> 
     
     private Map<String, ArithmeticOperation> ops = new HashMap<>();
 	private SweepAndMarkVariablesVisitor sweeper;
+	private LenseTypeAssistant typeAssistant;
 
     public AbstractPrimitiveIntegerErasureVisitor (
+    		SemanticContext semanticContext, 
     	     TypeDefinition type,
     	     PrimitiveTypeDefinition primitiveType
     ){
+    	this.typeAssistant = new LenseTypeAssistant(semanticContext);
         this.type = type;
         this.primitiveType = primitiveType;
         
@@ -73,7 +77,7 @@ public class AbstractPrimitiveIntegerErasureVisitor implements Visitor<AstNode> 
 
             TypeVariable tv = r.getExpectedType();
 
-            if (tv != null && tv.isFixed() &&  LenseTypeSystem.isAssignableTo(tv, type).matches() ) {
+            if (tv != null && tv.isFixed() &&  typeAssistant.isAssignableTo(tv, type).matches() ) {
 
 
                 r.setExpectedType(primitiveType);
@@ -84,7 +88,7 @@ public class AbstractPrimitiveIntegerErasureVisitor implements Visitor<AstNode> 
         } else if (node instanceof NumericValue){
             NumericValue n = (NumericValue) node;
 
-            if (sweeper.isPrimitive(node).orElse(  LenseTypeSystem.isAssignableTo(n.getTypeVariable(), type).matches() )){
+            if (sweeper.isPrimitive(node).orElse(  typeAssistant.isAssignableTo(n.getTypeVariable(), type).matches() )){
                 n.setTypeVariable(primitiveType);
             }
         } else if (node instanceof MethodDeclarationNode) {
@@ -103,7 +107,7 @@ public class AbstractPrimitiveIntegerErasureVisitor implements Visitor<AstNode> 
 
             TypeVariable tv = t.getTypeVariable();
 
-            if (tv != null && tv.isFixed() && !isTupleAccess(node) && LenseTypeSystem.isAssignableTo(tv, type).matches() ) {
+            if (tv != null && tv.isFixed() && !isTupleAccess(node) && typeAssistant.isAssignableTo(tv, type).matches() ) {
 
                 if (node instanceof CastNode){
                     CastNode c = (CastNode)node;
@@ -153,7 +157,7 @@ public class AbstractPrimitiveIntegerErasureVisitor implements Visitor<AstNode> 
             } else {
                 // test is another type
                 if (typeDefinition.equals(primitiveType)){
-                    node.getParent().replace(ion, new PrimitiveBooleanValue(LenseTypeSystem.isAssignableTo(type, targetType).matches() ));
+                    node.getParent().replace(ion, new PrimitiveBooleanValue(typeAssistant.isAssignableTo(type, targetType).matches() ));
                 }
 
             }
@@ -402,7 +406,7 @@ public class AbstractPrimitiveIntegerErasureVisitor implements Visitor<AstNode> 
                     a.getParent().replace(a, val);
                 } else if (val instanceof NumericValue){
                     NumericValue n = (NumericValue)val;
-                    if(LenseTypeSystem.isAssignableTo(a.getTypeVariable(), LenseTypeSystem.Number()).matches() ) {
+                    if(typeAssistant.isNumber(a.getTypeVariable())) {
                         n.setTypeVariable(a.getTypeVariable());
                     }
                 

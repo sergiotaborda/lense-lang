@@ -26,7 +26,7 @@ public class LenseToJsCompiler extends LenseCompiler{
     }
 
     @Override
-    protected void createModuleArchive(FileLocations locations, ModuleNode module, SourceFolder base, Set<String> applications)
+    protected void createModuleArchive(FileLocations locations, ModuleNode module, Set<String> applications)
             throws IOException, FileNotFoundException {
         // no-to
         // TODO pack with a web packer like commons-js

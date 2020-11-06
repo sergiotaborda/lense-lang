@@ -28,6 +28,7 @@ import lense.compiler.crosscompile.ErasurePointNode.BoxingDirection;
 import lense.compiler.crosscompile.ErasurePointNode.ErasureOperation;
 import lense.compiler.phases.AbstractScopedVisitor;
 import lense.compiler.type.IndexerProperty;
+import lense.compiler.type.LenseTypeAssistant;
 import lense.compiler.type.LenseTypeDefinition;
 import lense.compiler.type.TypeDefinition;
 import lense.compiler.type.TypeMember;
@@ -42,9 +43,11 @@ public class BooleanErasureVisitor extends AbstractScopedVisitor {
     private static final TypeDefinition any = LenseTypeSystem.Any();
 
     private LenseTypeDefinition currentType;
+	private LenseTypeAssistant typeAssistant;
 
-    public BooleanErasureVisitor(SemanticContext context) {
-        super(context);
+    public BooleanErasureVisitor(SemanticContext semanticContext) {
+        super(semanticContext);
+        this.typeAssistant = new LenseTypeAssistant(semanticContext);
     }
 
     @Override
@@ -81,7 +84,7 @@ public class BooleanErasureVisitor extends AbstractScopedVisitor {
 
             TypeVariable tv = r.getExpectedType();
 
-            if (tv != null && tv.isFixed() &&  LenseTypeSystem.isAssignableTo(tv, type).matches() ) {
+            if (tv != null && tv.isFixed() &&  typeAssistant.isAssignableTo(tv, type).matches() ) {
                 r.setExpectedType(erasedType);
                 if (r.getFirstChild() instanceof ErasurePointNode){
                     ErasurePointNode p =(ErasurePointNode)r.getFirstChild();
@@ -238,12 +241,17 @@ public class BooleanErasureVisitor extends AbstractScopedVisitor {
             }
         }  else if (node instanceof ConditionalStatement){
 
-            final ExpressionNode condition =  ((ConditionalStatement) node).getCondition();
-            if (condition instanceof ErasurePointNode){
+            ExpressionNode condition =  ((ConditionalStatement) node).getCondition();
+            while (condition instanceof ErasurePointNode){
                 ErasurePointNode p = (ErasurePointNode)condition;
                 if (p.getTypeVariable().equals(type) && p.canElide()){
                     node.replace(p, p.getFirstChild());
                 }
+                var newCondition =  ((ConditionalStatement) node).getCondition();
+                if (newCondition == condition) {
+                	break;
+                }
+                condition = newCondition;
             }
         } else if (node instanceof VariableDeclarationNode){
             VariableDeclarationNode var = (VariableDeclarationNode)node;
@@ -283,7 +291,7 @@ public class BooleanErasureVisitor extends AbstractScopedVisitor {
 
             TypeVariable tv = t.getTypeVariable();
 
-            if (tv != null && tv.isFixed() && !isTupleAccess(node) && LenseTypeSystem.isAssignableTo(tv, type).matches() ) {
+            if (tv != null && tv.isFixed() && !isTupleAccess(node) && typeAssistant.isAssignableTo(tv, type).matches() ) {
                 t.setTypeVariable(erasedType);
             } 
 

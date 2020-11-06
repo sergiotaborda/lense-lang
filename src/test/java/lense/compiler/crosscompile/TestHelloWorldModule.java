@@ -25,7 +25,7 @@ public class TestHelloWorldModule {
 		
 		
 	//	Lense.main("compile:java --source=lense/helloworld".split(" "));
-		Assert.assertEquals(0, Lense.execute("compile --source=lense/helloworld --repo=lense/sdk/compilation/modules".split(" ")));
+		Assert.assertEquals(0, Lense.execute("compile --source=lense/helloworld --repo=lense/sdk/compilation/modules,lense/math/compilation/modules".split(" ")));
 	        
 	}
 	

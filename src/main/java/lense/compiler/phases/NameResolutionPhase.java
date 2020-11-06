@@ -22,6 +22,7 @@ import lense.compiler.ast.ImportDeclarationsListNode;
 import lense.compiler.ast.SingleImportNode;
 import lense.compiler.ast.UnitTypes;
 import lense.compiler.context.SemanticContext;
+import lense.compiler.modules.EditableModuleDescriptor;
 import lense.compiler.repository.UpdatableTypeRepository;
 import lense.compiler.type.TypeDefinition;
 import lense.compiler.typesystem.PackageResolver;
@@ -127,7 +128,7 @@ public class NameResolutionPhase implements CompilerPhase {
 	
 	private static class NamingTypeRepository implements UpdatableTypeRepository{
 
-		private FundamentalTypesModuleContents fundamental = new FundamentalTypesModuleContents();
+		private FundamentalTypesModuleContents fundamental = new FundamentalTypesModuleContents(new EditableModuleDescriptor("lense.core", null));
 		private final Map<String,Map< Integer, TypeDefinition>> types = new HashMap<>();
 
 		@Override

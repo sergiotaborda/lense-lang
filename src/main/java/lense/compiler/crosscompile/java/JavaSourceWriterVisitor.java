@@ -92,6 +92,7 @@ import lense.compiler.crosscompile.PrimitiveBox;
 import lense.compiler.crosscompile.PrimitiveComparisonNode;
 import lense.compiler.crosscompile.PrimitiveTypeDefinition;
 import lense.compiler.crosscompile.PrimitiveUnbox;
+import lense.compiler.phases.EnhancementVisitor;
 import lense.compiler.phases.ReificationVisitor;
 import lense.compiler.type.LenseTypeDefinition;
 import lense.compiler.type.LenseUnitKind;
@@ -597,6 +598,7 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 
                 StringBuilder generics = new StringBuilder();
 
+                // Type Parameters
                 List<AstNode> list = Optional.ofNullable(t.getGenerics()).map(g -> g.getChildren())
                         .orElse(Collections.emptyList());
                 if (!list.isEmpty()) {
@@ -629,7 +631,7 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
                     generics.append("]");
                 }
                 generics.append(":");
-
+                // supper type
                 if (t.getSuperType() != null) {
 
                     generics.append(t.getSuperType().getTypeVariable().getTypeDefinition().getName());
@@ -647,7 +649,7 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
                 }
 
                 generics.append(":");
-
+                // interfaces
                 if (t.getInterfaces() != null && !t.getInterfaces().getChildren().isEmpty()) {
 
                     LenseTypeDefinition typeDefinition = t.getTypeDefinition();
@@ -712,6 +714,8 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
                     writer.append("@lense.core.lang.java.SingletonObject()").println();
                 } else  if (t.isValueClass()) {
                     writer.append("@lense.core.lang.java.ValueClass").println();
+                } else  if (t.getKind().isEnhancement()) {
+                    writer.append("@lense.core.lang.java.EnhancementClass").println();
                 }
                 
                 if (t.getAnnotations() != null) {
@@ -1789,6 +1793,10 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
                             writer.print(", ");
                         }
 
+                        if (p.getName().equals(EnhancementVisitor.ENHANCED_OBJECT)) {
+                        	 writer.print("@lense.core.lang.java.EnhancementTarget ");
+                        }
+                        
                         if (p.getTypeVariable() instanceof ContraVariantTypeVariable) {
                             writer.print(LenseTypeSystem.Any().getName());
                         } else {

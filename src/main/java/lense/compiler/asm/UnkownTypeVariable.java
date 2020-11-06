@@ -10,6 +10,10 @@ import lense.compiler.typesystem.Variance;
 
 public class UnkownTypeVariable implements TypeVariable {
 
+	
+	public UnkownTypeVariable() 
+	{}
+	
 	public String toString() {
 		return "Unkonwn";
 	}
@@ -72,5 +76,7 @@ public class UnkownTypeVariable implements TypeVariable {
 
 		throw unsup();
 	}
+
+	
 
 }

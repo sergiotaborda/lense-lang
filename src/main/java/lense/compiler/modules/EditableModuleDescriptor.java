@@ -6,7 +6,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import lense.compiler.repository.Version;
 
@@ -63,7 +62,19 @@ public class EditableModuleDescriptor implements ModuleDescription{
         return requiredModules;
     }
 
-    public Optional<ModuleDescription> getModuleByName(String name) {
+    public Optional<ModuleDescription> getRequiredModuleByName(String name) {
          return this.requiredModules.stream().filter(m -> m.getName().equals(name)).findAny();
+    }
+    
+    public boolean equals(Object other) {
+    	return other instanceof EditableModuleDescriptor && equals((EditableModuleDescriptor)other);
+    }
+    
+    public boolean equals(EditableModuleDescriptor other) {
+    	return this.name.equals(other.name) && this.version.equals(other.version);
+    }
+    
+    public int hashCode() {
+    	return this.name.hashCode() + 31 * this.version.hashCode(); 
     }
 }

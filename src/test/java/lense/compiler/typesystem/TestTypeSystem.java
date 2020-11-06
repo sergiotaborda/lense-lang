@@ -18,9 +18,11 @@ import compiler.filesystem.DiskSourceFileSystem;
 import compiler.filesystem.SourcePath;
 import lense.compiler.asm.ByteCodeTypeDefinitionReader;
 import lense.compiler.repository.UpdatableTypeRepository;
+import lense.compiler.type.LenseTypeAssistant;
 import lense.compiler.type.LenseTypeDefinition;
 import lense.compiler.type.LenseUnitKind;
 import lense.compiler.type.Method;
+import lense.compiler.type.TypeAssistant;
 import lense.compiler.type.TypeDefinition;
 import lense.compiler.type.variable.DeclaringTypeBoundedTypeVariable;
 import lense.compiler.type.variable.GenericTypeBoundToDeclaringTypeVariable;
@@ -30,9 +32,11 @@ import lense.compiler.type.variable.TypeVariable;
 public class TestTypeSystem {
 
 	 //TODO test Array<T> specified to Array<boolean> returns method duplicate also with Array<Boolean>
+	final TypeAssistant instance =  new LenseTypeAssistant(null);
 	
 	@Test
 	public void testIsMethodSpecified() {
+		
 		LenseTypeDefinition array = new LenseTypeDefinition(
 				"Array",
 				LenseUnitKind.Class, 
@@ -51,9 +55,9 @@ public class TestTypeSystem {
 		
 		LenseTypeDefinition booleanType = new LenseTypeDefinition("Boolean",LenseUnitKind.Class, (LenseTypeDefinition) LenseTypeSystem.Any());
 		
-		LenseTypeDefinition booleanArray = LenseTypeSystem.specify(array, booleanType);
+		LenseTypeDefinition booleanArray = LenseTypeSystem.getInstance().specify(array, booleanType);
 		
-		Method method = booleanArray.getMethodsByName("duplicate").stream().findFirst().get();
+		Method method =  instance.getMethodsByName(booleanArray, "duplicate").stream().findFirst().get();
 		
 		assertEquals( booleanType ,  method.getReturningType().getTypeDefinition().getGenericParameters().get(0));
 	}
@@ -65,8 +69,8 @@ public class TestTypeSystem {
 		TypeVariable declare = new DeclaringTypeBoundedTypeVariable(LenseTypeSystem.Sequence(), 0, "T", Variance.Invariant);
 		
 		
-		assertTrue(LenseTypeSystem.getInstance().isAssignableTo(range, declare).matches() );
-		assertTrue(LenseTypeSystem.getInstance().isAssignableTo(declare, range).matches() );
+		assertTrue(instance.isAssignableTo(range, declare).matches() );
+		assertTrue(instance.isAssignableTo(declare, range).matches() );
 	}
 	
 	@Test
@@ -81,8 +85,8 @@ public class TestTypeSystem {
 		
 		TypeVariable generic = new GenericTypeBoundToDeclaringTypeVariable(array, array, 0, "T", Variance.Invariant);
 		
-		assertTrue(LenseTypeSystem.getInstance().isAssignableTo(array, generic).matches() );
-		assertTrue(LenseTypeSystem.getInstance().isAssignableTo(generic, array).matches() );
+		assertTrue(instance.isAssignableTo(array, generic).matches() );
+		assertTrue(instance.isAssignableTo(generic, array).matches() );
 	}
 	
 	@Test
@@ -102,8 +106,8 @@ public class TestTypeSystem {
 				Arrays.asList((TypeVariable) new DeclaringTypeBoundedTypeVariable(array, 0, "T", Variance.Invariant))
 		);
 		
-		assertTrue(LenseTypeSystem.getInstance().isAssignableTo(array, otherArray).matches() );
-		assertTrue(LenseTypeSystem.getInstance().isAssignableTo(otherArray, array).matches() );
+		assertTrue(instance.isAssignableTo(array, otherArray).matches() );
+		assertTrue(instance.isAssignableTo(otherArray, array).matches() );
 		
 	}
 	

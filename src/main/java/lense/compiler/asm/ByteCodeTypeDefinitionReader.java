@@ -39,4 +39,17 @@ public class ByteCodeTypeDefinitionReader {
 	}
 	
 
+	public TypeDefinitionInfo readInfo(InputStream input) throws IOException {
+		
+		ByteCodeReader cp = new ByteCodeReader(typeContainer);
+		ClassReader cr = new ClassReader(input);
+		cr.accept(cp, 0);
+		
+		
+		var info =  cp.getBuilder().info();
+		
+		info.builder = cp.getBuilder();
+		
+		return info;
+	}
 }

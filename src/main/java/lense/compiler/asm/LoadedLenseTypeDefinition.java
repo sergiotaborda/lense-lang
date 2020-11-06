@@ -1,6 +1,7 @@
 package lense.compiler.asm;
 
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
 import lense.compiler.type.LenseTypeDefinition;
@@ -10,6 +11,16 @@ import lense.compiler.typesystem.FundamentalLenseTypeDefinition;
 
 public class LoadedLenseTypeDefinition extends FundamentalLenseTypeDefinition {
 
+
+	private boolean loaded = false;
+	
+	public boolean isLoaded() {
+		return loaded;
+	}
+
+	public void setLoaded(boolean loaded) {
+		this.loaded = loaded;
+	}
 
 	public LoadedLenseTypeDefinition(String name, TypeKind kind, LenseTypeDefinition superDefinition) {
 		super(name, kind, superDefinition);
@@ -39,6 +50,22 @@ public class LoadedLenseTypeDefinition extends FundamentalLenseTypeDefinition {
 			throw new IllegalStateException("Generics already been set");
 		}
 
+		for(TypeVariable variable : typeVar){
+			genericParameters.add(variable);
+
+			variable.getSymbol().ifPresent(  symbol -> {
+				genericParametersMapping.put(symbol, genericParameters.size() - 1);
+			});
+
+		}
+
+		genericParameters = Collections.unmodifiableList(genericParameters);
+	}
+	
+	public void forceSetGenericParameters(List<TypeVariable> typeVar) {
+
+		genericParameters = new LinkedList<>();
+		
 		for(TypeVariable variable : typeVar){
 			genericParameters.add(variable);
 

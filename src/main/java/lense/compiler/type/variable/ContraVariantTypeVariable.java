@@ -17,11 +17,11 @@ public final class ContraVariantTypeVariable implements TypeVariable {
 	}
 	
 	public TypeVariable getLowerBound() {
-		return original.getLowerBound();
+		return getOriginal().getLowerBound();
 	}
 
 	public TypeVariable getUpperBound() {
-		return original.getUpperBound();
+		return getOriginal().getUpperBound();
 	}
 
 	public Variance getVariance() {
@@ -29,35 +29,40 @@ public final class ContraVariantTypeVariable implements TypeVariable {
 	}
 
 	public Optional<String> getSymbol() {
-		return original.getSymbol();
+		return getOriginal().getSymbol();
 	}
 
 	public List<TypeVariable> getGenericParameters() {
-		return original.getGenericParameters();
+		return getOriginal().getGenericParameters();
 	}
 
 	public TypeDefinition getTypeDefinition() {
-		return original.getTypeDefinition();
+		return getOriginal().getTypeDefinition();
 	}
 
 	public TypeVariable changeBaseType(TypeDefinition concrete) {
-		return original.changeBaseType(concrete);
+		return getOriginal().changeBaseType(concrete);
 	}
 
 	public boolean isSingleType() {
-		return original.isSingleType();
+		return getOriginal().isSingleType();
 	}
 
 	public boolean isFixed() {
-		return original.isFixed();
+		return getOriginal().isFixed();
 	}
 
 	public boolean isCalculated() {
-		return original.isCalculated();
+		return getOriginal().isCalculated();
 	}
 
 	public void ensureNotFundamental(Function<TypeDefinition, TypeDefinition> convert) {
-		original.ensureNotFundamental(convert);
+		getOriginal().ensureNotFundamental(convert);
+	}
+
+	
+	public TypeVariable getOriginal() {
+		return original;
 	}
 
 }

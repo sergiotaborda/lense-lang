@@ -3,21 +3,22 @@ package lense.compiler.modules;
 import java.util.List;
 import java.util.Optional;
 
+import compiler.filesystem.SourceFolder;
+
 /**
- * Rpresents a repository of modules.
+ * Represents a repository of modules.
  *
  */
 public interface ModulesRepository {
 
-    /**
-     * @param qualifiedNameNode
-     */
-    List<ModuleTypeContents> resolveModuleByName(String qualifiedNameNode);
 
     /**
      * @param qualifiedNameNode
      * @param version
      */
-    Optional<ModuleTypeContents> resolveModuleByNameAndVersion(ModuleIdentifier identifier);
+    public Optional<ModuleUnit> resolveModuleByNameAndVersion(ModuleIdentifier identifier);
+    
+    
+    public List<SourceFolder> getClassPath();
 
 }

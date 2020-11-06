@@ -65,6 +65,10 @@ public class LoadedClassBuilder {
 	public void setKind(LenseUnitKind kind) {
 		this.kind = kind;
 	}
+	
+	public LenseUnitKind getKind() {
+		return kind;
+	}
 
 	public void setPlataformSpecific(boolean plataformSpecific) {
 		this.plataformSpecific = plataformSpecific;
@@ -86,43 +90,8 @@ public class LoadedClassBuilder {
 		if (kind.isObject()) {
 			classNames[classNames.length - 1] = Strings.pascalToCammelCase(classNames[classNames.length - 1]);
 		}
-		LenseTypeDefinition rdef = this.resolveTypeByNameAndKind(Strings.join(classNames, "."), kind);
-
-		if (!(rdef instanceof LoadedLenseTypeDefinition)) {
-			return rdef;
-		}
-		LoadedLenseTypeDefinition def = (LoadedLenseTypeDefinition)rdef;
-
-		def.setKind(kind);
-		def.setPlataformSpecific(plataformSpecific);
-		def.setNative(isNative);
-
-
-
-		def.setCaseValues(Stream.of(Strings.split(this.caseValues, ",")).map( c -> this.resolveTypeByNameAndKind(c, LenseUnitKind.Object)).collect(Collectors.toList()));
-		def.setCaseTypes(Stream.of(Strings.split(this.caseTypes, ",")).map( c -> this.resolveTypeByNameAndKind(c, LenseUnitKind.Class)).collect(Collectors.toList()));
-
-		def.setAlgebric(!def.getAllCases().isEmpty());
-
-		// parse signature for types
-		if (this.signature == null) {
-			if (superName.equals("java/lang/Object") || superName.equals("lense/core/lang/java/Base") || superName.equals("java/lang/RuntimeException")) {
-				superName = "lense.core.lang.Any";
-			}
-
-			this.signature  = ":" + superName.replace('/', '.') + ":";
-
-			if (interfaces.length > 0) {
-				for (int i =0; i< interfaces.length; i++) {
-					if (i != 0) {
-						this.signature += "&";
-					}
-					this.signature += interfaces[i].replace('/', '.');
-				}
-			}
-		}
-
-		String[] parts = this.plataformSpecific ? new String[] {"","",""} : this.signature.split(":");
+		
+		String[] parts = this.plataformSpecific || this.signature == null ? new String[] {"","",""} : this.signature.split(":");
 
 		if (parts.length == 0) {
 			parts = new String[] { "", "", "" };
@@ -131,15 +100,20 @@ public class LoadedClassBuilder {
 		} else if (parts.length  == 2) {
 			parts = new String[] { parts[0], parts[1], "" };
 		} 
-
+		
 		Map<String, Integer> maps = new HashMap<>();
 
+		List<TypeVariable> genericVariables;
+
+		int genericCount = 0;
 		int pos = parts[0].indexOf('[');
 		if (pos >= 0) {
 			String[] variables = parts[0].substring(pos + 1, parts[0].lastIndexOf(']')).split(",");
 			String[] names = new String[variables.length];
-
-			List<TypeVariable> genericVariables = new ArrayList<>(variables.length);
+			
+			genericCount = variables.length;
+			
+			genericVariables = new ArrayList<>(variables.length);
 
 			for (int i = 0; i < variables.length; i++) {
 				String s = variables[i];
@@ -172,23 +146,102 @@ public class LoadedClassBuilder {
 
 			}
 
-			if (!genericVariables.isEmpty() && !def.getGenericParameters().isEmpty()) {
-				def = (LoadedLenseTypeDefinition) def.duplicate();
-			}
-			def.setGenericParameters(genericVariables);
+//			if (!genericVariables.isEmpty() && !def.getGenericParameters().isEmpty()) {
+//				def = (LoadedLenseTypeDefinition) def.duplicate();
+//			}
+	
 
+		} else {
+			genericVariables = new ArrayList<>(0);
 		}
+		
+		var fullName = Strings.join(classNames, ".");
+		if (fullName.equals("boolean")) {
+			return (LenseTypeDefinition) LenseTypeSystem.Boolean();
+		}
+
+		LenseTypeDefinition rdef;
+		Map<Integer, TypeDefinition> map = this.typeContainer.resolveTypesMap(fullName);
+		if (map.isEmpty()) {
+			LoadedLenseTypeDefinition ldef = new LoadedLenseTypeDefinition(fullName, kind, null);
+			ldef.setGenericParameters(genericVariables);
+		
+			rdef = ldef;
+			
+			this.typeContainer.registerType(rdef, genericCount);
+
+		} else if (map.size() == 1) {
+			var found =  map.values().iterator().next();
+			
+			if(found instanceof LenseTypeDefinition) {
+				rdef =  (LenseTypeDefinition)found;
+			} else if(found instanceof ProxyTypeDefinition) {
+				
+				LoadedLenseTypeDefinition ldef = new LoadedLenseTypeDefinition(fullName, kind, null);
+				ldef.setGenericParameters(genericVariables);
+			
+				rdef = ldef;
+				
+				this.typeContainer.registerType(rdef, genericCount);
+				
+				((ProxyTypeDefinition) found).setOriginal(ldef);
+			} else {
+				throw new IllegalStateException("Connot process found type");
+			}
+			
+		} else {
+			throw new IllegalStateException("More than one type found");
+		}
+		
+
+		if (!(rdef instanceof LoadedLenseTypeDefinition)) {
+			return rdef;
+		} else if (genericVariables.size() > 0){
+			((LoadedLenseTypeDefinition)rdef).forceSetGenericParameters(genericVariables);
+		}
+		LoadedLenseTypeDefinition def = (LoadedLenseTypeDefinition)rdef;
+
+		def.setKind(kind);
+		def.setPlataformSpecific(plataformSpecific || fullName.startsWith("lense.core.lang.java"));
+		def.setNative(isNative);
+
+
+
+		def.setCaseValues(Stream.of(Strings.split(this.caseValues, ",")).map( c -> this.resolveTypeByNameAndKind(c, LenseUnitKind.Object)).collect(Collectors.toList()));
+		def.setCaseTypes(Stream.of(Strings.split(this.caseTypes, ",")).map( c -> this.resolveTypeByNameAndKind(c, LenseUnitKind.Class)).collect(Collectors.toList()));
+
+		def.setAlgebric(!def.getAllCases().isEmpty());
+
+		// parse signature for types
+		if (this.signature == null) {
+			if (superName.equals("java/lang/Object") || superName.equals("lense/core/lang/java/Base") || superName.equals("java/lang/RuntimeException")) {
+				superName = "lense.core.lang.Any";
+			}
+
+			this.signature  = ":" + superName.replace('/', '.') + ":";
+
+			if (interfaces.length > 0) {
+				for (int i =0; i< interfaces.length; i++) {
+					if (i != 0) {
+						this.signature += "&";
+					}
+					this.signature += interfaces[i].replace('/', '.');
+				}
+			}
+		}
+
+	
+
+	
 
 		String s = parts[1];
 		if (s.length() > 0 && !def.getName().equals("lense.core.lang.Any")) {
 			TypeDefinition sdef = parseSuperTypeSignature(s, maps, def);
-			if (sdef != null) {
+			if (sdef != null && !def.getName().equals(sdef.getName()) ) {
 				def.setSuperTypeDefinition(sdef);
-
-				//			    if (this.genericParameters.size() < superType.getGenericParameters().size()) {
-				//		            this.genericParameters = new ArrayList<>(superType.getGenericParameters());
-				//		            this.genericParametersMapping = new HashMap<>(((LenseTypeDefinition)superType).genericParametersMapping);
-				//		        }
+			} else {
+				sdef = this.resolveTypeByNameWithVariables("lense.core.lang.Any", new ArrayList<>(0));
+				def.setSuperTypeDefinition(sdef);
 			}
 		} else if (!def.getName().equals("lense.core.lang.Any")){
 			TypeDefinition sdef = this.resolveTypeByNameWithVariables("lense.core.lang.Any", new ArrayList<>(0));
@@ -197,7 +250,7 @@ public class LoadedClassBuilder {
 
 		String[] g = parts[2].contains("&") ? parts[2].split("&") : new String[] { parts[2] };
 		for (String ss : g) {
-			Optional<LenseTypeDefinition> type = parseInterfaceSignature(ss, maps, def);
+			Optional<TypeDefinition> type = parseInterfaceSignature(ss, maps, def);
 
 			if (type.isPresent()) {
 				if (type.get().getName().equals("lense.core.lang.Immutable")) {
@@ -212,25 +265,32 @@ public class LoadedClassBuilder {
 			}
 
 		}
-
-		for(ConstructorBuilder b : this.constructors) {
-			b.buildAndAdd(def);
-		}
-
+		
 		for(MethodBuilder b : this.methods) {
-			b.buildAndAdd(def); // tODO method must correlate to generics 
+			if(b.isConstructor) {
+				b.asConstructorBuilder().buildAndAdd(def);
+			} else {
+				b.buildAndAdd(def); // tODO method must correlate to generics 
+			}
 		}
 
+//		for(ConstructorBuilder b : this.constructors) {
+//			b.buildAndAdd(def);
+//		}
+
+		
+
+		def.setLoaded(true);
 		return def;
 	}
 
-	LenseTypeDefinition resolveTypeByNameWithVariables(String name, List<TypeVariable> typeVar) {
+	TypeDefinition resolveTypeByNameWithVariables(String name, List<TypeVariable> typeVar) {
 
-		LenseTypeDefinition type = resolveTypeByNameAndKind(name, null);
+		TypeDefinition type = resolveTypeByNameAndKind(name, null);
 
 		if (!typeVar.isEmpty() && type.getGenericParameters().size() < typeVar.size()) {
 
-			LoadedLenseTypeDefinition n = new LoadedLenseTypeDefinition(((LoadedLenseTypeDefinition)type));
+			LoadedLenseTypeDefinition n = new LoadedLenseTypeDefinition(((LenseTypeDefinition)type));
 
 			n.setGenericParameters(typeVar);
 
@@ -240,7 +300,7 @@ public class LoadedClassBuilder {
 		return type;
 	}
 
-	LenseTypeDefinition resolveTypeByNameAndKind(String name, lense.compiler.type.TypeKind kind) {
+	TypeDefinition resolveTypeByNameAndKind(String name, lense.compiler.type.TypeKind kind) {
 		
 	
 		if (name.equals("boolean")) {
@@ -255,12 +315,12 @@ public class LoadedClassBuilder {
 				type.setPlataformSpecific(true);
 			}
 
-			this.typeContainer.registerType(type, 0);
+//			this.typeContainer.registerType(type, genericCount);
 
 			return type;
 
 		} else if (map.size() == 1) {
-			return (LenseTypeDefinition) map.values().iterator().next();
+			return  map.values().iterator().next();
 
 		} else {
 			throw new IllegalStateException("More than one type found");
@@ -268,7 +328,7 @@ public class LoadedClassBuilder {
 	}
 
 
-	public Optional<LenseTypeDefinition> parseInterfaceSignature(String ss, Map<String, Integer> maps,
+	public Optional<TypeDefinition> parseInterfaceSignature(String ss, Map<String, Integer> maps,
 			LenseTypeDefinition parent) {
 
 		if (ss.trim().isEmpty()) {
@@ -283,11 +343,16 @@ public class LoadedClassBuilder {
 			genericPart  = ss.substring(pos + 1, ss.lastIndexOf('>'));
 		}
 
-		LenseTypeDefinition type = resolveTypeByNameAndKind(interfaceType, LenseUnitKind.Interface);
+		var type = resolveTypeByNameAndKind(interfaceType, LenseUnitKind.Interface);
 
 		if (genericPart.contains("<")) {
 
-			return parseInterfaceSignature(genericPart, maps, parent).map(generic -> LenseTypeSystem.specify(type, generic));
+			return parseInterfaceSignature(genericPart, maps, parent).map(generic ->  {
+				
+				
+				return LenseTypeSystem.getInstance().specify(type, generic); 
+				
+			});
 
 		} else if (genericPart.length() > 0){
 			String[] g = genericPart.contains(",") ? genericPart.split(",") : new String[] { genericPart };
@@ -324,7 +389,7 @@ public class LoadedClassBuilder {
 							if (name.replace('/', '.').equals(parent.getName())) {
 								variables.add(new RangeTypeVariable(symbol,variance, parent,parent));
 							} else {
-								LenseTypeDefinition t = resolveTypeByNameAndKind(symbol, null);
+								var t = resolveTypeByNameAndKind(symbol, null);
 
 								variables.add(new RangeTypeVariable(symbol,variance, t, t));
 							}
@@ -343,12 +408,14 @@ public class LoadedClassBuilder {
 					loadedDef.setGenericParameters(variables);
 				} else {
 					// specify
-					return Optional.of(LenseTypeSystem.specify(loadedDef, variables));
+					return Optional.of(LenseTypeSystem.getInstance().specify(loadedDef, variables));
 				}
 
 			}
 
 		}
+		
+		this.typeContainer.registerType(type, type.getGenericParameters().size());
 		return Optional.of(type);
 
 	}
@@ -362,7 +429,7 @@ public class LoadedClassBuilder {
 			n  = ss.substring(pos + 1, ss.lastIndexOf('>'));
 		}
 
-		LenseTypeDefinition type = resolveTypeByNameAndKind(superTypeName, LenseUnitKind.Interface);
+		var type = resolveTypeByNameAndKind(superTypeName, LenseUnitKind.Interface);
 
 		if (n.contains("<")) {
 
@@ -396,7 +463,7 @@ public class LoadedClassBuilder {
 					} else {
 						// hard bound
 
-						LenseTypeDefinition t = resolveTypeByNameAndKind(symbol, null);
+						var t = resolveTypeByNameAndKind(symbol, null);
 
 						variables.add(
 								new RangeTypeVariable(symbol, variance, t, t));
@@ -433,9 +500,107 @@ public class LoadedClassBuilder {
 		this.caseValues = caseValues;
 	}
 
+	
+	
+	public TypeDefinitionInfo info() {
+		
+		String[] classNames = Strings.split(name,"/");
+
+		if (kind.isObject()) {
+			classNames[classNames.length - 1] = Strings.pascalToCammelCase(classNames[classNames.length - 1]);
+		}
+		
+		var info = new TypeDefinitionInfo(Strings.join(classNames, "."), kind);
+	
+		String[] parts = this.plataformSpecific || this.signature == null ? new String[] {"","",""} : this.signature.split(":");
+
+		if (parts.length == 0) {
+			parts = new String[] { "", "", "" };
+		} else if (parts.length  == 1) {
+			parts = new String[] { parts[0], "", "" };
+		} else if (parts.length  == 2) {
+			parts = new String[] { parts[0], parts[1], "" };
+		} 
+		
+		info.genericCount = 0;
+		
+		int pos = parts[0].indexOf('[');
+		if (pos >= 0) {
+			String[] variables = parts[0].substring(pos + 1, parts[0].lastIndexOf(']')).split(",");
+
+			info.genericCount = variables.length;
+			
+		}
+		
+		if (superName.equals("java/lang/Object") || superName.equals("lense/core/lang/java/Base") || superName.equals("java/lang/RuntimeException")) {
+			superName = "lense.core.lang.Any";
+		} else {
+			superName = Strings.join(Strings.split(name,"/"), ".");
+		}
+		
+		info.superName = superName;
+		convertJavaType(superName).ifPresent(it -> info.addImport(new TypeDefinitionInfo(it, LenseUnitKind.Class)));
+		
+//		for(var name : Strings.split(this.caseValues, ",")) {
+//			convertJavaType(name).ifPresent(it -> info.addImport(new TypeDefinitionInfo(it, LenseUnitKind.Object)));
+//		}
+//		
+//		for(var name : Strings.split(this.caseTypes, ",")) {
+//			convertJavaType(name).ifPresent(it -> info.addImport(new TypeDefinitionInfo(it, LenseUnitKind.Class)));
+//		}
+	
+		String[] g = parts[2].contains("&") ? parts[2].split("&") : new String[] { parts[2] };
+		boolean isFirst =  true;
+		for (String ss : g) {
+			while(ss.contains("<")) {
+				int start = ss.indexOf("<");
+				int end = ss.lastIndexOf(">");
+				if(start>=0) {
+					final boolean s = isFirst;
+					convertJavaType(ss.substring(0,start)).ifPresent(it ->  info.addImport(new TypeDefinitionInfo(it, s ? LenseUnitKind.Interface : null)));
+					ss = ss.substring(start+1, end);
+					isFirst =false;
+				}
+			}
+			final boolean s = isFirst;
+			convertJavaType(ss).ifPresent(it ->  info.addImport(new TypeDefinitionInfo(it, s ? LenseUnitKind.Interface : null)));
+		}
+		
+		for( var method : this.methods) {
+			method.addInfo(info);
+		}
+		
+		
+		for( var c : this.constructors) {
+			c.addInfo(info);
+		}
+
+		return info;
+	}
 
 
 
+	static Optional<String> convertJavaType(String type) {
+		if(type.startsWith("java")) {
+			if(type.equals("java.lang.Integer")) {
+				return Optional.of(LenseTypeSystem.Int32().getName());
+			} else if(type.equals("java.lang.Long")) {
+				return Optional.of(LenseTypeSystem.Int64().getName());
+			} else if(type.equals("java.lang.Boolean")) {
+				return Optional.of(LenseTypeSystem.Boolean().getName());
+			} else {
+				return Optional.empty();
+			} 	
+		} else if (type.indexOf('.')  < 0) {
+			return Optional.empty();
+		}  else if (type.indexOf('$')  >= 0) {
+			return Optional.empty();
+		}else if (type.indexOf(',')  >= 0) {
+			return Optional.empty();
+		}
+		
+		return Optional.of(type);
+	}
 
 
 

@@ -10,19 +10,19 @@ import org.junit.Test;
 public class TestCycle {
 
 	
-	DependencyNode v1 = new DependencyNode(null, "1");
-	DependencyNode v2 = new DependencyNode(null, "2");
-	DependencyNode v3 = new DependencyNode(null, "3");
-	DependencyNode v4 = new DependencyNode(null, "4");
-	DependencyNode v5 = new DependencyNode(null, "5");
-	DependencyNode v6 = new DependencyNode(null, "6");
+	CompilationUnitDependencyNode v1 = new CompilationUnitDependencyNode(null, "1");
+	CompilationUnitDependencyNode v2 = new CompilationUnitDependencyNode(null, "2");
+	CompilationUnitDependencyNode v3 = new CompilationUnitDependencyNode(null, "3");
+	CompilationUnitDependencyNode v4 = new CompilationUnitDependencyNode(null, "4");
+	CompilationUnitDependencyNode v5 = new CompilationUnitDependencyNode(null, "5");
+	CompilationUnitDependencyNode v6 = new CompilationUnitDependencyNode(null, "6");
 	
 	DependencyRelation r = new DependencyRelation(DependencyRelationship.Structural);
 			
 	@Test
 	public void testOutjacentCycle () {
 		
-		var g = new DependencyGraph();
+		var g = new DependencyGraph<CompilationUnitDependencyNode>();
 
 		g.addEdge(r, v1, v2);
 		g.addEdge(r, v1, v3);
@@ -44,7 +44,7 @@ public class TestCycle {
 	@Test
 	public void testIncidenttCycle () {
 		
-		var g = new DependencyGraph();
+		var g = new DependencyGraph<CompilationUnitDependencyNode>();
 
 		g.addEdge(r, v1, v2);
 		g.addEdge(r, v1, v3);

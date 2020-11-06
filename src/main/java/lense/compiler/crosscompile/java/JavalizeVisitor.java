@@ -1,15 +1,10 @@
 package lense.compiler.crosscompile.java;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
-import java.util.Map;
-import java.util.Optional;
 
 import compiler.syntax.AstNode;
 import compiler.trees.Visitor;
-import compiler.trees.VisitorNext;
-import lense.compiler.asm.ByteCodeTypeDefinitionReader;
 import lense.compiler.ast.BooleanOperatorNode;
 import lense.compiler.ast.CastNode;
 import lense.compiler.ast.ClassTypeNode;
@@ -22,16 +17,12 @@ import lense.compiler.ast.VariableDeclarationNode;
 import lense.compiler.ast.VariableReadNode;
 import lense.compiler.context.SemanticContext;
 import lense.compiler.repository.UpdatableTypeRepository;
-import lense.compiler.type.CallableMember;
 import lense.compiler.type.CallableMemberMember;
-import lense.compiler.type.IndexerProperty;
-import lense.compiler.type.LenseTypeDefinition;
-import lense.compiler.type.LenseUnitKind;
+import lense.compiler.type.LenseTypeAssistant;
 import lense.compiler.type.Method;
 import lense.compiler.type.MethodParameter;
-import lense.compiler.type.Property;
+import lense.compiler.type.TypeAssistant;
 import lense.compiler.type.TypeDefinition;
-import lense.compiler.type.TypeMember;
 import lense.compiler.type.variable.ContraVariantTypeVariable;
 import lense.compiler.type.variable.TypeVariable;
 import lense.compiler.typesystem.Imutability;
@@ -45,13 +36,10 @@ import lense.compiler.typesystem.Variance;
  */
 public final class JavalizeVisitor implements Visitor<AstNode>{
 
-    private final SemanticContext semanticContext;
-    private final Map<String, LenseTypeDefinition> nativeLoadedTypes = new HashMap<>();
-    private final ByteCodeTypeDefinitionReader asmReader;
-
+    private final TypeAssistant typeAssistant;
+   
     public JavalizeVisitor(SemanticContext semanticContext, UpdatableTypeRepository typeContainer) {
-        this.semanticContext = semanticContext;
-        this.asmReader = new ByteCodeTypeDefinitionReader(typeContainer);
+        this.typeAssistant = new LenseTypeAssistant(semanticContext);
     }
 
     @Override
@@ -128,8 +116,10 @@ public final class JavalizeVisitor implements Visitor<AstNode>{
         			MethodParameter superParameter = (MethodParameter) params.get(i);
         			FormalParameterNode n = (FormalParameterNode) m.getParameters().getChildren().get(i);
         			
-        			
-        			if (!LenseTypeSystem.getInstance().isAssignableTo(superParameter.getType(), n.getTypeVariable()).matches() ) {
+        			// TODO should not be necessary to compere types ate this point
+        			if (!typeAssistant.isAssignableTo(superParameter.getType(), n.getTypeVariable()).matches() ) {
+        				
+        				
         				
         				// no match
         				

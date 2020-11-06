@@ -2,5 +2,7 @@ module helloworld (0.1.0) {
 
 	import lense.core 0.1.0; 
 	
+	import math 0.1.0; 
+	
 	export helloword.*;
 }

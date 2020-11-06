@@ -14,17 +14,11 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import compiler.CompilationError;
-import lense.compiler.type.CallableMember;
-import lense.compiler.type.CallableMemberMember;
-import lense.compiler.type.CallableMemberSignature;
 import lense.compiler.type.ConstructorParameter;
 import lense.compiler.type.LenseTypeDefinition;
 import lense.compiler.type.LenseUnitKind;
-import lense.compiler.type.Method;
 import lense.compiler.type.MethodParameter;
-import lense.compiler.type.MethodSignature;
 import lense.compiler.type.TypeDefinition;
-import lense.compiler.type.UnionType;
 import lense.compiler.type.variable.DeclaringTypeBoundedTypeVariable;
 import lense.compiler.type.variable.RangeTypeVariable;
 import lense.compiler.type.variable.TypeVariable;
@@ -233,7 +227,7 @@ public class LenseTypeSystem {
 		register(new FundamentalLenseTypeDefinition("lense.core.math.Comparable", LenseUnitKind.Interface, any,
 				new RangeTypeVariable("T", Variance.Covariant, any, nothing)));
 
-		register(new LenseTypeDefinition("lense.core.lang.Exception", LenseUnitKind.Class, any));
+		register(new FundamentalLenseTypeDefinition("lense.core.lang.Exception", LenseUnitKind.Class, any));
 
 		// SenseTypeDefinition function1 = register(new
 		// SenseTypeDefinition("lense.core.lang.Function", Kind.Class, any,
@@ -290,13 +284,13 @@ public class LenseTypeSystem {
 		// static
 		// field
 
-		register(new LenseTypeDefinition("lense.core.lang.Some", LenseUnitKind.Class, maybe));
+		register(new FundamentalLenseTypeDefinition("lense.core.lang.Some", LenseUnitKind.Class, maybe));
 
 		LenseTypeDefinition character = register(
 				new FundamentalLenseTypeDefinition("lense.core.lang.Character", LenseUnitKind.Class, any));
-		register(new LenseTypeDefinition("lense.core.lang.Exception", LenseUnitKind.Class, any));
+		register(new FundamentalLenseTypeDefinition("lense.core.lang.Exception", LenseUnitKind.Class, any));
 
-		register(new LenseTypeDefinition("lense.core.collections.Progression", LenseUnitKind.Class, iterable));
+		register(new FundamentalLenseTypeDefinition("lense.core.collections.Progression", LenseUnitKind.Class, iterable));
 		
 		LenseTypeDefinition assortment = register(new FundamentalLenseTypeDefinition("lense.core.collections.Assortment", LenseUnitKind.Interface, iterable));
 		
@@ -446,7 +440,7 @@ public class LenseTypeSystem {
 				new FundamentalLenseTypeDefinition("lense.core.lang.reflection.Package", LenseUnitKind.Interface, any));
 
 		LenseTypeDefinition module = register(
-				new LenseTypeDefinition("lense.core.lang.reflection.Module", LenseUnitKind.Interface, any));
+				new FundamentalLenseTypeDefinition("lense.core.lang.reflection.Module", LenseUnitKind.Interface, any));
 		module.addMethod("getVersion", version);
 		module.addMethod("getPackages", specify(sequence, packagetype));
 
@@ -500,288 +494,6 @@ public class LenseTypeSystem {
 	}
 
 
-	public static TypeMatch isAssignableTo(TypeVariable type, TypeVariable target) {
-		
-		if (type == null) {
-			throw new IllegalArgumentException("Type cannot be null");
-		}
-		
-		if (target == null) {
-			throw new IllegalArgumentException("Target cannot be null");
-		}
-		
-		if (type instanceof UnionType){
-		    UnionType union = (UnionType)type;
-		    
-		    return isAssignableTo(union.getLeft(), target).and(isAssignableTo(union.getRight(), target));
-
-		} else if (type.isSingleType()) {
-			if (target.isSingleType()) {
-				return isAssignableTo(type.getTypeDefinition(), target.getTypeDefinition());
-			} else {
-				TypeVariable interval = (TypeVariable) target;
-				// interval contains type ?
-				return isAssignableTo(type, interval.getUpperBound()).and(isAssignableTo(interval.getLowerBound(), type));
-			}
-		} else {
-			return isAssignableTo(type.getLowerBound(), target.getLowerBound()).and(isAssignableTo(type.getUpperBound(), target.getUpperBound()));
-
-		}
-	}
-
-	public static TypeMatch isAssignableTo(TypeDefinition type, TypeDefinition target) {
-
-		if (type == null || target == null) {
-			return TypeMatch.NoMatch;
-		}
-
-		if (type == target) {
-			return TypeMatch.Exact;
-		}
-		if (target.getName().equals("lense.core.lang.Any")) {
-			// all types are assignable to Any
-			return type.getName().equals("lense.core.lang.Any")
-					? TypeMatch.Exact
-					: TypeMatch.UpCast; 
-		}
-		if (type.getName().equals("lense.core.lang.Nothing")) {
-			return TypeMatch.UpCast; // nothing is assignable to all types
-		}
-		if (target.getName().equals("lense.core.lang.Nothing")) {
-			return TypeMatch.NoMatch; // only nothing is assignable to nothing
-		}
-		if (type.getName().equals("lense.core.lang.Any")) {
-			// any is assignble to no one but it self
-			return TypeMatch.NoMatch;
-		}
-
-		if (type.getName().equals(
-				target.getName()) /*
-				 * && type.getGenericParameters().size() ==
-				 * target.getGenericParameters().size()
-				 */ ) {
-			
-			TypeMatch assignable = TypeMatch.Exact;
-			for (int i = 0; i < type.getGenericParameters().size(); i++) {
-				assignable = assignable.and(isAssignableTo(type.getGenericParameters().get(i), target.getGenericParameters().get(i)));
-				
-				if (!assignable.matches()) {
-					break;
-				}
-			}
-			
-			if (assignable.matches()) {
-				return assignable;
-			}
-		}
-
-		if (target.getKind() == LenseUnitKind.Interface) {
-			// interface implementation
-			for (TypeDefinition interfaceDefiniton : type.getInterfaces()) {
-				TypeMatch match = isAssignableTo(interfaceDefiniton, target);
-				if (match.matches()) {
-					return TypeMatch.UpCast;
-				}
-			}
-		}
-
-		// super type
-		if (type.getSuperDefinition() != null) {
-			if (!type.getSuperDefinition().getName().equals("lense.core.lang.Any") && type.isGeneric()) {
-				TypeVariable[] types = new TypeVariable[type.getGenericParameters().size()];
-				for (int i = 0; i < types.length; i++) {
-					types[i] = type.getGenericParameters().get(i);
-				}
-				if( isAssignableTo(specify(type.getSuperDefinition(), types), target).matches()) {
-					return TypeMatch.UpCast;
-				}
-			} else {
-				if( isAssignableTo(type.getSuperDefinition(), target).matches()) {
-					return TypeMatch.UpCast;
-				}
-			}
-		}
-
-		return TypeMatch.NoMatch;
-
-		// return type.equals(Nothing()) || ( type.getName() == target.getName()
-		// && type.getGenericParameters().size() ==
-		// target.getGenericParameters().size());
-	}
-
-	public static LenseTypeDefinition specify(TypeVariable definition, TypeVariable... genericParametersCapture) {
-		if (!definition.isFixed()) {
-			throw new RuntimeException("Cannot specify a non fixed type variable");
-		}
-
-		return specify(definition.getTypeDefinition(), genericParametersCapture);
-	}
-
-
-
-	public static LenseTypeDefinition specify(TypeDefinition definition, List<TypeVariable> genericParameters) {
-
-		return ((LenseTypeDefinition)definition).specify(genericParameters);
-	}
-
-	public static LenseTypeDefinition specify(TypeDefinition definition, TypeVariable... genericParameters) {
-		if (definition == null){
-			throw new IllegalArgumentException("Definition type is required");
-		}
-		return ((LenseTypeDefinition)definition).specify(Arrays.asList(genericParameters));
-	}
-
-
-	/**
-	 * @param progression
-	 * @param finalType
-	 * @return
-	 */
-	private static LenseTypeDefinition specify(TypeDefinition definition, TypeDefinition... genericParametersCapture) {
-
-		if (definition.getGenericParameters().size() != genericParametersCapture.length) {
-			throw new CompilationError("Wrong number of generic arguments for type " + definition + ". Expected "
-					+ definition.getGenericParameters().size() + " found " + genericParametersCapture.length);
-		}
-		TypeVariable[] genericParameters = new TypeVariable[definition.getGenericParameters().size()];
-
-		for (int i = 0; i < definition.getGenericParameters().size(); i++) {
-			TypeVariable gen = definition.getGenericParameters().get(i);
-			if (gen.getLowerBound().equals(gen.getUpperBound())) {
-				throw new CompilationError("Cannot specify a non generic type");
-			}
-			genericParameters[i] = new RangeTypeVariable(gen.getSymbol(), gen.getVariance(),
-					genericParametersCapture[i], genericParametersCapture[i]);
-		}
-
-		return specify(definition, genericParameters);
-	}
-
-
-	/**
-	 * Indicates if the type at right position promotable to type at the left
-	 * postision
-	 * 
-	 * @param left
-	 * @param right
-	 * @return
-	 */
-	public boolean isPromotableTo(TypeVariable a, TypeVariable b) {
-		if (a == null || b == null) {
-			return false;
-		}
-
-		if (a == b) {
-			return true;
-		} else if (isAssignableTo(a, b).matches()) {
-			return true;
-		} 
-
-		if (b.isFixed()) {
-			return b.getTypeDefinition().getConstructorByImplicitAndPromotableParameters(true, new ConstructorParameter(a)).isPresent();
-		}
-		return false;
-	}
-
-	/**
-	 * @param typeDefinition
-	 * @param typeDefinition2
-	 * @return
-	 */
-	public TypeVariable unionOf(TypeVariable a, TypeVariable b) {
-		if (a.isSingleType()) {
-			a = a.getUpperBound();
-		}
-		if (b.isSingleType()) {
-			b = b.getUpperBound();
-		}
-
-		if (a == b || a.equals(b)) {
-			return a;
-		} else if (a.getTypeDefinition().getName().equals("lense.core.lang.Nothing")) {
-			return b;
-		} else if (b.getTypeDefinition().getName().equals("lense.core.lang.Nothing")) {
-			return a;
-		} else if (a.getTypeDefinition().getName().equals("lense.core.lang.None")) {
-			if (isMaybe(b)) {
-				return b;
-			} 
-		
-		} else if (b.getTypeDefinition().getName().equals("lense.core.lang.None")) {
-			if (isMaybe(a)) {
-				return a;
-			}
-		} else if (isAssignableTo(a, b).matches()) {
-			return b;
-		} else if (isAssignableTo(b, a).matches()) {
-			return a;
-		} 
-			
-		return new UnionType(a, b);
-		
-	}
-
-
-	public static <M extends CallableMember<M>> boolean isSignatureImplementedBy(CallableMemberSignature<M> signature,
-			CallableMember<M> m) {
-		final List<CallableMemberMember<M>> memberParameters = m.getParameters();
-		final List<CallableMemberMember<M>> signatureParameters = signature.getParameters();
-
-		return signature.getName().equals(m.getName())
-				&& areSignatureParametersImplementedBy(signatureParameters, memberParameters).matches();
-
-	}
-	
-	public static <M extends CallableMember<M>> TypeMatch areSignatureParametersImplementedBy(
-			List<CallableMemberMember<M>> signatureParameters, List<CallableMemberMember<M>> memberParameters) {
-
-		if (signatureParameters.size() == memberParameters.size()) {
-
-			TypeMatch match = TypeMatch.Exact;
-			for (int i = 0; i < signatureParameters.size(); i++) {
-				match = match.and(isAssignableTo(signatureParameters.get(i).getType(), memberParameters.get(i).getType()));
-				if (!match.matches()) {
-					return TypeMatch.NoMatch;
-				}
-			}
-			return match;
-		}
-		return TypeMatch.NoMatch;
-
-	}
-
-	public boolean isSignatureAssignableTo(MethodSignature from, MethodSignature to) {
-		if (from.getName().equals(to.getName()) && from.getParameters().size() == to.getParameters().size()) {
-
-			TypeMatch match = TypeMatch.Exact;
-			
-			for (int i = 0; i < from.getParameters().size(); i++) {
-				match = match.and(isAssignableTo(from.getParameters().get(i).getType(), to.getParameters().get(i).getType()));
-				if (!match.matches()) {
-					return false;
-				}
-			}
-			return true;
-		}
-		return false;
-	}
-
-	/**
-	 * @param s
-	 * @return
-	 */
-	public boolean isSignaturePromotableTo(MethodSignature from, MethodSignature to) {
-		if (from.getName().equals(to.getName()) && from.getParameters().size() == to.getParameters().size()) {
-
-			for (int i = 0; i < from.getParameters().size(); i++) {
-				if (!isPromotableTo(from.getParameters().get(i).getType(), to.getParameters().get(i).getType())) {
-					return false;
-				}
-			}
-			return true;
-		}
-		return false;
-	}
 
 	/**
 	 * {@inheritDoc}
@@ -813,27 +525,8 @@ public class LenseTypeSystem {
 		}).distinct().collect(Collectors.toSet());
 	}
 
-	public boolean isMethodImplementedBy(Method reference, Method candidate) {
 
-		return reference.getName().equals(candidate.getName())
-				&& areSignatureParametersImplementedBy(reference.getParameters(), candidate.getParameters()).matches();
-	}
 
-	public boolean areNomallyEquals(TypeDefinition a, TypeDefinition b) {
-		return a == b || a.getName().equals(b.getName());
-	}
-	
-	public boolean areNomallyEquals(TypeVariable a, TypeVariable b) {
-		return  a == b || a.getTypeDefinition().getName().equals(b.getTypeDefinition().getName());
-	}
-
-	public static boolean isNumber(TypeDefinition maxType) {
-		return isAssignableTo(maxType, Number()).matches() || maxType.getName().startsWith("lense.core.math") && (
-				maxType.getName().endsWith("Natural")
-				|| maxType.getName().endsWith("Integer") 
-				|| maxType.getName().endsWith("Real")
-		);
-	}
 
 	public boolean isTuple(TypeVariable type, int count) {
 		return isTuple(type.getTypeDefinition(), count);
@@ -897,5 +590,53 @@ public class LenseTypeSystem {
         return type.getName().equals(Void().getName());
     }
 
+    
+
+	public LenseTypeDefinition specify(TypeVariable definition, TypeVariable... genericParametersCapture) {
+		if (!definition.isFixed()) {
+			throw new RuntimeException("Cannot specify a non fixed type variable");
+		}
+
+		return specify(definition.getTypeDefinition(), genericParametersCapture);
+	}
+
+
+
+	public LenseTypeDefinition specify(TypeDefinition definition, List<TypeVariable> genericParameters) {
+
+		return ((LenseTypeDefinition)definition).specify(genericParameters);
+	}
+
+	public LenseTypeDefinition specify(TypeDefinition definition, TypeVariable... genericParameters) {
+		if (definition == null){
+			throw new IllegalArgumentException("Definition type is required");
+		}
+		return ((LenseTypeDefinition)definition).specify(Arrays.asList(genericParameters));
+	}
+
+
+
+	private LenseTypeDefinition specify(TypeDefinition definition, TypeDefinition... genericParametersCapture) {
+
+		if (definition.getGenericParameters().size() != genericParametersCapture.length) {
+			throw new CompilationError("Wrong number of generic arguments for type " + definition + ". Expected "
+					+ definition.getGenericParameters().size() + " found " + genericParametersCapture.length);
+		}
+		TypeVariable[] genericParameters = new TypeVariable[definition.getGenericParameters().size()];
+
+		for (int i = 0; i < definition.getGenericParameters().size(); i++) {
+			TypeVariable gen = definition.getGenericParameters().get(i);
+			if (gen.getLowerBound().equals(gen.getUpperBound())) {
+				throw new CompilationError("Cannot specify a non generic type");
+			}
+			genericParameters[i] = new RangeTypeVariable(gen.getSymbol(), gen.getVariance(),
+					genericParametersCapture[i], genericParametersCapture[i]);
+		}
+
+		return specify(definition, genericParameters);
+	}
+
+	
+	
 
 }

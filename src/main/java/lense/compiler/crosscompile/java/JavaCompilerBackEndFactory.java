@@ -30,7 +30,7 @@ public class JavaCompilerBackEndFactory implements CompilerBackEndFactory {
     
     JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 
-    private SourceFolder base;
+    private List<SourceFolder> classpath;
 
     public JavaCompilerBackEndFactory (){}
 
@@ -86,11 +86,13 @@ public class JavaCompilerBackEndFactory implements CompilerBackEndFactory {
             Iterable<? extends JavaFileObject> compilationUnits = fileManager.getJavaFileObjectsFromFiles(localFiles);
 
             List<File> classPath = new ArrayList<>(2);
-            if (base != null){
-                for (var jar : base.children(f -> f.getName().endsWith(".jar"))){
-                	var jarFile = fileSystem.convertToFile(jar);
-                    classPath.add(jarFile);
-                }
+            if (classpath != null){
+            	 for (var base : classpath){
+            		 for (var jar : base.children(f -> f.getName().endsWith(".jar"))){
+                     	var jarFile = fileSystem.convertToFile(jar);
+                         classPath.add(jarFile);
+                     }
+                 }
             }
             classPath.add(target);
             fileManager.setLocation(StandardLocation.CLASS_PATH, classPath);
@@ -102,10 +104,10 @@ public class JavaCompilerBackEndFactory implements CompilerBackEndFactory {
         }
     }
 
-    @Override
-    public void setClasspath(SourceFolder base) {
-        this.base = base;
-    }
+	@Override
+	public void setClasspath(List<SourceFolder> classpath) {
+		this.classpath =classpath;
+	}
     
     
     private class DiagnosticListenerImpl implements DiagnosticListener<JavaFileObject>{
