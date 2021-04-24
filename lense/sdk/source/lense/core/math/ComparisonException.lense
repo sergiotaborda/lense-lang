@@ -1,0 +1,9 @@
+
+import lense.core.lang.Exception;
+import lense.core.lang.String;
+
+public class ComparisonException extends Exception {
+
+	public constructor (message: String ) extends super (message);
+	public constructor () extends super (""); 
+}

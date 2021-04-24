@@ -150,15 +150,18 @@ public final class NativeVerificationVisitor implements Visitor<AstNode>{
                         throw new lense.compiler.CompilationError(node, "No native constructor implemented");
                     }
 
-                    if (!n.isAbstract()){
+                    if (!n.isAbstract() && !n.getKind().isObject()){
                         for(Constructor c : construtors){
 
                             checkMatch(n,
                                     c, 
                                     isContainedIn(c,nativeConstrutors).orElseThrow(() -> 
-                                    new lense.compiler.CompilationError(node, "Native implementation does not contain constructor " + c.getName() + "(" + c.getParameters() +")")
-                                            )
-                                    );
+                                    new lense.compiler.CompilationError(
+                                    		node, 
+                                    		"Native implementation does not contain constructor " 
+                                    		+ c.getName()
+                                    		+ "(" + c.getParameters() +")"
+                                    )));
 
                         }
                     }
