@@ -4,7 +4,7 @@ import lense.core.math.Whole;
 import lense.core.math.BigDecimal;
 import lense.core.math.Rational;
 import lense.core.lang.debug;
-import lense.core.math.ArithmeticException;
+import lense.core.math.ComparisonException;
 import lense.core.math.RealLineElement;
 
 public value class BigFloat implements Float {
@@ -166,7 +166,7 @@ public value class BigFloat implements Float {
 		  return compareWith(new BigFloat.valueOf(other.asFloat()));
 		}
 
-		throw new ArithmeticException(); // TODO comparison exception
+		throw new ComparisonException();
 	}  
 
 	public isPositive() => this.isNaN() || this.isPositiveInfinity() || numerator.isPositive();

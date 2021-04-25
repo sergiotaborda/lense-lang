@@ -4,7 +4,7 @@
 == Lense CLI
 
 - [x] compile
-- [x] run 
+- [ ] run 
 - [ ] test
 - [ ] document
 
@@ -138,7 +138,7 @@
 - [x] Support String
 * [ ] implement string as a lightweight rope
 - [x] Support Tuples
-* [ ] support tuples desconstruction `(a, b) = (b, a)` 
+* [ ] support tuples deconstruction `(a, b) = (b, a)` 
 * [ ] identity `()` with the `void` object.
 
 === Flow Sensitive Typing

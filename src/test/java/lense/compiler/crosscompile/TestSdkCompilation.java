@@ -21,7 +21,6 @@ import lense.compiler.ast.SystemOutCompilerListener;
 import lense.compiler.crosscompile.java.LenseToJavaCompiler;
 import lense.compiler.crosscompile.javascript.LenseToJsCompiler;
 import lense.compiler.modules.ModuleIdentifier;
-import lense.compiler.modules.ModuleTypeContents;
 import lense.compiler.modules.ModuleUnit;
 import lense.compiler.modules.ModulesRepository;
 
