@@ -12,17 +12,21 @@ public class BitArray implements Binary {
 
 	private let bits: Array<Boolean>; // TODO compiler must used this variable for primary constructor and not init it
 
-	public implicit constructor ( private bits: Array<Boolean>); // TODO after removing explicit property , the compiler assumes Array<Array>
+	public constructor ( private bits: Array<Boolean>); // TODO after removing explicit property , the compiler assumes Array<Array>
 
 	public constructor (bitCount: Natural){
 		return new BitArray(new Array<Boolean>(bitCount, false));
 	}
 	
-	public constructor ( bitCount: Natural,  seed: Boolean){
+	public constructor (bitCount: Natural,  seed: Boolean){
 		return new BitArray(new Array<Boolean>(bitCount, seed));
 	}
 	
-	public implicit constructor ( binary: Binary){
+	public implicit constructor valueOf (bits: Array<Boolean>){
+		return new BitArray(bits);
+	}
+
+	public constructor valueOf (binary: Binary){
 		let array : Array<Boolean> = new Array<Boolean>(binary.bitsCount, false); // TODO remove left side typing
 		
 		for (i in 0 ..< binary.bitsCount){
@@ -32,8 +36,30 @@ public class BitArray implements Binary {
 		return new BitArray(array);
 	}
 
+	// number of bits set to 1
+	public cardinality() : Natural {
+		var value = 0;
+/{
+		for (let bit in bits){
+			if (bit){
+				value+=1;
+			}
+		}
+}/
+	
+		for (i in 0 ..< bits.size){
+			if (bits[i]){
+				value+=1;
+			}
+		}
+
+		return value;
+	} 
+
 	public flip( index: Natural): Void{
-		this.bits[index] = !this.bits[index];
+		if (index < this.bitsCount){
+			this.bits[index] = !this.bits[index];
+		}
 	}
 	
 	public or( other: Binary): BitArray {
@@ -112,10 +138,15 @@ public class BitArray implements Binary {
 	
 	public [ index: Natural] : Boolean{
 		get {
+			if (index >= this.bitsCount){
+				return false;
+			}
 			return bits[index];
 		}
 		set(value) {
-			bits[index] = value;
+			if (index < this.bitsCount){
+				bits[index] = value;
+			} 
 		}
 	}
 	
@@ -123,8 +154,32 @@ public class BitArray implements Binary {
 		return this[index];
 	}
 	
-	public override equalsTo(other: Any) : Boolean{
-		return other is BitArray && other.bits.equalsTo(this.bits);
+	public override equalsTo(other: Any) : Boolean {
+		if (other is BitArray){
+			let min = this.bitsCount <= other.bitsCount ? this.bitsCount : other.bitsCount; 
+
+			for (let index in 0 ..< min ){
+				if (this.bitAt(index) != other.bitAt(index)){
+					return false;
+				}
+			}
+			// all remaining bits must be false
+			if (this.bitsCount > min){
+				for (let index in min ..< this.bitsCount ){
+					if (this.bitAt(index)){
+						return false;
+					}
+				}
+			} else if (other.bitsCount > min){
+				for (let index in min ..< other.bitsCount ){
+					if (other.bitAt(index)){
+						return false;
+					}
+				}
+			}
+			return true;
+		}
+		return false;
 	}
 
 	public override hashValue():  HashValue {

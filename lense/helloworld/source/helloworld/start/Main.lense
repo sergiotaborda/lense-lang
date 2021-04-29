@@ -43,6 +43,18 @@ public class Main extends ConsoleApplication {
 	public constructor();
 	
 	public let parameter : Integer = 99 {get;};
+
+
+	private demoFloat(){
+		
+ 		assert(-0.0 == (0.0).symmetric(), "Symmetric of rational 0.0 is not rational -0.0"); // TODO parser does not understand 0.0.something
+ 		assert(0.0 == (0.0).symmetric(), "Symmetric of rational 0.0 is not rational 0.0"); // TODO parser does not understand 0.0.something
+		assert(new Float32(0.0).symmetric().isNegativeZero(), "Symmetric of float 0.0 is not -0.0");
+		assert(-new Float32(0.0) == new Float32(0.0).symmetric(), "Symmetric of float 0.0 is not float -0.0");
+		assert(0.0 == new Float32(0.0), "Float 0.0 is not equal to rational 0.0");
+		assert(-0.0 == new Float32(0.0), "Float 0.0 is not equal to rational -0.0");
+
+	}
 	
 	private demoListOfMaybe() {
 
@@ -334,7 +346,8 @@ public class Main extends ConsoleApplication {
 
 		demoIntErasure_ErasurePossible();
 		demoBigNumbers();
-		
+		demoFloat();
+
 		demoBinding();
 
 		demoReification();
@@ -687,8 +700,8 @@ public class Main extends ConsoleApplication {
 
 	public demoSwitchAlgebric(){
 
-		let obj = 1 <=> 3;
-		switch(obj){
+		let comparison = 1 <=> 3;
+		switch(comparison){
 			case (equal){
 				console.println("equal ");
 			}

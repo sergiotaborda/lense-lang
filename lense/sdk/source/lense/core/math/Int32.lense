@@ -10,6 +10,10 @@ public native value class Int32 implements Integer , Binary {
 	
 	public native implicit constructor valueOf ( n: Whole);
 
+	public native constructor zero ();
+
+	public native constructor one ();
+
 	public native complement() : Int32;
 	
 	public native rightShiftBy( n:Natural) : Int32;

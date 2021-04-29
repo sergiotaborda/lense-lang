@@ -1,6 +1,7 @@
 package lense.core.math;
 
 import java.math.BigInteger;
+import java.util.BitSet;
 
 import lense.core.collections.NativeOrdinalProgression;
 import lense.core.collections.Progression;
@@ -32,7 +33,21 @@ public class Int64 implements Integer , Binary , BigIntegerConvertable , AnyValu
 
 	@Constructor(isImplicit = true , paramsSignature = "lense.core.lang.Binary")
 	public static Int64 valueOf (Binary binary){
-		return new Int64(0);
+
+		if (binary instanceof Int32 integer) {
+			return new Int64(integer.value);
+		} else if (binary instanceof Int64 other) {
+			return other;
+		}
+		
+		var bitSet = new BitSet(64);
+		for (int i = 0; i < 64; i++) {
+			if (binary.bitAt(Natural64.valueOfNative(i))) {
+				bitSet.set(i);
+			}
+		}
+		
+		return new Int64(bitSet.toLongArray()[0]); 
 	}
 
 	@PlatformSpecific
@@ -77,12 +92,6 @@ public class Int64 implements Integer , Binary , BigIntegerConvertable , AnyValu
 		this.value = n;
 	}
 
-	/**
-	 *  Int32 + Int32 = Int32 or ArithmeticException
-	 *  ScalableInt32 + Int32 =  ScalableInt32 or bigger
-	 *  Int32 + ScalableInt32 = ScalableInt32 or bigger;
-	 *  ScalableInt32 + ScalableInt32 = ScalableInt32 or bigger
-	 */
 	@Override
 	public Integer plus(Integer other) {
 		if (other instanceof Int32){
@@ -105,12 +114,12 @@ public class Int64 implements Integer , Binary , BigIntegerConvertable , AnyValu
 
 	@Override
 	public Integer minus(Integer other) {
-		if (other instanceof Int32){
-			return minus(new Int64(((Int32)other).value));
-		} else 	if (other instanceof Int64){
-			return minus( (Int64)other);
+		if (other instanceof Int32 integer){
+			return minus(new Int64(integer.value));
+		} else 	if (other instanceof Int64 value){
+			return minus(value);
 		} else {
-			return promoteNext().plus(other);
+			return promoteNext().minus(other);
 		}
 	}
 
@@ -185,8 +194,8 @@ public class Int64 implements Integer , Binary , BigIntegerConvertable , AnyValu
 	}
 
 	@Override
-	@Property(name="size")
-	public final Natural bitsCount() {
+	@Property(name="bitsCount")
+	public final Natural getBitsCount() {
 		return Natural64.valueOfNative(64);
 	}
 
@@ -197,12 +206,12 @@ public class Int64 implements Integer , Binary , BigIntegerConvertable , AnyValu
 
 	@Override
 	public Int64 rightShiftBy(Natural n) {
-		return new Int64(value << n.modulus(64));
+		return new Int64(value >> NativeNumerics.modulus(n,64));
 	}
 
 	@Override
 	public Int64 leftShiftBy(Natural n) {
-		return new Int64(value >> n.modulus(64));
+		return new Int64(value << NativeNumerics.modulus(n,64));
 	}
 
 	@Override
@@ -220,7 +229,11 @@ public class Int64 implements Integer , Binary , BigIntegerConvertable , AnyValu
 
 	@Override
 	public boolean bitAt(Natural index) {
-		return rightShiftBy(index).isOdd();
+		if (!index.compareWith(Int32.valueOfNative(64)).isSmaller()) {
+			return false;
+		}
+		
+		return (value >> NativeNumerics.modulus(index, 64) & 1) == 1;
 	}
 
 	@Override
@@ -232,8 +245,20 @@ public class Int64 implements Integer , Binary , BigIntegerConvertable , AnyValu
 	public Int64 xor(Any other) {
 		if (other instanceof Int64){
 			return new Int64(this.value ^ ((Int64)other).value);
+		} else if (other instanceof Int32){
+			return new Int64(this.value ^ ((Int32)other).value);
+		} else if (other instanceof Binary binary) {
+			
+			
+			var thisBitSet = BitSet.valueOf(new long[] {this.value});
+			var otherBitSet = NativeNumerics.bitSetFromBinary(binary, 64);
+			
+			thisBitSet.xor(otherBitSet);
+			
+			return new Int64(thisBitSet.toLongArray()[0]);
+			
 		} else {
-			throw new IllegalArgumentException("Cannot inject with a diferent class");
+			throw new IllegalArgumentException("Cannot exclusivly diject with a diferent class");
 		}
 	}
 
@@ -241,8 +266,20 @@ public class Int64 implements Integer , Binary , BigIntegerConvertable , AnyValu
 	public Int64 or(Any other) {
 		if (other instanceof Int64){
 			return new Int64(this.value | ((Int64)other).value);
+		} else if (other instanceof Int32){
+			return new Int64(this.value | ((Int32)other).value);
+		} else if (other instanceof Binary binary) {
+			
+			
+			var thisBitSet = BitSet.valueOf(new long[] {this.value});
+			var otherBitSet = NativeNumerics.bitSetFromBinary(binary, 64);
+			
+			thisBitSet.or(otherBitSet);
+			
+			return new Int64(thisBitSet.toLongArray()[0]);
+			
 		} else {
-			throw new IllegalArgumentException("Cannot inject with a diferent class");
+			throw new IllegalArgumentException("Cannot disject with a diferent class");
 		}
 	}
 
@@ -250,7 +287,19 @@ public class Int64 implements Integer , Binary , BigIntegerConvertable , AnyValu
 	public Int64 and(Any other) {
 		if (other instanceof Int64){
 			return new Int64(this.value & ((Int64)other).value);
-		} else {
+		} else if (other instanceof Int32){
+			return new Int64(this.value & ((Int32)other).value);
+		} else if (other instanceof Binary binary) {
+			
+			
+			var thisBitSet = BitSet.valueOf(new long[] {this.value});
+			var otherBitSet = NativeNumerics.bitSetFromBinary(binary, 64);
+			
+			thisBitSet.and(otherBitSet);
+			
+			return new Int64(thisBitSet.toLongArray()[0]);
+
+		}else {
 			throw new IllegalArgumentException("Cannot inject with a diferent class");
 		}
 	}
@@ -284,9 +333,10 @@ public class Int64 implements Integer , Binary , BigIntegerConvertable , AnyValu
 		} else if (other instanceof Int32){
 			return new Int64(this.value % ((Int32)other).value);
 		} else {
-			return this.promoteNext().remainder(other); 
+			return this.promoteNext().remainder(other).asInteger(); 
 		}
 	}
+
 
 	public Int64 wrapPlus(Int64 other) {
 		return new Int64(this.value + other.value);
@@ -500,4 +550,6 @@ public class Int64 implements Integer , Binary , BigIntegerConvertable , AnyValu
 	public Rational divide(Whole other) {
 		return Rational.fraction(this, other);
 	}
+
+
 }

@@ -44,7 +44,6 @@ public final class Natural64 implements Natural , BigDecimalConvertable , BigInt
 		return new Natural64(Long.parseUnsignedLong(value));
 	}
 
-	
 	long value; // unsigned
 
 	@Override
@@ -167,28 +166,6 @@ public final class Natural64 implements Natural , BigDecimalConvertable , BigInt
 			return (int)this.value;
 		}
 		throw ArithmeticException.constructor(lense.core.lang.String.valueOfNative("To big for a primitive int"));
-	}
-
-	@Override
-	public int modulus(int n) {
-		return (int)(this.value % n);
-	}
-
-	public Natural remainder(Natural other) {
-		if (other instanceof Natural64){
-			return new Natural64(this.value % ((Natural64)other).value);
-		} else {
-			return new BigNatural(toJavaBigInteger()).remainder(other);
-		}
-	}
-
-	@Override
-	public Natural wholeDivide(Natural other) {
-		if (other instanceof Natural64){
-			return new Natural64(this.value / ((Natural64)other).value);
-		} else {
-			return new BigNatural(toJavaBigInteger()).wholeDivide(other);
-		}
 	}
 
 	@Override
@@ -412,13 +389,52 @@ public final class Natural64 implements Natural , BigDecimalConvertable , BigInt
 	}
 
 	@Override
+	public Natural wholeDivide(Natural other) {
+		if (other instanceof Natural64){
+			return new Natural64(this.value / ((Natural64)other).value);
+		} else {
+			return new BigNatural(toJavaBigInteger()).wholeDivide(other);
+		}
+	}
+	
+	public Natural remainder(Natural other) {
+		if (other.isZero()){
+			throw ArithmeticException.constructor(lense.core.lang.String.valueOfNative("Cannot divide by zero"));
+		}  
+		
+		if (other instanceof Natural64 natural){
+			return new Natural64(this.value % natural.value);
+		} else {
+			return new BigNatural(toJavaBigInteger()).remainder(other);
+		}
+	}
+
+	@Override
 	public Whole remainder(Whole other) {
+		if (other.isZero()){
+			throw ArithmeticException.constructor(lense.core.lang.String.valueOfNative("Cannot divide by zero"));
+		}  
+		
 		if (other instanceof Natural) {
 			return remainder((Natural)other);
 		}
 		return this.asInteger().remainder(other);
 	}
+	
 
+	@Override
+	public Whole modulo(Whole other) {
+		// since this is always positive, remainder and module are the same
+		return remainder(other);
+	}
+	
+	@Override
+	public Natural modulo(Natural other) {
+		// since this is always positive, remainder and module are the same
+		return remainder(other);
+	}
+
+	
 
 
 }

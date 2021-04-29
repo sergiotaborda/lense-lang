@@ -120,4 +120,5 @@ public abstract class Array extends AbstractAssortment implements EditableSequen
 
 	
 	public abstract Type type();
+
 }

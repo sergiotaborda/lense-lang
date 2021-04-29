@@ -19,6 +19,8 @@ public value class BigFloat implements Float {
 	public implicit constructor valueOf( other: Real) {
 		if (other is Rational){
 			return new BigFloat(other.numerator, other.denominator).simplify();
+		} else if (other is Whole){
+			return new BigFloat(other.asInteger(), new Int32.one());
 		}
 		return new BigFloat.parse(other.asString());
 	}

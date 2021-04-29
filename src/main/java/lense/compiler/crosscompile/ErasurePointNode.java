@@ -12,7 +12,8 @@ public class ErasurePointNode extends ExpressionNode {
 	}
 	
 	public enum ErasureOperation {
-	   CONVERTION, // converts the node to another type (cast, constructor, or primitive erasure)
+	   CONVERSION, // converts the node to another type (cast, constructor, or primitive erasure)
+	   CONVERSION_TO_PRIMITIVE, // force conversion to primitive type
 	   BOXING, // puts or gets a node in a container like maybe or array, or 
 	}
 	
@@ -34,9 +35,12 @@ public class ErasurePointNode extends ExpressionNode {
         if (expectedType == null){
             throw new IllegalArgumentException("Type is required");
         }
-        return new ErasurePointNode(expression, expectedType, ErasureOperation.CONVERTION, BoxingDirection.NONE);
+        return new ErasurePointNode(expression, expectedType, ErasureOperation.CONVERSION, BoxingDirection.NONE);
     }
     
+    public static ErasurePointNode convertToPrimitive(ExpressionNode expression){
+        return new ErasurePointNode(expression, expression.getTypeVariable(), ErasureOperation.CONVERSION_TO_PRIMITIVE, BoxingDirection.NONE);
+    }
     
 	private BoxingDirection boxingDirection;
 	private boolean canElide = true; // can be removed if the value is already of the expected type 

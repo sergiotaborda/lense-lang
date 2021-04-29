@@ -126,7 +126,6 @@ public final class BigInt implements Integer , BigIntegerConvertable , AnyValue 
 
 	}
 
-	@Override
 	public Integer remainder(Integer other) {
 		if (other instanceof BigIntegerConvertable) {
 			return new BigInt(this.value.remainder(((BigIntegerConvertable) other).toJavaBigInteger()));
@@ -438,5 +437,7 @@ public final class BigInt implements Integer , BigIntegerConvertable , AnyValue 
         
         return Float64.valueOfNative(blex > 0 ? res + blex * LOG_2 : res);
 	}
+
+
 
 }

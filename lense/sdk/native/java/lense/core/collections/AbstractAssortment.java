@@ -29,4 +29,5 @@ public abstract class AbstractAssortment extends Base implements Assortment {
 		result = result.concat(lense.core.lang.String.valueOfNative("]"));
 		return result;
 	}
+
 }

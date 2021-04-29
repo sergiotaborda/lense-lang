@@ -35,7 +35,7 @@
 == Language Features
 
 - [ ] use -> instead of : in association literals. this frees : for other uses
-- [x] understand that -0.0 may be a different thing than 0.0 if the target is Float. Also 0.0.symetric() == -0.0 in Float and that -0.0 = new Float32(0.0).symetric()  but not  -0.0 =/= new Float32(new Rational(0.0)); 
+- [x] understand that -0.0 may be a different thing than 0.0 if the target is Float. Also `0.0.symetric() == -0.0` in Float and that `-0.0 = new Float32(0.0).symetric()`  but not  `-0.0 =/= new Float32(new Rational(0.0));` 
 - [ ] validade literal number range at compile time.
 - [ ] consider target typing and/or mapping literals to objects with special `Literal` (not instanciable) object and implicit constructors 
 - [x] define variables with `let` and values with `val`. make `let` the default when not expliclity declared

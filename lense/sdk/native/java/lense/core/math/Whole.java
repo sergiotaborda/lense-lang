@@ -38,4 +38,7 @@ public interface Whole extends RealLineElement {
 
 	public Whole wholeDivide (Whole other); 
 	public Whole remainder (Whole other); 	
+	
+	// x.modulo(t) =  x -(y * (x/y).floor) = x -(y * (x \ y)) 
+	public Whole modulo (Whole other);
 }

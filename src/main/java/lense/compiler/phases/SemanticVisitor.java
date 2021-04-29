@@ -1436,7 +1436,7 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 			} else if (node instanceof PreExpression) {
 				PreExpression p = (PreExpression) node;
 
-				final TypeDefinition type = ((TypedNode) p.getChildren().get(0)).getTypeVariable().getTypeDefinition();
+				final TypeDefinition type = this.getSemanticContext().ensureNotFundamental(((TypedNode) p.getChildren().get(0)).getTypeVariable().getTypeDefinition());
 
 				if (p.getOperation().equals(UnitaryOperation.Positive)) { /* +a */
 					// +a is a no-op. replace the node by its content
@@ -1454,7 +1454,8 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 					}
 
 					Optional<Method> list = typeAssistant.getMethodsByName(type,methodName).stream()
-							.filter(md -> md.getParameters().size() == 0).findAny();
+							.filter(md -> md.getParameters().isEmpty())
+							.findAny();
 
 					if (!list.isPresent()) {
 						throw new CompilationError(node,
@@ -1488,20 +1489,22 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 				} else { /* -a , ~a */
 
 					String methodName = p.getOperation().getArithmeticOperation().equivalentMethod();
-					Optional<Method> list = typeAssistant.getMethodsByName(type,methodName).stream() //TODO use getbysignature with 0 params
-							.filter(md -> md.getParameters().size() == 0).findAny();
+					Optional<Method> foundMethod = typeAssistant.getMethodBySignature(type,MethodSignature.forName(methodName))
+							.stream()
+							.filter(md -> md.getParameters().isEmpty())
+							.findAny();
 
-					if (!list.isPresent()) {
+					if (!foundMethod.isPresent()) {
 						throw new CompilationError(node,
 								"The method " + methodName + "() is undefined for TypeDefinition " + type);
 					}
 
 //					TODO move to transformations. use an operator call node
 					// replace by a method invocation
-					MethodInvocationNode method = new MethodInvocationNode(list.get(),
+					MethodInvocationNode method = new MethodInvocationNode(foundMethod.get(),
 							ensureExpression(node.getChildren().get(0)));
 
-					method.setTypeVariable(list.get().getReturningType());
+					method.setTypeVariable(foundMethod.get().getReturningType());
 
 					node.getParent().replace(node, method);
 				}
