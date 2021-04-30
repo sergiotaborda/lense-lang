@@ -336,6 +336,17 @@ public class Int64 implements Integer , Binary , BigIntegerConvertable , AnyValu
 			return this.promoteNext().remainder(other).asInteger(); 
 		}
 	}
+	
+	@Override
+	public Whole modulo(Whole other) {
+		if (other.isZero()){
+			throw ArithmeticException.constructor(lense.core.lang.String.valueOfNative("Cannot divide by zero"));
+		}  else if (other.isOne()) {
+			return this;
+		} 
+		
+		return this.minus(other.asInteger().multiply(this.divide(other).floor().asInteger()));
+	}
 
 
 	public Int64 wrapPlus(Int64 other) {

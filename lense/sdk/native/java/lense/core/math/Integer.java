@@ -35,18 +35,6 @@ public interface Integer extends Whole , Comparable, SignedNumber, Ordinal, Prog
 	public Integer wholeDivide(Integer other);
 	
 	public Integer wholeDivide(Natural other);
-
-	@Override
-	public default Whole modulo(Whole other) {
-		if (other.isZero()){
-			throw ArithmeticException.constructor(lense.core.lang.String.valueOfNative("Cannot divide by zero"));
-		}  else if (other.isOne()) {
-			return this;
-		} 
-		
-		return this.minus(other.asInteger().multiply(this.wholeDivide(other).asInteger()));
-	}
-	
 	
 	public Integer successor();
 	public Integer predecessor();

@@ -562,6 +562,18 @@ public final class Int32  implements Integer, Binary , BigIntegerConvertable, An
 		}
 	}
 	
+	@Override
+	public Whole modulo(Whole other) {
+		if (other.isZero()){
+			throw ArithmeticException.constructor(lense.core.lang.String.valueOfNative("Cannot divide by zero"));
+		}  else if (other.isOne()) {
+			return this;
+		} 
+		
+		return this.minus(other.asInteger().multiply(this.divide(other).floor().asInteger()));
+	}
+	
+	
     @Override
     public boolean equals(Object other){
         return other instanceof Any && equalsTo((Any)other);

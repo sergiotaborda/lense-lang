@@ -6,6 +6,7 @@ import compiler.syntax.AstNode;
 import compiler.trees.VisitorNext;
 import lense.compiler.ast.ArgumentListItemNode;
 import lense.compiler.ast.AssertNode;
+import lense.compiler.ast.AssignmentNode;
 import lense.compiler.ast.BooleanOperation;
 import lense.compiler.ast.BooleanOperatorNode;
 import lense.compiler.ast.BooleanValue;
@@ -90,7 +91,6 @@ public class BooleanErasureVisitor extends AbstractScopedVisitor {
                     p.setTypeVariable(erasedType);
                 }
             } 
-
         } else if (node instanceof BooleanOperatorNode op){
 
         	if (node.getChildren().size() == 1) {
@@ -336,6 +336,18 @@ public class BooleanErasureVisitor extends AbstractScopedVisitor {
             	
                 a.replace(a.getCondition(), unbox(a.getCondition()));
             }
+        } else if (node instanceof AssignmentNode assignment) {
+        	
+        	if (assignment.getLeft().getTypeVariable().equals(erasedType)) {
+        	   var right = 	assignment.getRight();
+    		   if (right instanceof BooleanValue booleanValue){
+                   // is a literal
+    			   right.getParent().replace(right, new PrimitiveBooleanValue(booleanValue.isValue()));
+               } else {
+            	   right.getParent().replace(right, unbox(right));
+               }
+        	}
+        	
         } else if  (node instanceof ReturnNode r){
         	
         	var expression = r.getFirstChild();

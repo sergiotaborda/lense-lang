@@ -55,22 +55,31 @@ public value class BigFloat implements Float {
 		   return new BigFloat(-1,0);
 		}
 
+		var isNegative = false;
 		if ( other.starstWith("-")){
 			other = other.subString(1);
+			isNegative = true;
 		}
 
 		let pos : Maybe<Natural> = other.indexOf(".");
 
+		var value : BigFloat;
 		if (pos.isAbsent()){
-			return new BigFloat(new Whole.parse(other),1);
+			value = new BigFloat(new Whole.parse(other),1);
 		} else {
 			let len : Natural = pos.value; // this should not be necessary. 
 			let power = other.size &- len &- 1;		
 
 			let wholePart = new Whole.parse(other.removeAt(pos.value));
 
-			return new BigFloat(wholePart,10 ^^ power).simplify();
+			value = new BigFloat(wholePart,10 ^^ power).simplify();
 		}
+
+		if (isNegative){
+			value = -value;
+		}
+
+		return value;
 	}
 
 	public asFloat() => this;
@@ -190,9 +199,9 @@ public value class BigFloat implements Float {
 	public symmetric() {
 		if (this.isZero() || this.isNegativeZero()){
 			return new BigFloat( this.numerator , -this.denominator);
-		} else {
-			return new BigFloat( -this.numerator , -this.denominator);
-		}
+		} 
+			
+		return new BigFloat( -this.numerator , this.denominator);
 
 	}
 

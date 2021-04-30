@@ -95,7 +95,7 @@ public class AssignmentNode extends ExpressionNode {
 	}
 
 	public String toString() {
-		return this.getLeft().toString() + operation.toString() + this.getRight().toString();
+		return this.getLeft().toString() + " <==" + operation.toString() + "= " + this.getRight().toString();
 	}
 	/**
 	 * @return
