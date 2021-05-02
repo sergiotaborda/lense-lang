@@ -145,11 +145,27 @@ public final class Float64 extends Base implements Float, AnyValue {
 
 
 	@Override
-	public Integer floor() {
-		// TODO handle infinites and nan
-		return Int64.valueOfNative((long)Math.floor(this.value));
+	public Float floor() {
+    	if (this.isNaN() || this.isInfinity() || this.isNegativeZero()) {
+    		return this;
+    	}
+        return Float64.valueOfNative(Math.floor(this.value));
+	}
+	
+	@Override
+	public Float ceil() {
+    	if (this.isNaN() || this.isInfinity() || this.isNegativeZero()) {
+    		return this;
+    	}
+        return Float64.valueOfNative(Math.ceil(this.value));
 	}
 
+
+	@Override
+	public Float round() {
+		return NativeNumerics.round(this);
+	}
+	
 	@Override
 	public boolean isWhole() {
 		return this.value % 1 == 0;
@@ -178,10 +194,6 @@ public final class Float64 extends Base implements Float, AnyValue {
 		return TYPE_RESOLVER.resolveType();
 	}
 
-	@Override
-	public Integer ceil() {
-		return BigDecimal.valueOfNative(java.lang.Double.toString(this.value)).ceil();
-	}
 
 	@Override
 	public boolean isNaN() {
@@ -205,7 +217,7 @@ public final class Float64 extends Base implements Float, AnyValue {
 
 
 	public boolean isNegativeZero() {
-		return (java.lang.Double.doubleToLongBits(this.value) & 0x8000000000000000L) < 0;
+        return java.lang.Double.isInfinite(1 / this.value) && Math.copySign (1.0, this.value) < 0d;
 	}
 
 	@Override
@@ -238,5 +250,15 @@ public final class Float64 extends Base implements Float, AnyValue {
 	@Override
 	public Float raiseTo(Whole other) {
 		return BigFloat.valueOf(this).raiseTo(other);
+	}
+	
+	@Override
+	public Float remainder(Float other) {
+		return NativeNumerics.remainder(this, other);
+	}
+
+	@Override
+	public Float modulo(Float other) {
+		return NativeNumerics.modulo(this, other);
 	}
 }

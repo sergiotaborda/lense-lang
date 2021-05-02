@@ -101,14 +101,6 @@ public value class BigFloat implements Float {
 
 	} 
 
-	public override equalsTo(other: Any){
-		return (other is RealLineElement) && this.compareWith(other).isEqual();
-	} 
-
-	public override hashValue() : HashValue {
-		return numerator.hashValue().concat(denominator.hashValue());
-	}
-
 	public sign() : Integer {
 		// sign of NaN is +  since its considered > +oo
 		if (this.isNaN() || this.isPositiveInfinity()) {
@@ -120,6 +112,14 @@ public value class BigFloat implements Float {
 		}
 
 		return this.numerator.sign();
+	}
+
+	public override equalsTo(other: Any){
+		return (other is RealLineElement) && this.compareWith(other).isEqual();
+	} 
+
+	public override hashValue() : HashValue {
+		return numerator.hashValue().concat(denominator.hashValue());
 	}
 
 	public override compareWith (other : RealLineElement) : Comparison {
@@ -163,7 +163,7 @@ public value class BigFloat implements Float {
 					return smaller;
 				}
 			}
-	
+			
 			let diff = this - other;
 			
 		    if (diff > 0){
@@ -212,23 +212,62 @@ public value class BigFloat implements Float {
     	return this.numerator % this.denominator == 0;
     }
     
-	public floor() : Integer {
-		if (this < 0){
+	public floor() : Float {
+		if (this.isNaN() || this.isInfinity() || this.isNegativeZero()) {
+    		return this;
+    	} else if (this < 0){
 			return -(-this).ceil();
 		} else {
       		//extracted from http://www.cs.nott.ac.uk/~rcb/G51MPC/slides/NumberLogic.pdf
-			return this.numerator \ this.denominator ;
+			return (this.numerator \ this.denominator).asFloat() ;
 		}
 	}
 
-	public ceil() : Integer {
-
-		if (this < 0){
+	public ceil() : Float {
+		if (this.isNaN() || this.isInfinity() || this.isNegativeZero()) {
+    		return this;
+    	} else if (this < 0){
 			return -(-this).floor();
 		} else {
       		//extracted from http://www.cs.nott.ac.uk/~rcb/G51MPC/slides/NumberLogic.pdf
-			return (this.numerator + this.denominator - 1) \ this.denominator;
+			return ((this.numerator + this.denominator - 1) \ this.denominator).asFloat();
 		}
+	}
+
+	public round() : Float {
+		if ( this.isNaN() || this.isNegativeZero() || this.isInfinity()){
+			return this;
+		}
+
+		return this < 0 ? this.ceil() : this.floor();
+	}
+
+	public remainder( other: Float) : Float {
+		if (this.isInfinity() && other.isInfinity() || this.isNaN() || other.isNaN()) {
+			return new BigFloat(0,0); // NaN
+		} else if (other.isZero()) {
+			return new BigFloat(1,0).multiply(this.sign().asFloat());
+		} else if (other.isNegativeZero()) {
+			return new BigFloat(-1,0).multiply(this.sign().asFloat());
+		} else if (other.isOne()) {
+			return this;
+		} 
+		
+		return this.minus(other.multiply(this.divide(other).round()));
+	}
+
+	public modulo(other: Float) : Float{
+		if (this.isInfinity() && other.isInfinity() || this.isNaN() || other.isNaN()) {
+			return new BigFloat(0,0); // NaN
+		} else if (other.isZero()) {
+			return new BigFloat(1,0).multiply(this.sign().asFloat());
+		} else if (other.isNegativeZero()) {
+			return new BigFloat(-1,0).multiply(this.sign().asFloat());
+		} else if (other.isOne()) {
+			return this;
+		} 
+		
+		return this.minus(other.multiply(this.divide(other).floor()));
 	}
 
 	private simplify(): BigFloat {
@@ -243,6 +282,7 @@ public value class BigFloat implements Float {
 		if (numerator == 0){
 			denominator = denominator.sign();
 		}
+
 		
 		if (denominator != 1 ){
 			let gcd = numerator.gcd(denominator);
@@ -251,6 +291,11 @@ public value class BigFloat implements Float {
             denominator = denominator \ gcd;
 		}
 		
+		if (denominator < 0){
+			denominator = -denominator;
+			numerator = -numerator;
+		}
+
 		return new BigFloat(numerator , denominator);
 	
 	}
@@ -293,6 +338,21 @@ public value class BigFloat implements Float {
 	}
 
 	public multiply (other: Float) : Float {
+
+		if (other.isOne()){
+			return this;
+		} else if (this.isNaN() 
+				|| other.isNaN() 
+				|| (this.isInfinity() && other.isInfinity())
+				|| (this.isZero() && other.isZero())
+		){
+			return new BigFloat(0,0); // NaN
+		} else if (this.isOne()){
+			return other;
+		} else if (this.isZero() || other.isZero()){
+			return new BigFloat(0,1); // zero
+		}
+
 		 let r : BigFloat = other;
 
 		 return simplify(
@@ -303,6 +363,20 @@ public value class BigFloat implements Float {
 	}
 
 	public divide (other: Float) : Float {
+
+		if (other.isOne()){
+			return this;
+		} else if (this.isNaN() 
+				|| other.isNaN() 
+				|| (this.isInfinity() && other.isInfinity())
+				|| (this.isZero() && other.isZero())
+		){
+			return new BigFloat(0,0); // NaN
+		} else if (this.isOne()){
+			return other.invert();
+		} else if (this.isZero()){
+			return new BigFloat(0,1);
+		}
 
  		let r : BigFloat = other;
 

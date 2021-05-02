@@ -45,4 +45,40 @@ public class NativeNumerics {
 		return a;
 	}
 
+	public static Float round(Float afloat) {
+		if (afloat.isNaN() || afloat.isInfinity() || afloat.isNegativeZero()) {
+			return afloat;
+		}  
+		
+		return afloat.isNegative() ? afloat.ceil() : afloat.floor();
+	}
+
+	public static Float remainder(Float a, Float b) {
+		if (a.isInfinity() && b.isInfinity() || a.isNaN() || b.isNaN()) {
+			return Float64.valueOfNative(Double.NaN);
+		} else if (b.isZero()) {
+			return Float64.valueOfNative(Double.POSITIVE_INFINITY).multiply(a.sign().asFloat());
+		} else if (b.isNegativeZero()) {
+			return Float64.valueOfNative(Double.NEGATIVE_INFINITY).multiply(a.sign().asFloat());
+		} else if (b.isOne()) {
+			return a;
+		} 
+		
+		return a.minus(b.multiply(a.divide(b).round()));
+	}
+	
+	public static Float modulo(Float a, Float b) {
+		if (a.isInfinity() && b.isInfinity() || a.isNaN() || b.isNaN()) {
+			return Float64.valueOfNative(Double.NaN);
+		} else if (b.isZero()) {
+			return Float64.valueOfNative(Double.POSITIVE_INFINITY).multiply(a.sign().asFloat());
+		} else if (b.isNegativeZero()) {
+			return Float64.valueOfNative(Double.NEGATIVE_INFINITY).multiply(a.sign().asFloat());
+		} else if (b.isOne()) {
+			return a;
+		} 
+		
+		return a.minus(b.multiply(a.divide(b).floor()));
+	}
+
 }
