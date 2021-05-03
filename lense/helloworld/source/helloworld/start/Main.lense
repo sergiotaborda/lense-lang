@@ -42,13 +42,20 @@ public class Main extends ConsoleApplication {
 
 	public constructor();
 	
-	public parameter : Integer = 99 {get;};
+	public parameter : Integer  {get;} = 99;
 
+	private demoProtectedAccess(){
+		
+ 		let dto = new Dto();
+
+		assert(34 == dto.protectedAccess);
+		// assert(34 == dto.noAccess); // uncomment will raise compilation error on private field
+	}
 
 	private demoFloat(){
 		
- 		assert(-0.0 == (0.0).symmetric(), "Symmetric of rational 0.0 is not rational -0.0"); // TODO parser does not understand 0.0.something
- 		assert(0.0 == (0.0).symmetric(), "Symmetric of rational 0.0 is not rational 0.0"); // TODO parser does not understand 0.0.something
+ 		assert(-0.0 == (0.0).symmetric(), "Symmetric of rational 0.0 is not rational -0.0"); // TODO parser does not understand the secound dot in  0.0.symmetric
+ 		assert(0.0 == (0.0).symmetric(), "Symmetric of rational 0.0 is not rational 0.0"); // TODO parser does not understand the secound dot in  0.0.symmetric
 		assert(new Float32(0.0).symmetric().isNegativeZero(), "Symmetric of float 0.0 is not -0.0");
 		assert(-new Float32(0.0) == new Float32(0.0).symmetric(), "Symmetric of float 0.0 is not float -0.0");
 		assert(0.0 == new Float32(0.0), "Float 0.0 is not equal to rational 0.0");

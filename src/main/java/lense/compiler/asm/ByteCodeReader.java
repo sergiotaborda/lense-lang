@@ -133,7 +133,6 @@ public class ByteCodeReader extends ClassVisitor {
 				MethodBuilder builder = new MethodBuilder(loadedClassBuilder,info);
 				
 				builder.isStatic = (access & ACC_STATIC) != 0;
-				
 				return new MethodAnnotVisitor(builder);
 //			}
 		} catch (IllegalArgumentException e) {

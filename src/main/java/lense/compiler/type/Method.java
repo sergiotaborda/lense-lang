@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import lense.compiler.type.variable.TypeVariable;
-import lense.compiler.typesystem.LenseTypeSystem;
 import lense.compiler.typesystem.Visibility;
 
 /**

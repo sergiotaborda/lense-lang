@@ -189,7 +189,7 @@ public class MethodBuilder {
 		m.setAbstract(info.isAbstract());
 		m.setDefault(info.isDefault());
 		m.setOverride(isOverride);
-
+		
 		if (overloaded) {
 			 m.setDeclaringType(typeForName(null, this.declaringType));
 		} else {
@@ -276,6 +276,7 @@ public class MethodBuilder {
 			Property member = (Property) loadedClassBuilder.properties.get(propertyName);
 			if (member == null) {
 				member = new Property(method.getDeclaringType(), propertyName, method.getReturningType(), false, false);
+				
 				loadedClassBuilder.properties.put(propertyName, member);
 
 				def.addProperty(member);
@@ -286,7 +287,13 @@ public class MethodBuilder {
 			if (!member.canWrite() && isSetter) {
 				member.setWritable(true);
 			}
-
+			
+			member.setAbstract(method.isAbstract());
+			member.setDefault(method.isDefault());
+			member.setNative(method.isNative());
+			member.setOverride(method.isOverride());
+			member.setVisibility(method.getVisibility());
+		
 		}
 
 	}

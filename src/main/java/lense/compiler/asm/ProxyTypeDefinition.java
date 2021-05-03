@@ -153,13 +153,13 @@ public class ProxyTypeDefinition extends LenseTypeDefinition {
 	}
 
 
-	public void addField(String name, TypeVariable typeDefinition, Imutability imutabilityValue) {
-		original().addField(name, typeDefinition, imutabilityValue);
+	public void addField(String name, TypeVariable typeDefinition, Imutability imutabilityValue, Visibility visibility) {
+		original().addField(name, typeDefinition, imutabilityValue,visibility);
 	}
 
 
-	public Property addProperty(String name, TypeVariable type, boolean canRead, boolean canWrite) {
-		return original().addProperty(name, type, canRead, canWrite);
+	public Property addProperty(String name, TypeVariable type, Visibility visibility, boolean canRead, boolean canWrite) {
+		return original().addProperty(name, type, visibility, canRead, canWrite);
 	}
 
 
@@ -168,8 +168,8 @@ public class ProxyTypeDefinition extends LenseTypeDefinition {
 	}
 
 
-	public IndexerProperty addIndexer(TypeVariable type, boolean canRead, boolean canWrite, TypeVariable[] params) {
-		return original().addIndexer(type, canRead, canWrite, params);
+	public IndexerProperty addIndexer(TypeVariable type, Visibility visibility,boolean canRead, boolean canWrite, TypeVariable[] params) {
+		return original().addIndexer(type, visibility,canRead, canWrite, params);
 	}
 
 
@@ -178,8 +178,8 @@ public class ProxyTypeDefinition extends LenseTypeDefinition {
 	}
 
 
-	public void addIndexer(TypeDefinition type, boolean canRead, boolean canWrite, TypeVariable[] params) {
-		original().addIndexer(type, canRead, canWrite, params);
+	public void addIndexer(TypeDefinition type, Visibility visibility, boolean canRead, boolean canWrite, TypeVariable[] params) {
+		original().addIndexer(type, visibility, canRead, canWrite, params);
 	}
 
 

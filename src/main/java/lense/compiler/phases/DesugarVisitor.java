@@ -151,15 +151,20 @@ public class DesugarVisitor extends AbstractLenseVisitor {
 
             AstNode parent = node.getParent();
 
-            if (!prp.isAbstract() && !prp.isNative() && prp.getModifier() != null && prp.getInitializer() == null
+            if (!prp.isAbstract() 
+            		&& !prp.isNative() 
+            		&& prp.getModifier() != null 
+            		&& prp.getInitializer() == null
                     && !prp.isInicializedOnConstructor()) {
-                if (!prp.getType().getTypeVariable().getTypeDefinition().getName()
-                        .equals(LenseTypeSystem.Maybe().getName())) {
-                    throw new CompilationError(prp, "Property " + prp.getName()
-                            + " is not initialized. Initialize it or consider making it optional");
+            	
+            	// is maybe 
+                if (prp.getType().getTypeVariable().getTypeDefinition().getName().equals(LenseTypeSystem.Maybe().getName())) {
+                    prp.setInitializer(new ObjectReadNode(LenseTypeSystem.None(), "NONE"));
+                } else if (prp.getModifier().isImplicit()){
+                   throw new CompilationError(prp, "Property " + prp.getName() + " is not initialized. Initialize it or consider making it optional");
                 }
 
-                prp.setInitializer(new ObjectReadNode(LenseTypeSystem.None(), "NONE"));
+
 
             }
 

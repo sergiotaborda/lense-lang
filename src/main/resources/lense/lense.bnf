@@ -58,7 +58,7 @@ typeDeclarations = typeDeclaration | typeDeclarations ,  typeDeclaration;
 			propertyDeclaration =  typedPropertyDeclaration | nonTypedPropertyDeclaration ;
 				typedPropertyDeclaration =  annotations?,  visibilityModifier?, implementationModifiers? , imutabilityModifier?, identifier, ':', type, propertyDeclarationInit ;
 				nonTypedPropertyDeclaration =  annotations?, visibilityModifier?, implementationModifiers? , imutabilityModifier?, identifier, propertyDeclarationInit ;
-					propertyDeclarationInit = ';' | propertyDeclarationHead | '=>', expression , ';' | '=', literal, ';' | '=', literal , propertyDeclarationHead , ';' ;
+					propertyDeclarationInit = ';' | propertyDeclarationHead | '=>', expression , ';' | '=', literal, ';' |  propertyDeclarationHead, '=', literal , ';' ;
 					propertyDeclarationHead = '{' , propertyMembers, '}';
 					propertyMembers = propertyMember | propertyMembers , propertyMember;
 						propertyMember = annotations?, visibilityModifier?, 'get', ';' | annotations?, visibilityModifier?, 'get', '{' , blockStatements , '}' | annotations?, visibilityModifier?, 'set', ';' | annotations?, visibilityModifier?, 'set', '(', identifier, ')', '{' , blockStatements , '}';

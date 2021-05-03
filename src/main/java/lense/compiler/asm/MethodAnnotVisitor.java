@@ -4,7 +4,6 @@ import static org.objectweb.asm.Opcodes.ASM5;
 
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Opcodes;
 
 import lense.core.lang.java.PlatformSpecific;
 

@@ -4,6 +4,10 @@ import helloworld.start.Matrix;
 
 public mutable class Dto {
 
+	private noAccess : Integer = 34;
+
+	protected protectedAccess : Integer = 34;
+
 	public constant : Integer = 34;
   	public mutable name : String?;
   	public mutable age : Integer => constant;
@@ -20,7 +24,7 @@ public mutable class Dto {
   	}
   	public mutable matrix : Matrix<String>?;
 
-	public mutable number : Natural  = 3 {
+	public mutable number : Natural {
 		get {
 			// direct access to backing field
   			return number;
@@ -29,15 +33,15 @@ public mutable class Dto {
   			// direct access to backing field
   			this.number = value;
   		}
-	};
+	} = 3;
 	
 	private mutable innerComplement : Natural = 5; 
-	public mutable complement : Natural = 5{
+	public mutable complement : Natural {
 		get {
   			return innerComplement;
 		}
 	  	set (value) {
   			this.innerComplement = value;
   		}
-	};
+	}
 }

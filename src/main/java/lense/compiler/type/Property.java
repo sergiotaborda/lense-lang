@@ -19,7 +19,7 @@ public class Property  implements TypeMember {
 	private TypeDefinition declaringType;
 	private boolean canRead;
 	private boolean canWrite;
-    private Visibility visibility;
+    private Visibility visibility = Visibility.Undefined;
     private boolean isAbstract;
 	private boolean isDefault;
 	private boolean isOverride;

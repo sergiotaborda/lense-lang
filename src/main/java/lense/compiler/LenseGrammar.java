@@ -3194,7 +3194,7 @@ public class LenseGrammar extends AbstractLenseGrammar {
 				}
 
 			} else {
-				if (r.get(0).getLexicalValue().equals("=")) {
+				if ("=".equals(r.get(0).getLexicalValue())) {
 					PropertyDeclarationNode prp;
 					if (r.size() == 3) {
 						prp = new PropertyDeclarationNode();
@@ -3215,6 +3215,19 @@ public class LenseGrammar extends AbstractLenseGrammar {
 					}
 
 					p.setAstNode(prp);
+				} else if ("=".equals(r.get(1).getLexicalValue())) {
+					
+					PropertyDeclarationNode prp =  r.get(0).getAstNode(PropertyDeclarationNode.class).get();
+
+					Optional<ExpressionNode> exp = r.get(2).getAstNode(ExpressionNode.class);
+
+					if (exp.isPresent()) {
+
+						prp.setInitializer(exp.get());
+					}
+
+					p.setAstNode(prp);
+					
 				} else {
 					PropertyDeclarationNode prp = new PropertyDeclarationNode();
 

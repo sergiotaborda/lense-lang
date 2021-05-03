@@ -1851,7 +1851,7 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 					LenseTypeDefinition currentType = (LenseTypeDefinition) this.getSemanticContext().currentScope()
 							.getCurrentType();
 
-					currentType.addField(f.getName(), f.getTypeVariable(), f.getImutability());
+					currentType.addField(f.getName(), f.getTypeVariable(), f.getImutability(), f.getVisibility().getVisibility());
 
 					// TODO only is used in constructor
 					info.setInitialized(true);
@@ -1918,7 +1918,7 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 						throw new CompilationError(p, "Private properties cannot define acessors");
 					}
 					
-					currentType.addField(p.getName(), propertyType, p.getImutability());
+					currentType.addField(p.getName(), propertyType, p.getImutability(), Visibility.Private);
 					
 				} else {
 					LenseTypeDefinition currentType = (LenseTypeDefinition) this.getSemanticContext().currentScope()
@@ -1951,11 +1951,11 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 							params[i++] = var.getTypeNode().getTypeParameter();
 						}
 
-						property = currentType.addIndexer(propertyType, p.getAcessor() != null, p.getModifier() != null,
+						property = currentType.addIndexer(propertyType, p.getVisibility(), p.getAcessor() != null, p.getModifier() != null,
 								params);
 
 					} else {
-						property = currentType.addProperty(p.getName(), propertyType, p.getAcessor() != null,
+						property = currentType.addProperty(p.getName(), propertyType,p.getVisibility(), p.getAcessor() != null,
 								p.getModifier() != null);
 
 					}
@@ -2224,14 +2224,16 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 					throw new CompilationError(access.getClass() + " Not supported yet");
 				}
 
+	
+				Optional<Field> field;
 				if (fieldOwnerType.equals(currentType)) {
 
-					resolveFieldPropertyOrVariableName(node, m, currentType, fieldOwnerType, name);
+					field = resolveFieldPropertyOrVariableName(node, m, currentType, fieldOwnerType, name);
 
 				} else {
 
 					TypeDefinition def = this.getSemanticContext().ensureNotFundamental(fieldOwnerType.getTypeDefinition());
-					Optional<Field> field = def.getFieldByName(name);
+					field = def.getFieldByName(name);
 
 					if (!field.isPresent()) {
 
@@ -2293,6 +2295,27 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 						m.setKind(FieldOrPropertyAccessNode.FieldKind.FIELD);
 					}
 				}
+				
+
+				
+				if (field.isPresent()) {
+					switch (field.get().getVisibility()) {
+					case Private:
+						if (!currentType.equals(fieldOwnerType)) {
+							throw new CompilationError(node, "Invalid access to private field" );
+						}
+						break;
+					case Protected:
+						if (currentType.equals(fieldOwnerType) || currentType.equals(fieldOwnerType)) {
+							break;
+						}
+						throw new CompilationError(node, "Invalid access to protected field" );
+					default:
+						//no-op
+					}
+				}
+				
+			
 			} else if (node instanceof ArgumentListNode) {
 				ArgumentListNode m = (ArgumentListNode) node;
 
@@ -3727,7 +3750,7 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 
 	
 
-	private void resolveFieldPropertyOrVariableName(AstNode node, FieldOrPropertyAccessNode m, TypeVariable currentType,
+	private Optional<Field> resolveFieldPropertyOrVariableName(AstNode node, FieldOrPropertyAccessNode m, TypeVariable currentType,
 			TypeVariable fieldOwnerType, String name) {
 
 		TypeDefinition def = currentType.getTypeDefinition();
@@ -3773,9 +3796,12 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 				}
 			}
 		} else {
+
 			m.setTypeVariable(field.get().getReturningType());
 			m.setKind(FieldOrPropertyAccessNode.FieldKind.FIELD);
 		}
+		
+		return field;
 	}
 
 	/**

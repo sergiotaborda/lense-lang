@@ -222,7 +222,7 @@ public class StructureVisitor extends AbstractScopedVisitor {
 
 			resolveTypeDefinition(f.getTypeNode(),Variance.Invariant);
 
-			currentType.addField(f.getName(), f.getTypeNode().getTypeVariable(), f.getImutability());
+			currentType.addField(f.getName(), f.getTypeNode().getTypeVariable(), f.getImutability(), f.getVisibility().getVisibility());
 	
 		} else if (node instanceof MethodDeclarationNode) {
 			MethodDeclarationNode m = (MethodDeclarationNode)node;
@@ -328,9 +328,9 @@ public class StructureVisitor extends AbstractScopedVisitor {
 						params[i++] = var.getTypeNode().getTypeParameter();
 					}
 
-					property = currentType.addIndexer(pp, p.getAcessor() != null, p.getModifier() != null, params);
+					property = currentType.addIndexer(pp, p.getVisibility(), p.getAcessor() != null, p.getModifier() != null, params);
 				} else {
-					property = currentType.addProperty(p.getName(), pp, p.getAcessor() != null, p.getModifier() != null);
+					property = currentType.addProperty(p.getName(), pp, p.getVisibility(), p.getAcessor() != null, p.getModifier() != null);
 				}
 
 			} else {
@@ -354,9 +354,9 @@ public class StructureVisitor extends AbstractScopedVisitor {
 						params[i++] = var.getTypeNode().getTypeParameter();
 					}
 
-					property = currentType.addIndexer(pp, p.getAcessor() != null, p.getModifier() != null, params);
+					property = currentType.addIndexer(pp,p.getVisibility(), p.getAcessor() != null, p.getModifier() != null, params);
 				} else {
-					property = currentType.addProperty(p.getName(), pp, p.getAcessor() != null, p.getModifier() != null);
+					property = currentType.addProperty(p.getName(), pp, p.getVisibility(), p.getAcessor() != null, p.getModifier() != null);
 				}
 			}
 			

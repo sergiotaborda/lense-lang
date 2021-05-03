@@ -416,12 +416,13 @@ public class LenseTypeDefinition  implements TypeDefinition {
      * @param typeDefinition
      * @param imutabilityValue
      */
-    public void addField(String name, TypeVariable typeDefinition, Imutability imutabilityValue) {
+    public void addField(String name, TypeVariable typeDefinition, Imutability imutabilityValue, Visibility visibility) {
 
 
         final Field field = new Field(name, typeDefinition, imutabilityValue == Imutability.Imutable);
         field.setDeclaringType(this);
-
+        field.setVisibility(visibility);
+        
         // fields are unique by name
         this.members.remove(field);
         this.members.add(field);
@@ -429,13 +430,15 @@ public class LenseTypeDefinition  implements TypeDefinition {
     }
 
 
-    public Property addProperty(String name, lense.compiler.type.variable.TypeVariable type , boolean canRead, boolean canWrite) {
+    public Property addProperty(String name, lense.compiler.type.variable.TypeVariable type ,Visibility visibility, boolean canRead, boolean canWrite) {
 
         if ( name == null){
             throw new IllegalArgumentException("Name is mandatory");
         }
         final Property property = new Property(this, name, type, canRead, canWrite);
 
+        property.setVisibility(visibility);
+        
         if (type instanceof TypeMemberAwareTypeVariable){
             ((TypeMemberAwareTypeVariable)type).setDeclaringMember(property);
         }
@@ -452,10 +455,12 @@ public class LenseTypeDefinition  implements TypeDefinition {
 
 
 
-    public IndexerProperty addIndexer(lense.compiler.type.variable.TypeVariable type , boolean canRead, boolean canWrite , lense.compiler.type.variable.TypeVariable[] params) {
+    public IndexerProperty addIndexer(lense.compiler.type.variable.TypeVariable type , Visibility visibility, boolean canRead, boolean canWrite , lense.compiler.type.variable.TypeVariable[] params) {
 
         final IndexerProperty property = new IndexerProperty(this, type, canRead, canWrite, params);
 
+        property.setVisibility(visibility);
+        
         if (type instanceof TypeMemberAwareTypeVariable){
             ((TypeMemberAwareTypeVariable)type).setDeclaringMember(property);
         }
@@ -472,8 +477,8 @@ public class LenseTypeDefinition  implements TypeDefinition {
         this.members.add(property);
     }
 
-    public void addIndexer(TypeDefinition type , boolean canRead, boolean canWrite, lense.compiler.type.variable.TypeVariable[] params) {
-        addIndexer( type, canRead, canWrite,params);
+    public void addIndexer(TypeDefinition type , Visibility visibility, boolean canRead, boolean canWrite, lense.compiler.type.variable.TypeVariable[] params) {
+        addIndexer( type, visibility, canRead, canWrite,params);
     }
 
    
