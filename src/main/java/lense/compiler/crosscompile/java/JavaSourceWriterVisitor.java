@@ -115,7 +115,8 @@ import lense.compiler.utils.Strings;
 public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 
     private PrintWriter writer;
-
+    private int iteratorIndex;
+    
     /**
      * Constructor.
      * 
@@ -405,10 +406,10 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
                 TypeVariable typeVariable = box.getTypeVariable();
 
                 if (typeVariable != null) {
-                    writer.append("/*"  + operation + ( operation == ErasureOperation.CONVERTION ?  "" : (box.isBoxingDirectionOut() ? " OUT" : " IN")) + " to " + typeVariable.getTypeDefinition().getName() + "*/ ");
+                    writer.append("/*"  + operation + ( operation == ErasureOperation.CONVERSION ?  "" : (box.isBoxingDirectionOut() ? " OUT" : " IN")) + " to " + typeVariable.getTypeDefinition().getName() + "*/ ");
 
                 } else {
-                    writer.append("/*"  + operation + ( operation == ErasureOperation.CONVERTION ?  "" : (box.isBoxingDirectionOut() ? " OUT" : " IN")) + " to ? */ ");
+                    writer.append("/*"  + operation + ( operation == ErasureOperation.CONVERSION ?  "" : (box.isBoxingDirectionOut() ? " OUT" : " IN")) + " to ? */ ");
 
                 }
                 
@@ -442,7 +443,6 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
                     	} else if (n.isOne()) {
                     		writer.append("lense.core.math.Rational.one()");
                     	} else {
-                            // TODO test bounds (number could be to big , should use string
                             int pos = n.getLiteralValue().indexOf('.');
                             if (pos >= 0) {
                                 String intPart = n.getLiteralValue().substring(0, pos);
@@ -458,9 +458,11 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
                                 }
 
                                 writer.append("lense.core.math.Rational")
-                                .append(".fraction(lense.core.math.NativeNumberFactory.newInteger(").append(intPart)
-                                .append(decPart).append("),lense.core.math.NativeNumberFactory.newInteger(")
-                                .append(decimalPart).append("))");
+                                .append(".fraction(lense.core.math.NativeNumberFactory.newInteger(")
+                                .append(intPart).append(decPart)
+                                .append("),lense.core.math.NativeNumberFactory.newInteger(")
+                                .append(decimalPart)
+                                .append("))");
     	    				} else {
     							writer.append("lense.core.math.Rational.valueOf(lense.core.math.NativeNumberFactory.newInteger(").append(n.toString()).append("))");
     	    				}
@@ -934,17 +936,19 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 
                     writer.println("}");
                 } else {
+                	iteratorIndex++;
                     // use an iterator for each
-
-                    writer.append("\nlense.core.collections.Iterator $it = ((lense.core.collections.Iterable)");
+                	var itNumber = "$it" + iteratorIndex;
+                	
+                    writer.append("\nlense.core.collections.Iterator " + itNumber +" = ((lense.core.collections.Iterable)");
                     TreeTransverser.transverse(f.getContainer(), this);
                     writer.println(").getIterator();");
-                    writer.println("while ( $it.moveNext()) {");
+                    writer.println("while ( " + itNumber + ".moveNext()) {");
 
                     TreeTransverser.transverse(f.getVariableDeclarationNode(), this);
 
 
-                    writer.append("= (").append(typeName).println(") $it.current();");
+                    writer.append("= (").append(typeName).println(") " + itNumber + ".current();");
 
                     StringWriter w = new StringWriter();
                     PrintWriter sp = new PrintWriter(w);
@@ -1733,6 +1737,7 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
                 writer.println("\n");
                 return VisitorNext.Siblings;
             } else if (node instanceof MethodDeclarationNode) {
+            	this.iteratorIndex = 0;
 
                 MethodDeclarationNode m = (MethodDeclarationNode) node;
 
@@ -1861,7 +1866,7 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
                 // TODO write annotations
                 writeVisibility(Visibility.Private);
 
-                if (m.getImutability().getImutability() == Imutability.Imutable) {
+                if (m.getImutability() == Imutability.Imutable) {
                     writer.print("final ");
                 }
                 writeType(m.getTypeNode());

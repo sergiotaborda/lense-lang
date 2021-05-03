@@ -27,8 +27,9 @@ public  interface Float extends SignedNumber, RealLineElement {
 
  	public invert() : Float;
 
-	public ceil() : Integer;
-	public floor() : Integer;
+	public ceil(): Float;
+	public floor(): Float;
+	public round(): Float;
 
 	public plus (other: Float): Float;
 	public minus (other: Float): Float;
@@ -38,4 +39,7 @@ public  interface Float extends SignedNumber, RealLineElement {
 	public raiseTo(other : Float) : Float;
 	public log() : Float;
 	public exp() : Float;
+
+	public remainder( other: Float) : Float;
+	public modulo(other: Float) : Float;
 }

@@ -663,7 +663,7 @@ public abstract class LenseCompiler {
 		builder.append("    return new Version(\"").append(module.getVersion()).append("\");\n");
 		builder.append("}");
 		builder.append("public getPackages() : Sequence<Package> {\n");
-		builder.append("    var  all : LinkedList<Package>= new LinkedList<Package>();\n ");
+		builder.append("    let  all : LinkedList<Package>= new LinkedList<Package>();\n ");
 
 		for(i =0; i < packages.size(); i++){ 
 			builder.append("    all.add(new Pack").append(i+1).append("());\n");

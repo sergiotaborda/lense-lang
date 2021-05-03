@@ -2,7 +2,7 @@
 import lense.core.collections.Array;
 import lense.core.math.Natural;
 
-public class Matrix<T> {
+public mutable class Matrix<T> {
 
   	private  constructor (public rowsCount : Natural, public columnsCount: Natural,  private cells : Array<T>);
      

@@ -41,25 +41,23 @@ public class ExplicitBackingFieldReferenceVisitor extends AbstractLenseVisitor{
 	@Override
 	public void visitAfterChildren(AstNode node) {
 		
-		if (node instanceof MethodInvocationNode){
-			MethodInvocationNode prp = (MethodInvocationNode)node;
-			// the property only matches if the acessor is local
-			if (prp.isPropertyDerivedMethod() && prp.getPropertyDerivedName().equalsIgnoreCase(propertyName)){
+		if (node instanceof MethodInvocationNode prp) {
+			// the property only matches if the accessor is local
+			if (prp.isPropertyDerivedMethod() && propertyName.equalsIgnoreCase(prp.getPropertyDerivedName())){
 				if (isLocal(prp.getAccess())){
 				    if (prp.getPropertyOperation() == PropertyOperation.READ){
-	                    prp.getParent().replace(prp, backingField);
-	                } else {
-	                    AssignmentNode assign = new AssignmentNode(Operation.SimpleAssign);
-	                    
-	                    assign.setLeft(backingField);
-	                    assign.setRight((ExpressionNode) prp.getCall().getFirstChild().getFirstChild().getFirstChild());
-	                    prp.getParent().replace(prp, assign);
-	                }
+			            prp.getParent().replace(prp, backingField);
+			        } else {
+			            AssignmentNode assign = new AssignmentNode(Operation.SimpleAssign);
+			            
+			            assign.setLeft(backingField);
+			            assign.setRight((ExpressionNode) prp.getCall().getFirstChild().getFirstChild().getFirstChild());
+			            prp.getParent().replace(prp, assign);
+			        }
 				    replacedProperty = true;
 				}
 			}
 		}
-		
 	}
 
     private boolean isLocal(AstNode access) {

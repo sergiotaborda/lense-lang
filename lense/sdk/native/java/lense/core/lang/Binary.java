@@ -8,7 +8,7 @@ import lense.core.math.Natural;
 public interface Binary extends ExclusiveDijunctable , Dijunctable , Injunctable {
 
     @Property(name = "bitsCount")
-	public Natural bitsCount ();
+	public Natural getBitsCount ();
 	
 	// ~operator
 	public Binary complement();

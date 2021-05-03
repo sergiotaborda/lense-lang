@@ -126,7 +126,6 @@ public final class BigInt implements Integer , BigIntegerConvertable , AnyValue 
 
 	}
 
-	@Override
 	public Integer remainder(Integer other) {
 		if (other instanceof BigIntegerConvertable) {
 			return new BigInt(this.value.remainder(((BigIntegerConvertable) other).toJavaBigInteger()));
@@ -134,6 +133,17 @@ public final class BigInt implements Integer , BigIntegerConvertable , AnyValue 
 
 		return new BigInt(this.value.remainder(new BigInteger(other.toString())));
 
+	}
+	
+	@Override
+	public Whole modulo(Whole other) {
+		if (other.isZero()){
+			throw ArithmeticException.constructor(lense.core.lang.String.valueOfNative("Cannot divide by zero"));
+		}  else if (other.isOne()) {
+			return this;
+		} 
+		
+		return this.minus(other.asInteger().multiply(this.divide(other).floor().asInteger()));
 	}
 
 	@Override
@@ -438,5 +448,7 @@ public final class BigInt implements Integer , BigIntegerConvertable , AnyValue 
         
         return Float64.valueOfNative(blex > 0 ? res + blex * LOG_2 : res);
 	}
+
+
 
 }

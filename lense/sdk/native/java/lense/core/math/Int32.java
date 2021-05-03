@@ -1,6 +1,7 @@
 package lense.core.math;
 
 import java.math.BigInteger;
+import java.util.BitSet;
 
 import lense.core.collections.NativeOrdinalProgression;
 import lense.core.collections.Progression;
@@ -26,16 +27,38 @@ public final class Int32  implements Integer, Binary , BigIntegerConvertable, An
 	public static Int32 ONE = new Int32(1);
 	public static Int32 TWO = new Int32(2);
 	public static Int32 THREE = new Int32(3);
-	public static Int32 TEN = new Int32(4);
+	public static Int32 TEN = new Int32(10);
+	public static Int32 THIRTY_TWO = new Int32(32);
 
 	@Constructor(paramsSignature = "")
-	public static Int32 constructor (){
+	public static Int32 zero (){
 		return ZERO;
+	}
+	
+	@Constructor(paramsSignature = "")
+	public static Int32 one (){
+		return ONE;
 	}
 
 	@Constructor(isImplicit = true, paramsSignature = "lense.core.lang.Binary")
 	public static Int32 valueOf (Binary binary){
-		return new Int32(0);
+
+		if (binary instanceof Int32 integer) {
+			return integer;
+		} else if (binary instanceof Int64 other) {
+			return new Int32((int)other.value);
+		}  else if (binary instanceof Whole whole) {
+			return valueOf(whole);
+		}
+		
+		var bitSet = new BitSet(32);
+		for (int i = 0; i < 32; i++) {
+			if (binary.bitAt(Natural64.valueOfNative(i))) {
+				bitSet.set(i);
+			}
+		}
+		
+		return new Int32((int)bitSet.toLongArray()[0]); 
 	}
 
 	public @NonNull Integer raiseTo(int other) {
@@ -75,6 +98,8 @@ public final class Int32  implements Integer, Binary , BigIntegerConvertable, An
 			return TWO;
 		case 3:
 			return THREE;
+		case 10:
+			return TEN;
 		default:
 			return new Int32(n);
 		}
@@ -200,8 +225,8 @@ public final class Int32  implements Integer, Binary , BigIntegerConvertable, An
 	}
 
 	@Override
-	@Property(name="size")
-	public final Natural bitsCount() {
+	@Property(name="bitsCount")
+	public final Natural getBitsCount() {
 		return Natural64.valueOfNative(32);
 	}
 
@@ -212,12 +237,12 @@ public final class Int32  implements Integer, Binary , BigIntegerConvertable, An
 
 	@Override
 	public Int32 rightShiftBy(Natural n) {
-		return new Int32(value << n.modulus(32));
+		return new Int32(value >> NativeNumerics.modulus(n, 32));
 	}
 
 	@Override
 	public Int32 leftShiftBy(Natural n) {
-		return new Int32(value >> n.modulus(32));
+		return new Int32(value << NativeNumerics.modulus(n, 32));
 	}
 
 	@Override
@@ -235,7 +260,11 @@ public final class Int32  implements Integer, Binary , BigIntegerConvertable, An
 
 	@Override
 	public boolean bitAt(Natural index) {
-		return rightShiftBy(index).isOdd();
+		if (!index.compareWith(Int32.valueOfNative(32)).isSmaller()) {
+			return false;
+		}
+		
+		return (value >> NativeNumerics.modulus(index, 32) & 1) == 1;
 	}
 
 
@@ -250,8 +279,18 @@ public final class Int32  implements Integer, Binary , BigIntegerConvertable, An
 			return new Int32(this.value ^ ((Int32)other).value);  
 		} else if (other instanceof Int64){
 			return new Int32((int)(this.value ^ ((Int64)other).value));
+		} else if (other instanceof Binary binary) {
+			
+			
+			var thisBitSet = BitSet.valueOf(new long[] {this.value});
+			var otherBitSet = NativeNumerics.bitSetFromBinary(binary, 32);
+			
+			thisBitSet.xor(otherBitSet);
+			
+			return new Int32((int)thisBitSet.toLongArray()[0]);
+			
 		} else {
-			throw new IllegalArgumentException("Cannot inject with a diferent class");
+			throw new IllegalArgumentException("Cannot exclusivly disject with a non Binary class");
 		}
 	}
 
@@ -261,8 +300,18 @@ public final class Int32  implements Integer, Binary , BigIntegerConvertable, An
 			return new Int32(this.value | ((Int32)other).value);
 		} else if (other instanceof Int64){
 			return new Int32((int)(this.value | ((Int64)other).value));
+		} else if (other instanceof Binary binary) {
+			
+			
+			var thisBitSet = BitSet.valueOf(new long[] {this.value});
+			var otherBitSet = NativeNumerics.bitSetFromBinary(binary, 32);
+			
+			thisBitSet.or(otherBitSet);
+			
+			return new Int32((int)thisBitSet.toLongArray()[0]);
+			
 		} else {
-			throw new IllegalArgumentException("Cannot inject with a diferent class");
+			throw new IllegalArgumentException("Cannot disject with a non Binary class");
 		}
 	}
 
@@ -272,8 +321,18 @@ public final class Int32  implements Integer, Binary , BigIntegerConvertable, An
 			return new Int32(this.value & ((Int32)other).value);
 		} else if (other instanceof Int64){
 			return new Int32((int)(this.value & ((Int64)other).value));
+		} else if (other instanceof Binary binary) {
+			
+			
+			var thisBitSet = BitSet.valueOf(new long[] {this.value});
+			var otherBitSet = NativeNumerics.bitSetFromBinary(binary, 32);
+			
+			thisBitSet.and(otherBitSet);
+			
+			return new Int32((int)thisBitSet.toLongArray()[0]);
+			
 		} else {
-			throw new IllegalArgumentException("Cannot inject with a diferent class");
+			throw new IllegalArgumentException("Cannot inject with a non Binary class");
 		}
 	}
 
@@ -293,21 +352,9 @@ public final class Int32  implements Integer, Binary , BigIntegerConvertable, An
 		}
 	}
 
-	public Integer remainder (Integer other){
-		if (other.isZero()){
-			throw ArithmeticException.constructor(lense.core.lang.String.valueOfNative("Cannot divide by zero"));
-		}  
+	
 
-		if (other.isOne()) {
-			return this;
-		} else if (other instanceof Int32){
-			return new Int32(this.value % ((Int32)other).value);
-		} else {
-			return this.promoteNext().remainder(other); 
-		}
-	}
-
-
+	
 	@Override
 	public boolean isPositive() {
 		return this.value > 0;
@@ -501,6 +548,32 @@ public final class Int32  implements Integer, Binary , BigIntegerConvertable, An
 		return this.remainder(other.asInteger());
 	}
 
+	public Integer remainder (Integer other){
+		if (other.isZero()){
+			throw ArithmeticException.constructor(lense.core.lang.String.valueOfNative("Cannot divide by zero"));
+		}  
+
+		if (other.isOne()) {
+			return this;
+		} else if (other instanceof Int32 integer){
+			return new Int32(this.value % integer.value);
+		} else {
+			return this.promoteNext().remainder(other).asInteger(); 
+		}
+	}
+	
+	@Override
+	public Whole modulo(Whole other) {
+		if (other.isZero()){
+			throw ArithmeticException.constructor(lense.core.lang.String.valueOfNative("Cannot divide by zero"));
+		}  else if (other.isOne()) {
+			return this;
+		} 
+		
+		return this.minus(other.asInteger().multiply(this.divide(other).floor().asInteger()));
+	}
+	
+	
     @Override
     public boolean equals(Object other){
         return other instanceof Any && equalsTo((Any)other);
@@ -521,4 +594,8 @@ public final class Int32  implements Integer, Binary , BigIntegerConvertable, An
 	public Rational divide(Whole other) {
 		return Rational.fraction(this, other);
 	}
+
+
+
+
 }

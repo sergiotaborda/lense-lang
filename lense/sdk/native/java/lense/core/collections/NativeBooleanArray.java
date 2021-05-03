@@ -146,8 +146,7 @@ final class NativeBooleanArray extends Array implements SmallArray {
 
 	@Override
 	public int size() {
-		// TODO Auto-generated method stub
-		return 0;
+		return this.size();
 	}
 
 

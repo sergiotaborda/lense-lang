@@ -19,8 +19,25 @@ public interface Whole extends RealLineElement {
 	public divide( n : Whole) : Rational;
 
 	public wholeDivide (other : Whole) : Whole; 
+	/{	
+		Returns the Remainder, r, of the whole devision such that
+		
+		D = d * q + r and q = D \ d 
+		
+		so r = D - (d * (D \ d)) 
+		
+		
+	}/
 	public remainder (other : Whole) : Whole; 	
-	
+
+	/{	
+		Returns the Modulo, mod, of the arithemtic modulus operation
+		
+		so D mod d = D - (d * floor(D / d)) 
+		
+	}/
+	public modulo (other : Whole) : Whole; 
+
 	public isNegative() : Boolean;
 	public isPositive() : Boolean;
 

@@ -7,7 +7,8 @@ import lense.core.lang.Injunctable;
 
 public interface Binary extends ExclusiveDijunctable<Binary> , Dijunctable<Binary> , Injunctable<Binary>{
 
-	public  bitsCount : Natural {get;} 
+	// number of existing bits 
+	public bitsCount : Natural {get;} 
 	
 	// ~operator
 	public complement() : Binary; // TODO change to return Self

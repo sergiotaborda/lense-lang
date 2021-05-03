@@ -14,6 +14,11 @@ import lense.compiler.utils.Strings;
  */
 public class MethodSignature implements CallableMemberSignature<Method>{
 
+	
+	public static MethodSignature forName(String name) {
+		return new MethodSignature(name);
+	}
+	
 	private final String name;
 	private boolean isStatic = false;
 	private final List<CallableMemberMember<Method>> parameters;

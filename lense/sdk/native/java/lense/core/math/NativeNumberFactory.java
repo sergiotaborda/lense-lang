@@ -2,9 +2,7 @@ package lense.core.math;
 
 import java.math.BigInteger;
 
-import lense.core.lang.Any;
 import lense.core.lang.java.PlatformSpecific;
-import lense.core.lang.java.Primitives;
 import lense.core.lang.reflection.Type;
 import lense.core.lang.reflection.TypeResolver;
 
@@ -85,7 +83,7 @@ public final class NativeNumberFactory {
     }
 
     public static Integer newInteger(String nativeValue) {
-        return new BigInt(new BigInteger(nativeValue));
+        return new BigInt(new BigInteger(nativeValue)).reduce();
     }
 
     public static Int32 newInt32(String nativeValue) {
@@ -167,11 +165,12 @@ public final class NativeNumberFactory {
     		return a.compareWith(b);
     	}
     	
+    	
         return compareFloat(a.asFloat(), b.asFloat());
     }
 
     public static Comparison compareFloat(Float a , Float b) {
-    	
+
     	if (a.getClass().isInstance(b)) {
     		// if they are the same class. All classes compare to them selfs
     		return a.compareWith(b);

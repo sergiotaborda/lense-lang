@@ -15,7 +15,7 @@ public class ImplementationModifierNode extends LenseAstNode {
 	private boolean isDefault;
 	private boolean isOverride;
 	private boolean isValueClass;
-	private boolean isImmutable;
+	private boolean isMutable;
 	
 	/**
 	 * Constructor.
@@ -35,7 +35,7 @@ public class ImplementationModifierNode extends LenseAstNode {
 		n.isDefault = this.isDefault || other.isDefault;
 		n.isOverride = this.isOverride || other.isOverride;
 		n.isValueClass = this.isValueClass || other.isValueClass;
-		n.isImmutable = this.isImmutable || other.isImmutable;
+		n.isMutable = this.isMutable || other.isMutable;
 		
 		return n;
 	}
@@ -99,12 +99,16 @@ public class ImplementationModifierNode extends LenseAstNode {
 	}
 
 	public boolean isImmutable() {
-		return isImmutable;
+		return !isMutable;
 	}
 	
+	
+	public boolean isMutable() {
+		return isMutable;
+	}
 
-	public void setImmutable(boolean isImmutable) {
-		this.isImmutable = isImmutable;
+	public void setMutable(boolean isMutable) {
+		this.isMutable = isMutable;
 	}
 
 }

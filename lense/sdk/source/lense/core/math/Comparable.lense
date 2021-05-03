@@ -4,4 +4,22 @@ import lense.core.math.Comparison;
 public interface Comparable <in T> {
 
 	public compareWith (other : T) : Comparison;
+
+/{ TODO implements default methods
+
+	public default min(other : T): T {
+		if (this <= other){
+			return this;
+		} 
+		return other;
+	}
+
+	public default max(other : T): T {
+		if (this >= other){
+			return this;
+		} 
+		return other;
+	}
+}/
+
 }

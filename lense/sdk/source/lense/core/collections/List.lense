@@ -11,11 +11,11 @@ import lense.core.collections.Array;
 import lense.core.collections.Progression;
 import lense.core.lang.HashValue;
 
-public  class List<T> implements ResizableSequence<T> {
+public mutable class List<T> implements ResizableSequence<T> {
 
-	private var length : Natural = 0;
+	private mutable length : Natural = 0;
 
-	private constructor (private var array : Array<T?>);
+	private constructor (private mutable array : Array<T?>);
 
 /{ 
 	needs a way to create a T from nothing 1) can use an Array<Maybe<T>> backed with a plataform implementation
@@ -130,7 +130,7 @@ public  class List<T> implements ResizableSequence<T> {
 	}
 
 	public override asString(){
-		var s : String = "[";
+		mutable let s : String = "[";
 		 
 		for (i in 0 ..< length ){
 			if (i > 0){

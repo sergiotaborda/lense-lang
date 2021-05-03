@@ -6,7 +6,7 @@ import lense.core.collections.Sequence;
 import lense.core.collections.EditableSequence;
 import lense.core.collections.Progression;
 
-public native class Array<T> implements EditableSequence<T> {
+public native mutable class Array<T> implements EditableSequence<T> {
 
 	public native implicit constructor (other: Sequence<T> );
 	

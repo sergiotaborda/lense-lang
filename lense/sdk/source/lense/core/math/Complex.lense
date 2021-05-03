@@ -9,8 +9,8 @@ public interface Complex extends Number {
 
 	public native constructor rectangular(r : Real, img : Real);
 
-	public let real : Real;
-	public let imaginary : Real;
+	public real : Real;
+	public imaginary : Real;
 
 	public plus( other : Complex) : Complex;
 

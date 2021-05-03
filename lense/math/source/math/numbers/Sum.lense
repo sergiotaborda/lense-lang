@@ -8,7 +8,7 @@ public enhancement Sum extends Sequence<Natural> {
 
 	public sum() : Natural{
 		
-		var sum = 0;
+		mutable let sum = 0;
 
 		for ( let n in this){
 			sum += n;

@@ -15,13 +15,31 @@ import lense.core.lang.reflection.Type;
 @ValueClass
 public final class BigNatural implements Natural , BigDecimalConvertable , BigIntegerConvertable , AnyValue{
 
+	private static BigNatural ZERO = new BigNatural(0);
+	private static BigNatural ONE = new BigNatural(1);
+	private static BigNatural TEN = new BigNatural(10);
+	
 	@Constructor(isImplicit = false, paramsSignature = "lense.core.lang.String")
     public static BigNatural parse(lense.core.lang.String other) {
 	    return new BigNatural(new BigInteger(other.toString()));
 	}
 	
-	
-	private BigInteger value;
+	@Constructor(isImplicit = false, paramsSignature = "")
+	public static BigNatural zero() {
+		return ZERO;
+	}
+
+	@Constructor(isImplicit = false, paramsSignature = "")
+	public static BigNatural one() {
+		return ONE;
+	}
+
+	@Constructor(isImplicit = false, paramsSignature = "")
+	public static BigNatural ten() {
+		return TEN;
+	}
+
+	BigInteger value;
 
 	public BigNatural(long value) {
 		this.value = BigInteger.valueOf(value);
@@ -89,11 +107,6 @@ public final class BigNatural implements Natural , BigDecimalConvertable , BigIn
 		return this.value.intValue();
 	}
 
-	@Override
-	public int modulus(int n) {
-		return this.value.remainder(BigInteger.valueOf(n)).intValueExact();
-	}
-
 	public Natural raiseTo( Natural other){
 		if (this.isZero()){
 			if (other.isZero()){
@@ -134,6 +147,10 @@ public final class BigNatural implements Natural , BigDecimalConvertable , BigIn
 	}
 
 	public Natural remainder(Natural other) {
+		if (other.isZero()){
+			throw ArithmeticException.constructor(lense.core.lang.String.valueOfNative("Cannot divide by zero"));
+		}  
+		
 		if (other instanceof BigIntegerConvertable) {
 			return new BigNatural(this.value.remainder(((BigIntegerConvertable) other).toJavaBigInteger())).reduce();
 		}
@@ -357,9 +374,15 @@ public final class BigNatural implements Natural , BigDecimalConvertable , BigIn
 
 	@Override
 	public Whole remainder(Whole other) {
+		if (other.isZero()){
+			throw ArithmeticException.constructor(lense.core.lang.String.valueOfNative("Cannot divide by zero"));
+		}  
+		
 		if (other instanceof Natural) {
 			return remainder((Natural)other);
 		}
 		return this.asInteger().remainder(other);
 	}
+
+
 }

@@ -32,13 +32,9 @@ public interface Integer extends Whole , Comparable, SignedNumber, Ordinal, Prog
 	
 	public Integer multiply (Natural other);
 	
-
-
 	public Integer wholeDivide(Integer other);
 	
 	public Integer wholeDivide(Natural other);
-
-	public Integer remainder (Integer other); 
 	
 	public Integer successor();
 	public Integer predecessor();

@@ -141,13 +141,13 @@ public class BigFloat implements Float {
 	}
 
 	@Override
-	public Integer floor() {
+	public Float floor() {
 		
 		throw new NotReplacedPlaceholderException();
 	}
 
 	@Override
-	public Integer ceil() {
+	public Float ceil() {
 		
 		throw new NotReplacedPlaceholderException();
 	}
@@ -206,6 +206,21 @@ public class BigFloat implements Float {
 
 	@Override
 	public Float asFloat() {
+		throw new NotReplacedPlaceholderException();
+	}
+
+	@Override
+	public Float round() {
+		throw new NotReplacedPlaceholderException();
+	}
+
+	@Override
+	public Float remainder(Float other) {
+		throw new NotReplacedPlaceholderException();
+	}
+
+	@Override
+	public Float modulo(Float other) {
 		throw new NotReplacedPlaceholderException();
 	}
 }

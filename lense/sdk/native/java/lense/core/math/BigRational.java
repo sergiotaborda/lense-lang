@@ -210,4 +210,19 @@ public class BigRational implements Rational {
 		throw new NotReplacedPlaceholderException();
 	}
 
+	@Override
+	public Real remainder(Real other) {
+		throw new NotReplacedPlaceholderException();
+	}
+
+	@Override
+	public Real modulo(Real other) {
+		throw new NotReplacedPlaceholderException();
+	}
+
+	@Override
+	public Integer round() {
+		throw new NotReplacedPlaceholderException();
+	}
+
 }

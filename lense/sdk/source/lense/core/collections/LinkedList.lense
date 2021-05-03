@@ -5,7 +5,7 @@ import lense.core.collections.List;
 import lense.core.collections.Sequence;
 import lense.core.collections.ResizableSequence;
 
-public native class LinkedList<T> implements ResizableSequence<T> {
+public native mutable class LinkedList<T> implements ResizableSequence<T> {
 
 	public native implicit constructor (other: Sequence<T> );
 	

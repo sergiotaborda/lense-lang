@@ -171,7 +171,7 @@ public class OutToJavaClass implements CompilerBackEnd, Opcodes {
 				for (AstNode child : t.getBody().getChildren()){
 					if (child instanceof FieldDeclarationNode){
 						FieldDeclarationNode n = (FieldDeclarationNode)child;
-						int flags = n.getImutabilityValue() == Imutability.Imutable ? ACC_FINAL : 0;
+						int flags = n.getImutability() == Imutability.Imutable ? ACC_FINAL : 0;
 						flags &= ACC_PRIVATE;
 						fv = cw.visitField(flags, n.getName(), toJavaTypeName(n.getTypeVariable().getTypeDefinition().getName()), toJavaTypeName(n.getTypeVariable().getTypeDefinition().getName())/*Signature*/, null);
 						fv.visitEnd();

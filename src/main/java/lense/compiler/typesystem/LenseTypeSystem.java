@@ -259,7 +259,7 @@ public class LenseTypeSystem {
 		LenseTypeDefinition iterator = register(new FundamentalLenseTypeDefinition("lense.core.collections.Iterator",
 				LenseUnitKind.Interface, any, new RangeTypeVariable("T", Variance.Covariant, any, nothing)));
 
-		iterable.addProperty("iterator", iterator, true, false);
+		iterable.addProperty("iterator", iterator, Visibility.Public, true, false);
 
 		iterator.addMethod("moveNext", sbool).setAbstract(true);
 		iterator.addMethod("current", any ).setAbstract(true);
@@ -277,7 +277,7 @@ public class LenseTypeSystem {
 		LenseTypeDefinition none = register(new FundamentalLenseTypeDefinition("lense.core.lang.None",
 				LenseUnitKind.Class, specify(maybe, nothing), new TypeVariable[0]));
 
-		none.addField("None", none, Imutability.Imutable); // TODO
+		none.addField("None", none, Imutability.Imutable, Visibility.Public); // TODO
 		// this
 		// a
 		// Fake
@@ -337,7 +337,7 @@ public class LenseTypeSystem {
 
 		tuple.addMethod("get", any, new MethodParameter(natural, "index"));
 
-		sequence.addIndexer(new DeclaringTypeBoundedTypeVariable(sequence, 0, "T", Variance.Covariant), true, true,
+		sequence.addIndexer(new DeclaringTypeBoundedTypeVariable(sequence, 0, "T", Variance.Covariant), Visibility.Public, true, true,
 				new TypeVariable[] { natural });
 
 		// array.addMethod("set", svoid , new MethodParameter(natural, "index"),
@@ -345,7 +345,7 @@ public class LenseTypeSystem {
 		// DeclaringTypeBoundedTypeVariable(array,0,"T",Variance.Invariant),
 		// "value"));
 
-		array.addIndexer(new DeclaringTypeBoundedTypeVariable(array, 0, "T", Variance.Invariant), true, true,
+		array.addIndexer(new DeclaringTypeBoundedTypeVariable(array, 0, "T", Variance.Invariant), Visibility.Public, true, true,
 				new TypeVariable[] { natural });
 
 		LenseTypeDefinition integer = register(
@@ -376,7 +376,7 @@ public class LenseTypeSystem {
 
 		natural.addMethod("symmetric", integer);
 
-		sequence.addProperty("size", natural, true, false);
+		sequence.addProperty("size", natural, Visibility.Public, true, false);
 
 		LenseTypeDefinition string = register(new FundamentalLenseTypeDefinition("lense.core.lang.String",
 				LenseUnitKind.Class, any, new TypeVariable[0]));

@@ -1,6 +1,5 @@
 package lense.core.math;
 
-import lense.core.collections.Progression;
 import lense.core.lang.Ordinal;
 import lense.core.lang.java.Constructor;
 import lense.core.lang.java.NonNull;
@@ -20,9 +19,20 @@ public interface Natural extends Whole , Ordinal , Progressable, Comparable {
 
     public Natural wholeDivide (Natural other);
     
-    public Integer wholeDivide(Integer other) ;
+    public Integer wholeDivide(Integer other);
+    
+	public Natural remainder (Natural other); 	
+	
+	public default Natural modulo (Natural other) {
+		// since this is always positive, remainder and module are the same
+		return remainder(other);
+	}
 
-    public int modulus(int n);
+	@Override
+	public default Whole modulo(Whole n) {
+		// since this is always positive, remainder and module are the same
+		return remainder(n);
+	}
 
     public Natural plus ( Natural other);
 
@@ -122,8 +132,6 @@ public interface Natural extends Whole , Ordinal , Progressable, Comparable {
 //    }
 
     public  @NonNull Natural abs();
-    
-    public Natural remainder(Natural n);
     
 
 }
