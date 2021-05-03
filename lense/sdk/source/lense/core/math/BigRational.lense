@@ -192,7 +192,7 @@ public value class BigRational implements Rational {
 			throw new ArithmeticException("Cannot divide by zero"); 
 		}
 		
-		var n = other.denominator * this.numerator;
+		mutable let n = other.denominator * this.numerator;
 		if (other.numerator < 0){ // set the sign in the final numerator 
 			n = -n;
 		}
@@ -285,7 +285,7 @@ public value class BigRational implements Rational {
         } else if (exponent.isWhole()){
             let p : Integer = exponent.floor();
             let n : Natural = p.abs();
-            var result : Rational = new BigRational(this.numerator ^^ n, this.denominator ^^ n);
+            mutable let result : Rational = new BigRational(this.numerator ^^ n, this.denominator ^^ n);
             if (p < 0) {
                 result = result.invert();
             } 
@@ -312,7 +312,7 @@ public value class BigRational implements Rational {
 	}
 	
 	public abs() : Real {
-	  var n = this.numerator;
+	  mutable let n = this.numerator;
 	  if (n < 0 ){
 	  	n = -n;
 	  }

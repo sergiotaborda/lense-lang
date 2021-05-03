@@ -55,7 +55,7 @@ public value class BigFloat implements Float {
 		   return new BigFloat(-1,0);
 		}
 
-		var isNegative = false;
+		mutable let isNegative = false;
 		if ( other.starstWith("-")){
 			other = other.subString(1);
 			isNegative = true;
@@ -63,7 +63,7 @@ public value class BigFloat implements Float {
 
 		let pos : Maybe<Natural> = other.indexOf(".");
 
-		var value : BigFloat;
+		mutable let value : BigFloat;
 		if (pos.isAbsent()){
 			value = new BigFloat(new Whole.parse(other),1);
 		} else {
@@ -435,9 +435,9 @@ public value class BigFloat implements Float {
 
 	    //taylor : exp(x) = 1 + x + x*x/2 + x*x*X/6 + x*x*x*x/24 +...
 
-        var sum : BigFloat = 1 ;
-   		var xpowi : BigFloat = 1 ;
-		var factorial = 1;
+        mutable let sum : BigFloat = 1 ;
+   		mutable let xpowi : BigFloat = 1 ;
+		mutable let factorial = 1;
                            
          for(let i in 1 .. 36){
 			factorial *= i;
@@ -460,9 +460,9 @@ public value class BigFloat implements Float {
 	public raiseTo(other : Whole) : Float {
 
 
-		var n = other.abs();
+		let n = other.abs();
 
-		var power =  simplify(this.numerator ^^ n, this.denominator ^^ n);
+		mutable let power =  simplify(this.numerator ^^ n, this.denominator ^^ n);
 	
 		if (other < 0 ){
 			power =  power.invert();

@@ -2,13 +2,13 @@
 
 import helloworld.start.Matrix;
 
-public class Dto {
+public mutable class Dto {
 
-	public let constant : Integer = 34;
-  	public var name : String?;
-  	public var age : Integer => constant;
-	public var birthDay : Integer? ;  
-  	public var address : String? {
+	public constant : Integer = 34;
+  	public mutable name : String?;
+  	public mutable age : Integer => constant;
+	public mutable birthDay : Integer? ;  
+  	public mutable address : String? {
   		get {
   			// direct access to backing field
   			return address;
@@ -18,9 +18,9 @@ public class Dto {
   			this.address = value;
   		}
   	}
-  	public var matrix : Matrix<String>?;
+  	public mutable matrix : Matrix<String>?;
 
-	public var number : Natural  = 3 {
+	public mutable number : Natural  = 3 {
 		get {
 			// direct access to backing field
   			return number;
@@ -31,4 +31,13 @@ public class Dto {
   		}
 	};
 	
+	private mutable innerComplement : Natural = 5; 
+	public mutable complement : Natural = 5{
+		get {
+  			return innerComplement;
+		}
+	  	set (value) {
+  			this.innerComplement = value;
+  		}
+	};
 }

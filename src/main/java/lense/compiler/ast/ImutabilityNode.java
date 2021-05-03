@@ -11,7 +11,7 @@ import lense.compiler.typesystem.Imutability;
  */
 public class ImutabilityNode extends LenseAstNode {
 
-	private Imutability imutability = Imutability.Mutable;
+	private Imutability imutability = Imutability.Imutable;
 	
 	public ImutabilityNode (){}
 

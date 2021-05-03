@@ -1180,7 +1180,7 @@ public class Ecma6JavascriptWriterVisitor implements Visitor<AstNode> {
 				// TODO write annotations
 				writeVisibility(Visibility.Private);
 
-				if (m.getImutability().getImutability() == Imutability.Imutable){
+				if (m.getImutability() == Imutability.Imutable){
 					writer.print("final ");
 				}
 				writeType(m.getTypeNode());

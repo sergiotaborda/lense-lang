@@ -14,7 +14,7 @@ import lense.core.math.Comparable;
 import lense.core.math.BigRational;
 
 /{
-	A fraction n/d 
+ 	A fraction n/d 
 }/
 public interface Rational extends Real {
 
@@ -28,8 +28,8 @@ public interface Rational extends Real {
 
 	public native implicit  constructor valueOf(other : Integer);
 
-	public let numerator : Integer;
-	public let denominator : Natural;
+	public numerator : Integer;
+	public denominator : Natural;
 
 	public invert() : Rational;
 

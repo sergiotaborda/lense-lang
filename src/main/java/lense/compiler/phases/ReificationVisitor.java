@@ -184,7 +184,7 @@ public final class ReificationVisitor extends AbstractScopedVisitor {
 					FieldDeclarationNode field = new FieldDeclarationNode(TYPE_REIFICATION_INFO, new TypeNode("lense.core.lang.reflection.ReifiedArguments"));
 					field.setInitializedOnConstructor(true);
 					field.setVisibility(new VisibilityNode(Visibility.Private));
-					field.setImutability(new ImutabilityNode(Imutability.Imutable));
+					field.setImutability(Imutability.Imutable);
 
 					if(!n.getBody().getChildren().contains(field)) {
 						n.getBody().add(field);

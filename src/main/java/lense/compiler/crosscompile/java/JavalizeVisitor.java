@@ -116,7 +116,7 @@ public final class JavalizeVisitor implements Visitor<AstNode>{
         			MethodParameter superParameter = (MethodParameter) params.get(i);
         			FormalParameterNode n = (FormalParameterNode) m.getParameters().getChildren().get(i);
         			
-        			// TODO should not be necessary to compere types ate this point
+        			// TODO should not be necessary to compare types at this point
         			if (!typeAssistant.isAssignableTo(superParameter.getType(), n.getTypeVariable()).matches() ) {
         				
         				

@@ -68,14 +68,8 @@ public class BuildFromTable {
 		for(ItemState state : table.getStates()){
 			if (state.hasShiftReduceConflit()){
 				shiftReduce++;
-//				System.out.println("Shift/Reduce Conflit");
-//				System.out.println(state.toString());
-//				System.out.println();
 			} else if (state.hasReduceReduceConflit()){
 				reduceReduce++;
-//				System.out.println("Reduce/Reduce Conflit");
-//				System.out.println(state.toString());
-//				System.out.println();
 			}
 		}
 		

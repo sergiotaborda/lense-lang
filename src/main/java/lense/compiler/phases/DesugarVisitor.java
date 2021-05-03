@@ -15,6 +15,7 @@ import lense.compiler.ast.ComparisonNode;
 import lense.compiler.ast.ExpressionNode;
 import lense.compiler.ast.FieldDeclarationNode;
 import lense.compiler.ast.FieldOrPropertyAccessNode;
+import lense.compiler.ast.FieldOrPropertyAccessNode.FieldAccessKind;
 import lense.compiler.ast.FieldOrPropertyAccessNode.FieldKind;
 import lense.compiler.ast.FormalParameterNode;
 import lense.compiler.ast.ImutabilityNode;
@@ -34,11 +35,13 @@ import lense.compiler.ast.QualifiedNameNode;
 import lense.compiler.ast.ReturnNode;
 import lense.compiler.ast.TypeNode;
 import lense.compiler.ast.VariableReadNode;
+import lense.compiler.ast.VisibilityNode;
 import lense.compiler.context.SemanticContext;
 import lense.compiler.context.VariableInfo;
 import lense.compiler.type.variable.TypeVariable;
 import lense.compiler.typesystem.Imutability;
 import lense.compiler.typesystem.LenseTypeSystem;
+import lense.compiler.typesystem.Visibility;
 
 /**
  * Desugar properties to method calls. Desugar comparison operations to a call
@@ -169,111 +172,119 @@ public class DesugarVisitor extends AbstractLenseVisitor {
             FieldOrPropertyAccessNode backingField = new FieldOrPropertyAccessNode(privateFieldName);
             backingField.setType(typeVariable);
             backingField.setPrimary(new QualifiedNameNode("this"));
+        
             
             boolean shoudlGenerateBackingField = false;
+            
+            if (prp.getVisibility() == Visibility.Private) {
+            	shoudlGenerateBackingField = true;
+            	backingField.setKind(FieldKind.FIELD);
+            } else {
+            	if ( prp.getAcessor() != null) {
 
-            if (prp.getAcessor() != null) {
+                    AccessorNode a = prp.getAcessor();
 
-                AccessorNode a = prp.getAcessor();
+                    MethodDeclarationNode getter = new MethodDeclarationNode();
+                    getter.setSetter(false);
+                    getter.setPropertyName(prp.getName());
+                    getter.setProperty(true);
 
-                MethodDeclarationNode getter = new MethodDeclarationNode();
-                getter.setSetter(false);
-                getter.setPropertyName(prp.getName());
-                getter.setProperty(true);
-
-                getter.setName("get" + propertyName);
-                if (prp.isNative()) {
-                    getter.setNative(prp.isNative());
-                } else if (prp.isAbstract()) {
-                    // TODO ensure is abstract if type is not class
-                    getter.setAbstract(prp.isAbstract());
-                } else {
-                    BlockNode block = a.getBlock();
-
-                    if (a.isImplicit()) { // create access to backing-field
-                        shoudlGenerateBackingField = true;
-
-                        // TODO validate in semantics that is accessor is
-                        // implicit modifier also is implicit
-                        block = new BlockNode();
-                        ReturnNode rnode = new ReturnNode();
-                        block.add(rnode);
-
-                        rnode.add(backingField);
-
+                    getter.setName("get" + propertyName);
+                    if (prp.isNative()) {
+                        getter.setNative(prp.isNative());
+                    } else if (prp.isAbstract()) {
+                        // TODO ensure is abstract if type is not class
+                        getter.setAbstract(prp.isAbstract());
                     } else {
-                        shoudlGenerateBackingField = translateBackingFieldReference(block, prp.getName(), backingField);
+                        BlockNode block = a.getBlock();
+
+                        if (a.isImplicit()) { // create access to backing-field
+                            shoudlGenerateBackingField = true;
+
+                            // TODO validate in semantics that is accessor is
+                            // implicit modifier also is implicit
+                            block = new BlockNode();
+                            ReturnNode rnode = new ReturnNode();
+                            block.add(rnode);
+
+                            rnode.add(backingField);
+
+                        } else {
+                            shoudlGenerateBackingField = translateBackingFieldReference(block, prp.getName(), backingField);
+                        }
+                        getter.setBlock(block);
                     }
-                    getter.setBlock(block);
-                }
-                getter.setReturnType(prp.getType());
-                getter.setVisibility(a.getVisibility());
+                    getter.setReturnType(prp.getType());
+                    getter.setVisibility(a.getVisibility());
 
-                parent.add(getter);
-            }
-
-            if (prp.getModifier() != null) {
-                ModifierNode a = prp.getModifier();
-
-                MethodDeclarationNode setter = new MethodDeclarationNode();
-                setter.setName("set" + propertyName);
-                setter.setSetter(false);
-                setter.setPropertyName(prp.getName());
-                setter.setProperty(true);
-
-                String parameterName = a.getValueVariableName();
-
-                if (parameterName.equals(prp.getName())) {
-                    throw new CompilationError(a,
-                            "Modifier parameter cannot have the same name as the property (" + prp.getName() + ")");
+                    parent.add(getter);
                 }
 
-                if (prp.isNative()) {
-                    setter.setNative(prp.isNative());
-                } else if (prp.isAbstract()) {
-                    setter.setAbstract(prp.isAbstract());
-                } else {
-                    BlockNode block = a.getBlock();
+                if (prp.getModifier() != null) {
+                    ModifierNode a = prp.getModifier();
 
-                    if (a.isImplicit()) {
-                        shoudlGenerateBackingField = true;
+                    MethodDeclarationNode setter = new MethodDeclarationNode();
+                    setter.setName("set" + propertyName);
+                    setter.setSetter(false);
+                    setter.setPropertyName(prp.getName());
+                    setter.setProperty(true);
 
-                        block = new BlockNode();
-                        AssignmentNode assign = new AssignmentNode(Operation.SimpleAssign);
+                    String parameterName = a.getValueVariableName();
 
-                        assign.setLeft(backingField);
-                        assign.setRight(new VariableReadNode(parameterName,
-                                new VariableInfo(parameterName, typeVariable, setter, false, false)));
+                    if (parameterName.equals(prp.getName())) {
+                        throw new CompilationError(a,
+                                "Modifier parameter cannot have the same name as the property (" + prp.getName() + ")");
+                    }
 
-                        block.add(assign);
+                    if (prp.isNative()) {
+                        setter.setNative(prp.isNative());
+                    } else if (prp.isAbstract()) {
+                        setter.setAbstract(prp.isAbstract());
                     } else {
-                        translateBackingFieldReference(block, prp.getName(), backingField);
+                        BlockNode block = a.getBlock();
+
+                        if (a.isImplicit()) {
+                            shoudlGenerateBackingField = true;
+
+                            block = new BlockNode();
+                            AssignmentNode assign = new AssignmentNode(Operation.SimpleAssign);
+
+                            assign.setLeft(backingField);
+                            assign.setRight(new VariableReadNode(parameterName,
+                                    new VariableInfo(parameterName, typeVariable, setter, false, false)));
+
+                            block.add(assign);
+                        } else {
+                            translateBackingFieldReference(block, prp.getName(), backingField);
+                        }
+                        setter.setBlock(block);
                     }
-                    setter.setBlock(block);
+
+                    FormalParameterNode valueParameter = new FormalParameterNode();
+                    valueParameter.setTypeNode(prp.getType());
+                    valueParameter.setName(parameterName);
+
+                    ParametersListNode parameters = new ParametersListNode();
+                    parameters.add(valueParameter);
+
+                    setter.setParameters(parameters);
+                    setter.setVisibility(a.getVisibility());
+                    setter.setReturnType(new TypeNode(LenseTypeSystem.Void()));
+
+                    parent.add(setter);
                 }
 
-                FormalParameterNode valueParameter = new FormalParameterNode();
-                valueParameter.setTypeNode(prp.getType());
-                valueParameter.setName(parameterName);
-
-                ParametersListNode parameters = new ParametersListNode();
-                parameters.add(valueParameter);
-
-                setter.setParameters(parameters);
-                setter.setVisibility(a.getVisibility());
-                setter.setReturnType(new TypeNode(LenseTypeSystem.Void()));
-
-                parent.add(setter);
             }
-
+            
             if (shoudlGenerateBackingField && !prp.isAbstract()) {
                 FieldDeclarationNode privateField = new FieldDeclarationNode(privateFieldName, prp.getType(),
                         NewInstanceCreationNode.of(prp.getType()));
                 privateField.setTypeNode(prp.getType());
-                privateField.setImutability( new ImutabilityNode(prp.getImutability()));
+                privateField.setImutability(prp.getImutability());
+                privateField.setVisibility(new VisibilityNode(Visibility.Private));
                 
                 if (prp.isInicializedOnConstructor()) {
-                    privateField.setImutability(new ImutabilityNode(Imutability.Imutable));
+                    privateField.setImutability(Imutability.Imutable);
                     privateField.setInitializedOnConstructor(true);
                 } else {
                     if (prp.getInitializer() != null) {
@@ -524,8 +535,7 @@ public class DesugarVisitor extends AbstractLenseVisitor {
     private boolean translateBackingFieldReference(BlockNode block, String propertyName,
             FieldOrPropertyAccessNode backingField) {
 
-        final ExplicitBackingFieldReferenceVisitor visitor = new ExplicitBackingFieldReferenceVisitor(propertyName,
-                backingField);
+        final ExplicitBackingFieldReferenceVisitor visitor = new ExplicitBackingFieldReferenceVisitor(propertyName, backingField);
         TreeTransverser.transverse(block, visitor);
 
         return visitor.didReplacedProperty();

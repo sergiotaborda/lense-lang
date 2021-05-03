@@ -1636,24 +1636,31 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 					}
 
 					if (fp.getKind() == FieldKind.FIELD) {
-						VariableInfo info = this.getSemanticContext().currentScope()
-								.searchVariable(((FieldOrPropertyAccessNode) leftNode).getName());
+						
+						var field = Optional.ofNullable(this.currentType).flatMap(it -> it.getFieldByName(fp.getName()));
+						
+						if (field.isEmpty()) {
+							
+							VariableInfo info = this.getSemanticContext().currentScope()
+									.searchVariable(((FieldOrPropertyAccessNode) leftNode).getName());
 
-						if (info == null) {
-							throw new CompilationError(node, "Variable or field "
-									+ ((FieldOrPropertyAccessNode) leftNode).getName() + " is not defined");
-						}
-						if (info.isImutable() && info.isInitialized()) {
-
-							AstNode parent = ((LenseAstNode) leftNode).getParent().getParent().getParent();
-							if (!(parent instanceof ConstructorDeclarationNode)) {
-								throw new CompilationError(node,
-										"Cannot modify the value of an immutable variable or field (" + info.getName()
-												+ ")");
+							if (info == null) {
+								throw new CompilationError(node, "Variable or field "
+										+ ((FieldOrPropertyAccessNode) leftNode).getName() + " is not defined");
 							}
+							if (info.isImutable() && info.isInitialized()) {
 
+								AstNode parent = ((LenseAstNode) leftNode).getParent().getParent().getParent();
+								if (!(parent instanceof ConstructorDeclarationNode)) {
+									throw new CompilationError(node,
+											"Cannot modify the value of an immutable variable or field (" + info.getName()
+													+ ")");
+								}
+
+							}
+							info.setInitialized(true);
 						}
-						info.setInitialized(true);
+						
 					} else {
 						// property
 						Optional<Property> property;
@@ -1762,7 +1769,7 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 					}
 				}
 
-				info.setImutable(variableDeclaration.getImutabilityValue() == Imutability.Imutable);
+				info.setImutable(variableDeclaration.getImutability() == Imutability.Imutable);
 
 				variableDeclaration.setInfo(info);
 
@@ -1844,7 +1851,7 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 					LenseTypeDefinition currentType = (LenseTypeDefinition) this.getSemanticContext().currentScope()
 							.getCurrentType();
 
-					currentType.addField(f.getName(), f.getTypeVariable(), f.getImutabilityValue());
+					currentType.addField(f.getName(), f.getTypeVariable(), f.getImutability());
 
 					// TODO only is used in constructor
 					info.setInitialized(true);
@@ -1896,57 +1903,72 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 					}
 				}
 
-				LenseTypeDefinition currentType = (LenseTypeDefinition) this.getSemanticContext().currentScope()
-						.getCurrentType();
-
 				String typeName = p.getType().getName();
 				VariableInfo genericParameter = this.getSemanticContext().currentScope().searchVariable(typeName);
-
 				TypeVariable propertyType = p.getType().getTypeVariable();
-
-				if (genericParameter != null && genericParameter.isTypeVariable()) {
-					List<TypeVariable> parameters = currentType.getGenericParameters();
-					Optional<Integer> opIndex = currentType.getGenericParameterIndexBySymbol(typeName);
-
-					if (!opIndex.isPresent()) {
-						throw new CompilationError(node,
-								typeName + " is not a valid generic parameter for type " + currentType.getName());
+				
+				if (p.getVisibility() == Visibility.Private) {
+					// change to field 
+					
+					if (p.getModifier() != null && !p.getModifier().isImplicit()) {
+						throw new CompilationError(p, "Private properties cannot define modifiers");
 					}
 
-					int index = opIndex.get();
-
-					propertyType = new DeclaringTypeBoundedTypeVariable(currentType, index, typeName,
-							parameters.get(index).getVariance());
-
-				}
-
-				TypeMember property;
-				if (p.isIndexed()) {
-
-					lense.compiler.type.variable.TypeVariable[] params = new lense.compiler.type.variable.TypeVariable[((IndexerPropertyDeclarationNode) p)
-							.getIndexes().getChildren().size()];
-					int i = 0;
-					for (FormalParameterNode var : ((IndexerPropertyDeclarationNode) p).getIndexes()
-							.getChildren(FormalParameterNode.class)) {
-						params[i++] = var.getTypeNode().getTypeParameter();
+					if (p.getAcessor() != null  && !p.getAcessor().isImplicit()) {
+						throw new CompilationError(p, "Private properties cannot define acessors");
 					}
-
-					property = currentType.addIndexer(propertyType, p.getAcessor() != null, p.getModifier() != null,
-							params);
-
+					
+					currentType.addField(p.getName(), propertyType, p.getImutability());
+					
 				} else {
-					property = currentType.addProperty(p.getName(), propertyType, p.getAcessor() != null,
-							p.getModifier() != null);
+					LenseTypeDefinition currentType = (LenseTypeDefinition) this.getSemanticContext().currentScope()
+							.getCurrentType();
 
+					if (genericParameter != null && genericParameter.isTypeVariable()) {
+						List<TypeVariable> parameters = currentType.getGenericParameters();
+						Optional<Integer> opIndex = currentType.getGenericParameterIndexBySymbol(typeName);
+
+						if (!opIndex.isPresent()) {
+							throw new CompilationError(node,
+									typeName + " is not a valid generic parameter for type " + currentType.getName());
+						}
+
+						int index = opIndex.get();
+
+						propertyType = new DeclaringTypeBoundedTypeVariable(currentType, index, typeName,
+								parameters.get(index).getVariance());
+
+					}
+
+					TypeMember property;
+					if (p.isIndexed()) {
+
+						lense.compiler.type.variable.TypeVariable[] params = new lense.compiler.type.variable.TypeVariable[((IndexerPropertyDeclarationNode) p)
+								.getIndexes().getChildren().size()];
+						int i = 0;
+						for (FormalParameterNode var : ((IndexerPropertyDeclarationNode) p).getIndexes()
+								.getChildren(FormalParameterNode.class)) {
+							params[i++] = var.getTypeNode().getTypeParameter();
+						}
+
+						property = currentType.addIndexer(propertyType, p.getAcessor() != null, p.getModifier() != null,
+								params);
+
+					} else {
+						property = currentType.addProperty(p.getName(), propertyType, p.getAcessor() != null,
+								p.getModifier() != null);
+
+					}
+
+					// verify duplication
+
+					if (!this.declaredMembers.add(property)) {
+						throw new CompilationError(node, "The property '" + property.getName()
+								+ "' was already declared in type " + this.currentType.getName());
+					}
 				}
-
-				// verify duplication
-
-				if (!this.declaredMembers.add(property)) {
-					throw new CompilationError(node, "The property '" + property.getName()
-							+ "' was already declared in type " + this.currentType.getName());
-				}
-				;
+				
+			
 
 			} else if (node instanceof IndexedPropertyReadNode) {
 				IndexedPropertyReadNode m = (IndexedPropertyReadNode) node;
@@ -3741,7 +3763,7 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 					// all
 					// the
 					// way
-					m.setKind(FieldOrPropertyAccessNode.FieldKind.PROPERTY);
+					m.setKind(property.get().getVisibility() == Visibility.Private ?  FieldOrPropertyAccessNode.FieldKind.FIELD  : FieldOrPropertyAccessNode.FieldKind.PROPERTY);
 				}
 			} else {
 				m.setTypeVariable(variable.getTypeVariable());

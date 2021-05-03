@@ -8,9 +8,9 @@ import lense.core.lang.String;
 import lense.core.math.Integer;
 import lense.core.lang.HashValue;
 
-public class BitArray implements Binary {
+public mutable class BitArray implements Binary {
 
-	private let bits: Array<Boolean>; // TODO compiler must used this variable for primary constructor and not init it
+	private bits: Array<Boolean>; // TODO compiler must used this variable for primary constructor and not init it
 
 	public constructor ( private bits: Array<Boolean>); // TODO after removing explicit property , the compiler assumes Array<Array>
 
@@ -38,7 +38,7 @@ public class BitArray implements Binary {
 
 	// number of bits set to 1
 	public cardinality() : Natural {
-		var value = 0;
+		mutable let value = 0;
 /{
 		for (let bit in bits){
 			if (bit){

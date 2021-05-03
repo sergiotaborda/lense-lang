@@ -1,7 +1,7 @@
 
 
 
-public immutable class ImmutableDto {
+public class ImmutableDto {
 
   	public constructor(public name: String, public age : Natural);
 

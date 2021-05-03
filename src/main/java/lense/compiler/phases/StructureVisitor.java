@@ -222,7 +222,7 @@ public class StructureVisitor extends AbstractScopedVisitor {
 
 			resolveTypeDefinition(f.getTypeNode(),Variance.Invariant);
 
-			currentType.addField(f.getName(), f.getTypeNode().getTypeVariable(), f.getImutabilityValue());
+			currentType.addField(f.getName(), f.getTypeNode().getTypeVariable(), f.getImutability());
 	
 		} else if (node instanceof MethodDeclarationNode) {
 			MethodDeclarationNode m = (MethodDeclarationNode)node;

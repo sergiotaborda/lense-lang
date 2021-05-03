@@ -42,7 +42,7 @@ public class Main extends ConsoleApplication {
 
 	public constructor();
 	
-	public let parameter : Integer = 99 {get;};
+	public parameter : Integer = 99 {get;};
 
 
 	private demoFloat(){
@@ -368,54 +368,54 @@ public class Main extends ConsoleApplication {
 
 		demoSwitchAlgebric();
   	 
-  		var interval : Interval<Natural> = |[ 2, 19 )|;
-		var interval2 : Interval<Integer> = |[ -2, 19 )|; // TODO better promotions
+  		let interval : Interval<Natural> = |[ 2, 19 )|;
+		let interval2 : Interval<Integer> = |[ -2, 19 )|; // TODO better promotions
 
 		console.println(interval2);
 
-		var a  = interval2.start;
-		var b  = interval2.end;
+		let a  = interval2.start;
+		let b  = interval2.end;
 		 
-  	 	var im  = 2i; 
+  	 	let im  = 2i; 
   	 	
-  	 	var cx = 3 + 4i;
+  	 	let cx = 3 + 4i;
 
-  	    var r = cx.abs();
+  	    let r = cx.abs();
   	 
   	 	console.println("Complex is : {{ cx }} with magnitude :{{ r }} "); 
   	 
-  	 	var bx  = 4 +2i;
+  	 	let bx  = 4 +2i;
 
   	   console.println("Other Complex is : {{ bx }} ");
   	 
   	   console.println("Product is : {{ bx * cx }}");
   	 
-  	 	var rational : Any = 0.3;
+  	 	let rational : Any = 0.3;
   	 	
   	 	console.println("");
   	 	
   	 	if (rational is Rational){
   	 		console.println("Decimal literals are rational");
-  	 		var dec : Float64 = toRational(rational);  
+  	 		let dec : Float64 = toRational(rational);  
   	 		console.println("dec is {{ dec }}");
   	 	} else {
   	 		console.println("Decimal literals are NOT rational");
   	 	}
   	 	 
-  	    var decimal : Float64 = 0.5;  
+  	    let decimal : Float64 = 0.5;  
   	 	   
   	 	assert ( 3/4 == 3/4);
   	 	
   	 	assert(  8 / 3 is Rational , "8/3 is not Rational");
   	 	assert(  8 \ 3 is Whole , "8 \ 3 is not Whole");
   	 	
-  	 	var ratio = 8 / 3;
-  	 	var wholeDivision = 8 \ 3;
-  	 	var remainder = 8 % 3;
+  	 	let ratio = 8 / 3;
+  	 	let wholeDivision = 8 \ 3;
+  	 	let remainder = 8 % 3;
 
 		assert (8 == 3 * wholeDivision + remainder , " Q = d * q + r is wrong");
   	 	
-		var inverted = 1 / ratio;
+		let inverted = 1 / ratio;
 	
 		assert( 1 ==  ratio.sign() , " Sign of {{ ratio }} is not 1");
 
@@ -423,11 +423,11 @@ public class Main extends ConsoleApplication {
 
 		assert( inverted == 3/8 , " Inversion is wrong");
 
-		var fakeInverted = ratio / 1;
+		let fakeInverted = ratio / 1;
 
 		assert( fakeInverted == ratio , "Fake invert is wrong");
 
-  	 	var doubleInverted = 2 / ratio;
+  	 	let doubleInverted = 2 / ratio;
 
 		assert( doubleInverted == 3/4 , "Double Inverter is wrong");
 
@@ -436,16 +436,16 @@ public class Main extends ConsoleApplication {
   	 	
    // TODO verifiy if a variable was already defined
  
-  	   var pow : Natural = 4 ^^ 3;
-  	   var powNeg : Rational = 4 ^^ -3;
+  	    let pow : Natural = 4 ^^ 3;
+  	    let powNeg : Rational = 4 ^^ -3;
   	   
 		assert ( 64 == pow , "  4 ^^ 3 is not 64 ");
 
 		assert ( 1/ 64 == powNeg , "  4 ^^ -3 is not 1/64 ");
   	  
-  	    var distance = dist(3, 4); 
+  	    let distance = dist(3, 4); 
 
-		var ref = 5.0;
+		let ref = 5.0;
 
 		if (ref is Rational){
 			console.println("Ref is Rational ");
@@ -469,20 +469,20 @@ public class Main extends ConsoleApplication {
   	    console.println(" reduced 50/ 60 = {{ 50 / 60 }} = 5/6");
   	    console.println(" reduced 20/ 5 = {{ 20 / 5 }} = 4");
   	    
-  	 	var dc = 0.5 + 4i;
+  	 	let dc = 0.5 + 4i;
   	 	
 		assert ( new Complex.rectangular(0.5, 4)  == dc , " Complex is not 0.5+4i");
 
-  	 	var n = #EFA2;
+  	 	let n = #EFA2;
   	 	
-  	 	var p : Integer = parameter; 
+  	 	let p : Integer = parameter; 
   	 	
 		assert ( 99 == parameter, " Parameter is not 99");
 		assert ( 99 == p);
   
-  	 	var binary = $1011_1011_0010; 
+  	 	let binary = $1011_1011_0010; 
   	 	
-  	 	var byte : Byte = $1011_0110; 
+  	 	mutable let byte : Byte = $1011_0110; 
   	   
   	    console.println("byte is {{ byte }}");
   	   
@@ -490,9 +490,9 @@ public class Main extends ConsoleApplication {
   	   
   	    console.println("byte is {{ byte }}");
   	    
-  	  	var number : Int32 = binary;
+  	  	let number : Int32 = binary;
   	  	 
-  		var  array = [1 , 2, -3, 4, 5];
+  		let  array = [1 , 2, -3, 4, 5];
   	
   		//console.println("sequence is {{ array }}");
   		 
@@ -500,7 +500,7 @@ public class Main extends ConsoleApplication {
   		
   		//console.println("literal sequence is {{ [1 , 2, 3, 4, 5]  }}"); 
   	 	 
-  		var barray : Array<Boolean>= [false, true, true, false];
+  		let barray : Array<Boolean>= [false, true, true, false];
   		
   		console.println(barray);
   		
@@ -510,8 +510,8 @@ public class Main extends ConsoleApplication {
   		assert(!barray[3], "barray[3] is not false");
   		
  
-  		var convertedBitArray : BitArray = barray;
-  		var bitArray :  BitArray = new BitArray(4);
+  		let convertedBitArray : BitArray = barray;
+  		let bitArray :  BitArray = new BitArray(4);
 		
 		bitArray[0] = false;
 		bitArray[1] = true;
@@ -521,26 +521,26 @@ public class Main extends ConsoleApplication {
 		assert ( bitArray == convertedBitArray , " BitArray created from array of booleans is not equal to fixed bit array");
 
   	
-  	  	var map = { 1 : "a", 2 : "b", 3 : "c" };
+  	  	let map = { 1 -> "a", 2 -> "b", 3 -> "c" };
   	 
   	  	console.println("Map is : {{ map }}");
   	   
-  		var  tuple = ("Hello", 6);
+  		let  tuple = ("Hello", 6);
   		
 		assert ( "Hello" == tuple[0] , " Tuple first value is not `Hello` ");
 		assert ( 6 == tuple[1] , " Tuple second value is not 6 ");
 
-  		var  tuple3 = ("Hi", 3, true); // TODO use true in the last value
+  		let  tuple3 = ("Hi", 3, true); // TODO use true in the last value
   		
 		assert ( "Hi" == tuple3[0] , " Tuple first value is not `Hi` ");
 		assert ( 3 == tuple3[1] , " Tuple second value is not 3 ");
 		assert ( true == tuple3[2] , " Tuple second value is not 4.0 ");
   	
-  	    var tuple1 : (String) = ("Hello single expression to tuple");
+  	    let tuple1 : (String) = ("Hello single expression to tuple");
   		
 		assert ( "Hello single expression to tuple" == tuple1[0] , " Tuple first value is not `Hello single expression to tuple` ");
 
-    	var  tuple0 : String = ("Hello single expression");
+    	let  tuple0 : String = ("Hello single expression");
   		
 		assert ( "Hello single expression" == tuple0 , " Tuple first value is not `Hello single expression` ");
 
@@ -568,17 +568,17 @@ public class Main extends ConsoleApplication {
 	
 	public demoEnhacements(){
 
-		var seq = [1,2,3,4,5];
+		let seq = [1,2,3,4,5];
 
-		var sum = seq.sum();
+		let sum = seq.sum();
 
   		assert (sum == 15 ); 
 
-		var alfa = [ "a", "b", "c"];
+		let alfa = [ "a", "b", "c"];
 
-		var a = alfa.first();
+		let a = alfa.first();
 
-		var maybeA : String? = "a";
+		let maybeA : String? = "a";
 
 		assert (a == maybeA ); 
 	}
@@ -639,7 +639,7 @@ public class Main extends ConsoleApplication {
 
 	public demoTryCatch(){
  		try {
-  	 		var f = 4 / 0;
+  	 		let f = 4 / 0;
   	 		console.println("f is " + f);
   	 	} catch (e : ArithmeticException){
   	 		console.println("try catch worked");
@@ -648,7 +648,7 @@ public class Main extends ConsoleApplication {
 
 	public demoDto(){
 
-  	 	var dto = new Dto();
+  	 	let dto = new Dto();
   	 	
 		assert ( dto.age == dto.constant);
 		assert ( dto.age == 34);
@@ -660,7 +660,7 @@ public class Main extends ConsoleApplication {
   	 		
   	 	dto.name = "dto"; // directly assign to a optional property
   	 	
-  	 	var address = dto.address;
+  	 	let address = dto.address;
   	 	
   	 	console.println("name is " + dto.name);
   	 	console.println("age is " + dto.age);

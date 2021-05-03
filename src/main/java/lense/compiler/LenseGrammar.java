@@ -5,14 +5,11 @@ package lense.compiler;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.Comparator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import compiler.SymbolBasedToken;
 import compiler.TokenSymbol;
@@ -111,9 +108,7 @@ import lense.compiler.ast.VersionNode;
 import lense.compiler.ast.VisibilityNode;
 import lense.compiler.ast.WhileNode;
 import lense.compiler.type.Constructor;
-import lense.compiler.type.ConstructorParameter;
 import lense.compiler.type.LenseUnitKind;
-import lense.compiler.type.Match;
 import lense.compiler.type.TypeDefinition;
 import lense.compiler.typesystem.Imutability;
 import lense.compiler.typesystem.LenseTypeSystem;
@@ -216,8 +211,6 @@ public class LenseGrammar extends AbstractLenseGrammar {
 
 	public boolean isDigit(char c) {
 		return isNumberStarter(c) || c == '_' || c == '.' 
-//				|| c == 'N' || c == 'S' || c == 'Z' || c == 'L' 
-//				|| c == 'd' || c == 'f' || c == 'm' 
 				|| c == 'e' || c == 'E' // scientific notation
 				|| c == 'i' // imaginary unit
 				;
@@ -295,9 +288,9 @@ public class LenseGrammar extends AbstractLenseGrammar {
 
 	protected void posInit() {
 
-		this.keywords.add("/**");
-		this.keywords.add("//");
-		this.keywords.add("*/");
+		//this.keywords.add("/**");
+		//this.keywords.add("//");
+		//this.keywords.add("*/");
 
 		installSemanticActions();
 	}
@@ -1161,11 +1154,14 @@ public class LenseGrammar extends AbstractLenseGrammar {
 
 		getNonTerminal("imutabilityModifier").addSemanticAction((p, r) -> {
 
-			final Optional<Object> semanticAttribute = r.get(0).getSemanticAttribute("lexicalValue");
-			if (semanticAttribute.isPresent() && semanticAttribute.get().equals("var")) {
-				p.setAstNode(new ImutabilityNode(Imutability.Mutable));
-			} else {
+			
+			final Optional<Object> mutableOrLet = r.get(0).getSemanticAttribute("lexicalValue");
+			final Optional<Object> letOrEmpty = r.size() > 1 ? r.get(1).getSemanticAttribute("lexicalValue") : Optional.empty();
+			
+			if (!letOrEmpty.isPresent() && mutableOrLet.get().equals("let")) {
 				p.setAstNode(new ImutabilityNode(Imutability.Imutable));
+			} else {
+				p.setAstNode(new ImutabilityNode(Imutability.Mutable));
 			}
 
 		});
@@ -1378,7 +1374,15 @@ public class LenseGrammar extends AbstractLenseGrammar {
 				ImplementationModifierNode node = r.get(0).getAstNode(ImplementationModifierNode.class).get();
 				ImplementationModifierNode other = r.get(1).getAstNode(ImplementationModifierNode.class).get();
 
-				p.setAstNode(node.merge(other));
+				var it = node.merge(other);
+				
+				
+				if (it.isValueClass() && it.isMutable()) {
+					throw new CompilationError(node, "A value type cannot be mutable. Remove one of the constraints.");
+				}
+				
+				p.setAstNode(it);
+				
 			}
 
 		});
@@ -1401,9 +1405,11 @@ public class LenseGrammar extends AbstractLenseGrammar {
 				node.setOverride(true);
 			} else if (semanticAttribute.isPresent() && semanticAttribute.get().equals("value")) {
 				node.setValueClass(true);
-			} else if (semanticAttribute.isPresent() && semanticAttribute.get().equals("immutable")) {
-				node.setImmutable(true);
+			} else if (semanticAttribute.isPresent() && semanticAttribute.get().equals("mutable")) {
+				node.setMutable(true);
 			}
+			
+			
 			p.setAstNode(node);
 		});
 
@@ -2322,8 +2328,10 @@ public class LenseGrammar extends AbstractLenseGrammar {
 						.filter(a -> a instanceof ImutabilityNode).map(a -> (ImutabilityNode) a);
 				index = index + (imutability.isPresent() ? 1 : 0);
 
-				n.setImutability(imutability.orElse(new ImutabilityNode()));
+				n.setImutability(imutability.orElse(new ImutabilityNode(Imutability.Imutable)));
 
+				index++; // bypass 'let' token
+				
 				n.setName(r.get(index++).getAstNode(IdentifierNode.class).get().getName());
 
 				String separator = r.get(index++).getLexicalValue();
@@ -2430,7 +2438,7 @@ public class LenseGrammar extends AbstractLenseGrammar {
 				p.setAstNode(r.get(0).getAstNode().get());
 			} else {
 				FormalParameterNode n = new FormalParameterNode();
-				n.setImutability(new ImutabilityNode(Imutability.Imutable)); // parameters
+				n.setImutability(Imutability.Imutable); // parameters
 				// shouldn't
 				// be
 				// changed
@@ -3155,31 +3163,6 @@ public class LenseGrammar extends AbstractLenseGrammar {
 
 			PropertyDeclarationNode prp = parsePropertyDeclaration(r);
 
-			// Optional<AnnotationListNode> annots =
-			// r.get(0).getAstNode(AnnotationListNode.class);
-			//
-			// int nextNodeIndex = 0;
-			// if (annots.isPresent()){
-			// nextNodeIndex = 1;
-			// }
-			//
-			// TypeNode typeNode =
-			// ensureTypeNode(r.get(nextNodeIndex).getAstNode().get());
-			// nextNodeIndex++;
-			//
-			// String identifier = r.get(nextNodeIndex).getLexicalValue();
-			// nextNodeIndex++;
-			//
-			// PropertyDeclarationNode prp =
-			// r.get(nextNodeIndex).getAstNode(PropertyDeclarationNode.class).get();
-			//
-			// prp.setName(identifier);
-			// if(annots.isPresent()){
-			// prp.setAnnotations(annots.get());
-			// applyAnnotations(prp, annots);
-			// }
-			// prp.setType(typeNode);
-
 			p.setAstNode(prp);
 		});
 		getNonTerminal("propertyDeclarationHead").addSemanticAction((p, r) -> {
@@ -3436,10 +3419,7 @@ public class LenseGrammar extends AbstractLenseGrammar {
 		n.setNative(implementationModifier.isNative());
 		n.setOverride((implementationModifier.isOverride()));
 		n.setDefault((implementationModifier.isDefault()));
-
-		if (modifiers.getImutability() != null) {
-			n.setImutability(modifiers.getImutability().getImutability());
-		}
+		n.setImutability(modifiers.getImutability());
 
 	}
 
@@ -3458,10 +3438,7 @@ public class LenseGrammar extends AbstractLenseGrammar {
 			typeNode = ensureTypeNode(r.get(nextNodeIndex + 1).getAstNode().get());
 			nextNodeIndex--;
 		}
-
-
-
-
+		
 		String identifier = r.get(nextNodeIndex).getLexicalValue();
 
 		if (modifiers.getAnnotations() != null) {

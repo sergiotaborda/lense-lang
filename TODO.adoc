@@ -34,7 +34,7 @@
 
 == Language Features
 
-- [ ] use -> instead of : in association literals. this frees : for other uses
+
 - [x] understand that -0.0 may be a different thing than 0.0 if the target is Float. Also `0.0.symetric() == -0.0` in Float and that `-0.0 = new Float32(0.0).symetric()`  but not  `-0.0 =/= new Float32(new Rational(0.0));` 
 - [ ] validade literal number range at compile time.
 - [ ] consider target typing and/or mapping literals to objects with special `Literal` (not instanciable) object and implicit constructors 
@@ -134,7 +134,8 @@
 - [x] Support Sequence
 * [x] define sequence literals `[1,2,3,4]`
 - [x] Support Association
-* [x] define map literals `{ "a": 1, "b": 2 , "c" : 3}`
+* [x] define map literals `{ "a" -> 1, "b" -> 2 , "c" -> 3}`
+* [x] use `->` instead of : in association literals. this frees : for other uses
 - [x] Support String
 * [ ] implement string as a lightweight rope
 - [x] Support Tuples
@@ -174,7 +175,7 @@
 * [x] erase Int64 explicitly declared variables
 * [ ] erase Natural declared variables accounting for bound limits are known (like in ranges). 
 * [ ] erase Integer declared variables accounting for bound limits are known (like in ranges). 
-- [ ] erase string to native charSequence. 
+- [ ] erase string to native string/charSequence. 
 - [ ] erase Maybe to native `null`. This would improve interoperability with native code
 
 === Operators
@@ -193,11 +194,11 @@
 - [x] support `-=` and `-=` operators only for some kinds. for naturals  `a = 2 ; a -= 1` (ok); `a-= 1` (ok) ; `a-= 1` (error);
 - [x] remove support `++` , `--` but maintain (Ordinal) successor() and predecessor().  Use `-=` and `+=` operators instead
 - [ ] support `?.` operator [SYNTAX]
-- [ ] support  warp operators (java default) like `&+` , `&-` ,`&*`, `&/` 
+- [x] support  warp operators (java default) like `&+` , `&-` ,`&*`, `&/` 
 - [ ] support  maybe  operators like `?+` , `?-` ,`?*`, `?/` . they handle all with Maybe and use `none` for overflow operations 
 - [ ] support  exact check operators  like `!+` , `!-` ,`!*`, `!/`. they throw OverflowException on overflow like java's AddExact, SubtractExact, MultiplyExact methods
 - [ ] bound comparison operators compositions e.x: `if (2 < x() <= 10)` transforms to `if ( y = x();  2 < y && y <= 10)` simplify if x is not a function `if (2 <x && x < 4)
-		- rewrite `if ( x() in |(2 , 10 ]|)` as `if (2 < x() <= 10)` in the case of numbers
+- [ ] rewrite `if ( x() in |(2 , 10 ]|)` as `if (2 < x() <= 10)` in the case of numbers
 
 
 
