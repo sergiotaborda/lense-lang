@@ -159,98 +159,81 @@
       </div>
     </nav>
 	
-	<div class="corner-ribbon top-right sticky shadow"><a href="status.html">Exploration Stage</a></div>
+	<div class="corner-ribbon top-right sticky shadow turquoise"><a href="status.html">Experimentation Stage</a></div>
     
 	<div class="container">
 	<div class="container-fluid">
 		<div class="row row-offcanvas row-offcanvas-right">
 			 <div class="col-xs-12 col-sm-9 col-sm-push-3">
-				<div class="sect1"> 
- <h2 id="_variables">Variables</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>Creating variables in Lense is very similar to other languages.</p> 
-  </div> 
-  <div class="listingblock"> 
-   <div class="content"> 
-    <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">var  name : String = "Alice";</code></pre> 
-   </div> 
-  </div> 
-  <div class="paragraph"> 
-   <p>Variables always contain references to objects. The variable called <strong>name</strong> contains a reference to a <code>String</code> object with a value of <strong>Alice</strong>. The reference contained in a variable can be changed further down in the code to another reference, like :</p> 
-  </div> 
-  <div class="listingblock"> 
-   <div class="content"> 
-    <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">var name : String = "Alice";
-name = "Beth";</code></pre> 
-   </div> 
-  </div> 
-  <div class="paragraph"> 
-   <p>Lense as type inference, so variable declaration can be simplified to :</p> 
-  </div> 
-  <div class="listingblock"> 
-   <div class="content"> 
-    <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">var  name = "Alice";</code></pre> 
-   </div> 
-  </div> 
-  <div class="paragraph"> 
-   <p>This is the main reason why type annotations are included after the name of the variable, so they can be removed when are not necessary. Notice that they are still relevant in the present of polymorfism like in:</p> 
-  </div> 
-  <div class="listingblock"> 
-   <div class="content"> 
-    <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">var  name : Sequence&lt;Character&gt; = "Alice";</code></pre> 
-   </div> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="_values">Values</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>The use of the <code>var</code> keyword defines a variable (mutable) reference declaration. Immutable references are defined with the <code>let</code> keyword.</p> 
-  </div> 
-  <div class="listingblock"> 
-   <div class="content"> 
-    <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">let name : String = "Alice";</code></pre> 
-   </div> 
-  </div> 
-  <div class="paragraph"> 
-   <p>Immutable values cannot be changed, so trying to do so is a compilation error.</p> 
-  </div> 
-  <div class="listingblock"> 
-   <div class="content"> 
-    <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">let name : String = "Alice";
-name = "Beth"; // Compilation Error</code></pre> 
-   </div> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="_definition_and_initialization">Definition and Initialization</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>In Lense you can define the value or the variable and initialize the value later, like this:</p> 
-  </div> 
-  <div class="listingblock"> 
-   <div class="content"> 
-    <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">let name : String;
+				<div class="sect1">
+<h2 id="_variables_imutable_and_mutable">Variables - Imutable and Mutable</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Lense is designed with immutability in mind so variables are immutable by default. You must opt in for mutability.</p>
+</div>
+<div class="paragraph">
+<p>Creating an imutable variables, also known as <em>constant</em> in Lense is very similar to other languages.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="lense" class="language-lense hljs">let  name : String = "Alice";</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Variables always contain references to objects. The variable called <strong>name</strong> contains a reference to a <code>String</code> object with a value of <strong>Alice</strong>.
+The reference contained in a variable can be changed further down in the code to another reference. But for that we have to opt in for mutability, like :</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="lense" class="language-lense hljs">mutable let name : String = "Alice";
+name = "Beth";</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Lense as type inference, so variable declaration can be simplified to :</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="lense" class="language-lense hljs">mutable let  name = "Alice";</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This is the main reason why type annotations are included after the name of the variable, so they can be removed when they are not necessary.
+Notice that they are still relevant in the present of polymorfism like in:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="lense" class="language-lense hljs">let  name : Sequence&lt;Character&gt; = "Alice";</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_definition_and_initialization">Definition and Initialization</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>In Lense you can define the value or the variable and initialize the value later, like this:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="lense" class="language-lense hljs">let name : String;
 
-name = "Alice";</code></pre> 
-   </div> 
-  </div> 
-  <div class="paragraph"> 
-   <p>But, because in Lense <a href="nullability.html">there are no nulls</a>, the compiler will track that the variable has been initialized to a proper non null value before it is used. So the following will produce an error:</p> 
-  </div> 
-  <div class="listingblock"> 
-   <div class="content"> 
-    <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">let name : String;
+name = "Alice";</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>But, because in Lense <a href="nullability.html">there are no nulls</a>, the compiler will track that the variable has been initialized to a proper value before it is used. So the following will produce an error:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="lense" class="language-lense hljs">let name : String;
 
 let nameSize = name.size; // Compilation error. Variable 'name' has not be initialized yet
 
-name = "Alice";</code></pre> 
-   </div> 
-  </div> 
- </div> 
+name = "Alice";</code></pre>
+</div>
+</div>
+</div>
 </div>
 			</div>
 			<div class="col-xs-6 col-sm-3 col-sm-pull-9 sidebar-offcanvas" id="sidebar"">

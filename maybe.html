@@ -159,61 +159,64 @@
       </div>
     </nav>
 	
-	<div class="corner-ribbon top-right sticky shadow"><a href="status.html">Exploration Stage</a></div>
+	<div class="corner-ribbon top-right sticky shadow turquoise"><a href="status.html">Experimentation Stage</a></div>
     
 	<div class="container">
 	<div class="container-fluid">
 		<div class="row row-offcanvas row-offcanvas-right">
 			 <div class="col-xs-12 col-sm-9 col-sm-push-3">
-				<div class="sect1"> 
- <h2 id="_maybe">Maybe</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>Maybe is a <a href="monads.html">monad</a> that allows us to manipulate possible absent values. <code>Maybe&lt;T&gt;</code> is a <a href="classes.html#sum-types">sum type</a> with only two subtypes : <code>Some&lt;T&gt;</code> and <code>None</code>. <code>None</code> has a single instance named <code>none</code>. <code>none</code> represents the absence of value. Maybe is equivalent to the <code>Optional</code> type that exist in other languages. However, in Lense, Maybe is a fundamental type and it is the only way you can handle the concept of "null" since Lense does not allow the traditional <code>null</code> reference value.</p> 
-  </div> 
-  <div class="listingblock"> 
-   <div class="content"> 
-    <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">public calculateNameLength( name : Maybe&lt;String&gt;) : Maybe&lt;Natural&gt; {
+				<div class="sect1">
+<h2 id="_maybe">Maybe</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Maybe is a <a href="monads.html">monad</a> that allows us to manipulate possible absent values. <code>Maybe&lt;T&gt;</code> is a <a href="classes.html#sum-types">sum type</a> with only two subtypes : <code>Some&lt;T&gt;</code> and <code>None</code>. <code>None</code> has a single instance named <code>none</code>. <code>none</code> represents the absence of value.
+Maybe is equivalent to the <code>Optional</code> type that exist in other languages. However, in Lense, Maybe is a fundamental type and it is the only way you can handle the concept of "null" since Lense does not allow the traditional <code>null</code> reference value.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="lense" class="language-lense hljs">public calculateNameLength( name : Maybe&lt;String&gt;) : Maybe&lt;Natural&gt; {
 	return name.map(m -&gt; m.size());
-}</code></pre> 
-   </div> 
-  </div> 
-  <div class="paragraph"> 
-   <p>Because Maybe is a fundamental type in Lense we can simplify this method with some shorter syntax:</p> 
-  </div> 
-  <div class="listingblock"> 
-   <div class="content"> 
-    <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">public calculateNameLength( name: String?) : Natural? {
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Because Maybe is a fundamental type in Lense we can simplify this method with some shorter syntax:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="lense" class="language-lense hljs">public calculateNameLength( name: String?) : Natural? {
 	return name.map(m -&gt; m.size());
-}</code></pre> 
-   </div> 
-  </div> 
-  <div class="paragraph"> 
-   <p>This simple method returns the length of the given name and we can called it like:</p> 
-  </div> 
-  <div class="listingblock"> 
-   <div class="content"> 
-    <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">let x : Natural? = calculateNameLength("London"); // x holds a Some&lt;Natural&gt; with a value 6 inside
-let y : Natural?= calculateNameLength(none); // y holds the instance of 'none'.</code></pre> 
-   </div> 
-  </div> 
-  <div class="paragraph"> 
-   <p>Note that the methods does not use any decision directive to handle the absence of value directly. This is handled by the <code>map</code> method it self. If the original Maybe is really and instanceof of <code>Some</code> it has some value in it, that value is passed to the given lambda and a new <code>Some</code> is created having inside the calculated value. If the original Maybe is really a <code>none</code> the lambda is not invoked and <code>none</code> is returned.</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>You can, if you want to, transform a Maybe&lt;T&gt; to a T by offering a default value, like this:</p> 
-  </div> 
-  <div class="listingblock"> 
-   <div class="content"> 
-    <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">let  x : Natural? =  ... // obtain in some way
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This simple method returns the length of the given name and we can called it like:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="lense" class="language-lense hljs">let x : Natural? = calculateNameLength("London"); // x holds a Some&lt;Natural&gt; with a value 6 inside
+let y : Natural?= calculateNameLength(none); // y holds the instance of 'none'.</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Note that the methods does not use any decision directive to handle the absence of value directly. This is handled by the <code>map</code> method it self.
+If the original Maybe is really and instanceof of <code>Some</code> it has some value in it, that value is passed to the given lambda and a new <code>Some</code> is created having inside the calculated value.
+If the original Maybe is really a <code>none</code> the lambda is not invoked and <code>none</code> is returned.</p>
+</div>
+<div class="paragraph">
+<p>You can, if you want to, transform a Maybe&lt;T&gt; to a T by offering a default value, like this:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="lense" class="language-lense hljs">let  x : Natural? =  ... // obtain in some way
 
-let size : Natural = x.orElse(0);</code></pre> 
-   </div> 
-  </div> 
-  <div class="paragraph"> 
-   <p>this means that, if <strong>x</strong> has a value, that value will assigned to <strong>size</strong>, otherwise 0 will be assigned.</p> 
-  </div> 
- </div> 
+let size : Natural = x.orElse(0);</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>this means that, if <strong>x</strong> has a value, that value will assigned to <strong>size</strong>, otherwise 0 will be assigned.</p>
+</div>
+</div>
 </div>
 			</div>
 			<div class="col-xs-6 col-sm-3 col-sm-pull-9 sidebar-offcanvas" id="sidebar"">

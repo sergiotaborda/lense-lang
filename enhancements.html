@@ -159,36 +159,42 @@
       </div>
     </nav>
 	
-	<div class="corner-ribbon top-right sticky shadow"><a href="status.html">Exploration Stage</a></div>
+	<div class="corner-ribbon top-right sticky shadow turquoise"><a href="status.html">Experimentation Stage</a></div>
     
 	<div class="container">
 	<div class="container-fluid">
 		<div class="row row-offcanvas row-offcanvas-right">
 			 <div class="col-xs-12 col-sm-9 col-sm-push-3">
-				<div class="sect1"> 
- <h2 id="_enhancements">Enhancements</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>Normally we extend a class by means of inheritance. Inheritance may not be a good solution in some cases. Sometimes we need to extends the funcionally of a class without adding to the inheritance tree, e.g. when the class we are trying to extend is final. The standard pattern to do this is via a Decorator. A decorator holds a value of the original class and adds methods to it. Both class can share the same interface but normally that does not happen.</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>Decorator is a solution for the problem and can be implemented in any object oriented language, however is not very practical.</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>Other languages like C# and Gosu, enable the use of Extention Methods. Extention Methods are static methods declared in a special way so they can be called as normal methods (after a dot). Being static methods this methods can also be called normally using the static method calling syntax.</p> 
-  </div> 
-  <div class="listingblock"> 
-   <div class="content"> 
-    <pre class="highlightjs highlight"><code class="language-csharp hljs" data-lang="csharp">String greating = "ho".repeat(4); // Repeat is not a standard method of type String
-assert("hohohoho" == greating);</code></pre> 
-   </div> 
-  </div> 
-  <div class="paragraph"> 
-   <p>Lense does not have static elements, so extention method must be declared on an object and we apply the methods of that object to the original instance of the class we want to enhance.</p> 
-  </div> 
-  <div class="listingblock"> 
-   <div class="content"> 
-    <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">public enhancement RepeatableString extends String {
+				<div class="sect1">
+<h2 id="_enhancements">Enhancements</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Normally we extend a class by means of inheritance. Inheritance may not be a good solution in some cases.
+Sometimes we need to extends the funcionally of a class without adding to the inheritance tree, e.g. when the class we are trying to extend is final.
+The standard pattern to do this is via a Decorator. A decorator holds a value of the original class and adds methods to it.
+Both class can share the same interface but normally that does not happen.</p>
+</div>
+<div class="paragraph">
+<p>Decorator is a solution for the problem and can be implemented in any object oriented language, however is not very practical.</p>
+</div>
+<div class="paragraph">
+<p>Other languages like C# and Gosu, enable the use of Extention Methods. Extention Methods are static methods declared
+in a special way so they can be called as normal methods (after a dot). Being static methods this methods can also be
+called normally using the static method calling syntax.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="csharp" class="language-csharp hljs">String greating = "ho".repeat(4); // Repeat is not a standard method of type String
+assert("hohohoho" == greating);</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Lense does not have static elements, so extention method must be declared on an object and we apply the methods of that
+object to the original instance of the class we want to enhance.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="lense" class="language-lense hljs">public enhancement RepeatableString extends String {
 
 	public repeat(count : Natural): String {
 		var result = "";
@@ -197,15 +203,16 @@ assert("hohohoho" == greating);</code></pre>
 		}
 		return result;
 	}
-}</code></pre> 
-   </div> 
-  </div> 
-  <div class="paragraph"> 
-   <p>When enhancing a given type we are in fact enhancing all subtypes as well so polimorfism is at work. More generaly we can enhance types that conform to some generic rules and thus generics support is needed for enhancement.</p> 
-  </div> 
-  <div class="listingblock"> 
-   <div class="content"> 
-    <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">public enhancement MeasureableInterval extends Interval&lt;Natural&gt; {
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>When enhancing a given type we are in fact enhancing all subtypes as well so polimorfism is at work. More generaly we
+can enhance types that conform to some generic rules and thus generics support is needed for enhancement.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="lense" class="language-lense hljs">public enhancement MeasureableInterval extends Interval&lt;Natural&gt; {
 
 	public length : Natural? {
 		get {
@@ -224,25 +231,26 @@ let length = stringInterval.length; // will fail at compile time
 let naturalInterval = |[ 4 , 10 ]|;
 let length = naturalInterval.length; // ok, because we have an enhancement.
 
-assert( 6 == length);</code></pre> 
-   </div> 
-  </div> 
-  <div class="paragraph"> 
-   <p>The difference between enhancements and extention methods is that we can add more that just normal methods. We can also add constructors and calculated properties. The only restriction is that no state can be added.</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>The difference between enhancements and traits it that traits are an inheritance base mechanism where we mix the code of the original type with that of the trait</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>When compiling to the underlying platform the lense compiler does not really create an object so the methods can be called, the compiler is free to optmize the calls using static semantics if they are possible in the platform.</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>Enhancement implementations can only access public members of the enhanced type.</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>Interfaces cannot be fullfiled by adding enhancement methods.</p> 
-  </div> 
- </div> 
+assert( 6 == length);</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The difference between enhancements and extention methods is that we can add more that just normal methods. We can also
+add constructors and calculated properties. The only restriction is that no state can be added.</p>
+</div>
+<div class="paragraph">
+<p>The difference between enhancements and traits it that traits are an inheritance base mechanism where we mix the code of the original type with that of the trait</p>
+</div>
+<div class="paragraph">
+<p>When compiling to the underlying platform the lense compiler does not really create an object so the methods can be called, the compiler is free to optmize the calls using static semantics if they are possible in the platform.</p>
+</div>
+<div class="paragraph">
+<p>Enhancement implementations can only access public members of the enhanced type.</p>
+</div>
+<div class="paragraph">
+<p>Interfaces cannot be fullfiled by adding enhancement methods.</p>
+</div>
+</div>
 </div>
 			</div>
 			<div class="col-xs-6 col-sm-3 col-sm-pull-9 sidebar-offcanvas" id="sidebar"">

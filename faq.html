@@ -159,109 +159,132 @@
       </div>
     </nav>
 	
-	<div class="corner-ribbon top-right sticky shadow"><a href="status.html">Exploration Stage</a></div>
+	<div class="corner-ribbon top-right sticky shadow turquoise"><a href="status.html">Experimentation Stage</a></div>
     
 	<div class="container">
 	<div class="container-fluid">
 		<div class="row row-offcanvas row-offcanvas-right">
 			 <div class="col-xs-12 col-sm-9 col-sm-push-3">
-				<div class="sect2"> 
- <h3 id="_language_design_faqs">Language Design FAQs</h3> 
- <div class="sect3"> 
-  <h4 id="_goals">Goals</h4> 
-  <div class="sect4"> 
-   <h5 id="_object_oriented">Object Oriented</h5> 
-  </div> 
-  <div class="sect4"> 
-   <h5 id="_favor_imutability">Favor Imutability</h5> 
-   <div class="ulist"> 
-    <ul> 
-     <li> <p>Do not poibit mutability, but make it more explicit and not the default. Mutability must be opted in.</p> </li> 
-    </ul> 
-   </div> 
-  </div> 
-  <div class="sect4"> 
-   <h5 id="_multiple_plataforms">Multiple Plataforms</h5> 
-   <div class="paragraph"> 
-    <p>Run in JVM, Javacript VM and others.</p> 
-   </div> 
-  </div> 
- </div> 
- <div class="sect3"> 
-  <h4 id="_syntax">Syntax</h4> 
-  <div class="sect4"> 
-   <h5 id="_string_interpolation">String interpolation</h5> 
-  </div> 
-  <div class="sect4"> 
-   <h5 id="_mandatory_semicolon_at_the_end_of_line">Mandatory semicolon at the end of line</h5> 
-  </div> 
-  <div class="sect4"> 
-   <h5 id="_parenthesis_in_control_structures">Parenthesis in control structures</h5> 
-   <div class="paragraph"> 
-    <p>From a readality point of view they help visually locate the condition. From a parser point of view there is no conflict between these two lines</p> 
-   </div> 
-   <div class="listingblock"> 
-    <div class="content"> 
-     <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">if (a) { } else {}
-if a { } else {}</code></pre> 
-    </div> 
-   </div> 
-  </div> 
-  <div class="sect4"> 
-   <h5 id="_mandatory_braces_in_control_structures">Mandatory braces in control structures</h5> 
-  </div> 
-  <div class="sect4"> 
-   <h5 id="_angle_brakets_for_generics">Angle brakets for generics</h5> 
-  </div> 
-  <div class="sect4"> 
-   <h5 id="_inheritance_declared_with_extends_instead_of_colon">Inheritance declared with extends instead of colon</h5> 
-  </div> 
- </div> 
- <div class="sect3"> 
-  <h4 id="_language_features">Language Features</h4> 
-  <div class="sect4"> 
-   <h5 id="_mathematicis_are_coehrent">Mathematicis are coehrent</h5> 
-  </div> 
-  <div class="sect4"> 
-   <h5 id="_indexing_with_naturals">Indexing with Naturals</h5> 
-  </div> 
-  <div class="sect4"> 
-   <h5 id="_no_check_exception">No Check Exception</h5> 
-  </div> 
-  <div class="sect4"> 
-   <h5 id="_overloading">Overloading</h5> 
-  </div> 
-  <div class="sect4"> 
-   <h5 id="_implict_constructors">Implict Constructors</h5> 
-  </div> 
-  <div class="sect4"> 
-   <h5 id="_extention_methods_and_properties">Extention methods and properties</h5> 
-  </div> 
-  <div class="sect4"> 
-   <h5 id="_optional_types">Optional types</h5> 
-  </div> 
-  <div class="sect4"> 
-   <h5 id="_private_fields_and_public_properties">Private fields and public properties</h5> 
-  </div> 
-  <div class="sect4"> 
-   <h5 id="_variance">Variance</h5> 
-  </div> 
-  <div class="sect4"> 
-   <h5 id="_pattern_matching">Pattern matching</h5> 
-  </div> 
-  <div class="sect4"> 
-   <h5 id="_higher_order_functions">Higher Order functions</h5> 
-  </div> 
-  <div class="sect4"> 
-   <h5 id="_polymorphic_returns">Polymorphic returns</h5> 
-  </div> 
-  <div class="sect4"> 
-   <h5 id="_sum_types">Sum Types</h5> 
-  </div> 
-  <div class="sect4"> 
-   <h5 id="_union_and_intersection_types">Union and Intersection Types</h5> 
-  </div> 
- </div> 
+				<div class="sect2">
+<h3 id="_language_design_faqs">Language Design FAQs</h3>
+<div class="sect3">
+<h4 id="_goals">Goals</h4>
+<div class="sect4">
+<h5 id="_object_oriented">Object Oriented</h5>
+
+</div>
+<div class="sect4">
+<h5 id="_favor_imutability">Favor Imutability</h5>
+<div class="ulist">
+<ul>
+<li>
+<p>Do not poibit mutability, but make it more explicit and not the default. Mutability must be opted in.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_multiple_plataforms">Multiple Plataforms</h5>
+<div class="paragraph">
+<p>Run in JVM, Javacript VM and others.</p>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_syntax">Syntax</h4>
+<div class="sect4">
+<h5 id="_string_interpolation">String interpolation</h5>
+
+</div>
+<div class="sect4">
+<h5 id="_mandatory_semicolon_at_the_end_of_line">Mandatory semicolon at the end of line</h5>
+
+</div>
+<div class="sect4">
+<h5 id="_parenthesis_in_control_structures">Parenthesis in control structures</h5>
+<div class="paragraph">
+<p>From a readality point of view they help visually locate the condition.
+From a parser point of view there is no conflict between these two lines</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="lense" class="language-lense hljs">if (a) { } else {}
+if a { } else {}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_mandatory_braces_in_control_structures">Mandatory braces in control structures</h5>
+
+</div>
+<div class="sect4">
+<h5 id="_angle_brakets_for_generics">Angle brakets for generics</h5>
+
+</div>
+<div class="sect4">
+<h5 id="_inheritance_declared_with_extends_instead_of_colon">Inheritance declared with extends instead of colon</h5>
+
+</div>
+</div>
+<div class="sect3">
+<h4 id="_language_features">Language Features</h4>
+<div class="sect4">
+<h5 id="_mathematicis_are_coehrent">Mathematicis are coehrent</h5>
+
+</div>
+<div class="sect4">
+<h5 id="_indexing_with_naturals">Indexing with Naturals</h5>
+
+</div>
+<div class="sect4">
+<h5 id="_no_check_exception">No Check Exception</h5>
+
+</div>
+<div class="sect4">
+<h5 id="_overloading">Overloading</h5>
+
+</div>
+<div class="sect4">
+<h5 id="_implict_constructors">Implict Constructors</h5>
+
+</div>
+<div class="sect4">
+<h5 id="_extention_methods_and_properties">Extention methods and properties</h5>
+
+</div>
+<div class="sect4">
+<h5 id="_optional_types">Optional types</h5>
+
+</div>
+<div class="sect4">
+<h5 id="_private_fields_and_public_properties">Private fields and public properties</h5>
+
+</div>
+<div class="sect4">
+<h5 id="_variance">Variance</h5>
+
+</div>
+<div class="sect4">
+<h5 id="_pattern_matching">Pattern matching</h5>
+
+</div>
+<div class="sect4">
+<h5 id="_higher_order_functions">Higher Order functions</h5>
+
+</div>
+<div class="sect4">
+<h5 id="_polymorphic_returns">Polymorphic returns</h5>
+
+</div>
+<div class="sect4">
+<h5 id="_sum_types">Sum Types</h5>
+
+</div>
+<div class="sect4">
+<h5 id="_union_and_intersection_types">Union and Intersection Types</h5>
+
+</div>
+</div>
 </div>
 			</div>
 			<div class="col-xs-6 col-sm-3 col-sm-pull-9 sidebar-offcanvas" id="sidebar"">

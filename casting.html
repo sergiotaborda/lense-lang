@@ -159,21 +159,21 @@
       </div>
     </nav>
 	
-	<div class="corner-ribbon top-right sticky shadow"><a href="status.html">Exploration Stage</a></div>
+	<div class="corner-ribbon top-right sticky shadow turquoise"><a href="status.html">Experimentation Stage</a></div>
     
 	<div class="container">
 	<div class="container-fluid">
 		<div class="row row-offcanvas row-offcanvas-right">
 			 <div class="col-xs-12 col-sm-9 col-sm-push-3">
-				<div class="sect1"> 
- <h2 id="_casting">Casting</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>Lense does not support an explicit cast operator like C or Java do. Lense supports flow sensitive casting instead. This means the compiler can use flow directives like <code>if</code> or <code>switch</code> to understand the type of the variable.</p> 
-  </div> 
-  <div class="listingblock"> 
-   <div class="content"> 
-    <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">public collectLeafs( root : Node , leafs : List&lt;Node&gt;) {
+				<div class="sect1">
+<h2 id="_casting">Casting</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Lense does not support an explicit cast operator like C or Java do. Lense supports flow sensitive casting instead. This means the compiler can use flow directives like <code>if</code> or <code>switch</code> to understand the type of the variable.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="lense" class="language-lense hljs">public collectLeafs( root : Node , leafs : List&lt;Node&gt;) {
 
 	if ( obj is LeafNode){
 	   leafs.add(obj);
@@ -187,18 +187,18 @@
 		throw new Exception("Unrecognised node");
 	}
 
-}</code></pre> 
-   </div> 
-  </div> 
-  <div class="paragraph"> 
-   <p>The <code>is</code> operator returns <code>true</code> if the variable holds an object of the specified type. The compiler then knows that all references to that variable inside the <code>if</code> really refer to that type, and so all operations on that type are allowed.</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>Flow sensitive typing simplifies writing the <strong>check and cast</strong> idiom, very common when overriding <code>equals</code>. In other languages, like Java, you need to test for type and then cast:</p> 
-  </div> 
-  <div class="listingblock"> 
-   <div class="content"> 
-    <pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">// java
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The <code>is</code> operator returns <code>true</code> if the variable holds an object of the specified type. The compiler then knows that all references to that variable inside the <code>if</code> really refer to that type, and so all operations on that type are allowed.</p>
+</div>
+<div class="paragraph">
+<p>Flow sensitive typing simplifies writing the <strong>check and cast</strong> idiom, very common when overriding <code>equals</code>. In other languages, like Java, you need to test for type and then cast:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="java" class="language-java hljs">// java
 public class Person {
 
 	public long id;
@@ -207,15 +207,15 @@ public class Person {
 		return (other instanceof Person) &amp;&amp; ((Person)other).Id == this.Id;
 	}
 
-}</code></pre> 
-   </div> 
-  </div> 
-  <div class="paragraph"> 
-   <p>in Lense the compiler is smart to understand that if tested, then the variable is of that type.</p> 
-  </div> 
-  <div class="listingblock"> 
-   <div class="content"> 
-    <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">public class Person {
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>in Lense the compiler is smart to understand that if tested, then the variable is of that type.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="lense" class="language-lense hljs">public class Person {
 
 	public Id : Natural;
 
@@ -223,15 +223,15 @@ public class Person {
 		return other is Person &amp;&amp; other.Id == this.Id;
 	}
 
-}</code></pre> 
-   </div> 
-  </div> 
-  <div class="paragraph"> 
-   <p>You can also use other flow directives like <code>switch</code> :</p> 
-  </div> 
-  <div class="listingblock"> 
-   <div class="content"> 
-    <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">public collectLeafs( root : Node , leafs : List&lt;Node&gt;) {
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>You can also use other flow directives like <code>switch</code> :</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="lense" class="language-lense hljs">public collectLeafs( root : Node , leafs : List&lt;Node&gt;) {
 
 	switch(obj){
 		case is LeafNode {
@@ -246,22 +246,22 @@ public class Person {
 		 	throw new Exception("Unrecognised node");
 		}
 	}
-}</code></pre> 
-   </div> 
-  </div> 
-  <div class="paragraph"> 
-   <p>and <code>assert</code>:</p> 
-  </div> 
-  <div class="listingblock"> 
-   <div class="content"> 
-    <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">var node : Node  = ... // some node
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>and <code>assert</code>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="lense" class="language-lense hljs">var node : Node  = ... // some node
 
 assert( node is BranchNode);
 
-return node.children.size; // at this line the compiler knows node is a BranchNode because otherwise and exception would have been thrown earlier.</code></pre> 
-   </div> 
-  </div> 
- </div> 
+return node.children.size; // at this line the compiler knows node is a BranchNode because otherwise and exception would have been thrown earlier.</code></pre>
+</div>
+</div>
+</div>
 </div>
 			</div>
 			<div class="col-xs-6 col-sm-3 col-sm-pull-9 sidebar-offcanvas" id="sidebar"">

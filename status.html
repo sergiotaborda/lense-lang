@@ -159,52 +159,224 @@
       </div>
     </nav>
 	
-	<div class="corner-ribbon top-right sticky shadow"><a href="status.html">Exploration Stage</a></div>
+	<div class="corner-ribbon top-right sticky shadow turquoise"><a href="status.html">Experimentation Stage</a></div>
     
 	<div class="container">
 	<div class="container-fluid">
 		<div class="row row-offcanvas row-offcanvas-right">
 			 <div class="col-xs-12 col-sm-9 col-sm-push-3">
-				<div class="sect1"> 
- <h2 id="_status">Status</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>Lense is currently in the <strong>Exploration Stage</strong>. The language features are being defined and experimentaion is underway to understand how they interact together. Compilation to targets (like java) is being taken into account on development but not activly persueed at the time. Feel free to contribute.</p> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="_roadmap">Roadmap</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>In a given stage we focus on reaching the stage goals. This does not mean no work is done in other stages but this work is done to explore some decision consequences or ascertain future difficulties and can change once we move to that stage.</p> 
-  </div> 
-  <div class="olist arabic"> 
-   <ol class="arabic"> 
-    <li> <p>Exploration Stage</p> </li> 
-    <li> <p>Java Virtual Machine backend</p> </li> 
-    <li> <p>JavaScript backend</p> </li> 
-   </ol> 
-  </div> 
-  <div class="sect2"> 
-   <h3 id="_exploration_stage">Exploration Stage</h3> 
-   <div class="paragraph"> 
-    <p>Decide on the core concepts, the supporting syntax and related keywords. At this stage the work is mainly de definition of a BNF grammar and testing the parser to obtain the Abstract Syntax Tree (AST) for the language. Work for this stage also focus on how to assure the core feature can be available in a multi-platform scenario. Also some exploratory work is made on the infrastructure necessary to transform the Lense AST to other intermediary representations and finally to bytecodes.</p> 
-   </div> 
-  </div> 
-  <div class="sect2"> 
-   <h3 id="_java_virtual_machine_backend">Java Virtual Machine backend</h3> 
-   <div class="paragraph"> 
-    <p>At this stage the AST obtained in the previous stage is translated into to a Java Virtual Machine compatible intermediary representation and then that is transformed to bytecode and a .class file. Once the .class files are compiled, they are packed into a .jar file.</p> 
-   </div> 
-  </div> 
-  <div class="sect2"> 
-   <h3 id="_javascript_backend">JavaScript backend</h3> 
-   <div class="paragraph"> 
-    <p>At this stage the AST obtained in the previous stage is translate into a Javascript compatible AST, then that AST is transform to javascript code and stored in a .js file.</p> 
-   </div> 
-  </div> 
- </div> 
+				<div class="sect1">
+<h2 id="_status">Status</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Lense is currently in the <strong>Experimentation Stage</strong>. The language features are being defined and experimentation is underway to understand how they interact together.</p>
+</div>
+<div class="paragraph">
+<p>At this point is it already possible to compile to java backend and run a program. Many features are already supported, but some are still being explored.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_roadmap">Roadmap</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>In a given stage we focus on reaching the stage goals. This does not mean no work is done in other stages but this work is done
+to explore some decision consequences or ascertain future difficulties and can change once we move to that stage.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><a href="#envision-stage">Envision Stage</a></p>
+</li>
+<li>
+<p><a href="#exploration-stage">Exploration Stage</a></p>
+</li>
+<li>
+<p><a href="#experimentation-stage"><strong>Experimentation Stage</strong></a></p>
+</li>
+<li>
+<p><a href="#embrace-stage">Embrace Stage</a></p>
+</li>
+<li>
+<p><a href="#expand-stage">Expand Stage</a></p>
+</li>
+<li>
+<p><a href="#evolve-stage">Evolve Stage</a></p>
+</li>
+</ol>
+</div>
+<div class="sect2">
+<h3 id="envision-stage">Envision Stage</h3>
+<div class="paragraph">
+<p>Decide on the core concepts, the supporting syntax and related keywords.  At this stage the work is mainly about definition of a BNF grammar and the parser rules.
+These rules need to be validated and being able to obtain the Abstract Syntax Tree (AST) for the language.</p>
+</div>
+<div class="paragraph">
+<p>Define primary design rules like the double-symbol operator o mean the operator is not comuutable.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="exploration-stage">Exploration Stage</h3>
+<div class="paragraph">
+<p>Work for this stage focus on how to assure the core feature can be available and viable in a multi-platform scenario.
+At this stage some work is made on the infrastructure necessary to transform the AST to other intermediary representations and finally to bytecodes.
+The interaction with native code and libraries is also studied at this stage. A way to create and resolve modules - and type in modules - is also explored.
+Finally a base for an IO API is provided</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="experimentation-stage">Experimentation Stage</h3>
+<div class="paragraph">
+<p>Be able to compile and run an output only Console Application in a target platform. The Java Virtual Machine is the first candidate but several others are possible.
+At this stage some work is made to validate the feature does run on the  target platform.</p>
+</div>
+<div class="paragraph">
+<p>Module resolution and type resolution in modules is also validated at this stage.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="embrace-stage">Embrace Stage</h3>
+<div class="paragraph">
+<p>Produce several auxiliar modules to the core module. Differentiate modules by platform and consider separated assemblers for each target platform</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="expand-stage">Expand Stage</h3>
+<div class="paragraph">
+<p>Compile to other platforms like Javascript, TypeScript or Dart. Produce modules specific to those platforms or that are available only in some platforms.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="evolve-stage">Evolve Stage</h3>
+<div class="paragraph">
+<p>Discover new opportunities for better integration with platforms, better plataform independence and better performance.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_features_status">Features Status</h2>
+<div class="sectionbody">
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Feature</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Description</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Status</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Strong Static Typing with Inference</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">all objects have a type at compile time, and the compiler can infer most types</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Embrace</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Flow Sensitive Typing</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">casts are not necessary when the compiler knows a variable is already of a given type</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Embrace</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Numeric Tower</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">support for Natural, Integer , Rational, Imaginary and Complex numbers</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Embrace</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Power Operator</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">support for a power operator (<code>^^</code>)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Embrace</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Enhancements</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">you can use Enhancements to add methods to types you don’t control.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Embrace</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Method Overriding</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">allow the derived class to re-implement a method from the base classes</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Embrace</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Method Overloading</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">allow the same method name with different signature</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Embrace</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">No nulls</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">do not allow variables and fields to be null. use maybe monad</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Experimentation (not clear if needs maybe erasure)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Modules</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">the compiler produces modules with dependency and version information on other modules.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Experimentation ( resolve multiples modules )</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Single Inheritance</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Single Inheritance for classes , multiple inheritance for interface</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Experimentation	(need traits)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Sealed Type Hierarchies</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">you can limit the instances of a type and/or the types that inherit from it</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Experimentation	(needed to define enums)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Immutability first</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">You have to opt out of immutability explicitly</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Exploration	(needs new design using muttable keyword)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Juxtaposition</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">support for simple juxtaposition that enables units like <code>2 kg</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Experimentation	(explore other uses besides units)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Native code and Peers</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">support implementation delegation to the native platform</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Experimentation	(not clear interaction with native modules)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Operator Overloading</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Operators are related to type interfaces and follow mathematical concepts</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Exploration	(needed the concept of meta type)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Reification</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">support availability of generic type parameter information at runtime</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Experimentation	(not clear interaction with 'is' operator)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Reflection</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">allow code to inspect modules,classes and members</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Exploration	(not clear from where/how to load information)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Monads</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">support for monads and monadic operations.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Exploration (needed the concept of meta type)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Native inter-op</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">call native code directly from lense code without delegation</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Envision	(not clear interaction with native modules)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Meta type</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">meta types are for classes what classes are for instances. Also known as shapes</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Envision (not clear to define a syntax)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Lambdas</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">function objects made easy</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Envision (not clear is should use lambda or closure)</p></td>
+</tr>
+</tbody>
+</table>
+</div>
 </div>
 			</div>
 			<div class="col-xs-6 col-sm-3 col-sm-pull-9 sidebar-offcanvas" id="sidebar"">

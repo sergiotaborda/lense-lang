@@ -159,176 +159,185 @@
       </div>
     </nav>
 	
-	<div class="corner-ribbon top-right sticky shadow"><a href="status.html">Exploration Stage</a></div>
+	<div class="corner-ribbon top-right sticky shadow turquoise"><a href="status.html">Experimentation Stage</a></div>
     
 	<div class="container">
 	<div class="container-fluid">
 		<div class="row row-offcanvas row-offcanvas-right">
 			 <div class="col-xs-12 col-sm-9 col-sm-push-3">
-				<div class="sect1"> 
- <h2 id="_binary">Binary</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>A Binary in Lense is a sequence of bits and implements <code>Sequence&lt;Boolean&gt;</code> and may not represent a number. <code>Binary</code> is a <a href="glossary.html#fundamental">fundamental type</a> in Lense so it is specially supported by the language.</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>Two main implementations of <code>Binary</code> exist : <code>BitList</code> that supports a variable size of bits, and <code>BitArray</code> that supports a fixed length of bits.</p> 
-  </div> 
-  <div class="sect2"> 
-   <h3 id="_binary_literal_representation">Binary Literal Representation</h3> 
-   <div class="paragraph"> 
-    <p>The literal of binary begins with a <code>$</code> sign followed by a sequence of ones (to represent <code>true</code>) and zeros (to represent <code>false</code>). The <code>_</code> symbol can be used, as in <a href="numbers.html">number literals</a>, to separate digits logically.</p> 
-   </div> 
-   <div class="listingblock"> 
-    <div class="content"> 
-     <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">	let  byte = $1111_0000;
+				<div class="sect1">
+<h2 id="_binary">Binary</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>A Binary in Lense is a sequence of bits and implements <code>Sequence&lt;Boolean&gt;</code> and may not represent a number.
+<code>Binary</code> is a <a href="glossary.html#fundamental">fundamental type</a> in Lense so it is specially supported by the language.</p>
+</div>
+<div class="paragraph">
+<p>Two main implementations of <code>Binary</code> exist : <code>BitList</code> that supports a variable size of bits, and <code>BitArray</code> that supports a fixed length of bits.</p>
+</div>
+<div class="sect2">
+<h3 id="_binary_literal_representation">Binary Literal Representation</h3>
+<div class="paragraph">
+<p>The literal of binary begins with a <code>$</code> sign followed by a sequence of ones (to represent <code>true</code>) and zeros (to represent <code>false</code>). The <code>_</code> symbol can be used, as in <a href="numbers.html">number literals</a>, to separate digits logically.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="lense" class="language-lense hljs">	let  byte = $1111_0000;
 	let  short = $1111_0000_1111_0000;
-	let  flags = $1111_0000_0101_0110_0010_0001_0101_1001;</code></pre> 
-    </div> 
-   </div> 
-   <div class="paragraph"> 
-    <p>All binary literals are assumed to be instances of <code>BitArray</code> with a size equivalent to the given number of bits.</p> 
-   </div> 
-   <div class="admonitionblock note"> 
-    <table> 
-     <tbody>
-      <tr> 
-       <td class="icon"> 
-        <div class="title">
-         Note
-        </div> </td> 
-       <td class="content"> It is not possible to represent a zero bits sequence with a literal. </td> 
-      </tr> 
-     </tbody>
-    </table> 
-   </div> 
-   <div class="paragraph"> 
-    <p>The above code is equivalent to:</p> 
-   </div> 
-   <div class="listingblock"> 
-    <div class="content"> 
-     <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">	let  byte : Binary = BitArray.valueOf(true,true,true,true, false,false,false,false);
+	let  flags = $1111_0000_0101_0110_0010_0001_0101_1001;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>All binary literals are assumed to be instances of <code>BitArray</code> with a size equivalent to the given number of bits.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+It is not possible to represent a zero bits sequence with a literal.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>The above code is equivalent to:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="lense" class="language-lense hljs">	let  byte : Binary = BitArray.valueOf(true,true,true,true, false,false,false,false);
 	let  short : Binary = BitArray.valueOf(true,true,true,true, false,false,false,false, true,true,true,true, false,false,false,false);
-	let  flags : Binary = BitArray.valueOf(true,true,true,true, false,false,false,false, false,true,false,true, false,true,true,false, false,false,true,false, false,false,false,true, false,true,false,true, true, false,false,true);</code></pre> 
-    </div> 
-   </div> 
-   <div class="admonitionblock note"> 
-    <table> 
-     <tbody>
-      <tr> 
-       <td class="icon"> 
-        <div class="title">
-         Note
-        </div> </td> 
-       <td class="content"> This equivalency is conceptual, in practice, the compiler can optimize the construction of literals. </td> 
-      </tr> 
-     </tbody>
-    </table> 
-   </div> 
-  </div> 
-  <div class="sect2"> 
-   <h3 id="_binary_and_bytes">Binary and Bytes</h3> 
-   <div class="paragraph"> 
-    <p><code>Byte</code> is a special case of <code>Binary</code> that corresponds to a fixed sequence length of 8 bits. <code>Byte</code> is primarily intended for use in I/O operations and is not a number. <code>Byte</code> does not have an assigned numeric value and there is no automatic promotion from <code>Byte</code> to any type of <code>Number</code>. Also it has no arithmetic operations. However, a <code>Byte</code> can be transformed explicitly to a <code>Natural</code> between 0 and 255 or to a <code>Int32</code> between -128 and 127 by means of the <code>toNatural()</code> and <code>toInteger()</code> functions.</p> 
-   </div> 
-   <div class="listingblock"> 
-    <div class="content"> 
-     <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">	let  byte : Byte = $1111_0000;
+	let  flags : Binary = BitArray.valueOf(true,true,true,true, false,false,false,false, false,true,false,true, false,true,true,false, false,false,true,false, false,false,false,true, false,true,false,true, true, false,false,true);</code></pre>
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+This equivalency is conceptual, in practice, the compiler can optimize the construction of literals.
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_binary_and_bytes">Binary and Bytes</h3>
+<div class="paragraph">
+<p><code>Byte</code> is a special case of <code>Binary</code> that corresponds to a fixed sequence length of 8 bits. <code>Byte</code> is primarily intended for use in I/O operations and is not a number. <code>Byte</code> does not have an assigned numeric value and there is no automatic promotion from <code>Byte</code> to any type of <code>Number</code>. Also it has no arithmetic operations. However, a <code>Byte</code> can be transformed explicitly to a <code>Natural</code> between 0 and 255 or to a <code>Int32</code> between -128 and 127 by means of the <code>toNatural()</code> and <code>toInteger()</code> functions.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="lense" class="language-lense hljs">	let  byte : Byte = $1111_0000;
 	let  n : Natural = byte.toNatural(); // equivalent to 240;
 	let  i : Int32 = byte.toInteger(); // equivalent to -16
 
-	let error : Natural = byte; // illegal. Byte is not assignable to Natural.</code></pre> 
-    </div> 
-   </div> 
-   <div class="paragraph"> 
-    <p><code>Int16</code> , <code>Int32</code> and <code>Int64</code> also implement <code>Binary</code> corresponding to a fixed length sequence of 16, 32 and 64 bits respectively. Because this values have a signed numeric value, one of the bits is reserved to determine the sign as numbers. The other bits represent the value if the value is positive, or represent the <a href="https://en.wikipedia.org/wiki/Two%27s_complement">two’s complement</a> representation of the (then negative) value.</p> 
-   </div> 
-  </div> 
-  <div class="sect2"> 
-   <h3 id="_bitwise_operations">Bitwise Operations</h3> 
-   <div class="paragraph"> 
-    <p><code>Binary</code> satisfies <code>Injuctable</code>, <code>Dijunctable</code> and <code>ExclusiveDijunctable</code> to allow for the use of the following bitwise operators:</p> 
-   </div> 
-   <div class="ulist"> 
-    <ul> 
-     <li> <p><strong>&amp;</strong> from <code>Injuctable</code> : the bitwise AND operator</p> </li> 
-     <li> <p><strong>|</strong> from <code>Dijunctable</code> : the bitwise OR operator</p> </li> 
-     <li> <p><strong>^</strong> from <code>ExclusiveDijunctable</code>: the bitwise XOR (Exclusive-OR) operator</p> </li> 
-    </ul> 
-   </div> 
-   <div class="paragraph"> 
-    <p>These operators are commutative and operate bitwise according to they respective traditional <a href="https://en.wikipedia.org/wiki/Truth_table">Truth Tables</a>.</p> 
-   </div> 
-   <div class="paragraph"> 
-    <p>` Binary` also satisfies <code>Complementable</code> to allow for the use of the complement operator:</p> 
-   </div> 
-   <div class="ulist"> 
-    <ul> 
-     <li> <p><strong>~</strong> from <code>Complementable</code> : the bitwise complement operator.</p> </li> 
-    </ul> 
-   </div> 
-   <div class="admonitionblock note"> 
-    <table> 
-     <tbody>
-      <tr> 
-       <td class="icon"> 
-        <div class="title">
-         Note
-        </div> </td> 
-       <td class="content"> When the type implementing <code>Binary</code> also is a number like <code>Int32</code> or <code>Int64</code> the following relation olds: <code>-x = ~x + 1</code> </td> 
-      </tr> 
-     </tbody>
-    </table> 
-   </div> 
-   <div class="paragraph"> 
-    <p><code>Binary</code> additionally defines two other bitwise operators:</p> 
-   </div> 
-   <div class="ulist"> 
-    <ul> 
-     <li> <p>&gt;&gt; - arithmetic right shift</p> </li> 
-     <li> <p>&lt;&lt; - arithmetic left shift</p> </li> 
-    </ul> 
-   </div> 
-   <div class="paragraph"> 
-    <p>These operators are called arithmetic because they are related to the multiplication and division operations</p> 
-   </div> 
-   <div class="listingblock"> 
-    <div class="content"> 
-     <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">	let number : Int32 = 60;
+	let error : Natural = byte; // illegal. Byte is not assignable to Natural.</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><code>Int16</code> , <code>Int32</code> and <code>Int64</code> also implement <code>Binary</code> corresponding to a fixed length sequence of 16, 32 and 64 bits respectively. Because this values have a signed numeric value, one of the bits is reserved to determine the sign as numbers. The other bits represent the value if the value is positive, or represent the <a href="https://en.wikipedia.org/wiki/Two%27s_complement">two&#8217;s complement</a> representation of the (then negative) value.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_bitwise_operations">Bitwise Operations</h3>
+<div class="paragraph">
+<p><code>Binary</code> satisfies <code>Injuctable</code>, <code>Dijunctable</code> and <code>ExclusiveDijunctable</code> to allow for the use of the following bitwise operators:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>&amp;</strong> from <code>Injuctable</code> : the bitwise AND operator</p>
+</li>
+<li>
+<p><strong>|</strong> from <code>Dijunctable</code> : the bitwise OR operator</p>
+</li>
+<li>
+<p><strong>^</strong> from <code>ExclusiveDijunctable</code>: the bitwise XOR (Exclusive-OR) operator</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>These operators are commutative and operate bitwise according to they respective traditional <a href="https://en.wikipedia.org/wiki/Truth_table">Truth Tables</a>.</p>
+</div>
+<div class="paragraph">
+<p>` Binary` also satisfies <code>Complementable</code> to allow for the use of the complement operator:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>~</strong> from <code>Complementable</code> : the bitwise complement operator.</p>
+</li>
+</ul>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+When the type implementing <code>Binary</code> also is a number like <code>Int32</code> or <code>Int64</code> the following relation olds: <code>-x = ~x + 1</code>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p><code>Binary</code> additionally defines two other bitwise operators:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>&gt;&gt; - arithmetic right shift</p>
+</li>
+<li>
+<p>&lt;&lt; - arithmetic left shift</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>These operators are called arithmetic because they are related to the multiplication and division operations</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="lense" class="language-lense hljs">	let number : Int32 = 60;
 
 	assert( number &lt;&lt; 2 == 360 ) // equivalent to 360 = 60 * 2 * 2
-	assert( number &gt;&gt; 2 == 15 ) // equivalent to 15 = 60 / 2 / 2</code></pre> 
-    </div> 
-   </div> 
-   <div class="paragraph"> 
-    <p>Using binary literals:</p> 
-   </div> 
-   <div class="listingblock"> 
-    <div class="content"> 
-     <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">	let number : Byte = $0011_1100;
+	assert( number &gt;&gt; 2 == 15 ) // equivalent to 15 = 60 / 2 / 2</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Using binary literals:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="lense" class="language-lense hljs">	let number : Byte = $0011_1100;
 
 	assert( number &lt;&lt; 2 == $1111_0000 ) // equivalent to 360 = 60 * 2 * 2
-	assert( number &gt;&gt; 2 == $0000_1111 ) // equivalent to 15 = 60 / 2 / 2</code></pre> 
-    </div> 
-   </div> 
-   <div class="paragraph"> 
-    <p>Shifting to the left <strong>n</strong> times is equivalent to multiplying by 2<sup>n</sup>. On the other hand shifting to the right <strong>n</strong> types equivalent to integer dividing by 2<sup>n</sup>. In general right shifting is equivalent to taking the floor of the division.</p> 
-   </div> 
-   <div class="admonitionblock note"> 
-    <table> 
-     <tbody>
-      <tr> 
-       <td class="icon"> 
-        <div class="title">
-         Note
-        </div> </td> 
-       <td class="content"> x &lt;&lt; n &lt;⇒ x * 2<sup>n</sup> and x &gt;&gt; n &lt;⇒ x \ 2<sup>n</sup> </td> 
-      </tr> 
-     </tbody>
-    </table> 
-   </div> 
-  </div> 
- </div> 
+	assert( number &gt;&gt; 2 == $0000_1111 ) // equivalent to 15 = 60 / 2 / 2</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Shifting to the left <strong>n</strong> times is equivalent to multiplying by 2<sup>n</sup>. On the other hand shifting to the right <strong>n</strong> types equivalent to integer dividing by 2<sup>n</sup>. In general right shifting is equivalent to taking the floor of the division.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+x &lt;&lt; n &lt;&#8658; x * 2<sup>n</sup>  and x &gt;&gt; n &lt;&#8658; x \ 2<sup>n</sup>
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
 </div>
 			</div>
 			<div class="col-xs-6 col-sm-3 col-sm-pull-9 sidebar-offcanvas" id="sidebar"">

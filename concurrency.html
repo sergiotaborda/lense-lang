@@ -159,56 +159,57 @@
       </div>
     </nav>
 	
-	<div class="corner-ribbon top-right sticky shadow"><a href="status.html">Exploration Stage</a></div>
+	<div class="corner-ribbon top-right sticky shadow turquoise"><a href="status.html">Experimentation Stage</a></div>
     
 	<div class="container">
 	<div class="container-fluid">
 		<div class="row row-offcanvas row-offcanvas-right">
 			 <div class="col-xs-12 col-sm-9 col-sm-push-3">
-				<div class="admonitionblock important"> 
- <table> 
-  <tbody>
-   <tr> 
-    <td class="icon"> 
-     <div class="title">
-      Important
-     </div> </td> 
-    <td class="content"> The features explained here are still conceptual and require further study. </td> 
-   </tr> 
-  </tbody>
- </table> 
-</div> 
-<div class="sect1"> 
- <h2 id="_parallelism_and_concurrency">Parallelism and Concurrency</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>Lense chooses not to force any specific memory model or thread model because there is no guarantee it would be available in all platforms. Instead if defines types and libraries that can be used to take advantage of the platform parallelism, if any exists. So, concurrency is enabled, not by language constructs, but by means of specific APIs that hide the details of parallelism and concurrency.</p> 
-  </div> 
-  <div class="sect2"> 
-   <h3 id="_promises_and_deference">Promises and Deference</h3> 
-   <div class="paragraph"> 
-    <p>A <code>Promise</code> is a monad that can hold functions to be executed once a value is calculated. The promise does not define if the calculation is executed in another thread or not, but conceptually is better to work as if it where. The thread that executes the value also executes the passed functions. A promise holds a function for when the value is calculated successfully and a function for when the promise can not be calculated, i.e. the calculation ends in an exception.</p> 
-   </div> 
-   <div class="listingblock"> 
-    <div class="content"> 
-     <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">public interface Promise&lt;T&gt; {
+				<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Important</div>
+</td>
+<td class="content">
+The features explained here are still conceptual and require further study.
+</td>
+</tr>
+</table>
+</div>
+<div class="sect1">
+<h2 id="_parallelism_and_concurrency">Parallelism and Concurrency</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Lense chooses not to force any specific memory model or thread model because there is no guarantee it would be available in all platforms.
+Instead if defines types and libraries that can be used to take advantage of the platform parallelism, if any exists.
+So, concurrency is enabled,  not by language constructs, but by means of specific APIs that hide the details of parallelism and concurrency.</p>
+</div>
+<div class="sect2">
+<h3 id="_promises_and_deference">Promises and Deference</h3>
+<div class="paragraph">
+<p>A <code>Promise</code> is a monad that can hold functions to be executed once a value is calculated. The promise does not define if the calculation is executed in another thread or not, but conceptually is better to work as if it where. The thread that executes the value also executes the passed functions. A promise holds a function for when the value is calculated successfully and a function for when the promise can not be calculated, i.e. the calculation ends in an exception.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="lense" class="language-lense hljs">public interface Promise&lt;T&gt; {
 
 	public then ( onSuccess: Action&lt;T&gt;) : Promise&lt;T&gt; ;
 	public catch ( onError: Action&lt;Exception&gt;) : Promise&lt;Nothing&gt;
 
 	public map &lt;R&gt;( transformation: Function&lt;R,T&gt;): Promise&lt;R&gt; ;
-}</code></pre> 
-    </div> 
-   </div> 
-   <div class="paragraph"> 
-    <p>A <code>Deferred</code> is a <code>Promise</code> factory that holds a private relation to the created <code>Promise</code>.<code>Deferred</code> objects also do not define the concurrency model. They are simply a factory that holds control of the internal state of the promise. Is the <code>Deferred</code> object that receives the value after the calculation is executed and triggers the <code>then</code> function, or triggers the <code>catch</code> function after an exception is detected. The calculation itself is handled by a third object.</p> 
-   </div> 
-   <div class="paragraph"> 
-    <p>A simple example that do not uses concurrency could be something like this:</p> 
-   </div> 
-   <div class="listingblock"> 
-    <div class="content"> 
-     <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">public object Calculator{
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>A <code>Deferred</code> is a <code>Promise</code> factory that holds a private relation to the created <code>Promise</code>.<code>Deferred</code> objects also do not define the concurrency model. They are simply a factory that holds control of the internal state of the promise. Is the <code>Deferred</code> object that receives the value after the calculation is executed and triggers the <code>then</code> function, or triggers the <code>catch</code> function after an exception is detected. The calculation itself is handled by a third object.</p>
+</div>
+<div class="paragraph">
+<p>A simple example that do not uses concurrency could be something like this:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="lense" class="language-lense hljs">public object Calculator{
 
     // calculates the n-th element in the fibonacci sequence
     // n: 0	1	2	3	4	5	6	7 ...
@@ -236,24 +237,25 @@
 		return calculateRecursively (n-1) + calculateRecursively (n-2)
 	}
 
-}</code></pre> 
-    </div> 
-   </div> 
-   <div class="paragraph"> 
-    <p>This implementation does not use concurrency but the client code calling the <code>fibonacci</code> function has no way of knowing this, so it has to assume the code is calculated concurrently. Later, the implementation can evolve to a concurrent one, or even a distributed version without consequences to the calling code.</p> 
-   </div> 
-  </div> 
-  <div class="sect2"> 
-   <h3 id="_executors">Executors</h3> 
-   <div class="paragraph"> 
-    <p>An <code>Executor</code> is an object that can create another thread of execution to run a given function. The calling code will continue to run after the executor is called, enabling concurrency.</p> 
-   </div> 
-   <div class="paragraph"> 
-    <p>There are two principal executors in the standard API: the <code>TimedExecutor</code> and the <code>DeferredExecutor</code>. The <code>TimedExecutor</code> enables code to be run after some time as elapsed. <code>DefferedExecutor</code> allows the code to run immediately (in another thread).</p> 
-   </div> 
-   <div class="listingblock"> 
-    <div class="content"> 
-     <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">public object TimedExecutor {
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This implementation does not use concurrency but the client code calling the <code>fibonacci</code> function has no way of knowing this, so it has to assume the code is calculated concurrently. Later, the implementation can evolve to a concurrent one, or even a distributed version without consequences to the calling code.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_executors">Executors</h3>
+<div class="paragraph">
+<p>An <code>Executor</code> is an object that can create another thread of execution to run a given function.
+The calling code will continue to run after the executor is called, enabling concurrency.</p>
+</div>
+<div class="paragraph">
+<p>There are two principal executors in the standard API: the <code>TimedExecutor</code> and the <code>DeferredExecutor</code>. The <code>TimedExecutor</code> enables code to be run after some time as elapsed. <code>DefferedExecutor</code> allows the code to run immediately (in another thread).</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="lense" class="language-lense hljs">public object TimedExecutor {
 
 	public runAfter&lt;T&gt;( duration : Duration, calculation : Function&lt;T&gt; ) : Promise&lt;T&gt; ;
 	public runAt&lt;T&gt;( timePoint : TimePoint, calculation : Function&lt;T&gt; ): Promise&lt;T&gt; ;
@@ -263,24 +265,25 @@
 public object DeferredExecutor {
 
 	public run&lt;T&gt;(calculation : Function&lt;T&gt; ) : Promise&lt;T&gt;;
-}</code></pre> 
-    </div> 
-   </div> 
-   <div class="paragraph"> 
-    <p>`Executor`s return promises that can then be combined (they are monads) to produce a result. This is equivalent to a wait/notify/join mechanism without all the fuss and without having to be specific about a thread model.</p> 
-   </div> 
-   <div class="paragraph"> 
-    <p>The <code>TimedExecutor</code> and <code>DeferredExecutor</code> are implemented in java using the Java Executor API. In javascript are implemented using <code>window.setTimeout</code>. <code>Deferred</code> objects are used internally to create and control <code>Promises</code>.</p> 
-   </div> 
-  </div> 
-  <div class="sect2"> 
-   <h3 id="_actors_under_consideration">Actors (Under Consideration)</h3> 
-   <div class="paragraph"> 
-    <p><code>Actor`s enable a message based communication between different threads that can be, even, distributed in one or more machines. The Actor model is similar to Java Messaging Service in Java or Web Workers in javascript, in the sense messages are exchanged back and forward but is different as to the endpoints envolved. However the technology that enables the actor to send and receive the messages depends on the `ActorEnvironment</code> used. The environment determines how the messages are handled and several different implementations are possible. The actors exist in the scope of a specific environment. For example, in a javascript an environment based on <strong>websockets</strong> would be a natural choice. But is as not be a raw websocket implementation an other APIs like <strong>Stomp</strong> can be used. A possible code would be:</p> 
-   </div> 
-   <div class="listingblock"> 
-    <div class="content"> 
-     <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">let env : ActorEnvironment = new StompActorEnvironment("http://server.side.address.com");
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>`Executor`s return promises that can then be combined (they are monads) to produce a result. This is equivalent to a wait/notify/join mechanism without all the fuss and without having to be specific about a thread model.</p>
+</div>
+<div class="paragraph">
+<p>The <code>TimedExecutor</code> and <code>DeferredExecutor</code> are implemented in java using the Java Executor API. In javascript are implemented using <code>window.setTimeout</code>.
+<code>Deferred</code> objects are used internally to create and control <code>Promises</code>.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_actors_under_consideration">Actors (Under Consideration)</h3>
+<div class="paragraph">
+<p><code>Actor`s enable a message based communication between different threads that can be, even, distributed in one or more machines. The Actor model is similar to Java Messaging Service in Java or Web Workers in javascript, in the sense messages are exchanged back and forward but is different as to the endpoints envolved. However the technology that enables the actor to send and receive the messages depends on the `ActorEnvironment</code> used.  The environment determines how the messages are handled and several different implementations are possible. The actors exist in the scope of a specific environment. For example, in a javascript an environment based on <strong>websockets</strong> would be a natural choice. But is as not be a raw websocket implementation an other APIs like <strong>Stomp</strong> can be used. A possible code would be:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="lense" class="language-lense hljs">let env : ActorEnvironment = new StompActorEnvironment("http://server.side.address.com");
 
 // register the actor with a name
 
@@ -288,15 +291,15 @@ env.register("myActor", new MyActor());
 env.register("printActor", new PrintActor());
 
 //sending values from outside the environment.
-env.sendTo("myActor" , 4);</code></pre> 
-    </div> 
-   </div> 
-   <div class="paragraph"> 
-    <p>The actor it self is a class or object that extends <code>Actor</code>.</p> 
-   </div> 
-   <div class="listingblock"> 
-    <div class="content"> 
-     <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">public class MyActor extends Actor {
+env.sendTo("myActor" , 4);</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The actor it self is a class or object that extends <code>Actor</code>.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="lense" class="language-lense hljs">public class MyActor extends Actor {
 
        public onMesssage( msg: Message) {
 
@@ -325,34 +328,38 @@ public class PrintActor extends Actor {
 			}
        }
 
-}</code></pre> 
-    </div> 
-   </div> 
-   <div class="paragraph"> 
-    <p>This code will create and register two actors. The first calculates the fibonacci sequence; the second, prints the calculated value. Actors communicate thought messages. Each actor has access to the environment is registered with and can use it to send messages to other actors. Actors names are only significant in a given environment.</p> 
-   </div> 
-   <div class="paragraph"> 
-    <p>The communication is normally asynchronous whenever the <code>sendTo</code> method is called. The sent message e delivered to the actor’s message queue. The message is removed from the queue and delivered to the <code>onMessage</code> method.</p> 
-   </div> 
-  </div> 
-  <div class="sect2"> 
-   <h3 id="_passing_the_correct_data_between_actors">Passing the correct data between actors</h3> 
-   <div class="paragraph"> 
-    <p>All data passed between actors is not shared, we do not want a shared memory model. This means the objects passed as payloads need to be serializable. If the objects are serializable, we can always serialize the object and deserialize it again to obtain a safe copy. This also is a requirement if we need to transfer the object to another machine (depending on the ActorEnvironment implementation).</p> 
-   </div> 
-   <div class="paragraph"> 
-    <p>For in memory environments, the environment can opt for not serializing the object for performance reasons. This is only possible if the object is immutable. If objects are imuable there is no risk in sharing them because they cannot be changed in the first place.</p> 
-   </div> 
-   <div class="paragraph"> 
-    <p>For these reasons the <code>sendTo</code> method takes a <code>Serializable</code> as its message payload:</p> 
-   </div> 
-   <div class="listingblock"> 
-    <div class="content"> 
-     <pre class="highlightjs highlight"><code class="language-lense hljs" data-lang="lense">public  sendTo( actorId : String,  message: Serializable) : Void</code></pre> 
-    </div> 
-   </div> 
-  </div> 
- </div> 
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This code will create and register two actors. The first calculates the fibonacci sequence; the second, prints the calculated value.
+Actors communicate thought messages. Each actor has access to the environment is registered with and can use it to send messages to other actors.
+Actors names are only significant in a given environment.</p>
+</div>
+<div class="paragraph">
+<p>The communication is normally asynchronous whenever the <code>sendTo</code> method is called. The sent message e delivered to the actor&#8217;s message queue. The message is removed from the queue and
+delivered to the <code>onMessage</code> method.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_passing_the_correct_data_between_actors">Passing the correct data between actors</h3>
+<div class="paragraph">
+<p>All data passed between actors is not shared, we do not want a shared memory model. This means the objects passed as payloads need to be serializable. If the objects are serializable, we can always serialize the object and deserialize it again to obtain a safe copy. This also is a requirement if we need to transfer the object to another machine (depending on the ActorEnvironment implementation).</p>
+</div>
+<div class="paragraph">
+<p>For in memory environments, the environment can opt for not serializing the object for performance reasons. This is only possible if the object is immutable.
+If objects are imuable there is no risk in sharing them because they cannot be changed in the first place.</p>
+</div>
+<div class="paragraph">
+<p>For these reasons the <code>sendTo</code> method takes a <code>Serializable</code> as its message payload:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="lense" class="language-lense hljs">public  sendTo( actorId : String,  message: Serializable) : Void</code></pre>
+</div>
+</div>
+</div>
+</div>
 </div>
 			</div>
 			<div class="col-xs-6 col-sm-3 col-sm-pull-9 sidebar-offcanvas" id="sidebar"">

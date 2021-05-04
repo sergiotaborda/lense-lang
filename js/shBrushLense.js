@@ -11,13 +11,12 @@
 						'continue default do while if else for ' +
 						'true false none ' +
 						'import export require enhancement module ' +
-						'extends implements constructor immutable' +
+						'extends implements constructor mutable ' +
 						'native new null is ' +
 						'package module class object enum annotation interface trait ' +
 						'public private protected ' +
-						'in out let var selead override ' +
-						'return super synchronized this throw implicit ' 
-					//	+ 'static transient volatile strictfp ';
+						'in out let selead override ' +
+						'return super synchronized this throw implicit ';
 
 		this.regexList = [
 			{ regex: SyntaxHighlighter.regexLib.singleLineCComments,	css: 'comments' },		// one line comments
