@@ -4,9 +4,11 @@
 package lense.compiler.crosscompile.java;
 
 import java.io.BufferedInputStream;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.Writer;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -18,6 +20,10 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 
+import compiler.CompilationResult;
+import compiler.CompilationResultSet;
+import compiler.CompiledUnit;
+import compiler.CompilerBackEnd;
 import compiler.CompilerListener;
 import compiler.filesystem.SourceFile;
 import compiler.filesystem.SourceFileSystemNode;
@@ -29,18 +35,24 @@ import lense.compiler.FileLocations;
 import lense.compiler.LenseCompiler;
 import lense.compiler.PackageSourcePathUtils;
 import lense.compiler.asm.ByteCodeTypeDefinitionReader;
+import lense.compiler.ast.ClassTypeNode;
 import lense.compiler.ast.ModuleImportNode;
 import lense.compiler.ast.ModuleNode;
+import lense.compiler.ast.UnitTypes;
 import lense.compiler.crosscompile.ErasurePhase;
 import lense.compiler.crosscompile.NativePeersPhase;
 import lense.compiler.crosscompile.java.JavaCompilerBackEndFactory.JavaCompilerBackEnd;
+import lense.compiler.dependency.DependencyRelationship;
 import lense.compiler.modules.ModulesRepository;
 import lense.compiler.phases.CompositePhase;
 import lense.compiler.phases.DesugarPhase;
 import lense.compiler.phases.EnhancementPhase;
 import lense.compiler.phases.ReificationPhase;
+import lense.compiler.repository.ModuleCompilationScopeTypeRepository;
 import lense.compiler.repository.UpdatableTypeRepository;
+import lense.compiler.type.LenseTypeDefinition;
 import lense.compiler.type.TypeDefinition;
+import lense.compiler.utils.Strings;
 
 /**
  * 
@@ -53,6 +65,12 @@ public class LenseToJavaCompiler extends LenseCompiler{
 	public LenseToJavaCompiler (ModulesRepository globalModulesRepository){
 		super("java",globalModulesRepository,javaCompilerBackEndFactory); 
 	}
+	
+	@Override
+	protected boolean shouldGraphContain(DependencyRelationship parameter) {
+		return DependencyRelationship.Structural == parameter;
+	}
+
 
 	protected void initCorePhase(CompositePhase corePhase, Map<String, SourceFile> nativeTypes, UpdatableTypeRepository typeContainer){
 
@@ -79,6 +97,7 @@ public class LenseToJavaCompiler extends LenseCompiler{
 		if (!applications.isEmpty()){
 
 			if (applications.size() > 1){
+				// TODO move to another phase
 				throw new CompilationError("More than one Application was found. Every module can only have a maximum of 1 application");
 			}
 			String mainType = applications.iterator().next();
@@ -95,21 +114,6 @@ public class LenseToJavaCompiler extends LenseCompiler{
 			}
 
 			compilerBackEnd.compile(sourceFile);
-
-			//        	StandardJavaFileManager fileManager = compiler.getStandardFileManager(null, null, null);
-			//        	
-			//        	List<File> classPath = new ArrayList<>(2);
-			//            if (base != null){
-			//                for (File jar : base.listFiles(f -> f.getName().endsWith(".jar"))){
-			//                    classPath.add(jar);
-			//                }
-			//            }
-			//            classPath.add(locations.getTargetFolder());
-			//            fileManager.setLocation(StandardLocation.CLASS_PATH, classPath);
-			//            
-			//        	Iterable<? extends JavaFileObject> compilationUnits = fileManager.getJavaFileObjectsFromFiles(Collections.singletonList(sourceFile));
-			//
-			//            compiler.getTask(new PrintWriter(System.err),fileManager, null, null, null,  compilationUnits).call();
 
 			jarManifest.getMainAttributes().put(Attributes.Name.MAIN_CLASS, pack + ".Bootstrap");
 
@@ -293,25 +297,82 @@ public class LenseToJavaCompiler extends LenseCompiler{
 	}
 	
 	@Override
-	protected List<TypeDefinition> extactTypeDefinitionFronNativeType(
+	protected List<TypeDefinition> extactTypeDefinitionFromNativeType(
 			UpdatableTypeRepository currentModuleRepository,
 			Collection<SourceFile> nativeFiles
 	) throws IOException {
 
-	    var nativeTypesDefs = new LinkedList<TypeDefinition>();
-
   		var reader = new ByteCodeTypeDefinitionReader(currentModuleRepository);
 
-
-		for( var target : nativeFiles) {
-  			TypeDefinition type =  reader.readNative(target);
-      		currentModuleRepository.registerType(type, type.getGenericParameters().size());
-
-      		nativeTypesDefs.add(type);
-  		}
-
-		return nativeTypesDefs;
+  		return nativeFiles.stream().map(target -> {
+			try {
+				return reader.readNative(target);
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+		}).toList();
+  		
 	}
 
+	@Override
+	protected void applyCompilation(
+			Map<String, SourceFile> nativeTypes, 
+			FileLocations locations,
+			CompositePhase corePhase,
+			ModuleCompilationScopeTypeRepository currentModuleRepository, 
+			final CompilerBackEnd backend,
+			CompiledUnit unit
+	) {
+		if (unit != null){
+			UnitTypes types = (UnitTypes)unit.getAstRootNode();
+
+			for (ClassTypeNode type : types.getTypes()) {
+
+				if (type.isNative()) {
+
+					SourceFile nativeTypeFile = nativeTypes.get(type.getFullname());
+
+					if (nativeTypeFile == null) {
+						if (type.getKind().isObject()) {
+
+							String[] name = Strings.split(type.getFullname(), ".");
+							name[name.length - 1 ] = Strings.cammelToPascalCase(name[name.length - 1 ]);
+
+
+							nativeTypeFile =  resolveNativeFile (locations.getTargetFolder(), Strings.join(name, File.separator));
+						}
+						else 
+						{
+							String[] name = Strings.split(type.getFullname(), ".");
+
+							nativeTypeFile =  resolveNativeFile (locations.getTargetFolder(), Strings.join(name, File.separator));
+						}
+
+						if (nativeTypeFile == null) {
+							throw new CompilationError(type, "Expected native file for type " + type.getFullname()  + " does not exist");
+						}
+					}
+
+					try {
+						this.extactTypeDefinitionFromNativeType(currentModuleRepository, Arrays.asList(nativeTypeFile)).forEach(typeDef -> {
+							
+							typeDef = currentModuleRepository.registerType(typeDef, typeDef.getGenericParameters().size());
+
+							type.setTypeDefinition((LenseTypeDefinition)typeDef);
+							
+						});
+
+					
+
+					} catch (IOException e1) {
+						throw new RuntimeException(e1);
+					}
+				}
+			}
+
+			new CompilationResultSet(new CompilationResult(unit)).passBy(corePhase).sendTo(backend);
+
+		}
+	}
 
 }

@@ -383,7 +383,23 @@ public class LenseTypeAssistant implements TypeAssistant {
 		return searchConstructorWithPromotableParameters(type,null,name, null, parameters);
 	}
 	
-	private Optional<Constructor> searchConstructorWithPromotableParameters(TypeDefinition type,Visibility visibility ,String name , Boolean implicit, ConstructorParameter... parameters) {
+	@Override
+    public Optional<Constructor> getConstructorByPromotableParameters(TypeDefinition type,ConstructorParameter... parameters) {
+		return searchConstructorWithPromotableParameters(type,null,null, null, parameters);
+    }
+
+	@Override
+	public Optional<Constructor> getConstructorByImplicitAndPromotableParameters(TypeDefinition type,boolean implicit, ConstructorParameter... parameters) {
+		return searchConstructorWithPromotableParameters(type, null, null, implicit, parameters);
+	}
+	
+	private Optional<Constructor> searchConstructorWithPromotableParameters(
+			TypeDefinition type,
+			Visibility visibility ,
+			String name , 
+			Boolean implicit,
+			ConstructorParameter... parameters
+	) {
 		
 		type = this.ensureNotFundamental(type);
 		
@@ -392,15 +408,18 @@ public class LenseTypeAssistant implements TypeAssistant {
 				.map(m -> (Constructor)m)
 				.filter(c -> c.getParameters().size() == parameters.length);
 		
-		if (name != null) {
-			map = map.filter(c -> name.equals(c.getName()));
-		} else if (name == null) {
-			map = map.filter(c -> name == null);
-		}
 		
 		if (implicit != null) {
 			map = map.filter(c -> c.isImplicit() == implicit.booleanValue());
 		}
+		
+		if (name != null) {
+			map = map.filter(c -> name.equals(c.getName()));
+		} 
+//		else if (name == null) {
+//			map = map.filter(c -> name == null);
+//		}
+	
 		
 		if (visibility != null && visibility != Visibility.Undefined) {
 	        map = map.filter(c -> c.getVisibility() == visibility);
@@ -452,16 +471,6 @@ public class LenseTypeAssistant implements TypeAssistant {
     	 
 	}
     
-
-	@Override
-    public Optional<Constructor> getConstructorByPromotableParameters(TypeDefinition type,ConstructorParameter... parameters) {
-		return searchConstructorWithPromotableParameters(type,null,null, null, parameters);
-    }
-
-	@Override
-	public Optional<Constructor> getConstructorByImplicitAndPromotableParameters(TypeDefinition type,boolean implicit, ConstructorParameter... parameters) {
-		return searchConstructorWithPromotableParameters(type, null, null, implicit, parameters);
-	}
 
     @Override
     public Collection<Method> getMethodsByName(TypeDefinition type,String name) {

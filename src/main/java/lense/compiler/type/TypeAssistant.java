@@ -30,7 +30,7 @@ public interface TypeAssistant {
 
 	boolean isTuple(TypeVariable type, int tupleCount);
 
-	TypeMatch isAssignableTo(TypeVariable typeVariable, TypeVariable maybe);
+	TypeMatch isAssignableTo(TypeVariable type, TypeVariable target);
 
 	boolean isNothing(TypeVariable typeVariable);
 

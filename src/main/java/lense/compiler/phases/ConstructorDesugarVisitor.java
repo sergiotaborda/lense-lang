@@ -12,7 +12,6 @@ import lense.compiler.ast.ConstructorDeclarationNode;
 import lense.compiler.ast.ConstructorExtentionNode;
 import lense.compiler.ast.FieldDeclarationNode;
 import lense.compiler.ast.FormalParameterNode;
-import lense.compiler.ast.ImutabilityNode;
 import lense.compiler.ast.ModifierNode;
 import lense.compiler.ast.PropertyDeclarationNode;
 import lense.compiler.ast.VisibilityNode;

@@ -17,6 +17,13 @@ public enum TypeMatch {
 		return this != NoMatch;
 	}
 	
+	public boolean isExact() {
+		return this == Exact;
+	}
+	
+	public boolean isUpCast() {
+		return this == UpCast;
+	}
 	
 	public TypeMatch and(TypeMatch other) {
 		if (this == NoMatch || other == NoMatch) {

@@ -796,7 +796,7 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
                
                 } else if (t.getKind().isInterface()){
                     writer.print(" extends lense.core.lang.Any");
-                } else if (t.isExplicitlyImmutable()){
+                } else if (t.isImmutable()){
                     writer.print(" implements lense.core.lang.Immutable");
                 } 
 

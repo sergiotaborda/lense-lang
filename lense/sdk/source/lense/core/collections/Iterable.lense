@@ -3,5 +3,5 @@ import lense.core.collections.Iterator;
 
 public interface Iterable<out T> {
 
-	public  iterator : Iterator<T> {get; }
+	public iterator : Iterator<T> {get; }
 } 

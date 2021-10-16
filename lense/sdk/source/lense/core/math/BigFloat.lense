@@ -114,13 +114,33 @@ public value class BigFloat implements Float {
 		return this.numerator.sign();
 	}
 
-	public override equalsTo(other: Any){
-		return (other is RealLineElement) && this.compareWith(other).isEqual();
-	} 
+	public isNaN() => numerator == 0 && denominator == 0;
 
-	public override hashValue() : HashValue {
-		return numerator.hashValue().concat(denominator.hashValue());
+	public isNegativeZero() => numerator == 0 && denominator < 0;
+
+	public isNegativeInfinity() => numerator < 0 && denominator == 0;
+
+	public isPositiveInfinity() => numerator > 0 && denominator == 0;
+
+	public isInfinity() => denominator == 0;
+	
+	public isPositive() => this.isNaN() || this.isPositiveInfinity() || numerator.isPositive();
+
+	public isNegative() => this.isNegativeZero() || this.isNegativeInfinity() || numerator.isNegative();
+
+	public isOne() => numerator == 1 && denominator != 0;
+
+	public isZero() => numerator == 0 && denominator > 0;
+	
+	public symmetric() {
+		if (this.isZero() || this.isNegativeZero()){
+			return new BigFloat( this.numerator , -this.denominator);
+		} 
+			
+		return new BigFloat( -this.numerator , this.denominator);
 	}
+
+    public abs() => this.isNegative() ? this.symmetric() : this;
 
 	public override compareWith (other : RealLineElement) : Comparison {
 		
@@ -180,34 +200,16 @@ public value class BigFloat implements Float {
 		throw new ComparisonException();
 	}  
 
-	public isPositive() => this.isNaN() || this.isPositiveInfinity() || numerator.isPositive();
+	public override equalsTo(other: Any){
+		return (other is RealLineElement) && this.compareWith(other).isEqual();
+	} 
 
-	public isNegative() => this.isNegativeZero() || this.isNegativeInfinity() || numerator.isNegative();
-
-	public isNaN() => numerator == 0 && denominator == 0;
-
-	public isNegativeZero() => numerator == 0 && denominator < 0;
-
-	public isNegativeInfinity() => numerator < 0 && denominator == 0;
-
-	public isPositiveInfinity() => numerator > 0 && denominator == 0;
-
-	public isInfinity() => denominator == 0;
-	
-    public abs() => this.isNegative() ? this.symmetric() : this;
-
-	public symmetric() {
-		if (this.isZero() || this.isNegativeZero()){
-			return new BigFloat( this.numerator , -this.denominator);
-		} 
-			
-		return new BigFloat( -this.numerator , this.denominator);
-
+	public override hashValue() : HashValue {
+		return numerator.hashValue().concat(denominator.hashValue());
 	}
 
-	public isOne() => numerator == 1 && denominator != 0;
-	public isZero() => numerator == 0 && denominator > 0;
-	
+
+
     public isWhole() : Boolean {
     	return this.numerator % this.denominator == 0;
     }

@@ -810,7 +810,7 @@ public class LenseGrammar extends AbstractLenseGrammar {
 				n.setAbstract(modifiers.getImplementationModifier().isAbstract());
 				n.setNative(modifiers.getImplementationModifier().isNative());
 				n.setVisibility(modifiers.getVisibility().getVisibility(Visibility.Private));
-				n.setExplicitlyImmutable(modifiers.getImplementationModifier().isImmutable());
+				n.setImmutable(modifiers.getImplementationModifier().isImmutable());
 
 
 				Optional<TypeParametersListNode> generics = r.get(++nextNodeIndex).getAstNode(TypeParametersListNode.class);

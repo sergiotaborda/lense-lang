@@ -13,6 +13,7 @@ import lense.compiler.FileLocations;
 import lense.compiler.LenseCompiler;
 import lense.compiler.ast.ModuleNode;
 import lense.compiler.crosscompile.ErasurePhase;
+import lense.compiler.dependency.DependencyRelationship;
 import lense.compiler.modules.ModulesRepository;
 import lense.compiler.phases.CompositePhase;
 import lense.compiler.phases.DesugarPhase;
@@ -32,6 +33,11 @@ public class LenseToJsCompiler extends LenseCompiler{
         // TODO pack with a web packer like commons-js
     }
 
+	@Override
+	protected boolean shouldGraphContain(DependencyRelationship parameter) {
+		return DependencyRelationship.Structural == parameter;
+	}
+	
     @Override
     protected void initCorePhase(CompositePhase corePhase, Map<String, SourceFile> nativeTypes, UpdatableTypeRepository typeContainer) {
         DesugarPhase desugarProperties = new DesugarPhase(this.getCompilerListener());
@@ -54,7 +60,7 @@ public class LenseToJsCompiler extends LenseCompiler{
 	}
 
 	@Override
-	protected List<TypeDefinition> extactTypeDefinitionFronNativeType(UpdatableTypeRepository currentTypeRepository,
+	protected List<TypeDefinition> extactTypeDefinitionFromNativeType(UpdatableTypeRepository currentTypeRepository,
 			Collection<SourceFile> files) throws IOException {
 
 		return List.of();

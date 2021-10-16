@@ -86,15 +86,15 @@ public class SemanticAnalysisPhase implements CompilerPhase {
 				// cannot share semantic context among classes
 				
 				
-					// attach the repository with loaded types
-					SemanticContext ctx = ct.getSemanticContext().withRepository(typeRepository);
+				// attach the repository with loaded types
+				SemanticContext ctx = ct.getSemanticContext().withRepository(typeRepository);
 
-					
-					TreeTransverser.transverse(ct,new IdentifiersVerifierVisitor(ctx));
-					TreeTransverser.transverse(ct,new SemanticVisitor(ctx,listener, enhancements));
-					TreeTransverser.transverse(ct,new EnsureNotFundamentalTypesVisitor(ctx));
+				
+				TreeTransverser.transverse(ct,new IdentifiersVerifierVisitor(ctx));
+				TreeTransverser.transverse(ct,new SemanticVisitor(ctx,listener, enhancements));
+				TreeTransverser.transverse(ct,new EnsureNotFundamentalTypesVisitor(ctx));
 
-					hasAlgebric = hasAlgebric || ct.isAlgebric();
+				hasAlgebric = hasAlgebric || ct.isAlgebric();
 
 			
 			}

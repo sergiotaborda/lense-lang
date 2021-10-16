@@ -3,6 +3,8 @@ import lense.core.math.Integer;
 import lense.core.lang.Boolean;
 import lense.core.lang.String;
 import lense.core.collections.Sequence;
+import lense.core.lang.reflection.Property;
+import lense.core.lang.reflection.Method;
 
 public native class Type {
 

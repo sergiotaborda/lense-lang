@@ -59,6 +59,9 @@ public class LenseTypeDefinition  implements TypeDefinition {
             this.genericParameters = new ArrayList<>(superDefinition.getGenericParameters());
             this.genericParametersMapping = new HashMap<>(superDefinition.genericParametersMapping);
         }
+        if (this.genericParameters.stream().anyMatch(it -> it == null)){
+        	throw new RuntimeException();
+        }
     }
 
     public LenseTypeDefinition(String name, TypeKind kind, LenseTypeDefinition superDefinition, List<TypeVariable> parameters) {
@@ -73,6 +76,9 @@ public class LenseTypeDefinition  implements TypeDefinition {
         		this.genericParametersMapping.put(param.getSymbol().get(), i);
         	}
         	i++;
+        }
+        if (this.genericParameters.stream().anyMatch(it -> it == null)){
+        	throw new RuntimeException();
         }
     }
 
@@ -128,7 +134,7 @@ public class LenseTypeDefinition  implements TypeDefinition {
 
                 } else {
                     // TODO this is not correct because genericParameters are not used property. 
-                    // consider Association<K,V> implements Assortement<KeyValue<K,V>>
+                    // consider Association<K,V> implements Assortment<KeyValue<K,V>>
                     binded = new ArrayList<>(interfaceType.getGenericParameters().size());
 
                     for (TypeVariable p :  interfaceType.getGenericParameters()) {
@@ -293,6 +299,16 @@ public class LenseTypeDefinition  implements TypeDefinition {
             return name;
         }
     }
+    
+    @Override
+	public String getPackageName() {
+    	 int pos = name.lastIndexOf('.');
+         if (pos >= 0) {
+             return name.substring(0,pos);
+         } else {
+             return "";
+         }
+	}
 
     /**
      * {@inheritDoc}
@@ -516,7 +532,16 @@ public class LenseTypeDefinition  implements TypeDefinition {
                 .map(m -> (Field) m).findAny();
 
         if (!member.isPresent() && this.superDefinition != null) {
-            return this.superDefinition.getFieldByName(name);
+            member = this.superDefinition.getFieldByName(name);
+        }
+        
+        if (!member.isPresent() && this.getInterfaces() != null) {
+        	 for ( TypeDefinition it : this.getInterfaces()) {
+                 var field = it.getFieldByName(name);
+                 if (field.isPresent()) {
+                	 return field;
+                 }
+             }
         }
 
         return member;
@@ -531,8 +556,17 @@ public class LenseTypeDefinition  implements TypeDefinition {
                 .map(m -> (Property) m).findAny();
 
         if (!member.isPresent() && this.superDefinition != null) {
-            return this.superDefinition.getPropertyByName(name);
+            member = this.superDefinition.getPropertyByName(name);
         }
+        
+        if (!member.isPresent() && this.getInterfaces() != null) {
+       	 for ( TypeDefinition it : this.getInterfaces()) {
+                var property = it.getPropertyByName(name);
+                if (property.isPresent()) {
+               	 return property;
+                }
+            }
+       }
 
         return member;
     }
@@ -654,10 +688,9 @@ public class LenseTypeDefinition  implements TypeDefinition {
 	public TypeVariable changeBaseType(TypeDefinition concrete) {
 		if (this.getName().equals(concrete.getName())) {
 			return concrete;
-		} else {
-			return this;
 		}
-	
+		
+		return this;
 	}
 
 	@Override

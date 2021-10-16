@@ -2,10 +2,15 @@
 
 public abstract native class Boolean  is true , false  {
 
-
-
 	public native negate() : Boolean;
 	
 	public native complement() : Boolean;
+
+	public native and( other: Boolean ) : Boolean;
+
+	public native or( other: Boolean ) : Boolean;
+
+	public native xor( other: Boolean ) : Boolean;
+
 } 
 

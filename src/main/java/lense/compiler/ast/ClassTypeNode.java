@@ -199,19 +199,13 @@ public class ClassTypeNode extends AnnotadedLenseAstNode implements ScopeDelimit
 		this.isNative = isNative;
 	}
 
-	public boolean isExplicitlyImmutable() {
+	public boolean isImmutable() {
 		return isImmutable;
 	}
 
-	public void setExplicitlyImmutable(boolean isImmutable) {
+	public void setImmutable(boolean isImmutable) {
 		this.isImmutable = isImmutable;
 	}
-	
-	public boolean isImmutable() {
-		return isImmutable && this.isValueClass();
-	}
-	
-
 
 	public boolean isAbstract() {
 		return isAbstract;

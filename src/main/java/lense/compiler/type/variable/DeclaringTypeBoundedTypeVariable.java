@@ -35,6 +35,11 @@ public class DeclaringTypeBoundedTypeVariable extends CalculatedTypeVariable  {
 		return getDeclaringType().getGenericParameters().get(parameterIndex);
 	}
 	
+	@Override
+	public String toString() {
+		return original().toString();
+	}
+	
 	public Optional<String> getSymbol(){
 		return Optional.of(symbol);
 	}
