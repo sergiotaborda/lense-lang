@@ -4,16 +4,14 @@ import java.util.Optional;
 
 import compiler.syntax.AstNode;
 import compiler.trees.VisitorNext;
-import lense.compiler.CompilationError;
+import lense.compiler.TypeNotFoundError;
 import lense.compiler.ast.FormalParameterNode;
 import lense.compiler.ast.GenericTypeParameterNode;
-import lense.compiler.ast.MethodDeclarationNode;
 import lense.compiler.ast.TypeNode;
 import lense.compiler.context.SemanticContext;
 import lense.compiler.context.VariableInfo;
 import lense.compiler.type.LenseTypeDefinition;
 import lense.compiler.type.variable.DeclaringTypeBoundedTypeVariable;
-import lense.compiler.type.variable.MethodFreeTypeVariable;
 import lense.compiler.type.variable.TypeVariable;
 import lense.compiler.typesystem.LenseTypeSystem;
 import lense.compiler.typesystem.Variance;
@@ -37,8 +35,6 @@ public abstract class AbstractScopedVisitor extends AbstractLenseVisitor  {
 	
 	protected TypeVariable resolveTypeDefinition(TypeNode t, Variance positionVariance) {
 
-
-		
 		Optional<TypeVariable> namedType = this.getSemanticContext().resolveTypeForName(t.getName(), t.getTypeParametersCount());
 
 		VariableInfo freeType = this.getSemanticContext().currentScope().searchVariable(t.getName());
@@ -66,7 +62,7 @@ public abstract class AbstractScopedVisitor extends AbstractLenseVisitor  {
 					if (t.getTypeParameter() != null){
 						return t.getTypeParameter();
 					}
-					throw new CompilationError(t.getParent(), "Type "  + t.getName() + " is not recognized. Did you imported it?");
+					throw new TypeNotFoundError(t.getParent(),  t.getName() );
 				}
 
 			} else {
@@ -83,7 +79,7 @@ public abstract class AbstractScopedVisitor extends AbstractLenseVisitor  {
 				if (t.getTypeParameter() != null){
 					return t.getTypeParameter();
 				}
-				throw new CompilationError(t.getParent(), "Type "  + t.getName() + " is not recognized. Did you imported it?");
+				throw new TypeNotFoundError(t.getParent(),  t.getName());
 			}
 		}
 

@@ -29,5 +29,9 @@ public final class Match<T> implements Comparable<Match<T>> {
 	public TypeMatch getMatch() {
 		return match;
 	}
+	
+	public String toString() {
+		return match.toString() + "[" + candidate +"]";
+	}
 
 }

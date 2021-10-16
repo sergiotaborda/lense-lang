@@ -84,7 +84,7 @@ public class Property  implements TypeMember {
 	public TypeMember changeDeclaringType(TypeDefinition concrete) {
 		TypeVariable t = this.type.changeBaseType(concrete);
 		
-		Property p = new Property(concrete, this.name, this.type.changeBaseType(concrete), this.canRead, this.canWrite);
+		Property p = new Property(concrete, this.name, t, this.canRead, this.canWrite);
 		if (t instanceof TypeMemberAwareTypeVariable){
 			((TypeMemberAwareTypeVariable)t).setDeclaringMember(p);
 		}

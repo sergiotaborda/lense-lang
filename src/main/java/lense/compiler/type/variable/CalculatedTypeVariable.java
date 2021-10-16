@@ -66,6 +66,6 @@ public abstract class CalculatedTypeVariable implements TypeVariable {
 	}
 
 	public String toString(){
-		return getLowerBound().toString() + "<:" + getUpperBound().toString();
+		return getLowerBound().toString() + " <: " + getUpperBound().toString();
 	}
 }

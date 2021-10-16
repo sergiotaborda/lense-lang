@@ -11,12 +11,12 @@ import java.util.Map;
 import java.util.Optional;
 
 import compiler.lexer.ScanPosition;
+import lense.compiler.TypeNotFoundError;
 import lense.compiler.ast.ClassTypeNode;
 import lense.compiler.ast.TypeNode;
 import lense.compiler.repository.UpdatableTypeRepository;
 import lense.compiler.type.LenseTypeDefinition;
 import lense.compiler.type.TypeDefinition;
-import lense.compiler.type.TypeNotFoundException;
 import lense.compiler.type.UnionType;
 import lense.compiler.type.variable.TypeVariable;
 import lense.compiler.typesystem.LenseTypeSystem;
@@ -102,9 +102,9 @@ public class SemanticContext {
 			} else if (LenseTypeSystem.Nothing().getName().equals(name)){
 				return LenseTypeSystem.Nothing();
 			} 
-			throw new TypeNotFoundException(name + "'" + genericParametersCount +" is not a recognized type. Did you imported it ? (" + scanPosition.getCompilationUnit().getName() + "@" + scanPosition.getLineNumber() +"," + scanPosition.getColumnNumber() +")" );
+			throw new TypeNotFoundError(scanPosition, name + "'" + genericParametersCount);
 		} else if (type.get().getGenericParameters().size() != genericParametersCount) {
-		    throw new TypeNotFoundException(name + "'" + genericParametersCount +" is not a recognized type. Did you imported it ? (" + scanPosition.getCompilationUnit().getName() + "@" + scanPosition.getLineNumber() +"," + scanPosition.getColumnNumber() +")");
+		    throw new TypeNotFoundError(scanPosition, name + "'" + genericParametersCount );
 		}
 		
 		return type.get();
@@ -166,7 +166,7 @@ public class SemanticContext {
 
 		TypeSearchParameters filter = new TypeSearchParameters(name,  genericParametersCount);
 		
-		return resolver.resolveType(filter).map(t  -> (TypeVariable)t);
+		return resolver.resolveType(filter).filter(it -> it != null).map(t  -> (TypeVariable)t);
 
 	}
 
@@ -213,7 +213,7 @@ public class SemanticContext {
 				
 				var respec = LenseTypeSystem.getInstance().specify(rawType, spec.getGenericParameters());
 				
-				return (T)type.getClass().cast(respec);
+				return (T)respec;
 				
 			} else {
 				

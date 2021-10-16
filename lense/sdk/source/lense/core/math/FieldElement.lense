@@ -1,7 +1,7 @@
 
-import lense.core.math.Number;
+
 import lense.core.lang.Boolean;
-import lense.core.math.SignedNumber;
+import lense.core.math.Integer;
 
 public interface FieldElement  {
 

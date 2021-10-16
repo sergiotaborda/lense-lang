@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.Reader;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -45,7 +44,6 @@ import lense.compiler.dependency.DependencyRelation;
 import lense.compiler.dependency.DependencyRelationship;
 import lense.compiler.dependency.ModuleDependencyGraph;
 import lense.compiler.dependency.ModuleDependencyNode;
-import lense.compiler.graph.EdgeTraversalEvent;
 import lense.compiler.graph.Graph.Vertex;
 import lense.compiler.graph.GraphTransversor;
 import lense.compiler.graph.GraphTranverseListener;
@@ -62,11 +60,9 @@ import lense.compiler.phases.OtimizationPhase;
 import lense.compiler.phases.SemanticAnalysisPhase;
 import lense.compiler.repository.ModuleCompilationScopeTypeRepository;
 import lense.compiler.repository.UpdatableTypeRepository;
-import lense.compiler.type.LenseTypeDefinition;
 import lense.compiler.type.TypeDefinition;
 import lense.compiler.typesystem.LenseTypeSystem;
 import lense.compiler.typesystem.TypeSearchParameters;
-import lense.compiler.utils.Strings;
 
 public abstract class LenseCompiler {
 
@@ -103,6 +99,10 @@ public abstract class LenseCompiler {
 	private String nativeLanguageName;
 
 	private CompilerBackEndFactory backendFactory;
+
+	protected DependencyGraph<CompilationUnitDependencyNode> graph;
+
+	protected boolean selfCompilation;
 
 	public LenseCompiler (String nativeLanguageName, ModulesRepository globalRepository,CompilerBackEndFactory backendFactory){
 		// The global, even remote, repository
@@ -174,10 +174,6 @@ public abstract class LenseCompiler {
 		var rootfolder = DiskSourceFileSystem.instance().folder(new File("."));
 
 		var temp = rootfolder.folder("temp");
-
-		//		if(temp.exists()) {
-		//			temp.delete();
-		//		}
 		temp.ensureExists();
 
 		var target = temp.folder("target");
@@ -212,7 +208,7 @@ public abstract class LenseCompiler {
 		}
 	}
 
-	protected abstract List<TypeDefinition> extactTypeDefinitionFronNativeType(UpdatableTypeRepository currentTypeRepository , Collection<SourceFile> files) throws IOException;
+	protected abstract List<TypeDefinition> extactTypeDefinitionFromNativeType(UpdatableTypeRepository currentTypeRepository , Collection<SourceFile> files) throws IOException;
 
 	public void compileCompilationUnitSet(CompilationUnitSet moduleUnit,CompilationUnitSet unitSet, FileLocations locations){
 
@@ -241,7 +237,7 @@ public abstract class LenseCompiler {
 
 			TreeTransverser.transverse(module, new ModuleDescriptionReaderVisitor(moduleDescriptor));
 
-			boolean selfCompilation = moduleDescriptor.getName().equals("lense.core");
+			this.selfCompilation = moduleDescriptor.getName().equals("lense.core");
 
 			ModuleDependencyGraph moduleGraph = new ModuleDependencyGraph();
 
@@ -257,7 +253,7 @@ public abstract class LenseCompiler {
 				Optional<ModuleDescription> coreModule = moduleDescriptor.getRequiredModuleByName("lense.core");
 
 				if (coreModule.isPresent()){
-					// TODO match the current version for compatabiliy and/or take the SDK for that version
+					// TODO match the current version for compatibly and/or take the SDK for that version
 				} else {
 					// assume the current version is the target
 				}
@@ -311,7 +307,7 @@ public abstract class LenseCompiler {
 
 			});
 
-			moduleGraph.findDependencyNode(moduleDescriptor.getName()).ifPresent( m ->  	moduleTransversor.transverse(moduleGraph, m));
+			moduleGraph.findDependencyNode(moduleDescriptor.getName()).ifPresent( m ->  moduleTransversor.transverse(moduleGraph, m));
 		
 
 			// first compile target language native files
@@ -324,7 +320,18 @@ public abstract class LenseCompiler {
 
 			initCorePhase (corePhase, nativeTypes, currentModuleRepository);
 
-		
+			//      		ByteCodeTypeDefinitionReader reader = new ByteCodeTypeDefinitionReader(currentModuleRepository);
+
+			if (selfCompilation) {
+				// non denotable
+				currentModuleRepository.registerType(LenseTypeSystem.Any(), 0);
+				currentModuleRepository.registerType(LenseTypeSystem.Nothing(), 0);
+				currentModuleRepository.registerType(LenseTypeSystem.Void(), 0);
+				currentModuleRepository.registerType(LenseTypeSystem.None(), 0);
+			}
+
+	
+			
 			// the root node is the module itself
 			CompilationUnitDependencyNode moduleNode = new CompilationUnitDependencyNode(modulesList.get(0), module.getName());
 
@@ -335,22 +342,11 @@ public abstract class LenseCompiler {
 			Set<String> referencedNames = new HashSet<>();
 			Set<String> applications = new HashSet<>();
 
-
-			//      		ByteCodeTypeDefinitionReader reader = new ByteCodeTypeDefinitionReader(currentModuleRepository);
-
-			if (selfCompilation) {
-				currentModuleRepository.registerType(LenseTypeSystem.Any(), 0);
-				currentModuleRepository.registerType(LenseTypeSystem.Nothing(), 0);
-				currentModuleRepository.registerType(LenseTypeSystem.Void(), 0);
-			}
-
-			List<TypeDefinition> nativeTypesDefs = this.extactTypeDefinitionFronNativeType(currentModuleRepository, nativeTypes.values());
-
-			// init foundnames with nothing because it is a non denotable
+			// init found names with nothing because it is a non denotable
 			foundNames.add("lense.core.lang.Nothing");
 
 			CompositePhase prePhase = new CompositePhase()
-					.add(new ConstructorDesugarPhase(listener)) // TODO must be here ?
+					.add(new ConstructorDesugarPhase(listener)) 
 					.add(new NameResolutionPhase(new PathPackageResolver(locations.getSourceFolder().getPath()), listener));
 
 			trace("Creating dependency graph");
@@ -359,7 +355,7 @@ public abstract class LenseCompiler {
 			String ref = "lense.core.lang.reflection.ReifiedArguments";
 
 			// create dependency graph
-			var graph = new DependencyGraph<CompilationUnitDependencyNode>();
+			this.graph = new DependencyGraph<CompilationUnitDependencyNode>();
 
 			parser.parse(unitSet)
 			.passBy(prePhase)
@@ -367,12 +363,7 @@ public abstract class LenseCompiler {
 
 				trace("Analysing unit file " + compilationUnit);
 
-				//String packageName = sources.getAbsoluteFile().toPath().relativize(node.getUnit().getOrigin()).toString();
-				//int pos = packageName.lastIndexOf('\\');
-
-				//packageName = packageName.substring(0, pos).replace('\\', '.');
 				UnitTypes t = (UnitTypes) compilationUnit.getAstRootNode();
-
 
 				for(ClassTypeNode type : t.getTypes()){
 
@@ -415,12 +406,22 @@ public abstract class LenseCompiler {
 							imported = new CompilationUnitDependencyNode(null, name);
 						}
 
-						if (imp.isMemberCalled()){
+						if (shouldGraphContain(DependencyRelationship.Structural) && imp.isMemberCalled()){
 							trace(dependency.getName() + " strongly depends on " + imported.getName());
 							if (imported.getName().equals("lense.core.system.ConsoleApplication")){
 								applications.add(dependency.getName());
 							}
 							graph.addEdge(new DependencyRelation(DependencyRelationship.Structural),  imported, dependency);
+						} else if (shouldGraphContain(DependencyRelationship.Parameter) && imp.isMemberSignatureElement()) {
+							if (imp.isNativeUse()) {
+								trace(dependency.getName() + " has " + imported.getName() + " as native parameter");
+							
+							} else {
+								trace(dependency.getName() + " has " + imported.getName() + " as parameter");
+								
+								graph.addEdge(new DependencyRelation(DependencyRelationship.Parameter),  imported, dependency);
+							}
+
 						} else if (dependency.getName().equals(imported.getName())){
 							trace(dependency.getName() + " referes by to it self ");
 							continue;
@@ -438,6 +439,11 @@ public abstract class LenseCompiler {
 
 
 			referencedNames.removeAll(foundNames);
+			
+			var typeDefs = this.extactTypeDefinitionFromNativeType(currentModuleRepository, nativeTypes.values());
+
+			typeDefs.forEach(type -> currentModuleRepository.registerType(type, type.getGenericParameters().size()));
+
 
 			var cycle = new CyclicDependencyResolver().resolveIncidentCycle(graph);
 
@@ -470,9 +476,6 @@ public abstract class LenseCompiler {
 			tt.addListener(new GraphTranverseListener<CompilationUnitDependencyNode, DependencyRelation>() {
 
 				@Override
-				public void endVertex(VertexTraversalEvent<CompilationUnitDependencyNode, DependencyRelation> e) {}
-
-				@Override
 				public void beginVertex(VertexTraversalEvent<CompilationUnitDependencyNode, DependencyRelation> e) {
 					trace("Visiting : " + e.getVertex().getObject().getName());
 					CompiledUnit unit = e.getVertex().getObject().getCompiledUnit();
@@ -486,15 +489,7 @@ public abstract class LenseCompiler {
 
 					trace("Visited : " + e.getVertex().getObject().getName());
 				}
-
-
-				@Override
-				public void endEdgeTraversed(EdgeTraversalEvent<DependencyRelation, CompilationUnitDependencyNode> e) {}
-
-				@Override
-				public void beginEdgeTraversed( EdgeTraversalEvent<DependencyRelation, CompilationUnitDependencyNode> e) {}
 			});
-
 
 			// apply any first
 			Optional<Vertex<CompilationUnitDependencyNode, DependencyRelation>> any = graph.getVertices().stream().filter(v -> v.getObject().getName().equals(LenseTypeSystem.Any().getName())).findAny();
@@ -553,6 +548,8 @@ public abstract class LenseCompiler {
 
 	}
 
+	protected abstract boolean shouldGraphContain(DependencyRelationship parameter);
+
 	private void populateModuleGraph(ModuleDependencyGraph moduleGraph, ModuleDependencyNode root) {
 
 
@@ -586,54 +583,16 @@ public abstract class LenseCompiler {
 
 	}
 
-	private void applyCompilation(Map<String, SourceFile> nativeTypes, FileLocations locations, CompositePhase corePhase,
-			ModuleCompilationScopeTypeRepository currentModuleRepository, final CompilerBackEnd backend,
-			CompiledUnit unit) {
+	protected void applyCompilation(
+			Map<String, SourceFile> nativeTypes, 
+			FileLocations locations,
+			CompositePhase corePhase,
+			ModuleCompilationScopeTypeRepository currentModuleRepository, 
+			final CompilerBackEnd backend,
+			CompiledUnit unit
+	) {
 		if (unit != null){
-			UnitTypes types = (UnitTypes)unit.getAstRootNode();
-
-			for (ClassTypeNode type : types.getTypes()) {
-
-				if (type.isNative()) {
-
-					SourceFile nativeTypeFile = nativeTypes.get(type.getFullname());
-
-					if (nativeTypeFile == null) {
-						if (type.getKind().isObject()) {
-
-							String[] name = Strings.split(type.getFullname(), ".");
-							name[name.length - 1 ] = Strings.cammelToPascalCase(name[name.length - 1 ]);
-
-
-							nativeTypeFile =  resolveNativeFile (locations.getTargetFolder(), Strings.join(name, File.separator));
-						}
-						else 
-						{
-							String[] name = Strings.split(type.getFullname(), ".");
-
-							nativeTypeFile =  resolveNativeFile (locations.getTargetFolder(), Strings.join(name, File.separator));
-						}
-
-						if (nativeTypeFile == null) {
-							throw new CompilationError("Expected native file for type " + type.getFullname()  + " does not exist");
-						}
-					}
-
-					try {
-						TypeDefinition typeDef = this.extactTypeDefinitionFronNativeType(currentModuleRepository, Arrays.asList(nativeTypeFile)).get(0);
-
-						typeDef = currentModuleRepository.registerType(typeDef, typeDef.getGenericParameters().size());
-
-						type.setTypeDefinition((LenseTypeDefinition)typeDef);
-
-					} catch (IOException e1) {
-						throw new RuntimeException(e1);
-					}
-				}
-			}
-
 			new CompilationResultSet(new CompilationResult(unit)).passBy(corePhase).sendTo(backend);
-
 		}
 	}
 

@@ -3,14 +3,6 @@ package lense.compiler.phases;
 import compiler.syntax.AstNode;
 import compiler.trees.Visitor;
 import compiler.trees.VisitorNext;
-import lense.compiler.ast.AssertNode;
-import lense.compiler.ast.BooleanOperation;
-import lense.compiler.ast.BooleanValue;
-import lense.compiler.ast.ComparisonNode;
-import lense.compiler.ast.ExpressionNode;
-import lense.compiler.ast.InstanceOfNode;
-import lense.compiler.ast.PreBooleanUnaryExpression;
-import lense.compiler.ast.ComparisonNode.Operation;
 
 public class OtimizationVisitor implements Visitor<AstNode> {
 

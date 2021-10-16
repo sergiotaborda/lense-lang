@@ -18,6 +18,7 @@ public class Import {
 	private boolean isSuper = false; 
 	private boolean container;
 	private String alias;
+	private boolean nativeUse = false;
 	
 	public Import (QualifiedNameNode name, String alias, boolean container){
 		this.name = name;
@@ -117,6 +118,14 @@ public class Import {
 
 	public void setMemberSignatureElement(boolean isMemberSignatureElement) {
 		this.isMemberSignatureElement = isMemberSignatureElement;
+	}
+
+	public boolean isNativeUse() {
+		return nativeUse;
+	}
+
+	public void setNativeUse(boolean nativeUse) {
+		this.nativeUse = this.nativeUse || nativeUse;
 	}
 	
 

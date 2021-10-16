@@ -19,6 +19,8 @@ public interface TypeDefinition extends TypeVariable {
 
 	public String getSimpleName();
 	
+	public String getPackageName();
+	
 	public TypeKind getKind();
 	
 	/**

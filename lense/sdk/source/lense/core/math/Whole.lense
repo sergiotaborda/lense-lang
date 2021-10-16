@@ -1,6 +1,5 @@
 
-import lense.core.math.Number;
-import lense.core.math.BigInt;
+import lense.core.lang.String;
 import lense.core.math.RealLineElement;
 
 public interface Whole extends RealLineElement {

@@ -84,27 +84,18 @@ public class LenseCompilerTool implements LenseTool{
         
         println("Compiling at " + moduleproject);
         
-        long time = System.currentTimeMillis();
-        
-        
-        LenseCompiler compiler;
 
-        switch (arguments.getMode().orElse(LenseCommand.Mode.JAVA)){
-        case JAVA:
-            compiler  = new LenseToJavaCompiler(repo);
-            break;
-        case JAVA_SCRIPT:
-            compiler  = new LenseToJsCompiler(repo);
-            break;
-        default:
-            throw new ToolException("This target language is not supported yet");
-        }
+        LenseCompiler compiler = switch (arguments.getMode().orElse(LenseCommand.Mode.JAVA)) {
+	        case JAVA -> new LenseToJavaCompiler(repo);
+	        case JAVA_SCRIPT -> new LenseToJsCompiler(repo);
+	        default -> throw new ToolException("This target language is not supported yet");
+        };
 
         compiler.setCompilerListener(new CompilerListener() {
             
             @Override
             public void warn(CompilerMessage error) {
-                System.out.println("[WARN ]:" + error.getMessage());
+                println("[WARN ]:" + error.getMessage());
             }
             
             @Override
@@ -112,7 +103,7 @@ public class LenseCompilerTool implements LenseTool{
             
             @Override
             public void error(CompilerMessage error) {
-                System.out.println("[ERROR]:" + error.getMessage());
+                println("[ERROR]:" + error.getMessage());
             }
             
             @Override
@@ -120,9 +111,12 @@ public class LenseCompilerTool implements LenseTool{
 
             @Override
             public void trace(CompilerMessage error) {
-            	 System.out.println("[TRACE]:" + error.getMessage());
+            	println("[TRACE]:" + error.getMessage());
             }
         });
+        
+        long time = System.currentTimeMillis();
+        
         compiler.compileModuleFromDirectory(DiskSourceFileSystem.instance().folder(moduleproject));
         
         long elapsed = System.currentTimeMillis() - time;

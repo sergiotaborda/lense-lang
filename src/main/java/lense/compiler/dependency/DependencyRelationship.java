@@ -10,5 +10,6 @@ public enum DependencyRelationship {
 
 	Module,
 	Name,
-	Structural 
+	Structural,
+	Parameter
 }

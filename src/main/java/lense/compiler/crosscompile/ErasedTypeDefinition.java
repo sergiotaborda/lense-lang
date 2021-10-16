@@ -156,6 +156,11 @@ public final class ErasedTypeDefinition implements TypeDefinition{
         return originalType.getAllCases();
     }
 
+	@Override
+	public String getPackageName() {
+		return originalType.getPackageName();
+	}
+
 
 
     

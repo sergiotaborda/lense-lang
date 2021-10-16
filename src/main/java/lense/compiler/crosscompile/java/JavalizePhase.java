@@ -1,6 +1,5 @@
 package lense.compiler.crosscompile.java;
 
-import java.io.File;
 import java.util.Map;
 
 import compiler.CompilationResult;

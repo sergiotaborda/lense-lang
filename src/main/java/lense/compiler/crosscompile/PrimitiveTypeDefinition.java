@@ -203,5 +203,10 @@ public class PrimitiveTypeDefinition implements TypeDefinition {
 	    return this.name.hashCode();
 	}
 
+	@Override
+	public String getPackageName() {
+		return "";
+	}
+
 
 }

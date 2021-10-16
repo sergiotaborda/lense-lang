@@ -44,17 +44,9 @@ public mutable class List<T> implements ResizableSequence<T> {
 		return list;
 	}
 
-	public size : Natural {
-		get {
-			return  length;
-		}
-	}
+	public size : Natural => length;
 
-	public empty : Boolean {
-		get {
-			return length == 0;
-		}
-	}
+	public empty : Boolean => length == 0;
 
 // TODO limit to length 
 	public iterator : Iterator<T> {
@@ -63,11 +55,7 @@ public mutable class List<T> implements ResizableSequence<T> {
 		}
 	} 
 
-	public indexes : Progression<Natural> {
-		get {
-			return 0 ..< length;
-		}
-	}
+	public indexes : Progression<Natural> => 0 ..< length;
 
 	public add(value : T) {
 		
@@ -122,11 +110,31 @@ public mutable class List<T> implements ResizableSequence<T> {
 	}
 
 	public contains( other: Any) : Boolean {
-		return array.contains(other);
+		for (let item in array){
+			if (item.valueEqualsTo(other)){
+				return true;
+			}
+		}
+		return false;
 	}
 
+// TODO should be public <R> containsall(other: Assortement<R>) given R extends T 
+// of other : Assortment<Any>  or other : Assortment<? extends Any> 
 	public containsAll( other: Assortment<T>) : Boolean {
-		return array.containsAll(other);
+		
+		if (this.array.size != other.size ){
+			return false;
+		}
+
+		let iteratorA = this.array.iterator;
+		let iteratorB = other.iterator;
+
+		while (iteratorA.moveNext() && iteratorB.moveNext()){
+			if (iteratorA.current() != iteratorB.current()){
+				return false;
+			}
+		}
+		return true;
 	}
 
 	public override asString(){

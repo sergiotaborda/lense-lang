@@ -11,11 +11,9 @@ public native abstract class Maybe<out T> is Some<T> ,  none {
 	
 	public abstract value : T;
 	
-	public abstract valueEqualsTo ( content:  Any);
+	public abstract valueEqualsTo ( content:  Any): Boolean;
 }
 
 public native class Some<T> extends Maybe<T> {
-
 	public native constructor (value : T);
-	
 } 

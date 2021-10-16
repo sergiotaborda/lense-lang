@@ -62,6 +62,7 @@ public class JavaCompilerBackEndFactory implements CompilerBackEndFactory {
                 throw new RuntimeException("Error compiling unit " + unit.getUnit().getName(),e);
             }
         }
+        
         public boolean compile(SourceFile file) throws IOException{
             if (file == null){
                 return false;

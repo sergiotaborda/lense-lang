@@ -26,6 +26,7 @@ import lense.compiler.ast.FormalParameterNode;
 import lense.compiler.ast.GenericTypeParameterNode;
 import lense.compiler.ast.ImplementedInterfacesNode;
 import lense.compiler.ast.InstanceOfNode;
+import lense.compiler.ast.InvocableDeclarionNode;
 import lense.compiler.ast.LiteralAssociationInstanceCreation;
 import lense.compiler.ast.LiteralIntervalNode;
 import lense.compiler.ast.LiteralSequenceInstanceCreation;
@@ -736,12 +737,29 @@ public class NameResolutionVisitor extends AbstractScopedVisitor {
 
 		} else if (node instanceof FormalParameterNode) {
 			FormalParameterNode variableDeclaration = (FormalParameterNode) node;
+			
+			if (variableDeclaration.getParent().getParent() instanceof InvocableDeclarionNode parentMethodOrConstructor) {
 
-			TypeNode typeNode = variableDeclaration.getTypeNode();
-			if (typeNode != null) {
-				//LenseTypeDefinition type = new LenseTypeDefinition(typeNode.getName(), null, null);
-				this.getSemanticContext().currentScope().defineVariable(variableDeclaration.getName(),typeNode.getTypeVariable(), node);
+				ClassTypeNode parentClass = (ClassTypeNode)parentMethodOrConstructor.getParent().getParent();
+				
+				TypeNode typeNode = variableDeclaration.getTypeNode();
+				if (typeNode != null) {
+					this.getSemanticContext().currentScope().defineVariable(variableDeclaration.getName(),typeNode.getTypeVariable(), node);
+					
+					
+					Optional<Import> match = matchImports(ct, typeNode.getName());
+
+					if (match.isPresent()) {
+						Import importMatch = match.get();
+						importMatch.setMemberSignatureElement(true);
+						importMatch.setNativeUse(parentMethodOrConstructor.isNative() || parentClass.getKind().isInterface());
+
+						typeNode.setName(importMatch.getTypeName());
+					}
+				}
+
 			}
+
 
 		} else if (node instanceof LiteralTupleInstanceCreation) {
 			LiteralTupleInstanceCreation tuple = ((LiteralTupleInstanceCreation) node);
