@@ -401,29 +401,26 @@ public class NameResolutionVisitor extends AbstractScopedVisitor {
 		}
 
 
+		// try same package
+		TypeDefinition currentType = this.getSemanticContext().currentScope().getCurrentType();
+		if (currentType == null) {
+			throw new CompilationError(node, "Type " + typeNode.getName() + " was not imported in " + name);
+		}
+		
+		
 
 		// try to find it in the core
 
 		if (!tryDefaultPath(typeNode).isPresent()){
-			TypeDefinition currentType = this.getSemanticContext().currentScope().getCurrentType();
-			if (currentType != null) {
-				for( TypeVariable g : currentType.getGenericParameters()) {
-					if (g.getSymbol().get().equals(typeNode.getName())) {
-						this.getSemanticContext().currentScope().defineTypeVariable(typeNode.getName(), g, node);
-						return Optional.empty();
-					}
+			
+			for( TypeVariable g : currentType.getGenericParameters()) {
+				if (g.getSymbol().get().equals(typeNode.getName())) {
+					this.getSemanticContext().currentScope().defineTypeVariable(typeNode.getName(), g, node);
+					return Optional.empty();
 				}
-				
-				if (node instanceof FormalParameterNode) {
-					 MethodDeclarationNode method = (MethodDeclarationNode)node.getParent().getParent();
-					 
-					 
-				}
-
-				throw new CompilationError(node, "Type " + typeNode.getName() + " was not imported in " + name);
-			} else {
-				throw new CompilationError(node, "Type " + typeNode.getName() + " was not imported in " + name);
 			}
+			
+			throw new CompilationError(node, "Type " + typeNode.getName() + " was not imported in " + name);
 
 		}
 
@@ -810,25 +807,9 @@ public class NameResolutionVisitor extends AbstractScopedVisitor {
 				match.get().setMemberCalled(true);
 			}
 		}  
-//		else if (node instanceof MethodInvocationNode) {
-//			MethodInvocationNode invokeNode = (MethodInvocationNode) node;
-//
-//			AstNode access = invokeNode.getAccess();
-//			if (access instanceof MethodInvocationNode) {
-//				MethodInvocationNode typed = (MethodInvocationNode)access;
-//				
-//				Optional<Import> match = matchImports(ct, typed.getTypeVariable().getTypeDefinition().getName());
-//
-//				if (match.isPresent() && isNotSelf(match)) {
-//					match.get().setMemberCalled(true);
-//				}
-//			}
-//			
-//		}
 
 
 	}
-
 
 	private void handleTypeParameters(AstNode node, TypeNode type) {
 		if (type != null && type.getChildren() != null && !type.getChildren().isEmpty()) {

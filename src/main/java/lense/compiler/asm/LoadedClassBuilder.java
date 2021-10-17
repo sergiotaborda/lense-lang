@@ -18,6 +18,7 @@ import lense.compiler.type.variable.RangeTypeVariable;
 import lense.compiler.type.variable.TypeVariable;
 import lense.compiler.typesystem.LenseTypeSystem;
 import lense.compiler.typesystem.Variance;
+import lense.compiler.typesystem.Visibility;
 import lense.compiler.utils.Strings;
 
 public class LoadedClassBuilder {
@@ -38,9 +39,14 @@ public class LoadedClassBuilder {
 
 	private List<ConstructorBuilder> constructors = new ArrayList<>();
 	private List<MethodBuilder> methods = new ArrayList<>();
+	private Visibility visibility = Visibility.Undefined;
 
 	public LoadedClassBuilder ( UpdatableTypeRepository typeContainer) {
 		this.typeContainer = typeContainer;
+	}
+
+	public void setVisibility(Visibility visibility) {
+		this.visibility = visibility;
 	}
 
 	public void addConstructor(ConstructorBuilder builder) {
@@ -201,6 +207,7 @@ public class LoadedClassBuilder {
 		}
 		LoadedLenseTypeDefinition def = (LoadedLenseTypeDefinition)rdef;
 
+		def.setVisibility(visibility);
 		def.setKind(kind);
 		def.setPlataformSpecific(plataformSpecific || fullName.startsWith("lense.core.lang.java"));
 		def.setNative(isNative);
@@ -601,6 +608,7 @@ public class LoadedClassBuilder {
 		
 		return Optional.of(type);
 	}
+
 
 
 

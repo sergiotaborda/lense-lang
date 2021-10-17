@@ -89,6 +89,8 @@ public interface TypeAssistant {
 
     public Optional<IndexerProperty> getIndexerPropertyByTypeArray(TypeDefinition type, TypeVariable[] params);
 
+	public boolean isSuper(TypeDefinition candidate, TypeDefinition base);
+
 
 
 }

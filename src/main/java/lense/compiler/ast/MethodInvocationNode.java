@@ -6,6 +6,7 @@ package lense.compiler.ast;
 import java.util.Map;
 
 import compiler.syntax.AstNode;
+import lense.compiler.type.Method;
 import lense.compiler.type.TypeMember;
 import lense.compiler.type.variable.TypeVariable;
 
@@ -34,12 +35,6 @@ public class MethodInvocationNode extends NeedTypeCalculationNode {
         setAccess(access);
     }
     
-    public MethodInvocationNode (TypeMember member,AstNode access , ArgumentListItemNode singleArgument){
-        setCall(new MethodCallNode(member.getName(), new ArgumentListNode(singleArgument)));
-        setAccess(access);
-        this.member = member;
-    }
-    
     public MethodInvocationNode (AstNode access , String name, ArgumentListItemNode ... arguments){
         setCall(new MethodCallNode(name, new ArgumentListNode(arguments)));
         setAccess(access);
@@ -50,7 +45,13 @@ public class MethodInvocationNode extends NeedTypeCalculationNode {
         setAccess(access);
     }
 
-    public MethodInvocationNode (TypeMember member, AstNode access , ArgumentListItemNode ... arguments){
+    public MethodInvocationNode (Method member,AstNode access , ArgumentListItemNode singleArgument){
+        setCall(new MethodCallNode(member.getName(), new ArgumentListNode(singleArgument)));
+        setAccess(access);
+        this.member = member;
+    }
+    
+    public MethodInvocationNode (Method member, AstNode access , ArgumentListItemNode ... arguments){
         setCall(new MethodCallNode(member.getName(), new ArgumentListNode(arguments)));
         setAccess(access);
         this.member = member;

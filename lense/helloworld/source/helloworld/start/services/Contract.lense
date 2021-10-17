@@ -1,0 +1,8 @@
+
+
+// changing to protected will break compilation since InheritsProtectedConstructor implements this interface explicitly
+public interface Contract {
+
+
+	public doSomething(param : String): String;
+}

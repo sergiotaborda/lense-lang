@@ -1,6 +1,10 @@
 
+import helloworld.start.animals.Being;
 
-public abstract class Animal {
+public mutable abstract class Animal implements Being {
+
+	// changing to protected or private will break since implements from Being
+	public mutable speciesName : String?;
 
 	public abstract abstractMethod();
 

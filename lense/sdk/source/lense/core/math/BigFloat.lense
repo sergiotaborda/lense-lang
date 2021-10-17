@@ -46,40 +46,44 @@ public value class BigFloat implements Float {
 	}
 
 
-	public constructor parse( other: String){
-		if (other == "NaN"){
+	public constructor parse( representation : String){
+		if (representation == "NaN"){
 		   return new BigFloat(0,0);
-		} else if (other == "+Infinity"){
+		} else if (representation == "+Infinity"){
 		   return new BigFloat(1,0);
-		} else if (other == "-Infinity"){
+		} else if (representation == "-Infinity"){
 		   return new BigFloat(-1,0);
 		}
 
-		mutable let isNegative = false;
-		if ( other.starstWith("-")){
-			other = other.subString(1);
-			isNegative = true;
-		}
+		let pos : Maybe<Natural> = representation.indexOf(".");
 
-		let pos : Maybe<Natural> = other.indexOf(".");
 
-		mutable let value : BigFloat;
 		if (pos.isAbsent()){
-			value = new BigFloat(new Whole.parse(other),1);
+			return new BigFloat(new Whole.parse(representation),1);
 		} else {
+
+			mutable let isNegative = false;
+			mutable let positiveRepresentation = representation;
+			if ( representation.starstWith("-")){
+				positiveRepresentation = representation.subString(1);
+				isNegative = true;
+			}
+
 			let len : Natural = pos.value; // this should not be necessary. 
-			let power = other.size &- len &- 1;		
+			let power = positiveRepresentation.size &- len &- 1;		
 
-			let wholePart = new Whole.parse(other.removeAt(pos.value));
+			let wholePart = new Whole.parse(positiveRepresentation.removeAt(pos.value));
 
-			value = new BigFloat(wholePart,10 ^^ power).simplify();
+			mutable let value = new BigFloat(wholePart,10 ^^ power).simplify();
+
+			if (isNegative){
+				value = -value;
+			}
+
+			return value;
 		}
 
-		if (isNegative){
-			value = -value;
-		}
-
-		return value;
+	
 	}
 
 	public asFloat() => this;
@@ -278,27 +282,30 @@ public value class BigFloat implements Float {
 
 	private simplify( numerator : Integer,  denominator : Integer ) : BigFloat {
 	
+		mutable let normalizedNumerator = numerator;
+		mutable let normalizedDenominator = denominator;
+
 		if (denominator == 0){
-			numerator = numerator.sign();
+			normalizedNumerator = normalizedNumerator.sign();
 		} 
 		if (numerator == 0){
-			denominator = denominator.sign();
+			normalizedDenominator = normalizedDenominator.sign();
 		}
 
 		
-		if (denominator != 1 ){
-			let gcd = numerator.gcd(denominator);
+		if (normalizedDenominator != 1 ){
+			let gcd = normalizedNumerator.gcd(normalizedDenominator);
 			
-			numerator = numerator \ gcd;
-            denominator = denominator \ gcd;
+			normalizedNumerator = normalizedNumerator \ gcd;
+            normalizedDenominator = normalizedDenominator \ gcd;
 		}
 		
-		if (denominator < 0){
-			denominator = -denominator;
-			numerator = -numerator;
+		if (normalizedNumerator < 0){
+			normalizedNumerator = -normalizedNumerator;
+			normalizedDenominator = -normalizedDenominator;
 		}
 
-		return new BigFloat(numerator , denominator);
+		return new BigFloat(normalizedNumerator , normalizedDenominator);
 	
 	}
 

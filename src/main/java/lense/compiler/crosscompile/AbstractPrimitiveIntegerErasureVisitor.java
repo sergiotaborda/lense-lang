@@ -10,6 +10,7 @@ import compiler.trees.Visitor;
 import compiler.trees.VisitorNext;
 import lense.compiler.ast.ArgumentListItemNode;
 import lense.compiler.ast.ArithmeticOperation;
+import lense.compiler.ast.AssignmentNode;
 import lense.compiler.ast.BooleanValue;
 import lense.compiler.ast.CastNode;
 import lense.compiler.ast.ComparisonNode.Operation;
@@ -39,8 +40,7 @@ public class AbstractPrimitiveIntegerErasureVisitor implements Visitor<AstNode> 
 
     private TypeDefinition type;
     private PrimitiveTypeDefinition primitiveType;
-    private ErasedTypeDefinition erasedType;
-    
+ 
     private Map<String, ArithmeticOperation> ops = new HashMap<>();
 	private SweepAndMarkVariablesVisitor sweeper;
 	private LenseTypeAssistant typeAssistant;
@@ -53,8 +53,6 @@ public class AbstractPrimitiveIntegerErasureVisitor implements Visitor<AstNode> 
     	this.typeAssistant = new LenseTypeAssistant(semanticContext);
         this.type = type;
         this.primitiveType = primitiveType;
-        
-        erasedType = new ErasedTypeDefinition( type,  primitiveType);
         
         for (ArithmeticOperation op : ArithmeticOperation.values()){
             ops.put(op.equivalentMethod(),op);
@@ -161,30 +159,33 @@ public class AbstractPrimitiveIntegerErasureVisitor implements Visitor<AstNode> 
                 }
 
             }
-        } else if (node instanceof VariableDeclarationNode){
-            VariableDeclarationNode dec = (VariableDeclarationNode)node;
+        } else if (node instanceof VariableDeclarationNode dec){
 
-            final VariableInfo varInfo = dec.getInfo();
-            Optional<Boolean> primitive = varInfo == null ? Optional.empty() : this.sweeper.isPrimitive(varInfo);
-            
-            if (dec.getInitializer() != null && (primitive.orElse(false) || type.equals(dec.getInitializer().getTypeVariable()))){
+    	  if (dec.getInitializer() != null) {
+    		  final VariableInfo varInfo = dec.getInfo();
+              Optional<Boolean> primitive = varInfo == null ? Optional.empty() : this.sweeper.isPrimitive(varInfo);
               
-              
-                if (primitive.isPresent()) {
-                	if (primitive.orElse(false)) {
-                		varInfo.setTypeVariable(primitiveType);
-                  	  
-                        if (dec.getInitializer() != null){
-                            dec.setTypeNode(new TypeNode(primitiveType));
-                            dec.getInitializer().setTypeVariable(primitiveType);
-                        }
-                	} else {
-                        varInfo.setTypeVariable(type);
+           
+              if (primitive.orElse(false) || type.equals(dec.getInitializer().getTypeVariable())){
+            	   // propagate left to right
+                  if (primitive.isPresent()) {
+                  	if (primitive.get()) {
+                  		
+                  	  varInfo.setTypeVariable(primitiveType);
+                      dec.setTypeNode(new TypeNode(primitiveType));
+                      dec.getInitializer().setTypeVariable(primitiveType);
+                  
+                  	} else {
+                          varInfo.setTypeVariable(type);
                     }
-
-                }
-
-            }
+                  }
+              } else if ( primitiveType.equals(dec.getInitializer().getTypeVariable())) {
+            	  // propagate right to left
+            	  dec.setTypeNode(new TypeNode(primitiveType));
+            	  varInfo.setTypeVariable(primitiveType);
+              }
+    	  }
+           
 
         } else if (node instanceof NewInstanceCreationNode) {
             NewInstanceCreationNode constructor = (NewInstanceCreationNode)node;

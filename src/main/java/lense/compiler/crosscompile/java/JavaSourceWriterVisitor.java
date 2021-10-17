@@ -730,7 +730,10 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
                     // }
                 }
 
-                writeVisibility(t.getVisibility());
+                if (!t.getVisibility().equals(Visibility.Protected)) {
+                	 writeVisibility(t.getVisibility());
+                }
+               
                 writer.append(" ");
 
                 if (t.isAbstract()) {
@@ -1346,7 +1349,7 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
                     } else {
                         first = false;
                     }
-
+                    
                     ArgumentListItemNode item = (ArgumentListItemNode) a;
 
                     TreeTransverser.transverse(item.getFirstChild(), this);
@@ -1618,6 +1621,10 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
                             writer.print(", ");
                         }
 
+                        if (p.getImutability() == Imutability.Imutable) {
+                            writer.append(" final ");
+                        }
+                        
                         TreeTransverser.transverse(p.getTypeNode(), this);
 
                         writer.print(" ");
@@ -1798,10 +1805,15 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
                             writer.print(", ");
                         }
 
+                       
                         if (p.getName().equals(EnhancementVisitor.ENHANCED_OBJECT)) {
                         	 writer.print("@lense.core.lang.java.EnhancementTarget ");
                         }
                         
+                        if (p.getImutability() == Imutability.Imutable) {
+                            writer.append(" final ");
+                        }
+             
                         if (p.getTypeVariable() instanceof ContraVariantTypeVariable) {
                             writer.print(LenseTypeSystem.Any().getName());
                         } else {

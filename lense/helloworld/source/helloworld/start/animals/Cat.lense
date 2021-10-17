@@ -1,6 +1,6 @@
 
 
-import helloworld.start.Mammal;
+import helloworld.start.animals.Mammal;
 
 public class Cat extends Mammal {
 

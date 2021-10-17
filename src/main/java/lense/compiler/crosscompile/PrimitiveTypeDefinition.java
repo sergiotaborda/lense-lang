@@ -208,5 +208,10 @@ public class PrimitiveTypeDefinition implements TypeDefinition {
 		return "";
 	}
 
+	@Override
+	public Visibility getVisibility() {
+		return Visibility.Public;
+	}
+
 
 }

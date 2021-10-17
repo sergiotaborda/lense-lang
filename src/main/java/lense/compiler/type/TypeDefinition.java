@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Optional;
 
 import lense.compiler.type.variable.TypeVariable;
+import lense.compiler.typesystem.Visibility;
 
 /**
  * 
@@ -22,6 +23,9 @@ public interface TypeDefinition extends TypeVariable {
 	public String getPackageName();
 	
 	public TypeKind getKind();
+	
+	
+	public Visibility getVisibility();
 	
 	/**
 	 * 

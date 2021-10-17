@@ -59,34 +59,35 @@ public class ByteCodeReader extends ClassVisitor {
 		return null;
 
 	}
-
-	LenseTypeDefinition resolveTypeByNameAndKind(String name, lense.compiler.type.TypeKind kind, int genericsCount) {
-
-		TypeSearchParameters params = new TypeSearchParameters(name, genericsCount);
-
-		Optional<LenseTypeDefinition> existingType = this.typeContainer.resolveType(params)
-				.map(t -> (LenseTypeDefinition) t);
-		if (!existingType.isPresent()) {
-			TypeVariable[] generics = new TypeVariable[genericsCount];
-			for (int i = 0; i < generics.length; i++) {
-				generics[i] = new RangeTypeVariable(Optional.empty(), Variance.Invariant, LenseTypeSystem.Any(),
-						LenseTypeSystem.Nothing());
-			}
-			LoadedLenseTypeDefinition type = new LoadedLenseTypeDefinition(name, kind, null, generics);
-
-			this.typeContainer.registerType(type, genericsCount);
-
-			return type;
-
-		} else {
-			return existingType.get();
-		}
-	}
+//
+//	LenseTypeDefinition resolveTypeByNameAndKind(String name, lense.compiler.type.TypeKind kind, int genericsCount) {
+//
+//		TypeSearchParameters params = new TypeSearchParameters(name, genericsCount);
+//
+//		Optional<LenseTypeDefinition> existingType = this.typeContainer.resolveType(params)
+//				.map(t -> (LenseTypeDefinition) t);
+//		if (!existingType.isPresent()) {
+//			TypeVariable[] generics = new TypeVariable[genericsCount];
+//			for (int i = 0; i < generics.length; i++) {
+//				generics[i] = new RangeTypeVariable(Optional.empty(), Variance.Invariant, LenseTypeSystem.Any(),
+//						LenseTypeSystem.Nothing());
+//			}
+//			LoadedLenseTypeDefinition type = new LoadedLenseTypeDefinition(name, kind, null, generics);
+//
+//			this.typeContainer.registerType(type, genericsCount);
+//
+//			return type;
+//
+//		} else {
+//			return existingType.get();
+//		}
+//	}
 
 	public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
 		
 		loadedClassBuilder = new LoadedClassBuilder(typeContainer);
 		
+
 		loadedClassBuilder.setName(name);
 		loadedClassBuilder.setSuperName(superName);
 		loadedClassBuilder.setInterfaces(interfaces);
@@ -102,6 +103,13 @@ public class ByteCodeReader extends ClassVisitor {
 
 		loadedClassBuilder.setKind((LenseUnitKind)kind);
 		
+		if ((access & Opcodes.ACC_PUBLIC) != 0) {
+			loadedClassBuilder.setVisibility(Visibility.Public);
+		} else if ((access & Opcodes.ACC_PRIVATE) != 0) {
+			loadedClassBuilder.setVisibility(Visibility.Private);
+		} else if ((access & Opcodes.ACC_PROTECTED) != 0) {
+			loadedClassBuilder.setVisibility(Visibility.Protected);
+		} 
 	}
 
 	public FieldVisitor visitField(int access, String name, String desc, String signature, Object value) {

@@ -1,7 +1,10 @@
 
-import helloworld.start.Animal;
+import helloworld.start.animals.Animal;
 
 public class Mammal extends Animal{
+
+	// uncoment will break since properties cannot be overwriten
+	//public speciesName : String?;
 
 	//public notOverridable() {} // error
 	public override default overridable() {}
