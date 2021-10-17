@@ -170,7 +170,7 @@
 <div class="sectionbody">
 <div class="paragraph">
 <p>Normally we extend a class by means of inheritance. Inheritance may not be a good solution in some cases.
-Sometimes we need to extends the funcionally of a class without adding to the inheritance tree, e.g. when the class we are trying to extend is final.
+Sometimes we need to extends the functionally of a class without adding to the inheritance tree, e.g. when the class we are trying to extend is final.
 The standard pattern to do this is via a Decorator. A decorator holds a value of the original class and adds methods to it.
 Both class can share the same interface but normally that does not happen.</p>
 </div>
@@ -178,7 +178,7 @@ Both class can share the same interface but normally that does not happen.</p>
 <p>Decorator is a solution for the problem and can be implemented in any object oriented language, however is not very practical.</p>
 </div>
 <div class="paragraph">
-<p>Other languages like C# and Gosu, enable the use of Extention Methods. Extention Methods are static methods declared
+<p>Other languages like C# and Gosu, enable the use of Extension Methods. Extension Methods are static methods declared
 in a special way so they can be called as normal methods (after a dot). Being static methods this methods can also be
 called normally using the static method calling syntax.</p>
 </div>
@@ -189,7 +189,7 @@ assert("hohohoho" == greating);</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>Lense does not have static elements, so extention method must be declared on an object and we apply the methods of that
+<p>Lense does not have static elements, so extension method must be declared on an object and we apply the methods of that
 object to the original instance of the class we want to enhance.</p>
 </div>
 <div class="listingblock">
@@ -199,7 +199,7 @@ object to the original instance of the class we want to enhance.</p>
 	public repeat(count : Natural): String {
 		var result = "";
 		for ( let i in 1..count){
-			result+= this; // this referes to the enhanced object
+			result+= this; // this refers to the enhanced object
 		}
 		return result;
 	}
@@ -207,7 +207,7 @@ object to the original instance of the class we want to enhance.</p>
 </div>
 </div>
 <div class="paragraph">
-<p>When enhancing a given type we are in fact enhancing all subtypes as well so polimorfism is at work. More generaly we
+<p>When enhancing a given type we are in fact enhancing all subtypes as well so polymorphism is at work. More generally we
 can enhance types that conform to some generic rules and thus generics support is needed for enhancement.</p>
 </div>
 <div class="listingblock">
@@ -226,7 +226,7 @@ can enhance types that conform to some generic rules and thus generics support i
 let stringInterval = |[ 'a' , 'z' ]|;
 let length = stringInterval.length; // will fail at compile time
 
-// but we can have a lenght if we have a closed interval of Naturals
+// but we can have a length if we have a closed interval of Naturals
 
 let naturalInterval = |[ 4 , 10 ]|;
 let length = naturalInterval.length; // ok, because we have an enhancement.
@@ -235,7 +235,7 @@ assert( 6 == length);</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>The difference between enhancements and extention methods is that we can add more that just normal methods. We can also
+<p>The difference between enhancements and extension methods is that we can add more that just normal methods. We can also
 add constructors and calculated properties. The only restriction is that no state can be added.</p>
 </div>
 <div class="paragraph">
@@ -248,7 +248,7 @@ add constructors and calculated properties. The only restriction is that no stat
 <p>Enhancement implementations can only access public members of the enhanced type.</p>
 </div>
 <div class="paragraph">
-<p>Interfaces cannot be fullfiled by adding enhancement methods.</p>
+<p>Interfaces cannot be fulfilled by adding enhancement methods.</p>
 </div>
 </div>
 </div>

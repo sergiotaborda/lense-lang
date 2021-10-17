@@ -196,7 +196,7 @@ The next example crates array with 5 elements all equal to zero.</p>
 <pre class="highlightjs highlight"><code data-lang="lense" class="language-lense hljs">    // with type annotation
     let numbers : Array&lt;Natural&gt;  = new Array.filled(5, 0);
 	// with no type annotation, using type inference
-	let numbers = new Array.filled(5, 0);</code></pre>
+	let inferedTypeNumbers = new Array.filled(5, 0);</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -223,7 +223,7 @@ This code also  creates an array with 5 elements, but in this case they correspo
 <pre class="highlightjs highlight"><code data-lang="lense" class="language-lense hljs">    // with type annotation
     let numbers : Array&lt;Natural?&gt; = new Array.filled(5, none);
 	// with no type annotation, using type inference
-	let numbers = new Array.filled(5, none);</code></pre>
+	let inferedTypeNumbers = new Array.filled(5, none);</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -246,7 +246,7 @@ This code also  creates an array with 5 elements, but in this case they correspo
     let numbers :  Array&lt;Natural&gt; = new Array.empty&lt;Natural&gt;();
 
     // creates an array of optional elements with no elements in it
-    let numbers : Array&lt;Natural?&gt; = new Array.empty&lt;Natural?&gt;();</code></pre>
+    let optionalNumbers : Array&lt;Natural?&gt; = new Array.empty&lt;Natural?&gt;();</code></pre>
 </div>
 </div>
 <div class="paragraph">
