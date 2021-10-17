@@ -50,21 +50,24 @@ public value class BigRational implements Rational {
 			throw new ArithmeticException("Cannot create a Rational with zero as denominator"); 
 		}
 		
+		mutable let normalizedNumerator = numerator;
+		mutable let normalizedDenominator = denominator;
+
 		if (numerator == 0){
 			// all forms of zero are the same. 
-			denominator = 1;
+			normalizedDenominator = 1;
 		} else if (denominator < 0){ // let the numerator carrie the sign
-			numerator = -numerator;
-			denominator = -denominator;
+			normalizedNumerator = -normalizedNumerator;
+			normalizedDenominator = -normalizedDenominator;
 		}
 		
-		if (denominator != 1 ){
-			let gcd = numerator.gcd(denominator);
-			numerator = numerator \ gcd;
-            denominator = denominator \ gcd;
+		if (normalizedDenominator != 1 ){
+			let gcd = normalizedNumerator.gcd(normalizedDenominator);
+			normalizedNumerator = normalizedNumerator \ gcd;
+            normalizedDenominator = normalizedDenominator \ gcd;
 		}
 		
-		return new BigRational(numerator , denominator.abs());
+		return new BigRational(normalizedNumerator , normalizedDenominator.abs());
 	}
 	
 	private simplify( numerator : Integer,  denominator : Integer ) : BigRational {
@@ -73,20 +76,23 @@ public value class BigRational implements Rational {
 
 	private simplify( numerator : Integer,  denominator : Natural ) : BigRational {
 	
+		mutable let normalizedNumerator = numerator;
+		mutable let normalizedDenominator = denominator;
+
 		if (numerator == 0){
 			// all forms of zero are the same. 
-			denominator = 1;
+			normalizedDenominator = 1;
 		} 
 		
-		if (denominator != 1 ){
-			let gcd = numerator.gcd(denominator);
+		if (normalizedDenominator != 1 ){
+			let gcd = normalizedNumerator.gcd(normalizedDenominator);
 			
 			// TODO log (gcd)
-			numerator = numerator \ gcd;
-            denominator = denominator \ gcd;
+			normalizedNumerator = normalizedNumerator \ gcd;
+            normalizedDenominator = normalizedDenominator \ gcd;
 		}
 		
-		return new BigRational(numerator , denominator);
+		return new BigRational(normalizedNumerator , normalizedDenominator);
 	
 	}
 	

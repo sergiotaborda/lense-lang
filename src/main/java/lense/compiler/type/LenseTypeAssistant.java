@@ -633,4 +633,16 @@ public class LenseTypeAssistant implements TypeAssistant {
         return true;
     }
 
+	@Override
+	public boolean isSuper(TypeDefinition candidate, TypeDefinition base) {
+		  if(this.isAny(base)) {
+			 return false;
+		 } else if(this.isAny(candidate)) {
+			 return true;
+		 } else if (base.getSuperDefinition().equals(candidate)) {
+			 return true;
+		 }
+		 return isSuper(candidate, base.getSuperDefinition());
+	}
+
 }

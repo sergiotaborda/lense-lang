@@ -37,19 +37,29 @@ import helloworld.start.Kilometer;
 import math.numbers.Quaternion;
 import math.numbers.j;
 import math.numbers.k;
+import helloworld.start.services.Contract;
+import helloworld.start.services.PrivateImplementation;
+import helloworld.start.services.PublicImplementationWithProtectedConstructor;
 
 public class Main extends ConsoleApplication {
 
 	public constructor();
+
+// why does not work ?
+	 // public service : Contract {get;} = new PrivateImplementation();
 	
 	public parameter : Integer  {get;} = 99;
 
 	private demoProtectedAccess(){
 		
+		// let service : Contract = new PrivateImplementation(); // uncomment will raise compilation error because PrivateImplementation is not acessible from this package
+		// let service : Contract = new PublicImplementationWithProtectedConstructor();	
  		let dto = new Dto();
-
+	
 		assert(34 == dto.protectedAccess);
-		// assert(34 == dto.noAccess); // uncomment will raise compilation error on private field
+	    // assert(34 == dto.noAccess); // uncomment will raise compilation error because noAccess is a private field
+
+		dto.name = "John";
 	}
 
 	private demoFloat(){
@@ -112,7 +122,7 @@ public class Main extends ConsoleApplication {
 
 	private demoIntErasure_ErasurePossible(){
 
-		let ap : Int32 = 44;
+		mutable let ap : Int32 = 44;
 		let bp : Int32= 55;
 
 		let dp = ap &+ bp;
@@ -154,7 +164,7 @@ public class Main extends ConsoleApplication {
 	
 	private demoLongErasure_ErasurePossible(){
 
-		let ap : Int64 = 44;
+		mutable let ap : Int64 = 44;
 		let bp : Int64 = 55;
 
 		let dp = ap &+ bp;
@@ -196,7 +206,7 @@ public class Main extends ConsoleApplication {
 	
 	private demoLongAndIntErasure_NoErasurePossible(){
 
-		let a : Int32 = 4;
+		mutable let a : Int32 = 4;
 		let b : Int32 = 5;
 
 		let c = a + b;
@@ -251,21 +261,24 @@ public class Main extends ConsoleApplication {
 		return q + p;
 	}
 	
-	private  increment ( a : Int32) : Int32 {
+	private  increment ( value : Int32) : Int32 {
+		mutable let a = value;
 		for (let i in 0 .. 5){
 			a = a &+ i;
 		}
 		return a;
 	}
 	
-	private  incrementTo ( a : Int32, m : Int32) : Int32 {
+	private  incrementTo ( value : Int32, m : Int32) : Int32 {
+		mutable let a = value;
 		for (let j in 0 .. m){
 			a = a &+ j;
 		}
 		return a;
 	}
 	
-	private  incrementTo ( a : Integer, m : Int32) : Integer {
+	private  incrementTo ( value : Integer, m : Int32) : Integer {
+		mutable let a = value;
 		for (let k in 0 .. m){
 			a = a + k;
 		}

@@ -13,6 +13,7 @@ import lense.compiler.type.TypeKind;
 import lense.compiler.type.TypeMember;
 import lense.compiler.type.variable.TypeVariable;
 import lense.compiler.typesystem.Variance;
+import lense.compiler.typesystem.Visibility;
 
 public final class ErasedTypeDefinition implements TypeDefinition{
 
@@ -159,6 +160,11 @@ public final class ErasedTypeDefinition implements TypeDefinition{
 	@Override
 	public String getPackageName() {
 		return originalType.getPackageName();
+	}
+
+	@Override
+	public Visibility getVisibility() {
+		return originalType.getVisibility();
 	}
 
 

@@ -78,7 +78,7 @@ public class FormalParameterNode extends LenseAstNode implements TypedNode {
 		this.imutability = imutability;
 	}
 	
-	public Imutability getImutabilityValue() {
+	public Imutability getImutability() {
 		return this.imutability == null ? Imutability.Imutable : imutability;
 	}
 	

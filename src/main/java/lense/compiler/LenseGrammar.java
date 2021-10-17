@@ -1427,10 +1427,17 @@ public class LenseGrammar extends AbstractLenseGrammar {
 				node.setConstructorName(constructorName);
 			}
 
-			Optional<ArgumentListNode> args = r.get(separatorIndex + 1).getAstNode(ArgumentListNode.class);
-
-			node.setArguments(args.get());
-
+			var nextNode = r.get(separatorIndex + 1).getAstNode();
+			
+			if (nextNode.isPresent()) {
+				
+				if (nextNode.get() instanceof ArgumentListNode args) {
+					node.setArguments(args);
+				}
+			
+		
+			}
+			
 			p.setAstNode(node);
 
 		});

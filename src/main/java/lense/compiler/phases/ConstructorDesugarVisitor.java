@@ -197,7 +197,7 @@ public class ConstructorDesugarVisitor  extends AbstractLenseVisitor {
 						// field 
 						FieldDeclarationNode fd = new FieldDeclarationNode(f.getName(), f.getTypeNode(), null);
 						fd.setVisibility(new VisibilityNode(Visibility.Private));
-						fd.setImutability(f.getImutabilityValue());
+						fd.setImutability(f.getImutability());
 						fd.setInitializedOnConstructor(true);
 						
 						type.addBefore(c, fd);
@@ -210,7 +210,7 @@ public class ConstructorDesugarVisitor  extends AbstractLenseVisitor {
 
 						type.addBefore(c, prp);
 						
-						if (f.getImutabilityValue() == Imutability.Mutable){
+						if (f.getImutability() == Imutability.Mutable){
 							// create get;set property with given Visibility
 
 							prp.setAcessor(new AccessorNode(true, true));

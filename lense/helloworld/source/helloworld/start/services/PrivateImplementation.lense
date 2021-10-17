@@ -1,0 +1,7 @@
+
+import helloworld.start.services.Contract;
+
+protected class PrivateImplementation implements Contract {
+
+	public doSomething(param : String): String => param;
+}

@@ -1,0 +1,6 @@
+
+
+public interface Being  {
+
+	public mutable speciesName : String?;
+}

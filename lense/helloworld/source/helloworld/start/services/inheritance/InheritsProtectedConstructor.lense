@@ -1,0 +1,18 @@
+
+import helloworld.start.services.PublicImplementationWithProtectedConstructor;
+import helloworld.start.services.Contract;
+
+public class InheritsProtectedConstructor 
+	extends PublicImplementationWithProtectedConstructor 
+	implements Contract
+ 	{
+
+	public constructor(){
+	}
+
+	// uncoment will produce compilation error since calculate is private
+	//public doOtherThing(param : String): String => super.calculate(param);
+
+	// change to protected or private will break since cannot have less visibility than parent
+	public override doSomething(param : String): String => param;
+}

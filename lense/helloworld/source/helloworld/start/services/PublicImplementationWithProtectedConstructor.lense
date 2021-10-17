@@ -1,0 +1,12 @@
+
+import helloworld.start.services.Contract;
+
+public class PublicImplementationWithProtectedConstructor implements Contract {
+
+	protected constructor(){ // changing protected to privae will break compilation since InheritsProtectedConstructor inherits from this in another package
+	}
+
+	public default doSomething(param : String): String => param;
+
+	private calculate(param : String): String => param;
+}
