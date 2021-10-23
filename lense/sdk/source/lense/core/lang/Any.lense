@@ -5,8 +5,8 @@ import lense.core.lang.reflection.Type;
 
 public native class Any {
 
-	public native default equalsTo( other: Any) : Boolean;
-	public native default hashValue () : HashValue; // it is really ExclusiveDijunctable & math.Field
-	public native default asString () : String;
+	public native equalsTo( other: Any) : Boolean;
+	public native hashValue () : HashValue; // it is really ExclusiveDijunctable & math.Field
+	public native asString () : String;
 	public native type() : Type;
 } 

@@ -1,0 +1,16 @@
+
+
+
+public class UseTypeClass {
+
+
+	public useTypeClasses(){
+
+		let all : Sequence<Number> = [1,2,3,4];
+		
+
+
+	}
+
+
+}

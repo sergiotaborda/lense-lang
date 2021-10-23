@@ -19,7 +19,7 @@ import lense.core.math.Natural64;
 @Signature("[=T<lense.core.lang.Any]::lense.core.collections.EditableSequence<T>")
 public abstract class Array extends AbstractAssortment implements EditableSequence{
 
-	public final static Type RAW_TYPE = new Type(Array.class);
+	public final static Type RAW_TYPE =  Type.forClass(Array.class);
 	
 
 	@Constructor(paramsSignature = "lense.core.math.Natural, T")

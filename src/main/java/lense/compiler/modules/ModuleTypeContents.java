@@ -98,7 +98,7 @@ public class ModuleTypeContents implements UpdatableTypeRepository {
 		} else if(type instanceof RangeTypeVariable) {
 			RangeTypeVariable range = (RangeTypeVariable)type;
 			
-			return Optional.of(new RangeTypeVariable(range.getSymbol(),range.getVariance(),resolveType(range.getUpperBound()).get() , resolveType(range.getLowerBound()).get()));
+			return Optional.of(RangeTypeVariable.bounded(range.getSymbol(),range.getVariance(),resolveType(range.getUpperBound()).get() , resolveType(range.getLowerBound()).get()));
 			
 		} else if(type instanceof DeclaringTypeBoundedTypeVariable) {
 			DeclaringTypeBoundedTypeVariable original = (DeclaringTypeBoundedTypeVariable)type;

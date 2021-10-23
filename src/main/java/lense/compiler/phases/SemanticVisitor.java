@@ -62,6 +62,8 @@ import lense.compiler.ast.FieldOrPropertyAccessNode.FieldKind;
 import lense.compiler.ast.ForEachNode;
 import lense.compiler.ast.FormalParameterNode;
 import lense.compiler.ast.GenericTypeParameterNode;
+import lense.compiler.ast.GivenGenericConstraint;
+import lense.compiler.ast.GivenGenericConstraintList;
 import lense.compiler.ast.IndexedPropertyReadNode;
 import lense.compiler.ast.IndexerPropertyDeclarationNode;
 import lense.compiler.ast.InstanceOfNode;
@@ -93,6 +95,7 @@ import lense.compiler.ast.SwitchNode;
 import lense.compiler.ast.SwitchOption;
 import lense.compiler.ast.TernaryConditionalExpressionNode;
 import lense.compiler.ast.TypeNode;
+import lense.compiler.ast.TypeOfInvocation;
 import lense.compiler.ast.TypeParametersListNode;
 import lense.compiler.ast.TypedNode;
 import lense.compiler.ast.UnitaryOperation;
@@ -557,8 +560,25 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 				myType = (LenseTypeDefinition) maybeMyType.get();
 			} 
 			
+			this.currentType = myType;
+			
+			// givens 
+			var givens = t.getGivens();
+			
+			var givenMap = new HashMap<String,GivenGenericConstraint >();
+			
+			if (givens != null) {
+				
+				for(var given : givens.getChildren(GivenGenericConstraint.class)) {
+					givenMap.put(given.getName(), given);
+				}
+			}
+			
+			// generics
 			if (myType == null || myType.getGenericParameters().size() != genericParametersCount) {
 				List<TypeVariable> genericVariables = new ArrayList<>(genericParametersCount);
+
+				Map<String, RangeTypeVariable> updateBonds = new HashMap<>();
 
 				if (genericParametersCount > 0) {
 
@@ -567,25 +587,41 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 
 						TypeNode tn = g.getTypeNode();
 
-						RangeTypeVariable r = new RangeTypeVariable(tn.getName(), g.getVariance(),
-								LenseTypeSystem.Any(), LenseTypeSystem.Nothing());
+						var r =  RangeTypeVariable.allRange(tn.getName(), g.getVariance());
+						
 						genericVariables.add(r);
-
+						updateBonds.put(tn.getName(), r);
+						
 						this.getSemanticContext().currentScope().defineTypeVariable(tn.getName(), r, node);
+					
 					}
 
 				}
 
 				myType = new LenseTypeDefinition(t.getFullname(), t.getKind(), ANY, genericVariables);
 				myType = (LenseTypeDefinition) this.getSemanticContext().registerType(myType, genericParametersCount);
+				
+				if (!updateBonds.isEmpty()) {
+					for (var entry : givenMap.entrySet()) {
+						var givenType = this.getSemanticContext().typeForName( entry.getValue().getTypeNode()).getTypeDefinition();
+						
+						RangeTypeVariable r = updateBonds.get(entry.getKey());
+						
+						r.setUpperBound(givenType);
+						
+					}
+				}
+
 			}
 
 			this.currentType = myType;
 
 			myType.setKind(t.getKind());
 
-			if (myType.getKind().isInterface()) {
+			if (myType.getKind().isInterface() ||myType.getKind().isTypeClass()) {
 				myType.setAbstract(true);
+			} else {
+				myType.setAbstract(t.isAbstract());
 			}
 
 			Visibility visibility = t.getVisibility();
@@ -598,7 +634,7 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 				throw new CompilationError(node, "Types cannot be private");
 			}
 			myType.setVisibility(visibility);
-			myType.setAbstract(t.isAbstract());
+	
 			myType.setNative(t.isNative());
 			myType.setExplicitlyImmutable(t.isImmutable());
 			// TODO annotations
@@ -622,7 +658,16 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 					throw new CompilationError(node, t.getFullname() + " enhancement must define a type for extention");
 				}
 			}
-
+			
+			
+			for(var given :givenMap.values()) {
+				var givenType = this.getSemanticContext().typeForName( given.getTypeNode()).getTypeDefinition();
+				
+				var rangetype = RangeTypeVariable.upTo(given.getName(), Variance.Invariant,givenType);
+				this.getSemanticContext().currentScope().defineTypeVariable(given.getName(),rangetype, node);
+			}
+			
+			
 			TypeDefinition superType = ANY;
 			if (superTypeNode != null) {
 
@@ -765,6 +810,7 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 				myType.setCaseValues(chidlValues);
 			}
 
+			t.setAbstract(myType.isAbstract());
 			t.setTypeDefinition(myType);
 
 			if (t.getKind().isEnhancement()) {
@@ -2000,7 +2046,8 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 				}
 
 				// auto-abstract if interface
-				if (this.getSemanticContext().currentScope().getCurrentType().getKind() == LenseUnitKind.Interface) {
+				var kind = this.getSemanticContext().currentScope().getCurrentType().getKind();
+				if (kind.isInterface()) {
 					p.setAbstract(true);
 
 					if (p.getVisibility() == null) {
@@ -2009,6 +2056,21 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 
 					if (p.getVisibility() != Visibility.Public) {
 						throw new CompilationError(node, "Members of an interface must be public");
+					}
+
+					if (p.getAcessor() != null) {
+						p.getAcessor().setAbstract(true);
+						p.getAcessor().setVisibility(p.getVisibility());
+					}
+					if (p.getModifier() != null) {
+						p.getModifier().setAbstract(true);
+						p.getModifier().setVisibility(p.getVisibility());
+					}
+				} else if (kind.isTypeClass()) {
+					p.setAbstract(true);
+
+					if (p.getVisibility() == null) {
+						p.setVisibility(Visibility.Public);
 					}
 
 					if (p.getAcessor() != null) {
@@ -2264,8 +2326,8 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 					m.setIndexerProperty(indexer.get());
 					TypeVariable rawReturnType = indexer.get().getReturningType();
 
-					final RangeTypeVariable type = new RangeTypeVariable(rawReturnType.getSymbol(),
-							rawReturnType.getVariance(), rawReturnType.getTypeDefinition(), LenseTypeSystem.Nothing());
+					var type = RangeTypeVariable.upTo(rawReturnType.getSymbol(),
+							rawReturnType.getVariance(), rawReturnType.getTypeDefinition());
 					m.setTypeVariable(type);
 
 					// m.setTypeVariable(rawReturnType);
@@ -2548,7 +2610,10 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 
 					methodOwnerType = currentType;
 				
-
+				} else if (access instanceof TypeOfInvocation) {
+					var typeOf = (TypeOfInvocation) access;
+					var typeOfType = this.getSemanticContext().typeForName( typeOf.getTypeNode()).getTypeDefinition();
+					methodOwnerType = typeOfType;
 				} else if (access instanceof QualifiedNameNode) {
 					QualifiedNameNode qn = ((QualifiedNameNode) access);
 
@@ -2907,6 +2972,21 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 				MethodDeclarationNode m = (MethodDeclarationNode) node;
 				TypeVariable returnType = this.getSemanticContext().ensureNotFundamental(m.getReturnType().getTypeParameter());
 
+				var kind = this.currentType != null
+							? this.currentType.getKind()
+							: this.getSemanticContext().currentScope().getCurrentType().getKind();
+				
+				if (kind.isInterface() || kind.isTypeClass()) {
+					m.setVisibility(Visibility.Public);
+					m.setAbstract(true);
+				}
+				
+				if (m.isSatisfy()) {
+					// check satisfaction
+					
+					m.setStatic(true);
+				}
+				
 				if (m.isNative() && m.getBlock() != null) {
 					throw new CompilationError(node,
 							"Method " + m.getName() + " cannot be native and have and implementation");
@@ -2992,13 +3072,6 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 
 						}
 
-					}
-
-				} else {
-					if (this.getSemanticContext().currentScope().getCurrentType()
-							.getKind() == LenseUnitKind.Interface) {
-						m.setVisibility(Visibility.Public);
-						m.setAbstract(true);
 					}
 
 				}

@@ -26,7 +26,7 @@ public final class NameTypeResolver extends TypeResolver {
 	@Override
 	public Type resolveType() {
 		if (type == null) {
-			type = Type.fromName(name);
+			type = Type.forName(name);
 			
 			if (resolvers.length > 0) {
 				Type[] types = new Type[resolvers.length];

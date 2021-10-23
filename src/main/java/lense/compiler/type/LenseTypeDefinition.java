@@ -259,6 +259,9 @@ public class LenseTypeDefinition  implements TypeDefinition {
     }
 
     public boolean equals(LenseTypeDefinition other){
+    	if (this == other) {
+    		return true;
+    	}
         if ( this.getName().equals(other.getName()) && this.genericParameters.size() == other.genericParameters.size()) {
         	
         	Iterator<TypeVariable> itA = this.genericParameters.iterator();
@@ -348,18 +351,18 @@ public class LenseTypeDefinition  implements TypeDefinition {
     	
     	Optional<Integer> index = Optional.ofNullable(genericParametersMapping.get(typeName));
     	
-    	if (!index.isPresent() && this.superDefinition!= null) {
-    		index = ((LenseTypeDefinition)this.superDefinition).getGenericParameterIndexBySymbol(typeName);
-    	}
-    	
-    	if (!index.isPresent()) {
-    		for( TypeDefinition n : this.interfaces) {
-        		index = ((LenseTypeDefinition)this.superDefinition).getGenericParameterIndexBySymbol(typeName);
-        		if (index.isPresent()) {
-        			break;
-        		}
-        	}
-    	}
+//    	if (!index.isPresent() && this.superDefinition!= null) {
+//    		index = ((LenseTypeDefinition)this.superDefinition).getGenericParameterIndexBySymbol(typeName);
+//    	}
+//    	
+//    	if (!index.isPresent()) {
+//    		for( TypeDefinition n : this.interfaces) {
+//        		index = ((LenseTypeDefinition)n).getGenericParameterIndexBySymbol(typeName);
+//        		if (index.isPresent()) {
+//        			return index;
+//        		}
+//        	}
+//    	}
 
         return index;
     }

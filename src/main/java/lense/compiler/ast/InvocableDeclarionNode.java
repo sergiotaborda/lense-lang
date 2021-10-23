@@ -13,6 +13,7 @@ public abstract class InvocableDeclarionNode extends AnnotadedLenseAstNode{
 	private boolean isNative;
 	private boolean isDefault;
 	private boolean isOverride;
+	private boolean isSatisfy;
 	
 	private Visibility visibility;
 	private Imutability imutability;
@@ -70,6 +71,12 @@ public abstract class InvocableDeclarionNode extends AnnotadedLenseAstNode{
 	}
 	public void setOverride(boolean isOverride) {
 		this.isOverride = isOverride;
+	}
+	public boolean isSatisfy() {
+		return isSatisfy;
+	}
+	public void setSatisfy(boolean isSatisfy) {
+		this.isSatisfy = isSatisfy;
 	}
 	
 }

@@ -22,6 +22,7 @@ public class MethodDeclarationNode extends InvocableDeclarionNode implements Sco
 	private boolean isSetter;
 	
 	private boolean isStatic;
+
 	
 	private Method method;
 	private Method superMethod;
@@ -110,6 +111,8 @@ public class MethodDeclarationNode extends InvocableDeclarionNode implements Sco
 	public void setStatic(boolean isStatic) {
 		this.isStatic = isStatic;
 	}
+
+
 
 
 	

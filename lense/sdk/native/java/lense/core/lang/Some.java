@@ -73,6 +73,6 @@ public class Some extends Maybe{
 	
     @Override
     public Type type() {
-        return new Type(this.getClass()).withGenerics(innerTypeResolver.resolveType());
+        return Type.forClass(this.getClass()).withGenerics(innerTypeResolver.resolveType());
     }
 }

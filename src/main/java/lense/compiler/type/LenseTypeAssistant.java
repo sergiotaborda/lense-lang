@@ -109,6 +109,9 @@ public class LenseTypeAssistant implements TypeAssistant {
 
 	@Override
 	public TypeMatch isAssignableTo(TypeVariable type, TypeVariable target) {
+		if (type == target) {
+			return TypeMatch.Exact;
+		}
 		
 		if (type == null) {
 			throw new IllegalArgumentException("Type cannot be null");

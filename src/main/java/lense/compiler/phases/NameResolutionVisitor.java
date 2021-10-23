@@ -24,6 +24,7 @@ import lense.compiler.ast.FieldOrPropertyAccessNode.FieldKind;
 import lense.compiler.ast.ForEachNode;
 import lense.compiler.ast.FormalParameterNode;
 import lense.compiler.ast.GenericTypeParameterNode;
+import lense.compiler.ast.GivenGenericConstraint;
 import lense.compiler.ast.ImplementedInterfacesNode;
 import lense.compiler.ast.InstanceOfNode;
 import lense.compiler.ast.InvocableDeclarionNode;
@@ -79,8 +80,9 @@ public class NameResolutionVisitor extends AbstractScopedVisitor {
 	public VisitorNext doVisitBeforeChildren(AstNode node) {
 
 		if (node instanceof ClassTypeNode) {
-			ClassTypeNode n = (ClassTypeNode) node;
-
+	
+			ClassTypeNode n = (ClassTypeNode)node;
+			
 			String name = n.getFullname();
 			Optional<TypeVariable> type = this.getSemanticContext().resolveTypeForName(name, n.getGenericParametersCount());
 
@@ -101,7 +103,7 @@ public class NameResolutionVisitor extends AbstractScopedVisitor {
 
 						genericNames.add(tn.getName());
 
-						RangeTypeVariable r = new RangeTypeVariable(tn.getName(), g.getVariance() , LenseTypeSystem.Any(), LenseTypeSystem.Nothing());
+						RangeTypeVariable r = RangeTypeVariable.allRange(tn.getName(), g.getVariance());
 						genericVariables.add(r);
 
 						this.getSemanticContext().currentScope().defineTypeVariable(tn.getName(), r, node);
@@ -154,6 +156,23 @@ public class NameResolutionVisitor extends AbstractScopedVisitor {
 
 			this.getSemanticContext().currentScope().defineVariable("this", currentType, node);
 
+			// givens 
+			var givens = n.getGivens();
+			
+			if (givens != null) {
+				
+				for(var given : givens.getChildren(GivenGenericConstraint.class)) {
+
+					Import match = matchImports(ct, given.getTypeNode().getName())
+							.orElseThrow(() -> new CompilationError(node,"Cannot find " +  given.getTypeNode().getName() + ". Did you imported it?"));
+					
+					 match.setMemberCalled(true);
+					 
+					this.genericNames.add(given.getName());
+					
+				}
+			}
+			
 
 		} else if (node instanceof NumericValue){
 			NumericValue n = (NumericValue)node;
@@ -353,7 +372,7 @@ public class NameResolutionVisitor extends AbstractScopedVisitor {
 			for(AstNode a : n.getMethodScopeGenerics().getChildren()) {
 				GenericTypeParameterNode g = (GenericTypeParameterNode)a;
 				
-				RangeTypeVariable range = new RangeTypeVariable(g.getTypeNode().getName(), g.getVariance(), LenseTypeSystem.Any(), LenseTypeSystem.Nothing());
+				RangeTypeVariable range = RangeTypeVariable.allRange(g.getTypeNode().getName(), g.getVariance());
 				
 				this.getSemanticContext().currentScope().defineTypeVariable(g.getTypeNode().getName(), range, n);
 

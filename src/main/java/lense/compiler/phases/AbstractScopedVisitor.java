@@ -62,7 +62,10 @@ public abstract class AbstractScopedVisitor extends AbstractLenseVisitor  {
 					if (t.getTypeParameter() != null){
 						return t.getTypeParameter();
 					}
-					throw new TypeNotFoundError(t.getParent(),  t.getName() );
+					
+					return LenseTypeSystem.getInstance().getForName(t.getName(), t.getTypeParametersCount())
+							.orElseThrow(() -> new TypeNotFoundError(t.getParent(),  t.getName()));
+
 				}
 
 			} else {

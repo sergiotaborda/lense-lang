@@ -23,7 +23,7 @@ public class String extends Base implements Sequence , CharSequence {
 
 	public static final String EMPTY = new String("");
 	
-	public static final TypeResolver TYPE_RESOLVER = TypeResolver.lazy(() -> new Type(String.class));
+	public static final TypeResolver TYPE_RESOLVER = TypeResolver.lazy(() -> Type.forClass(String.class));
 	
     @Constructor(paramsSignature = "")
 	public static String constructor(){

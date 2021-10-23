@@ -187,7 +187,7 @@ public final class Float64 extends Base implements Float, AnyValue {
 	public boolean isPositive() {
 		return java.lang.Double.compare(this.value, 0) > 0;
 	}
-	public static final TypeResolver TYPE_RESOLVER = TypeResolver.lazy(() -> new Type(Float64.class));
+	public static final TypeResolver TYPE_RESOLVER = TypeResolver.lazy(() -> Type.forClass(Float64.class));
 
 	@Override
 	public Type type() {

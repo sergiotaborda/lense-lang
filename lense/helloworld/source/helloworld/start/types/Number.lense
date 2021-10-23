@@ -1,0 +1,25 @@
+
+
+
+public class Number satisfies MultiplicativeMonoid<Number> , AdditiveMonoid<T> {
+
+
+	public satisfy zero() : Number {
+		return new Number(0);
+	}
+
+	public satisfy one() : Number {
+		return new Number(1);
+	}
+
+	public satisfy timesOperator(a : Number, b : Number) : Number {
+		return new Number(a.value * b.value);
+	}
+
+	public satisfy plusOperator(a : Number, b : Number) : Number {
+		return new Number(a.value + b.value);
+	}
+
+	implicit constructor (private value : Integer);
+
+}

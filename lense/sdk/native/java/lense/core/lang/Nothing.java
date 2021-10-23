@@ -6,7 +6,7 @@ import lense.core.lang.reflection.TypeResolver;
 
 public final class Nothing extends Base {
 
-	public static final TypeResolver TYPE_RESOLVER = TypeResolver.of(new Type(Nothing.class));
+	public static final TypeResolver TYPE_RESOLVER = TypeResolver.of(Type.forClass(Nothing.class));
 
 	private Nothing() {}; 
 	

@@ -749,6 +749,7 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
                     writer.print("enum ");
                     break;
                 case Interface:
+                case TypeClass:
                     writer.print("interface ");
                     break;
                 default:
@@ -759,7 +760,7 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 
                 writer.print(className);
 
-                if (!t.getKind().isInterface() && !t.getKind().isEnhancement()) {
+                if (!t.getKind().isInterface() && !t.getKind().isEnhancement() && !t.getKind().isTypeClass()) {
                     writer.print(" extends ");
                     if (t.getSuperType() != null
                             && t.getSuperType().getTypeVariable().getTypeDefinition().getName().length() > 0) {
@@ -770,7 +771,7 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
                 } 
 
                 if (t.getInterfaces() != null) {
-                    if (t.getKind() == LenseUnitKind.Interface) {
+                    if (t.getKind().isInterface() || t.getKind().isTypeClass()) {
                         writer.print(" extends ");
                     } else {
                         writer.print(" implements ");
@@ -799,7 +800,7 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
                
                 } else if (t.getKind().isInterface()){
                     writer.print(" extends lense.core.lang.Any");
-                } else if (t.isImmutable()){
+                } else if (t.isImmutable() && !t.getKind().isTypeClass()){
                     writer.print(" implements lense.core.lang.Immutable");
                 } 
 
@@ -1670,9 +1671,13 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
                     writer.println("}");
 
                     // inner constructor
-                    writer.append("protected ");
-
                     String name = ctr.getReturnType().getName();
+
+                    if (name.contains("$$Type")) {
+                        writer.append("public ");
+                    } else {
+                        writer.append("protected ");
+                    }
 
                     writer.append(name.substring(name.lastIndexOf('.') + 1));
 

@@ -103,9 +103,10 @@ public class SemanticContext {
 				return LenseTypeSystem.Nothing();
 			} 
 			throw new TypeNotFoundError(scanPosition, name + "'" + genericParametersCount);
-		} else if (type.get().getGenericParameters().size() != genericParametersCount) {
-		    throw new TypeNotFoundError(scanPosition, name + "'" + genericParametersCount );
 		}
+//		else if (type.get().getGenericParameters().size() != genericParametersCount) {
+//		    throw new TypeNotFoundError(scanPosition, name + "'" + genericParametersCount );
+//		}
 		
 		return type.get();
 	}
@@ -202,10 +203,9 @@ public class SemanticContext {
 
 	public <T extends TypeDefinition> T ensureNotFundamental(T type) {
 		if (type instanceof LenseTypeDefinition && !(type instanceof UnionType)) {
-			var rawType =  resolveTypeForName(type.getName(), type.getGenericParameters().size())
-					.orElseThrow(() -> 
-					new RuntimeException(type.getName() + " has not found")
-					)
+			var rawType =  resolveTypeForName(type.getName(), type.getGenericParameters().size()).map( it -> (LenseTypeDefinition)it)
+						//.or(() -> LenseTypeSystem.getInstance().getForName(type.getName(), type.getGenericParameters().size()))
+					.orElseThrow(() -> new TypeNotFoundError((ScanPosition)null, type.getName()))
 					.getTypeDefinition();
 			
 			if(!((LenseTypeDefinition) type).getGenericParameters().isEmpty()) {

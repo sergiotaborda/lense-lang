@@ -41,7 +41,7 @@ public class TestTypeSystem {
 				"Array",
 				LenseUnitKind.Class, 
 				(LenseTypeDefinition) LenseTypeSystem.Any(), 
-				Arrays.asList((TypeVariable)new RangeTypeVariable("T", Variance.Invariant, LenseTypeSystem.Nothing(), LenseTypeSystem.Any()))
+				Arrays.asList(RangeTypeVariable.allRange("T", Variance.Invariant))
 		);
 		
 		LenseTypeDefinition arrayReturn = new LenseTypeDefinition(
@@ -55,7 +55,7 @@ public class TestTypeSystem {
 		
 		LenseTypeDefinition booleanType = new LenseTypeDefinition("Boolean",LenseUnitKind.Class, (LenseTypeDefinition) LenseTypeSystem.Any());
 		
-		LenseTypeDefinition booleanArray = LenseTypeSystem.getInstance().specify(array, booleanType);
+		LenseTypeDefinition booleanArray = LenseTypeSystem.specify(array, booleanType);
 		
 		Method method =  instance.getMethodsByName(booleanArray, "duplicate").stream().findFirst().get();
 		
@@ -65,7 +65,7 @@ public class TestTypeSystem {
 	@Test
 	public void testIsRangeTypeVariablePromotable() {
 		
-		TypeVariable range = new RangeTypeVariable("T", Variance.Invariant,  LenseTypeSystem.Any(),LenseTypeSystem.Nothing());
+		TypeVariable range = RangeTypeVariable.allRange("T", Variance.Invariant);
 		TypeVariable declare = new DeclaringTypeBoundedTypeVariable(LenseTypeSystem.Sequence(), 0, "T", Variance.Invariant);
 		
 		
@@ -80,7 +80,7 @@ public class TestTypeSystem {
 				"Array",
 				LenseUnitKind.Class, 
 				(LenseTypeDefinition) LenseTypeSystem.Any(), 
-				Arrays.asList((TypeVariable)new RangeTypeVariable("T", Variance.Invariant, LenseTypeSystem.Nothing(), LenseTypeSystem.Any()))
+				Arrays.asList(RangeTypeVariable.allRange("T", Variance.Invariant))
 		);
 		
 		TypeVariable generic = new GenericTypeBoundToDeclaringTypeVariable(array, array, 0, "T", Variance.Invariant);
@@ -96,7 +96,7 @@ public class TestTypeSystem {
 				"Array",
 				LenseUnitKind.Class, 
 				(LenseTypeDefinition) LenseTypeSystem.Any(), 
-				Arrays.asList((TypeVariable)new RangeTypeVariable("T", Variance.Invariant, LenseTypeSystem.Nothing(), LenseTypeSystem.Any()))
+				Arrays.asList(RangeTypeVariable.allRange("T", Variance.Invariant))
 		);
 		
 		LenseTypeDefinition otherArray = new LenseTypeDefinition(

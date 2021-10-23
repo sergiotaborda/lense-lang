@@ -13,8 +13,7 @@ public final class ConstantTypeResolver extends TypeResolver {
 		return type;
 	}
 
-	
-	
+
 	@Override
 	public TypeResolver withGenerics(TypeResolver... resolvers) {
 		return TypeResolver.lazy(() -> {

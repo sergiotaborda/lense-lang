@@ -16,21 +16,42 @@ import lense.compiler.typesystem.Variance;
  */
 public class RangeTypeVariable implements TypeVariable {
 
+	public static RangeTypeVariable allRange(String symbol, Variance variance) {
+		return new RangeTypeVariable(Optional.of(symbol), variance,LenseTypeSystem.Any(),LenseTypeSystem.Nothing());
+	}
+	
+	public static TypeVariable upTo (String symbol,Variance variance, TypeDefinition upper ){
+		return upTo(Optional.of(symbol), variance, upper);
+	}
+	
+	public static TypeVariable upTo (Optional<String> symbol,Variance variance, TypeDefinition upper ){
+		if (upper.equals(LenseTypeSystem.Nothing())) {
+			return LenseTypeSystem.Nothing();
+		}
+		return new RangeTypeVariable(symbol, variance, upper, LenseTypeSystem.Nothing());
+	}
+	
+	public static TypeVariable bounded(Optional<String> symbol, Variance variance, TypeVariable upper, TypeVariable lower) {
+		if (upper.equals(lower)) {
+			throw new IllegalArgumentException();
+		}
+		return new RangeTypeVariable(symbol, variance, upper, lower);
+	}
 	
 	private Optional<String> symbol;
 	private Variance variance;
 	private TypeVariable lower;
 	private TypeVariable upper;
 	
-	public RangeTypeVariable (String symbol,Variance variance, TypeDefinition upper, TypeDefinition lower ){
-		this(Optional.of(symbol), variance, upper, lower);
-	}
+//	public RangeTypeVariable (String symbol,Variance variance, TypeDefinition upper, TypeDefinition lower ){
+//		this(Optional.of(symbol), variance, upper, lower);
+//	}
+//	
+//	public RangeTypeVariable (String symbol,Variance variance, TypeVariable upper, TypeVariable lower ){
+//		this(Optional.of(symbol), variance, upper, lower);
+//	}
 	
-	public RangeTypeVariable (String symbol,Variance variance, TypeVariable upper, TypeVariable lower ){
-		this(Optional.of(symbol), variance, upper, lower);
-	}
-	
-	public RangeTypeVariable (Optional<String> symbol,Variance variance, TypeVariable upper, TypeVariable lower ){
+	private RangeTypeVariable (Optional<String> symbol,Variance variance, TypeVariable upper, TypeVariable lower ){
 		this.symbol = symbol;
 		this.variance = variance;
 		this.upper = upper;
@@ -103,7 +124,7 @@ public class RangeTypeVariable implements TypeVariable {
 		}
 		if ( other instanceof RangeTypeVariable){
 			RangeTypeVariable r = ((RangeTypeVariable)other);
-			return (this.variance == this.variance || r.variance.equals(this.variance)) && r.getLowerBound().equals(this.lower) && r.getUpperBound().equals(this.upper);
+			return (this.variance == r.variance || r.variance.equals(this.variance)) && r.getLowerBound().equals(this.lower) && r.getUpperBound().equals(this.upper);
 		}
 		return false;
 	}
@@ -138,6 +159,11 @@ public class RangeTypeVariable implements TypeVariable {
 	public boolean isCalculated() {
 		return false;
 	}
+
+	
+
+
+
 
 
 

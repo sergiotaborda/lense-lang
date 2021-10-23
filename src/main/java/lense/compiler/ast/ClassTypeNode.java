@@ -46,6 +46,7 @@ public class ClassTypeNode extends AnnotadedLenseAstNode implements ScopeDelimit
     private boolean isAsStringDefined;
     private boolean isHashValueDefined;
     private boolean isEqualsToDefined;
+	private GivenGenericConstraintList givens;
 
 	
 	public ClassTypeNode (LenseUnitKind kind){
@@ -292,7 +293,14 @@ public class ClassTypeNode extends AnnotadedLenseAstNode implements ScopeDelimit
 		this.packageName = packageName;
 	}
 
-
+	public void setGivens(GivenGenericConstraintList givens) {
+		this.givens = givens;
+		this.add(givens);
+	}
+	
+	public GivenGenericConstraintList getGivens(){
+		return givens;
+	}
 
 
 

@@ -1,0 +1,8 @@
+
+
+public type class AdditiveMonoid<T> given T extends AdditiveMonoid<T> {
+
+
+	public zero() : T;
+	public plusOperator(a : T, b : T) : T;
+}

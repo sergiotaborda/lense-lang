@@ -22,6 +22,7 @@ public class Method implements CallableMember<Method> {
 	private boolean isDefault = false;
 	private boolean isOverride = false;
 	private boolean isNative = false;
+	private boolean isSatisfy = false;
 	
 	private boolean errased = false;
 	private Method superMethod;
@@ -285,6 +286,14 @@ public class Method implements CallableMember<Method> {
     public void setErased(boolean errased) {
         this.errased = errased;
     }
+
+	public boolean isSatisfy() {
+		return isSatisfy;
+	}
+
+	public void setSatisfy(boolean isSatisfy) {
+		this.isSatisfy = isSatisfy;
+	}
 
 
 }

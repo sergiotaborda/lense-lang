@@ -108,13 +108,6 @@ public class NameResolutionPhase implements CompilerPhase {
 					}
 				}
 				
-//			    if (!ct.getKind().isInterface() && ct.getGenericParametersCount() > 0) {
-//			    	 ct.addImport(Import.singleType(new QualifiedNameNode("lense.core.lang.reflection.ReifiedArguments"),  null).setMemberCalled(true));
-//                }
-//			    
-//			    if (!anyImported && !ct.getName().equals("lense.core.lang.Any")) {
-//			    	 ct.addImport(Import.singleType(new QualifiedNameNode("lense.core.lang.Any"),  null).setMemberCalled(true));
-//			    }
 			}
 			
 		} catch (CompilationError e){

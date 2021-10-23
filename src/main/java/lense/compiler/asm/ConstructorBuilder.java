@@ -53,7 +53,14 @@ public class ConstructorBuilder {
 					variables.add(parseTypeVariable(declaringType, g));
 				}
 
-				((LoadedLenseTypeDefinition)paramTypeDef).setGenericParameters(variables);
+				if (paramTypeDef instanceof LoadedLenseTypeDefinition loaded) {
+					loaded.setGenericParameters(variables);
+				} else if (paramTypeDef instanceof ProxyTypeDefinition proxy) {
+					proxy.setGenericParameters(variables);
+				} else {
+					var f = 2;
+				}
+			
 			}
 
 			return paramTypeDef;
