@@ -6,18 +6,16 @@ import lense.core.collections.Sequence;
 import lense.core.lang.Any;
 import lense.core.lang.java.Base;
 import lense.core.lang.java.Constructor;
+import lense.core.math.Int32;
+import lense.core.math.NativeNumberFactory;
 
 public abstract class Type extends Base {
 
 	public static Type forName(String name) {
-		System.out.println("Resolving type for name :" + name);
-
 		return newInstance(name, null);
 	}
 
 	public static Type forClass(Class<?> instanceClass) {
-		System.out.println("Resolving type from java class for name :" + instanceClass.getName());
-
 		return newInstance(instanceClass.getName(), instanceClass);
 	}
 
@@ -87,6 +85,13 @@ public abstract class Type extends Base {
 		return loadMethods();
 	}
 
+	public Type genericType(Int32 index) {
+		var i = NativeNumberFactory.toPrimitiveInt(index);
+		if (this.generics != null && i >=0 && i < this.generics.length) {
+			return this.generics[i];
+		}
+		throw new IndexOutOfBoundsException(i);
+	}
 
 	protected abstract Sequence loadMethods();
 

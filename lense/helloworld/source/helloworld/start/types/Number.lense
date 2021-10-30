@@ -1,7 +1,8 @@
 
+import helloworld.start.types.MultiplicativeMonoid;
+import helloworld.start.types.AdditiveMonoid;
 
-
-public class Number satisfies MultiplicativeMonoid<Number> , AdditiveMonoid<T> {
+public value class Number satisfies MultiplicativeMonoid<Number> , AdditiveMonoid<Number> {
 
 
 	public satisfy zero() : Number {
@@ -20,6 +21,12 @@ public class Number satisfies MultiplicativeMonoid<Number> , AdditiveMonoid<T> {
 		return new Number(a.value + b.value);
 	}
 
-	implicit constructor (private value : Integer);
+	public implicit constructor (protected value : Integer); // change to private and validate in compiler that statisfy do not use privates
+
+
+	public override equalsTo(other : Any) : Boolean => other is Number && other.value == this.value;
+
+	public override hashValue() : HashValue => value.hashValue(); 
+	
 
 }

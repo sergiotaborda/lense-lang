@@ -9,13 +9,13 @@ public enhancement SumEnhancement extends Sequence<T>  given T extends AdditiveM
 	public void (){
 	}
 
-//	public sum() : T {
-//		let type = typeOf(T);
-//		mutable let total = type.zero(); // the type of T is an instance of AdditiveMonoid<T>
-//		for (let item in this){
-//			total = type.plusOperator(total, item);
-//		}
-//		return total;
-//	}
+	public sum() : T {
+		let type = typeOf(T);
+		mutable let total = type.zero(); // the type of T is an instance of AdditiveMonoid<T>
+		for (let item in this){
+			total = type.plusOperator(total, item);
+		}
+		return total;
+	}
 
 }  

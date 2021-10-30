@@ -432,6 +432,7 @@ public class StructureVisitor extends AbstractScopedVisitor {
 		for (AstNode p : parameters.getChildren()){
 			FormalParameterNode f = (FormalParameterNode)p;
 			resolveTypeDefinition(f.getTypeNode(), Variance.ContraVariant);
+			
 		}
 
 

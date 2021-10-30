@@ -37,6 +37,7 @@ import compiler.trees.TreeTransverser;
 import lense.compiler.ast.ClassTypeNode;
 import lense.compiler.ast.ModuleNode;
 import lense.compiler.ast.QualifiedNameNode;
+import lense.compiler.ast.TypeNode;
 import lense.compiler.ast.UnitTypes;
 import lense.compiler.dependency.CompilationUnitDependencyNode;
 import lense.compiler.dependency.CyclicDependencyResolver;
@@ -59,6 +60,7 @@ import lense.compiler.phases.ConstructorDesugarPhase;
 import lense.compiler.phases.NameResolutionPhase;
 import lense.compiler.phases.OtimizationPhase;
 import lense.compiler.phases.SemanticAnalysisPhase;
+import lense.compiler.phases.TypeClassInterpolationPhase;
 import lense.compiler.repository.ModuleCompilationScopeTypeRepository;
 import lense.compiler.repository.UpdatableTypeRepository;
 import lense.compiler.type.LenseUnitKind;
@@ -347,9 +349,11 @@ public abstract class LenseCompiler {
 			// init found names with nothing because it is a non denotable
 			foundNames.add("lense.core.lang.Nothing");
 
+			var nameResolutionPhase = (new NameResolutionPhase(currentModuleRepository, new PathPackageResolver(locations.getSourceFolder().getPath()), listener));
+			
 			CompositePhase prePhase = new CompositePhase()
 					.add(new ConstructorDesugarPhase(listener)) 
-					.add(new NameResolutionPhase(new PathPackageResolver(locations.getSourceFolder().getPath()), listener));
+					.add(nameResolutionPhase);
 
 			trace("Creating dependency graph");
 
@@ -411,7 +415,7 @@ public abstract class LenseCompiler {
 							imported = new CompilationUnitDependencyNode(null, name);
 						}
 
-						if (shouldGraphContain(DependencyRelationship.Structural) && imp.isMemberCalled()){
+						if (shouldGraphContain(DependencyRelationship.Structural) && (imp.isMemberCalled() || imp.isSuper())){
 							trace(dependency.getName() + " strongly depends on " + imported.getName());
 							if (imported.getName().equals("lense.core.system.ConsoleApplication")){
 								applications.add(dependency.getName());
@@ -430,7 +434,9 @@ public abstract class LenseCompiler {
 						} else if (dependency.getName().equals(imported.getName())){
 							trace(dependency.getName() + " referes by to it self ");
 							continue;
-						} 
+						} else {
+							trace(dependency.getName() + " declared import of " + imported.getName());
+						}
 
 						referencedNames.add(imported.getName());
 
@@ -524,18 +530,11 @@ public abstract class LenseCompiler {
 					}
 				}
 			}
-			
-//			if (this.selfCompilation) {
-//				// produce types classes for not denotable types
-//				var path = locations.getSourceFolder().folder(PackageSourcePathUtils.fromPackageName("lense.core.lange")).file("None$$Type.lense").getPath();
-//
-//				all.add(new StringCompilationUnit(produceNoneType().toString(), path));	
-//			
-//			}
 
 			parser.parse(all)
-			.passBy(new NameResolutionPhase(new PathPackageResolver(locations.getSourceFolder().getPath()), listener))
+			.passBy(nameResolutionPhase)
 			.passBy(corePhase)
+			.passBy(new TypeClassInterpolationPhase(packagesMapping.values().stream().flatMap(it -> it.stream()).toList()))
 			.sendTo(backend);
 			
 			// produce package classes
@@ -550,7 +549,7 @@ public abstract class LenseCompiler {
 			}
 
 			parser.parse(all)
-			.passBy(new NameResolutionPhase(new PathPackageResolver(locations.getSourceFolder().getPath()), listener))
+			.passBy(nameResolutionPhase)
 			.passBy(corePhase)
 			.sendTo(backend);
 
@@ -561,7 +560,7 @@ public abstract class LenseCompiler {
 			all.add(new StringCompilationUnit(builder.toString(), locations.getSourceFolder().folder(PackageSourcePathUtils.fromPackageName(module.getName())).file("Module$$Info.lense").getPath())); // TODO specify package
 
 			parser.parse(all)
-			.passBy(new NameResolutionPhase(new PathPackageResolver(locations.getSourceFolder().getPath()), listener))
+			.passBy(nameResolutionPhase)
 			.passBy(corePhase)
 			.sendTo(backend);
 
@@ -713,16 +712,56 @@ public abstract class LenseCompiler {
 	
 
 	private StringBuilder writeType(ClassTypeNode node) {
+		
+		node.setProperty("typeClassMode", true);
 		var type = node.getTypeDefinition();
 		
 		var name = lense.compiler.utils.Strings.cammelToPascalCase(type.getSimpleName()) + "$$Type";
 		
-		StringBuilder builder = new StringBuilder("import lense.core.lang.reflection.Type; import lense.core.lang.reflection.Method; import lense.core.lang.reflection.Property;  import lense.core.collections.LinkedList; import lense.core.lang.reflection.ReflectiveMethod; import lense.core.lang.reflection.ReflectiveProperty;\n")
-				.append("public class ").append(name).append(" extends Type {  \n")
+		StringBuilder builder = new StringBuilder("import lense.core.lang.reflection.Type; import lense.core.lang.reflection.Method; import lense.core.lang.reflection.Property;  import lense.core.collections.LinkedList; import lense.core.lang.reflection.ReflectiveMethod; import lense.core.lang.reflection.ReflectiveProperty;\n");
 				
-				.append("public constructor() {} \n")
+				if (node.getSatisfiedTypeClasses() != null) {
+					for (var typeClass : node.getSatisfiedTypeClasses().getChildren(TypeNode.class)) {
+						builder.append("import ").append(typeClass.getTypeParameter().getTypeDefinition().getName()).append(";\n");
+					}
+				}
+			
 				
-				.append("public duplicate() : Type { \n")
+				builder.append("public class ").append(name).append(" extends Type ");
+				
+				if (node.getSatisfiedTypeClasses() != null) {
+					builder.append("  implements ");
+					var iterator = node.getSatisfiedTypeClasses().getChildren(TypeNode.class).iterator();
+					while(iterator.hasNext()) {
+						var typeClass = iterator.next();
+						builder.append(typeClass.toString());
+//						var generics = typeClass.getTypeVariable().getTypeDefinition().getGenericParameters();
+//						
+//						if (!generics.isEmpty()) {
+//							builder.append("<");
+//							
+//							var gIterator = generics.iterator();
+//							while(gIterator.hasNext()) {
+//								var f = gIterator.next();
+//								builder.append(f.getSymbol().get());
+//							}
+//							
+//							builder.append(">");
+//						}
+						
+						if (iterator.hasNext()) {
+							builder.append(", ");
+						}
+					}
+				}
+				
+				builder.append("{ \n")
+				
+				.append("public constructor() {} \n");
+				
+				
+				
+				builder.append("public duplicate() : Type { \n")
 				.append("  return new ").append(name).append("(); \n")
 				.append("}\n")
 				
@@ -753,30 +792,5 @@ public abstract class LenseCompiler {
 		
 		return builder;
 	}
-//
-//	protected StringBuilder produceNoneType() {
-//		var name = "None";
-//		var fullName = "lense.core.lang" + name; 
-//				
-//		StringBuilder builder = new StringBuilder("import lense.core.lang.reflection.Type; import lense.core.lang.reflection.Method; import lense.core.lang.reflection.Property;  import lense.core.collections.LinkedList;\n")
-//				.append("public class ").append(name).append(" extends Type {  \n")
-//				
-//				.append("public constructor() {} \n")
-//				
-//				.append("public duplicate() : Type { \n")
-//				.append("  return new ").append(name).append("(); \n")
-//				.append("}\n")
-//				
-//				.append("public getName() => \"" + fullName + "\"; \n")
-//				
-//				.append("protected loadMethods() : Sequence<Method> { \n")
-//				.append("    return new LinkedList<Method>();\n ") // TODO methods
-//				.append("}\n")
-//				.append("protected loadProperties():  Sequence<Property>  {\n")
-//				.append("    return new LinkedList<Property>();\n ")
-//				.append("}\n")
-//				.append("}");	
-//		
-//		return builder;
-//	}
+
 }

@@ -18,6 +18,11 @@ public interface TypeDefinition extends TypeVariable {
 
 	public String getName();
 
+	
+	public default Optional<String> getSymbol(){
+		return Optional.ofNullable(getName());
+	}
+	
 	public String getSimpleName();
 	
 	public String getPackageName();
@@ -60,6 +65,8 @@ public interface TypeDefinition extends TypeVariable {
 
 	public List<TypeDefinition> getInterfaces();
 
+	public List<TypeDefinition> getImplementedTypeClasses();
+	
 	public void updateFrom(TypeDefinition type, TypeAssistant typeAssistant);
 
 	public boolean isGeneric();

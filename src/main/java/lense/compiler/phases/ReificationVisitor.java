@@ -13,6 +13,7 @@ import lense.compiler.ast.ArgumentListItemNode;
 import lense.compiler.ast.ArgumentListNode;
 import lense.compiler.ast.ArgumentTypeResolverNode;
 import lense.compiler.ast.CaptureReifiedTypesNode;
+import lense.compiler.ast.CastNode;
 import lense.compiler.ast.ClassBodyNode;
 import lense.compiler.ast.ClassTypeNode;
 import lense.compiler.ast.ConstructorDeclarationNode;
@@ -20,16 +21,18 @@ import lense.compiler.ast.CreationTypeNode;
 import lense.compiler.ast.FieldDeclarationNode;
 import lense.compiler.ast.FormalParameterNode;
 import lense.compiler.ast.GenericTypeParameterNode;
-import lense.compiler.ast.ImutabilityNode;
 import lense.compiler.ast.LiteralCreation;
 import lense.compiler.ast.MethodDeclarationNode;
 import lense.compiler.ast.MethodInvocationNode;
 import lense.compiler.ast.NewInstanceCreationNode;
 import lense.compiler.ast.NewTypeResolverNode;
 import lense.compiler.ast.NumericValue;
+import lense.compiler.ast.ReadThisType;
+import lense.compiler.ast.ReadTypeByNameNode;
 import lense.compiler.ast.ReceiveReifiedTypesNodes;
 import lense.compiler.ast.ReificationScope;
 import lense.compiler.ast.TypeNode;
+import lense.compiler.ast.TypeOfInvocation;
 import lense.compiler.ast.TypeParameterTypeResolverNode;
 import lense.compiler.ast.TypeParametersListNode;
 import lense.compiler.ast.VariableReadNode;
@@ -40,7 +43,6 @@ import lense.compiler.context.VariableInfo;
 import lense.compiler.type.CallableMemberMember;
 import lense.compiler.type.LenseTypeAssistant;
 import lense.compiler.type.LenseTypeDefinition;
-import lense.compiler.type.LenseUnitKind;
 import lense.compiler.type.Method;
 import lense.compiler.type.TypeAssistant;
 import lense.compiler.type.variable.DeclaringTypeBoundedTypeVariable;
@@ -70,14 +72,46 @@ public final class ReificationVisitor extends AbstractScopedVisitor {
 	protected Optional<LenseTypeDefinition> getCurrentType() {
 		return Optional.of(currentType);
 	}
-
+	
 	@Override
 	public VisitorNext doVisitBeforeChildren(AstNode node) {
 
 		if (node instanceof ClassTypeNode) {
 
 			this.currentType = ((ClassTypeNode) node).getTypeDefinition();
-
+		} else if (node instanceof TypeOfInvocation typeOf) {
+			var type = typeOf.getChildren(TypeNode.class).get(0);
+			if (type.getTypeParameter() != null) {
+				
+				if (type.getTypeParameter().isFixed()) {
+					// read type by name
+					node.getParent().replace(node, new ReadTypeByNameNode(type, type.getTypeParameter().getTypeDefinition().getName()));
+				} else {
+					if (this.currentType.getKind().isEnhancement()) {
+						// look for paremeter in super
+						var generics = 	this.currentType.getSuperDefinition().getGenericParameters();
+						for (int i =0; i < generics.size(); i++) {
+							
+							if (generics.get(i).getSymbol().get().equals(type.getTypeParameter().getSymbol().get())) {
+								
+								var methodInvocation = new MethodInvocationNode(  
+										new ReadThisType(new TypeNode(this.currentType), this.currentType.getKind()), 
+										"genericType",
+										new ArgumentListItemNode(0, new NumericValue(i, LenseTypeSystem.Int32()))
+								);
+								methodInvocation.setTypeVariable(LenseTypeSystem.Type());
+								
+								node.getParent().replace(node, new CastNode(methodInvocation, type.getTypeParameter().getTypeDefinition()));
+								break;
+							}
+						}
+	
+					} else {
+						throw new UnsupportedOperationException();
+					}
+				}
+			}
+			
 		} else if (node instanceof ClassBodyNode) {
 			
 			if (!this.currentType.getKind().isInterface() &&  this.currentType.isGeneric()) {
@@ -177,7 +211,7 @@ public final class ReificationVisitor extends AbstractScopedVisitor {
 
 			ClassTypeNode n = (ClassTypeNode) node;
 
-			if (n.getKind() == LenseUnitKind.Class) {
+			if (n.getKind().isClass()) {
 				List<TypeVariable> genericParameters = getCurrentType().get().getGenericParameters();
 				if (!genericParameters.isEmpty()) {
 
@@ -191,14 +225,14 @@ public final class ReificationVisitor extends AbstractScopedVisitor {
 					}
 		
 				}
-			}
+			} 
 		} else if (node instanceof MethodDeclarationNode) {
 			MethodDeclarationNode m = (MethodDeclarationNode)node;
 			
 			if (!m.getMethodScopeGenerics().getChildren().isEmpty()) {
 				m.getParameters().addFirst(new FormalParameterNode(METHOD_REIFICATION_INFO, LenseTypeSystem.ReifiedArguments()));
 			}
-
+	
 		} else if (node instanceof MethodInvocationNode) {
 			MethodInvocationNode m = (MethodInvocationNode)node;
 			

@@ -34,6 +34,7 @@ public class LenseTypeDefinition  implements TypeDefinition {
     private TypeKind kind;
     private List<TypeMember> members = new CopyOnWriteArrayList<TypeMember>();
     private List<TypeDefinition> interfaces = new ArrayList<TypeDefinition>();
+    private List<TypeDefinition> typeClasses = new ArrayList<TypeDefinition>();
     protected List<TypeVariable> genericParameters = new ArrayList<>();
     protected Map<String , Integer> genericParametersMapping = new HashMap<>();
     private TypeDefinition superDefinition;
@@ -585,7 +586,7 @@ public class LenseTypeDefinition  implements TypeDefinition {
     public void addInterface(TypeDefinition other) {
     	
     	if (other.getName().isEmpty()) {
-    		throw new IllegalArgumentException("Types must have a name");
+    		throw new IllegalArgumentException("Type must have a name");
     	}
         //		if (!other.getKind().equals(LenseUnitKind.Interface)) {
         //			throw new RuntimeException("Type " + other.getName()  +" is not an interface");
@@ -600,6 +601,26 @@ public class LenseTypeDefinition  implements TypeDefinition {
         }
 
         interfaces.add(other);
+    }
+    
+    public void addTypeClass(TypeDefinition other) {
+    	
+    	if (other.getName().isEmpty()) {
+    		throw new IllegalArgumentException("Type must have a name");
+    	}
+        //		if (!other.getKind().equals(LenseUnitKind.Interface)) {
+        //			throw new RuntimeException("Type " + other.getName()  +" is not an interface");
+        //		}
+
+        for(Iterator<TypeDefinition> it = this.typeClasses.iterator(); it.hasNext(); ){
+
+            if (it.next().getName().equals(other.getName())){
+                it.remove();
+                break;
+            }
+        }
+
+        typeClasses.add(other);
     }
 
     @Override
@@ -748,7 +769,14 @@ public class LenseTypeDefinition  implements TypeDefinition {
 		this.caseValues = caseValues;
 	}
 
+	@Override
+	public List<TypeDefinition> getImplementedTypeClasses() {
+		return this.typeClasses;
+	}
 
+	public void setImplementedTypeClasses(List<TypeDefinition> typeClasses) {
+		 this.typeClasses = typeClasses;
+	}
 
 
 }

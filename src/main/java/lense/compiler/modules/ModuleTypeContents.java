@@ -5,9 +5,11 @@ package lense.compiler.modules;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import lense.compiler.asm.UnkownTypeVariable;
@@ -35,6 +37,7 @@ public class ModuleTypeContents implements UpdatableTypeRepository {
 
 	// type name -> type generics count -> type def
 	private final Map<String,Map< Integer, TypeDefinition>> types = new HashMap<>();
+	private final Set<String> packageNames = new HashSet<>();
 	private final ModuleDescription descriptor;
 
 	public ModuleTypeContents(ModuleDescription descriptor) {
@@ -61,6 +64,18 @@ public class ModuleTypeContents implements UpdatableTypeRepository {
 	@Override
 	public Optional<TypeDefinition> resolveType(TypeSearchParameters filter) {
 
+		
+		if (filter.getName().indexOf('.') < 0) {
+			// not qualified. try to qualify with internal packages
+			
+			for (var pack : this.packageNames) {
+				var opt = resolveType(new TypeSearchParameters(pack + "." + filter.getName(), filter.getGenericParametersCount().orElse(0)));
+				if (opt.isPresent()) {
+					return opt;
+				}
+			}
+		}
+		
 		Map<Integer, TypeDefinition> map = types.get(filter.getName());
 
 		if (map != null && map.size() == 1){
@@ -143,6 +158,13 @@ public class ModuleTypeContents implements UpdatableTypeRepository {
 			map.put(genericParametersCount, type);
 			
 			types.put(type.getName(), map);
+			
+			var pos = type.getName().lastIndexOf(".");
+			if (pos >=0) {
+				packageNames.add(type.getName().substring(0,pos));
+			}
+			
+			
 			return type;
 		} else {
 

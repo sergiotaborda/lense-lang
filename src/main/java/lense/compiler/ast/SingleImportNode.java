@@ -6,7 +6,7 @@ package lense.compiler.ast;
 /**
  * 
  */
-public class SingleImportNode extends LenseAstNode {
+public class SingleImportNode extends LenseAstNode implements ImportDeclaration {
 
 	
 	private String alias;
@@ -36,5 +36,7 @@ public class SingleImportNode extends LenseAstNode {
 		return alias;
 	}
 	
-
+	public String toString() {
+		return name.toString();  
+	}
 }

@@ -6,7 +6,6 @@ package lense.compiler.ast;
 import compiler.syntax.AstNode;
 import lense.compiler.type.TypeDefinition;
 import lense.compiler.type.variable.TypeVariable;
-import lense.compiler.typesystem.FundamentalLenseTypeDefinition;
 
 /**
  * 

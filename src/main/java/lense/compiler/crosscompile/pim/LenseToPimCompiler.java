@@ -166,7 +166,7 @@ public class LenseToPimCompiler extends LenseCompiler {
 	    
 	    var prePhase =  new CompositePhase()
 	    		.add(new ConstructorDesugarPhase(listener)) 
-	    		.add(new NameResolutionPhase(new PathPackageResolver(fileLocations.getSourceFolder().getPath()), listener));
+	    		.add(new NameResolutionPhase(currentTypeRepository, new PathPackageResolver(fileLocations.getSourceFolder().getPath()), listener));
 
 	    var phase = new CompositePhase()
 	    .add(prePhase)

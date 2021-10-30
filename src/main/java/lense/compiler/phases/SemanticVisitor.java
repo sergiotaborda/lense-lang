@@ -129,7 +129,9 @@ import lense.compiler.type.UnionType;
 import lense.compiler.type.variable.DeclaringTypeBoundedTypeVariable;
 import lense.compiler.type.variable.GenericTypeBoundToDeclaringTypeVariable;
 import lense.compiler.type.variable.RangeTypeVariable;
+import lense.compiler.type.variable.RecursiveTypeVariable;
 import lense.compiler.type.variable.TypeVariable;
+import lense.compiler.type.variable.UpdatableTypeVariable;
 import lense.compiler.typesystem.FundamentalLenseTypeDefinition;
 import lense.compiler.typesystem.Imutability;
 import lense.compiler.typesystem.LenseTypeSystem;
@@ -435,19 +437,34 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 
 								if (analiseInheritance) {
 
-									if (!superMethod.isAbstract() && !m.isOverride()) {
-										throw new CompilationError(node,
-												"The method " + m.getName() + " in type " + this.currentType.getName()
-														+ " must declare override of a supertype method in "
-														+ superMethod.getDeclaringType().getName());
+									if (!superMethod.isAbstract()) {
+										if (superMethod.getDeclaringType().getKind().isTypeClass()) {
+											if ( !m.isSatisfy()) {
+												throw new CompilationError(node,
+														"The method " + m.getName() + " in type " + this.currentType.getName()
+																+ " must declare satisfy of a type class method in "
+																+ superMethod.getDeclaringType().getName());
+											}
+										} else {
+											if ( !m.isOverride()) {
+												throw new CompilationError(node,
+														"The method " + m.getName() + " in type " + this.currentType.getName()
+																+ " must declare override of a supertype method in "
+																+ superMethod.getDeclaringType().getName());
+											}
+											
+											if (!superMethod.isDefault()) {
+												throw new CompilationError(node,
+														"The method " + m.getName() + " in type " + this.currentType.getName()
+																+ " cannot override a non default supertype method in "
+																+ superMethod.getDeclaringType().getName());
+											}
+										}
+										
+									
 									}
 
-									if (!superMethod.isAbstract() && !superMethod.isDefault()) {
-										throw new CompilationError(node,
-												"The method " + m.getName() + " in type " + this.currentType.getName()
-														+ " cannot override a non default supertype method in "
-														+ superMethod.getDeclaringType().getName());
-									}
+								
 									
 									if (superMethod.getVisibility().isMoreVisibleThan(m.getVisibility())) {
 										throw new CompilationError(node,
@@ -578,7 +595,7 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 			if (myType == null || myType.getGenericParameters().size() != genericParametersCount) {
 				List<TypeVariable> genericVariables = new ArrayList<>(genericParametersCount);
 
-				Map<String, RangeTypeVariable> updateBonds = new HashMap<>();
+				Map<String, UpdatableTypeVariable> updateBonds = new HashMap<>();
 
 				if (genericParametersCount > 0) {
 
@@ -589,8 +606,10 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 
 						var r =  RangeTypeVariable.allRange(tn.getName(), g.getVariance());
 						
-						genericVariables.add(r);
-						updateBonds.put(tn.getName(), r);
+						var u = new UpdatableTypeVariable(r);
+						
+						genericVariables.add(u);
+						updateBonds.put(tn.getName(), u);
 						
 						this.getSemanticContext().currentScope().defineTypeVariable(tn.getName(), r, node);
 					
@@ -605,9 +624,18 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 					for (var entry : givenMap.entrySet()) {
 						var givenType = this.getSemanticContext().typeForName( entry.getValue().getTypeNode()).getTypeDefinition();
 						
-						RangeTypeVariable r = updateBonds.get(entry.getKey());
-						
-						r.setUpperBound(givenType);
+						if (givenType.equals(myType)) {
+							// T is recursive
+							UpdatableTypeVariable u = updateBonds.get(entry.getKey());
+							
+							u.update(new RecursiveTypeVariable(myType));	
+						} else {
+							UpdatableTypeVariable u = updateBonds.get(entry.getKey());
+							
+							RangeTypeVariable r = (RangeTypeVariable)u.original();
+							
+							r.setUpperBound(givenType);	
+						}
 						
 					}
 				}
@@ -618,7 +646,7 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 
 			myType.setKind(t.getKind());
 
-			if (myType.getKind().isInterface() ||myType.getKind().isTypeClass()) {
+			if (myType.getKind().isInterface() || myType.getKind().isTypeClass()) {
 				myType.setAbstract(true);
 			} else {
 				myType.setAbstract(t.isAbstract());
@@ -827,7 +855,7 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 			if (t.getInterfaces() != null) {
 				for (AstNode n : t.getInterfaces().getChildren()) {
 
-					TypeDefinition interfaceType = specifySuperInterface(myType, myType.getGenericParameters(),
+					TypeDefinition interfaceType = specifySuperType(myType, myType.getGenericParameters(),
 							(TypeNode) n);
 
 					if (interfaceType.getName().equals(myType.getName())) {
@@ -848,6 +876,29 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 				}
 			}
 			
+			if (t.getSatisfiedTypeClasses() != null) {
+				for (AstNode n : t.getSatisfiedTypeClasses().getChildren()) {
+
+					TypeDefinition typeClassType = specifySuperType(myType, myType.getGenericParameters(),
+							(TypeNode) n);
+
+					if (typeClassType.getName().equals(myType.getName())) {
+						throw new CompilationError(t, "Type cannot implement it self");
+					}
+
+					checkAccess(typeClassType);
+					
+					myType.addTypeClass(typeClassType);
+
+					for (TypeMember m : typeClassType.getAllMembers()) {
+						if (m.isMethod() && !m.isProperty()) {
+							addExpected(m.getName(), ((Method) m));
+
+						}
+					}
+
+				}
+			}
 
 			TreeTransverser.transverse(t,
 					new StructureVisitor(this.listener, myType, this.getSemanticContext(), this.enhancements, true));
@@ -1011,8 +1062,7 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 		list.add(method);
 	}
 
-	private TypeDefinition specifySuperInterface(LenseTypeDefinition declaringType,
-			List<TypeVariable> implementationGenericTypes, TypeNode interfaceNode) {
+	private TypeDefinition specifySuperType(LenseTypeDefinition declaringType, List<TypeVariable> implementationGenericTypes, TypeNode interfaceNode) {
 
 		TypeDefinition rawInterfaceType = this.getSemanticContext().typeForName(interfaceNode).getTypeDefinition();
 
@@ -1055,9 +1105,12 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 			} else {
 				if (genericTypeParameter.getTypeParametersCount() > 0) {
 					// Recursive call
-					parameters[index] = specifySuperInterface(declaringType, implementationGenericTypes,
+					parameters[index] = specifySuperType(declaringType, implementationGenericTypes,
 							genericTypeParameter);
 
+				} else if (this.currentType.getSimpleName().equals(genericTypeParameter.getName())) {
+					genericTypeParameter.setTypeVariable(currentType);
+					parameters[index] = currentType;
 				} else {
 					TypeDefinition type = this.getSemanticContext().typeForName(genericTypeParameter).getTypeDefinition();
 					genericTypeParameter.setTypeVariable(type);
@@ -2981,11 +3034,6 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 					m.setAbstract(true);
 				}
 				
-				if (m.isSatisfy()) {
-					// check satisfaction
-					
-					m.setStatic(true);
-				}
 				
 				if (m.isNative() && m.getBlock() != null) {
 					throw new CompilationError(node,
@@ -3084,11 +3132,14 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 					for (AstNode n : t.getInterfaces().getChildren()) {
 						TypeNode tn = (TypeNode) n;
 						TypeDefinition typeVariable = this.getSemanticContext().ensureNotFundamental(tn.getTypeVariable().getTypeDefinition());
-						if (typeVariable.getKind() != LenseUnitKind.Interface) {
-							throw new CompilationError(t,
-									t.getFullname() + " cannot implement " + typeVariable.getName() + " because "
-											+ typeVariable.getName() + " it is a " + typeVariable.getKind()
-											+ " and not an interface");
+						if (!typeVariable.getKind().isInterface()) {
+							if (!typeVariable.getKind().isTypeClass() || !t.getSimpleName().contains("$$Type")) {
+								throw new CompilationError(t,
+										t.getFullname() + " cannot implement " + typeVariable.getName() + " because "
+												+ typeVariable.getName() + " it is a " + typeVariable.getKind()
+												+ " and not an interface");
+							} 
+					
 						}
 					}
 				}

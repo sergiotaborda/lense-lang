@@ -90,6 +90,7 @@ import lense.compiler.ast.QualifiedNameNode;
 import lense.compiler.ast.RangeNode;
 import lense.compiler.ast.ReturnNode;
 import lense.compiler.ast.SingleImportNode;
+import lense.compiler.ast.StatisfiedTypeClassesNode;
 import lense.compiler.ast.StringValue;
 import lense.compiler.ast.SwitchNode;
 import lense.compiler.ast.SwitchOption;
@@ -717,12 +718,6 @@ public class LenseGrammar extends AbstractLenseGrammar {
 		});
 
 
-		//    	enhancementDeclaration = annotations?, visibilityModifier?, 'enhancement' , qualifiedName , 'extends' , type, genericTypesDeclaration, enhancementBody;
-		//		enhancementBody = '{',enhancementBodyDeclarations ,'}';
-		//		enhancementBodyDeclarations = enhancementBodyDeclaration | enhancementBodyDeclarations, enhancementBodyDeclaration;
-		//			enhancementBodyDeclaration = enhancementMemberDeclaration;
-		//			enhancementMemberDeclaration = methodDeclaration;
-		//			
 		getNonTerminal("enhancementDeclaration").addSemanticAction((p, r) -> {
 
 			if (r.size() == 1) {
@@ -833,6 +828,40 @@ public class LenseGrammar extends AbstractLenseGrammar {
 			}
 		});
 		
+		getNonTerminal("satisfiedTypes").addSemanticAction((p, r) -> {
+			if (r.size() == 1) {
+				 var possible = r.get(0).getAstNode(StatisfiedTypeClassesNode.class);
+				 
+				 if (possible.isPresent()) {	
+					 p.setAstNode(possible.get());
+				 } else {
+					 var node = new StatisfiedTypeClassesNode();
+					 node.add(r.get(0).getAstNode().get());
+					 p.setAstNode(node);
+				 }
+				 
+				 
+			} else if (r.size() == 3){
+				 var node = r.get(0).getAstNode(StatisfiedTypeClassesNode.class).orElse(new StatisfiedTypeClassesNode());
+			
+				 node.add(r.get(2).getAstNode().get());
+				p.setAstNode(node);
+			}
+		});
+		
+		getNonTerminal("satisfiesTypes").addSemanticAction((p, r) -> {
+			if (r.size() == 1) {
+				 var node = r.get(0).getAstNode(StatisfiedTypeClassesNode.class).orElse(new StatisfiedTypeClassesNode());
+					
+				  p.setAstNode(node);
+			} else if (r.size() == 2){
+				 var node = r.get(1).getAstNode(StatisfiedTypeClassesNode.class).orElse(new StatisfiedTypeClassesNode());
+
+				p.setAstNode(node);
+			}
+		});
+		
+		
 		getNonTerminal("classDeclaration").addSemanticAction((p, r) -> {
 
 			if (r.size() == 1) {
@@ -913,8 +942,26 @@ public class LenseGrammar extends AbstractLenseGrammar {
 						nextNodeIndex++;
 					}
 				} else {
+					nextNodeIndex = nextIndex(
+							readModifiers(r, modifiers, StatisfiedTypeClassesNode.class),
+							readModifiers(r, modifiers, GivenGenericConstraintList.class)
+					);
+				}
+				
+				if (nextNodeIndex >0){
+
+					// satisfied
+					Optional<StatisfiedTypeClassesNode> statisfied = r.get(nextNodeIndex)
+							.getAstNode(StatisfiedTypeClassesNode.class);
+
+					if (statisfied.isPresent()) {
+						n.setSatisfiedTypeClasses(statisfied.get());
+						nextNodeIndex++;
+					}
+				} else {
 					nextNodeIndex = readModifiers(r, modifiers, GivenGenericConstraintList.class);
 				}
+
 
 				if (nextNodeIndex >0 && nextNodeIndex < r.size()) {
 					Optional<GivenGenericConstraintList> givens = r.get(nextNodeIndex)
@@ -3505,6 +3552,16 @@ public class LenseGrammar extends AbstractLenseGrammar {
 		});
 
 
+	}
+
+	private int nextIndex(int a, int b) {
+		if (a < 0) {
+			return b;
+		} else if (b < 0) {
+			return a;
+		} 
+		
+		return Integer.min(a, b);
 	}
 
 	private <A extends AstNode> Optional<A> scan(List<Symbol> r, int nextNodeIndex,Class<A> nodeType) {

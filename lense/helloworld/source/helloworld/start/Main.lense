@@ -33,6 +33,8 @@ import lense.core.math.greater;
 import lense.core.math.Comparison;
 import math.numbers.Sum;
 import helloworld.start.Sequences;
+import helloworld.start.types.SumEnhancement;
+import helloworld.start.types.Number;
 import helloworld.start.Kilometer;
 import math.numbers.Quaternion;
 import math.numbers.j;
@@ -49,6 +51,18 @@ public class Main extends ConsoleApplication {
 	 // public service : Contract {get;} = new PrivateImplementation();
 	
 	public parameter : Integer  {get;} = 99;
+
+	private demoTypeClassEnhancement(){
+
+		let numbers = [new Number(2), new Number(4), new Number(6)];
+
+		let total = numbers.sum();
+
+		console.println("Sum of numbers is : {{ total }}");
+
+		assert(new Number(12) == total);
+
+	}
 
 	private demoProtectedAccess(){
 		
@@ -362,6 +376,8 @@ public class Main extends ConsoleApplication {
 
   	 	console.println("Begin " ++ this.type().name); 
 
+		demoTypeClassEnhancement();
+	
 		demoLongAndIntErasure_NoErasurePossible();
 
 		demoIntErasure_ErasurePossible();

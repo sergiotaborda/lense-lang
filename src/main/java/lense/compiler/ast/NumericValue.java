@@ -19,6 +19,14 @@ public class NumericValue extends LiteralExpressionNode {
 
 	public NumericValue (){};
 	
+	public NumericValue (int n, TypeDefinition type){
+		this.setValue(BigDecimal.valueOf(n), type);
+	};
+
+	public NumericValue (BigDecimal n, TypeDefinition type){
+		this.setValue(n, type);
+	};
+	
 	public static  NumericValue zero (){
 		NumericValue nv = new NumericValue();
 		nv.setValue(BigDecimal.ZERO, LenseTypeSystem.Natural());

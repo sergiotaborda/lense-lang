@@ -289,7 +289,7 @@ public class LenseTypeSystem {
 
 	
 	public static TypeDefinition Type() {
-		return getInstance().getForName("lense.core.lang.Type").get();
+		return getInstance().getForName("lense.core.lang.reflection.Type").get();
 	}
 
 	public static TypeDefinition Any() {

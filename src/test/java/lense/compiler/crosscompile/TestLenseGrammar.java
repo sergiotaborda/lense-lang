@@ -53,6 +53,7 @@ import lense.compiler.ast.ClassTypeNode;
 import lense.compiler.ast.UnitTypes;
 import lense.compiler.crosscompile.java.OutToJavaSource;
 import lense.compiler.phases.NameResolutionPhase;
+import lense.compiler.repository.TypeRepository;
 import lense.compiler.type.LenseTypeAssistant;
 import lense.compiler.type.TypeDefinition;
 import lense.compiler.typesystem.LenseTypeSystem;
@@ -427,7 +428,7 @@ public class TestLenseGrammar {
 		AstCompiler parser = new AstCompiler(new LenseLanguage());
 		AstNode unitTypes = parser
 				.parse(unitSet)
-				.passBy(new NameResolutionPhase(new PathPackageResolver(file.getPath()), new TestListener())).sendToList().get(0).getAstRootNode();
+				.passBy(new NameResolutionPhase(TypeRepository.empty(), new PathPackageResolver(file.getPath()), new TestListener())).sendToList().get(0).getAstRootNode();
 
 		UnitTypes t = (UnitTypes) unitTypes;
 
@@ -453,7 +454,7 @@ public class TestLenseGrammar {
 		AstCompiler parser = new AstCompiler(new LenseLanguage());
 		AstNode unitTypes = parser
 				.parse(unitSet)
-				.passBy(new NameResolutionPhase(new PathPackageResolver(
+				.passBy(new NameResolutionPhase(TypeRepository.empty(), new PathPackageResolver(
 						file.getPath()), new TestListener())).sendToList().get(0).getAstRootNode();
 
 		UnitTypes t = (UnitTypes) unitTypes;

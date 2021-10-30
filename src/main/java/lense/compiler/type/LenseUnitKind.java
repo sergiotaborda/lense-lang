@@ -39,5 +39,9 @@ public enum LenseUnitKind implements TypeKind{
 	public boolean isTypeClass() {
 		return this == TypeClass;
 	}
+
+	public boolean  isClass() {
+		return this == Class;
+	}
 	
 }

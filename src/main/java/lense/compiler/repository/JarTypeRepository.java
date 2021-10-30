@@ -132,7 +132,7 @@ public class JarTypeRepository extends AbstractTypeRepositoryWithDependencies {
 								TypeDefinitionInfo od = graph.findDependencyNode(other.name).orElseGet(() -> other);
 								set.add(other.name);
 
-								System.out.println("#1 type " + copy.name + " dependends on " + od.name + "(" + od.kind + ")");
+								//System.out.println("#1 type " + copy.name + " dependends on " + od.name + "(" + od.kind + ")");
 
 								if(other.kind != LenseUnitKind.Interface) {
 									graph.addEdge(new DependencyRelation(DependencyRelationship.Structural),od,copy);
@@ -148,7 +148,7 @@ public class JarTypeRepository extends AbstractTypeRepositoryWithDependencies {
 							// create new node
 							if (info.imports.isEmpty()) {
 								// a node that depends on nothing
-								System.out.println("#2 type " + info.name + " dependends on no other type");
+								//System.out.println("#2 type " + info.name + " dependends on no other type");
 								graph.addEdge(new DependencyRelation(DependencyRelationship.Module),info,module);
 							} else {
 
@@ -156,7 +156,7 @@ public class JarTypeRepository extends AbstractTypeRepositoryWithDependencies {
 									TypeDefinitionInfo od = graph.findDependencyNode(other.name).orElseGet(() -> other);
 									set.add(other.name);
 
-									System.out.println("#2 type " + info.name + " dependends on " + od.name + "(" + od.kind + ")");
+									//System.out.println("#2 type " + info.name + " dependends on " + od.name + "(" + od.kind + ")");
 									if(other.kind != LenseUnitKind.Interface) {
 										graph.addEdge(new DependencyRelation(DependencyRelationship.Structural),od,info);
 										//graph.addEdge(new DependencyRelation(DependencyRelationship.Module),od,module);
@@ -205,8 +205,8 @@ public class JarTypeRepository extends AbstractTypeRepositoryWithDependencies {
 
 					var info = e.getVertex().getObject();
 
-					System.out.print("# visiting " + info.name);
-					System.out.println(f.isFirstcross() ? " concrete" : " proxy" );
+					//System.out.print("# visiting " + info.name);
+					//System.out.println(f.isFirstcross() ? " concrete" : " proxy" );
 
 					if (f.isFirstcross()){
 						if(info.builder != null) {
@@ -224,10 +224,10 @@ public class JarTypeRepository extends AbstractTypeRepositoryWithDependencies {
 							var type = info.builder.build();
 		
 							if(proxy != null) {
-								System.out.println("# setting proxy with original " + type.getName());
+								//System.out.println("# setting proxy with original " + type.getName());
 								proxy.setOriginal(type);
 							}
-							System.out.println("# loading " + info.name);
+							//System.out.println("# loading " + info.name);
 
 							if (!type.isPlataformSpecific()){
 								moduleRepo.registerType(type, type.getGenericParameters().size());
