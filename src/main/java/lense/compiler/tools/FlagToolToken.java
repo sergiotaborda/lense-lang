@@ -2,8 +2,10 @@ package lense.compiler.tools;
 
 public class FlagToolToken implements ToolToken {
 
-    public FlagToolToken(String flag) {
-        // TODO Auto-generated constructor stub
+    private final String flag;
+
+	public FlagToolToken(String flag) {
+       this.flag = flag;
     }
 
 }

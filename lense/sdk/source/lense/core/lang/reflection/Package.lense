@@ -1,4 +1,5 @@
-
+import lense.core.lang.String;
+import lense.core.collections.Sequence;
 
 public interface Package {
 

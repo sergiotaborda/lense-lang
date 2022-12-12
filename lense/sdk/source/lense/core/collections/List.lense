@@ -7,6 +7,7 @@ import lense.core.collections.IllegalIndexException;
 import lense.core.math.Natural;
 import lense.core.collections.ResizableSequence;
 import lense.core.collections.Sequence;
+import lense.core.collections.Iterator;
 import lense.core.collections.Array;
 import lense.core.collections.Progression;
 import lense.core.lang.HashValue;

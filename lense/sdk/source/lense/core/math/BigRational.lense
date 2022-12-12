@@ -15,7 +15,8 @@ import lense.core.math.Imaginary;
 import lense.core.math.Complex;
 import lense.core.math.BigFloat;
 import lense.core.math.RealLineElement;
-
+import lense.core.lang.HashValue;
+import lense.core.math.Comparison;
 /{
 	A fraction n/d 
 }/

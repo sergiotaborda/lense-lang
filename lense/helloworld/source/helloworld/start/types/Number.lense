@@ -28,5 +28,7 @@ public value class Number satisfies MultiplicativeMonoid<Number> , AdditiveMonoi
 
 	public override hashValue() : HashValue => value.hashValue(); 
 	
+	public override asString() : String => value.asString();
+	
 
 }

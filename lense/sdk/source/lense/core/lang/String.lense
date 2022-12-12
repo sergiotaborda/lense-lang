@@ -1,5 +1,6 @@
 
 import lense.core.lang.Character;
+import lense.core.lang.Maybe;
 import lense.core.collections.Sequence;
 import lense.core.lang.Boolean;
 import lense.core.math.Natural;

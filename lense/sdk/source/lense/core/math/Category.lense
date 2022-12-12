@@ -1,4 +1,4 @@
-
+import lense.core.lang.Boolean;
 
 public interface Category<T> {
 	

@@ -1,8 +1,13 @@
 import lense.core.math.Real;
 import lense.core.math.Float;
 import lense.core.math.Whole;
+import lense.core.math.Integer;
 import lense.core.math.BigDecimal;
 import lense.core.math.Rational;
+import lense.core.lang.String;
+import lense.core.math.Comparison;
+import lense.core.lang.HashValue;
+import lense.core.lang.Boolean;
 import lense.core.lang.debug;
 import lense.core.math.ComparisonException;
 import lense.core.math.RealLineElement;

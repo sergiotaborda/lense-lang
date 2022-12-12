@@ -18,7 +18,7 @@ public class LenseCompilerTool implements LenseTool{
 
     @Override
     public void run(Arguments arguments) {
-        println("Runing from " + new File(".").getAbsoluteFile());
+        println("Base from " + new File(".").getAbsoluteFile());
         
         ModulesRepository repo;
 
@@ -70,8 +70,8 @@ public class LenseCompilerTool implements LenseTool{
             var base = new File(System.getProperty("user.home"), ".lense/repository");
             
             if (!base.exists()){
-           	 println("No repository found at " + base);
-                return;
+           	 	println("No repository found at " + base + ". Creating one");
+                base.mkdirs();
             }
             
             println("Using repository at " + base);

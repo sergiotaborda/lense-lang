@@ -21,7 +21,7 @@ public abstract class Type extends Base {
 
 	public static Type newInstance(String name, Class<?> instanceClass) {
 		try {
-			var typeClass = Class.forName(name + "$$Type");
+			var typeClass = Class.forName(name + "$$Type", true, Thread.currentThread().getContextClassLoader());
 
 			var typeInstance = (Type) typeClass.getConstructor().newInstance();
 			
@@ -35,7 +35,7 @@ public abstract class Type extends Base {
 			// native types do not have $$Type
 			
 			try {
-				return new NativeType(Class.forName(name));
+				return new NativeType(Class.forName(name, true, Thread.currentThread().getContextClassLoader()));
 			} catch (ClassNotFoundException ec) {
 				throw new IllegalStateException(ec); // TODO create specific exception
 			}

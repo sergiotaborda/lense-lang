@@ -4,6 +4,7 @@ import lense.core.math.Real;
 import lense.core.math.Whole;
 import lense.core.math.Equal;
 import lense.core.math.ComplexEnhancement;
+import lense.core.lang.Boolean;
 
 public value class ImaginaryOverReal implements Imaginary {
 

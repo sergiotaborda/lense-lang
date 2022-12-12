@@ -63,7 +63,6 @@ import lense.compiler.ast.ForEachNode;
 import lense.compiler.ast.FormalParameterNode;
 import lense.compiler.ast.GenericTypeParameterNode;
 import lense.compiler.ast.GivenGenericConstraint;
-import lense.compiler.ast.GivenGenericConstraintList;
 import lense.compiler.ast.IndexedPropertyReadNode;
 import lense.compiler.ast.IndexerPropertyDeclarationNode;
 import lense.compiler.ast.InstanceOfNode;

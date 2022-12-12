@@ -34,6 +34,7 @@ import lense.core.math.Comparison;
 import math.numbers.Sum;
 import helloworld.start.Sequences;
 import helloworld.start.types.SumEnhancement;
+import helloworld.start.types.MultiplicationEnhancement;
 import helloworld.start.types.Number;
 import helloworld.start.Kilometer;
 import math.numbers.Quaternion;
@@ -56,12 +57,19 @@ public class Main extends ConsoleApplication {
 
 		let numbers = [new Number(2), new Number(4), new Number(6)];
 
-		let total = numbers.sum();
+		let totalSum = numbers.sum();
 
-		console.println("Sum of numbers is : {{ total }}");
+		console.println("Sum of numbers is : {{ totalSum }}");
 
-		assert(new Number(12) == total);
+		assert(new Number(12) == totalSum);
 
+
+
+		let totalMultiplication = numbers.multiply();
+
+		console.println("Multiplication of numbers is : {{ totalMultiplication }}");
+
+		assert(new Number(48) == totalMultiplication);
 	}
 
 	private demoProtectedAccess(){
