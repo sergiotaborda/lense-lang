@@ -57,9 +57,7 @@ public class ConstructorBuilder {
 					loaded.setGenericParameters(variables);
 				} else if (paramTypeDef instanceof ProxyTypeDefinition proxy) {
 					proxy.setGenericParameters(variables);
-				} else {
-					var f = 2;
-				}
+				} 
 			
 			}
 
