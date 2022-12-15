@@ -3,6 +3,7 @@
  */
 package lense.compiler.phases;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -23,13 +24,17 @@ import java.util.stream.Stream;
 
 import compiler.CompilerListener;
 import compiler.CompilerMessage;
+import compiler.lexer.ScanPositionHolder;
 import compiler.parser.IdentifierNode;
 import compiler.parser.NameIdentifierNode;
+import compiler.parser.nodes.NumericNode;
 import compiler.syntax.AstNode;
 import compiler.trees.TreeTransverser;
 import compiler.trees.VisitorNext;
 import lense.compiler.CompilationError;
 import lense.compiler.JuxpositionNode;
+import lense.compiler.LenseNumberLiteralTokenState;
+import lense.compiler.LenseNumericBoundsSpecification;
 import lense.compiler.TypeAlreadyDefinedException;
 import lense.compiler.TypeMembersNotLoadedError;
 import lense.compiler.ast.AccessorNode;
@@ -353,7 +358,10 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 			if (a.getLeft() instanceof FieldOrPropertyAccessNode left) {
 				left.setAccessKind(FieldAccessKind.WRITE);
 			}
-
+			
+		    checkNumericBounds(a, a.getLeft().getTypeVariable(), a.getRight());
+		
+	
 		} else if (node instanceof MethodDeclarationNode) {
 
 			MethodDeclarationNode m = (MethodDeclarationNode) node;
@@ -997,6 +1005,7 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 
 		return VisitorNext.Children;
 	}
+
 
 	private boolean isUsedInLoop(AstNode node) {
 
@@ -2075,7 +2084,7 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 			} else if (node instanceof PropertyDeclarationNode) {
 				PropertyDeclarationNode p = (PropertyDeclarationNode) node;
 
-				if (p.getModifier() != null && this.currentType.isImmutable()) {
+				if (p.getModifier() != null && !p.isIndexed() && this.currentType.isImmutable()) {
 					throw new CompilationError(p, "Immutable types cannot define modifiers");
 				}
 
@@ -2095,6 +2104,9 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 						promoteNodeType(exp, propType);
 
 					}
+					
+					checkNumericBounds(p, p.getType().getTypeVariable(), p.getInitializer());
+
 				}
 
 				// auto-abstract if interface
@@ -3242,6 +3254,13 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 	}
 
 	
+	private void checkNumericBounds(ScanPositionHolder holder,TypeVariable typeVariable, ExpressionNode initializer) {
+		if (initializer instanceof NumericValue n ) {
+			LenseNumericBoundsSpecification.checkInBounds(holder, typeVariable, n.getValue());
+		}
+	}
+
+
 	private void ensureMutable(AstNode node, VariableInfo info) {
 		if (info.getDeclaringNode() instanceof VariableDeclarationNode declaration ) {
 			if (declaration.getImutability() == Imutability.Imutable) {

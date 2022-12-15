@@ -55,8 +55,6 @@ public class SemanticAnalysisPhase implements CompilerPhase {
 			return new CompilationResult(new RuntimeException("Unexpected Error. Result as no node."));
 		}
 
-		
-
 		try {
 			
 			Map<TypeVariable, List<TypeDefinition>> enhancements = new HashMap<>();
@@ -130,7 +128,7 @@ public class SemanticAnalysisPhase implements CompilerPhase {
 				}
 			}
 		} catch (CompilationError e){
-			listener.error(new CompilerMessage(e.getMessage()));
+			listener.error(new CompilerMessage(e));
 			return new CompilationResult(e);
 		}
 

@@ -387,6 +387,11 @@ public class LenseTypeSystem {
 	public static TypeDefinition Natural() {
 		return getInstance().getForName("lense.core.math.Natural").get();
 	}
+	
+	public static TypeDefinition Integer() {
+		return getInstance().getForName("lense.core.math.Integer").get();
+	}
+
 
 	public static TypeDefinition Float() {
 		return getInstance().getForName("lense.core.math.Float").get();

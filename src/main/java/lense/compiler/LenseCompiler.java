@@ -205,7 +205,6 @@ public abstract class LenseCompiler {
 
 			compileCompilationUnitSet(moduleUnit, unitSet, locations);
 		} catch (Exception e) {
-			e.printStackTrace();
 			listener.error(new CompilerMessage(e.getMessage()));
 		} finally {
 			listener.end();
@@ -231,7 +230,7 @@ public abstract class LenseCompiler {
 			final List<CompiledUnit> modulesList = parser.parse(moduleUnit).sendToList();
 
 			if (modulesList.isEmpty()){
-				listener.error(new CompilerMessage("Could not find module.lense file in the source. "));
+				listener.error(new CompilerMessage("Could not find module.lense file in the source."));
 			}
 
 			// locate module definition

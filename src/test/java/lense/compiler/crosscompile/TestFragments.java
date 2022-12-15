@@ -1,9 +1,12 @@
 package lense.compiler.crosscompile;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 import java.io.File;
 
 import org.junit.Test;
 
+import compiler.CompilationError;
 import compiler.filesystem.DiskSourceFileSystem;
 import lense.compiler.LenseCompiler;
 import lense.compiler.crosscompile.java.LenseToJavaCompiler;
@@ -15,8 +18,9 @@ public class TestFragments {
 	
 	ClasspathModulesRepository repo = new ClasspathModulesRepository(DiskSourceFileSystem.instance().folder(base));
 
-    LenseCompiler compiler = new LenseToJavaCompiler(repo);
+    LenseCompiler compiler = new LenseToJavaCompiler(repo).setCompilerListener(new ThrowCompilationErrors());
 	
+    
 	@Test  
 	public void testMatrixCompilation() {
 		
@@ -122,7 +126,7 @@ public class TestFragments {
 							
 							let u = "[" ++ c ++ "," ++ c ++ "," ++ c ++  "," ++ c ++ "]";
 							
-							var sign : String = "+";
+							mutable let sign : String = "+";
 						    if (c < 0){
 						    	sign = " - ";
 						    }
@@ -147,7 +151,7 @@ public class TestFragments {
 
 					public method (){
 					
-					  		let a = { "a" : 1, "b" : 2};
+					  		let a = { "a" -> 1, "b" -> 2};
 					}
 				}
 

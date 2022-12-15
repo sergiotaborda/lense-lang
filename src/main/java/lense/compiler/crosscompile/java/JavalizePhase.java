@@ -49,7 +49,7 @@ public final class JavalizePhase implements CompilerPhase {
 				} 
 			
 			} catch (CompilationError e){
-				listener.error(new CompilerMessage(e.getMessage()));
+				listener.error(new CompilerMessage(e));
 				return new CompilationResult(e);
 			}
 		}

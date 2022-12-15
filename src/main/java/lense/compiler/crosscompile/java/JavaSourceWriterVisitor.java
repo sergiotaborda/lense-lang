@@ -5,6 +5,8 @@ package lense.compiler.crosscompile.java;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -432,13 +434,14 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
                 writer.print(sanitize(identifier));
             } else if (node instanceof QualifiedNameNode) {
                 writer.print(sanitize(((QualifiedNameNode) node).getName()));
-            } else if (node instanceof NumericValue) {
+            } else if (node instanceof NumericValue n) {
 
 
-                NumericValue n = (NumericValue) node;
-
-                if (n.getTypeVariable() instanceof PrimitiveTypeDefinition){
+                if (n.getTypeVariable() instanceof PrimitiveTypeDefinition primitve){
                     writer.append(n.getValue().toString());
+                    if (primitve.getName().equals("long")) {
+                    	writer.append('L');
+                    }
                 } else {
                     String name = n.getTypeVariable().getTypeDefinition().getName();
                     if (name.equals("lense.core.lang.Binary")) {
@@ -468,11 +471,24 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
                                 }
 
                                 writer.append("lense.core.math.Rational")
-                                .append(".fraction(lense.core.math.NativeNumberFactory.newInteger(")
-                                .append(intPart).append(decPart)
-                                .append("),lense.core.math.NativeNumberFactory.newInteger(")
-                                .append(decimalPart)
-                                .append("))");
+                                .append(".fraction(lense.core.math.NativeNumberFactory.newInteger(");
+                                
+                                var numerator = intPart + decPart;
+                                if (isInLongRange(new BigInteger(numerator)) ) {
+                                	writer.append(numerator).append('L');
+                                } else {
+                                	writer.append("\"").append(numerator).append("\"");
+                                }
+
+                                writer.append("),lense.core.math.NativeNumberFactory.newInteger(");
+                                
+                                if (isInLongRange(new BigInteger(decimalPart.toString()))) {
+                                	writer.append(decimalPart).append('L');
+                                } else {
+                                	writer.append("\"").append(decimalPart).append("\"");
+                                }
+        
+                                writer.append("))");
     	    				} else {
     							writer.append("lense.core.math.Rational.valueOf(lense.core.math.NativeNumberFactory.newInteger(").append(n.toString()).append("))");
     	    				}
@@ -1932,7 +1948,13 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 
     }
 
-    private void inlineStringConcatenation(StringConcatenationNode s, LinkedList<AstNode> deque) {
+    static final BigInteger LONG_MAX_VALUE = BigInteger.valueOf(Long.MAX_VALUE);
+    static final BigInteger LONG_MIN_VALUE = BigInteger.valueOf(Long.MIN_VALUE);
+    private boolean isInLongRange(BigInteger value) {
+    	return value.compareTo(LONG_MIN_VALUE) >= 0 && value.compareTo(LONG_MAX_VALUE) <= 0;
+	}
+
+	private void inlineStringConcatenation(StringConcatenationNode s, LinkedList<AstNode> deque) {
     	for (AstNode n : s.getChildren()) {
     		if(n instanceof StringConcatenationNode) {
     			inlineStringConcatenation((StringConcatenationNode)n,deque);

@@ -19,22 +19,13 @@ public class CompilationError extends compiler.CompilationError {
 	}
 	
 	public CompilationError(ScanPositionHolder holder, String msg) {
-		this(holder == null ? null : holder.getScanPosition(),  msg);
+		super(holder,  msg);
 	}
 	
-	/**
-	 * Constructor.
-	 * @param string
-	 */
+
 	public CompilationError(ScanPosition position, String msg) {
-		super(msg(position,msg));
+		super(position,msg);
 	}
-	
-	private static String msg(ScanPosition position, String msg){
-		if (position == null){
-			return  msg;
-		}
-		return "In compilation unit " +  position.getCompilationUnit().getName() + " error at " + position.getLineNumber() +"," +  position.getColumnNumber() + ":" + msg;
-	}
+
 
 }

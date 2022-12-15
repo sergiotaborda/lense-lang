@@ -68,8 +68,8 @@ public class NameResolutionPhase implements CompilerPhase {
 				SingleImportNode i = (SingleImportNode)n;
 
 				if (!i.getName().isComposed()){
-					listener.error(new CompilerMessage(i.getName() + " does not exist in the default module"));
-					return new CompilationResult(new CompilationError(i.getName() + " does not exist in the default module"));
+					listener.error(new CompilerMessage(i.getName() + " does not exist in the default module", i));
+					return new CompilationResult(new CompilationError(i, i.getName() + " does not exist in the default module"));
 				}
 				
 			}

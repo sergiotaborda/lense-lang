@@ -55,7 +55,7 @@ public class NumericValue extends LiteralExpressionNode {
 	/**
 	 * @return
 	 */
-	public Number getValue() {
+	public BigDecimal getValue() {
 		return number;
 	}
 
