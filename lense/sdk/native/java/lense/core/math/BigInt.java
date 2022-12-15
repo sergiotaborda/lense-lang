@@ -12,6 +12,7 @@ import lense.core.lang.java.NonNull;
 import lense.core.lang.java.PlatformSpecific;
 import lense.core.lang.java.Primitives;
 import lense.core.lang.java.ValueClass;
+import lense.core.lang.reflection.NativeType;
 import lense.core.lang.reflection.Type;
 
 @ValueClass
@@ -337,7 +338,7 @@ public final class BigInt implements Integer , BigIntegerConvertable , AnyValue 
 
 	@Override
 	public Type type() {
-		return Type.fromName(this.getClass().getName());
+		return Type.forName(this.getClass().getName());
 	}
 
 

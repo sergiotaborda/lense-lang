@@ -2,8 +2,7 @@
 import lense.core.math.Integer;
 import lense.core.lang.String;
 
-public native class Method {
+public interface Method {
 
-	protected native constructor();
-	public native name : String {get;} 
+	public name : String {get;} 
 } 

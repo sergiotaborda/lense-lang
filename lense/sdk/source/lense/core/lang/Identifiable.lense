@@ -1,3 +1,5 @@
+import lense.core.lang.Boolean;
+
 /{
   Determines if the object has an identity. 
   `Identifiable` objects can be compared for identity equality with the `===` operator.

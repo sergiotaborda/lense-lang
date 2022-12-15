@@ -167,6 +167,11 @@ public final class ErasedTypeDefinition implements TypeDefinition{
 		return originalType.getVisibility();
 	}
 
+	@Override
+	public List<TypeDefinition> getImplementedTypeClasses() {
+		return originalType.getImplementedTypeClasses();
+	}
+
 
 
     

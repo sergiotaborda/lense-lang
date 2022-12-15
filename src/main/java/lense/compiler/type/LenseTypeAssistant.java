@@ -10,7 +10,9 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import lense.compiler.context.SemanticContext;
+import lense.compiler.type.variable.RecursiveTypeVariable;
 import lense.compiler.type.variable.TypeVariable;
+import lense.compiler.type.variable.UpdatableTypeVariable;
 import lense.compiler.typesystem.LenseTypeSystem;
 import lense.compiler.typesystem.TypeMatch;
 import lense.compiler.typesystem.Visibility;
@@ -109,6 +111,9 @@ public class LenseTypeAssistant implements TypeAssistant {
 
 	@Override
 	public TypeMatch isAssignableTo(TypeVariable type, TypeVariable target) {
+		if (type == target) {
+			return TypeMatch.Exact;
+		}
 		
 		if (type == null) {
 			throw new IllegalArgumentException("Type cannot be null");
@@ -180,7 +185,16 @@ public class LenseTypeAssistant implements TypeAssistant {
 			
 			TypeMatch assignable = TypeMatch.Exact;
 			for (int i = 0; i < type.getGenericParameters().size(); i++) {
-				assignable = assignable.and(isAssignableTo(type.getGenericParameters().get(i), target.getGenericParameters().get(i)));
+				var a = type.getGenericParameters().get(i);
+				var b = target.getGenericParameters().get(i);
+				
+				if (a == b) {
+					assignable = assignable.and(TypeMatch.Exact);
+				} else if (b instanceof UpdatableTypeVariable u && u.original() instanceof RecursiveTypeVariable) {
+					assignable = assignable.and(TypeMatch.Exact);
+				} else {
+					assignable = assignable.and(isAssignableTo(a, b));
+				}
 				
 				if (!assignable.matches()) {
 					break;
@@ -193,31 +207,44 @@ public class LenseTypeAssistant implements TypeAssistant {
 		}
 
 
-		// super type
-		if (type.getSuperDefinition() != null) {
-			if (!type.getSuperDefinition().getName().equals("lense.core.lang.Any") && type.isGeneric()) {
-				TypeVariable[] types = new TypeVariable[type.getGenericParameters().size()];
-				for (int i = 0; i < types.length; i++) {
-					types[i] = type.getGenericParameters().get(i);
-				}
-				if( isAssignableTo(LenseTypeSystem.getInstance().specify(type.getSuperDefinition(), types), target).matches()) {
-					return TypeMatch.UpCast;
-				}
-			} else {
-				if( isAssignableTo(type.getSuperDefinition(), target).matches()) {
-					return TypeMatch.UpCast;
+		if (!target.getKind().isTypeClass()) {
+			// super type
+			if (type.getSuperDefinition() != null) {
+				if (!type.getSuperDefinition().getName().equals("lense.core.lang.Any") && type.isGeneric()) {
+					TypeVariable[] types = new TypeVariable[type.getGenericParameters().size()];
+					for (int i = 0; i < types.length; i++) {
+						types[i] = type.getGenericParameters().get(i);
+					}
+					if( isAssignableTo(LenseTypeSystem.getInstance().specify(type.getSuperDefinition(), types), target).matches()) {
+						return TypeMatch.UpCast;
+					}
+				} else {
+					if( isAssignableTo(type.getSuperDefinition(), target).matches()) {
+						return TypeMatch.UpCast;
+					}
 				}
 			}
-		}
 
-		
-		// interface implementation
-		for (TypeDefinition interfaceDefiniton : type.getInterfaces()) {
-			TypeMatch match = isAssignableTo(interfaceDefiniton, target);
-			if (match.matches()) {
-				return TypeMatch.UpCast;
+			
+			// interface implementation
+			for (TypeDefinition interfaceDefiniton : type.getInterfaces()) {
+				TypeMatch match = isAssignableTo(interfaceDefiniton, target);
+				if (match.matches()) {
+					return TypeMatch.UpCast;
+				}
+			}
+		} else {
+			// types satisfied 
+			for (TypeDefinition definiton : type.getImplementedTypeClasses()) {
+				TypeMatch match = isAssignableTo(definiton, target);
+				if (match.matches()) {
+					return TypeMatch.UpCast;
+				}
 			}
 		}
+		
+		
+	
 
 		return TypeMatch.NoMatch;
 

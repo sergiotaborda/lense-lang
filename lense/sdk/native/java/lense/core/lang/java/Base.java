@@ -38,6 +38,6 @@ public class Base implements Any{
 
     @Override
     public Type type() {
-        return new Type(this.getClass());
+        return Type.forClass(this.getClass());
     }
 }

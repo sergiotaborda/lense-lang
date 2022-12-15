@@ -14,6 +14,10 @@ import lense.compiler.typesystem.TypeSearchParameters;
  */
 public interface TypeRepository {
 
+	
+	public static TypeRepository empty() {
+		return new EmptyTypeRepository();
+	}
 	/**
 	 * @param filter
 	 * @return
@@ -24,3 +28,4 @@ public interface TypeRepository {
 	
 
 }
+

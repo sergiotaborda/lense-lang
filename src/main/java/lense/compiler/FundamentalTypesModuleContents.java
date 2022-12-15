@@ -48,17 +48,29 @@ public class FundamentalTypesModuleContents extends ModuleTypeContents {
 			mapping.put(filter, result.get());
 			return Optional.of(result.get());
 		}
+		
 		int pos = name.lastIndexOf('.');
+		String simpleName;
+		String fullPackageName;
 		if (pos >0){
-			name = name.substring(pos+1);
+			simpleName = name.substring(pos+1);
+			fullPackageName = name.substring(0, pos);
+		} else {
+			simpleName= name;
+			fullPackageName = null;
 		}
+		
 		for(String packageName : instance.packageNames()){
-			result = instance.getForName(packageName + "." + name, filter.getGenericParametersCount().orElse(0));
+			
+			if (fullPackageName == null || fullPackageName.equals(packageName)) {
+				result = instance.getForName(packageName + "." + simpleName, filter.getGenericParametersCount().orElse(0));
 
-			if (result.isPresent()){
-				mapping.put(filter, result.get());
-				return Optional.of(result.get());
+				if (result.isPresent()){
+					mapping.put(filter, result.get());
+					return Optional.of(result.get());
+				}
 			}
+
 		}
 		
 		return Optional.empty();

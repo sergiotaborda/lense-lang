@@ -143,11 +143,9 @@ public class LoadedClassBuilder {
 				maps.put(symbol, i);
 
 				if (upperBound.equals("lense.core.lang.Any")) {
-					genericVariables.add(new RangeTypeVariable(symbol, variance, LenseTypeSystem.Any(),
-							LenseTypeSystem.Nothing()));
+					genericVariables.add( RangeTypeVariable.allRange(symbol, variance));
 				} else {
-					genericVariables.add(new RangeTypeVariable(symbol, variance,
-							resolveTypeByNameAndKind(upperBound, null), LenseTypeSystem.Nothing()));
+					genericVariables.add( RangeTypeVariable.upTo(symbol, variance,resolveTypeByNameAndKind(upperBound, null)));
 				}
 
 			}
@@ -394,11 +392,11 @@ public class LoadedClassBuilder {
 						if (!indexSymbol.isPresent()) {
 							
 							if (name.replace('/', '.').equals(parent.getName())) {
-								variables.add(new RangeTypeVariable(symbol,variance, parent,parent));
+								variables.add(RangeTypeVariable.upTo(symbol,variance, parent));
 							} else {
 								var t = resolveTypeByNameAndKind(symbol, null);
 
-								variables.add(new RangeTypeVariable(symbol,variance, t, t));
+								variables.add(RangeTypeVariable.upTo(symbol,variance, t));
 							}
 							
 						} else {
@@ -472,8 +470,7 @@ public class LoadedClassBuilder {
 
 						var t = resolveTypeByNameAndKind(symbol, null);
 
-						variables.add(
-								new RangeTypeVariable(symbol, variance, t, t));
+						variables.add(RangeTypeVariable.upTo(symbol, variance, t));
 					}
 				}
 

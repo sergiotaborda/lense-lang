@@ -12,6 +12,7 @@ import lense.core.lang.java.NonNull;
 import lense.core.lang.java.PlatformSpecific;
 import lense.core.lang.java.Primitives;
 import lense.core.lang.java.Signature;
+import lense.core.lang.reflection.NativeType;
 import lense.core.lang.reflection.Type;
 
 @Signature("::lense.core.math.Natural")
@@ -255,7 +256,7 @@ public final class Natural64 implements Natural , BigDecimalConvertable , BigInt
 
 	@Override
 	public Type type() {
-		return Type.fromName(this.getClass().getName());
+		return Type.forName(this.getClass().getName());
 	}
 
 

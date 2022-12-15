@@ -54,7 +54,7 @@ public class TestSdkCompilation {
 		.compileModuleFromDirectory(sdkFolder);
 	}
 	 
-	@Test 
+	@Test @Ignore
 	public void testCompileLibraryPim() throws IOException {
 		
 		ModulesRepository repo = new ModulesRepository() {

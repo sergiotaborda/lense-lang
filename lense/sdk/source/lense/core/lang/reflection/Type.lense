@@ -12,5 +12,8 @@ public native class Type {
 	public native isInstance( any : Any) : Boolean;
 	public native methods : Sequence<Method> {get;}
 	public native properties : Sequence<Property> {get;}
+
+	public native genericType( index: Int32) : Type;
+
 	
 } 

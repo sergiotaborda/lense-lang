@@ -186,7 +186,7 @@ public final class Float32 extends Base implements Float , AnyValue{
 	public boolean isPositive() {
 		return java.lang.Float.compare(this.value, 0) > 0;
 	}
-	public static final TypeResolver TYPE_RESOLVER = TypeResolver.lazy(() -> new Type(Float32.class));
+	public static final TypeResolver TYPE_RESOLVER = TypeResolver.lazy(() ->  Type.forClass(Float32.class));
 	
 	@Override
 	public Type type() {

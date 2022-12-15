@@ -10,7 +10,7 @@ import lense.core.lang.reflection.TypeResolver;
 public class None extends Maybe {
 
 	public static final None NONE = new None();
-	public static final TypeResolver TYPE_RESOLVER = TypeResolver.of(new Type(None.class).withGenerics(Nothing.TYPE_RESOLVER.resolveType()));
+	public static final TypeResolver TYPE_RESOLVER = TypeResolver.of(Type.forClass(None.class).withGenerics(Nothing.TYPE_RESOLVER.resolveType()));
 
     @Constructor(paramsSignature = "")
 	public static None constructor(){

@@ -163,7 +163,7 @@ public class MethodBuilder {
 				String sname = signatureParams.length > params.size() ?  signatureParams[params.size()]  : name;
 
 				if (boundedTypesParams.contains(name)) {
-					MethodParameter mp = new MethodParameter(new RangeTypeVariable(sname, Variance.Invariant, LenseTypeSystem.Any(), LenseTypeSystem.Nothing()));
+					MethodParameter mp = new MethodParameter(RangeTypeVariable.allRange(sname, Variance.Invariant));
 					mp.setMethodTypeBound(true);
 					params.add(mp);
 				} else {

@@ -1,5 +1,5 @@
 
-import lense.core.lang.String;
+import lense.core.math.Float;
 
 /{
 	Represents a mathematical quantity in the extendended Real Line.

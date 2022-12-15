@@ -1,10 +1,14 @@
 package lense.core.math;
 
+import lense.core.lang.java.Property;
+
 public interface Complex extends Number {
 
 
+	@Property(name = "real")
 	public Real getReal();
 
+	@Property(name = "imaginary")
 	public Real getImaginary();
 
 	

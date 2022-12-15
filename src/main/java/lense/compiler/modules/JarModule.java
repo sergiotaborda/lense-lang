@@ -23,5 +23,9 @@ public class JarModule implements ModuleUnit {
 	public TypeRepositoryWithDependencies getTypeRepository() {
 		return typeRepository;
 	}
+	
+	public String toString() {
+		return moduleDescription.getName();
+	}
 
 }

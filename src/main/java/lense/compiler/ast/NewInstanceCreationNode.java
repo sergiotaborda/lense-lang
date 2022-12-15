@@ -131,8 +131,6 @@ public class NewInstanceCreationNode extends ExpressionNode implements ArgumentL
 		return typeNode;
 	}
 
-
-
 	/**
 	 * @param argumentListNode
 	 */

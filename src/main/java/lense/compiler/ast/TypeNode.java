@@ -6,7 +6,6 @@ package lense.compiler.ast;
 import compiler.syntax.AstNode;
 import lense.compiler.type.TypeDefinition;
 import lense.compiler.type.variable.TypeVariable;
-import lense.compiler.typesystem.FundamentalLenseTypeDefinition;
 
 /**
  * 
@@ -133,7 +132,7 @@ public class TypeNode extends LenseAstNode implements TypedNode{
 	}
 
 	public TypeVariable getTypeParameter() {
-		return this.typeParameter;
+		return this.typeParameter != null ? this.typeParameter : this.type;
 	}
 	
 	public void setTypeParameter(TypeVariable typeParameter) {

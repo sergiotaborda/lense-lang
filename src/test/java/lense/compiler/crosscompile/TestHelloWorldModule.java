@@ -23,9 +23,8 @@ public class TestHelloWorldModule {
 //		final LenseCompiler compiler = new LenseCompiler(repo);
 //		compiler.compileModuleFromDirectory(moduleproject);
 		
-		
 	//	Lense.main("compile:java --source=lense/helloworld".split(" "));
-		Assert.assertEquals(0, Lense.execute("compile --source=lense/helloworld --repo=lense/sdk/compilation/modules,lense/math/compilation/modules".split(" ")));
+		Assert.assertEquals(0, Lense.execute("compile lense/helloworld --repo=lense/sdk/compilation/modules,lense/math/compilation/modules".split(" ")));
 	        
 	}
 	
@@ -33,6 +32,13 @@ public class TestHelloWorldModule {
     public void testHelloWorldCompilationJavaScript() {
 
 	    Assert.assertEquals(0, Lense.execute("compile:js --source=lense/helloworld".split(" ")));
+ 
+    }
+	
+	@Test  
+    public void testHelloWorldRunJava() {
+
+	    Assert.assertEquals(0, Lense.execute("run --source=lense/helloworld".split(" ")));
  
     }
 }

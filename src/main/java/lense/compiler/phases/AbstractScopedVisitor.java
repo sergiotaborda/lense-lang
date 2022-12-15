@@ -60,9 +60,12 @@ public abstract class AbstractScopedVisitor extends AbstractLenseVisitor  {
 					type = namedType.get();
 				} else {
 					if (t.getTypeParameter() != null){
-						return t.getTypeParameter();
+						type = t.getTypeParameter();
+					} else {
+						type = LenseTypeSystem.getInstance().getForName(t.getName(), t.getTypeParametersCount())
+								.orElseThrow(() -> new TypeNotFoundError(t.getParent(),  t.getName()));
+
 					}
-					throw new TypeNotFoundError(t.getParent(),  t.getName() );
 				}
 
 			} else {
@@ -77,9 +80,10 @@ public abstract class AbstractScopedVisitor extends AbstractLenseVisitor  {
 				type = namedType.get();
 			} else {
 				if (t.getTypeParameter() != null){
-					return t.getTypeParameter();
+					type = t.getTypeParameter();
+				} else {
+					throw new TypeNotFoundError(t.getParent(),  t.getName());
 				}
-				throw new TypeNotFoundError(t.getParent(),  t.getName());
 			}
 		}
 

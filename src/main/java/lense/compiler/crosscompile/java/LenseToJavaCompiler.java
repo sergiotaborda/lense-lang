@@ -4,9 +4,11 @@
 package lense.compiler.crosscompile.java;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.Writer;
 import java.util.Arrays;
 import java.util.Collection;
@@ -265,11 +267,18 @@ public class LenseToJavaCompiler extends LenseCompiler{
 		if (javaCompilerBackEndFactory.create(fileLocations).compile(files)){
 
 			// compile all files
-			for (var n : files){
+			outter: for (var n : files){
 				
+			
 				var name = n.getName().substring(0,  n.getName().length() - 5);
 				var source = resolveNativeFile(n.parentFolder(), name);
 
+				try (var reader = new BufferedReader(new InputStreamReader(n.inputStream()))){
+					if (!name.equals("Placeholder") && reader.lines().anyMatch(line -> line.startsWith("@Placeholder"))) {
+						continue outter;
+					}
+				}
+				
 				var packagePath = rootDir.getPath().relativize(n.getPath()).getParent();
 				var packageFolder = fileLocations.getTargetFolder().folder(packagePath);
 				

@@ -1,6 +1,7 @@
 package lense.compiler.repository;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
@@ -95,24 +96,29 @@ public class JarTypeRepository extends AbstractTypeRepositoryWithDependencies {
 		var set = new HashSet<String>();
 
 		var module = new TypeDefinitionInfo("__module__", LenseUnitKind.Module);
-
+			
+		// read the jar file
 		try(java.util.jar.JarFile jar = new java.util.jar.JarFile(DiskSourceFileSystem.instance().convertToFile(moduleFile))){
 
 			java.util.Enumeration<java.util.jar.JarEntry> enumEntries = jar.entries();
 			while (enumEntries.hasMoreElements()) {
+				// read each file inside
 				java.util.jar.JarEntry file =  enumEntries.nextElement();
 
 				if (file.getName().endsWith(".class")){
 					try (java.io.InputStream is = jar.getInputStream(file)){
 
-
+						// read info insde file
 						var info = reader.readInfo(is);
 						set.remove(info.name);
 
+						// put information in graph
 						Optional<TypeDefinitionInfo> it = graph.findDependencyNode(info.name);
 
 						if(it.isPresent()) {
 
+							// a version with less information may be present
+							// so copy, complete the info and override
 							var copy = it.get();
 
 							copy.builder = info.builder;
@@ -120,12 +126,13 @@ public class JarTypeRepository extends AbstractTypeRepositoryWithDependencies {
 							copy.imports = info.imports;
 							copy.kind = info.kind;
 
+							// create simpler nodes for dependencies 
 
 							for(var other : info.imports) {
 								TypeDefinitionInfo od = graph.findDependencyNode(other.name).orElseGet(() -> other);
 								set.add(other.name);
 
-								System.out.println("#1 type " + copy.name + " dependends on " + od.name + "(" + od.kind + ")");
+								//System.out.println("#1 type " + copy.name + " dependends on " + od.name + "(" + od.kind + ")");
 
 								if(other.kind != LenseUnitKind.Interface) {
 									graph.addEdge(new DependencyRelation(DependencyRelationship.Structural),od,copy);
@@ -137,7 +144,11 @@ public class JarTypeRepository extends AbstractTypeRepositoryWithDependencies {
 
 						} else {
 							//graph.addEdge(new DependencyRelation(DependencyRelationship.Module),info,module);
+							
+							// create new node
 							if (info.imports.isEmpty()) {
+								// a node that depends on nothing
+								//System.out.println("#2 type " + info.name + " dependends on no other type");
 								graph.addEdge(new DependencyRelation(DependencyRelationship.Module),info,module);
 							} else {
 
@@ -145,7 +156,7 @@ public class JarTypeRepository extends AbstractTypeRepositoryWithDependencies {
 									TypeDefinitionInfo od = graph.findDependencyNode(other.name).orElseGet(() -> other);
 									set.add(other.name);
 
-									System.out.println("#2 type " + info.name + " dependends on " + od.name + "(" + od.kind + ")");
+									//System.out.println("#2 type " + info.name + " dependends on " + od.name + "(" + od.kind + ")");
 									if(other.kind != LenseUnitKind.Interface) {
 										graph.addEdge(new DependencyRelation(DependencyRelationship.Structural),od,info);
 										//graph.addEdge(new DependencyRelation(DependencyRelationship.Module),od,module);
@@ -153,14 +164,9 @@ public class JarTypeRepository extends AbstractTypeRepositoryWithDependencies {
 								}
 							}
 						}
-
-
-
-
-
-
 					}
 				} else if (file.getName().equals("module.properties")){
+					// read module properties 
 					try (java.io.InputStream is = jar.getInputStream(file)){
 						Properties pp = new Properties();
 						pp.load(is);
@@ -185,10 +191,11 @@ public class JarTypeRepository extends AbstractTypeRepositoryWithDependencies {
 				}
 			}
 
-			//            trasnverse
+			//            transverse
 
 			var infoTransversor = new FollowTransversor<DependencyRelation,TypeDefinitionInfo>();
-
+			var proxies = new ArrayList<ProxyTypeDefinition>();
+			
 			infoTransversor.addListener(new GraphTranverseListener<>() {
 
 				@Override
@@ -198,8 +205,8 @@ public class JarTypeRepository extends AbstractTypeRepositoryWithDependencies {
 
 					var info = e.getVertex().getObject();
 
-					System.out.print("# visiting " + info.name);
-					System.out.println(f.isFirstcross() ? " concrete" : " proxy" );
+					//System.out.print("# visiting " + info.name);
+					//System.out.println(f.isFirstcross() ? " concrete" : " proxy" );
 
 					if (f.isFirstcross()){
 						if(info.builder != null) {
@@ -211,17 +218,16 @@ public class JarTypeRepository extends AbstractTypeRepositoryWithDependencies {
 								if (existing instanceof ProxyTypeDefinition) {
 									proxy = (ProxyTypeDefinition)existing;
 									moduleRepo.removeType(info.name);
-								} else {
-									System.out.println("# same " + info.name);
-								}
+								} 
 							}
 
 							var type = info.builder.build();
-
+		
 							if(proxy != null) {
+								//System.out.println("# setting proxy with original " + type.getName());
 								proxy.setOriginal(type);
 							}
-							System.out.println("# loading " + info.name);
+							//System.out.println("# loading " + info.name);
 
 							if (!type.isPlataformSpecific()){
 								moduleRepo.registerType(type, type.getGenericParameters().size());
@@ -231,7 +237,8 @@ public class JarTypeRepository extends AbstractTypeRepositoryWithDependencies {
 						}
 					} else {
 						if (moduleRepo.resolveTypesMap(info.name).isEmpty()) {
-							var proxy = new ProxyTypeDefinition(info.name);
+							var proxy = new ProxyTypeDefinition(moduleRepo, info.name);
+							proxies.add(proxy);
 							moduleRepo.registerType(proxy, 0);
 						}
 					}
@@ -240,6 +247,7 @@ public class JarTypeRepository extends AbstractTypeRepositoryWithDependencies {
 
 			});
 
+			
 			if(descriptor.getName().equals("lense.core")) {
 				//				add non denotable types
 				moduleRepo.registerType(LenseTypeSystem.Void(),0);

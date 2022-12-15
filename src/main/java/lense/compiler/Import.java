@@ -19,7 +19,7 @@ public class Import {
 	private boolean container;
 	private String alias;
 	private boolean nativeUse = false;
-	
+
 	public Import (QualifiedNameNode name, String alias, boolean container){
 		this.name = name;
 		this.container= container;
@@ -127,6 +127,6 @@ public class Import {
 	public void setNativeUse(boolean nativeUse) {
 		this.nativeUse = this.nativeUse || nativeUse;
 	}
-	
+
 
 }

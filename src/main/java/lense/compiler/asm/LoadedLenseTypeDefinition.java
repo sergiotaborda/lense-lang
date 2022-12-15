@@ -8,7 +8,6 @@ import lense.compiler.type.LenseTypeDefinition;
 import lense.compiler.type.TypeKind;
 import lense.compiler.type.variable.TypeVariable;
 import lense.compiler.typesystem.FundamentalLenseTypeDefinition;
-import lense.compiler.typesystem.Visibility;
 
 public class LoadedLenseTypeDefinition extends FundamentalLenseTypeDefinition {
 

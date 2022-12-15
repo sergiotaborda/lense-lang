@@ -9,7 +9,7 @@ import lense.core.lang.reflection.TypeResolver;
 @PlatformSpecific
 public final class NativeNumberFactory {
 
-	public static final TypeResolver NATURAL_TYPE_RESOLVER = TypeResolver.lazy(() -> new Type(Natural.class));
+	public static final TypeResolver NATURAL_TYPE_RESOLVER = TypeResolver.lazy(() -> Type.forClass(Natural.class));
 	
 
     public static int naturalToPrimitiveInt(Natural natural) {

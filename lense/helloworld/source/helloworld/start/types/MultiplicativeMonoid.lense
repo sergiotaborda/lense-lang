@@ -1,0 +1,6 @@
+public type class MultiplicativeMonoid<T>  given T extends MultiplicativeMonoid<T> {
+
+
+	public one() : T;
+	public timesOperator(a : T, b : T) : T;
+}

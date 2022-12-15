@@ -213,5 +213,10 @@ public class PrimitiveTypeDefinition implements TypeDefinition {
 		return Visibility.Public;
 	}
 
+	@Override
+	public List<TypeDefinition> getImplementedTypeClasses() {
+		return Collections.emptyList();
+	}
+
 
 }

@@ -2,6 +2,7 @@ import lense.core.math.Real;
 import lense.core.math.Whole;
 import lense.core.math.SignedNumber;
 import lense.core.math.RealLineElement;
+import lense.core.lang.Boolean;
 
 public  interface Float extends SignedNumber, RealLineElement {
 

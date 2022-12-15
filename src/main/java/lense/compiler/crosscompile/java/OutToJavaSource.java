@@ -5,6 +5,7 @@ package lense.compiler.crosscompile.java;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -90,6 +91,7 @@ public final class OutToJavaSource implements CompilerBackEnd {
 
 			try(PrintWriter writer = new PrintWriter(compiled.writer())){
 				TreeTransverser.transverse(node, new JavaSourceWriterVisitor(writer));
+				node.setProperty("writen", Boolean.TRUE);
 				files.add(compiled);
 			} 
 		}

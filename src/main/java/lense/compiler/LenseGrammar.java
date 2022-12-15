@@ -53,6 +53,8 @@ import lense.compiler.ast.FieldOrPropertyAccessNode;
 import lense.compiler.ast.ForEachNode;
 import lense.compiler.ast.FormalParameterNode;
 import lense.compiler.ast.GenericTypeParameterNode;
+import lense.compiler.ast.GivenGenericConstraint;
+import lense.compiler.ast.GivenGenericConstraintList;
 import lense.compiler.ast.ImplementationModifierNode;
 import lense.compiler.ast.ImplementedInterfacesNode;
 import lense.compiler.ast.ImportDeclarationsListNode;
@@ -88,6 +90,7 @@ import lense.compiler.ast.QualifiedNameNode;
 import lense.compiler.ast.RangeNode;
 import lense.compiler.ast.ReturnNode;
 import lense.compiler.ast.SingleImportNode;
+import lense.compiler.ast.StatisfiedTypeClassesNode;
 import lense.compiler.ast.StringValue;
 import lense.compiler.ast.SwitchNode;
 import lense.compiler.ast.SwitchOption;
@@ -96,6 +99,7 @@ import lense.compiler.ast.TernaryConditionalExpressionNode;
 import lense.compiler.ast.ThowNode;
 import lense.compiler.ast.TryStatement;
 import lense.compiler.ast.TypeNode;
+import lense.compiler.ast.TypeOfInvocation;
 import lense.compiler.ast.TypeParametersListNode;
 import lense.compiler.ast.TypesListNode;
 import lense.compiler.ast.UnitTypes;
@@ -714,12 +718,6 @@ public class LenseGrammar extends AbstractLenseGrammar {
 		});
 
 
-		//    	enhancementDeclaration = annotations?, visibilityModifier?, 'enhancement' , qualifiedName , 'extends' , type, genericTypesDeclaration, enhancementBody;
-		//		enhancementBody = '{',enhancementBodyDeclarations ,'}';
-		//		enhancementBodyDeclarations = enhancementBodyDeclaration | enhancementBodyDeclarations, enhancementBodyDeclaration;
-		//			enhancementBodyDeclaration = enhancementMemberDeclaration;
-		//			enhancementMemberDeclaration = methodDeclaration;
-		//			
 		getNonTerminal("enhancementDeclaration").addSemanticAction((p, r) -> {
 
 			if (r.size() == 1) {
@@ -768,7 +766,17 @@ public class LenseGrammar extends AbstractLenseGrammar {
 				}
 				
 				nextNodeIndex++;
+				
+				if (nextNodeIndex < r.size()) {
+					Optional<GivenGenericConstraintList> givens = r.get(nextNodeIndex)
+							.getAstNode(GivenGenericConstraintList.class);
 
+					if (givens.isPresent()) {
+						n.setGivens(givens.get());
+						nextNodeIndex++;
+					}
+				}
+				
 				AstNode b = r.get(r.size() - 1).getAstNode().get();
 
 				if (b instanceof ClassBodyNode) {
@@ -784,7 +792,76 @@ public class LenseGrammar extends AbstractLenseGrammar {
 
 		});
 
+		
+		
+		getNonTerminal("givenConstraintItem").addSemanticAction((p, r) -> {
+			if (r.size() == 4) {
+				var identifier = r.get(1).getLexicalValue();
+				
+				p.setAstNode(new GivenGenericConstraint(identifier, r.get(3).getAstNode(TypeNode.class).get()));
+			} 
+			
+		});
+		
+		getNonTerminal("givenConstraints").addSemanticAction((p, r) -> {
+			if (r.size() == 1) {
+				var list = new GivenGenericConstraintList();
+				list.add( r.get(0).getAstNode().get());
+				p.setAstNode(list);
+			} else {
+				var list = r.get(0).getAstNode(GivenGenericConstraintList.class).get();
+				list.add( r.get(2).getAstNode().get());
+				p.setAstNode(list);
+			}
+			
+		});
+		
+		
+		getNonTerminal("classModifiers").addSemanticAction((p, r) -> {
+			if (r.size() == 1) {
+				var isValue = r.get(0).getLexicalValue().equals("value");
+				var isType = r.get(0).getLexicalValue().equals("type");
+				var node = new ImplementationModifierNode();
+				node.setValueClass(isValue);
+				node.setTypeClass(isType);
+				p.setAstNode(node);
+			}
+		});
+		
+		getNonTerminal("satisfiedTypes").addSemanticAction((p, r) -> {
+			if (r.size() == 1) {
+				 var possible = r.get(0).getAstNode(StatisfiedTypeClassesNode.class);
+				 
+				 if (possible.isPresent()) {	
+					 p.setAstNode(possible.get());
+				 } else {
+					 var node = new StatisfiedTypeClassesNode();
+					 node.add(r.get(0).getAstNode().get());
+					 p.setAstNode(node);
+				 }
+				 
+				 
+			} else if (r.size() == 3){
+				 var node = r.get(0).getAstNode(StatisfiedTypeClassesNode.class).orElse(new StatisfiedTypeClassesNode());
+			
+				 node.add(r.get(2).getAstNode().get());
+				p.setAstNode(node);
+			}
+		});
+		
+		getNonTerminal("satisfiesTypes").addSemanticAction((p, r) -> {
+			if (r.size() == 1) {
+				 var node = r.get(0).getAstNode(StatisfiedTypeClassesNode.class).orElse(new StatisfiedTypeClassesNode());
+					
+				  p.setAstNode(node);
+			} else if (r.size() == 2){
+				 var node = r.get(1).getAstNode(StatisfiedTypeClassesNode.class).orElse(new StatisfiedTypeClassesNode());
 
+				p.setAstNode(node);
+			}
+		});
+		
+		
 		getNonTerminal("classDeclaration").addSemanticAction((p, r) -> {
 
 			if (r.size() == 1) {
@@ -798,7 +875,12 @@ public class LenseGrammar extends AbstractLenseGrammar {
 
 				QualifiedNameNode qname = r.get(nextNodeIndex).getAstNode(QualifiedNameNode.class).get();
 
-			    ClassTypeNode n = new ClassTypeNode(modifiers.getImplementationModifier().isValueClass() ? LenseUnitKind.ValueClass : LenseUnitKind.Class);
+			    ClassTypeNode n = new ClassTypeNode(modifiers.getImplementationModifier().isValueClass() 
+			    		? LenseUnitKind.ValueClass 
+			    		: modifiers.getImplementationModifier().isTypeClass() 
+			    					? LenseUnitKind.TypeClass
+			    					: LenseUnitKind.Class
+			    );
 
 				n.setScanPosition(r.get(nextNodeIndex).getParserTreeNode().getScanPosition());
 				n.setSimpleName(qname.getName());
@@ -859,10 +941,39 @@ public class LenseGrammar extends AbstractLenseGrammar {
 						n.setInterfaces(implement.get());
 						nextNodeIndex++;
 					}
+				} else {
+					nextNodeIndex = nextIndex(
+							readModifiers(r, modifiers, StatisfiedTypeClassesNode.class),
+							readModifiers(r, modifiers, GivenGenericConstraintList.class)
+					);
+				}
+				
+				if (nextNodeIndex >0){
+
+					// satisfied
+					Optional<StatisfiedTypeClassesNode> statisfied = r.get(nextNodeIndex)
+							.getAstNode(StatisfiedTypeClassesNode.class);
+
+					if (statisfied.isPresent()) {
+						n.setSatisfiedTypeClasses(statisfied.get());
+						nextNodeIndex++;
+					}
+				} else {
+					nextNodeIndex = readModifiers(r, modifiers, GivenGenericConstraintList.class);
 				}
 
 
-				AstNode b = r.get(r.size() - 1).getAstNode().get();
+				if (nextNodeIndex >0 && nextNodeIndex < r.size()) {
+					Optional<GivenGenericConstraintList> givens = r.get(nextNodeIndex)
+							.getAstNode(GivenGenericConstraintList.class);
+
+					if (givens.isPresent()) {
+						n.setGivens(givens.get());
+						nextNodeIndex++;
+					}
+				}
+
+				var b = r.get(r.size() - 1).getAstNode().get();
 
 				if (b instanceof ClassBodyNode) {
 					n.setBody((ClassBodyNode) b);
@@ -913,17 +1024,29 @@ public class LenseGrammar extends AbstractLenseGrammar {
 				}
 
 
-				if (nextNodeIndex < r.size()) {
+				if (nextNodeIndex >0 && nextNodeIndex < r.size()) {
 					// implements
 
 					Optional<ImplementedInterfacesNode> implement = scan(r, nextNodeIndex, ImplementedInterfacesNode.class);
 
 					if (implement.isPresent()) {
 						n.setInterfaces(implement.get());
+						nextNodeIndex++;
 					}
+				} else {
+					nextNodeIndex = readModifiers(r, modifiers, GivenGenericConstraintList.class);
 				}
 
+				if (nextNodeIndex >0 && nextNodeIndex < r.size()) {
+					Optional<GivenGenericConstraintList> givens = r.get(nextNodeIndex)
+							.getAstNode(GivenGenericConstraintList.class);
 
+					if (givens.isPresent()) {
+						n.setGivens(givens.get());
+						nextNodeIndex++;
+					}
+				}
+				
 				AstNode b = r.get(r.size() - 1).getAstNode().get();
 
 				if (b instanceof ClassBodyNode) {
@@ -988,7 +1111,7 @@ public class LenseGrammar extends AbstractLenseGrammar {
 				}
 
 			
-				if (nextNodeIndex< r.size()){
+				if (nextNodeIndex >0 && nextNodeIndex< r.size()){
 
 					// implement
 					Optional<ImplementedInterfacesNode> implement = r.get(nextNodeIndex)
@@ -998,8 +1121,20 @@ public class LenseGrammar extends AbstractLenseGrammar {
 						n.setInterfaces(implement.get());
 						nextNodeIndex++;
 					}
+				} else {
+					nextNodeIndex = readModifiers(r, modifiers, GivenGenericConstraintList.class);
 				}
 
+
+				if (nextNodeIndex >0 &&  nextNodeIndex < r.size()) {
+					Optional<GivenGenericConstraintList> givens = r.get(nextNodeIndex)
+							.getAstNode(GivenGenericConstraintList.class);
+
+					if (givens.isPresent()) {
+						n.setGivens(givens.get());
+						nextNodeIndex++;
+					}
+				}
 
 				AstNode b = r.get(r.size() - 1).getAstNode().get();
 
@@ -1407,6 +1542,10 @@ public class LenseGrammar extends AbstractLenseGrammar {
 				node.setValueClass(true);
 			} else if (semanticAttribute.isPresent() && semanticAttribute.get().equals("mutable")) {
 				node.setMutable(true);
+			} else if (semanticAttribute.isPresent() && semanticAttribute.get().equals("type")) {
+				node.setTypeClass(true);
+			} else if (semanticAttribute.isPresent() && semanticAttribute.get().equals("satisfy")) {
+				node.setSatisfy(true);
 			}
 			
 			
@@ -3058,7 +3197,9 @@ public class LenseGrammar extends AbstractLenseGrammar {
 				} else {
 					p.setAstNode(r.get(0).getAstNode().get());
 				}
-
+			} else if (r.size() == 4) {
+				var typeNode = new TypeNode(r.get(2).getAstNode(IdentifierNode.class).get().getName());
+				p.setAstNode(new TypeOfInvocation(typeNode));
 			} else if (r.get(0).getAstNode().isPresent()) {
 				p.setAstNode(r.get(0).getAstNode().get());
 			} else {
@@ -3413,6 +3554,16 @@ public class LenseGrammar extends AbstractLenseGrammar {
 
 	}
 
+	private int nextIndex(int a, int b) {
+		if (a < 0) {
+			return b;
+		} else if (b < 0) {
+			return a;
+		} 
+		
+		return Integer.min(a, b);
+	}
+
 	private <A extends AstNode> Optional<A> scan(List<Symbol> r, int nextNodeIndex,Class<A> nodeType) {
 
 		ListIterator<Symbol> listIterator = r.listIterator(nextNodeIndex);
@@ -3440,7 +3591,7 @@ public class LenseGrammar extends AbstractLenseGrammar {
 		n.setOverride((implementationModifier.isOverride()));
 		n.setDefault((implementationModifier.isDefault()));
 		n.setImutability(modifiers.getImutability());
-
+		n.setSatisfy(implementationModifier.isSatisfy());
 	}
 
 	private PropertyDeclarationNode parsePropertyDeclaration(List<Symbol> r) {
@@ -3535,30 +3686,6 @@ public class LenseGrammar extends AbstractLenseGrammar {
 		return prp;
 	}
 
-
-	private void applyAnnotations(InvocableDeclarionNode n, Optional<AnnotationListNode> annots) {
-		if (!annots.isPresent()) {
-			return;
-		}
-		for (AstNode a : annots.get().getChildren()) {
-			AnnotationNode in = (AnnotationNode) a;
-			if (in.getName().equals("native")) {;
-			n.setNative(true);
-			} else if (in.getName().equals("abstract")) {
-				n.setAbstract(true);
-			} else if (in.getName().equals("public")) {
-				n.setVisibility(Visibility.Public);
-			} else if (in.getName().equals("protected")) {
-				n.setVisibility(Visibility.Protected);
-			} else if (in.getName().equals("private")) {
-				n.setVisibility(Visibility.Private);
-			} else if (in.getName().equals("default")) {
-				n.setDefault(true);
-			} else if (in.getName().equals("override")) {
-				n.setOverride(true);
-			}// TODO other , custom or error
-		}
-	}
 
 	private BigDecimal parseNumber(String number) {
 		number = number.replaceAll("_", "");
@@ -3776,8 +3903,10 @@ public class LenseGrammar extends AbstractLenseGrammar {
 					modifiers.setAnnotations((AnnotationListNode) candidate.get());
 				} else if (candidate.get() instanceof VisibilityNode) {
 					modifiers.setVisibility((VisibilityNode) candidate.get());
-				} else if (candidate.get() instanceof ImplementationModifierNode) {
-					modifiers.setImplementationModifier((ImplementationModifierNode) candidate.get());
+				} else if (candidate.get() instanceof ImplementationModifierNode m) {
+					;
+					modifiers.setImplementationModifier(m.merge(modifiers.getImplementationModifier()));
+					
 				} else if (candidate.get() instanceof ImutabilityNode) {
 					modifiers.setImutability((ImutabilityNode) candidate.get());
 				} else if (type.isInstance(candidate.get())) {

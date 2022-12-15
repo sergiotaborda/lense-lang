@@ -11,7 +11,7 @@ public class ArgumentParser {
 	/*
 	 * Parses the input. Some patter like 
 	 * 
-	 * lense [command|command:mode] -flag1 -flag2 ... --parameter1 --parameter2=value2
+	 * lense [command|command:mode] [modulePath] -flag1 -flag2 ... --parameter1 --parameter2=value2
 	 */
 	public Arguments parse(String ... args){
 		
@@ -43,7 +43,7 @@ public class ArgumentParser {
                     value = params[1];
                 }
                 
-                // TODO validate only chareacters
+                // TODO validate only characters
                 tokenList.add(new ParameterToolToken(parameter));
                 if (value != null){
                     tokenList.add(new ParameterValueToolToken(value));
@@ -51,10 +51,12 @@ public class ArgumentParser {
             } else if (arg.startsWith("-")){
                 String flag = arg.substring(1);
 
-                // TODO validate only chareacters
+                // TODO validate only characters
                 tokenList.add(new FlagToolToken(flag));
             } else if (i == 0){
 	            tokenList.add(new CommandToolToken(arg));
+	        } else if (i == 1){
+	            tokenList.add(new ModulePathToolToken(arg));
 	        } else {
 	            throw new IllegalCommandArgument(arg);
 	        }
@@ -95,6 +97,8 @@ public class ArgumentParser {
                 }
                 
                 arguments.setParameter(param, val);
+            } else if (token instanceof ModulePathToolToken){
+            	arguments.setSource(token.toString());
             }
 	    }
 

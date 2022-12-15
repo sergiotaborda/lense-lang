@@ -3,6 +3,8 @@ import lense.core.math.Number;
 import lense.core.math.Imaginary;
 import lense.core.math.Real;
 import lense.core.math.ArithmeticException;
+import lense.core.math.Complex;
+import lense.core.lang.String;
 
 public value class ComplexOverReal implements Complex {
 

@@ -15,4 +15,6 @@ public interface TypeKind {
 	boolean isEnhancement();
 
 	boolean isValue();
+	
+	boolean isTypeClass();
 }

@@ -28,6 +28,7 @@ public class ClassTypeNode extends AnnotadedLenseAstNode implements ScopeDelimit
 	private TypeNode superType;
 	private TypeParametersListNode parametricTypesNode;
 	private ImplementedInterfacesNode interfaces;
+	private StatisfiedTypeClassesNode satisfiedTypeClasses;
 	
 	private Set<Import> imports = new LinkedHashSet<Import>();
 	private SemanticContext semanticContext;
@@ -46,7 +47,9 @@ public class ClassTypeNode extends AnnotadedLenseAstNode implements ScopeDelimit
     private boolean isAsStringDefined;
     private boolean isHashValueDefined;
     private boolean isEqualsToDefined;
+	private GivenGenericConstraintList givens;
 
+	
 	
 	public ClassTypeNode (LenseUnitKind kind){
 		this.kind = kind;
@@ -292,7 +295,23 @@ public class ClassTypeNode extends AnnotadedLenseAstNode implements ScopeDelimit
 		this.packageName = packageName;
 	}
 
+	public void setGivens(GivenGenericConstraintList givens) {
+		this.givens = givens;
+		this.add(givens);
+	}
+	
+	public GivenGenericConstraintList getGivens(){
+		return givens;
+	}
 
+	public StatisfiedTypeClassesNode getSatisfiedTypeClasses() {
+		return satisfiedTypeClasses;
+	}
+
+	public void setSatisfiedTypeClasses(StatisfiedTypeClassesNode satisfiedTypeClasses) {
+		this.satisfiedTypeClasses = satisfiedTypeClasses;
+		this.add(satisfiedTypeClasses);
+	}
 
 
 

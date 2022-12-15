@@ -1,0 +1,15 @@
+
+import lense.core.collections.Sequence;
+import lense.core.lang.Version;
+import lense.core.lang.reflection.Package;
+import lense.core.lang.reflection.Type;
+import lense.core.lang.String;
+
+public native class ReflectiveMethod implements Method {
+
+	public native constructor (parent: Type, name: String); 
+
+	public native name : String {get;}
+
+
+}

@@ -3,6 +3,7 @@ import lense.core.math.SignedNumber;
 import lense.core.math.Real;
 import lense.core.math.Whole;
 import lense.core.math.Equal;
+import lense.core.math.Complex;
 
 public interface Imaginary extends SignedNumber , Comparable<Imaginary> {
 

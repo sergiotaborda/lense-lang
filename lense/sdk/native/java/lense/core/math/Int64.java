@@ -16,6 +16,7 @@ import lense.core.lang.java.Primitives;
 import lense.core.lang.java.Property;
 import lense.core.lang.java.Signature;
 import lense.core.lang.java.ValueClass;
+import lense.core.lang.reflection.NativeType;
 import lense.core.lang.reflection.Type;
 
 @Signature("::lense.core.math.Integer&lense.core.lang.Binary")
@@ -453,7 +454,7 @@ public class Int64 implements Integer , Binary , BigIntegerConvertable , AnyValu
 
 	@Override
 	public Type type() {
-		return Type.fromName(this.getClass().getName());
+		return Type.forName(this.getClass().getName());
 	}
 
 	@Override

@@ -7,6 +7,8 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
+import lense.compiler.modules.ModuleTypeContents;
+import lense.compiler.repository.UpdatableTypeRepository;
 import lense.compiler.type.Constructor;
 import lense.compiler.type.ConstructorParameter;
 import lense.compiler.type.Field;
@@ -25,25 +27,30 @@ import lense.compiler.typesystem.Imutability;
 import lense.compiler.typesystem.Variance;
 import lense.compiler.typesystem.Visibility;
 
-public class ProxyTypeDefinition extends LenseTypeDefinition {
+public class ProxyTypeDefinition extends LenseTypeDefinition  {
 
 	private LenseTypeDefinition originalType;
 	
 
 	private String name;
+
+
+	private ModuleTypeContents typeRepository;
 	
-	public ProxyTypeDefinition(String name) {
+	public ProxyTypeDefinition(ModuleTypeContents typeRepository, String name) {
 		this.name = name;
+		this.typeRepository = typeRepository;
 	}
 	
-	
+
 	public void setOriginal(LenseTypeDefinition other) {
 		this.originalType = other;
 	}
 	
 	private LenseTypeDefinition original() {
 		if(originalType == null) {
-			throw new RuntimeException("Dependency not set");
+			var map = typeRepository.resolveTypesMap(name);
+			throw new RuntimeException("Type " + name + " not set in proxy");
 		}
 		
 		return originalType;
@@ -92,6 +99,15 @@ public class ProxyTypeDefinition extends LenseTypeDefinition {
 
 
 	public boolean equals(Object other) {
+		if (this == other) {
+			return true;
+		}
+		
+		if (other instanceof ProxyTypeDefinition proxy) {
+			return this.name.equals(proxy.name);
+		}
+		
+		
 		return original().equals(other);
 	}
 
@@ -297,6 +313,9 @@ public class ProxyTypeDefinition extends LenseTypeDefinition {
 	}
 
 	public TypeVariable changeBaseType(TypeDefinition concrete) {
+		if (this.originalType == null) {
+			return this;
+		}
 		return original().changeBaseType(concrete);
 	}
 
@@ -363,5 +382,13 @@ public class ProxyTypeDefinition extends LenseTypeDefinition {
 
 	public List<TypeDefinition> getAllCases() {
 		return original().getAllCases();
-	} 
+	}
+
+
+	public void setGenericParameters(List<TypeVariable> variables) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
 }

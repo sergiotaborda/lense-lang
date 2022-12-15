@@ -10,6 +10,7 @@ import lense.core.lang.HashValue;
 import lense.core.lang.java.Constructor;
 import lense.core.lang.java.Primitives;
 import lense.core.lang.java.ValueClass;
+import lense.core.lang.reflection.NativeType;
 import lense.core.lang.reflection.Type;
 
 @ValueClass
@@ -251,7 +252,7 @@ public final class BigNatural implements Natural , BigDecimalConvertable , BigIn
 
 	@Override
 	public Type type() {
-		return Type.fromName(this.getClass().getName());
+		return Type.forName(this.getClass().getName());
 	}
 
 	@Override

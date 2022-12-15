@@ -3,6 +3,9 @@ import lense.core.math.Number;
 import lense.core.lang.Boolean;
 import lense.core.math.SignedNumber;
 import lense.core.math.RealLineElement;
+import lense.core.math.Integer;
+import lense.core.math.Complex;
+import lense.core.math.Imaginary;
 
 public interface Real extends SignedNumber , RealLineElement {
 

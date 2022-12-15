@@ -1,6 +1,8 @@
 package lense.core.lang.reflection;
 
-public interface Package {
+import lense.core.lang.Any;
+
+public interface Package  extends Any {
 
 	 public lense.core.lang.String getName();
 }
