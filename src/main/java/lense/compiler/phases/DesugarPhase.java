@@ -35,7 +35,7 @@ public class DesugarPhase implements CompilerPhase{
 			try {
 				TreeTransverser.transverse(ct,new DesugarVisitor(ct.getSemanticContext(), innerPropertyPrefix));
 			} catch (CompilationError e){
-				listener.error(new CompilerMessage(e.getMessage()));
+				listener.error(new CompilerMessage(e));
 				return new CompilationResult(e);
 			}
 		}

@@ -228,58 +228,17 @@ public class LenseGrammar extends AbstractLenseGrammar {
 	 * @param text
 	 * @return
 	 */
-	private TypeDefinition determineNumberType(String literalNumber) {
+	private TypeDefinition determineNumberType(BigDecimal value, String literalNumber) {
 		if (literalNumber.startsWith("#")) {
 			return LenseTypeSystem.Natural();
 		} else if (literalNumber.startsWith("$")) {
 			return LenseTypeSystem.Binary();
 		}
-
-		char end = literalNumber.charAt(literalNumber.length() - 1);
 		if (literalNumber.contains(".") && matchDecimal(literalNumber)) {
 			// decimal
-			if (Character.isDigit(end) || end == 'm') {
-				return LenseTypeSystem.Rational();
-			} else if (end == 'N') {
-				throw new CompilationError("A decimal number cannot end with N");
-			} else if (end == 'S') {
-				throw new CompilationError("A decimal number cannot end with S");
-			} else if (end == 'Z') {
-				throw new CompilationError("A decimal number cannot end with Z");
-			} else if (end == 'L') {
-				throw new CompilationError("A decimal number cannot end with L");
-			} else if (end == 'd') {
-				return LenseTypeSystem.Float64();
-			} else if (end == 'f') {
-				return LenseTypeSystem.Float32();
-			} else if (end == 'm') {
-				return LenseTypeSystem.Float();
-			} else if (end == 'i') {
-				return LenseTypeSystem.Imaginary();
-			}
-		} else if (matchNatural(literalNumber)) {
-			// whole
-			if (Character.isDigit(end) || end == 'N') {
-				return LenseTypeSystem.Natural();
-			} else if (end == 'S') {
-				return LenseTypeSystem.Short();
-			} else if (end == 'Z') {
-				return LenseTypeSystem.Int32();
-			} else if (end == 'L') {
-				return LenseTypeSystem.Int64();
-			} else if (end == 'd') {
-				return LenseTypeSystem.Float64();
-			} else if (end == 'f') {
-				return LenseTypeSystem.Float32();
-			} else if (end == 'm') {
-				return LenseTypeSystem.Float();
-			} else if (end == 'i') {
-				return LenseTypeSystem.Imaginary();
-			}
+			return LenseTypeSystem.Rational();
 		}
-
-		throw new CompilationError("'" + literalNumber + "' is not reconized as a Number");
-
+		return LenseNumericBoundsSpecification.typeFromValue(value);
 	}
 
 	/**
@@ -3221,17 +3180,25 @@ public class LenseGrammar extends AbstractLenseGrammar {
 
 		getNonTerminal("numberLiteral").addSemanticAction((p, r) -> {
 
+			var isNegative = false;
 			String number = (String) r.get(0).getSemanticAttribute("lexicalValue").get();
-
-			NumericValue v = new NumericValue();
-			if (!Character.isDigit(number.charAt(number.length() - 1))) {
-				final BigDecimal n = parseNumber(number.substring(0, number.length() - 1));
-				v.setValue(n, determineNumberType(number));
-			} else {
-				final BigDecimal n = parseNumber(number);
-				v.setValue(n, determineNumberType(number));
+			
+			if ("-".equals(number)) {
+			   number =  (String) r.get(1).getSemanticAttribute("lexicalValue").get();
+			   isNegative = true;
 			}
 
+			NumericValue v = new NumericValue();
+			BigDecimal n;
+			if (!Character.isDigit(number.charAt(number.length() - 1))) {
+				n = parseNumber(number.substring(0, number.length() - 1));
+			} else {
+				n = parseNumber(number);
+			}
+			if (isNegative) {
+				n = n.negate();
+			}
+			v.setValue(n, determineNumberType(n , number));
 			p.setAstNode(v);
 
 		});

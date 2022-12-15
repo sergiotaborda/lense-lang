@@ -43,7 +43,7 @@ public final class ErasurePhase implements CompilerPhase{
                     TreeTransverser.transverse(ct,new Int64ErasureVisitor(ctx));
                     TreeTransverser.transverse(ct,new ElideErasureVisitor());
                 } catch (CompilationError e){
-                    listener.error(new CompilerMessage(e.getMessage()));
+                    listener.error(new CompilerMessage(e));
                     return new CompilationResult(e);
                 }
         	}

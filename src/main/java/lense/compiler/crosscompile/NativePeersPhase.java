@@ -43,7 +43,7 @@ public class NativePeersPhase implements CompilerPhase{
                     TreeTransverser.transverse(ct,new NativePeerVisitor(nativeTypes));
                     
                 } catch (CompilationError e){
-                    listener.error(new CompilerMessage(e.getMessage()));
+                    listener.error(new CompilerMessage(e));
                     return new CompilationResult(e);
                 }
         	}

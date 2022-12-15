@@ -1,4 +1,4 @@
-/**
+/**;;
  * 
  */
 package lense.compiler.ast;
@@ -23,6 +23,9 @@ public class TypeNode extends LenseAstNode implements TypedNode{
 	}
 	
 	public TypeNode(TypeVariable  type) {
+		if (type == null) {
+			throw new IllegalArgumentException("Type cannot be null");
+		}
 		this.name = new QualifiedNameNode(type.getTypeDefinition().getName());
 		this.setTypeVariable(type);
 	}
