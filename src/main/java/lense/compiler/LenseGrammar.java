@@ -234,9 +234,12 @@ public class LenseGrammar extends AbstractLenseGrammar {
 		} else if (literalNumber.startsWith("$")) {
 			return LenseTypeSystem.Binary();
 		}
-		if (literalNumber.contains(".") && matchDecimal(literalNumber)) {
+		char end = literalNumber.charAt(literalNumber.length() - 1);
+		if (end == 'i') {
+			return LenseTypeSystem.Imaginary();
+		} else if (literalNumber.contains(".") && matchDecimal(literalNumber)) {
 			// decimal
-			return LenseTypeSystem.Rational();
+			return LenseTypeSystem.Rational(); 
 		}
 		return LenseNumericBoundsSpecification.typeFromValue(value);
 	}

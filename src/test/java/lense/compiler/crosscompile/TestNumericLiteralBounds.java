@@ -180,4 +180,20 @@ public class TestNumericLiteralBounds {
     	""");
 		      
     }
+    
+    @Test
+    public void testParsingImaginaryNoBounds() {
+     	compiler.compileUnit("""
+				package test;
+				
+				import lense.core.math.Rational;
+			
+				public class TestMaxBinary {
+
+    				private  value : Imaginary =  -922337203685477580900.00000000001i;
+				  	
+				}
+    	""");
+		      
+    }
 }
