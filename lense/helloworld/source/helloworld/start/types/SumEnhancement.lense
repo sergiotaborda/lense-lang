@@ -3,7 +3,7 @@
 import lense.core.collections.Sequence;
 import helloworld.start.types.AdditiveMonoid;
 
-public enhancement SumEnhancement extends Sequence<T>  given T extends AdditiveMonoid<T>
+public enhancement SumEnhancement extends Sequence<T>  given T is AdditiveMonoid<T>
 {
 
 	public void (){

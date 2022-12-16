@@ -1,4 +1,4 @@
-public type class MultiplicativeMonoid<T>  given T extends MultiplicativeMonoid<T> {
+public type class MultiplicativeMonoid<T>  given T is MultiplicativeMonoid<T> {
 
 
 	public one() : T;

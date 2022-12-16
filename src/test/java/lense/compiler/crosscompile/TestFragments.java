@@ -21,6 +21,70 @@ public class TestFragments {
     LenseCompiler compiler = new LenseToJavaCompiler(repo).setCompilerListener(new ThrowCompilationErrors());
 	
     
+    @Test
+    public void testIdentifierBeginingWithDollarIsIncorrect() {
+    	assertThrows(CompilationError.class, () -> 	compiler.compileUnit("""
+				package test;
+				
+				import lense.core.math.Int32;
+			
+				public class TestWrongIdentifier {
+
+    				private  $wrongIdentifier : Int32 = 1;
+				  	
+				}
+    	"""));
+		      
+    }
+    
+    @Test
+    public void testIdentifierBeginingWithNumberIsIncorrect() {
+    	assertThrows(CompilationError.class, () -> 	compiler.compileUnit("""
+				package test;
+				
+				import lense.core.math.Int32;
+			
+				public class TestWrongIdentifier {
+
+    				private 2wrongIdentifier : Int32 = 1;
+				  	
+				}
+    	"""));
+		      
+    }
+    
+    @Test
+    public void testIdentifierBeginingWithUnderscoreIsIncorrect() {
+    	assertThrows(CompilationError.class, () -> 	compiler.compileUnit("""
+				package test;
+				
+				import lense.core.math.Int32;
+			
+				public class TestWrongIdentifier {
+
+    				private  _wrongIdentifier : Int32 = 1;
+				  	
+				}
+    	"""));
+		      
+    }
+    
+    @Test
+    public void testIdentifierWithUnderscoreIsCorrect() {
+    		compiler.compileUnit("""
+				package test;
+				
+				import lense.core.math.Int32;
+			
+				public class TestWrongIdentifier {
+
+    				private  good_Identifier : Int32 = 1;
+				  	
+				}
+    	""");
+		      
+    }
+    
 	@Test  
 	public void testMatrixCompilation() {
 		
