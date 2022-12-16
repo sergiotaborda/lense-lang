@@ -1,6 +1,6 @@
 
 
-public type class AdditiveMonoid<T> given T extends AdditiveMonoid<T> {
+public type class AdditiveMonoid<T> given T is AdditiveMonoid<T> {
 
 
 	public zero() : T;
