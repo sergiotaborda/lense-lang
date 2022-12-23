@@ -15,18 +15,17 @@ public class MethodDeclarationNode extends InvocableDeclarionNode implements Sco
 	private String name;
 	private ParametersListNode parameters = new ParametersListNode();
 	private BlockNode block;
-
 	private boolean isProperty;
 	private String propertyName;
 	private boolean isIndexer;
 	private boolean isSetter;
-	
 	private boolean isStatic;
-
-	
 	private Method method;
 	private Method superMethod;
 	private TypeParametersListNode typeParametersListNode;
+	
+	public MethodDeclarationNode() {}
+	
 	
 	public TypeNode getReturnType() {
 		return returnType;
@@ -112,13 +111,4 @@ public class MethodDeclarationNode extends InvocableDeclarionNode implements Sco
 		this.isStatic = isStatic;
 	}
 
-
-
-
-	
-
-	
-
-	
-	
 }

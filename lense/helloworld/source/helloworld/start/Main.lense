@@ -34,6 +34,7 @@ import lense.core.math.Comparison;
 import math.numbers.Sum;
 import helloworld.start.Sequences;
 import helloworld.start.types.SumEnhancement;
+import helloworld.start.types.ConcatEnhancement;
 import helloworld.start.types.MultiplicationEnhancement;
 import helloworld.start.types.Number;
 import helloworld.start.Kilometer;
@@ -64,13 +65,20 @@ public class Main extends ConsoleApplication {
 		assert(new Number(12) == totalSum);
 
 
-
 		let totalMultiplication = numbers.multiply();
 
 		console.println("Multiplication of numbers is : {{ totalMultiplication }}");
 
 		assert(new Number(48) == totalMultiplication);
+		
+		
+		let names = ["a", "b", "c"];
+		
+		let total = names.concat();
+		
+		assert("abc" == total);
 	}
+	
 
 	private demoProtectedAccess(){
 		
@@ -379,8 +387,6 @@ public class Main extends ConsoleApplication {
 	}
 
   	public override onStart()  {
-
-	
 
   	 	console.println("Begin " ++ this.type().name); 
 

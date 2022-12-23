@@ -9,12 +9,12 @@
   	<dependency>
   		<groupId>compiler-little</groupId>
   		<artifactId>compiler-little</artifactId>
-  		<version>0.7.0</version>
+  		<version>0.6.0</version>
   	</dependency>
   	<dependency>
 		<groupId>org.ow2.asm</groupId>
 		<artifactId>asm</artifactId>
-		<version>9.1</version>
+		<version>9.4</version>
 	</dependency>
   </dependencies>
     <build>

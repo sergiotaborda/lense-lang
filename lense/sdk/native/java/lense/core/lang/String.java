@@ -18,8 +18,8 @@ import lense.core.math.NativeNumberFactory;
 import lense.core.math.Natural;
 import lense.core.math.Natural64;
 
-@Signature("::lense.core.collections.Sequence<lense.core.lang.Character>")
-public class String extends Base implements Sequence , CharSequence {
+@Signature("::lense.core.collections.Sequence<lense.core.lang.Character>&lense.core.lang.Concatenable<lense.core.lang.String,lense.core.lang.String,lense.core.lang.String>")
+public class String extends Base implements Sequence , CharSequence, Concatenable {
 
 	public static final String EMPTY = new String("");
 	
@@ -176,5 +176,13 @@ public class String extends Base implements Sequence , CharSequence {
 	
 	public boolean endsWith(String other ) {
 		return str.endsWith(other.str);
+	}
+
+	
+	
+	@Override
+	@lense.core.lang.java.MethodSignature( returnSignature = "lense.core.lang.String" , paramsSignature = "lense.core.lang.String,lense.core.lang.String" , override = true , satisfy = true, declaringType = "lense.core.lang.Concatenable")
+	public Any concatenate(Any a, Any b) {
+		return ((lense.core.lang.String)a).concat(((lense.core.lang.String)b));
 	}
 }

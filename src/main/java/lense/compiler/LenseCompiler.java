@@ -532,8 +532,8 @@ public abstract class LenseCompiler {
 
 			parser.parse(all)
 			.passBy(nameResolutionPhase)
-			.passBy(corePhase)
 			.passBy(new TypeClassInterpolationPhase(packagesMapping.values().stream().flatMap(it -> it.stream()).toList()))
+			.passBy(corePhase)
 			.sendTo(backend);
 			
 			// produce package classes

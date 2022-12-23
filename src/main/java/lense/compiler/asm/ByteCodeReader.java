@@ -53,6 +53,8 @@ public class ByteCodeReader extends ClassVisitor {
 			loadedClassBuilder.setKind(LenseUnitKind.ValueClass);
 		} else if (desc.equals("Llense/core/lang/java/EnhancementClass;")) {
 			loadedClassBuilder.setKind(LenseUnitKind.Enhancement);
+		} else if (desc.equals("Llense/core/lang/java/TypeClass;")) {
+			loadedClassBuilder.setKind(LenseUnitKind.TypeClass);
 		}
 		
 		

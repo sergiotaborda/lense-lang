@@ -1,0 +1,7 @@
+
+
+public type class Summable <A,D,S> {
+
+   public sum(a: A, d: D): S;
+
+}

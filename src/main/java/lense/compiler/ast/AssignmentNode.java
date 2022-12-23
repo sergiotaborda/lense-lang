@@ -54,6 +54,13 @@ public class AssignmentNode extends ExpressionNode {
 		}
 
 	}
+	
+	public static AssignmentNode simpleAssign(AstNode left , ExpressionNode right) {
+		AssignmentNode assignment = new AssignmentNode(AssignmentNode.Operation.SimpleAssign);
+		assignment.setLeft(left);
+		assignment.setRight(right);
+		return assignment;
+	}
 
 	private Operation operation;
 	private AstNode left;

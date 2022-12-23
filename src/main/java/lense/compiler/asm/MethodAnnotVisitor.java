@@ -66,6 +66,8 @@ public class MethodAnnotVisitor extends MethodVisitor{
             	builder.boundedTypes = ((String)value);
             } else if (name.equals("isImplicit")){
             	builder.isImplicit = ((Boolean)value).booleanValue();
+            } else if (name.equals("satisfy")){
+            	builder.isSatisfy = ((Boolean)value).booleanValue();
 		    }
         }
 

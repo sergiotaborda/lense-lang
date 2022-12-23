@@ -3,7 +3,6 @@
  */
 package lense.compiler.phases;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -1628,11 +1627,8 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 					} else {
 						throw new CompilationError(node, "Cannot call methodName at this point yet");
 					}
-					AssignmentNode assignment = new AssignmentNode(AssignmentNode.Operation.SimpleAssign);
-					assignment.setLeft(left);
-					assignment.setRight(method);
-
-					node.getParent().replace(node, assignment);
+	
+					node.getParent().replace(node, AssignmentNode.simpleAssign(left, method));
 				}
 
 			} else if (node instanceof PreExpression) {

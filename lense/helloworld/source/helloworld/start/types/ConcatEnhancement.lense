@@ -1,0 +1,24 @@
+
+
+import lense.core.collections.Sequence;
+import helloworld.start.types.AdditiveMonoid;
+
+public enhancement ConcatEnhancement extends Sequence<String>
+{
+
+	public void (){
+	}
+
+	public concat() : String {
+	   if (this.size == 0){
+	     return "";
+	   }
+	
+		mutable let result = "";
+		for (let item in this){
+			result = result ++ item;
+		}
+		return result;
+	}
+
+}  

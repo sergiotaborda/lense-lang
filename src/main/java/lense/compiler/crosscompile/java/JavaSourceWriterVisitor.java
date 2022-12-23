@@ -1,11 +1,7 @@
-/**
- * 
- */
 package lense.compiler.crosscompile.java;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.Collections;
@@ -745,6 +741,8 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
                     writer.append("@lense.core.lang.java.ValueClass").println();
                 } else  if (t.getKind().isEnhancement()) {
                     writer.append("@lense.core.lang.java.EnhancementClass").println();
+                } else  if (t.getKind().isTypeClass()) {
+                    writer.append("@lense.core.lang.java.TypeClass").println();
                 }
                 
                 if (t.getAnnotations() != null) {

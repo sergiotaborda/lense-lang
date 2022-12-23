@@ -40,6 +40,7 @@ public class MethodBuilder {
 	public boolean isConstructor;
 	public boolean isStatic;
 	public boolean isImplicit;
+	public boolean isSatisfy;
 
 	public MethodBuilder(LoadedClassBuilder loadedClassBuilder, MethodAsmInfo info) {
 		this.loadedClassBuilder  = loadedClassBuilder;
@@ -189,6 +190,7 @@ public class MethodBuilder {
 		m.setAbstract(info.isAbstract());
 		m.setDefault(info.isDefault());
 		m.setOverride(isOverride);
+		m.setSatisfy(isSatisfy);
 		
 		if (overloaded) {
 			 m.setDeclaringType(typeForName(null, this.declaringType));

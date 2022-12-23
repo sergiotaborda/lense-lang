@@ -7,11 +7,15 @@ import java.util.Map;
 import compiler.CompilationResult;
 import compiler.CompilerPhase;
 import lense.compiler.CompilationError;
+import lense.compiler.ast.AssignmentNode;
 import lense.compiler.ast.ClassBodyNode;
 import lense.compiler.ast.ClassTypeNode;
+import lense.compiler.ast.FormalParameterNode;
 import lense.compiler.ast.MethodDeclarationNode;
-import lense.compiler.ast.UnitTypes;
+import lense.compiler.ast.TypeNode;
+import lense.compiler.ast.*;
 import lense.compiler.type.variable.DeclaringTypeBoundedTypeVariable;
+import lense.compiler.typesystem.LenseTypeSystem;
 
 public class TypeClassInterpolationPhase implements CompilerPhase {
 
@@ -29,9 +33,11 @@ public class TypeClassInterpolationPhase implements CompilerPhase {
 			return result;
 		}
 		try {
+			
 			UnitTypes t = (UnitTypes) result.getCompiledUnit().getAstRootNode();
 
-	
+			var anyType = LenseTypeSystem.Any();
+			
 			for (ClassTypeNode ct :  t.getTypes()){
 				var pos = ct.getFullname().indexOf("$$");
 				
@@ -41,28 +47,44 @@ public class TypeClassInterpolationPhase implements CompilerPhase {
 					var name = ct.getFullname().substring(0,pos);
 					var instanceClass = mapping.get(name);
 					
-					if (instanceClass != null) {
-						if (instanceClass.getSatisfiedTypeClasses() != null) {
-							
-							var methods = instanceClass.getChildren(ClassBodyNode.class).get(0).getChildren(MethodDeclarationNode.class);
-							
-							for (var m : methods) {
-								if (m.isSatisfy()) { // TODO clone
-									m.setProperty("moved", true);
-									m.setSatisfy(false);
-									
-									var type = m.getSuperMethod().getReturningType();
-									
-									if (type instanceof DeclaringTypeBoundedTypeVariable d) {
-										type = d.getDeclaringType();
-									}
-									
-									m.getReturnType().setTypeParameter(type);
-									m.getReturnType().setTypeVariable(type);
-									body.add(m);
+				
+					if (instanceClass != null && instanceClass.getSatisfiedTypeClasses() != null) {
+						
+						var methods = instanceClass.getChildren(ClassBodyNode.class).get(0).getChildren(MethodDeclarationNode.class);
+						
+						for (var m : methods) {
+							if (m.isSatisfy()) { // TODO clone
+								m.setProperty("moved", true);
+								m.setSatisfy(false);
+								
+								var type = m.getSuperMethod().getReturningType();
+								
+								if (type instanceof DeclaringTypeBoundedTypeVariable d) {
+									type = d.getDeclaringType();
 								}
+								
+					
+								m.getReturnType().setTypeParameter(type);
+								m.getReturnType().setTypeVariable(type);
+								
+				
+								for (var f : m.getParameters().getChildren(FormalParameterNode.class)) {
+									var previousName = f.getName();
+									var newName = "$$" + previousName;
+									f.setName(newName);
+									
+									var previousType = f.getTypeNode();
+									f.setTypeNode(new TypeNode(anyType));
+									
+									m.getBlock().addFirst(new VariableDeclarationNode(previousName,
+											previousType.getTypeVariable() , 
+											new CastNode(new VariableReadNode(newName), previousType.getTypeVariable()))
+									);
+								}
+								body.add(m);
 							}
 						}
+						
 					}
 					
 				}
