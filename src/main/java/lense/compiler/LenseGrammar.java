@@ -1694,56 +1694,7 @@ public class LenseGrammar extends AbstractLenseGrammar {
 			} 
 		});
 
-		getNonTerminal("methodDeclaration").addSemanticAction((p, r) -> {
-
-			if (r.size() == 1) {
-				p.setAstNode( r.get(0).getAstNode().get());
-			} else {
-				MethodDeclarationNode n = (MethodDeclarationNode) r.get(0).getAstNode().get();
-
-				int bodyStartPosition = 1;
-				if (":".equals(r.get(1).getLexicalValue())) {
-					TypeNode type = r.get(2).getAstNode(TypeNode.class).get();
-
-					n.setReturnType(type);
-					bodyStartPosition= 3;
-				} else {
-					n.setReturnType(new InferableTypeNode());
-
-					//throw new CompilationError(r.get(0).getAstNode().get(), "Return type is required");
-				}
-
-				String separator = r.get(bodyStartPosition).getLexicalValue();
-
-				if (separator == null ){
-					n.setBlock((BlockNode) r.get(bodyStartPosition).getAstNode().get());
-				} else if ("{".equals(separator)){
-					n.setBlock((BlockNode) r.get(bodyStartPosition + 1).getAstNode().get());
-				} else if (";".equals(separator)){
-					//no-op
-				} else if ("=>".equals(separator)){
-					ExpressionNode exp = ensureExpression(r.get(bodyStartPosition + 1).getAstNode().get());
-					BlockNode block = new BlockNode();
-					ReturnNode rNode = new ReturnNode();
-					block.add(rNode);
-					rNode.setValue(exp);
-					n.setBlock(block );
-				} else  {
-					throw new CompilationError(r.get(0).getAstNode().get(), "Invalid syntax");
-				}
-
-				p.setAstNode(n);
-			}
-
-		});
-
-		getNonTerminal("methodBody").addSemanticAction((p, r) -> {
-			if (r.get(0).getAstNode().isPresent()) {
-				p.setAstNode(r.get(0).getAstNode().get());
-			} else {
-				p.setAstNode(new BlockNode());
-			}
-		});
+	
 
 		getNonTerminal("block").addSemanticAction((p, r) -> {
 
@@ -1897,55 +1848,37 @@ public class LenseGrammar extends AbstractLenseGrammar {
 			p.setAstNode(r.get(0).getAstNode().get());
 		});
 
+		getNonTerminal("methodDeclaration").addSemanticAction((p, r) -> {
+
+			if (r.size() == 1) {
+				p.setAstNode( r.get(0).getAstNode().get());
+			} else {
+				readMethodDeclaration(p, r);
+			}
+
+		});
+		
+	
+
+		getNonTerminal("methodBody").addSemanticAction((p, r) -> {
+			if (r.get(0).getAstNode().isPresent()) {
+				p.setAstNode(r.get(0).getAstNode().get());
+			} else if ("=>".equals(r.get(0).getLexicalValue())){
+				ExpressionNode exp = ensureExpression(r.get(1).getAstNode().get());
+				BlockNode block = new BlockNode();
+				ReturnNode rNode = new ReturnNode();
+				block.add(rNode);
+				rNode.setValue(exp);
+				p.setAstNode(block);
+			} else {
+				p.setAstNode(new BlockNode());
+			}
+		});
+		
 		getNonTerminal("abstractMethodDeclaration").addSemanticAction((p, r) -> {
 
-			MethodDeclarationNode n = new MethodDeclarationNode();
-
-			Modifiers modifiers = new Modifiers();
-
-			int nextNodeIndex = readModifiers(r, modifiers, ParametersListNode.class);
-
-			int typeIndex = nextNodeIndex + 2;
-			if (nextNodeIndex < 0){
-				nextNodeIndex = 0;
-				for (int i = 0; i < r.size(); i++) {
-					if (")".equals(r.get(i).getLexicalValue())) {
-						nextNodeIndex = i;
-						break;
-					}
-				}
-			    typeIndex = nextNodeIndex + 1;
-			} else {
-				n.setParameters(r.get(nextNodeIndex).getAstNode(ParametersListNode.class).get());
-			}
-
-			if (modifiers.getAnnotations() != null) {
-				n.setAnnotations(modifiers.getAnnotations());
-
-			}
-
-			Optional<TypeParametersListNode> generics = r.get(nextNodeIndex - 2).getAstNode(TypeParametersListNode.class);
-
-			if (generics.isPresent()) {
-				n.setMethodScopeGenerics(generics.get());
-			}
-
-			n.setName((String) r.get(nextNodeIndex - 3).getSemanticAttribute("lexicalValue").get());
-
-			applyImplementationModifiers(n, modifiers);
-			
-
-			
-
-			if (":".equals(r.get(typeIndex).getLexicalValue())) {
-				TypeNode type = r.get(typeIndex + 1).getAstNode(TypeNode.class).get();
-
-				n.setReturnType(type);
-			} else {
-				throw new CompilationError(r.get(0).getAstNode().get(), "Return type is required");
-			}
-
-			p.setSemanticAttribute("node", n);
+			readAbstractMethodDeclaration(p, r);
+		
 		});
 
 		getNonTerminal("methodHeader").addSemanticAction((p, r) -> {
@@ -1976,23 +1909,6 @@ public class LenseGrammar extends AbstractLenseGrammar {
 			n.setName((String) r.get(nextNodeIndex - 3).getSemanticAttribute("lexicalValue").get());
 
 			applyImplementationModifiers(n, modifiers);
-
-
-			//
-			//			int typeIndex = nextNodeIndex + 4;
-			//			if (r.get(nextNodeIndex + 3).getSemanticAttribute("node").isPresent()) {
-			//				AstNode list = (AstNode) r.get(nextNodeIndex + 3).getSemanticAttribute("node").get();
-			//
-			//				if (list instanceof ParametersListNode) {
-			//					n.setParameters((ParametersListNode) list);
-			//
-			//				} else {
-			//					ParametersListNode ln = new ParametersListNode();
-			//					ln.add(list);
-			//					n.setParameters(ln);
-			//				}
-			//				typeIndex = nextNodeIndex + 5;
-			//			}
 
 			p.setAstNode(n);
 		});
@@ -3902,5 +3818,51 @@ public class LenseGrammar extends AbstractLenseGrammar {
 		return index;
 	}
 
+	private void readAbstractMethodDeclaration(Symbol p, List<Symbol> r){
+		//MethodDeclarationNode n = new MethodDeclarationNode();
+		MethodDeclarationNode n = (MethodDeclarationNode) r.get(0).getAstNode().get();
+	
+		TypeNode type = r.get(2).getAstNode(TypeNode.class).get();
 
+		n.setReturnType(type);
+		
+		p.setSemanticAttribute("node", n);
+	}
+	
+	private void readMethodDeclaration(Symbol p, List<Symbol> r){
+		MethodDeclarationNode n = (MethodDeclarationNode) r.get(0).getAstNode().get();
+
+		int bodyStartPosition = 1;
+		if (":".equals(r.get(1).getLexicalValue())) {
+			TypeNode type = r.get(2).getAstNode(TypeNode.class).get();
+
+			n.setReturnType(type);
+			bodyStartPosition= 3;
+		} else {
+			n.setReturnType(new InferableTypeNode());
+
+			//throw new CompilationError(r.get(0).getAstNode().get(), "Return type is required");
+		}
+
+		String separator = r.get(bodyStartPosition).getLexicalValue();
+
+		if (separator == null ){
+			n.setBlock((BlockNode) r.get(bodyStartPosition).getAstNode().get());
+		} else if ("{".equals(separator)){
+			n.setBlock((BlockNode) r.get(bodyStartPosition + 1).getAstNode().get());
+		} else if (";".equals(separator)){
+			//no-op
+		} else if ("=>".equals(separator)){
+			ExpressionNode exp = ensureExpression(r.get(bodyStartPosition + 1).getAstNode().get());
+			BlockNode block = new BlockNode();
+			ReturnNode rNode = new ReturnNode();
+			block.add(rNode);
+			rNode.setValue(exp);
+			n.setBlock(block );
+		} else  {
+			throw new CompilationError(r.get(0).getAstNode().get(), "Invalid syntax");
+		}
+
+		p.setAstNode(n);
+	}
 }
