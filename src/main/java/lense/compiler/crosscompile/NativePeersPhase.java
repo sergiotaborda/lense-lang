@@ -9,6 +9,7 @@ import compiler.CompilerPhase;
 import compiler.filesystem.SourceFile;
 import compiler.trees.TreeTransverser;
 import lense.compiler.CompilationError;
+import lense.compiler.NativeSourceInfo;
 import lense.compiler.ast.ClassTypeNode;
 import lense.compiler.ast.UnitTypes;
 import lense.compiler.context.SemanticContext;
@@ -16,9 +17,9 @@ import lense.compiler.context.SemanticContext;
 public class NativePeersPhase implements CompilerPhase{
    
     private CompilerListener listener;
-	private Map<String, SourceFile> nativeTypes;
+	private Map<String, NativeSourceInfo> nativeTypes;
 
-    public NativePeersPhase (CompilerListener listener, Map<String, SourceFile> nativeTypes){
+    public NativePeersPhase (CompilerListener listener, Map<String, NativeSourceInfo> nativeTypes){
         this.listener = listener;
         this.nativeTypes = nativeTypes;
     }

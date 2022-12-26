@@ -16,6 +16,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import javax.lang.model.element.QualifiedNameable;
+
 import compiler.AstCompiler;
 import compiler.CompilationResult;
 import compiler.CompilationResultSet;
@@ -28,6 +30,7 @@ import compiler.CompilerMessage;
 import compiler.ComposedCompilerBackEnd;
 import compiler.ListCompilationUnitSet;
 import compiler.ReaderCompilationUnit;
+import compiler.SourceFileCompilationUnit;
 import compiler.SourceFolderCompilationUnitSet;
 import compiler.StringCompilationUnit;
 import compiler.filesystem.DiskSourceFileSystem;
@@ -157,9 +160,9 @@ public abstract class LenseCompiler {
 	}
 
 	protected abstract void createModuleArchive(FileLocations locations, ModuleNode module, Set<String> applications) throws IOException, FileNotFoundException;
-	protected abstract void initCorePhase(CompositePhase corePhase, Map<String, SourceFile> nativeTypes, UpdatableTypeRepository typeContainer);
-	protected abstract void collectNative(FileLocations fileLocations, Map<String, SourceFile> nativeTypes) throws IOException;
-	protected abstract SourceFile resolveNativeFile(SourceFolder folder, String name);
+	protected abstract void initCorePhase(CompositePhase corePhase, Map<String, NativeSourceInfo> nativeTypes, UpdatableTypeRepository typeContainer);
+	protected abstract void collectNative(FileLocations fileLocations, Map<String, NativeSourceInfo> nativeTypes) throws IOException;
+	protected abstract Optional<SourceFile> resolveNativeFile(SourceFolder folder, String name);
 
 	public void compileUnit(Reader reader)  {
 
@@ -211,12 +214,12 @@ public abstract class LenseCompiler {
 		}
 	}
 
-	protected abstract List<TypeDefinition> extactTypeDefinitionFromNativeType(UpdatableTypeRepository currentTypeRepository , Collection<SourceFile> files) throws IOException;
+	protected abstract List<TypeDefinition> extactTypeDefinitionFromNativeType(UpdatableTypeRepository currentTypeRepository , Collection<NativeSourceInfo> files) throws IOException;
 
 	public void compileCompilationUnitSet(CompilationUnitSet moduleUnit,CompilationUnitSet unitSet, FileLocations locations){
 
 
-		Map<String, SourceFile> nativeTypes = new HashMap<>();
+		Map<String, NativeSourceInfo> nativeTypes = new HashMap<>();
 
 		listener.start();
 		try {
@@ -397,10 +400,10 @@ public abstract class LenseCompiler {
 
 
 					if(type.getSemanticContext().getCurrentPackageName() != null && type.getSemanticContext().getCurrentPackageName().length() > 0) {
-						if(type.getKind() != LenseUnitKind.Interface) {
-							 var list = packagesMapping.computeIfAbsent(new QualifiedNameNode(type.getSemanticContext().getCurrentPackageName()), (k) -> new ArrayList<>());
-							 list.add(type);
-						}
+						
+						 var list = packagesMapping.computeIfAbsent(new QualifiedNameNode(type.getSemanticContext().getCurrentPackageName()), (k) -> new ArrayList<>());
+						 list.add(type);
+						
 					}
 
 
@@ -515,12 +518,32 @@ public abstract class LenseCompiler {
 			tt.transverse(graph, moduleNode);
 
 			
-			// produce type classes
+			// produce type classes for compiled native types
 			ListCompilationUnitSet all = new ListCompilationUnitSet();
+			
+			for (var n : nativeTypes.values()) {
+				if (n.originalSourceFile() != null) {
+					 parser.parse(CompilationUnitSet.of(new SourceFileCompilationUnit(n.originalSourceFile())))
+						.passBy(prePhase)
+						.sendToList()
+						.forEach(unit -> {
+						
+							var s = locations.getSourceFolder().getPath().relativize(n.originalSourceFile().getPath() );
+							
+							var children = unit.getAstRootNode().getChildren(ClassTypeNode.class);
+							var list = packagesMapping.computeIfAbsent(new QualifiedNameNode(s.getParent().toString(".")), k -> new ArrayList<>(children.size()));
+							list.addAll(children);
+						});
+				}
+				
+			}
+			
+			// produce type classes for compiled non native types
 			for(var entry : packagesMapping.entrySet()){
 
 				for (var type : entry.getValue()) {
 					if (type.getTypeDefinition() != null) {
+						System.out.println("type : " + type.getFullname());
 						StringBuilder builder = writeType( type);
 						var typeName = type.getSimpleName() + "$$Type.lense";
 						var path = locations.getSourceFolder().folder(PackageSourcePathUtils.fromPackageName(entry.getKey().getName())).file(typeName).getPath();
@@ -617,7 +640,7 @@ public abstract class LenseCompiler {
 	}
 
 	protected void applyCompilation(
-			Map<String, SourceFile> nativeTypes, 
+			Map<String, NativeSourceInfo> nativeTypes, 
 			FileLocations locations,
 			CompositePhase corePhase,
 			ModuleCompilationScopeTypeRepository currentModuleRepository, 
@@ -709,44 +732,55 @@ public abstract class LenseCompiler {
 		return builder;
 	}
 	
-
 	private StringBuilder writeType(ClassTypeNode node) {
-		
 		node.setProperty("typeClassMode", true);
-		var type = node.getTypeDefinition();
+		return writeType(node.getTypeDefinition());
+	}
+	private StringBuilder writeType(TypeDefinition type) {
 		
+
 		var name = lense.compiler.utils.Strings.cammelToPascalCase(type.getSimpleName()) + "$$Type";
 		
-		StringBuilder builder = new StringBuilder("import lense.core.lang.reflection.Type; import lense.core.lang.reflection.Method; import lense.core.lang.reflection.Property;  import lense.core.collections.LinkedList; import lense.core.lang.reflection.ReflectiveMethod; import lense.core.lang.reflection.ReflectiveProperty;\n");
+		StringBuilder builder = new StringBuilder( """
 				
-				if (node.getSatisfiedTypeClasses() != null) {
-					for (var typeClass : node.getSatisfiedTypeClasses().getChildren(TypeNode.class)) {
-						builder.append("import ").append(typeClass.getTypeParameter().getTypeDefinition().getName()).append(";\n");
-					}
+				import lense.core.lang.reflection.Type;
+				import lense.core.lang.reflection.Method;
+				import lense.core.lang.reflection.Property;
+				import lense.core.collections.LinkedList; 
+				import lense.core.lang.reflection.ReflectiveMethod; 
+				import lense.core.lang.reflection.ReflectiveProperty;
+				
+				""");
+				
+				
+				for (var typeClass : type.getImplementedTypeClasses()) {
+					builder.append("import ").append(typeClass.getName()).append(";\n");
 				}
-			
-				
+	
 				builder.append("public class ").append(name).append(" extends Type ");
 				
-				if (node.getSatisfiedTypeClasses() != null) {
+				if (!type.getImplementedTypeClasses().isEmpty()) {
 					builder.append("  implements ");
-					var iterator = node.getSatisfiedTypeClasses().getChildren(TypeNode.class).iterator();
+					var iterator = type.getImplementedTypeClasses().iterator();
 					while(iterator.hasNext()) {
 						var typeClass = iterator.next();
-						builder.append(typeClass.toString());
-//						var generics = typeClass.getTypeVariable().getTypeDefinition().getGenericParameters();
-//						
-//						if (!generics.isEmpty()) {
-//							builder.append("<");
-//							
-//							var gIterator = generics.iterator();
-//							while(gIterator.hasNext()) {
-//								var f = gIterator.next();
-//								builder.append(f.getSymbol().get());
-//							}
-//							
-//							builder.append(">");
-//						}
+						builder.append(typeClass.getSimpleName());
+						var generics = typeClass.getGenericParameters();
+						
+						if (!generics.isEmpty()) {
+							builder.append("<");
+							
+							var gIterator = generics.iterator();
+							while(gIterator.hasNext()) {
+								var f = gIterator.next();
+								builder.append(f.getSymbol().orElse(f.getTypeDefinition().getSimpleName()));
+								if (gIterator.hasNext()) {
+									builder.append(", ");
+								}
+							}
+							
+							builder.append(">");
+						}
 						
 						if (iterator.hasNext()) {
 							builder.append(", ");
@@ -764,7 +798,7 @@ public abstract class LenseCompiler {
 				.append("  return new ").append(name).append("(); \n")
 				.append("}\n")
 				
-				.append("public getName() => \"" + node.getFullname() + "\"; \n")
+				.append("public getName() => \"" + type.getName() + "\"; \n")
 				
 				.append("protected loadMethods() : Sequence<Method> { \n")
 				.append("    let  all = new LinkedList<Method>();\n ");

@@ -896,8 +896,7 @@ public class LenseGrammar extends AbstractLenseGrammar {
 				if (nextNodeIndex >0){
 
 					// implement
-					Optional<ImplementedInterfacesNode> implement = r.get(nextNodeIndex)
-							.getAstNode(ImplementedInterfacesNode.class);
+					Optional<ImplementedInterfacesNode> implement = scan(r, nextNodeIndex, ImplementedInterfacesNode.class);
 
 					if (implement.isPresent()) {
 						n.setInterfaces(implement.get());
@@ -975,7 +974,6 @@ public class LenseGrammar extends AbstractLenseGrammar {
 				n.setNative(false);
 				n.setVisibility(modifiers.getVisibility().getVisibility(Visibility.Private));
 				
-
 				n.setSuperType(new TypeNode(LenseTypeSystem.Any()));
 
 				Optional<TypeParametersListNode> generics = r.get(++nextNodeIndex).getAstNode(TypeParametersListNode.class);
@@ -996,12 +994,27 @@ public class LenseGrammar extends AbstractLenseGrammar {
 						nextNodeIndex++;
 					}
 				} else {
-					nextNodeIndex = readModifiers(r, modifiers, GivenGenericConstraintList.class);
+					nextNodeIndex = nextIndex(
+							readModifiers(r, modifiers, StatisfiedTypeClassesNode.class),
+							readModifiers(r, modifiers, GivenGenericConstraintList.class)
+					);
 				}
 
+				if (nextNodeIndex >0){
+
+					// satisfied
+					Optional<StatisfiedTypeClassesNode> statisfied = scan(r, nextNodeIndex, StatisfiedTypeClassesNode.class);
+
+					if (statisfied.isPresent()) {
+						n.setSatisfiedTypeClasses(statisfied.get());
+						nextNodeIndex++;
+					}
+				} else {
+					nextNodeIndex = readModifiers(r, modifiers, GivenGenericConstraintList.class);
+				}
+				
 				if (nextNodeIndex >0 && nextNodeIndex < r.size()) {
-					Optional<GivenGenericConstraintList> givens = r.get(nextNodeIndex)
-							.getAstNode(GivenGenericConstraintList.class);
+					Optional<GivenGenericConstraintList> givens = scan(r, nextNodeIndex, GivenGenericConstraintList.class); 
 
 					if (givens.isPresent()) {
 						n.setGivens(givens.get());
@@ -1076,18 +1089,33 @@ public class LenseGrammar extends AbstractLenseGrammar {
 				if (nextNodeIndex >0 && nextNodeIndex< r.size()){
 
 					// implement
-					Optional<ImplementedInterfacesNode> implement = r.get(nextNodeIndex)
-							.getAstNode(ImplementedInterfacesNode.class);
+					Optional<ImplementedInterfacesNode> implement =  scan(r, nextNodeIndex, ImplementedInterfacesNode.class);
 
 					if (implement.isPresent()) {
 						n.setInterfaces(implement.get());
 						nextNodeIndex++;
 					}
 				} else {
-					nextNodeIndex = readModifiers(r, modifiers, GivenGenericConstraintList.class);
+					nextNodeIndex = nextIndex(
+							readModifiers(r, modifiers, StatisfiedTypeClassesNode.class),
+							readModifiers(r, modifiers, GivenGenericConstraintList.class)
+					);
 				}
 
 
+				if (nextNodeIndex >0){
+
+					// satisfied
+					Optional<StatisfiedTypeClassesNode> statisfied = scan(r, nextNodeIndex, StatisfiedTypeClassesNode.class);
+
+					if (statisfied.isPresent()) {
+						n.setSatisfiedTypeClasses(statisfied.get());
+						nextNodeIndex++;
+					}
+				} else {
+					nextNodeIndex = readModifiers(r, modifiers, GivenGenericConstraintList.class);
+				}
+				
 				if (nextNodeIndex >0 &&  nextNodeIndex < r.size()) {
 					Optional<GivenGenericConstraintList> givens = r.get(nextNodeIndex)
 							.getAstNode(GivenGenericConstraintList.class);
@@ -1875,12 +1903,6 @@ public class LenseGrammar extends AbstractLenseGrammar {
 			}
 		});
 		
-		getNonTerminal("abstractMethodDeclaration").addSemanticAction((p, r) -> {
-
-			readAbstractMethodDeclaration(p, r);
-		
-		});
-
 		getNonTerminal("methodHeader").addSemanticAction((p, r) -> {
 
 			MethodDeclarationNode n = new MethodDeclarationNode();
@@ -3563,7 +3585,7 @@ public class LenseGrammar extends AbstractLenseGrammar {
 			prp.setAnnotations(modifiers.getAnnotations());
 		}
 
-		prp.setAbstract(modifiers.getImplementationModifier().isNative());
+		prp.setAbstract(modifiers.getImplementationModifier().isAbstract());
 		prp.setNative(modifiers.getImplementationModifier().isNative());
 		prp.setVisibility(modifiers.getVisibility().getVisibility(Visibility.Private));
 

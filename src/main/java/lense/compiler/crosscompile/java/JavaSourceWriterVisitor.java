@@ -1819,8 +1819,13 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 
                 if (m.isAbstract()) {
                     writer.print(" abstract ");
-                } else if (!m.isDefault()) {
+                } else if (!m.isDefault() && !m.isSatisfy()) {
                     writer.print(" final ");
+                } else if (m.isSatisfy() ) {
+                	if (m.getMethod().getDeclaringType().getKind().isInterface()) {
+                        writer.print(" default ");
+                	}
+           
                 }
 
                 if (m.isStatic()) {
@@ -2062,10 +2067,13 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
             }
         }
 
+   
         if (m.getSuperMethod() != null) {
             writer.append("\" , override = true , declaringType = \"")
             .append(signatureNameOf(m.getSuperMethod().getDeclaringType().getTypeDefinition().getName()));
         }
+        
+      
 
         if (!m.getMethodScopeGenerics().getChildren().isEmpty()) {
 
@@ -2079,7 +2087,12 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
             writer.append("\" , boundedTypes = \"").append(sb);
         }
 
-        writer.print("\")\n");
+        if (m.isSatisfy()) {
+            writer.print("\" , satisfy = true )\n");
+        } else {
+            writer.print("\")\n");
+        }
+
     }
 
     private String signatureNameOf(String name) {

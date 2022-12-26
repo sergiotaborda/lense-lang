@@ -12,9 +12,11 @@ import java.io.InputStreamReader;
 import java.io.Writer;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 import java.util.jar.Attributes;
@@ -35,6 +37,7 @@ import compiler.filesystem.SourceWalkerResult;
 import lense.compiler.CompilationError;
 import lense.compiler.FileLocations;
 import lense.compiler.LenseCompiler;
+import lense.compiler.NativeSourceInfo;
 import lense.compiler.PackageSourcePathUtils;
 import lense.compiler.asm.ByteCodeTypeDefinitionReader;
 import lense.compiler.ast.ClassTypeNode;
@@ -74,7 +77,7 @@ public class LenseToJavaCompiler extends LenseCompiler{
 	}
 
 
-	protected void initCorePhase(CompositePhase corePhase, Map<String, SourceFile> nativeTypes, UpdatableTypeRepository typeContainer){
+	protected void initCorePhase(CompositePhase corePhase, Map<String, NativeSourceInfo> nativeTypes, UpdatableTypeRepository typeContainer){
 
 		CompilerListener compilerListener = this.getCompilerListener();
 		corePhase
@@ -234,17 +237,18 @@ public class LenseToJavaCompiler extends LenseCompiler{
 	}
 
 
-	protected SourceFile resolveNativeFile(SourceFolder folder, String name) {
-		return folder.file(name + ".class");
+	protected Optional<SourceFile> resolveNativeFile(SourceFolder folder, String name) {
+		return Optional.of(folder.file(name + ".class"));
 	}
 
-	protected void collectNative(FileLocations fileLocations, Map<String, SourceFile> nativeTypes) throws IOException {
+	protected void collectNative(FileLocations fileLocations, Map<String, NativeSourceInfo> nativeTypes) throws IOException {
 
 		if (!fileLocations.getNativeFolder().exists()){
 			return;
 		}
 
-		List<SourceFile> files = new LinkedList<>();
+		List<SourceFile> javaFiles = new LinkedList<>();
+		Map<SourceFile, SourceFile> lenseFiles = new HashMap<>();
 
 		var rootDir = fileLocations.getNativeFolder();
 	    
@@ -253,21 +257,29 @@ public class LenseToJavaCompiler extends LenseCompiler{
 			@Override
 			public SourceWalkerResult visitFile(SourceFile file) {
 				if (file.getName().endsWith(".java")){
-					files.add(file);
+					javaFiles.add(file);
+					var relativePath = fileLocations.getNativeFolder().getPath().relativize(file.getPath());
+					
+					var sourcePathName = relativePath.toString().replace(".java", ".lense").replace('>', File.separatorChar);
+					var source = fileLocations.getSourceFolder().file(sourcePathName);
+					if (source.exists()) {
+						lenseFiles.put(file, source);
+					}
+					
 				}
 				return SourceWalkerResult.CONTINUE;
 			}
 
 		});
 
-		if(files.isEmpty()) {
+		if(javaFiles.isEmpty()) {
 			return;
 		}
 		
-		if (javaCompilerBackEndFactory.create(fileLocations).compile(files)){
+		if (javaCompilerBackEndFactory.create(fileLocations).compile(javaFiles)){
 
 			// compile all files
-			outter: for (var n : files){
+			outter: for (var n : javaFiles){
 				
 			
 				var name = n.getName().substring(0,  n.getName().length() - 5);
@@ -286,13 +298,14 @@ public class LenseToJavaCompiler extends LenseCompiler{
 
 				target.parentFolder().ensureExists();
 
-				if (!source.exists()){
+				if (source.isPresent() && !source.get().exists()){
 					throw new CompilationError("Compiled file with java compiler does not exist (" + source.toString() +"). ");
 				} else {
-					source.moveTo(target);
+					source.get().moveTo(target);
 					
 				
-					nativeTypes.put(packagePath.join(".") + "." + name, target);
+					var lense = lenseFiles.get(n);
+					nativeTypes.put(packagePath.join(".") + "." + name, new NativeSourceInfo(target, lense));
 
 				}
 
@@ -308,12 +321,12 @@ public class LenseToJavaCompiler extends LenseCompiler{
 	@Override
 	protected List<TypeDefinition> extactTypeDefinitionFromNativeType(
 			UpdatableTypeRepository currentModuleRepository,
-			Collection<SourceFile> nativeFiles
+			Collection<NativeSourceInfo> nativeFiles
 	) throws IOException {
 
   		var reader = new ByteCodeTypeDefinitionReader(currentModuleRepository);
 
-  		return nativeFiles.stream().map(target -> {
+  		return nativeFiles.stream().map(it -> it.nativeCompiledFile()).map(target -> {
 			try {
 				return reader.readNative(target);
 			} catch (IOException e) {
@@ -325,7 +338,7 @@ public class LenseToJavaCompiler extends LenseCompiler{
 
 	@Override
 	protected void applyCompilation(
-			Map<String, SourceFile> nativeTypes, 
+			Map<String, NativeSourceInfo> nativeTypes, 
 			FileLocations locations,
 			CompositePhase corePhase,
 			ModuleCompilationScopeTypeRepository currentModuleRepository, 
@@ -339,27 +352,26 @@ public class LenseToJavaCompiler extends LenseCompiler{
 
 				if (type.isNative()) {
 
-					SourceFile nativeTypeFile = nativeTypes.get(type.getFullname());
+					var nativeTypeFile = nativeTypes.get(type.getFullname());
 
 					if (nativeTypeFile == null) {
+						String[] name;
 						if (type.getKind().isObject()) {
 
-							String[] name = Strings.split(type.getFullname(), ".");
+						    name = Strings.split(type.getFullname(), ".");
 							name[name.length - 1 ] = Strings.cammelToPascalCase(name[name.length - 1 ]);
-
-
-							nativeTypeFile =  resolveNativeFile (locations.getTargetFolder(), Strings.join(name, File.separator));
 						}
 						else 
 						{
-							String[] name = Strings.split(type.getFullname(), ".");
-
-							nativeTypeFile =  resolveNativeFile (locations.getTargetFolder(), Strings.join(name, File.separator));
+							name = Strings.split(type.getFullname(), ".");
 						}
-
-						if (nativeTypeFile == null) {
-							throw new CompilationError(type, "Expected native file for type " + type.getFullname()  + " does not exist");
-						}
+						
+						nativeTypeFile =  new NativeSourceInfo(
+								resolveNativeFile (locations.getTargetFolder(), Strings.join(name, File.separator))
+								.orElseThrow(() ->  new CompilationError(type, "Expected native file for type " + type.getFullname()  + " does not exist")),
+								null
+						);
+					
 					}
 
 					try {

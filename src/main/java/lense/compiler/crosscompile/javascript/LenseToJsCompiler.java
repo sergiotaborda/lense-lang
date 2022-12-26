@@ -5,12 +5,14 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import compiler.filesystem.SourceFile;
 import compiler.filesystem.SourceFolder;
 import lense.compiler.FileLocations;
 import lense.compiler.LenseCompiler;
+import lense.compiler.NativeSourceInfo;
 import lense.compiler.ast.ModuleNode;
 import lense.compiler.crosscompile.ErasurePhase;
 import lense.compiler.dependency.DependencyRelationship;
@@ -39,7 +41,7 @@ public class LenseToJsCompiler extends LenseCompiler{
 	}
 	
     @Override
-    protected void initCorePhase(CompositePhase corePhase, Map<String, SourceFile> nativeTypes, UpdatableTypeRepository typeContainer) {
+    protected void initCorePhase(CompositePhase corePhase, Map<String, NativeSourceInfo> nativeTypes, UpdatableTypeRepository typeContainer) {
         DesugarPhase desugarProperties = new DesugarPhase(this.getCompilerListener());
         desugarProperties.setInnerPropertyPrefix("_");
         
@@ -50,18 +52,18 @@ public class LenseToJsCompiler extends LenseCompiler{
     }
 
     @Override
-    protected void collectNative(FileLocations fileLocations, Map<String, SourceFile> nativeTypes) throws IOException {
+    protected void collectNative(FileLocations fileLocations, Map<String, NativeSourceInfo> nativeTypes) throws IOException {
         // no-op for now
     }
 
 	@Override
-	protected SourceFile resolveNativeFile(SourceFolder folder, String name) {
-		return folder.file( name + ".js");
+	protected Optional<SourceFile> resolveNativeFile(SourceFolder folder, String name) {
+		return Optional.of(folder.file( name + ".js"));
 	}
 
 	@Override
 	protected List<TypeDefinition> extactTypeDefinitionFromNativeType(UpdatableTypeRepository currentTypeRepository,
-			Collection<SourceFile> files) throws IOException {
+			Collection<NativeSourceInfo> files) throws IOException {
 
 		return List.of();
 	}

@@ -371,7 +371,7 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 			}
 
 			// auto-abstract if interface
-			if (this.currentType != null && this.currentType.getKind() == LenseUnitKind.Interface && !m.isDefault()) {
+			if (this.currentType != null && this.currentType.getKind() == LenseUnitKind.Interface && !m.isDefault() && !m.isSatisfy() ) {
 				m.setAbstract(true);
 			}
 
@@ -3038,7 +3038,10 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 				
 				if (kind.isInterface() || kind.isTypeClass()) {
 					m.setVisibility(Visibility.Public);
-					m.setAbstract(true);
+				
+					m.setAbstract(!((m.isSatisfy() || m.isDefault())));
+					
+				
 				}
 				
 				

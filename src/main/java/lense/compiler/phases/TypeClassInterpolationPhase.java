@@ -3,6 +3,7 @@ package lense.compiler.phases;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import compiler.CompilationResult;
 import compiler.CompilerPhase;
@@ -57,7 +58,8 @@ public class TypeClassInterpolationPhase implements CompilerPhase {
 								m.setProperty("moved", true);
 								m.setSatisfy(false);
 								
-								var type = m.getSuperMethod().getReturningType();
+								var type = Optional.ofNullable(m.getSuperMethod()).map(it -> it.getReturningType())
+										.orElse(m.getReturnType().getTypeVariable());
 								
 								if (type instanceof DeclaringTypeBoundedTypeVariable d) {
 									type = d.getDeclaringType();

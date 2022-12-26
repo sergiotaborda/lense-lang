@@ -1,6 +1,5 @@
 package lense.compiler.crosscompile.java;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -13,6 +12,7 @@ import compiler.filesystem.SourceFile;
 import compiler.syntax.AstNode;
 import compiler.trees.Visitor;
 import compiler.trees.VisitorNext;
+import lense.compiler.NativeSourceInfo;
 import lense.compiler.asm.ByteCodeTypeDefinitionReader;
 import lense.compiler.ast.ClassTypeNode;
 import lense.compiler.ast.ConstructorDeclarationNode;
@@ -31,7 +31,6 @@ import lense.compiler.type.TypeAssistant;
 import lense.compiler.type.TypeDefinition;
 import lense.compiler.type.TypeMember;
 import lense.compiler.type.variable.TypeVariable;
-import lense.compiler.typesystem.LenseTypeSystem;
 import lense.compiler.typesystem.Visibility;
 import lense.compiler.utils.Strings;
 
@@ -42,13 +41,13 @@ import lense.compiler.utils.Strings;
  */
 public final class NativeVerificationVisitor implements Visitor<AstNode>{
 
-    private final Map<String, SourceFile> nativeTypes;
+    private final Map<String, NativeSourceInfo> nativeTypes;
     private final Map<String, LenseTypeDefinition> nativeLoadedTypes = new HashMap<>();
     private final ByteCodeTypeDefinitionReader asmReader;
 	private final SemanticContext semanticContext;
 	private final TypeAssistant typeAssistant;
 	
-    public NativeVerificationVisitor(SemanticContext semanticContext, Map<String, SourceFile> nativeTypes, UpdatableTypeRepository typeContainer) {
+    public NativeVerificationVisitor(SemanticContext semanticContext, Map<String, NativeSourceInfo> nativeTypes, UpdatableTypeRepository typeContainer) {
     	this.semanticContext = semanticContext;
         this.nativeTypes = nativeTypes;
         this.asmReader = new ByteCodeTypeDefinitionReader(typeContainer);
@@ -73,7 +72,7 @@ public final class NativeVerificationVisitor implements Visitor<AstNode>{
         String packageName = name.substring(0, pos);
         String className = Strings.cammelToPascalCase(name.substring( pos + 1));
         
-        SourceFile classFile = nativeTypes.get(packageName + "." + className);
+        SourceFile classFile = nativeTypes.get(packageName + "." + className).nativeCompiledFile();
         def =  (LenseTypeDefinition)asmReader.readNative(classFile);
 
         loadDependencies(def);
