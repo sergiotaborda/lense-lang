@@ -753,15 +753,15 @@ public abstract class LenseCompiler {
 				""");
 				
 				
-				for (var typeClass : type.getImplementedTypeClasses()) {
+				for (var typeClass : type.getSatisfiedTypeClasses()) {
 					builder.append("import ").append(typeClass.getName()).append(";\n");
 				}
 	
 				builder.append("public class ").append(name).append(" extends Type ");
 				
-				if (!type.getImplementedTypeClasses().isEmpty()) {
+				if (!type.getSatisfiedTypeClasses().isEmpty()) {
 					builder.append("  implements ");
-					var iterator = type.getImplementedTypeClasses().iterator();
+					var iterator = type.getSatisfiedTypeClasses().iterator();
 					while(iterator.hasNext()) {
 						var typeClass = iterator.next();
 						builder.append(typeClass.getSimpleName());

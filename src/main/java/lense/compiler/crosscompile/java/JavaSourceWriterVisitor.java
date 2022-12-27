@@ -72,6 +72,7 @@ import lense.compiler.ast.TernaryConditionalExpressionNode;
 import lense.compiler.ast.ThowNode;
 import lense.compiler.ast.TryStatement;
 import lense.compiler.ast.TypeNode;
+import lense.compiler.ast.TypeOfInvocation;
 import lense.compiler.ast.TypeParameterTypeResolverNode;
 import lense.compiler.ast.TypedNode;
 import lense.compiler.ast.VariableDeclarationNode;
@@ -1115,9 +1116,8 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 
                 }
                 return VisitorNext.Siblings;
-            } else if (node instanceof MethodInvocationNode) {
-                MethodInvocationNode n = (MethodInvocationNode) node;
-
+            } else if (node instanceof MethodInvocationNode n ) {
+       
                 if (n.isStaticInvocation()) {
                     writer.print(n.getTypeMember().getDeclaringType().getName());
                     writer.print(".");
@@ -1140,17 +1140,7 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
                 } else {
                     
                     final TypeDefinition type = n.getTypeVariable().getUpperBound().getTypeDefinition();
-                    // TODO should be resolve at errasure time
-//                    boolean needsCast = n.isIndexDerivedMethod() 
-//                            && !LenseTypeSystem.getInstance().isVoid(type) 
-//                            && !LenseTypeSystem.getInstance().isBoolean(type) 
-//                            && !LenseTypeSystem.getInstance().isAny(type);
-//                    
-//                    if (needsCast){
-//                     
-//                        writer.append("((").append(type.getName()).append(")");
-//                            
-//                    }
+
                     if (n.getAccess() != null) {
                         TreeTransverser.transverse(n.getAccess(), this);
                         writer.print(".");
@@ -1478,20 +1468,6 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 
                 writer.print(n.getOperation().symbol());
 
-            } else if (node instanceof ArithmeticNode) {
-                // TODO convert arithmetic to method call
-                // TODO convert foraeach of progression into a common foreach
-                ArithmeticNode n = (ArithmeticNode) node;
-
-                TreeTransverser.transverse(n.getLeft(), this);
-
-                writer.print(" ");
-                writer.print(n.getOperation().symbol());
-                writer.print(" ");
-
-                TreeTransverser.transverse(n.getRight(), this);
-
-                return VisitorNext.Siblings;
             } else if (node instanceof BooleanOperatorNode) {
                 BooleanOperatorNode n = (BooleanOperatorNode) node;
 
@@ -1941,6 +1917,12 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
                 }
                 writer.print(";\n");
 
+                return VisitorNext.Siblings;
+            } else if (node instanceof lense.compiler.ast.ReadTypeByNameNode read) {
+            	writer.print("((" + read.getTypeNode() + "$$Type)");
+            	writer.print("lense.core.lang.reflection.Type.forName(\"");
+                writeType(read.getTypeNode());
+                writer.println("\"))");
                 return VisitorNext.Siblings;
             }
 

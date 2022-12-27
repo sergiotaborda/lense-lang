@@ -10,7 +10,6 @@ import lense.core.lang.String;
 import lense.core.lang.java.Constructor;
 import lense.core.lang.java.Primitives;
 import lense.core.lang.java.ValueClass;
-import lense.core.lang.reflection.NativeType;
 import lense.core.lang.reflection.Type;
 
 @ValueClass

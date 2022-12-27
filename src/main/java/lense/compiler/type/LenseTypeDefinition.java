@@ -770,11 +770,11 @@ public class LenseTypeDefinition  implements TypeDefinition {
 	}
 
 	@Override
-	public List<TypeDefinition> getImplementedTypeClasses() {
+	public List<TypeDefinition> getSatisfiedTypeClasses() {
 		return this.typeClasses;
 	}
 
-	public void setImplementedTypeClasses(List<TypeDefinition> typeClasses) {
+	public void setStatisfiedTypeClasses(List<TypeDefinition> typeClasses) {
 		 this.typeClasses = typeClasses;
 	}
 

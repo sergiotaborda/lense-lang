@@ -85,7 +85,9 @@ public final class ReificationVisitor extends AbstractScopedVisitor {
 				
 				if (type.getTypeParameter().isFixed()) {
 					// read type by name
-					node.getParent().replace(node, new ReadTypeByNameNode(type, type.getTypeParameter().getTypeDefinition().getName()));
+					node.getParent().replace(node,
+							new ReadTypeByNameNode(type, type.getTypeParameter().getTypeDefinition().getName())
+					);
 				} else {
 					if (this.currentType.getKind().isEnhancement()) {
 						// look for paremeter in super

@@ -231,10 +231,12 @@ public final class NativeNumberFactory {
 			return Smaller.SMALLER;
 
 		} else if (a.isNegativeZero()) {
-			if (b.isNegative()){
-				return  Greater.GREATER;
+			if (b instanceof SignedNumber signed) {
+				if (signed.isNegative()){
+					return  Greater.GREATER;
+				}
+				return Smaller.SMALLER;
 			}
-			return Smaller.SMALLER;
 		} 
 		
 		return compareFloat(a, b.asFloat());

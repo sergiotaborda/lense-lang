@@ -23,4 +23,9 @@ public class TypeOfInvocation extends ExpressionNode  {
 	public TypeVariable getTypeVariable() {
 		return getTypeNode().getTypeVariable();
 	}
+	
+	
+	public String toString() {
+		return "typeOf(" + getTypeVariable().toString() + ")";
+	}
 }

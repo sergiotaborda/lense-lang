@@ -4,8 +4,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
+import lense.compiler.ast.ArithmeticOperation;
 import lense.compiler.type.variable.TypeVariable;
-import lense.compiler.typesystem.LenseTypeSystem;
 import lense.compiler.typesystem.TypeMatch;
 import lense.compiler.typesystem.Visibility;
 
@@ -90,6 +90,8 @@ public interface TypeAssistant {
     public Optional<IndexerProperty> getIndexerPropertyByTypeArray(TypeDefinition type, TypeVariable[] params);
 
 	public boolean isSuper(TypeDefinition candidate, TypeDefinition base);
+
+	public OperatorImplementationInfo operatorImplementation(TypeDefinition leftType, ArithmeticOperation operation, TypeDefinition rightType);
 
 
 

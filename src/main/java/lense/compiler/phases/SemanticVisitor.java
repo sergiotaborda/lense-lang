@@ -3826,8 +3826,12 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 		}
 	}
 
-	private void promoteArithmeticOperatorToMethodCall(ExpressionNode parent, ExpressionNode leftExpression,
-			ExpressionNode rightExpression, ArithmeticOperation operation) {
+	private void promoteArithmeticOperatorToMethodCall(
+			ExpressionNode parent,
+			ExpressionNode leftExpression,
+			ExpressionNode rightExpression,
+			ArithmeticOperation operation
+		) {
 
 		TypeVariable left = this.getSemanticContext().ensureNotFundamental(leftExpression.getTypeVariable());
 		TypeVariable right = this.getSemanticContext().ensureNotFundamental(rightExpression.getTypeVariable());
@@ -3877,8 +3881,10 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 				concat.setTypeVariable(left);
 
 				parent.getParent().replace(parent, concat);
-			} else if (operation == ArithmeticOperation.Division && leftExpression instanceof NumericValue
-					&& typeAssistant.isAssignableTo(right, LenseTypeSystem.Rational()).matches()) {
+			} else if (operation == ArithmeticOperation.Division 
+					&& leftExpression instanceof NumericValue
+					&& typeAssistant.isAssignableTo(right, LenseTypeSystem.Rational()).matches()
+				) {
 				// natural / rational
 
 				MethodSignature signature = new MethodSignature("invert");
@@ -3922,12 +3928,46 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 
 				}
 
-			} else if (operation == ArithmeticOperation.Division && rightExpression instanceof NumericValue
-					&& ((NumericValue) rightExpression).isOne()) {
+			} else if (operation == ArithmeticOperation.Division 
+					&& rightExpression instanceof NumericValue
+					&& ((NumericValue) rightExpression).isOne()
+				) {
+				
+				// numeric / 1 <=> numeric
 
 				parent.getParent().replace(parent, leftExpression);
 
+				
 			} else {
+				
+				
+				// verify type class 
+				var leftType = this.getSemanticContext().ensureNotFundamental(left.getTypeDefinition());
+				var rightType = this.getSemanticContext().ensureNotFundamental(right.getTypeDefinition());
+				
+				var operatorImplementationInfo = this.typeAssistant.operatorImplementation(leftType, operation, rightType);
+				
+				if (operatorImplementationInfo.typeClassImplementation().isPresent()) {
+					
+					// write instruction equivalent to: typeOf(typeClass).sum(left, right);
+					
+					var invokeOp = new MethodInvocationNode(new TypeOfInvocation(new TypeNode(operatorImplementationInfo.typeClassImplementation().get())), "sum",  
+							new ArgumentListItemNode(0, leftExpression),
+							new ArgumentListItemNode(1, rightExpression)
+					);
+				
+					TypeVariable t = operatorImplementationInfo.method().get().getReturningType();
+					if (t == null) {
+						throw new IllegalStateException("Type cannot be null");
+					}
+					invokeOp.setTypeVariable(t);
+					
+					parent.getParent().replace(parent, invokeOp);
+					return;
+					
+					//throw new CompilationError(parent, leftType + " does not satisfies " + operatorImplementationInfo.typeClassName());
+				}
+						
 				MethodSignature signature = new MethodSignature(operation.equivalentMethod(),
 						new MethodParameter(right, "text"));
 
@@ -3943,7 +3983,8 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 
 						if (operation == ArithmeticOperation.WrapMultiplication
 								|| operation == ArithmeticOperation.WrapAddition
-								|| operation == ArithmeticOperation.WrapSubtraction) {
+								|| operation == ArithmeticOperation.WrapSubtraction
+							) {
 
 							leftExpression = promote(parent, leftExpression, right, left);
 

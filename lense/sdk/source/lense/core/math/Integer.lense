@@ -1,4 +1,5 @@
 
+import lense.core.lang.Summable;
 import lense.core.math.Whole;
 import lense.core.math.Rational;
 import lense.core.math.Real;
@@ -8,8 +9,15 @@ import lense.core.math.SignedNumber;
 import lense.core.math.Progressable;
 import lense.core.math.Float;
 
-public interface Integer extends Whole , SignedNumber,  Ordinal<Integer>, Progressable<Integer>{
+public interface Integer 
+         extends Whole , SignedNumber,  Ordinal<Integer>, Progressable<Integer>
+         satisfies Summable<Integer, Whole, Integer>
+      {
 
+      public satisfy sum(a: Integer, b: Whole): Integer {
+         return a.plus(b);
+      }
+   
 		public implicit constructor  valueOf(other : Whole) {
 			return other.asInteger();
 		}

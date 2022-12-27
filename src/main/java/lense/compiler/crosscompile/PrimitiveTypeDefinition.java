@@ -214,7 +214,7 @@ public class PrimitiveTypeDefinition implements TypeDefinition {
 	}
 
 	@Override
-	public List<TypeDefinition> getImplementedTypeClasses() {
+	public List<TypeDefinition> getSatisfiedTypeClasses() {
 		return Collections.emptyList();
 	}
 

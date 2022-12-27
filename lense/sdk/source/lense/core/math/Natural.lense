@@ -1,4 +1,5 @@
 
+import lense.core.lang.Summable;
 import lense.core.math.Whole;
 import lense.core.math.Progressable;
 import lense.core.math.Integer;
@@ -9,9 +10,15 @@ import lense.core.lang.String;
 import lense.core.lang.Ordinal;
 import lense.core.lang.Boolean;
 
-public interface Natural extends Whole , Ordinal<Natural>, Progressable<Natural> , Comparable<Natural>{
+public interface Natural 
+      extends Whole , Ordinal<Natural>, Progressable<Natural> , Comparable<Natural>
+      satisfies Summable<Natural, Natural, Natural>
+   {
 
-
+     public satisfy sum(a: Natural, b: Natural): Natural {
+         return a.plus(b);
+      }
+   
 	public native constructor  parse(other : String);
 
 	public minus ( other: Natural)  : Integer;
