@@ -4,6 +4,7 @@ import lense.core.lang.Any;
 import lense.core.lang.HashValue;
 import lense.core.lang.String;
 import lense.core.lang.java.Constructor;
+import lense.core.lang.java.NativeString;
 import lense.core.lang.java.SingletonObject;
 
 
@@ -29,7 +30,7 @@ public final class Smaller extends Comparison{
 	
 	@Override
 	public String asString() {
-		return String.valueOfNative("SMALLLER");
+		return NativeString.valueOfNative("SMALLLER");
 	}
 
 

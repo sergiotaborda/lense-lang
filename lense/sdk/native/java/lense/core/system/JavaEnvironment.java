@@ -4,6 +4,7 @@ import lense.core.lang.Any;
 import lense.core.lang.HashValue;
 import lense.core.lang.String;
 import lense.core.lang.java.Base;
+import lense.core.lang.java.NativeString;
 
 class JavaEnvironment  extends Base implements Environment{
 
@@ -19,7 +20,7 @@ class JavaEnvironment  extends Base implements Environment{
 
 	@Override
 	public String asString() {
-		return String.valueOfNative("JavaEnvironment");
+		return NativeString.valueOfNative("JavaEnvironment");
 	}
 
 }

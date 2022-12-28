@@ -9,7 +9,7 @@ import lense.core.math.NativeNumberFactory;
 import lense.core.math.Natural;
 import lense.core.math.Natural64;
 
-public class PerformanceTests {
+public class NumericPerformanceTests {
 
 
 	@Test 

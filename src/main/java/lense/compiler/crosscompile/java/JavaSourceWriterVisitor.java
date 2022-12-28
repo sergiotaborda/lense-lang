@@ -195,7 +195,7 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 
                 return VisitorNext.Siblings;
             } else if (node instanceof StringValue) {
-                writer.append("lense.core.lang.String.valueOfNative(").append("\"")
+                writer.append("lense.core.lang.java.NativeString.valueOfNative(").append("\"")
                 .append(((StringValue) node).getValue()).append("\")");
             } else if (node instanceof BooleanValue) {
 
@@ -578,7 +578,7 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 
                 TypeVariable innerType = interval.getTypeVariable().getGenericParameters().get(0);
 
-                String reificationArgs = "lense.core.lang.reflection.JavaReifiedArguments.getInstance().addTypeByName(\""
+                String reificationArgs = "lense.core.lang.java.JavaReifiedArguments.getInstance().addTypeByName(\""
                         + innerType.getTypeDefinition().getName() + "\")";
                 writer.append("lense.core.math.Interval.constructor(").append(reificationArgs).append(",");
 
@@ -860,7 +860,7 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 
                     if (t.getProperty(JavalizePhase.AutoGenerateAsString, Boolean.class).orElse(false)) {
                         writer.append(
-                                "@Override public lense.core.lang.String asString() { return lense.core.lang.String.valueOfNative(\"")
+                                "@Override public lense.core.lang.String asString() { return lense.core.lang.java.NativeString.valueOfNative(\"")
                         .append(name).append("\");}").println();
                     }
 
@@ -1231,7 +1231,7 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
             	var deque = new LinkedList<AstNode>();
             	inlineStringConcatenation(s,deque);
 				
-                writer.print(" lense.core.lang.String.valueOfNative(");
+                writer.print(" lense.core.lang.java.NativeString.valueOfNative(");
 
                 boolean isFirst = true;
                 for (AstNode n : deque) {
@@ -1293,7 +1293,7 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
                 CaptureReifiedTypesNode capture = (CaptureReifiedTypesNode) node;
 
                 if (!capture.getChildren().isEmpty()) {
-                    writer.append("lense.core.lang.reflection.JavaReifiedArguments.getInstance()");
+                    writer.append("lense.core.lang.java.JavaReifiedArguments.getInstance()");
 
                     for (AstNode c : capture.getChildren()) {
 
@@ -2126,12 +2126,12 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
         //
         //
         // StringBuilder builder = new StringBuilder("new
-        // lense.core.lang.reflection.JavaReifiedArguments(");
+        // lense.core.lang.java.JavaReifiedArguments(");
         //
         // boolean hasTypes = false;
         // for (TypeVariable g : t.getTypeVariable().getGenericParameters()) {
         // if (g.getSymbol().isPresent()) {
-        // builder.append("lense.core.lang.reflection.JavaReifiedArguments.pair(").append(g.getSymbol().get()).append(",").append("null").append("),");
+        // builder.append("lense.core.lang.java.JavaReifiedArguments.pair(").append(g.getSymbol().get()).append(",").append("null").append("),");
         // // TODO generate Type
         // hasTypes = true;
         // }

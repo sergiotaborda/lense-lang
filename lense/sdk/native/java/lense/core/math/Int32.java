@@ -10,13 +10,13 @@ import lense.core.lang.AnyValue;
 import lense.core.lang.Binary;
 import lense.core.lang.HashValue;
 import lense.core.lang.java.Constructor;
+import lense.core.lang.java.NativeString;
 import lense.core.lang.java.NonNull;
 import lense.core.lang.java.PlatformSpecific;
 import lense.core.lang.java.Primitives;
 import lense.core.lang.java.Property;
 import lense.core.lang.java.Signature;
 import lense.core.lang.java.ValueClass;
-import lense.core.lang.reflection.NativeType;
 import lense.core.lang.reflection.Type;
 
 @Signature("::lense.core.math.Integer&lense.core.lang.Binary")
@@ -187,7 +187,7 @@ public final class Int32  implements Integer, Binary , BigIntegerConvertable, An
 	}
 
 	public final lense.core.lang.String asString(){
-		return lense.core.lang.String.valueOfNative(java.lang.Integer.toString(value)); 
+		return NativeString.valueOfNative(java.lang.Integer.toString(value)); 
 	}
 
 	@Override
@@ -341,7 +341,7 @@ public final class Int32  implements Integer, Binary , BigIntegerConvertable, An
 
 	public Integer wholeDivide (Integer other){
 		if (other.isZero()){
-			throw ArithmeticException.constructor(lense.core.lang.String.valueOfNative("Cannot divide by zero"));
+			throw ArithmeticException.constructor(NativeString.valueOfNative("Cannot divide by zero"));
 		}  
 
 		if (other.isOne()) {
@@ -551,7 +551,7 @@ public final class Int32  implements Integer, Binary , BigIntegerConvertable, An
 
 	public Integer remainder (Integer other){
 		if (other.isZero()){
-			throw ArithmeticException.constructor(lense.core.lang.String.valueOfNative("Cannot divide by zero"));
+			throw ArithmeticException.constructor(NativeString.valueOfNative("Cannot divide by zero"));
 		}  
 
 		if (other.isOne()) {
@@ -566,7 +566,7 @@ public final class Int32  implements Integer, Binary , BigIntegerConvertable, An
 	@Override
 	public Whole modulo(Whole other) {
 		if (other.isZero()){
-			throw ArithmeticException.constructor(lense.core.lang.String.valueOfNative("Cannot divide by zero"));
+			throw ArithmeticException.constructor(NativeString.valueOfNative("Cannot divide by zero"));
 		}  else if (other.isOne()) {
 			return this;
 		} 

@@ -8,6 +8,7 @@ import lense.core.lang.Maybe;
 import lense.core.lang.None;
 import lense.core.lang.String;
 import lense.core.lang.java.Base;
+import lense.core.lang.java.NativeString;
 import lense.core.lang.java.PlatformSpecific;
 import lense.core.math.Natural;
 import lense.core.math.Natural64;
@@ -52,7 +53,7 @@ public class EmptyAssociation extends Base implements Association {
 
 	@Override
 	public String asString() {
-		return String.valueOfNative("{}");
+		return NativeString.valueOfNative("{}");
 	}
 
 	@Override

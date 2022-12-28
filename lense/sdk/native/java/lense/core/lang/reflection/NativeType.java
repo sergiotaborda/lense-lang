@@ -9,6 +9,9 @@ import java.util.Set;
 import lense.core.collections.Array;
 import lense.core.collections.Sequence;
 import lense.core.lang.java.Constructor;
+import lense.core.lang.java.JavaReflectionMethod;
+import lense.core.lang.java.JavaReflectionProperty;
+import lense.core.lang.java.NativeString;
 
 public final class NativeType  extends Type {
 
@@ -27,7 +30,7 @@ public final class NativeType  extends Type {
 	
     @lense.core.lang.java.Property(name="name")
     public lense.core.lang.String  getName() {
-        return lense.core.lang.String.valueOfNative(instanceReflectionClass.getName());
+        return NativeString.valueOfNative(instanceReflectionClass.getName());
     }
     
     @lense.core.lang.java.Property(name="methods")

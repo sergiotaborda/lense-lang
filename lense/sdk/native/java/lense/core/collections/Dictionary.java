@@ -10,7 +10,8 @@ import lense.core.lang.None;
 import lense.core.lang.Some;
 import lense.core.lang.String;
 import lense.core.lang.java.Base;
-import lense.core.lang.reflection.JavaReifiedArguments;
+import lense.core.lang.java.JavaReifiedArguments;
+import lense.core.lang.java.NativeString;
 import lense.core.lang.reflection.ReifiedArguments;
 import lense.core.lang.reflection.TypeResolver;
 import lense.core.math.Natural;
@@ -51,7 +52,7 @@ public class Dictionary extends Base implements Association {
 
 	@Override
 	public String asString() {
-		return String.valueOfNative(map.toString());
+		return NativeString.valueOfNative(map.toString());
 	}
 
 	@Override

@@ -5,6 +5,7 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
+import lense.core.lang.java.NativeString;
 import lense.core.math.Int32;
 import lense.core.math.Int64;
 import lense.core.math.Integer;
@@ -33,13 +34,13 @@ public class TestWhole {
 //		assertEquals( Natural.valueOf(BigInteger.valueOf(Long.MAX_VALUE).add(BigInteger.valueOf(4))),  maxLong.plus(n));
 //		
 		
-		Whole w = Natural.parse(lense.core.lang.String.valueOfNative("345"));
+		Whole w = Natural.parse(NativeString.valueOfNative("345"));
 		
 		assertTrue( w instanceof Natural64);
 		
-		Whole maxULong = Natural.parse(lense.core.lang.String.valueOfNative("18446744073709551615"));
+		Whole maxULong = Natural.parse(NativeString.valueOfNative("18446744073709551615"));
 		
-		Whole maxULongPlus4 = Natural.parse(lense.core.lang.String.valueOfNative("18446744073709551619"));
+		Whole maxULongPlus4 = Natural.parse(NativeString.valueOfNative("18446744073709551619"));
 		
 		assertEquals( maxULongPlus4,  n.plus(maxULong));
 		assertEquals( maxULongPlus4,  maxULong.plus(n));

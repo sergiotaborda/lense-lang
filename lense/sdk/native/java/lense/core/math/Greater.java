@@ -4,6 +4,7 @@ import lense.core.lang.Any;
 import lense.core.lang.HashValue;
 import lense.core.lang.String;
 import lense.core.lang.java.Constructor;
+import lense.core.lang.java.NativeString;
 import lense.core.lang.java.SingletonObject;
 
 @SingletonObject
@@ -28,7 +29,7 @@ public final class Greater extends Comparison{
 	
 	@Override
 	public String asString() {
-		return String.valueOfNative("GREATER");
+		return NativeString.valueOfNative("GREATER");
 	}
 
 

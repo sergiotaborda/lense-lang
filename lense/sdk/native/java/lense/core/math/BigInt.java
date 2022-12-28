@@ -8,11 +8,11 @@ import lense.core.lang.Any;
 import lense.core.lang.AnyValue;
 import lense.core.lang.HashValue;
 import lense.core.lang.java.Constructor;
+import lense.core.lang.java.NativeString;
 import lense.core.lang.java.NonNull;
 import lense.core.lang.java.PlatformSpecific;
 import lense.core.lang.java.Primitives;
 import lense.core.lang.java.ValueClass;
-import lense.core.lang.reflection.NativeType;
 import lense.core.lang.reflection.Type;
 
 @ValueClass
@@ -139,7 +139,7 @@ public final class BigInt implements Integer , BigIntegerConvertable , AnyValue 
 	@Override
 	public Whole modulo(Whole other) {
 		if (other.isZero()){
-			throw ArithmeticException.constructor(lense.core.lang.String.valueOfNative("Cannot divide by zero"));
+			throw ArithmeticException.constructor(NativeString.valueOfNative("Cannot divide by zero"));
 		}  else if (other.isOne()) {
 			return this;
 		} 
@@ -196,7 +196,7 @@ public final class BigInt implements Integer , BigIntegerConvertable , AnyValue 
 	}
 
 	public lense.core.lang.String asString(){
-		return lense.core.lang.String.valueOfNative(value.toString());
+		return NativeString.valueOfNative(value.toString());
 	}
 
 	@Override

@@ -3,6 +3,7 @@ package lense.core.math;
 import lense.core.collections.Sequence;
 import lense.core.lang.Any;
 import lense.core.lang.String;
+import lense.core.lang.java.NativeString;
 import lense.core.lang.reflection.Type;
 
 //@Placeholder
@@ -24,7 +25,7 @@ public class Natural$$Type extends Type {
 
 	@Override
 	public String getName() {
-		return String.valueOfNative("lense.core.math.Natural$$Type");
+		return NativeString.valueOfNative("lense.core.math.Natural$$Type");
 	}
 
 	@Override

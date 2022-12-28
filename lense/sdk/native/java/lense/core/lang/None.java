@@ -2,6 +2,7 @@ package lense.core.lang;
 
 import lense.core.lang.java.Constructor;
 import lense.core.lang.java.MethodSignature;
+import lense.core.lang.java.NativeString;
 import lense.core.lang.java.Signature;
 import lense.core.lang.reflection.Type;
 import lense.core.lang.reflection.TypeResolver;
@@ -29,7 +30,7 @@ public class None extends Maybe {
 
 	@Override
 	public String asString() {
-		return String.valueOfNative("none");
+		return NativeString.valueOfNative("none");
 	}
 
 	@Override
