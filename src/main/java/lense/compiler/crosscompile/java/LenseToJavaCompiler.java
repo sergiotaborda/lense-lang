@@ -329,8 +329,8 @@ public class LenseToJavaCompiler extends LenseCompiler{
   		return nativeFiles.stream().map(it -> it.nativeCompiledFile()).map(target -> {
 			try {
 				return reader.readNative(target);
-			} catch (IOException e) {
-				throw new RuntimeException(e);
+			} catch (Exception e) {
+				throw new RuntimeException("Error reading " + target , e);
 			}
 		}).toList();
   		

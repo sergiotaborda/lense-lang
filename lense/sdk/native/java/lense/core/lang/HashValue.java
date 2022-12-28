@@ -13,19 +13,13 @@ public final class HashValue extends Base implements ExclusiveDijunctable, AnyVa
 
     private int code;
     
+    public static HashValue fromPrimitive(int value){
+        return new HashValue(value);
+    }
+    
     @Constructor(paramsSignature = "")
     public static HashValue constructor(){
         return new HashValue(0);
-    }
-    
-    @PlatformSpecific
-    public int hashCode(){
-        return code;
-    }
-    
-    @Override
-    public HashValue hashValue() {
-        return this;
     }
     
     public HashValue(int code) {
@@ -45,6 +39,25 @@ public final class HashValue extends Base implements ExclusiveDijunctable, AnyVa
         } else {
             throw new IllegalArgumentException("Cannot inject with a diferent class");
         }
+    }
+    
+    public java.lang.String toString() {
+    	return java.lang.String.valueOf(code);
+    }
+    
+	@Override
+	public boolean equalsTo(Any other) {
+		return other instanceof HashValue hash && this.code == hash.code; 
+	}
+	
+    @PlatformSpecific
+    public int hashCode(){
+        return code;
+    }
+    
+    @Override
+    public HashValue hashValue() {
+        return this;
     }
     
 }

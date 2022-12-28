@@ -5,8 +5,8 @@ import lense.core.collections.Sequence;
 import lense.core.lang.Boolean;
 import lense.core.math.Natural;
 
-public interface String 
-   extends Sequence<Character> 
+public native final class String 
+   implements Sequence<Character> 
    satisfies Concatenable<String, String, String> 
    {
 
@@ -15,15 +15,15 @@ public interface String
       return a.concat(b);
    }
    
-	public concat( other : String): String;
+	public native concat( other : String): String;
 
-	public indexOf( other : String) : Natural?;
+	public native indexOf( other : String) : Natural?;
 
-	public subString( start : Natural, length: Natural) : String;
-	public subString( start : Natural) : String;
+	public native subString( start : Natural, length: Natural) : String;
+	public native subString( start : Natural) : String;
 
-	public removeAt( position : Natural) : String;
+	public native removeAt( position : Natural) : String;
 
-	public starstWith( other : String ) : Boolean;
-	public endsWith( other : String ) : Boolean;
+	public native starstWith( other : String ) : Boolean;
+	public native endsWith( other : String ) : Boolean;
 } 

@@ -6,7 +6,8 @@ import lense.core.lang.Character;
 import lense.core.lang.String;
 import lense.core.math.Natural;
 
-public final class ConcatenatedString implements String {
+@PlatformSpecific
+public final class ConcatenatedString extends String {
 
 	
 	public static String newInstance(String a, String b) {
@@ -21,21 +22,13 @@ public final class ConcatenatedString implements String {
 	private final String start;
 	private final String end;
 	private final Natural length;
-	
+
 	private ConcatenatedString(String a, String b) {
 		start = a;
 		end = b;
 		length = a.getSize().plus(b.getSize());
 	}
-	
-	public boolean equals(Object other) {
-		return  other instanceof Any that && this.equalsTo(that);
-	}
-	
-	public int hashCode() {
-		return hashValue().hashCode();
-	}
-	
+
 	@Override
 	public String concat(String other) {
 		if (other.isEmpty()) {
@@ -83,28 +76,7 @@ public final class ConcatenatedString implements String {
 	
 	@Override
 	public Iterator getIterator() {
-		return new Iterator() {
-
-			boolean first = true;
-			Iterator iterator = start.getIterator();
-			@Override
-			public boolean moveNext() {
-				if (iterator.moveNext()) {
-					return true;
-				} else if (first) {
-					first = false;
-					iterator = end.getIterator();
-					return iterator.moveNext();
-				}
-				return false;
-			}
-
-			@Override
-			public Any current() {
-				return iterator.current();
-			}
-			
-		};
+		return ComposedIterator.iterate(start.getIterator()).then(end.getIterator());
 	}
 
 	@Override
@@ -141,7 +113,7 @@ public final class ConcatenatedString implements String {
 			return start.starstWith(other);
 		}
 	
-		return String.super.starstWith(other);
+		return super.starstWith(other);
 	}
 
 	@Override
@@ -150,7 +122,7 @@ public final class ConcatenatedString implements String {
 			return end.endsWith(other);
 		}
 		
-		return String.super.endsWith(other);
+		return super.endsWith(other);
 	}
 	
 }

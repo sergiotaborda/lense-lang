@@ -5,6 +5,7 @@ import lense.core.collections.Iterator;
 import lense.core.collections.NativeProgression;
 import lense.core.collections.Progression;
 import lense.core.collections.Sequence;
+import lense.core.lang.java.Base;
 import lense.core.lang.java.ConcatenatedString;
 import lense.core.lang.java.JavaReifiedArguments;
 import lense.core.lang.java.MethodSignature;
@@ -19,49 +20,61 @@ import lense.core.math.Natural;
 import lense.core.math.Natural64;
 
 @Signature("::lense.core.collections.Sequence<lense.core.lang.Character>&lense.core.lang.Concatenable<lense.core.lang.String,lense.core.lang.String,lense.core.lang.String>")
-public interface String extends Sequence , CharSequence, Concatenable {
+public abstract class String extends Base implements Sequence , CharSequence, Concatenable {
 
 
+	private HashValue hash;
+	
+	@Override
+	public HashValue hashValue() {
+		
+		if (hash == null) {
+			var code = 0; 
+			
+			var iterator = this.getIterator();
+			var index = 1;
+			var length = NativeNumberFactory.naturalToPrimitiveInt(this.getSize());
+			while(iterator.moveNext()) {
+				code = iterator.current().hashCode() * (int)Math.pow(31, length - index);
+				index++;
+			}
+			
+			hash = HashValue.fromPrimitive(code);
+		}
+		
+		return hash;
+	}
+	
+
+	public abstract java.lang.String toString();
+	
 	@Override
 	@Property(name = "size")
 	@MethodSignature(returnSignature = "lense.core.math.Natural", paramsSignature = "", declaringType = "lense.core.collections.Sequence")
-	public Natural getSize();
+	public abstract Natural getSize();
 
 	@Override
-	public default Iterator getIterator() {
-		return new Iterator() {
-			Iterator range = getIndexes().getIterator();
-			
-			@Override
-			public boolean moveNext() {
-				return range.moveNext();
-			}
-
-			@Override
-			public Any current() {
-				return get((Natural)range.current());
-			}
-			
-		};
+	public Iterator getIterator() {
+		return getIndexes().getIterator().map(it ->  get((Natural)it));
 	}
 	@Override
-	public lense.core.lang.Character get(Natural index);
+	public abstract lense.core.lang.Character get(Natural index);
 
 	@Override
-	public default Progression getIndexes(){
+	public Progression getIndexes(){
 		return new NativeProgression(0, this.length() - 1);
 	}
 	
 	@Override
-	public default String asString() {
+	public String asString() {
 		return this;
 	}
 
 	@Override
-	public boolean contains(Any other);
+	public abstract boolean contains(Any other);
 	
 	@Override
-	public default boolean containsAll(Assortment other) {
+	public boolean containsAll(Assortment other) {
 		if (other.getEmpty()) {
 			return true; // empty set is contained in any set
 		}
@@ -75,11 +88,11 @@ public interface String extends Sequence , CharSequence, Concatenable {
 	}
 
 	@Override
-	public boolean getEmpty();
+	public abstract boolean getEmpty();
 
 
 	@Override
-	public default boolean equalsTo(Any other) {
+	public boolean equalsTo(Any other) {
 		if (this instanceof NativeString thisString && other instanceof NativeString nativeOther) {
 			return thisString.equalsNative(nativeOther);
 		} else if (other instanceof String that) {
@@ -106,20 +119,14 @@ public interface String extends Sequence , CharSequence, Concatenable {
 		return true;
 	}
 	
-
-	@Override
-	public default HashValue hashValue() {
-		return new HashValue(this.toString().hashCode());
-	}
-
-	public String concat(String other);
+	public abstract String concat(String other);
 	
 	@PlatformSpecific
-	public default String concat(java.lang.String other) {
+	public String concat(java.lang.String other) {
 		return concat(NativeString.valueOfNative(other));
 	}
 	
-	public default String concat(Any other) {
+	public String concat(Any other) {
 		if (other == null){
 			throw new IllegalArgumentException("argument cannot be null");
 		}
@@ -130,29 +137,29 @@ public interface String extends Sequence , CharSequence, Concatenable {
 	}
    
 	@Override
-	public default Type type() {
+	public Type type() {
 		 return NativeString.TYPE_RESOLVER.resolveType();
 	}
 	
 
 	@Override
-	public default int length() {
+	public int length() {
 		return NativeNumberFactory.toPrimitiveInt(getSize());
 	}
 
 	
 	@Override
-	public default char charAt(int index) {
+	public char charAt(int index) {
 		return get(NativeNumberFactory.newNatural(index)).toPrimitiveChar();
 	}
 
 	@Override
-	public default CharSequence subSequence(int start, int end) {
+	public CharSequence subSequence(int start, int end) {
 		// TODO validate pre conditions
 		return subString(NativeNumberFactory.newNatural(start), NativeNumberFactory.newNatural(end - start));
 	}
 	
-	public default String removeAt(Natural position) {
+	public String removeAt(Natural position) {
 		if (position.isZero() || position.compareWith(this.getSize()).isGreater()) {
 			return this;
 		}
@@ -163,7 +170,7 @@ public interface String extends Sequence , CharSequence, Concatenable {
 	}
 	
 	@MethodSignature(returnSignature = "lense.core.lang.Maybe<lense.core.math.Natural>" , paramsSignature = "lense.core.lang.String")
-	public default Maybe indexOf(String candidate){
+	public Maybe indexOf(String candidate){
 		if (this.isEmpty()) {
 			if (candidate.isEmpty()) {
 				return Some.constructor(JavaReifiedArguments.getInstance().addType(NativeNumberFactory.NATURAL_TYPE_RESOLVER), Natural64.ZERO);
@@ -186,25 +193,25 @@ public interface String extends Sequence , CharSequence, Concatenable {
 		return None.NONE;
 	}
 	
-	public default String subString(Natural start, Natural length) {
+	public String subString(Natural start, Natural length) {
 		return new SubstringView(this, start, length);
 	}
 	
-	public default String subString(Natural start) {
+	public String subString(Natural start) {
 		return new SubstringView(this, start, this.getSize().minus(start).abs());
 	}
-
-	public default boolean starstWith(String other) {
+	
+	public boolean starstWith(String other) {
 		return indexOf(other).valueEqualsTo(Natural64.ZERO);
 	}
 	
-	public default boolean endsWith(String other ) {
+	public boolean endsWith(String other ) {
 		return indexOf(other).valueEqualsTo(this.getSize().minus(other.getSize()).abs());
 	}
 	
 	@Override
 	@lense.core.lang.java.MethodSignature( returnSignature = "lense.core.lang.String" , paramsSignature = "lense.core.lang.String,lense.core.lang.String" , override = true , satisfy = true, declaringType = "lense.core.lang.Concatenable")
-	public default Any concatenate(Any a, Any b){
+	public  Any concatenate(Any a, Any b){
 		return ((lense.core.lang.String)a).concat(((lense.core.lang.String)b));
 	}
 }

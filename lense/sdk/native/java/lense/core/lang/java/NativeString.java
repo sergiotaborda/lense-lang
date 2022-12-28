@@ -2,7 +2,6 @@ package lense.core.lang.java;
 
 import lense.core.lang.Any;
 import lense.core.lang.Character;
-import lense.core.lang.HashValue;
 import lense.core.lang.Maybe;
 import lense.core.lang.None;
 import lense.core.lang.Some;
@@ -13,12 +12,12 @@ import lense.core.math.NativeNumberFactory;
 import lense.core.math.Natural;
 import lense.core.math.Natural64;
 
-public class NativeString implements String {
+public final class NativeString extends String {
 
 	public static final String EMPTY = new EmptyString();
 	public static final TypeResolver TYPE_RESOLVER = TypeResolver.lazy(() -> Type.forClass(String.class));
 	
-	private java.lang.String str;
+	private final java.lang.String str;
 	
 	public static String valueOfNative(java.lang.String str){
 		if (str.isEmpty()) {
@@ -75,20 +74,6 @@ public class NativeString implements String {
 		return str.isEmpty();
 	}
 
-	public boolean equals(Object other) {
-		return  other instanceof Any that && this.equalsTo(that);
-	}
-	
-	public int hashCode() {
-		return hashValue().hashCode();
-	}
-	
-	@Override
-	public HashValue hashValue() {
-		return new HashValue(this.str.hashCode());
-	}
-	
-
 	@Override
 	public String concat(String other) {
 		return ConcatenatedString.newInstance(this, other);
@@ -130,7 +115,7 @@ public class NativeString implements String {
 			return Some.constructor(JavaReifiedArguments.getInstance().addType(NativeNumberFactory.NATURAL_TYPE_RESOLVER), Natural64.valueOfNative(pos));
 		}
 		
-		return String.super.indexOf(candidate);	
+		return super.indexOf(candidate);	
 	}
 
 	@Override
@@ -138,7 +123,7 @@ public class NativeString implements String {
 		if (other instanceof NativeString nativeString ) {
 			return str.startsWith(nativeString.str);
 		}
-		return indexOf(other).valueEqualsTo(Natural64.ZERO);
+		return super.starstWith(other);
 	}
 
 	@Override
@@ -146,7 +131,7 @@ public class NativeString implements String {
 		if (other instanceof NativeString nativeString ) {
 			return str.endsWith(nativeString.str);
 		}
-		return indexOf(other).valueEqualsTo(this.getSize().minus(other.getSize()).abs());
+		return super.endsWith(other);
 	}
 
 }

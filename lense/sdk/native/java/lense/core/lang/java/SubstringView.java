@@ -6,9 +6,7 @@ import lense.core.lang.String;
 import lense.core.math.NativeNumberFactory;
 import lense.core.math.Natural;
 
-public class SubstringView implements String {
-
-
+public final class SubstringView extends String {
 
 	private final String original;
 	private final Natural start;
@@ -20,20 +18,13 @@ public class SubstringView implements String {
 		this.length = length;
 	}
 	
-	public boolean equals(Object other) {
-		return  other instanceof Any that && this.equalsTo(that);
-	}
-	
-	public int hashCode() {
-		return hashValue().hashCode();
-	}
-	
 	public java.lang.String toString() {
 		return original.toString().substring(
 				NativeNumberFactory.toPrimitiveInt(start),
 				NativeNumberFactory.toPrimitiveInt(start.plus(length))
 		);
 	}
+	
 
 	@Override
 	public Natural getSize() {
@@ -77,7 +68,7 @@ public class SubstringView implements String {
 			return false;
 		}
 		
-		return String.super.starstWith(other);
+		return super.starstWith(other);
 	}
 
 	@Override
@@ -86,7 +77,7 @@ public class SubstringView implements String {
 			return false;
 		}
 		
-		return String.super.endsWith(other);
+		return super.endsWith(other);
 	}
 
 }

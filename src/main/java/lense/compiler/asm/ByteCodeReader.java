@@ -6,8 +6,6 @@ import static org.objectweb.asm.Opcodes.ACC_INTERFACE;
 import static org.objectweb.asm.Opcodes.ACC_STATIC;
 import static org.objectweb.asm.Opcodes.ASM5;
 
-import java.util.Optional;
-
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
@@ -15,13 +13,7 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
 import lense.compiler.repository.UpdatableTypeRepository;
-import lense.compiler.type.LenseTypeDefinition;
 import lense.compiler.type.LenseUnitKind;
-import lense.compiler.type.variable.RangeTypeVariable;
-import lense.compiler.type.variable.TypeVariable;
-import lense.compiler.typesystem.LenseTypeSystem;
-import lense.compiler.typesystem.TypeSearchParameters;
-import lense.compiler.typesystem.Variance;
 import lense.compiler.typesystem.Visibility;
 
 public class ByteCodeReader extends ClassVisitor {
