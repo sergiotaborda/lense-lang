@@ -71,6 +71,7 @@ public class TestStringOperations {
 	@Test
 	public void testHashCode() {
 		for (var a : strings) {
+			assertEquals(a.toString().hashCode(), a.hashValue().hashCode(), a + " is not equal to native hash code ");
 			for (var b : strings) {
 				assertEquals(a.hashValue(), b.hashValue(), a.getClass() + " is not equal to " + b.getClass());
 			}

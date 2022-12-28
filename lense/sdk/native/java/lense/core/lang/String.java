@@ -29,14 +29,12 @@ public abstract class String extends Base implements Sequence , CharSequence, Co
 	public HashValue hashValue() {
 		
 		if (hash == null) {
+			var iterator = this.getIterator();
 			var code = 0; 
 			
-			var iterator = this.getIterator();
-			var index = 1;
-			var length = NativeNumberFactory.naturalToPrimitiveInt(this.getSize());
 			while(iterator.moveNext()) {
-				code = iterator.current().hashCode() * (int)Math.pow(31, length - index);
-				index++;
+				// use same formula as java
+				code =  code * 31 + iterator.current().hashCode();
 			}
 			
 			hash = HashValue.fromPrimitive(code);
