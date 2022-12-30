@@ -77,7 +77,7 @@ public class TestStringOperations {
 			}
 		}
 		
-		assertEquals(NativeString.EMPTY.hashValue(), NativeString.valueOfNative("a").removeAt(Natural64.ZERO).hashValue(),"Emoty is not consistent");
+		assertEquals(NativeString.EMPTY.hashValue(), NativeString.valueOfNative("a").removeAt(Natural64.ZERO).hashValue(),"Empty is not consistent");
 	}
 
 }
