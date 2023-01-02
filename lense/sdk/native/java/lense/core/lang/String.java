@@ -45,6 +45,9 @@ public abstract class String extends Base implements Sequence , CharSequence, Co
 		return hash;
 	}
 	
+	public boolean equalsNative(java.lang.String nativeString) {
+		return this.toString().equals(nativeString);
+	}
 
 	public abstract java.lang.String toString();
 	

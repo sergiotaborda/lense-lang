@@ -158,7 +158,10 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 	@Override
 	public VisitorNext visitBeforeChildren(AstNode node) {
 		try {
-			if (node instanceof ReadThisType read) {
+			
+			if (node instanceof PrimitiveStringNode primitiveString) {
+				writer.append("\"").append(primitiveString.getLiteralValue()).append("\"");
+			} else if (node instanceof ReadThisType read) {
 				if (read.getKind().isEnhancement()) {
 					writer.print(EnhancementVisitor.ENHANCED_OBJECT);
 					writer.print(".type()");

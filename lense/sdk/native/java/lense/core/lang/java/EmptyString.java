@@ -56,4 +56,10 @@ public final class EmptyString extends String {
 	public java.lang.String toString() {
 		return "";
 	}
+
+	
+	@Override
+	public boolean equalsNative(java.lang.String nativeString) {
+		return nativeString.isEmpty();
+	}
 }

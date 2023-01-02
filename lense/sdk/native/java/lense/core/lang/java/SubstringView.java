@@ -80,4 +80,6 @@ public final class SubstringView extends String {
 		return super.endsWith(other);
 	}
 
+
+
 }

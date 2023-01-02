@@ -124,5 +124,7 @@ public final class ConcatenatedString extends String {
 		
 		return super.endsWith(other);
 	}
+
+
 	
 }

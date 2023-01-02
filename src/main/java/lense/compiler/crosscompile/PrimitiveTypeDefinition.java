@@ -7,13 +7,7 @@ import java.util.Optional;
 import java.util.function.Function;
 
 import lense.compiler.crosscompile.java.JavaTypeKind;
-import lense.compiler.type.Constructor;
-import lense.compiler.type.ConstructorParameter;
 import lense.compiler.type.Field;
-import lense.compiler.type.IndexerProperty;
-import lense.compiler.type.Match;
-import lense.compiler.type.Method;
-import lense.compiler.type.MethodSignature;
 import lense.compiler.type.Property;
 import lense.compiler.type.TypeAssistant;
 import lense.compiler.type.TypeDefinition;
@@ -29,6 +23,7 @@ public class PrimitiveTypeDefinition implements TypeDefinition {
 	public static final PrimitiveTypeDefinition CHAR = new PrimitiveTypeDefinition("char", "Character");
 	public static final PrimitiveTypeDefinition INT = new PrimitiveTypeDefinition("int", "Int32");
 	public static final PrimitiveTypeDefinition LONG = new PrimitiveTypeDefinition("long", "Int64");
+	public static final PrimitiveTypeDefinition STRING = new PrimitiveTypeDefinition("java.lang.String", "String	");
 	
 	private String name;
 	private String wrapperName;

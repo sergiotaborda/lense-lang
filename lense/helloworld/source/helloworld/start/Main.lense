@@ -385,10 +385,23 @@ public class Main extends ConsoleApplication {
 		assert ( b == (a + 4) , "18446744073709551615 + 4 is not 18446744073709551619 is {{ a + 4 }}" );
 		
 	}
+	
+	private demoStringComparison(){
+	   
+	   mutable let comparison = "abc" == "abc";
+	   assert(comparison);
+	   
+	   let a = "abc";
+	   comparison = a == "abc";
+      assert(comparison);
+	}
 
   	public override onStart()  {
 
   	 	console.println("Begin " ++ this.type().name); 
+
+
+      demoStringComparison();
 
 		demoTypeClassEnhancement();
 	
