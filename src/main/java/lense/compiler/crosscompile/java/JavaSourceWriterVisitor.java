@@ -167,6 +167,14 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
         		}
         		
         		return VisitorNext.Siblings;
+        	} else if (node instanceof lense.compiler.ast.ReadTypeByNameNode read) {
+            	writer.print("((");
+            	writeType(read.getTypeNode());
+            	writer.print("$$Type)");
+            	writer.print("lense.core.lang.reflection.Type.forName(\"");
+                writeType(read.getTypeNode());
+                writer.println("\"))");
+                return VisitorNext.Siblings;
         	} else if (node instanceof NoneValue) {
                 writer.print("lense.core.lang.None.NONE");
             } else if (node instanceof ThowNode) {
@@ -1918,13 +1926,7 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
                 writer.print(";\n");
 
                 return VisitorNext.Siblings;
-            } else if (node instanceof lense.compiler.ast.ReadTypeByNameNode read) {
-            	writer.print("((" + read.getTypeNode() + "$$Type)");
-            	writer.print("lense.core.lang.reflection.Type.forName(\"");
-                writeType(read.getTypeNode());
-                writer.println("\"))");
-                return VisitorNext.Siblings;
-            }
+            } 
 
             return VisitorNext.Children;
         } finally {

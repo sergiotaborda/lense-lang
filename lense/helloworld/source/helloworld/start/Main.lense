@@ -422,6 +422,13 @@ public class Main extends ConsoleApplication {
 		let interval2 : Interval<Integer> = |[ -2, 19 )|; // TODO better promotions
 
 		console.println(interval2);
+		
+		let integer = - 3;
+		let natural = 2;
+		
+		let c = natural + integer;
+		
+		assert( -1 == c);
 
 		let a  = interval2.start;
 		let b  = interval2.end;
@@ -430,7 +437,7 @@ public class Main extends ConsoleApplication {
   	 	
   	 	let cx = 3 + 4i;
 
-  	    let r = cx.abs();
+  	   let r = cx.abs();
   	 
   	 	console.println("Complex is : {{ cx }} with magnitude :{{ r }} "); 
   	 

@@ -53,29 +53,7 @@ public class ByteCodeReader extends ClassVisitor {
 		return null;
 
 	}
-//
-//	LenseTypeDefinition resolveTypeByNameAndKind(String name, lense.compiler.type.TypeKind kind, int genericsCount) {
-//
-//		TypeSearchParameters params = new TypeSearchParameters(name, genericsCount);
-//
-//		Optional<LenseTypeDefinition> existingType = this.typeContainer.resolveType(params)
-//				.map(t -> (LenseTypeDefinition) t);
-//		if (!existingType.isPresent()) {
-//			TypeVariable[] generics = new TypeVariable[genericsCount];
-//			for (int i = 0; i < generics.length; i++) {
-//				generics[i] = new RangeTypeVariable(Optional.empty(), Variance.Invariant, LenseTypeSystem.Any(),
-//						LenseTypeSystem.Nothing());
-//			}
-//			LoadedLenseTypeDefinition type = new LoadedLenseTypeDefinition(name, kind, null, generics);
-//
-//			this.typeContainer.registerType(type, genericsCount);
-//
-//			return type;
-//
-//		} else {
-//			return existingType.get();
-//		}
-//	}
+
 
 	public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
 		
@@ -192,6 +170,8 @@ public class ByteCodeReader extends ClassVisitor {
 				loadedClassBuilder.setCaseValues(value.toString());
 			} else if ("caseTypes".equals(name)) {
 				loadedClassBuilder.setCaseTypes(value.toString());
+			} else if ("isFinal".equals(name)) {
+				loadedClassBuilder.setIsFinalOverride(true);
 			}
 		}
 

@@ -222,5 +222,23 @@ public class TestFragments {
 				""");
 		       
 	}
+	
+	@Test 
+	public void testStringIsFinal() {
+		
+		assertThrows(CompilationError.class, () -> compiler.compileUnit("""
+				package test;
+				
+				import lense.core.lang.String;
+				
+			    public abstract class NewString extends String  {
+
+					
+				}
+
+				"""
+		));
+		       
+	}
 
 }

@@ -26,13 +26,11 @@ import compiler.CompilerMessage;
 import compiler.lexer.ScanPositionHolder;
 import compiler.parser.IdentifierNode;
 import compiler.parser.NameIdentifierNode;
-import compiler.parser.nodes.NumericNode;
 import compiler.syntax.AstNode;
 import compiler.trees.TreeTransverser;
 import compiler.trees.VisitorNext;
 import lense.compiler.CompilationError;
 import lense.compiler.JuxpositionNode;
-import lense.compiler.LenseNumberLiteralTokenState;
 import lense.compiler.LenseNumericBoundsSpecification;
 import lense.compiler.TypeAlreadyDefinedException;
 import lense.compiler.TypeMembersNotLoadedError;
@@ -706,7 +704,7 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 			if (superTypeNode != null) {
 
 				if (superTypeNode.getName().equals(myType.getName())) {
-					throw new CompilationError(t, "Type cannot inherit from it self");
+					throw new CompilationError(t, "Type cannot inherit from itself");
 				}
 
 				superType = this.getSemanticContext().typeForName(superTypeNode).getTypeDefinition();
@@ -715,6 +713,12 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 					throw new CompilationError(t,
 							"Value classes cannot inherit from other types. They can only implement interfaces");
 				}
+				
+				if (superType.isFinal()) {
+					throw new CompilationError(t,
+							"Final type " +  superType.getName() + " cannot be inherit by other types.");
+				}
+				
 				
 				checkAccess(superType);
 
@@ -3941,35 +3945,7 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 			} else {
 				
 				
-				// verify type class 
-				var leftType = this.getSemanticContext().ensureNotFundamental(left.getTypeDefinition());
-				var rightType = this.getSemanticContext().ensureNotFundamental(right.getTypeDefinition());
-				
-				var operatorImplementationInfo = this.typeAssistant.operatorImplementation(leftType, operation, rightType);
-				
-				if (operatorImplementationInfo.typeClassImplementation().isPresent()) {
-					
-					// write instruction equivalent to: typeOf(typeClass).sum(left, right);
-					
-					var invokeOp = new MethodInvocationNode(new TypeOfInvocation(new TypeNode(operatorImplementationInfo.typeClassImplementation().get())), "sum",  
-							new ArgumentListItemNode(0, leftExpression),
-							new ArgumentListItemNode(1, rightExpression)
-					);
-				
-					TypeVariable t = operatorImplementationInfo.method().get().getReturningType();
-					if (t == null) {
-						throw new IllegalStateException("Type cannot be null");
-					}
-					invokeOp.setTypeVariable(t);
-					
-					parent.getParent().replace(parent, invokeOp);
-					return;
-					
-					//throw new CompilationError(parent, leftType + " does not satisfies " + operatorImplementationInfo.typeClassName());
-				}
-						
-				MethodSignature signature = new MethodSignature(operation.equivalentMethod(),
-						new MethodParameter(right, "text"));
+				MethodSignature signature = new MethodSignature(operation.equivalentMethod(),new MethodParameter(right, "operand"));
 
 				Optional<Method> method = typeAssistant.getMethodBySignature(type,signature);
 
@@ -4001,7 +3977,48 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 						}
 
 						if (!method.isPresent()) {
-							// search static operator
+						
+							// verify type class 
+							var leftType = this.getSemanticContext().ensureNotFundamental(left.getTypeDefinition());
+							var rightType = this.getSemanticContext().ensureNotFundamental(right.getTypeDefinition());
+							
+							MethodSignature binarySignature = new MethodSignature(operation.equivalentMethod(),
+									new MethodParameter(leftType),
+									new MethodParameter(rightType)
+								);
+
+							Optional<Method> binaryMethod = typeAssistant.getMethodBySignature(leftType,binarySignature);
+
+							if (!binaryMethod.isPresent()) {
+
+								binaryMethod = typeAssistant.getMethodByPromotableSignature(leftType,binarySignature);
+
+							}
+							
+							//var operatorImplementationInfo = this.typeAssistant.operatorImplementation(leftType, operation, rightType);
+							
+							if (binaryMethod.isPresent()) {
+								
+								// write instruction equivalent to: typeOf(typeClass).sum(left, right);
+								
+								var invokeOp = new MethodInvocationNode(new TypeOfInvocation(new TypeNode(leftType)),binaryMethod.get().getName(),  
+										new ArgumentListItemNode(0, leftExpression),
+										new ArgumentListItemNode(1, rightExpression)
+								);
+							
+								TypeVariable t = binaryMethod.get().getReturningType();
+								if (t == null) {
+									throw new IllegalStateException("Type cannot be null");
+								}
+								invokeOp.setTypeVariable(t);
+								
+								parent.getParent().replace(parent, invokeOp);
+								return;
+								
+								//throw new CompilationError(parent, leftType + " does not satisfies " + operatorImplementationInfo.typeClassName());
+							}
+									
+							
 							throw new CompilationError(parent, "Method " + operation.equivalentMethod() + "(" + right
 									+ ") is not defined in " + left);
 						}
