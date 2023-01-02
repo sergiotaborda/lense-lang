@@ -58,6 +58,14 @@ public final class NativeNumberFactory {
         return ImaginaryOverReal.valueOf(Rational.valueOf(newInteger(nativeValue)));
     }
 
+    public static Integer integerZero() {
+        return Int32.ZERO;
+    }
+
+    public static Integer integerOne() {
+        return Int32.ONE;
+    }
+    
     public static Integer newInteger(long nativeValue) {
         return Int64.valueOfNative(nativeValue);
     }
