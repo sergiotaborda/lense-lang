@@ -23,7 +23,7 @@ public class Base implements Any{
 	}
 	
 	public lense.core.lang.String asString(){
-		return lense.core.lang.String.valueOfNative(super.toString());
+		return lense.core.lang.java.NativeString.valueOfNative(super.toString());
 	}
 
 	@Override
@@ -38,6 +38,6 @@ public class Base implements Any{
 
     @Override
     public Type type() {
-        return new Type(this.getClass());
+        return Type.forClass(this.getClass());
     }
 }

@@ -21,11 +21,14 @@ import lense.compiler.typesystem.Visibility;
 public class ClassTypeNode extends AnnotadedLenseAstNode implements ScopeDelimiter{
 
 	private LenseUnitKind kind;
-	private String name;
+	private String packageName;
+	private String simpleName;
+	
 	private ClassBodyNode body;
 	private TypeNode superType;
 	private TypeParametersListNode parametricTypesNode;
 	private ImplementedInterfacesNode interfaces;
+	private StatisfiedTypeClassesNode satisfiedTypeClasses;
 	
 	private Set<Import> imports = new LinkedHashSet<Import>();
 	private SemanticContext semanticContext;
@@ -44,7 +47,9 @@ public class ClassTypeNode extends AnnotadedLenseAstNode implements ScopeDelimit
     private boolean isAsStringDefined;
     private boolean isHashValueDefined;
     private boolean isEqualsToDefined;
+	private GivenGenericConstraintList givens;
 
+	
 	
 	public ClassTypeNode (LenseUnitKind kind){
 		this.kind = kind;
@@ -54,7 +59,7 @@ public class ClassTypeNode extends AnnotadedLenseAstNode implements ScopeDelimit
 	 * @param import1
 	 */
 	public void addImport(Import imp) {
-		if (!imp.getTypeName().toString().equals(this.name)){
+		if (!imp.getTypeName().toString().equals(this.getFullname())){
 			imports.add(imp);
 		}		
 	}
@@ -70,13 +75,26 @@ public class ClassTypeNode extends AnnotadedLenseAstNode implements ScopeDelimit
 	public LenseUnitKind getKind(){
 		return kind;
 	}
-	public String getName() {
-		return name;
+	
+	public String getFullname() {
+		if (this.packageName == null) {
+			return simpleName;
+		}
+		
+		return packageName + "." + simpleName;
+	}
+	
+	public String getPackageName() {
+		return packageName;
+	}
+	
+	public String getSimpleName() {
+		return simpleName;
 	}
 
 	
-	public void setName(String name) {
-		this.name = name;
+	public void setSimpleName(String name) {
+		this.simpleName = name;
 	}
 
 	public ClassBodyNode getBody() {
@@ -184,32 +202,12 @@ public class ClassTypeNode extends AnnotadedLenseAstNode implements ScopeDelimit
 		this.isNative = isNative;
 	}
 
-	public boolean isExplicitlyImmutable() {
+	public boolean isImmutable() {
 		return isImmutable;
 	}
 
-	public void setExplicitlyImmutable(boolean isImmutable) {
+	public void setImmutable(boolean isImmutable) {
 		this.isImmutable = isImmutable;
-	}
-	
-	public boolean isImmutable() {
-		return isImmutable && this.isValueClass();
-	}
-	
-	public String getPackageName() {
-		int pos = name.lastIndexOf('.');
-		if (pos >0){
-			return name.substring(0, pos);
-		}
-		return "";
-	}
-	
-	public String getSimpleName() {
-		int pos = name.lastIndexOf('.');
-		if (pos >0){
-			return name.substring(pos+1);
-		}
-		return name;
 	}
 
 	public boolean isAbstract() {
@@ -292,7 +290,28 @@ public class ClassTypeNode extends AnnotadedLenseAstNode implements ScopeDelimit
         return isEqualsToDefined;
     }
 
+	
+    public void setPackageName(String packageName) {
+		this.packageName = packageName;
+	}
 
+	public void setGivens(GivenGenericConstraintList givens) {
+		this.givens = givens;
+		this.add(givens);
+	}
+	
+	public GivenGenericConstraintList getGivens(){
+		return givens;
+	}
+
+	public StatisfiedTypeClassesNode getSatisfiedTypeClasses() {
+		return satisfiedTypeClasses;
+	}
+
+	public void setSatisfiedTypeClasses(StatisfiedTypeClassesNode satisfiedTypeClasses) {
+		this.satisfiedTypeClasses = satisfiedTypeClasses;
+		this.add(satisfiedTypeClasses);
+	}
 
 
 

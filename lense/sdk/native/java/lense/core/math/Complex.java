@@ -1,17 +1,14 @@
 package lense.core.math;
 
-import lense.core.lang.java.Constructor;
-import lense.core.lang.java.NotReplacedPlaceholderException;
+import lense.core.lang.java.Property;
 
 public interface Complex extends Number {
 
-	@Constructor(paramsSignature = "lense.core.math.Real, lense.core.math.Real")
-	public static Complex rectangular(Real r, Real img){
-		throw new NotReplacedPlaceholderException();
-	}
-	
+
+	@Property(name = "real")
 	public Real getReal();
 
+	@Property(name = "imaginary")
 	public Real getImaginary();
 
 	

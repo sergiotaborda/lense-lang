@@ -3,17 +3,15 @@
  */
 package lense.compiler.crosscompile.java;
 
-import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
 import compiler.CompiledUnit;
 import compiler.CompilerBackEnd;
+import compiler.filesystem.SourceFile;
+import compiler.filesystem.SourceFolder;
 import compiler.syntax.AstNode;
 import compiler.trees.TreeTransverser;
 import lense.compiler.FileLocations;
@@ -45,15 +43,15 @@ public final class OutToJavaSource implements CompilerBackEnd {
 	}
 
 
-	protected List<File> toSource(CompiledUnit unit) {
+	protected List<SourceFile> toSource(CompiledUnit unit) {
 
-		List<File> files = new LinkedList<>();
+		List<SourceFile> files = new LinkedList<>();
 
 		for (AstNode node : unit.getAstRootNode().getChildren()) {
 
-			File target = out.getTargetFolder();
-			File compiled = target;
-			if (target.isDirectory()){
+			var target = out.getTargetFolder();
+			SourceFile  compiled = null;
+			if (target.isFolder()){
 
 				if (!(node instanceof ClassTypeNode)){
 					continue;
@@ -64,7 +62,7 @@ public final class OutToJavaSource implements CompilerBackEnd {
 					continue;
 				}
 
-				String[] names = Strings.split(t.getName(), ".");
+				String[] names = Strings.split(t.getFullname(), ".");
 				
 				if (t.getKind().isObject()) {
 					names[names.length -1 ] = Strings.cammelToPascalCase(names[names.length - 1]);
@@ -73,33 +71,28 @@ public final class OutToJavaSource implements CompilerBackEnd {
 				String path =  Strings.join(names, "/");
 				int pos = path.lastIndexOf('/');
 				String filename = path.substring(pos+1) + ".java";
-				File folder;
+				SourceFolder folder;
 				if (pos >=0){
 					path = path.substring(0, pos);
-					folder = new File(target, path );
+					folder = target.folder(path);
 				} else {
 					folder = target;
 				}
 
-				folder.mkdirs();
+				folder.ensureExists();
 
-				compiled = new File(folder, filename);
-				try {
-					compiled.createNewFile();
+				compiled = folder.file(filename);
+				compiled.ensureExists();
 
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
+			
 
 			}
 
-			try(PrintWriter writer = new PrintWriter(new FileWriter(compiled))){
+			try(PrintWriter writer = new PrintWriter(compiled.writer())){
 				TreeTransverser.transverse(node, new JavaSourceWriterVisitor(writer));
+				node.setProperty("writen", Boolean.TRUE);
 				files.add(compiled);
-			} catch (IOException e) {
-				e.printStackTrace();
-
-			}
+			} 
 		}
 		return files;
 	}

@@ -69,6 +69,12 @@ class LenseAwareTokenStream implements TokenStream {
 					// value is only a keyword when used before the class keyword
 					return new SymbolBasedToken(t.getPosition(), t.getText().get(),TokenSymbol.ID );
 				}
+			} else if (t.getText().get().equals("type")) {
+				Token previous = original.peekNext();
+				if (!previous.isKeyword() || !previous.getText().get().equals("class")){
+					// type is only a keyword when used before the class keyword
+					return new SymbolBasedToken(t.getPosition(), t.getText().get(),TokenSymbol.ID );
+				}
 			}
 			
 		} else if (t.isOperator()){

@@ -1,37 +1,39 @@
 package lense.compiler.crosscompile.java;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
-import java.util.Map;
-import java.util.Optional;
 
 import compiler.syntax.AstNode;
 import compiler.trees.Visitor;
-import compiler.trees.VisitorNext;
-import lense.compiler.asm.ByteCodeTypeDefinitionReader;
 import lense.compiler.ast.BooleanOperatorNode;
 import lense.compiler.ast.CastNode;
 import lense.compiler.ast.ClassTypeNode;
 import lense.compiler.ast.FormalParameterNode;
 import lense.compiler.ast.ImutabilityNode;
+import lense.compiler.ast.LenseAstNode;
 import lense.compiler.ast.MethodDeclarationNode;
 import lense.compiler.ast.MethodInvocationNode;
 import lense.compiler.ast.QualifiedNameNode;
 import lense.compiler.ast.VariableDeclarationNode;
 import lense.compiler.ast.VariableReadNode;
+import lense.compiler.ast.ArgumentListItemNode;
+import lense.compiler.ast.AssertNode;
+import lense.compiler.ast.BooleanOperation;
+import lense.compiler.ast.StringValue;
+import lense.compiler.ast.ComparisonNode;
+import lense.compiler.ast.ComparisonNode.Operation;
 import lense.compiler.context.SemanticContext;
+import lense.compiler.crosscompile.PrimitiveTypeDefinition;
+import lense.compiler.crosscompile.PrimitiveBooleanValue;
+import lense.compiler.crosscompile.PrimitiveStringNode;
+import lense.compiler.crosscompile.PrimitiveBooleanOperationsNode;
 import lense.compiler.repository.UpdatableTypeRepository;
-import lense.compiler.type.CallableMember;
 import lense.compiler.type.CallableMemberMember;
-import lense.compiler.type.IndexerProperty;
-import lense.compiler.type.LenseTypeDefinition;
-import lense.compiler.type.LenseUnitKind;
+import lense.compiler.type.LenseTypeAssistant;
 import lense.compiler.type.Method;
 import lense.compiler.type.MethodParameter;
-import lense.compiler.type.Property;
+import lense.compiler.type.TypeAssistant;
 import lense.compiler.type.TypeDefinition;
-import lense.compiler.type.TypeMember;
 import lense.compiler.type.variable.ContraVariantTypeVariable;
 import lense.compiler.type.variable.TypeVariable;
 import lense.compiler.typesystem.Imutability;
@@ -45,26 +47,11 @@ import lense.compiler.typesystem.Variance;
  */
 public final class JavalizeVisitor implements Visitor<AstNode>{
 
-    private final SemanticContext semanticContext;
-    private final Map<String, LenseTypeDefinition> nativeLoadedTypes = new HashMap<>();
-    private final ByteCodeTypeDefinitionReader asmReader;
-
+    private final TypeAssistant typeAssistant;
+   
     public JavalizeVisitor(SemanticContext semanticContext, UpdatableTypeRepository typeContainer) {
-        this.semanticContext = semanticContext;
-        this.asmReader = new ByteCodeTypeDefinitionReader(typeContainer);
+        this.typeAssistant = new LenseTypeAssistant(semanticContext);
     }
-
-    @Override
-    public void startVisit() {	}
-
-    @Override
-    public void endVisit() {}
-
-    @Override
-    public VisitorNext visitBeforeChildren(AstNode node) {
-        return VisitorNext.Children;
-    }
-
 
     @Override
     public void visitAfterChildren(AstNode node) {	
@@ -73,7 +60,7 @@ public final class JavalizeVisitor implements Visitor<AstNode>{
             ClassTypeNode n = (ClassTypeNode)node;
 
             if (n.getKind() == lense.compiler.type.LenseUnitKind.Object ){
-            	TypeDefinition type = n.getSemanticContext().resolveTypeForName(n.getName(), n.getGenericParametersCount()).get().getTypeDefinition();
+            	TypeDefinition type = n.getSemanticContext().resolveTypeForName(n.getFullname(), n.getGenericParametersCount()).get().getTypeDefinition();
 
             	 boolean hashValue = type.getAllMembers().stream().filter( c -> c.isMethod()).map(c -> (Method)c).filter(m -> m.isOverride() && m.getName().equals("hashValue")).findFirst().isPresent();
             	 boolean equals = type.getAllMembers().stream().filter( c -> c.isMethod()).map(c -> (Method)c).filter(m -> m.isOverride() &&m.getName().equals("equalsTo")).findFirst().isPresent();
@@ -96,22 +83,42 @@ public final class JavalizeVisitor implements Visitor<AstNode>{
 
             	 }
             }
-
-
-
         } 
-        else if (node instanceof MethodInvocationNode){
-            MethodInvocationNode m = (MethodInvocationNode)node;
-
-
-            if (m.getAccess() != null 
+        else if (node instanceof MethodInvocationNode m){
+          
+        	 var call = m.getCall();
+        	   
+    	   if (call.getArguments().getChildren().size() == 1 && call.getName().equals("equalsTo")) {
+    		   var left = m.getAccess();
+    		   var right = call.getArguments().getFirstArgument().getFirstChild();
+    		   
+    		   if (left instanceof StringValue sleft) {
+    			   if (right instanceof StringValue sright) {
+        			   // reduce to native comparison
+    				   var nativeMethod = new MethodInvocationNode(new PrimitiveStringNode(sleft.getLiteralValue()), "equals", new ArgumentListItemNode(0, new PrimitiveStringNode(sright.getLiteralValue())));
+    				   nativeMethod.setTypeVariable(PrimitiveTypeDefinition.BOOLEAN);
+    				   m.getParent().replace(m, nativeMethod);
+        		   } else {
+        			   //  invert and use native comparison
+        			   var nativeMethod = new MethodInvocationNode(new CastNode((LenseAstNode)right, LenseTypeSystem.String()), "equalsNative", new ArgumentListItemNode(0, new PrimitiveStringNode(sleft.getLiteralValue())));
+        			   nativeMethod.setTypeVariable(PrimitiveTypeDefinition.BOOLEAN);
+    				   m.getParent().replace(m, nativeMethod);
+        		   }
+    		   } else if (right instanceof StringValue sright) {
+    			   // use native comparison
+    			   var nativeMethod = new MethodInvocationNode(new CastNode((LenseAstNode)left, LenseTypeSystem.String()), "equalsNative", new ArgumentListItemNode(0, new PrimitiveStringNode(sright.getLiteralValue())));
+    			   nativeMethod.setTypeVariable(PrimitiveTypeDefinition.BOOLEAN);
+				   m.getParent().replace(m, nativeMethod);
+    		   }
+    	   } else  if (m.getAccess() != null 
             		&& ((lense.compiler.ast.TypedNode)m.getAccess()).getTypeVariable() != null
             		&& !((lense.compiler.ast.TypedNode)m.getAccess()).getTypeVariable().getGenericParameters().isEmpty() ){
 
                 if ( m.getTypeVariable().isFixed()){
                     return ;
                 }
-                AstNode parent = m.getParent();
+                
+                var parent = m.getParent();
                 
                 if (m.getTypeVariable().isSingleType()) {
                     TypeDefinition typeDefinition = m.getTypeVariable().getTypeDefinition();
@@ -127,11 +134,12 @@ public final class JavalizeVisitor implements Visitor<AstNode>{
                     parent.replace(node, cast);
                 }
             
+               
             }
         }
         else if (node instanceof MethodDeclarationNode){
         	MethodDeclarationNode m = (MethodDeclarationNode)node;
-        	
+
         	if (m.getSuperMethod() != null && !m.isAbstract()) {
         		
         		Method superMethod = m.getSuperMethod();
@@ -143,8 +151,10 @@ public final class JavalizeVisitor implements Visitor<AstNode>{
         			MethodParameter superParameter = (MethodParameter) params.get(i);
         			FormalParameterNode n = (FormalParameterNode) m.getParameters().getChildren().get(i);
         			
-        			
-        			if (!LenseTypeSystem.getInstance().isAssignableTo(superParameter.getType(), n.getTypeVariable()).matches() ) {
+        			// TODO should not be necessary to compare types at this point
+        			if (!typeAssistant.isAssignableTo(superParameter.getType(), n.getTypeVariable()).matches() ) {
+        				
+        				
         				
         				// no match
         				
@@ -200,6 +210,39 @@ public final class JavalizeVisitor implements Visitor<AstNode>{
             	}
         	}
 
+        } else if (node instanceof AssertNode assertion) {
+           assertion.getChildren(PrimitiveBooleanValue.class).stream().findFirst().ifPresent(m ->{
+        	   
+        	  if (m.isValue()) {   // true
+        		  // remove assertion
+        		  assertion.getParent().remove(assertion);
+        	  }
+           });
+           assertion.getChildren(PrimitiveBooleanOperationsNode.class).stream().findFirst().ifPresent(m ->{
+        	   
+         	  if (m.getOperation() == BooleanOperation.LogicNegate) {
+         		  if( m.getFirstChild() instanceof PrimitiveBooleanValue booleanValue && !booleanValue.isValue()   // !false
+		     		) {
+		     		  // remove assertion
+		     		  assertion.getParent().remove(assertion);
+		     	  } else {
+		     		  // double negation
+		        		var singleOperation = m.getFirstChild();
+		        		
+		        		assertion.setReferenceValue(false);
+		        		assertion.replace(m, singleOperation);
+		     	  }
+         	  }
+         			
+            });
+        	
+        } else if (node instanceof PrimitiveBooleanOperationsNode booleanOp && booleanOp.getOperation() == BooleanOperation.LogicNegate) {
+        	if (booleanOp.getFirstChild() instanceof PrimitiveBooleanOperationsNode innerop && innerop.getOperation() == BooleanOperation.LogicNegate) {
+        		// double negation
+        		var singleOperation = innerop.getFirstChild();
+        		
+        		node.getParent().replace(node, singleOperation);
+        	}
         }
     }
 

@@ -10,7 +10,7 @@ public class Modifiers {
 	private AnnotationListNode annotations = null;
 	private VisibilityNode visibility = new VisibilityNode();
 	private ImplementationModifierNode implementationModifier = new ImplementationModifierNode();
-	private ImutabilityNode imutability = new ImutabilityNode(Imutability.Imutable);
+	private boolean mutable = false;
 	
 	public AnnotationListNode getAnnotations() {
 		return annotations;
@@ -29,11 +29,14 @@ public class Modifiers {
 	}
 	public void setImplementationModifier(ImplementationModifierNode implementationModifier) {
 		this.implementationModifier = implementationModifier;
+		this.mutable = this.mutable || this.implementationModifier.isMutable();
 	}
+	
 	public void setImutability(ImutabilityNode imutability) {
-		this.imutability = imutability;
+		this.mutable = imutability.getImutability().equals(Imutability.Mutable);
 	}
-	public ImutabilityNode getImutability() {
-		return this.imutability;
+	
+	public Imutability getImutability() {
+		return this.mutable ? Imutability.Mutable : Imutability.Imutable;
 	}
 }

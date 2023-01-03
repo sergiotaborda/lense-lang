@@ -3,6 +3,8 @@ import lense.core.math.Number;
 import lense.core.math.Imaginary;
 import lense.core.math.Real;
 import lense.core.math.ArithmeticException;
+import lense.core.math.Complex;
+import lense.core.lang.String;
 
 public value class ComplexOverReal implements Complex {
 
@@ -53,7 +55,7 @@ public value class ComplexOverReal implements Complex {
 	public override hashValue() => this.real.hashValue().concat(this.imaginary.hashValue());
 
 	public override asString() : String {
-	    var sign : String = "+";
+	    mutable let sign  = "+";
 	    if (imaginary.sign() < 0){
 	    	sign = " - ";
 	    }

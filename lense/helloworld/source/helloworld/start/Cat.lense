@@ -1,8 +1,0 @@
-
-
-import helloworld.start.Mammal;
-
-public class Cat extends Mammal {
-
-
-}

@@ -294,10 +294,10 @@ public class Ecma6JavascriptWriterVisitor implements Visitor<AstNode> {
 			} else if (node instanceof ClassTypeNode) {
 				ClassTypeNode t = (ClassTypeNode) node;
 
-				int pos = t.getName().lastIndexOf('.');
+				int pos = t.getFullname().lastIndexOf('.');
 				if (pos > 0) {
 					writer.print("package ");
-					writer.print(t.getName().substring(0, pos));
+					writer.print(t.getFullname().substring(0, pos));
 					writer.print(";\n");
 				}
 
@@ -411,7 +411,7 @@ public class Ecma6JavascriptWriterVisitor implements Visitor<AstNode> {
 					break;
 				}
 
-				String name = t.getName().substring(pos + 1);
+				String name = t.getFullname().substring(pos + 1);
 				writer.print(name);
 
 				if (t.getKind() != LenseUnitKind.Interface) {
@@ -1180,7 +1180,7 @@ public class Ecma6JavascriptWriterVisitor implements Visitor<AstNode> {
 				// TODO write annotations
 				writeVisibility(Visibility.Private);
 
-				if (m.getImutability().getImutability() == Imutability.Imutable){
+				if (m.getImutability() == Imutability.Imutable){
 					writer.print("final ");
 				}
 				writeType(m.getTypeNode());

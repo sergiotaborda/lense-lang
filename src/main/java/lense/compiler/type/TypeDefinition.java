@@ -22,9 +22,19 @@ public interface TypeDefinition extends TypeVariable {
 		return Optional.of(getName());
 	}
 
+	
+	public default Optional<String> getSymbol(){
+		return Optional.ofNullable(getName());
+	}
+	
 	public String getSimpleName();
 	
+	public String getPackageName();
+	
 	public TypeKind getKind();
+	
+	
+	public Visibility getVisibility();
 	
 	/**
 	 * 
@@ -42,18 +52,7 @@ public interface TypeDefinition extends TypeVariable {
 
 	public List<TypeVariable> getGenericParameters();
 
-	public List<Match<Constructor>> getConstructorByParameters(ConstructorParameter ... parameters);
-	
-	public List<Match<Constructor>> getConstructorByParameters(Visibility visbility, ConstructorParameter ... parameters);
-	
-	public Optional<Constructor> getConstructorByPromotableParameters(ConstructorParameter ... parameters);
-	
-	public List<Match<Constructor>> getConstructorByName(String name, ConstructorParameter ... parameters);
-	
-	public Optional<Constructor> getConstructorByNameAndPromotableParameters(String name,ConstructorParameter ... parameters);
-	
-	public Optional<Constructor> getConstructorByImplicitAndPromotableParameters(boolean implicit, ConstructorParameter ... parameters);
-	
+
 	
 	/**
 	 * @param name
@@ -67,29 +66,16 @@ public interface TypeDefinition extends TypeVariable {
 	 */
 	public Optional<Property> getPropertyByName(String fieldName);
 
-	/**
-	 * @param string
-	 * @return
-	 */
-	public Collection<Method> getMethodsByName(String string);
-
-	/**
-	 * @param signature
-	 * @return
-	 */
-	public Optional<Method> getMethodBySignature(MethodSignature signature);
-	
-	public Optional<Method> getMethodByPromotableSignature(MethodSignature signature);
 
 	public List<TypeDefinition> getInterfaces();
 
-	public void updateFrom(TypeDefinition type);
+	public List<TypeDefinition> getSatisfiedTypeClasses();
+	
+	public void updateFrom(TypeDefinition type, TypeAssistant typeAssistant);
 
 	public boolean isGeneric();
 	
 	public boolean isAlgebric();
-
-	public Optional<IndexerProperty> getIndexerPropertyByTypeArray(TypeVariable[] type);
 
 	public boolean isAbstract();
 

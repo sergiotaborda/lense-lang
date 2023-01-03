@@ -1,6 +1,7 @@
 package lense.core.lang;
 
 import lense.core.lang.java.Constructor;
+import lense.core.lang.java.NativeString;
 import lense.core.lang.java.PlatformSpecific;
 import lense.core.lang.reflection.Type;
 
@@ -59,12 +60,12 @@ public class Exception extends java.lang.RuntimeException implements Any {
 
 	@Override
 	public String asString() {
-		return String.valueOfNative(super.getMessage());
+		return NativeString.valueOfNative(super.getMessage());
 	}
 
 	@Override
 	public Type type() {
-		return new Type(this.getClass());
+		return Type.forClass(this.getClass());
 	}
     
 

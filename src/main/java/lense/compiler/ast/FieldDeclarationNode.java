@@ -16,7 +16,7 @@ public class FieldDeclarationNode extends AnnotadedLenseAstNode implements Scope
 	private String name;
 	private ExpressionNode inicializer;
 	private VariableInfo info;
-	private ImutabilityNode imutability;
+	private Imutability imutability;
 	private VisibilityNode visibilityNode;
 	private boolean initializedOnConstructor;
 
@@ -24,13 +24,13 @@ public class FieldDeclarationNode extends AnnotadedLenseAstNode implements Scope
 	
 	public FieldDeclarationNode (String name, TypeNode typeNode){
 		this.name = name;
-		this.imutability = new ImutabilityNode(Imutability.Mutable);
+		this.imutability = Imutability.Mutable;
 		this.typeNode = typeNode;
 	}
 	
 	public FieldDeclarationNode (String name, TypeNode typeNode, ExpressionNode inicializer){
 		this.name = name;
-		this.imutability = new ImutabilityNode(Imutability.Mutable);
+		this.imutability = Imutability.Mutable;
 		this.typeNode = typeNode;
 		this.inicializer = inicializer;
 	}
@@ -98,16 +98,13 @@ public class FieldDeclarationNode extends AnnotadedLenseAstNode implements Scope
 	/**
 	 * @param astNode
 	 */
-	public void setImutability(ImutabilityNode imutability) {
+	public void setImutability(Imutability imutability) {
 		this.imutability = imutability;
 	}
 	
-	public ImutabilityNode getImutability() {
-		return this.imutability;
-	}
 	
-	public Imutability getImutabilityValue() {
-		return this.imutability == null ? Imutability.Imutable : imutability.getImutability();
+	public Imutability getImutability() {
+		return this.imutability == null ? Imutability.Imutable : imutability;
 	}
 
 	public void setVisibility(VisibilityNode visibilityNode) {

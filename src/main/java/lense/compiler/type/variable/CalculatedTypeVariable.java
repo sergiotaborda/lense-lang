@@ -4,9 +4,13 @@ import java.util.List;
 
 import lense.compiler.type.TypeDefinition;
 
-public abstract class CalculatedTypeVariable implements TypeVariable{
+public abstract class CalculatedTypeVariable implements TypeVariable {
 
 	
+	protected CalculatedTypeVariable() {
+
+	}
+
 	protected abstract TypeVariable original();
 	
 	@Override
@@ -62,6 +66,6 @@ public abstract class CalculatedTypeVariable implements TypeVariable{
 	}
 
 	public String toString(){
-		return getLowerBound().toString() + "<:" + getUpperBound().toString();
+		return getLowerBound().toString() + " <: " + getUpperBound().toString();
 	}
 }

@@ -12,7 +12,6 @@ import lense.compiler.ast.ConstructorDeclarationNode;
 import lense.compiler.ast.ConstructorExtentionNode;
 import lense.compiler.ast.FieldDeclarationNode;
 import lense.compiler.ast.FormalParameterNode;
-import lense.compiler.ast.ImutabilityNode;
 import lense.compiler.ast.ModifierNode;
 import lense.compiler.ast.PropertyDeclarationNode;
 import lense.compiler.ast.VisibilityNode;
@@ -198,7 +197,7 @@ public class ConstructorDesugarVisitor  extends AbstractLenseVisitor {
 						// field 
 						FieldDeclarationNode fd = new FieldDeclarationNode(f.getName(), f.getTypeNode(), null);
 						fd.setVisibility(new VisibilityNode(Visibility.Private));
-						fd.setImutability(new ImutabilityNode(f.getImutabilityValue()));
+						fd.setImutability(f.getImutability());
 						fd.setInitializedOnConstructor(true);
 						
 						type.addBefore(c, fd);
@@ -211,7 +210,7 @@ public class ConstructorDesugarVisitor  extends AbstractLenseVisitor {
 
 						type.addBefore(c, prp);
 						
-						if (f.getImutabilityValue() == Imutability.Mutable){
+						if (f.getImutability() == Imutability.Mutable){
 							// create get;set property with given Visibility
 
 							prp.setAcessor(new AccessorNode(true, true));

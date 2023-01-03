@@ -4,18 +4,15 @@
 package lense.compiler.crosscompile.java;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.file.FileVisitResult;
-import java.nio.file.FileVisitor;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.attribute.BasicFileAttributes;
+import java.io.InputStreamReader;
+import java.io.Writer;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -27,21 +24,40 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 
+import compiler.CompilationResult;
+import compiler.CompilationResultSet;
+import compiler.CompiledUnit;
+import compiler.CompilerBackEnd;
 import compiler.CompilerListener;
+import compiler.filesystem.SourceFile;
+import compiler.filesystem.SourceFileSystemNode;
+import compiler.filesystem.SourceFolder;
+import compiler.filesystem.SourceWalker;
+import compiler.filesystem.SourceWalkerResult;
 import lense.compiler.CompilationError;
 import lense.compiler.FileLocations;
 import lense.compiler.LenseCompiler;
+import lense.compiler.NativeSourceInfo;
+import lense.compiler.PackageSourcePathUtils;
 import lense.compiler.asm.ByteCodeTypeDefinitionReader;
+import lense.compiler.ast.ClassTypeNode;
+import lense.compiler.ast.ModuleImportNode;
 import lense.compiler.ast.ModuleNode;
+import lense.compiler.ast.UnitTypes;
 import lense.compiler.crosscompile.ErasurePhase;
+import lense.compiler.crosscompile.NativePeersPhase;
 import lense.compiler.crosscompile.java.JavaCompilerBackEndFactory.JavaCompilerBackEnd;
+import lense.compiler.dependency.DependencyRelationship;
 import lense.compiler.modules.ModulesRepository;
 import lense.compiler.phases.CompositePhase;
 import lense.compiler.phases.DesugarPhase;
 import lense.compiler.phases.EnhancementPhase;
 import lense.compiler.phases.ReificationPhase;
+import lense.compiler.repository.ModuleCompilationScopeTypeRepository;
 import lense.compiler.repository.UpdatableTypeRepository;
+import lense.compiler.type.LenseTypeDefinition;
 import lense.compiler.type.TypeDefinition;
+import lense.compiler.utils.Strings;
 
 /**
  * 
@@ -52,10 +68,16 @@ public class LenseToJavaCompiler extends LenseCompiler{
 	private final static JavaCompilerBackEndFactory javaCompilerBackEndFactory = new JavaCompilerBackEndFactory();
 
 	public LenseToJavaCompiler (ModulesRepository globalModulesRepository){
-		super("java",globalModulesRepository,javaCompilerBackEndFactory); // JavaBackEndFactory(); //new  JavaSourceBackEnd(); //JavaBinaryBackEndFactory();
+		super("java",globalModulesRepository,javaCompilerBackEndFactory); 
+	}
+	
+	@Override
+	protected boolean shouldGraphContain(DependencyRelationship parameter) {
+		return DependencyRelationship.Structural == parameter;
 	}
 
-	protected void initCorePhase(CompositePhase corePhase, Map<String, File> nativeTypes, UpdatableTypeRepository typeContainer){
+
+	protected void initCorePhase(CompositePhase corePhase, Map<String, NativeSourceInfo> nativeTypes, UpdatableTypeRepository typeContainer){
 
 		CompilerListener compilerListener = this.getCompilerListener();
 		corePhase
@@ -63,12 +85,13 @@ public class LenseToJavaCompiler extends LenseCompiler{
 			.add(new EnhancementPhase(compilerListener))
 			.add(new ReificationPhase(compilerListener))
 			.add(new ErasurePhase(compilerListener))
+			.add(new NativePeersPhase(compilerListener,nativeTypes))
 			.add(new JavalizePhase(compilerListener,nativeTypes, typeContainer));
 			//.add(ir);
 
 	}
 
-	protected void createModuleArchive(FileLocations locations, ModuleNode module, File base, Set<String> applications) throws IOException, FileNotFoundException {
+	protected void createModuleArchive(FileLocations locations, ModuleNode module,Set<String> applications) throws IOException, FileNotFoundException {
 		StringBuilder builder;
 		Manifest jarManifest = new Manifest();
 		jarManifest.getMainAttributes().put(Attributes.Name.MANIFEST_VERSION, "1.0");
@@ -79,6 +102,7 @@ public class LenseToJavaCompiler extends LenseCompiler{
 		if (!applications.isEmpty()){
 
 			if (applications.size() > 1){
+				// TODO move to another phase
 				throw new CompilationError("More than one Application was found. Every module can only have a maximum of 1 application");
 			}
 			String mainType = applications.iterator().next();
@@ -88,43 +112,43 @@ public class LenseToJavaCompiler extends LenseCompiler{
 
 			builder = writeBootstrap(mainType, pack);
 
-			File sourceFile = new File(locations.getTargetFolder().getAbsolutePath() + "/" + pack.replace('.', '/') , "Bootstrap.java");
-			try(FileWriter writer = new FileWriter(sourceFile)){
+			var sourceFile = locations.getTargetFolder().folder(PackageSourcePathUtils.fromPackageName(pack)).file("Bootstrap.java");
+			try(Writer writer = sourceFile.writer()){
 				writer.write(builder.toString());
 				writer.close();
 			}
 
 			compilerBackEnd.compile(sourceFile);
 
-			//        	StandardJavaFileManager fileManager = compiler.getStandardFileManager(null, null, null);
-			//        	
-			//        	List<File> classPath = new ArrayList<>(2);
-			//            if (base != null){
-			//                for (File jar : base.listFiles(f -> f.getName().endsWith(".jar"))){
-			//                    classPath.add(jar);
-			//                }
-			//            }
-			//            classPath.add(locations.getTargetFolder());
-			//            fileManager.setLocation(StandardLocation.CLASS_PATH, classPath);
-			//            
-			//        	Iterable<? extends JavaFileObject> compilationUnits = fileManager.getJavaFileObjectsFromFiles(Collections.singletonList(sourceFile));
-			//
-			//            compiler.getTask(new PrintWriter(System.err),fileManager, null, null, null,  compilationUnits).call();
-
 			jarManifest.getMainAttributes().put(Attributes.Name.MAIN_CLASS, pack + ".Bootstrap");
 
 		}
 
 
-		File file = new File (locations.getModulesFolder(), module.getName() + ".jar");
+		var file = locations.getModulesFolder().file(module.getName() + ".jar");
 
 		Properties p = new Properties();
 
 		p.put("module.name", module.getName());
 		p.put("module.version", module.getVersion().toString());
-
-		File moduleProperties = new File(locations.getTargetFolder(), "module.properties");
-		p.store(new FileOutputStream(moduleProperties), "Lense module definition");
+		
+		var requirements = module.getImports().getChildren(ModuleImportNode.class);
+				
+		if(!requirements.isEmpty()) {
+			var buffer= new StringBuffer();
+			for(var m : requirements) {
+				if(buffer.length() >0) {
+					buffer.append(";");
+				}
+				buffer.append(m.getQualifiedNameNode().toString()).append("@").append(m.getVersionNode().getVersion().toString());
+			}
+			
+			p.put("module.requires", buffer.toString());
+		}
+	
+		
+		var moduleProperties = locations.getTargetFolder().file("module.properties");
+		p.store(moduleProperties.outputStream(), "Lense module definition");
 
 		createJar(locations.getTargetFolder(), file,jarManifest);
 	}
@@ -138,7 +162,7 @@ public class LenseToJavaCompiler extends LenseCompiler{
 				.append("public class Bootstrap {\n")
 				.append("public static void main(String[] args) {\n")
 				.append("		ConsoleApplication app = ").append(applicationType).append(".constructor();\n")
-				.append("		app.setArguments(Array.fromNative(lense.core.lang.reflection.JavaReifiedArguments.getInstance().addType(lense.core.lang.String.TYPE_RESOLVER) ,args, s -> lense.core.lang.String.valueOfNative(s)));\n")
+				.append("		app.setArguments(Array.fromNative(lense.core.lang.java.JavaReifiedArguments.getInstance().addType(lense.core.lang.java.NativeString.TYPE_RESOLVER) ,args, s -> lense.core.lang.java.NativeString.valueOfNative(s)));\n")
 				.append("		app.onStart();\n")
 				.append("	}")
 				.append("}");
@@ -147,24 +171,24 @@ public class LenseToJavaCompiler extends LenseCompiler{
 		return builder;
 	}
 
-	private void createJar(File source, File output, Manifest manifest) throws IOException {
+	private void createJar(SourceFolder source, SourceFile output, Manifest manifest) throws IOException {
 
-		JarOutputStream target = new JarOutputStream(new FileOutputStream(output), manifest);
+		JarOutputStream target = new JarOutputStream(output.outputStream(), manifest);
 
-		String name = source.getPath().replace("\\", "/") + "/";
-		for (File nestedFile: source.listFiles()){
+		String name = source.getPath().join("/") + "/";
+		for (var nestedFile: source.children()){
 			addToJar(name, nestedFile, target);
 		}
 		target.close();
 	}
 
-	private void addToJar(String base, File source, JarOutputStream target) throws IOException
+	private void addToJar(String base, SourceFileSystemNode source, JarOutputStream target) throws IOException
 	{
 		BufferedInputStream in = null;
 		try
 		{
-			String name = source.getPath().replace("\\", "/").replaceAll(base, "");
-			if (source.isDirectory())
+			String name = source.getPath().join("/").substring(base.length());
+			if (source.isFolder())
 			{
 
 				if (!name.isEmpty())
@@ -178,9 +202,11 @@ public class LenseToJavaCompiler extends LenseCompiler{
 					target.putNextEntry(entry);
 					target.closeEntry();
 				}
-				for (File nestedFile: source.listFiles()){
+				
+				for (var nestedFile: source.asFolder().children()){
 					addToJar(base, nestedFile, target);
 				}
+				
 				return;
 			} else if (! (source.getName().endsWith(".class") || source.getName().endsWith(".properties"))){
 				return;
@@ -189,7 +215,7 @@ public class LenseToJavaCompiler extends LenseCompiler{
 			JarEntry entry = new JarEntry(name);
 			entry.setTime(source.lastModified());
 			target.putNextEntry(entry);
-			in = new BufferedInputStream(new FileInputStream(source));
+			in = new BufferedInputStream(source.asFile().inputStream());
 
 
 			byte[] buffer = new byte[1024];	
@@ -211,80 +237,76 @@ public class LenseToJavaCompiler extends LenseCompiler{
 	}
 
 
-	protected File resolveNativeFile(File folder, String name) {
-		return new File( folder, name + ".class");
+	protected Optional<SourceFile> resolveNativeFile(SourceFolder folder, String name) {
+		return Optional.of(folder.file(name + ".class"));
 	}
 
-	protected void collectNative(FileLocations fileLocations, Map<String, File> nativeTypes) throws IOException {
+	protected void collectNative(FileLocations fileLocations, Map<String, NativeSourceInfo> nativeTypes) throws IOException {
 
 		if (!fileLocations.getNativeFolder().exists()){
 			return;
 		}
 
-		//		ByteCodeTypeDefinitionReader reader = new ByteCodeTypeDefinitionReader(typeContainer);
+		List<SourceFile> javaFiles = new LinkedList<>();
+		Map<SourceFile, SourceFile> lenseFiles = new HashMap<>();
 
-		List<File> files = new LinkedList<>();
-
-		final Path rootDir = fileLocations.getNativeFolder().toPath();
-
-
-		Files.walkFileTree(rootDir, new FileVisitor<Path>() {
+		var rootDir = fileLocations.getNativeFolder();
+	    
+		rootDir.walkTree(new SourceWalker(){
 
 			@Override
-			public FileVisitResult preVisitDirectory(Path path, BasicFileAttributes atts) throws IOException {
-				return FileVisitResult.CONTINUE;
-			}
-
-			@Override
-			public FileVisitResult visitFile(Path path, BasicFileAttributes mainAtts)
-					throws IOException {
-
-				if (path.toString().endsWith(".java")){
-					files.add(path.toFile());
+			public SourceWalkerResult visitFile(SourceFile file) {
+				if (file.getName().endsWith(".java")){
+					javaFiles.add(file);
+					var relativePath = fileLocations.getNativeFolder().getPath().relativize(file.getPath());
+					
+					var sourcePathName = relativePath.toString().replace(".java", ".lense").replace('>', File.separatorChar);
+					var source = fileLocations.getSourceFolder().file(sourcePathName);
+					if (source.exists()) {
+						lenseFiles.put(file, source);
+					}
+					
 				}
-				return FileVisitResult.CONTINUE;
+				return SourceWalkerResult.CONTINUE;
 			}
 
-			@Override
-			public FileVisitResult postVisitDirectory(Path path,
-					IOException exc) throws IOException {
-				return FileVisitResult.CONTINUE;
-			}
-
-			@Override
-			public FileVisitResult visitFileFailed(Path path, IOException exc)
-					throws IOException {
-				exc.printStackTrace();
-
-				return path.equals(rootDir)? FileVisitResult.TERMINATE:FileVisitResult.CONTINUE;
-			}
 		});
 
-
-		if (javaCompilerBackEndFactory.create(fileLocations).compile(files)){
+		if(javaFiles.isEmpty()) {
+			return;
+		}
+		
+		if (javaCompilerBackEndFactory.create(fileLocations).compile(javaFiles)){
 
 			// compile all files
-			for (File n : files){
-				String packageFile = n.getAbsolutePath().substring(rootDir.toString().length());
-				int pos = packageFile.indexOf(".java");
-				packageFile = packageFile.substring(0, pos) + ".class";
+			outter: for (var n : javaFiles){
+				
+			
+				var name = n.getName().substring(0,  n.getName().length() - 5);
+				var source = resolveNativeFile(n.parentFolder(), name);
 
-				File source = resolveNativeFile(n.getParentFile(), n.getName().substring(0,  n.getName().length() - 5));
+				try (var reader = new BufferedReader(new InputStreamReader(n.inputStream()))){
+					if (!name.equals("Placeholder") && reader.lines().anyMatch(line -> line.startsWith("@Placeholder"))) {
+						continue outter;
+					}
+				}
+				
+				var packagePath = rootDir.getPath().relativize(n.getPath()).getParent();
+				var packageFolder = fileLocations.getTargetFolder().folder(packagePath);
+				
+				var target =  packageFolder.file(name  + ".class");
 
+				target.parentFolder().ensureExists();
 
-
-				File target = new File(fileLocations.getTargetFolder(),packageFile);
-
-				target.getParentFile().mkdirs();
-
-				if (!source.exists()){
+				if (source.isPresent() && !source.get().exists()){
 					throw new CompilationError("Compiled file with java compiler does not exist (" + source.toString() +"). ");
 				} else {
-					Files.move(source.toPath(), target.toPath());
-					nativeTypes.put(packageFile.substring(1).replace(File.separatorChar, '.').replaceAll(".class",""), target);
+					source.get().moveTo(target);
+					
+				
+					var lense = lenseFiles.get(n);
+					nativeTypes.put(packagePath.join(".") + "." + name, new NativeSourceInfo(target, lense));
 
-					//                    TypeDefinition type = reader.readNative(target);
-					//                    typeContainer.registerType(type, type.getGenericParameters().size());
 				}
 
 			}
@@ -295,27 +317,83 @@ public class LenseToJavaCompiler extends LenseCompiler{
 		}
 
 	}
-
+	
 	@Override
-	protected List<TypeDefinition> extactTypeDefinitionFronNativeType(
+	protected List<TypeDefinition> extactTypeDefinitionFromNativeType(
 			UpdatableTypeRepository currentModuleRepository,
-			Collection<File> nativeFiles
+			Collection<NativeSourceInfo> nativeFiles
 	) throws IOException {
-		
-	    var nativeTypesDefs = new LinkedList<TypeDefinition>();
-	      
+
   		var reader = new ByteCodeTypeDefinitionReader(currentModuleRepository);
+
+  		return nativeFiles.stream().map(it -> it.nativeCompiledFile()).map(target -> {
+			try {
+				return reader.readNative(target);
+			} catch (Exception e) {
+				throw new RuntimeException("Error reading " + target , e);
+			}
+		}).toList();
   		
-		
-		for( File target : nativeFiles) {
-  			TypeDefinition type =  reader.readNative(target);
-      		currentModuleRepository.registerType(type, type.getGenericParameters().size());
-      		
-      		nativeTypesDefs.add(type);
-  		}
-		
-		return nativeTypesDefs;
 	}
 
+	@Override
+	protected void applyCompilation(
+			Map<String, NativeSourceInfo> nativeTypes, 
+			FileLocations locations,
+			CompositePhase corePhase,
+			ModuleCompilationScopeTypeRepository currentModuleRepository, 
+			final CompilerBackEnd backend,
+			CompiledUnit unit
+	) {
+		if (unit != null){
+			UnitTypes types = (UnitTypes)unit.getAstRootNode();
+
+			for (ClassTypeNode type : types.getTypes()) {
+
+				if (type.isNative()) {
+
+					var nativeTypeFile = nativeTypes.get(type.getFullname());
+
+					if (nativeTypeFile == null) {
+						String[] name;
+						if (type.getKind().isObject()) {
+
+						    name = Strings.split(type.getFullname(), ".");
+							name[name.length - 1 ] = Strings.cammelToPascalCase(name[name.length - 1 ]);
+						}
+						else 
+						{
+							name = Strings.split(type.getFullname(), ".");
+						}
+						
+						nativeTypeFile =  new NativeSourceInfo(
+								resolveNativeFile (locations.getTargetFolder(), Strings.join(name, File.separator))
+								.orElseThrow(() ->  new CompilationError(type, "Expected native file for type " + type.getFullname()  + " does not exist")),
+								null
+						);
+					
+					}
+
+					try {
+						this.extactTypeDefinitionFromNativeType(currentModuleRepository, Arrays.asList(nativeTypeFile)).forEach(typeDef -> {
+							
+							typeDef = currentModuleRepository.registerType(typeDef, typeDef.getGenericParameters().size());
+
+							type.setTypeDefinition((LenseTypeDefinition)typeDef);
+							
+						});
+
+					
+
+					} catch (IOException e1) {
+						throw new RuntimeException(e1);
+					}
+				}
+			}
+
+			new CompilationResultSet(new CompilationResult(unit)).passBy(corePhase).sendTo(backend);
+
+		}
+	}
 
 }

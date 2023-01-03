@@ -93,7 +93,7 @@ public class VariableDeclarationNode extends LenseAstNode implements ScopedVaria
 		this.imutability = imutability;
 	}
 	
-	public Imutability getImutabilityValue() {
+	public Imutability getImutability() {
 		return this.imutability == null ? Imutability.Mutable : imutability.getImutability();
 	}
 	

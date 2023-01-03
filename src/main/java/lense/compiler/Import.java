@@ -14,10 +14,12 @@ public class Import {
 	private QualifiedNameNode name;
 	private boolean isUsed = false;
 	private boolean isMemberCalled = false; 
-	private boolean isMemberSignatureElement = false; 
+	private boolean isMemberSignatureElement = false;
+	private boolean isSuper = false; 
 	private boolean container;
 	private String alias;
-	
+	private boolean nativeUse = false;
+
 	public Import (QualifiedNameNode name, String alias, boolean container){
 		this.name = name;
 		this.container= container;
@@ -110,5 +112,30 @@ public class Import {
 		this.isMemberSignatureElement = isMemberSignatureElement;
 	}
 	
+
+	public boolean isSuper() {
+		return isSuper;
+	}
+
+	public void setSuper(boolean isSuper) {
+		this.isSuper = isSuper;
+	}
+
+	public boolean isMemberSignatureElement() {
+		return isMemberSignatureElement;
+	}
+
+	public void setMemberSignatureElement(boolean isMemberSignatureElement) {
+		this.isMemberSignatureElement = isMemberSignatureElement;
+	}
+
+	public boolean isNativeUse() {
+		return nativeUse;
+	}
+
+	public void setNativeUse(boolean nativeUse) {
+		this.nativeUse = this.nativeUse || nativeUse;
+	}
+
 
 }

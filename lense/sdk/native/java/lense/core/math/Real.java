@@ -18,8 +18,8 @@ public interface Real extends RealLineElement , SignedNumber {
 	public boolean isWhole();
 	
 	public Integer floor();
-	
 	public Integer ceil();
+	public Integer round();
 	
 	public Real plus (Real other);
 	public Real minus (Real other);
@@ -33,5 +33,6 @@ public interface Real extends RealLineElement , SignedNumber {
 	
 	public Real raiseTo(Real other);
 
-
+	public Real remainder(Real other);
+	public Real modulo(Real other);
 }

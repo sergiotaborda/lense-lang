@@ -2,44 +2,24 @@
 import lense.core.math.Real;
 import lense.core.math.Integer;
 import lense.core.math.Natural;
-import lense.core.lang.String;
-import lense.core.lang.Boolean;
-import lense.core.math.ArithmeticException;
-import lense.core.math.Greater;
-import lense.core.math.Smaller;
-import lense.core.math.Equal;
-import lense.core.math.BigDecimal;
-import lense.core.math.equal;
-import lense.core.math.Comparable;
-import lense.core.math.BigRational;
 
 /{
-	A fraction n/d 
+ 	A fraction n/d 
 }/
 public interface Rational extends Real {
 
-	public constructor fraction(numerator : Whole, denominator : Whole) {
-		return new BigRational(numerator.asInteger(), denominator.asInteger());
-	}
+	public native constructor fraction(numerator : Whole, denominator : Whole);
 
-	public constructor one() {
-		return new BigRational.one();
-	}
+	public native constructor one();
 
-	public constructor zero() {
-		return new BigRational.zero();
-	}
+	public native constructor zero();
 
-	public implicit constructor valueOf(other : Whole) {
-		return new BigRational.valueOf(other);
-	}
+	public native implicit  constructor valueOf(other : Whole);
 
-	public implicit constructor valueOf(other : Integer) {
-		return new BigRational.valueOf(other);
-	}
+	public native implicit  constructor valueOf(other : Integer);
 
-	public let numerator : Integer;
-	public let denominator : Natural;
+	public numerator : Integer;
+	public denominator : Natural;
 
 	public invert() : Rational;
 

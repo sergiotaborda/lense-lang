@@ -8,6 +8,7 @@ import lense.core.lang.Any;
 import lense.core.lang.AnyValue;
 import lense.core.lang.HashValue;
 import lense.core.lang.java.Constructor;
+import lense.core.lang.java.NativeString;
 import lense.core.lang.java.NonNull;
 import lense.core.lang.java.PlatformSpecific;
 import lense.core.lang.java.Primitives;
@@ -126,7 +127,6 @@ public final class BigInt implements Integer , BigIntegerConvertable , AnyValue 
 
 	}
 
-	@Override
 	public Integer remainder(Integer other) {
 		if (other instanceof BigIntegerConvertable) {
 			return new BigInt(this.value.remainder(((BigIntegerConvertable) other).toJavaBigInteger()));
@@ -134,6 +134,17 @@ public final class BigInt implements Integer , BigIntegerConvertable , AnyValue 
 
 		return new BigInt(this.value.remainder(new BigInteger(other.toString())));
 
+	}
+	
+	@Override
+	public Whole modulo(Whole other) {
+		if (other.isZero()){
+			throw ArithmeticException.constructor(NativeString.valueOfNative("Cannot divide by zero"));
+		}  else if (other.isOne()) {
+			return this;
+		} 
+		
+		return this.minus(other.asInteger().multiply(this.divide(other).floor().asInteger()));
 	}
 
 	@Override
@@ -185,7 +196,7 @@ public final class BigInt implements Integer , BigIntegerConvertable , AnyValue 
 	}
 
 	public lense.core.lang.String asString(){
-		return lense.core.lang.String.valueOfNative(value.toString());
+		return NativeString.valueOfNative(value.toString());
 	}
 
 	@Override
@@ -327,7 +338,7 @@ public final class BigInt implements Integer , BigIntegerConvertable , AnyValue 
 
 	@Override
 	public Type type() {
-		return Type.fromName(this.getClass().getName());
+		return Type.forName(this.getClass().getName());
 	}
 
 
@@ -369,12 +380,12 @@ public final class BigInt implements Integer , BigIntegerConvertable , AnyValue 
 	
 	@Override
 	public Complex plus(Imaginary n) {
-		return Complex.rectangular(this.asReal(), n.real());
+		return ComplexOverReal.rectangular(this.asReal(), n.real());
 	}
 
 	@Override
 	public Complex minus(Imaginary n) {
-		return Complex.rectangular(this.asReal(), n.real().symmetric());
+		return ComplexOverReal.rectangular(this.asReal(), n.real().symmetric());
 	}
 
 	@Override
@@ -438,5 +449,7 @@ public final class BigInt implements Integer , BigIntegerConvertable , AnyValue 
         
         return Float64.valueOfNative(blex > 0 ? res + blex * LOG_2 : res);
 	}
+
+
 
 }

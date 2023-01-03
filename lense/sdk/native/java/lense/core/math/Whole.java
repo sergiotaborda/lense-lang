@@ -1,11 +1,17 @@
 package lense.core.math;
 
 import lense.core.lang.Any;
+import lense.core.lang.Summable;
 import lense.core.lang.java.Signature;
 
 @Signature("::lense.core.math.RealLineElement")
-public interface Whole extends RealLineElement {
+public interface Whole extends RealLineElement , Summable {
 
+	@lense.core.lang.java.MethodSignature( returnSignature = "lense.core.math.Whole" , paramsSignature = "lense.core.math.Whole,lense.core.math.Whole" , override = false , satisfy = true, declaringType = "lense.core.lang.Summable")
+	public default Any sum (Any a, Any b) {
+		return ((Whole)a).plus((Whole)b);
+	}
+	
     public Whole plus (Whole other);
     public Whole minus (Whole other);
 
@@ -38,4 +44,7 @@ public interface Whole extends RealLineElement {
 
 	public Whole wholeDivide (Whole other); 
 	public Whole remainder (Whole other); 	
+	
+	// x.modulo(t) =  x -(y * (x/y).floor) = x -(y * (x \ y)) 
+	public Whole modulo (Whole other);
 }

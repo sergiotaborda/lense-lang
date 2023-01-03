@@ -1,0 +1,7 @@
+
+= To Change Grammar 
+
+1. Edit lense.bnf
+2. Run`BuildFromBNF`
+3. Open AbstractLenseGrammar.java. Format file with CTRL+A,CTRL+I
+4. Run`BuildFromTable`

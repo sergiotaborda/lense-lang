@@ -1,15 +1,15 @@
 package lense.compiler;
 
-import java.io.File;
+import compiler.filesystem.SourceFolder;
 
 public final class FileLocations {
 
-	private File targetFolder;
-	private File nativeFolder;
-	private File sourceFolder;
-    private File modulesFolder;
+	private SourceFolder targetFolder;
+	private SourceFolder nativeFolder;
+	private SourceFolder sourceFolder;
+    private SourceFolder modulesFolder;
 
-	public FileLocations(File targetFolder, File nativeFolder, File sourceFolder , File modulesFolder) {
+	public FileLocations(SourceFolder targetFolder, SourceFolder nativeFolder, SourceFolder sourceFolder , SourceFolder modulesFolder) {
 		super();
 		this.targetFolder = targetFolder;
 		this.nativeFolder = nativeFolder;
@@ -17,19 +17,19 @@ public final class FileLocations {
 		this.modulesFolder = modulesFolder;
 	}
 	
-	public File getNativeFolder() {
+	public SourceFolder getNativeFolder() {
 		return nativeFolder;
 	}
 
-	public File getTargetFolder() {
+	public SourceFolder getTargetFolder() {
 		return targetFolder;
 	}
 
-    public File getSourceFolder() {
+    public SourceFolder getSourceFolder() {
         return sourceFolder;
     }
 
-    public File getModulesFolder() {
+    public SourceFolder getModulesFolder() {
         return modulesFolder;
     }
 

@@ -3,7 +3,6 @@
  */
 package lense.compiler.phases;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -50,18 +49,14 @@ public class SemanticAnalysisPhase implements CompilerPhase {
 		if (result.isError()){
 			return result;
 		}
-
 		UnitTypes types = result.getCompiledUnit() == null ? null : (UnitTypes)result.getCompiledUnit().getAstRootNode();
 
 		if (types == null){
 			return new CompilationResult(new RuntimeException("Unexpected Error. Result as no node."));
 		}
 
-	
-
 		try {
 			
-			// read enhancements
 			Map<TypeVariable, List<TypeDefinition>> enhancements = new HashMap<>();
 			if (types.getImports().isPresent()) {
 				
@@ -89,15 +84,15 @@ public class SemanticAnalysisPhase implements CompilerPhase {
 				// cannot share semantic context among classes
 				
 				
-					// attach the repository with loaded types
-					SemanticContext ctx = ct.getSemanticContext().withRepository(typeRepository);
+				// attach the repository with loaded types
+				SemanticContext ctx = ct.getSemanticContext().withRepository(typeRepository);
 
-					
-					TreeTransverser.transverse(ct,new IdentifiersVerifierVisitor(ctx));
-					TreeTransverser.transverse(ct,new SemanticVisitor(ctx, enhancements, listener));
-					TreeTransverser.transverse(ct,new EnsureNotFundamentalTypesVisitor(ctx));
+				
+				TreeTransverser.transverse(ct,new IdentifiersVerifierVisitor(ctx));
+				TreeTransverser.transverse(ct,new SemanticVisitor(ctx,listener, enhancements));
+				TreeTransverser.transverse(ct,new EnsureNotFundamentalTypesVisitor(ctx));
 
-					hasAlgebric = hasAlgebric || ct.isAlgebric();
+				hasAlgebric = hasAlgebric || ct.isAlgebric();
 
 			
 			}
@@ -106,7 +101,7 @@ public class SemanticAnalysisPhase implements CompilerPhase {
 				Map<String,ClassTypeNode> mapping = new HashMap<>();
 
 				for (ClassTypeNode ct : types.getTypes()){
-					mapping.put(ct.getName(), ct);
+					mapping.put(ct.getFullname(), ct);
 					mapping.put(ct.getSimpleName(), ct);
 				}
 
@@ -125,44 +120,6 @@ public class SemanticAnalysisPhase implements CompilerPhase {
 							
 							}
 						}
-						
-						
-
-						List<TypeDefinition> chidlValues = new ArrayList<>(ct.getAlgebricChildren().getChildren().size());
-						List<TypeDefinition> chidlTypes = new ArrayList<>(ct.getAlgebricChildren().getChildren().size());
-
-						
-						var myType = ct.getTypeDefinition();
-						
-						for (AstNode n : ct.getAlgebricChildren().getChildren()) {
-							ChildTypeNode ctn = (ChildTypeNode) n;
-
-							if ("lense.core.lang.true".equals(ctn.getType().getName()) || "lense.core.lang.false".equals(ctn.getType().getName())) {
-								//no-op implicit
-							} else if ("lense.core.lang.none".equals(ctn.getType().getName())) {
-								//no-op implicit
-							} else {
-								TypeDefinition childType = ct.getSemanticContext()
-										.resolveTypeForName(ctn.getType().getName(), ctn.getType().getTypeParametersCount())
-										.orElseThrow(() -> new CompilationError(ctn, "Type definition for  " + ctn.getType().getName() + " was not found")).getTypeDefinition();
-
-								if (childType.getTypeDefinition().getKind().isObject()) {
-									chidlValues.add(childType);
-								} else {
-									chidlTypes.add(childType);
-								}
-
-								ctn.getType().setTypeVariable(childType);
-							}
-							
-
-						}
-
-						myType.setCaseTypes(chidlTypes);
-						myType.setCaseValues(chidlValues);
-						
-						
-						
 					} else if (ct.getTypeDefinition().getSuperDefinition().isAlgebric()){
 						if (!ct.getTypeDefinition().getSuperDefinition().getAllCases().contains(ct.getTypeDefinition())) {
 							throw new CompilationError(ct, "Type " + ct.getTypeDefinition().getName() + " cannot extend " + ct.getTypeDefinition().getSuperDefinition().getName() + " becasue it is not a declared case");
@@ -171,7 +128,7 @@ public class SemanticAnalysisPhase implements CompilerPhase {
 				}
 			}
 		} catch (CompilationError e){
-			listener.error(new CompilerMessage(e.getMessage()));
+			listener.error(new CompilerMessage(e));
 			return new CompilationResult(e);
 		}
 

@@ -3,6 +3,7 @@
 import lense.core.math.Category;
 import lense.core.lang.Maybe;
 import lense.core.lang.Boolean;
+import lense.core.lang.String;
 
 public class Interval<T> implements Category<T> { // TODO T extends Comparable
 

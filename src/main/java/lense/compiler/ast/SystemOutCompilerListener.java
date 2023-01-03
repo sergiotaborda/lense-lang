@@ -7,7 +7,7 @@ public class SystemOutCompilerListener extends LenseCompilerListener{
     @Override
     public void error(CompilerMessage message) {
         System.err.println("[ERROR]" + message.getMessage());
-        throw new RuntimeException(message.getMessage());
+       // throw new RuntimeException(message.getMessage());
     }
 
     @Override

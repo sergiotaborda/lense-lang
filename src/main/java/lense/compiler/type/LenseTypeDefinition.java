@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -18,25 +17,24 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import lense.compiler.type.variable.TypeMemberAwareTypeVariable;
 import lense.compiler.type.variable.TypeVariable;
 import lense.compiler.typesystem.Imutability;
-import lense.compiler.typesystem.LenseTypeSystem;
 import lense.compiler.typesystem.Variance;
 import lense.compiler.typesystem.Visibility;
 
 /**
  * 
  */
-public class LenseTypeDefinition implements TypeDefinition {
+public class LenseTypeDefinition  implements TypeDefinition {
 
     private String name;
     private TypeKind kind;
     private List<TypeMember> members = new CopyOnWriteArrayList<TypeMember>();
     private List<TypeDefinition> interfaces = new ArrayList<TypeDefinition>();
+    private List<TypeDefinition> typeClasses = new ArrayList<TypeDefinition>();
     protected List<TypeVariable> genericParameters = new ArrayList<>();
     protected Map<String , Integer> genericParametersMapping = new HashMap<>();
     private TypeDefinition superDefinition;
@@ -62,6 +60,9 @@ public class LenseTypeDefinition implements TypeDefinition {
             this.genericParameters = new ArrayList<>(superDefinition.getGenericParameters());
             this.genericParametersMapping = new HashMap<>(superDefinition.genericParametersMapping);
         }
+        if (this.genericParameters.stream().anyMatch(it -> it == null)){
+        	throw new RuntimeException();
+        }
     }
 
     public LenseTypeDefinition(String name, TypeKind kind, LenseTypeDefinition superDefinition, List<TypeVariable> parameters) {
@@ -76,6 +77,9 @@ public class LenseTypeDefinition implements TypeDefinition {
         		this.genericParametersMapping.put(param.getSymbol().get(), i);
         	}
         	i++;
+        }
+        if (this.genericParameters.stream().anyMatch(it -> it == null)){
+        	throw new RuntimeException();
         }
     }
 
@@ -103,6 +107,10 @@ public class LenseTypeDefinition implements TypeDefinition {
            return other;
     }
 
+    public boolean isSpecified() {
+    	return specificationOrigin != null;
+    }
+    
     public LenseTypeDefinition specify(List<TypeVariable> genericParameters) {
         LenseTypeDefinition concrete = this.duplicate();
 
@@ -127,7 +135,7 @@ public class LenseTypeDefinition implements TypeDefinition {
 
                 } else {
                     // TODO this is not correct because genericParameters are not used property. 
-                    // consider Association<K,V> implements Assortement<KeyValue<K,V>>
+                    // consider Association<K,V> implements Assortment<KeyValue<K,V>>
                     binded = new ArrayList<>(interfaceType.getGenericParameters().size());
 
                     for (TypeVariable p :  interfaceType.getGenericParameters()) {
@@ -177,7 +185,7 @@ public class LenseTypeDefinition implements TypeDefinition {
         return false;
     }
 
-    public void updateFrom(TypeDefinition o){
+    public void updateFrom(TypeDefinition o, TypeAssistant typeAssistant){
         if (o != this){
             LenseTypeDefinition other = (LenseTypeDefinition)o;
             if (this.kind == null) {
@@ -194,7 +202,7 @@ public class LenseTypeDefinition implements TypeDefinition {
             	for (; i < this.genericParameters.size(); i++){
             		TypeVariable b = this.genericParameters.get(i);
             		
-					if (LenseTypeSystem.isAssignableTo(a, b).matches()) {
+					if (typeAssistant.isAssignableTo(a, b).matches()) {
 						found = true;
 						break;
 					}
@@ -252,6 +260,9 @@ public class LenseTypeDefinition implements TypeDefinition {
     }
 
     public boolean equals(LenseTypeDefinition other){
+    	if (this == other) {
+    		return true;
+    	}
         if ( this.getName().equals(other.getName()) && this.genericParameters.size() == other.genericParameters.size()) {
         	
         	Iterator<TypeVariable> itA = this.genericParameters.iterator();
@@ -292,6 +303,16 @@ public class LenseTypeDefinition implements TypeDefinition {
             return name;
         }
     }
+    
+    @Override
+	public String getPackageName() {
+    	 int pos = name.lastIndexOf('.');
+         if (pos >= 0) {
+             return name.substring(0,pos);
+         } else {
+             return "";
+         }
+	}
 
     /**
      * {@inheritDoc}
@@ -331,18 +352,18 @@ public class LenseTypeDefinition implements TypeDefinition {
     	
     	Optional<Integer> index = Optional.ofNullable(genericParametersMapping.get(typeName));
     	
-    	if (!index.isPresent() && this.superDefinition!= null) {
-    		index = ((LenseTypeDefinition)this.superDefinition).getGenericParameterIndexBySymbol(typeName);
-    	}
-    	
-    	if (!index.isPresent()) {
-    		for( TypeDefinition n : this.interfaces) {
-        		index = ((LenseTypeDefinition)this.superDefinition).getGenericParameterIndexBySymbol(typeName);
-        		if (index.isPresent()) {
-        			break;
-        		}
-        	}
-    	}
+//    	if (!index.isPresent() && this.superDefinition!= null) {
+//    		index = ((LenseTypeDefinition)this.superDefinition).getGenericParameterIndexBySymbol(typeName);
+//    	}
+//    	
+//    	if (!index.isPresent()) {
+//    		for( TypeDefinition n : this.interfaces) {
+//        		index = ((LenseTypeDefinition)n).getGenericParameterIndexBySymbol(typeName);
+//        		if (index.isPresent()) {
+//        			return index;
+//        		}
+//        	}
+//    	}
 
         return index;
     }
@@ -415,12 +436,13 @@ public class LenseTypeDefinition implements TypeDefinition {
      * @param typeDefinition
      * @param imutabilityValue
      */
-    public void addField(String name, TypeVariable typeDefinition, Imutability imutabilityValue) {
+    public void addField(String name, TypeVariable typeDefinition, Imutability imutabilityValue, Visibility visibility) {
 
 
         final Field field = new Field(name, typeDefinition, imutabilityValue == Imutability.Imutable);
         field.setDeclaringType(this);
-
+        field.setVisibility(visibility);
+        
         // fields are unique by name
         this.members.remove(field);
         this.members.add(field);
@@ -428,13 +450,15 @@ public class LenseTypeDefinition implements TypeDefinition {
     }
 
 
-    public Property addProperty(String name, lense.compiler.type.variable.TypeVariable type , boolean canRead, boolean canWrite) {
+    public Property addProperty(String name, lense.compiler.type.variable.TypeVariable type ,Visibility visibility, boolean canRead, boolean canWrite) {
 
         if ( name == null){
             throw new IllegalArgumentException("Name is mandatory");
         }
         final Property property = new Property(this, name, type, canRead, canWrite);
 
+        property.setVisibility(visibility);
+        
         if (type instanceof TypeMemberAwareTypeVariable){
             ((TypeMemberAwareTypeVariable)type).setDeclaringMember(property);
         }
@@ -451,10 +475,12 @@ public class LenseTypeDefinition implements TypeDefinition {
 
 
 
-    public IndexerProperty addIndexer(lense.compiler.type.variable.TypeVariable type , boolean canRead, boolean canWrite , lense.compiler.type.variable.TypeVariable[] params) {
+    public IndexerProperty addIndexer(lense.compiler.type.variable.TypeVariable type , Visibility visibility, boolean canRead, boolean canWrite , lense.compiler.type.variable.TypeVariable[] params) {
 
         final IndexerProperty property = new IndexerProperty(this, type, canRead, canWrite, params);
 
+        property.setVisibility(visibility);
+        
         if (type instanceof TypeMemberAwareTypeVariable){
             ((TypeMemberAwareTypeVariable)type).setDeclaringMember(property);
         }
@@ -471,39 +497,11 @@ public class LenseTypeDefinition implements TypeDefinition {
         this.members.add(property);
     }
 
-    public void addIndexer(TypeDefinition type , boolean canRead, boolean canWrite, lense.compiler.type.variable.TypeVariable[] params) {
-        addIndexer( type, canRead, canWrite,params);
+    public void addIndexer(TypeDefinition type , Visibility visibility, boolean canRead, boolean canWrite, lense.compiler.type.variable.TypeVariable[] params) {
+        addIndexer( type, visibility, canRead, canWrite,params);
     }
 
-    @Override
-    public Optional<IndexerProperty> getIndexerPropertyByTypeArray(TypeVariable[] params) {
-
-        Optional<IndexerProperty> member = resolveMembers().stream().filter(m -> m.isIndexer() && indexesAreEqual(((IndexerProperty)m).getIndexes(), params))
-                .map(m -> (IndexerProperty) m).findAny();
-
-        if (!member.isPresent() && this.superDefinition != null) {
-            return this.superDefinition.getIndexerPropertyByTypeArray(params);
-        }
-
-        return member;
-    }
-
-
-
-    private boolean indexesAreEqual(TypeVariable[] indexes, TypeVariable[] params) {
-        if( indexes.length != params.length) {
-            return false;
-        }
-
-        for (int i = 0; i < indexes.length; i++){
-            // TODO use TypeVariables
-            if (!LenseTypeSystem.isAssignableTo(params[i], indexes[i]).matches()){
-                return false;
-            }
-        }
-        return true;
-    }
-
+   
     /**
      * @param superType
      */
@@ -534,11 +532,20 @@ public class LenseTypeDefinition implements TypeDefinition {
      */
     @Override
     public Optional<Field> getFieldByName(String name) {
-        Optional<Field> member = resolveMembers().stream().filter(m -> m.isField() && m.getName().equals(name))
+        Optional<Field> member = this.getMembers().stream().filter(m -> m.isField() && m.getName().equals(name))
                 .map(m -> (Field) m).findAny();
 
         if (!member.isPresent() && this.superDefinition != null) {
-            return this.superDefinition.getFieldByName(name);
+            member = this.superDefinition.getFieldByName(name);
+        }
+        
+        if (!member.isPresent() && this.getInterfaces() != null) {
+        	 for ( TypeDefinition it : this.getInterfaces()) {
+                 var field = it.getFieldByName(name);
+                 if (field.isPresent()) {
+                	 return field;
+                 }
+             }
         }
 
         return member;
@@ -549,266 +556,27 @@ public class LenseTypeDefinition implements TypeDefinition {
      */
     @Override
     public Optional<Property> getPropertyByName(String name) {
-        Optional<Property> member = resolveMembers().stream().filter(m -> m.isProperty() && m.getName().equals(name))
+        Optional<Property> member = this.getMembers().stream().filter(m -> m.isProperty() && m.getName().equals(name))
                 .map(m -> (Property) m).findAny();
 
         if (!member.isPresent() && this.superDefinition != null) {
-            return this.superDefinition.getPropertyByName(name);
+            member = this.superDefinition.getPropertyByName(name);
         }
+        
+        if (!member.isPresent() && this.getInterfaces() != null) {
+       	 for ( TypeDefinition it : this.getInterfaces()) {
+                var property = it.getPropertyByName(name);
+                if (property.isPresent()) {
+               	 return property;
+                }
+            }
+       }
 
         return member;
     }
 
-    private List<TypeMember> resolveMembers(){
-        return  members;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Collection<Method> getMethodsByName(String name) {
-        Collection<Method> all = resolveMembers().stream().filter(m -> m.isMethod() && m.getName().equals(name))
-                .map(m -> (Method) m).collect(Collectors.toList());
-
-        if (all.isEmpty() && this.superDefinition != null) {
-            all = this.superDefinition.getMethodsByName(name);
-        }
-        
-        return all;
-    }
-
-    
-    public Optional<Method> getDeclaredMethodBySignature(MethodSignature signature) {
-    	
-        if (signature.getName() == null) {
-            throw new IllegalArgumentException("Signature must have a name");
-        }
-
-        // find exact local
-
-    	Method mostSpecific = null;
-        for (TypeMember m : resolveMembers()) {
-            if (m.isMethod() && signature.getName().equals(m.getName()) && LenseTypeSystem.isSignatureImplementedBy(signature, (CallableMember<Method>) m) ) {
-            	 
-            	if (mostSpecific == null) {
-            		mostSpecific = (Method) m;
-            	} else {
-            		mostSpecific = mostSpecific(mostSpecific,(Method) m);
-            	}
-            }
-        }
-        
-        return Optional.ofNullable(mostSpecific);
-    }
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Optional<Method> getMethodBySignature(MethodSignature signature) {
-
-        if (signature.getName() == null) {
-            throw new IllegalArgumentException("Signature must have a name");
-        }
-
-        // find exact local
-        Optional<Method> method = getDeclaredMethodBySignature(signature);
-        
-        if (method.isPresent()) {
-        	return method;
-        }
-
-        // find exact upper class
-        if (this.superDefinition != null && !this.superDefinition.equals(this)) {
-           method = this.superDefinition.getMethodBySignature(signature);
-
-            if (method.isPresent()){
-                Method myMethod = method.get().changeDeclaringType(this);
-               // this.addMethod(myMethod);
-
-                return Optional.of(myMethod);
-            }
-        }
-
-        for (TypeDefinition i : this.interfaces){
-            Optional<Method> m =  i.getMethodBySignature(signature);
-            if (m.isPresent()){
-                Method myMethod = m.get().changeDeclaringType(this);
-              //  this.addMethod(myMethod);
-
-                return Optional.of(myMethod);
-            }
-        }
-
-        return Optional.empty();
-    }
-
-    @Override
-    public Optional<Method> getMethodByPromotableSignature(MethodSignature signature) {
-        // find promotable
-
-    	Method mostSpecific = null;
-    	
-    	outter: for (Method mth : this.getMethodsByName(signature.getName())) {
-            if (mth.getParameters().size() == signature.getParameters().size()) {
-            	
-            	if (signature.getParameters().isEmpty()) {
-            		   return Optional.of(mth);
-            	}
-            	
-                for (int p = 0; p < signature.getParameters().size(); p++) {
-                    CallableMemberMember<Method> mp = signature.getParameters().get(p);
-                    if (!LenseTypeSystem.getInstance().isPromotableTo(mp.getType(), mth.getParameters().get(p).getType())) {
-                    	continue outter;
-                    }
-                }
-                
-                if (mostSpecific == null) {
-                	mostSpecific = mth;
-                } else {
-                	mostSpecific = mostSpecific(mostSpecific , mth);
-                }
-              
-            }
-        }
-    	
-    	if (mostSpecific != null) {
-        	return Optional.of(mostSpecific);
-        } 
-    	
-        if (this.getSuperDefinition() != null){
-            Optional<Method> m = this.getSuperDefinition().getMethodByPromotableSignature(signature);
-            if (m.isPresent()){
-                return m;
-            }
-        }
-
-        for (TypeDefinition i : this.interfaces){
-            Optional<Method> m =  i.getMethodByPromotableSignature(signature);
-            if (m.isPresent()){
-                return m;
-            }
-        }
-
-        return Optional.empty();
-    }
-
-	@Override
-	public List<Match<Constructor>> getConstructorByName(String constructorName , ConstructorParameter... parameters) {
-        // find exact local
-
-        List<CallableMemberMember<Constructor>> list = Arrays.asList(parameters);
-        Stream<Constructor> map = members.stream()
-                .filter(m -> m.isConstructor())
-                .map(m -> (Constructor) m);
-        
-    	if (constructorName != null) {
-			map = map.filter(c -> constructorName.equals(c.getName()));
-		} else {
-			map = map.filter(c -> c.getName() == null || "constructor".equals(c.getName()));
-		} 	
-    	
-    	return map.map(c -> Match.of(c , LenseTypeSystem.areSignatureParametersImplementedBy(list, c.getParameters()))  )
-				.filter( c-> c.getMatch().matches())
-				.sorted(Comparator.reverseOrder())
-				.collect(Collectors.toList());
-	}
-	
-    @Override
-    public List<Match<Constructor>> getConstructorByParameters(ConstructorParameter... parameters) {
-       return getConstructorByParameters(Visibility.Undefined, parameters);
-    }
-    
-    @Override
-    public List<Match<Constructor>> getConstructorByParameters(Visibility visibility , ConstructorParameter... parameters) {
-        List<CallableMemberMember<Constructor>> list = Arrays.asList(parameters);
-        Stream<Constructor> map = members.stream()
-                .filter(m -> m.isConstructor())
-                .map(m -> (Constructor) m);
-        
-        if (visibility != Visibility.Undefined) {
-        	map = map.filter(c -> c.getVisibility() == visibility);
-        }
-        
-		return map.map(c -> Match.of(c , LenseTypeSystem.areSignatureParametersImplementedBy(list, c.getParameters()))  )
-				.filter( c-> c.getMatch().matches())
-				.sorted(Comparator.reverseOrder())
-				.collect(Collectors.toList());
-    }
-	
-	@Override
-	public Optional<Constructor> getConstructorByNameAndPromotableParameters(String name , ConstructorParameter... parameters) {
-		return searchConstructorWithPromotableParameters(null,name, null, parameters);
-	}
-	
-	private Optional<Constructor> searchConstructorWithPromotableParameters(Visibility visibility ,String name , Boolean implicit, ConstructorParameter... parameters) {
-		
-		Stream<Constructor> map = members.stream().filter(m -> m.isConstructor()).map(m -> (Constructor)m);
-		if (name != null) {
-			map = map.filter(c -> name.equals(c.getName()));
-		} else if (name == null) {
-			map = map.filter(c -> name == null);
-		}
-		
-		if (implicit != null) {
-			map = map.filter(c -> c.isImplicit() == implicit.booleanValue());
-		}
-		
-		if (visibility != null && visibility != Visibility.Undefined) {
-	        map = map.filter(c -> c.getVisibility() == visibility);
-	    }
-		 
-		Iterator<Constructor> iterator = map.iterator();
-		Constructor mostSpecific = null;
-        while(iterator.hasNext()){
-            Constructor constructor = iterator.next();
-            if (constructor.getParameters().size() == parameters.length) {
-                for (int p = 0; p < parameters.length; p++) {
-                    ConstructorParameter mp = parameters[p];
-                    if (LenseTypeSystem.getInstance().isPromotableTo(mp.getType(), constructor.getParameters().get(p).getType())) {
-                    	if (mostSpecific == null) {
-                    		mostSpecific = constructor;
-                    	} else {
-                    		mostSpecific = mostSpecific(mostSpecific, constructor);
-                    	}
-                       
-                    }
-                }
-            }
-        }
-        return Optional.ofNullable(mostSpecific);
-	}
-	
-    private <C extends CallableMember<C>> C mostSpecific(C mostSpecific, C constructor) {
-    	 
-    	 for (int p = 0; p < constructor.getParameters().size(); p++) {
-              CallableMemberMember<C> mp = constructor.getParameters().get(p);
-              CallableMemberMember<C> sp = mostSpecific.getParameters().get(p);
-              
-             if (LenseTypeSystem.isAssignableTo(sp.getType(),mp.getType()).matches()) {
-            	 return constructor;
-                
-             }
-         }
-    	 return mostSpecific;
-    	 
-	}
-    
-
-	@Override
-    public Optional<Constructor> getConstructorByPromotableParameters(ConstructorParameter... parameters) {
-    	return getConstructorByNameAndPromotableParameters(null, parameters);
-    }
-
-	@Override
-	public Optional<Constructor> getConstructorByImplicitAndPromotableParameters(boolean implicit, ConstructorParameter... parameters) {
-		return searchConstructorWithPromotableParameters(null, null, implicit, parameters);
-	}
 
 
-    /**
-     * 
-     */
     public void addMembers(Stream<TypeMember> all) {
 
         all.forEach(a -> members.add(a));
@@ -818,7 +586,7 @@ public class LenseTypeDefinition implements TypeDefinition {
     public void addInterface(TypeDefinition other) {
     	
     	if (other.getName().isEmpty()) {
-    		throw new IllegalArgumentException("Types must have a name");
+    		throw new IllegalArgumentException("Type must have a name");
     	}
         //		if (!other.getKind().equals(LenseUnitKind.Interface)) {
         //			throw new RuntimeException("Type " + other.getName()  +" is not an interface");
@@ -833,6 +601,26 @@ public class LenseTypeDefinition implements TypeDefinition {
         }
 
         interfaces.add(other);
+    }
+    
+    public void addTypeClass(TypeDefinition other) {
+    	
+    	if (other.getName().isEmpty()) {
+    		throw new IllegalArgumentException("Type must have a name");
+    	}
+        //		if (!other.getKind().equals(LenseUnitKind.Interface)) {
+        //			throw new RuntimeException("Type " + other.getName()  +" is not an interface");
+        //		}
+
+        for(Iterator<TypeDefinition> it = this.typeClasses.iterator(); it.hasNext(); ){
+
+            if (it.next().getName().equals(other.getName())){
+                it.remove();
+                break;
+            }
+        }
+
+        typeClasses.add(other);
     }
 
     @Override
@@ -922,10 +710,9 @@ public class LenseTypeDefinition implements TypeDefinition {
 	public TypeVariable changeBaseType(TypeDefinition concrete) {
 		if (this.getName().equals(concrete.getName())) {
 			return concrete;
-		} else {
-			return this;
 		}
-	
+		
+		return this;
 	}
 
 	@Override
@@ -980,31 +767,14 @@ public class LenseTypeDefinition implements TypeDefinition {
 		this.caseValues = caseValues;
 	}
 
+	@Override
+	public List<TypeDefinition> getSatisfiedTypeClasses() {
+		return this.typeClasses;
+	}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+	public void setStatisfiedTypeClasses(List<TypeDefinition> typeClasses) {
+		 this.typeClasses = typeClasses;
+	}
 
 
 }

@@ -1,5 +1,5 @@
 
-import lense.core.lang.String;
+import lense.core.lang.Boolean;
 
 /{
 	Represents a mathematical quantity.

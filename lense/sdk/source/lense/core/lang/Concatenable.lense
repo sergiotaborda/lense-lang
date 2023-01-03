@@ -1,0 +1,7 @@
+
+
+public type class Concatenable<A,D,S> {
+
+   public concatenate(a: A, d: D): S;
+
+}

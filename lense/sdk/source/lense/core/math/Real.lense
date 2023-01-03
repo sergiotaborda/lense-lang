@@ -3,15 +3,18 @@ import lense.core.math.Number;
 import lense.core.lang.Boolean;
 import lense.core.math.SignedNumber;
 import lense.core.math.RealLineElement;
+import lense.core.math.Integer;
+import lense.core.math.Complex;
+import lense.core.math.Imaginary;
 
 public interface Real extends SignedNumber , RealLineElement {
 
 
-	public implicit constructor  valueOf(other : Whole) {
-		return other.asReal();
-	}
+	public native implicit constructor  valueOf(other : Whole);
 
 	public abs(): Real;
+
+	public asInteger(): Integer;
 
 	public symmetric() : Real;
 
@@ -22,6 +25,7 @@ public interface Real extends SignedNumber , RealLineElement {
 
 	public ceil() : Integer;
 	public floor() : Integer;
+	public round() : Integer;
 
 	public plus (other: Real): Real;
 	public minus (other: Real): Real;
@@ -34,5 +38,9 @@ public interface Real extends SignedNumber , RealLineElement {
 	public divide (other: Imaginary): Imaginary;
 	
 	public raiseTo(other : Real) : Real;
-	
+
+	public remainder(other : Real) : Real;
+	public modulo(other : Real) : Real;
+
+
 }

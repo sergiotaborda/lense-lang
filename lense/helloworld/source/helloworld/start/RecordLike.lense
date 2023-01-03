@@ -1,0 +1,16 @@
+
+
+import helloworld.start.Matrix;
+
+public  class RecordLike {
+
+	constructor(
+		public readonly : Integer,
+		public name : String,
+	  	public age : Integer,
+		public birthDay : Integer, 
+		public address : String,
+   		public matrix : Matrix<String>
+	);
+
+}

@@ -7,15 +7,16 @@ import lense.core.collections.IllegalIndexException;
 import lense.core.math.Natural;
 import lense.core.collections.ResizableSequence;
 import lense.core.collections.Sequence;
+import lense.core.collections.Iterator;
 import lense.core.collections.Array;
 import lense.core.collections.Progression;
 import lense.core.lang.HashValue;
 
-public  class List<T> implements ResizableSequence<T> {
+public mutable class List<T> implements ResizableSequence<T> {
 
-	private var length : Natural = 0;
+	private mutable length : Natural = 0;
 
-	private constructor (private var array : Array<T?>);
+	private constructor (private mutable array : Array<T?>);
 
 /{ 
 	needs a way to create a T from nothing 1) can use an Array<Maybe<T>> backed with a plataform implementation
@@ -44,17 +45,9 @@ public  class List<T> implements ResizableSequence<T> {
 		return list;
 	}
 
-	public size : Natural {
-		get {
-			return  length;
-		}
-	}
+	public size : Natural => length;
 
-	public empty : Boolean {
-		get {
-			return length == 0;
-		}
-	}
+	public empty : Boolean => length == 0;
 
 // TODO limit to length 
 	public iterator : Iterator<T> {
@@ -63,11 +56,7 @@ public  class List<T> implements ResizableSequence<T> {
 		}
 	} 
 
-	public indexes : Progression<Natural> {
-		get {
-			return 0 ..< length;
-		}
-	}
+	public indexes : Progression<Natural> => 0 ..< length;
 
 	public add(value : T) {
 		
@@ -122,15 +111,35 @@ public  class List<T> implements ResizableSequence<T> {
 	}
 
 	public contains( other: Any) : Boolean {
-		return array.contains(other);
+		for (let item in array){
+			if (item.valueEqualsTo(other)){
+				return true;
+			}
+		}
+		return false;
 	}
 
+// TODO should be public <R> containsall(other: Assortement<R>) given R extends T 
+// of other : Assortment<Any>  or other : Assortment<? extends Any> 
 	public containsAll( other: Assortment<T>) : Boolean {
-		return array.containsAll(other);
+		
+		if (this.array.size != other.size ){
+			return false;
+		}
+
+		let iteratorA = this.array.iterator;
+		let iteratorB = other.iterator;
+
+		while (iteratorA.moveNext() && iteratorB.moveNext()){
+			if (iteratorA.current() != iteratorB.current()){
+				return false;
+			}
+		}
+		return true;
 	}
 
 	public override asString(){
-		var s : String = "[";
+		mutable let s : String = "[";
 		 
 		for (i in 0 ..< length ){
 			if (i > 0){

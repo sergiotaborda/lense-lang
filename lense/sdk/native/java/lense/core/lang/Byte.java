@@ -2,8 +2,10 @@ package lense.core.lang;
 
 import lense.core.lang.java.Base;
 import lense.core.lang.java.Constructor;
+import lense.core.lang.java.NativeString;
 import lense.core.math.Int32;
 import lense.core.math.Integer;
+import lense.core.math.NativeNumerics;
 import lense.core.math.Natural;
 import lense.core.math.Natural64;
 
@@ -34,10 +36,10 @@ public class Byte extends Base implements Binary{
 		return Natural64.valueOfNative(value);
 	}
 
-	private int value; // positive number 0000_0000_0000_0000_0000_0000_XXXX_XXXX
+	int value; // positive number 0000_0000_0000_0000_0000_0000_XXXX_XXXX
 	
 	@Override
-	public Natural bitsCount() {
+	public Natural getBitsCount() {
 		return Natural64.valueOfNative(8);
 	}
 
@@ -48,12 +50,12 @@ public class Byte extends Base implements Binary{
 
 	@Override
 	public Byte rightShiftBy(Natural n) {
-		return new Byte(value << n.modulus(8));
+		return new Byte(value >> NativeNumerics.modulus(n,8));
 	}
 
 	@Override
 	public Byte leftShiftBy(Natural n) {
-		return new Byte(value >> n.modulus(8));
+		return new Byte(value << NativeNumerics.modulus(n,8));
 	}
 
 	@Override
@@ -65,8 +67,6 @@ public class Byte extends Base implements Binary{
 		return (value & 1) != 0; 
 	}
  
-	// TODO create Base to implement all java adapting methods like equals and hashcode 
-	
 	@Override
 	public boolean equalsTo(Any other) {
 		 return  other instanceof Byte && ((Byte)other).value == this.value; 
@@ -79,23 +79,31 @@ public class Byte extends Base implements Binary{
 
 	@Override
 	public String asString() {
-		return String.valueOfNative(java.lang.Integer.toString(value));
+		return NativeString.valueOfNative(java.lang.Integer.toString(value));
 	}
 
     @Override
     public Byte xor(Any other) { // other is Binary
-       throw new UnsupportedOperationException("Not implement yet");
+       if (other instanceof Byte value) {
+    	   return new Byte(this.value ^ value.value);
+       } 
+       return valueOf((Binary)((Binary)other).xor(this));
     }
 
     @Override
     public Byte or(Any other) {
-    	   throw new UnsupportedOperationException("Not implement yet");
+        if (other instanceof Byte value) {
+     	   return new Byte(this.value | value.value);
+        } 
+        return valueOf((Binary)((Binary)other).or(this));
     }
 
     @Override
     public Byte and(Any other) {
-        // TODO Auto-generated method stub
-        return null;
+        if (other instanceof Byte value) {
+     	   return new Byte(this.value & value.value);
+        } 
+        return valueOf((Binary)((Binary)other).and(this));
     }
 
 

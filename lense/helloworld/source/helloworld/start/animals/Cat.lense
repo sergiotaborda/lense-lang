@@ -1,0 +1,8 @@
+
+
+import helloworld.start.animals.Mammal;
+
+public class Cat extends Mammal {
+
+
+}

@@ -5,14 +5,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 
-import lense.compiler.type.Constructor;
-import lense.compiler.type.ConstructorParameter;
 import lense.compiler.type.Field;
-import lense.compiler.type.IndexerProperty;
-import lense.compiler.type.Match;
-import lense.compiler.type.Method;
-import lense.compiler.type.MethodSignature;
 import lense.compiler.type.Property;
+import lense.compiler.type.TypeAssistant;
 import lense.compiler.type.TypeDefinition;
 import lense.compiler.type.TypeKind;
 import lense.compiler.type.TypeMember;
@@ -22,7 +17,7 @@ import lense.compiler.typesystem.Visibility;
 
 public final class ErasedTypeDefinition implements TypeDefinition{
 
-    private final TypeDefinition originalType;
+    final TypeDefinition originalType;
     private final PrimitiveTypeDefinition primitiveType;
 
     public ErasedTypeDefinition(TypeDefinition originalType, PrimitiveTypeDefinition primitiveType){
@@ -110,36 +105,11 @@ public final class ErasedTypeDefinition implements TypeDefinition{
         return originalType.isCalculated();
     }
 
-    public List<Match<Constructor>> getConstructorByParameters(ConstructorParameter... parameters) {
-        return originalType.getConstructorByParameters(parameters);
-    }
-
-	@Override
-	public List<Match<Constructor>> getConstructorByParameters(Visibility visbility, ConstructorParameter... parameters) {
-		return originalType.getConstructorByParameters(visbility, parameters);
-	}
-	
+  
     public void ensureNotFundamental(Function<TypeDefinition, TypeDefinition> convert) {
         originalType.ensureNotFundamental(convert);
     }
 
-    public Optional<Constructor> getConstructorByPromotableParameters(ConstructorParameter... parameters) {
-        return originalType.getConstructorByPromotableParameters(parameters);
-    }
-
-    public List<Match<Constructor>> getConstructorByName(String name, ConstructorParameter... parameters) {
-        return originalType.getConstructorByName(name, parameters);
-    }
-
-    public Optional<Constructor> getConstructorByNameAndPromotableParameters(String name,
-            ConstructorParameter... parameters) {
-        return originalType.getConstructorByNameAndPromotableParameters(name, parameters);
-    }
-
-    public Optional<Constructor> getConstructorByImplicitAndPromotableParameters(boolean implicit,
-            ConstructorParameter... parameters) {
-        return originalType.getConstructorByImplicitAndPromotableParameters(implicit, parameters);
-    }
 
     public Optional<Field> getFieldByName(String name) {
         return originalType.getFieldByName(name);
@@ -149,24 +119,13 @@ public final class ErasedTypeDefinition implements TypeDefinition{
         return originalType.getPropertyByName(fieldName);
     }
 
-    public Collection<Method> getMethodsByName(String string) {
-        return originalType.getMethodsByName(string);
-    }
-
-    public Optional<Method> getMethodBySignature(MethodSignature signature) {
-        return originalType.getMethodBySignature(signature);
-    }
-
-    public Optional<Method> getMethodByPromotableSignature(MethodSignature signature) {
-        return originalType.getMethodByPromotableSignature(signature);
-    }
 
     public List<TypeDefinition> getInterfaces() {
         return originalType.getInterfaces();
     }
 
-    public void updateFrom(TypeDefinition type) {
-        originalType.updateFrom(type);
+    public void updateFrom(TypeDefinition type, TypeAssistant typeAssistant) {
+        originalType.updateFrom(type,typeAssistant);
     }
 
     public boolean isGeneric() {
@@ -177,9 +136,6 @@ public final class ErasedTypeDefinition implements TypeDefinition{
         return originalType.isAlgebric();
     }
 
-    public Optional<IndexerProperty> getIndexerPropertyByTypeArray(TypeVariable[] type) {
-        return originalType.getIndexerPropertyByTypeArray(type);
-    }
 
     public boolean isAbstract() {
         return originalType.isAbstract();
@@ -200,6 +156,21 @@ public final class ErasedTypeDefinition implements TypeDefinition{
     public List<TypeDefinition> getAllCases() {
         return originalType.getAllCases();
     }
+
+	@Override
+	public String getPackageName() {
+		return originalType.getPackageName();
+	}
+
+	@Override
+	public Visibility getVisibility() {
+		return originalType.getVisibility();
+	}
+
+	@Override
+	public List<TypeDefinition> getSatisfiedTypeClasses() {
+		return originalType.getSatisfiedTypeClasses();
+	}
 
 
 

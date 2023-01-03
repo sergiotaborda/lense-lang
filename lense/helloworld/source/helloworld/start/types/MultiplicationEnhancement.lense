@@ -1,0 +1,18 @@
+
+
+import lense.core.collections.Sequence;
+import helloworld.start.types.MultiplicativeMonoid;
+
+public enhancement MultiplicationEnhancement extends Sequence<T>  given T is MultiplicativeMonoid<T>
+{
+
+	public multiply() : T {
+		let type = typeOf(T);
+		mutable let total = type.one(); // the type of T is an instance of MultiplicativeMonoid<T>
+		for (let item in this){
+			total = type.timesOperator(total, item);
+		}
+		return total;
+	}
+
+}  

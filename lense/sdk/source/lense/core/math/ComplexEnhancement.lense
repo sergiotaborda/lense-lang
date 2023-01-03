@@ -1,0 +1,13 @@
+
+import lense.core.math.ComplexOverReal;
+import lense.core.math.Real;
+import lense.core.math.Complex;
+
+public enhancement ComplexEnhancement extends Complex {
+
+
+	public constructor rectangular(r : Real, img : Real) {
+		return new ComplexOverReal.rectangular(r, img);
+	}
+
+}

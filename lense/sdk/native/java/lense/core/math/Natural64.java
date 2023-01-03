@@ -8,6 +8,7 @@ import lense.core.collections.Progression;
 import lense.core.lang.Any;
 import lense.core.lang.AnyValue;
 import lense.core.lang.HashValue;
+import lense.core.lang.java.NativeString;
 import lense.core.lang.java.NonNull;
 import lense.core.lang.java.PlatformSpecific;
 import lense.core.lang.java.Primitives;
@@ -25,7 +26,7 @@ public final class Natural64 implements Natural , BigDecimalConvertable , BigInt
 	@PlatformSpecific
 	public static Natural64 valueOfNative(int value){
 		if (value < 0){
-			throw ArithmeticException.constructor(lense.core.lang.String.valueOfNative("A negative integer cannot be transformed to a Natural"));
+			throw ArithmeticException.constructor(NativeString.valueOfNative("A negative integer cannot be transformed to a Natural"));
 		}
 		return new Natural64(value);
 	}
@@ -33,7 +34,7 @@ public final class Natural64 implements Natural , BigDecimalConvertable , BigInt
 	@PlatformSpecific
 	public static Natural64 valueOfNative(long value) {
 		if (value < 0){
-			throw ArithmeticException.constructor(lense.core.lang.String.valueOfNative("A negative integer cannot be transformed to a Natural"));
+			throw ArithmeticException.constructor(NativeString.valueOfNative("A negative integer cannot be transformed to a Natural"));
 		}
 		return new Natural64(value);
 	}
@@ -44,7 +45,6 @@ public final class Natural64 implements Natural , BigDecimalConvertable , BigInt
 		return new Natural64(Long.parseUnsignedLong(value));
 	}
 
-	
 	long value; // unsigned
 
 	@Override
@@ -147,7 +147,7 @@ public final class Natural64 implements Natural , BigDecimalConvertable , BigInt
 	@Override
 	public Natural predecessor() {
 		if (value == 0L){
-			throw ArithmeticException.constructor(lense.core.lang.String.valueOfNative("min predecessor reached"));
+			throw ArithmeticException.constructor(NativeString.valueOfNative("min predecessor reached"));
 		}
 		return new Natural64(value - 1);
 	}
@@ -166,29 +166,7 @@ public final class Natural64 implements Natural , BigDecimalConvertable , BigInt
 		if (Long.compareUnsigned(this.value, java.lang.Integer.MAX_VALUE) <= 0){
 			return (int)this.value;
 		}
-		throw ArithmeticException.constructor(lense.core.lang.String.valueOfNative("To big for a primitive int"));
-	}
-
-	@Override
-	public int modulus(int n) {
-		return (int)(this.value % n);
-	}
-
-	public Natural remainder(Natural other) {
-		if (other instanceof Natural64){
-			return new Natural64(this.value % ((Natural64)other).value);
-		} else {
-			return new BigNatural(toJavaBigInteger()).remainder(other);
-		}
-	}
-
-	@Override
-	public Natural wholeDivide(Natural other) {
-		if (other instanceof Natural64){
-			return new Natural64(this.value / ((Natural64)other).value);
-		} else {
-			return new BigNatural(toJavaBigInteger()).wholeDivide(other);
-		}
+		throw ArithmeticException.constructor(NativeString.valueOfNative("To big for a primitive int"));
 	}
 
 	@Override
@@ -272,13 +250,13 @@ public final class Natural64 implements Natural , BigDecimalConvertable , BigInt
 
 	@Override
 	public lense.core.lang.String asString() {
-		return lense.core.lang.String.valueOfNative(this.toString());
+		return NativeString.valueOfNative(this.toString());
 	}
 	
 
 	@Override
 	public Type type() {
-		return Type.fromName(this.getClass().getName());
+		return Type.forName(this.getClass().getName());
 	}
 
 
@@ -287,25 +265,22 @@ public final class Natural64 implements Natural , BigDecimalConvertable , BigInt
 		return new BigDecimal(this.toJavaBigInteger());
 	}
 	
+	@Override
+	public Progression upTo(Any other) {
+		if (other instanceof Natural) {
+			return new NativeOrdinalProgression(this, (Natural)other, true);
+		}
+		throw new ClassCastException("other is not a Natural");
+	}
 
 	@Override
-	public Progression upTo(Natural other) {
+	public Progression upToExclusive(Any other) {
 		if (other instanceof Natural) {
-			return new NativeOrdinalProgression(this, other, true);
+			return new NativeOrdinalProgression(this, (Natural)other, false);
 		}
 		throw new ClassCastException("other is not a Natural");
 	}
 	
-
-	@Override
-	public Progression upToExclusive(Natural other) {
-		if (other instanceof Natural) {
-			return new NativeOrdinalProgression(this, other, false);
-		}
-		throw new ClassCastException("other is not a Natural");
-	}
-	
-
 	@Override
 	public Integer wholeDivide(Integer other) {
 		 return this.asInteger().wholeDivide(other);
@@ -388,12 +363,12 @@ public final class Natural64 implements Natural , BigDecimalConvertable , BigInt
 
 	@Override
 	public Complex plus(Imaginary n) {
-		return Complex.rectangular(this.asReal(), n.real());
+		return ComplexOverReal.rectangular(this.asReal(), n.real());
 	}
 
 	@Override
 	public Complex minus(Imaginary n) {
-		return Complex.rectangular(this.asReal(), n.real().symmetric());
+		return ComplexOverReal.rectangular(this.asReal(), n.real().symmetric());
 	}
 
 	@Override
@@ -415,12 +390,53 @@ public final class Natural64 implements Natural , BigDecimalConvertable , BigInt
 	}
 
 	@Override
+	public Natural wholeDivide(Natural other) {
+		if (other instanceof Natural64){
+			return new Natural64(this.value / ((Natural64)other).value);
+		} else {
+			return new BigNatural(toJavaBigInteger()).wholeDivide(other);
+		}
+	}
+	
+	public Natural remainder(Natural other) {
+		if (other.isZero()){
+			throw ArithmeticException.constructor(NativeString.valueOfNative("Cannot divide by zero"));
+		}  
+		
+		if (other instanceof Natural64 natural){
+			return new Natural64(this.value % natural.value);
+		} else {
+			return new BigNatural(toJavaBigInteger()).remainder(other);
+		}
+	}
+
+	@Override
 	public Whole remainder(Whole other) {
+		if (other.isZero()){
+			throw ArithmeticException.constructor(NativeString.valueOfNative("Cannot divide by zero"));
+		}  
+		
 		if (other instanceof Natural) {
 			return remainder((Natural)other);
 		}
 		return this.asInteger().remainder(other);
 	}
+	
+
+	@Override
+	public Whole modulo(Whole other) {
+		// since this is always positive, remainder and module are the same
+		return remainder(other);
+	}
+	
+	@Override
+	public Natural modulo(Natural other) {
+		// since this is always positive, remainder and module are the same
+		return remainder(other);
+	}
+
+	
+
 
 }
 

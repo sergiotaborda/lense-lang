@@ -1,10 +1,15 @@
 import lense.core.math.Real;
 import lense.core.math.Float;
 import lense.core.math.Whole;
+import lense.core.math.Integer;
 import lense.core.math.BigDecimal;
 import lense.core.math.Rational;
+import lense.core.lang.String;
+import lense.core.math.Comparison;
+import lense.core.lang.HashValue;
+import lense.core.lang.Boolean;
 import lense.core.lang.debug;
-import lense.core.math.ArithmeticException;
+import lense.core.math.ComparisonException;
 import lense.core.math.RealLineElement;
 
 public value class BigFloat implements Float {
@@ -19,6 +24,8 @@ public value class BigFloat implements Float {
 	public implicit constructor valueOf( other: Real) {
 		if (other is Rational){
 			return new BigFloat(other.numerator, other.denominator).simplify();
+		} else if (other is Whole){
+			return new BigFloat(other.asInteger(), new Int32.one());
 		}
 		return new BigFloat.parse(other.asString());
 	}
@@ -44,31 +51,44 @@ public value class BigFloat implements Float {
 	}
 
 
-	public constructor parse( other: String){
-		if (other == "NaN"){
+	public constructor parse( representation : String){
+		if (representation == "NaN"){
 		   return new BigFloat(0,0);
-		} else if (other == "+Infinity"){
+		} else if (representation == "+Infinity"){
 		   return new BigFloat(1,0);
-		} else if (other == "-Infinity"){
+		} else if (representation == "-Infinity"){
 		   return new BigFloat(-1,0);
 		}
 
-		if ( other.starstWith("-")){
-			other = other.subString(1);
-		}
+		let pos : Maybe<Natural> = representation.indexOf(".");
 
-		let pos : Maybe<Natural> = other.indexOf(".");
 
 		if (pos.isAbsent()){
-			return new BigFloat(new Whole.parse(other),1);
+			return new BigFloat(new Whole.parse(representation),1);
 		} else {
+
+			mutable let isNegative = false;
+			mutable let positiveRepresentation = representation;
+			if ( representation.starstWith("-")){
+				positiveRepresentation = representation.subString(1);
+				isNegative = true;
+			}
+
 			let len : Natural = pos.value; // this should not be necessary. 
-			let power = other.size &- len &- 1;		
+			let power = positiveRepresentation.size &- len &- 1;		
 
-			let wholePart = new Whole.parse(other.removeAt(pos.value));
+			let wholePart = new Whole.parse(positiveRepresentation.removeAt(pos.value));
 
-			return new BigFloat(wholePart,10 ^^ power).simplify();
+			mutable let value = new BigFloat(wholePart,10 ^^ power).simplify();
+
+			if (isNegative){
+				value = -value;
+			}
+
+			return value;
 		}
+
+	
 	}
 
 	public asFloat() => this;
@@ -90,14 +110,6 @@ public value class BigFloat implements Float {
 
 	} 
 
-	public override equalsTo(other: Any){
-		return (other is RealLineElement) && this.compareWith(other).isEqual();
-	} 
-
-	public override hashValue() : HashValue {
-		return numerator.hashValue().concat(denominator.hashValue());
-	}
-
 	public sign() : Integer {
 		// sign of NaN is +  since its considered > +oo
 		if (this.isNaN() || this.isPositiveInfinity()) {
@@ -110,6 +122,34 @@ public value class BigFloat implements Float {
 
 		return this.numerator.sign();
 	}
+
+	public isNaN() => numerator == 0 && denominator == 0;
+
+	public isNegativeZero() => numerator == 0 && denominator < 0;
+
+	public isNegativeInfinity() => numerator < 0 && denominator == 0;
+
+	public isPositiveInfinity() => numerator > 0 && denominator == 0;
+
+	public isInfinity() => denominator == 0;
+	
+	public isPositive() => this.isNaN() || this.isPositiveInfinity() || numerator.isPositive();
+
+	public isNegative() => this.isNegativeZero() || this.isNegativeInfinity() || numerator.isNegative();
+
+	public isOne() => numerator == 1 && denominator != 0;
+
+	public isZero() => numerator == 0 && denominator > 0;
+	
+	public symmetric() {
+		if (this.isZero() || this.isNegativeZero()){
+			return new BigFloat( this.numerator , -this.denominator);
+		} 
+			
+		return new BigFloat( -this.numerator , this.denominator);
+	}
+
+    public abs() => this.isNegative() ? this.symmetric() : this;
 
 	public override compareWith (other : RealLineElement) : Comparison {
 		
@@ -152,7 +192,7 @@ public value class BigFloat implements Float {
 					return smaller;
 				}
 			}
-	
+			
 			let diff = this - other;
 			
 		    if (diff > 0){
@@ -166,58 +206,79 @@ public value class BigFloat implements Float {
 		  return compareWith(new BigFloat.valueOf(other.asFloat()));
 		}
 
-		throw new ArithmeticException(); // TODO comparison exception
+		throw new ComparisonException();
 	}  
 
-	public isPositive() => this.isNaN() || this.isPositiveInfinity() || numerator.isPositive();
+	public override equalsTo(other: Any){
+		return (other is RealLineElement) && this.compareWith(other).isEqual();
+	} 
 
-	public isNegative() => this.isNegativeZero() || this.isNegativeInfinity() || numerator.isNegative();
-
-	public isNaN() => numerator == 0 && denominator == 0;
-
-	public isNegativeZero() => numerator == 0 && denominator < 0;
-
-	public isNegativeInfinity() => numerator < 0 && denominator == 0;
-
-	public isPositiveInfinity() => numerator > 0 && denominator == 0;
-
-	public isInfinity() => denominator == 0;
-	
-    public abs() => this.isNegative() ? this.symmetric() : this;
-
-	public symmetric() {
-		if (this.isZero() || this.isNegativeZero()){
-			return new BigFloat( this.numerator , -this.denominator);
-		} else {
-			return new BigFloat( -this.numerator , -this.denominator);
-		}
-
+	public override hashValue() : HashValue {
+		return numerator.hashValue().concat(denominator.hashValue());
 	}
 
-	public isOne() => numerator == 1 && denominator != 0;
-	public isZero() => numerator == 0 && denominator > 0;
-	
+
+
     public isWhole() : Boolean {
     	return this.numerator % this.denominator == 0;
     }
     
-	public floor() : Integer {
-		if (this < 0){
+	public floor() : Float {
+		if (this.isNaN() || this.isInfinity() || this.isNegativeZero()) {
+    		return this;
+    	} else if (this < 0){
 			return -(-this).ceil();
 		} else {
       		//extracted from http://www.cs.nott.ac.uk/~rcb/G51MPC/slides/NumberLogic.pdf
-			return this.numerator \ this.denominator ;
+			return (this.numerator \ this.denominator).asFloat() ;
 		}
 	}
 
-	public ceil() : Integer {
-
-		if (this < 0){
+	public ceil() : Float {
+		if (this.isNaN() || this.isInfinity() || this.isNegativeZero()) {
+    		return this;
+    	} else if (this < 0){
 			return -(-this).floor();
 		} else {
       		//extracted from http://www.cs.nott.ac.uk/~rcb/G51MPC/slides/NumberLogic.pdf
-			return (this.numerator + this.denominator - 1) \ this.denominator;
+			return ((this.numerator + this.denominator - 1) \ this.denominator).asFloat();
 		}
+	}
+
+	public round() : Float {
+		if ( this.isNaN() || this.isNegativeZero() || this.isInfinity()){
+			return this;
+		}
+
+		return this < 0 ? this.ceil() : this.floor();
+	}
+
+	public remainder( other: Float) : Float {
+		if (this.isInfinity() && other.isInfinity() || this.isNaN() || other.isNaN()) {
+			return new BigFloat(0,0); // NaN
+		} else if (other.isZero()) {
+			return new BigFloat(1,0).multiply(this.sign().asFloat());
+		} else if (other.isNegativeZero()) {
+			return new BigFloat(-1,0).multiply(this.sign().asFloat());
+		} else if (other.isOne()) {
+			return this;
+		} 
+		
+		return this.minus(other.multiply(this.divide(other).round()));
+	}
+
+	public modulo(other: Float) : Float{
+		if (this.isInfinity() && other.isInfinity() || this.isNaN() || other.isNaN()) {
+			return new BigFloat(0,0); // NaN
+		} else if (other.isZero()) {
+			return new BigFloat(1,0).multiply(this.sign().asFloat());
+		} else if (other.isNegativeZero()) {
+			return new BigFloat(-1,0).multiply(this.sign().asFloat());
+		} else if (other.isOne()) {
+			return this;
+		} 
+		
+		return this.minus(other.multiply(this.divide(other).floor()));
 	}
 
 	private simplify(): BigFloat {
@@ -226,21 +287,30 @@ public value class BigFloat implements Float {
 
 	private simplify( numerator : Integer,  denominator : Integer ) : BigFloat {
 	
+		mutable let normalizedNumerator = numerator;
+		mutable let normalizedDenominator = denominator;
+
 		if (denominator == 0){
-			numerator = numerator.sign();
+			normalizedNumerator = normalizedNumerator.sign();
 		} 
 		if (numerator == 0){
-			denominator = denominator.sign();
+			normalizedDenominator = normalizedDenominator.sign();
 		}
+
 		
-		if (denominator != 1 ){
-			let gcd = numerator.gcd(denominator);
+		if (normalizedDenominator != 1 ){
+			let gcd = normalizedNumerator.gcd(normalizedDenominator);
 			
-			numerator = numerator \ gcd;
-            denominator = denominator \ gcd;
+			normalizedNumerator = normalizedNumerator \ gcd;
+            normalizedDenominator = normalizedDenominator \ gcd;
 		}
 		
-		return new BigFloat(numerator , denominator);
+		if (normalizedNumerator < 0){
+			normalizedNumerator = -normalizedNumerator;
+			normalizedDenominator = -normalizedDenominator;
+		}
+
+		return new BigFloat(normalizedNumerator , normalizedDenominator);
 	
 	}
 
@@ -282,6 +352,21 @@ public value class BigFloat implements Float {
 	}
 
 	public multiply (other: Float) : Float {
+
+		if (other.isOne()){
+			return this;
+		} else if (this.isNaN() 
+				|| other.isNaN() 
+				|| (this.isInfinity() && other.isInfinity())
+				|| (this.isZero() && other.isZero())
+		){
+			return new BigFloat(0,0); // NaN
+		} else if (this.isOne()){
+			return other;
+		} else if (this.isZero() || other.isZero()){
+			return new BigFloat(0,1); // zero
+		}
+
 		 let r : BigFloat = other;
 
 		 return simplify(
@@ -292,6 +377,20 @@ public value class BigFloat implements Float {
 	}
 
 	public divide (other: Float) : Float {
+
+		if (other.isOne()){
+			return this;
+		} else if (this.isNaN() 
+				|| other.isNaN() 
+				|| (this.isInfinity() && other.isInfinity())
+				|| (this.isZero() && other.isZero())
+		){
+			return new BigFloat(0,0); // NaN
+		} else if (this.isOne()){
+			return other.invert();
+		} else if (this.isZero()){
+			return new BigFloat(0,1);
+		}
 
  		let r : BigFloat = other;
 
@@ -350,9 +449,9 @@ public value class BigFloat implements Float {
 
 	    //taylor : exp(x) = 1 + x + x*x/2 + x*x*X/6 + x*x*x*x/24 +...
 
-        var sum : BigFloat = 1 ;
-   		var xpowi : BigFloat = 1 ;
-		var factorial = 1;
+        mutable let sum : BigFloat = 1 ;
+   		mutable let xpowi : BigFloat = 1 ;
+		mutable let factorial = 1;
                            
          for(let i in 1 .. 36){
 			factorial *= i;
@@ -375,9 +474,9 @@ public value class BigFloat implements Float {
 	public raiseTo(other : Whole) : Float {
 
 
-		var n = other.abs();
+		let n = other.abs();
 
-		var power =  simplify(this.numerator ^^ n, this.denominator ^^ n);
+		mutable let power =  simplify(this.numerator ^^ n, this.denominator ^^ n);
 	
 		if (other < 0 ){
 			power =  power.invert();

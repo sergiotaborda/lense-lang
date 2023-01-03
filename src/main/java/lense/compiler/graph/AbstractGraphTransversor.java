@@ -15,7 +15,7 @@ public abstract class AbstractGraphTransversor<E,V> implements GraphTransversor<
 	List<GraphTranverseListener<V,E>> listenerSet = new ArrayList<>();
 	
 	@Override
-	public void  addListener(GraphTranverseListener< V,E>  listener) {
+	public void  addListener(GraphTranverseListener<V,E>  listener) {
 		listenerSet.add(listener);
 	}
 
@@ -32,14 +32,14 @@ public abstract class AbstractGraphTransversor<E,V> implements GraphTransversor<
 		return new GraphTranverseListener<V,E>(){
 
 			@Override
-			public void beginEdgeTraversed(EdgeTraversalEvent<E, V> e) {
+			public void beginEdgeTraversed(EdgeTraversalEvent<E,V> e) {
 				for (GraphTranverseListener lt : listenerSet ){
 					lt.beginEdgeTraversed(e);
 				}
 			}
 
 			@Override
-			public void endEdgeTraversed(EdgeTraversalEvent<E, V> e) {
+			public void endEdgeTraversed(EdgeTraversalEvent<E,V> e) {
 				for (GraphTranverseListener lt : listenerSet ){
 					lt.endEdgeTraversed(e);
 				}

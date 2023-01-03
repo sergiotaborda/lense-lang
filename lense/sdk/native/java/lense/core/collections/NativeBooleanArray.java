@@ -9,8 +9,8 @@ import lense.core.lang.IllegalIndexException;
 import lense.core.lang.Maybe;
 import lense.core.lang.None;
 import lense.core.lang.Some;
+import lense.core.lang.java.JavaReifiedArguments;
 import lense.core.lang.java.PlatformSpecific;
-import lense.core.lang.reflection.JavaReifiedArguments;
 import lense.core.lang.reflection.Type;
 import lense.core.math.NativeNumberFactory;
 import lense.core.math.Natural;
@@ -146,8 +146,7 @@ final class NativeBooleanArray extends Array implements SmallArray {
 
 	@Override
 	public int size() {
-		// TODO Auto-generated method stub
-		return 0;
+		return this.size();
 	}
 
 

@@ -1,8 +1,9 @@
-
 import lense.core.lang.String;
+import lense.core.collections.Sequence;
 
 public interface Package {
 
-    public  name : String {get;}
+    public name : String {get;}
+	public types() : Sequence<Type>;
 
 }

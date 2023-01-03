@@ -19,6 +19,14 @@ public class NumericValue extends LiteralExpressionNode {
 
 	public NumericValue (){};
 	
+	public NumericValue (int n, TypeDefinition type){
+		this.setValue(BigDecimal.valueOf(n), type);
+	};
+
+	public NumericValue (BigDecimal n, TypeDefinition type){
+		this.setValue(n, type);
+	};
+	
 	public static  NumericValue zero (){
 		NumericValue nv = new NumericValue();
 		nv.setValue(BigDecimal.ZERO, LenseTypeSystem.Natural());
@@ -47,7 +55,7 @@ public class NumericValue extends LiteralExpressionNode {
 	/**
 	 * @return
 	 */
-	public Number getValue() {
+	public BigDecimal getValue() {
 		return number;
 	}
 
@@ -73,6 +81,16 @@ public class NumericValue extends LiteralExpressionNode {
 		TypeDefinition def = type.getTypeDefinition();
 		if (this.getTypeVariable() == null || ( def != null && !def.getName().equals("lense.core.math.Number"))) {
 			super.setTypeVariable(type);
+		}
+	}
+
+	
+	public boolean isInteger() {
+		try {
+			number.toBigIntegerExact();
+			return true;
+		}catch (ArithmeticException e) {
+			return false;
 		}
 	} 
 }

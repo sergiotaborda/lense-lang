@@ -17,7 +17,7 @@ public interface GraphTransversor<E,V> {
 	public  void transverse(Graph<E, V> graph, V startVertex);
 	
 	
-	public void addListener(GraphTranverseListener<V,E>  listener);
+	public void addListener(GraphTranverseListener<V,E >  listener);
 	
 	public  void removeListener(GraphTranverseListener<V,E> listener);
 }

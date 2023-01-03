@@ -3,7 +3,8 @@ import lense.core.math.Number;
 import lense.core.math.Real;
 import lense.core.math.Whole;
 import lense.core.math.Equal;
-import lense.core.math.ComplexOverReal;
+import lense.core.math.ComplexEnhancement;
+import lense.core.lang.Boolean;
 
 public value class ImaginaryOverReal implements Imaginary {
 
@@ -24,22 +25,22 @@ public value class ImaginaryOverReal implements Imaginary {
 	
 	public divide( other: Imaginary) => this.value.divide(other.real());
 
-	public plus( other: Whole ) =>  plus( other.divide(1) );
-
-	public minus( other : Whole) =>  minus( other.divide(1) );
-
-	public multiply( other: Whole) => multiply( other.divide(1) );
-
-	public divide( other : Whole) => divide( other.divide(1) );
-
 	public plus( other: Real) => new Complex.rectangular(other, this.value);
+
+	public plus( other: Whole ) =>  new Complex.rectangular(other.divide(1), this.value);
 
 	public minus( other: Real ) => new Complex.rectangular(-other, this.value);
 
+	public minus( other : Whole) =>  new Complex.rectangular(-other.divide(1), this.value);
+
 	public multiply( other: Real) => new ImaginaryOverReal(this.value * other);
 
+	public multiply( other: Whole) => new ImaginaryOverReal(this.value * other.divide(1) );
+
+	public divide( other : Whole) => new ImaginaryOverReal(this.value / other.divide(1) );
+
 	public divide( other: Real) => new ImaginaryOverReal(this.value / other);
-	
+
 	public override asString() => this.value.asString() ++ "i";
 
 	public symmetric() => new ImaginaryOverReal(-this.value);

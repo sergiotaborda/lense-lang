@@ -4,18 +4,14 @@ import java.util.Optional;
 
 import compiler.syntax.AstNode;
 import compiler.trees.VisitorNext;
-import lense.compiler.CompilationError;
+import lense.compiler.TypeNotFoundError;
 import lense.compiler.ast.FormalParameterNode;
 import lense.compiler.ast.GenericTypeParameterNode;
-import lense.compiler.ast.MethodDeclarationNode;
-import lense.compiler.ast.PropertyDeclarationNode;
 import lense.compiler.ast.TypeNode;
 import lense.compiler.context.SemanticContext;
 import lense.compiler.context.VariableInfo;
 import lense.compiler.type.LenseTypeDefinition;
 import lense.compiler.type.variable.DeclaringTypeBoundedTypeVariable;
-import lense.compiler.type.variable.LazyTypeVariable;
-import lense.compiler.type.variable.MethodFreeTypeVariable;
 import lense.compiler.type.variable.TypeVariable;
 import lense.compiler.typesystem.LenseTypeSystem;
 import lense.compiler.typesystem.Variance;
@@ -64,14 +60,12 @@ public abstract class AbstractScopedVisitor extends AbstractLenseVisitor  {
 					type = namedType.get();
 				} else {
 					if (t.getTypeParameter() != null){
-						return t.getTypeParameter();
-					} else if (t.getParent() instanceof PropertyDeclarationNode) {
-						var lazyType = new LazyTypeVariable(t.getName(), t.getTypeParametersCount(),this.getSemanticContext());
-						t.setTypeVariable(lazyType);
-						t.setTypeParameter(lazyType);
-						return lazyType;
+						type = t.getTypeParameter();
+					} else {
+						type = LenseTypeSystem.getInstance().getForName(t.getName(), t.getTypeParametersCount())
+								.orElseThrow(() -> new TypeNotFoundError(t.getParent(),  t.getName()));
+
 					}
-					throw new CompilationError(t.getParent(), "Type "  + t.getName() + " is not recognized. Did you imported it?");
 				}
 
 			} else {
@@ -86,14 +80,10 @@ public abstract class AbstractScopedVisitor extends AbstractLenseVisitor  {
 				type = namedType.get();
 			} else {
 				if (t.getTypeParameter() != null){
-					return t.getTypeParameter();
-				} else if (t.getParent() instanceof PropertyDeclarationNode) {
-					var lazyType = new LazyTypeVariable(t.getName(), t.getTypeParametersCount(),this.getSemanticContext());
-					t.setTypeVariable(lazyType);
-					t.setTypeParameter(lazyType);
-					return lazyType;
+					type = t.getTypeParameter();
+				} else {
+					throw new TypeNotFoundError(t.getParent(),  t.getName());
 				}
-				throw new CompilationError(t.getParent(), "Type "  + t.getName() + " is not recognized. Did you imported it?");
 			}
 		}
 
@@ -113,81 +103,13 @@ public abstract class AbstractScopedVisitor extends AbstractLenseVisitor  {
 				
 				TypeVariable typeVariable = resolveTypeDefinition(innerTypeNode, positionVariance);
 				
-				
-//				if (innerTypeNode!= null){
-//
-//					//					typeVariable = resolveTypeDefinition(innerTypeNode, positionVariance);
-//					//					if (typeVariable == null) {
-//					typeVariable =  innerTypeNode.getTypeVariable();
-//					if (typeVariable == null) {
-//						
-//						// possible composed generic like Array<Maybe<T>>
-//						Optional<TypeVariable> innerType = this.getSemanticContext().resolveTypeForName(innerTypeNode.getName(), innerTypeNode.getTypeParametersCount());
-//
-//						if (innerType.isPresent()) {
-//
-//							if (innerType.get().getGenericParameters().isEmpty()) {
-//								typeVariable = LenseTypeSystem.specify(type,innerType.get());
-//							} else {
-//
-//								Optional<Integer> opIndex = ((LenseTypeDefinition)currentScope.getCurrentType()).getGenericParameterIndexBySymbol(innerType.get().getGenericParameters().get(0).getSymbol().get());
-//
-//								// handle composition Array<Maybe<T>> 
-//								typeVariable = new GenericTypeBoundToDeclaringTypeVariable(innerType.get().getTypeDefinition(), currentScope.getCurrentType(), opIndex.get() , innerTypeNode.getName(),  Variance.Covariant);
-//							}
-//
-//						} else {
-//							throw new CompilationError(t, "Type " +  innerTypeNode.getName() + " is not recognized");
-//						}
-//						
-////						VariableInfo variableInfo = currentScope.searchVariable(innerTypeNode.getName());
-////						if (variableInfo == null) {
-////							
-////
-////						} else if (variableInfo.isTypeVariable()){
-////							typeVariable = new DeclaringTypeBoundedTypeVariable(currentScope.getCurrentType(), index , innerTypeNode.getName(),  Variance.Covariant);
-////
-////						} else {
-////							typeVariable = semanticContext.typeForName(innerTypeNode);
-////						}
-////
-////						//		}
-//					} 
-//
-//					genericParametersCapture[index] = typeVariable;
-//					innerTypeNode.setTypeVariable(genericParametersCapture[index]);
-//				} else {
-//					typeVariable = semanticContext.resolveTypeForName("lense.core.lang.Any", 0).get();
-//					genericParametersCapture[index] = typeVariable;
-//				}
-				
 				genericParametersCapture[ind] = typeVariable;
 				innerTypeNode.setTypeVariable(genericParametersCapture[ind]);
 				ind++;
 			}
-			type = type == null ? null : LenseTypeSystem.specify(type,genericParametersCapture);
+			type = type == null ? null : LenseTypeSystem.getInstance().specify(type,genericParametersCapture);
 
 		} 
-
-//		if (type == null) {
-//
-//			for ( TypeVariable p : this.getCurrentType().get().getGenericParameters()) {
-//				if (p.getSymbol().map( s -> s.equals(t.getName())).orElse(false)) {
-//					type = p;
-//					break;
-//				}
-//			}
-//		}
-//
-//		if (type == null) {
-//			try {
-//				type = semanticContext.typeForName(t);
-//			} catch (lense.compiler.type.TypeNotFoundException e) {
-//				throw new CompilationError(t.getParent(), e.getMessage());
-//			}
-//		}
-
-
 
 		t.setTypeVariable(type);
 		t.setTypeParameter(t.getTypeVariable());

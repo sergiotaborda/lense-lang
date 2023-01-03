@@ -14,13 +14,15 @@ import java.util.Optional;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import compiler.filesystem.DiskSourceFileSystem;
+import compiler.filesystem.SourceFolder;
 import lense.compiler.ast.LenseCompilerListener;
 import lense.compiler.ast.SystemOutCompilerListener;
 import lense.compiler.crosscompile.java.LenseToJavaCompiler;
 import lense.compiler.crosscompile.javascript.LenseToJsCompiler;
-import lense.compiler.crosscompile.typescript.LenseToTypeScriptCompiler;
+import lense.compiler.crosscompile.pim.LenseToPimCompiler;
 import lense.compiler.modules.ModuleIdentifier;
-import lense.compiler.modules.ModuleTypeContents;
+import lense.compiler.modules.ModuleUnit;
 import lense.compiler.modules.ModulesRepository;
 
 /**
@@ -28,75 +30,72 @@ import lense.compiler.modules.ModulesRepository;
  */
 public class TestSdkCompilation {
 
+	SourceFolder sdkFolder = DiskSourceFileSystem.instance().folder(new File(new File(".").getAbsoluteFile().getParentFile(), "/lense/sdk/"));
 
-	@Test 
-	public void testCompileLibrary() throws IOException {
-		File folder = new File(new File(".").getAbsoluteFile().getParentFile(), "/lense/sdk/");
-
-
-
+	 @Test 
+	public void testCompileLibraryJava() throws IOException {
+		
 		ModulesRepository repo = new ModulesRepository() {
-
+            
+           
 			@Override
-			public Optional<ModuleTypeContents> resolveModuleByNameAndVersion(ModuleIdentifier identifier) {
-				return Optional.empty();
-			}
-
-			@Override
-			public List<ModuleTypeContents> resolveModuleByName(String qualifiedNameNode) {
+			public List<SourceFolder> getClassPath() {
 				return Collections.emptyList();
 			}
-		};
-		new LenseToJavaCompiler(repo)
+
+			@Override
+			public Optional<ModuleUnit> resolveModuleByNameAndVersion(ModuleIdentifier identifier) {
+				return Optional.empty();
+			}
+        };
+        new LenseToJavaCompiler(repo)
 		//.setCompilerListener(LenseCompilerListener.error(msg -> fail(msg.getMessage())))
-		.setCompilerListener(new SystemOutCompilerListener())
-		.compileModuleFromDirectory(folder);
+        .setCompilerListener(new SystemOutCompilerListener())
+		.compileModuleFromDirectory(sdkFolder);
 	}
-
-
-	@Ignore @Test 
-	public void testCompileLibraryJavascript() throws IOException {
-		File folder = new File(new File(".").getAbsoluteFile().getParentFile(), "/lense/sdk/");
-
+	 
+	@Test @Ignore
+	public void testCompileLibraryPim() throws IOException {
+		
 		ModulesRepository repo = new ModulesRepository() {
-
+            
+           
 			@Override
-			public Optional<ModuleTypeContents> resolveModuleByNameAndVersion(ModuleIdentifier identifier) {
-				return Optional.empty();
-			}
-
-			@Override
-			public List<ModuleTypeContents> resolveModuleByName(String qualifiedNameNode) {
+			public List<SourceFolder> getClassPath() {
 				return Collections.emptyList();
 			}
-		};
-
-		new LenseToJsCompiler(repo)
-		.setCompilerListener(LenseCompilerListener.error(msg -> fail(msg.getMessage())))
-		.compileModuleFromDirectory(folder);
-	}
-
-	@Test
-	public void testCompileLibraryTypeScript() throws IOException {
-		File folder = new File(new File(".").getAbsoluteFile().getParentFile(), "/lense/sdk/");
-
-		ModulesRepository repo = new ModulesRepository() {
 
 			@Override
-			public Optional<ModuleTypeContents> resolveModuleByNameAndVersion(ModuleIdentifier identifier) {
+			public Optional<ModuleUnit> resolveModuleByNameAndVersion(ModuleIdentifier identifier) {
 				return Optional.empty();
 			}
-
-			@Override
-			public List<ModuleTypeContents> resolveModuleByName(String qualifiedNameNode) {
-				return Collections.emptyList();
-			}
-		};
-
-		new LenseToTypeScriptCompiler(repo)
-		//.setCompilerListener(LenseCompilerListener.error(msg -> fail(msg.getMessage())))
-		.setCompilerListener(new SystemOutCompilerListener())
-		.compileModuleFromDirectory(folder);
+        };
+        new LenseToPimCompiler(repo)
+        .setCompilerListener(new SystemOutCompilerListener())
+		.compileModuleFromDirectory(sdkFolder);
 	}
+
+	 @Ignore @Test 
+    public void testCompileLibraryJavascript() throws IOException {
+        
+        ModulesRepository repo = new ModulesRepository() {
+            
+            @Override
+            public Optional<ModuleUnit> resolveModuleByNameAndVersion(ModuleIdentifier identifier) {
+                return Optional.empty();
+            }
+            
+			
+            @Override
+			public List<SourceFolder> getClassPath() {
+				// TODO Auto-generated method stub
+				return null;
+			}
+        };
+
+        new LenseToJsCompiler(repo)
+        .setCompilerListener(LenseCompilerListener.error(msg -> fail(msg.getMessage())))
+        .compileModuleFromDirectory(sdkFolder);
+    }
 
 }

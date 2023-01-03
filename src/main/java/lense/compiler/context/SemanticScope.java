@@ -124,9 +124,12 @@ public class SemanticScope {
 	 * @param any
 	 */
 	public VariableInfo defineTypeVariable(String name, TypeVariable type, AstNode declaringNode) {
-		if (variables.containsKey(name)){
-			throw new CompilationError(declaringNode, "Type variable " + name + " is already defined in this scope.");
+		if (type == null) {
+			throw new IllegalArgumentException("type cannot be null");
 		}
+//		if (variables.containsKey(name)){
+//			throw new CompilationError(declaringNode, "Type variable " + name + " is already defined in this scope.");
+//		}
 		final VariableInfo variableInfo = new VariableInfo(name, type,declaringNode, true, false);
 		variables.put(name, variableInfo);
 

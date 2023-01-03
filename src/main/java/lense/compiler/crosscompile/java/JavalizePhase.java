@@ -1,14 +1,15 @@
 package lense.compiler.crosscompile.java;
 
-import java.io.File;
 import java.util.Map;
 
 import compiler.CompilationResult;
 import compiler.CompilerListener;
 import compiler.CompilerMessage;
 import compiler.CompilerPhase;
+import compiler.filesystem.SourceFile;
 import compiler.trees.TreeTransverser;
 import lense.compiler.CompilationError;
+import lense.compiler.NativeSourceInfo;
 import lense.compiler.ast.ClassTypeNode;
 import lense.compiler.ast.UnitTypes;
 import lense.compiler.repository.UpdatableTypeRepository;
@@ -19,10 +20,10 @@ public final class JavalizePhase implements CompilerPhase {
 	protected static String AutoGenerateAsString = "AutoGenerateAsString";
 	
 	private CompilerListener listener;
-	private Map<String, File> nativeTypes;
+	private Map<String, NativeSourceInfo> nativeTypes;
     private UpdatableTypeRepository typeContainer;
 	
-	public JavalizePhase (CompilerListener listener, Map<String, File> nativeTypes, UpdatableTypeRepository typeContainer){
+	public JavalizePhase (CompilerListener listener, Map<String, NativeSourceInfo> nativeTypes, UpdatableTypeRepository typeContainer){
 		this.listener = listener;
 		this.nativeTypes = nativeTypes;
 		this.typeContainer = typeContainer;
@@ -49,7 +50,7 @@ public final class JavalizePhase implements CompilerPhase {
 				} 
 			
 			} catch (CompilationError e){
-				listener.error(new CompilerMessage(e.getMessage()));
+				listener.error(new CompilerMessage(e));
 				return new CompilationResult(e);
 			}
 		}

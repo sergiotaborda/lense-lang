@@ -1,11 +1,22 @@
 package lense.core.math;
 
+import lense.core.lang.Any;
 import lense.core.lang.Ordinal;
+import lense.core.lang.Summable;
 import lense.core.lang.java.Signature;
 
 @Signature("::lense.core.math.Whole&lense.core.math.SignedNumber&lense.core.math.Comparable<lense.core.math.Integer>")
-public interface Integer extends Whole , Comparable, SignedNumber, Ordinal, Progressable {
+public interface Integer extends Whole , Comparable, SignedNumber, Ordinal, Progressable , Summable {
 
+	@lense.core.lang.java.MethodSignature( 
+			returnSignature = "lense.core.math.Integer" , 
+			paramsSignature = "lense.core.math.Integer,lense.core.math.Integer" , 
+			override = false , 
+			satisfy = true, declaringType = "lense.core.lang.Summable")
+	public default Any sum (Any a, Any b) {
+		return ((Integer)a).plus((Whole)b);
+	}
+	
     public static Integer valueOf(Whole other) {
         return other.asInteger();
     }
@@ -32,13 +43,9 @@ public interface Integer extends Whole , Comparable, SignedNumber, Ordinal, Prog
 	
 	public Integer multiply (Natural other);
 	
-
-
 	public Integer wholeDivide(Integer other);
 	
 	public Integer wholeDivide(Natural other);
-
-	public Integer remainder (Integer other); 
 	
 	public Integer successor();
 	public Integer predecessor();

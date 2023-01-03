@@ -1,0 +1,18 @@
+
+import helloworld.start.animals.Being;
+
+public mutable abstract class Animal implements Being {
+
+	// changing to protected or private will break since implements from Being
+	public mutable speciesName : String?;
+
+	public abstract abstractMethod();
+
+	//public abstract abstractMethodWithBody(){} // error
+
+	public notOverridable() {}
+	public default overridable() {}
+	public default overridableOnce() {}
+
+	public abstract abstractGenericMethod<T>(other : T ) : T;
+}

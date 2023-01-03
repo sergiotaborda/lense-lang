@@ -6,9 +6,11 @@ import lense.core.lang.String;
 import lense.core.lang.java.Constructor;
 import lense.core.lang.java.NotReplacedPlaceholderException;
 import lense.core.lang.java.Placeholder;
+import lense.core.lang.java.Signature;
 import lense.core.lang.reflection.Type;
 
 @Placeholder
+@Signature("::lense.core.math.Rational")
 public class BigRational implements Rational {
 
 	@Constructor(paramsSignature = "lense.core.math.Integer, lense.core.math.Integer", isImplicit = false)
@@ -205,6 +207,21 @@ public class BigRational implements Rational {
 
 	@Override
 	public Float asFloat() {
+		throw new NotReplacedPlaceholderException();
+	}
+
+	@Override
+	public Real remainder(Real other) {
+		throw new NotReplacedPlaceholderException();
+	}
+
+	@Override
+	public Real modulo(Real other) {
+		throw new NotReplacedPlaceholderException();
+	}
+
+	@Override
+	public Integer round() {
 		throw new NotReplacedPlaceholderException();
 	}
 

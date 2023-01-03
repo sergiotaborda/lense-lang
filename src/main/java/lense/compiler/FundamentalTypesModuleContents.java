@@ -8,19 +8,25 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import lense.compiler.modules.ModuleDescription;
 import lense.compiler.modules.ModuleTypeContents;
+import lense.compiler.type.LenseTypeAssistant;
 import lense.compiler.type.LenseTypeDefinition;
 import lense.compiler.type.TypeDefinition;
 import lense.compiler.typesystem.LenseTypeSystem;
 import lense.compiler.typesystem.TypeSearchParameters;
-import lense.compiler.utils.Strings;
 /**
  * 
  */
 public class FundamentalTypesModuleContents extends ModuleTypeContents {
 
-	
+
 	private Map<TypeSearchParameters, TypeDefinition> mapping = new HashMap<>();
+	
+	public FundamentalTypesModuleContents(ModuleDescription descriptor) {
+		super(descriptor);
+	}
+
 	
 	/**
 	 * {@inheritDoc}
@@ -42,17 +48,29 @@ public class FundamentalTypesModuleContents extends ModuleTypeContents {
 			mapping.put(filter, result.get());
 			return Optional.of(result.get());
 		}
+		
 		int pos = name.lastIndexOf('.');
+		String simpleName;
+		String fullPackageName;
 		if (pos >0){
-			name = name.substring(pos+1);
+			simpleName = name.substring(pos+1);
+			fullPackageName = name.substring(0, pos);
+		} else {
+			simpleName= name;
+			fullPackageName = null;
 		}
+		
 		for(String packageName : instance.packageNames()){
-			result = instance.getForName(packageName + "." + name, filter.getGenericParametersCount().orElse(0));
+			
+			if (fullPackageName == null || fullPackageName.equals(packageName)) {
+				result = instance.getForName(packageName + "." + simpleName, filter.getGenericParametersCount().orElse(0));
 
-			if (result.isPresent()){
-				mapping.put(filter, result.get());
-				return Optional.of(result.get());
+				if (result.isPresent()){
+					mapping.put(filter, result.get());
+					return Optional.of(result.get());
+				}
 			}
+
 		}
 		
 		return Optional.empty();
@@ -69,7 +87,7 @@ public class FundamentalTypesModuleContents extends ModuleTypeContents {
 			return type;
 		} else {
 			TypeDefinition original = mapping.get(key);
-			original.updateFrom(type);
+			original.updateFrom(type, new LenseTypeAssistant(null));
 			return original;
 		}
 		

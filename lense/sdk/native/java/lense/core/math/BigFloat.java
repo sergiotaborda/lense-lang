@@ -6,22 +6,24 @@ import lense.core.lang.String;
 import lense.core.lang.java.Constructor;
 import lense.core.lang.java.NotReplacedPlaceholderException;
 import lense.core.lang.java.Placeholder;
+import lense.core.lang.java.Signature;
 import lense.core.lang.reflection.Type;
 
 @Placeholder
+@Signature("::lense.core.math.BigFloat")
 public class BigFloat implements Float {
 
-	@Constructor(paramsSignature = "lense.core.math.Whole")
+	@Constructor(paramsSignature = "lense.core.math.Whole",  isImplicit = true)
 	public static BigFloat valueOf(Whole n){
 		throw new NotReplacedPlaceholderException();
 	}
 
-	@Constructor(paramsSignature = "lense.core.math.Float")
+	@Constructor(paramsSignature = "lense.core.math.Float",  isImplicit = true)
 	public static BigFloat valueOf(Float n){
 		throw new NotReplacedPlaceholderException();
 	}
 	
-	@Constructor(paramsSignature = "lense.core.math.Real")
+	@Constructor(paramsSignature = "lense.core.math.Real",  isImplicit = true)
 	public static BigFloat valueOf(Real n){
 		throw new NotReplacedPlaceholderException();
 	}
@@ -141,13 +143,13 @@ public class BigFloat implements Float {
 	}
 
 	@Override
-	public Integer floor() {
+	public Float floor() {
 		
 		throw new NotReplacedPlaceholderException();
 	}
 
 	@Override
-	public Integer ceil() {
+	public Float ceil() {
 		
 		throw new NotReplacedPlaceholderException();
 	}
@@ -206,6 +208,21 @@ public class BigFloat implements Float {
 
 	@Override
 	public Float asFloat() {
+		throw new NotReplacedPlaceholderException();
+	}
+
+	@Override
+	public Float round() {
+		throw new NotReplacedPlaceholderException();
+	}
+
+	@Override
+	public Float remainder(Float other) {
+		throw new NotReplacedPlaceholderException();
+	}
+
+	@Override
+	public Float modulo(Float other) {
 		throw new NotReplacedPlaceholderException();
 	}
 }

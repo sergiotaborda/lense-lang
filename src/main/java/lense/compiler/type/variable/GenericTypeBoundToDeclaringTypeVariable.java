@@ -1,9 +1,11 @@
 package lense.compiler.type.variable;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 
 import lense.compiler.type.TypeDefinition;
+import lense.compiler.typesystem.LenseTypeSystem;
 import lense.compiler.typesystem.Variance;
 
 /**
@@ -42,16 +44,18 @@ public class GenericTypeBoundToDeclaringTypeVariable extends CalculatedTypeVaria
     }
 
     public String toString(){
-        return genericType.getName() + "<" + super.toString() + ">";
+        return getGenericType().getName() + "<" + super.toString() + ">";
     }
 
     @Override
     public TypeVariable changeBaseType(TypeDefinition concrete) {
-        return new GenericTypeBoundToDeclaringTypeVariable(genericType, concrete, parameterIndex, name, variance);
+        return new GenericTypeBoundToDeclaringTypeVariable(getGenericType(), concrete, parameterIndex, name, variance);
     }
 
     protected TypeVariable original() {
-        return new DeclaringTypeBoundedTypeVariable(declaringType,parameterIndex, name, variance);
+        var parameter = new DeclaringTypeBoundedTypeVariable(getDeclaringType(),parameterIndex, name, variance);
+        var type = LenseTypeSystem.getInstance().specify(this.genericType, List.of(parameter));
+        return type;
     }
 
     public Optional<String> getSymbol() {
@@ -60,9 +64,18 @@ public class GenericTypeBoundToDeclaringTypeVariable extends CalculatedTypeVaria
 
     @Override
     public void ensureNotFundamental(Function<TypeDefinition, TypeDefinition> convert) {
-        this.declaringType = convert.apply(this.declaringType);
-        this.genericType = convert.apply(this.genericType);
+        this.declaringType = convert.apply(this.getDeclaringType());
+        this.genericType = convert.apply(this.getGenericType());
     }
+
+	
+    public TypeDefinition getGenericType() {
+		return genericType;
+	}
+
+	public TypeDefinition getDeclaringType() {
+		return declaringType;
+	}
 
 
 

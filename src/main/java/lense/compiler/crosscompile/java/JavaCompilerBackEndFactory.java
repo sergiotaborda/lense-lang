@@ -6,7 +6,6 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
 
 import javax.tools.Diagnostic;
 import javax.tools.DiagnosticListener;
@@ -18,6 +17,9 @@ import javax.tools.ToolProvider;
 
 import compiler.CompiledUnit;
 import compiler.CompilerBackEnd;
+import compiler.filesystem.DiskSourceFileSystem;
+import compiler.filesystem.SourceFile;
+import compiler.filesystem.SourceFolder;
 import lense.compiler.CompilerBackEndFactory;
 import lense.compiler.FileLocations;
 
@@ -28,7 +30,7 @@ public class JavaCompilerBackEndFactory implements CompilerBackEndFactory {
     
     JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 
-    private File base;
+    private List<SourceFolder> classpath;
 
     public JavaCompilerBackEndFactory (){}
 
@@ -39,6 +41,7 @@ public class JavaCompilerBackEndFactory implements CompilerBackEndFactory {
 
     public class JavaCompilerBackEnd implements CompilerBackEnd {
 
+    	
         private FileLocations fileLocations;
         private OutToJavaSource source;
 
@@ -59,7 +62,8 @@ public class JavaCompilerBackEndFactory implements CompilerBackEndFactory {
                 throw new RuntimeException("Error compiling unit " + unit.getUnit().getName(),e);
             }
         }
-        public boolean compile(File file) throws IOException{
+        
+        public boolean compile(SourceFile file) throws IOException{
             if (file == null){
                 return false;
             }
@@ -68,21 +72,30 @@ public class JavaCompilerBackEndFactory implements CompilerBackEndFactory {
 
         }
 
-        public boolean compile(List<File> files) throws IOException{
+        public boolean compile(List<SourceFile> files) throws IOException{
             if (files.isEmpty()){
                 return false;
             }
-
+            
+            var fileSystem =  DiskSourceFileSystem.instance();
+        	
+            var localFiles = fileSystem.convertToFiles(files);
+            var target = fileSystem.convertToFile(fileLocations.getTargetFolder());
+         
+            
             StandardJavaFileManager fileManager = compiler.getStandardFileManager(diagnostic, null, null);
-            Iterable<? extends JavaFileObject> compilationUnits = fileManager.getJavaFileObjectsFromFiles(files);
+            Iterable<? extends JavaFileObject> compilationUnits = fileManager.getJavaFileObjectsFromFiles(localFiles);
 
             List<File> classPath = new ArrayList<>(2);
-            if (base != null){
-                for (File jar : base.listFiles(f -> f.getName().endsWith(".jar"))){
-                    classPath.add(jar);
-                }
+            if (classpath != null){
+            	 for (var base : classpath){
+            		 for (var jar : base.children(f -> f.getName().endsWith(".jar"))){
+                     	var jarFile = fileSystem.convertToFile(jar);
+                         classPath.add(jarFile);
+                     }
+                 }
             }
-            classPath.add(fileLocations.getTargetFolder());
+            classPath.add(target);
             fileManager.setLocation(StandardLocation.CLASS_PATH, classPath);
 
             return compiler.getTask(new PrintWriter(System.err), fileManager, diagnostic,  null /* Arrays.asList("-verbose")*/, null, compilationUnits).call();
@@ -92,10 +105,10 @@ public class JavaCompilerBackEndFactory implements CompilerBackEndFactory {
         }
     }
 
-    @Override
-    public void setClasspath(File base) {
-        this.base = base;
-    }
+	@Override
+	public void setClasspath(List<SourceFolder> classpath) {
+		this.classpath =classpath;
+	}
     
     
     private class DiagnosticListenerImpl implements DiagnosticListener<JavaFileObject>{

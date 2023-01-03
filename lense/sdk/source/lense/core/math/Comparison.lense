@@ -1,5 +1,3 @@
-import lense.core.lang.Boolean;
-import lense.core.lang.HashValue;
 
 
 public abstract class Comparison is equal, greater, smaller {

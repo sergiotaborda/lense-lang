@@ -23,5 +23,10 @@ public enum JavaTypeKind implements lense.compiler.type.TypeKind{
 		return false;
 	}
 
+	@Override
+	public boolean isTypeClass() {
+		return false;
+	}
+
 
 }

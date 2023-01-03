@@ -1,8 +1,8 @@
 
-import lense.core.lang.String;
+import lense.core.math.Float;
 
 /{
-	Represents a mathematical quantity in the extendended Real Line.
+	Represents a mathematical quantity in the extended Real Line.
 }/
 public interface RealLineElement extends Number , Comparable<RealLineElement> {
 

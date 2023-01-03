@@ -14,11 +14,15 @@ import java.util.Optional;
 
 import org.junit.Test;
 
+import compiler.filesystem.DiskSourceFileSystem;
+import compiler.filesystem.SourcePath;
 import lense.compiler.asm.ByteCodeTypeDefinitionReader;
 import lense.compiler.repository.UpdatableTypeRepository;
+import lense.compiler.type.LenseTypeAssistant;
 import lense.compiler.type.LenseTypeDefinition;
 import lense.compiler.type.LenseUnitKind;
 import lense.compiler.type.Method;
+import lense.compiler.type.TypeAssistant;
 import lense.compiler.type.TypeDefinition;
 import lense.compiler.type.variable.DeclaringTypeBoundedTypeVariable;
 import lense.compiler.type.variable.GenericTypeBoundToDeclaringTypeVariable;
@@ -28,14 +32,16 @@ import lense.compiler.type.variable.TypeVariable;
 public class TestTypeSystem {
 
 	 //TODO test Array<T> specified to Array<boolean> returns method duplicate also with Array<Boolean>
+	final TypeAssistant instance =  new LenseTypeAssistant(null);
 	
 	@Test
 	public void testIsMethodSpecified() {
+		
 		LenseTypeDefinition array = new LenseTypeDefinition(
 				"Array",
 				LenseUnitKind.Class, 
 				(LenseTypeDefinition) LenseTypeSystem.Any(), 
-				Arrays.asList((TypeVariable)new RangeTypeVariable("T", Variance.Invariant, LenseTypeSystem.Nothing(), LenseTypeSystem.Any()))
+				Arrays.asList(RangeTypeVariable.allRange("T", Variance.Invariant))
 		);
 		
 		LenseTypeDefinition arrayReturn = new LenseTypeDefinition(
@@ -51,7 +57,7 @@ public class TestTypeSystem {
 		
 		LenseTypeDefinition booleanArray = LenseTypeSystem.specify(array, booleanType);
 		
-		Method method = booleanArray.getMethodsByName("duplicate").stream().findFirst().get();
+		Method method =  instance.getMethodsByName(booleanArray, "duplicate").stream().findFirst().get();
 		
 		assertEquals( booleanType ,  method.getReturningType().getTypeDefinition().getGenericParameters().get(0));
 	}
@@ -59,12 +65,12 @@ public class TestTypeSystem {
 	@Test
 	public void testIsRangeTypeVariablePromotable() {
 		
-		TypeVariable range = new RangeTypeVariable("T", Variance.Invariant,  LenseTypeSystem.Any(),LenseTypeSystem.Nothing());
+		TypeVariable range = RangeTypeVariable.allRange("T", Variance.Invariant);
 		TypeVariable declare = new DeclaringTypeBoundedTypeVariable(LenseTypeSystem.Sequence(), 0, "T", Variance.Invariant);
 		
 		
-		assertTrue(LenseTypeSystem.getInstance().isAssignableTo(range, declare).matches() );
-		assertTrue(LenseTypeSystem.getInstance().isAssignableTo(declare, range).matches() );
+		assertTrue(instance.isAssignableTo(range, declare).matches() );
+		assertTrue(instance.isAssignableTo(declare, range).matches() );
 	}
 	
 	@Test
@@ -74,13 +80,13 @@ public class TestTypeSystem {
 				"Array",
 				LenseUnitKind.Class, 
 				(LenseTypeDefinition) LenseTypeSystem.Any(), 
-				Arrays.asList((TypeVariable)new RangeTypeVariable("T", Variance.Invariant, LenseTypeSystem.Nothing(), LenseTypeSystem.Any()))
+				Arrays.asList(RangeTypeVariable.allRange("T", Variance.Invariant))
 		);
 		
 		TypeVariable generic = new GenericTypeBoundToDeclaringTypeVariable(array, array, 0, "T", Variance.Invariant);
 		
-		assertTrue(LenseTypeSystem.getInstance().isAssignableTo(array, generic).matches() );
-		assertTrue(LenseTypeSystem.getInstance().isAssignableTo(generic, array).matches() );
+		assertTrue(instance.isAssignableTo(array, generic).matches() );
+		assertTrue(instance.isAssignableTo(generic, array).matches() );
 	}
 	
 	@Test
@@ -90,7 +96,7 @@ public class TestTypeSystem {
 				"Array",
 				LenseUnitKind.Class, 
 				(LenseTypeDefinition) LenseTypeSystem.Any(), 
-				Arrays.asList((TypeVariable)new RangeTypeVariable("T", Variance.Invariant, LenseTypeSystem.Nothing(), LenseTypeSystem.Any()))
+				Arrays.asList(RangeTypeVariable.allRange("T", Variance.Invariant))
 		);
 		
 		LenseTypeDefinition otherArray = new LenseTypeDefinition(
@@ -100,13 +106,15 @@ public class TestTypeSystem {
 				Arrays.asList((TypeVariable) new DeclaringTypeBoundedTypeVariable(array, 0, "T", Variance.Invariant))
 		);
 		
-		assertTrue(LenseTypeSystem.getInstance().isAssignableTo(array, otherArray).matches() );
-		assertTrue(LenseTypeSystem.getInstance().isAssignableTo(otherArray, array).matches() );
+		assertTrue(instance.isAssignableTo(array, otherArray).matches() );
+		assertTrue(instance.isAssignableTo(otherArray, array).matches() );
 		
 	}
 	
 	@Test
 	public void testReadingAnyFromNativeFile() throws IOException {
+		var basefolder = DiskSourceFileSystem.instance().folder(new File(".").getAbsoluteFile().getParentFile());
+		
 		ByteCodeTypeDefinitionReader reader = new ByteCodeTypeDefinitionReader(new UpdatableTypeRepository() {
 			
 			@Override
@@ -125,8 +133,8 @@ public class TestTypeSystem {
 			}
 		});
 		
-		File nativeTypeFile = new File( new File(".") ,"lense/sdk/compilation/java/target/lense/core/lang/Any.class" );
-		
+		var nativeTypeFile =  basefolder.file(SourcePath.of("lense","sdk","compilation","java","target","lense","core","lang", "Any.lense")); 
+
 		TypeDefinition typeDef = reader.readNative(nativeTypeFile);
 		
 		assertNotNull(typeDef);

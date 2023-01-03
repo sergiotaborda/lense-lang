@@ -3,6 +3,7 @@ package lense.core.lang;
 import lense.core.lang.java.Base;
 import lense.core.lang.java.Constructor;
 import lense.core.lang.java.MethodSignature;
+import lense.core.lang.java.NativeString;
 import lense.core.lang.java.PlatformSpecific;
 import lense.core.math.NativeNumberFactory;
 import lense.core.math.Natural;
@@ -43,7 +44,7 @@ public final class Character extends Base implements Any, Ordinal{
 
 	@Override
 	public String asString() {
-		return String.valueOfNative(java.lang.Character.toString(code));
+		return NativeString.valueOfNative(java.lang.Character.toString(code));
 	}
 
     @Override     

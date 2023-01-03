@@ -1,6 +1,5 @@
 package lense.compiler.crosscompile.java;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -9,9 +8,11 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import compiler.filesystem.SourceFile;
 import compiler.syntax.AstNode;
 import compiler.trees.Visitor;
 import compiler.trees.VisitorNext;
+import lense.compiler.NativeSourceInfo;
 import lense.compiler.asm.ByteCodeTypeDefinitionReader;
 import lense.compiler.ast.ClassTypeNode;
 import lense.compiler.ast.ConstructorDeclarationNode;
@@ -21,14 +22,15 @@ import lense.compiler.type.CallableMember;
 import lense.compiler.type.CallableMemberMember;
 import lense.compiler.type.Constructor;
 import lense.compiler.type.IndexerProperty;
+import lense.compiler.type.LenseTypeAssistant;
 import lense.compiler.type.LenseTypeDefinition;
 import lense.compiler.type.LenseUnitKind;
 import lense.compiler.type.Method;
 import lense.compiler.type.Property;
+import lense.compiler.type.TypeAssistant;
 import lense.compiler.type.TypeDefinition;
 import lense.compiler.type.TypeMember;
 import lense.compiler.type.variable.TypeVariable;
-import lense.compiler.typesystem.LenseTypeSystem;
 import lense.compiler.typesystem.Visibility;
 import lense.compiler.utils.Strings;
 
@@ -39,15 +41,17 @@ import lense.compiler.utils.Strings;
  */
 public final class NativeVerificationVisitor implements Visitor<AstNode>{
 
-    private final Map<String, File> nativeTypes;
+    private final Map<String, NativeSourceInfo> nativeTypes;
     private final Map<String, LenseTypeDefinition> nativeLoadedTypes = new HashMap<>();
     private final ByteCodeTypeDefinitionReader asmReader;
 	private final SemanticContext semanticContext;
-
-    public NativeVerificationVisitor(SemanticContext semanticContext, Map<String, File> nativeTypes, UpdatableTypeRepository typeContainer) {
+	private final TypeAssistant typeAssistant;
+	
+    public NativeVerificationVisitor(SemanticContext semanticContext, Map<String, NativeSourceInfo> nativeTypes, UpdatableTypeRepository typeContainer) {
     	this.semanticContext = semanticContext;
         this.nativeTypes = nativeTypes;
         this.asmReader = new ByteCodeTypeDefinitionReader(typeContainer);
+        this.typeAssistant = new LenseTypeAssistant(semanticContext);
     }
 
     @Override
@@ -68,7 +72,7 @@ public final class NativeVerificationVisitor implements Visitor<AstNode>{
         String packageName = name.substring(0, pos);
         String className = Strings.cammelToPascalCase(name.substring( pos + 1));
         
-        File classFile = nativeTypes.get(packageName + "." + className);
+        SourceFile classFile = nativeTypes.get(packageName + "." + className).nativeCompiledFile();
         def =  (LenseTypeDefinition)asmReader.readNative(classFile);
 
         loadDependencies(def);
@@ -105,26 +109,26 @@ public final class NativeVerificationVisitor implements Visitor<AstNode>{
             ClassTypeNode n = (ClassTypeNode)node;
 
             if (n.isNative()){
-                if (!nativeTypes.containsKey(n.getName())){
+                if (!nativeTypes.containsKey(n.getFullname())){
                 	
                 	String objectName = n.getPackageName() + "." + Strings.cammelToPascalCase(n.getSimpleName());
                 	   
                 	if (!nativeTypes.containsKey(objectName)){
-                		throw new lense.compiler.CompilationError(node, "Native implementation for type " + n.getName() + " is missing");
+                		throw new lense.compiler.CompilationError(node, "Native implementation for type " + n.getFullname() + " is missing");
                     }
                 }
 
-                if (n.getName().equals("lense.core.lang.Any")){
+                if (n.getFullname().equals("lense.core.lang.Any")){
                     return;
                 }
 
                 // verify correct contract
 
                 try {
-                    TypeDefinition nativeType = loadByName(n.getName());
+                    TypeDefinition nativeType = loadByName(n.getFullname());
 
 
-                     Optional<TypeVariable> stype = semanticContext.resolveTypeForName(n.getName(), n.getTypeDefinition().getGenericParameters().size());
+                     Optional<TypeVariable> stype = semanticContext.resolveTypeForName(n.getFullname(), n.getTypeDefinition().getGenericParameters().size());
                     
                      
                      if (!stype.isPresent()) {
@@ -145,15 +149,18 @@ public final class NativeVerificationVisitor implements Visitor<AstNode>{
                         throw new lense.compiler.CompilationError(node, "No native constructor implemented");
                     }
 
-                    if (!n.isAbstract()){
+                    if (!n.isAbstract() && !n.getKind().isObject()){
                         for(Constructor c : construtors){
 
                             checkMatch(n,
                                     c, 
                                     isContainedIn(c,nativeConstrutors).orElseThrow(() -> 
-                                    new lense.compiler.CompilationError(node, "Native implementation does not contain constructor " + c.getName() + "(" + c.getParameters() +")")
-                                            )
-                                    );
+                                    new lense.compiler.CompilationError(
+                                    		node, 
+                                    		"Native implementation does not contain constructor " 
+                                    		+ c.getName()
+                                    		+ "(" + c.getParameters() +")"
+                                    )));
 
                         }
                     }
@@ -205,13 +212,13 @@ public final class NativeVerificationVisitor implements Visitor<AstNode>{
 
 
             } else if (n.getKind() == lense.compiler.type.LenseUnitKind.Class ){
-                if (nativeTypes.containsKey(n.getName())){
+                if (nativeTypes.containsKey(n.getFullname())){
    
                     try {
-                        LenseTypeDefinition nativeType = loadByName(n.getName());
+                        LenseTypeDefinition nativeType = loadByName(n.getFullname());
 
                         if (nativeType.isNative()){
-                            throw new lense.compiler.CompilationError(node, "Found native implementation for type " + n.getName() + " but type is not marked as native. Did you intended to mark " + n.getName() + " as native ?");	
+                            throw new lense.compiler.CompilationError(node, "Found native implementation for type " + n.getFullname() + " but type is not marked as native. Did you intended to mark " + n.getFullname() + " as native ?");	
                         }
 
                         if (nativeType.getKind() != n.getKind()){ 
@@ -224,13 +231,13 @@ public final class NativeVerificationVisitor implements Visitor<AstNode>{
 
                 }
             } else if (n.getKind() == lense.compiler.type.LenseUnitKind.Interface ){
-                if (nativeTypes.containsKey(n.getName())){
+                if (nativeTypes.containsKey(n.getFullname())){
    
                     try {
-                        LenseTypeDefinition nativeType = loadByName(n.getName());
+                        LenseTypeDefinition nativeType = loadByName(n.getFullname());
 
                         if (nativeType.isNative()){
-                            throw new lense.compiler.CompilationError(node, "Found native implementation for type " + n.getName() + " but type is not marked as native. Did you intended to mark " + n.getName() + " as native ?"); 
+                            throw new lense.compiler.CompilationError(node, "Found native implementation for type " + n.getFullname() + " but type is not marked as native. Did you intended to mark " + n.getFullname() + " as native ?"); 
                         }
 
                         if (nativeType.getKind() != n.getKind()){ 
@@ -258,7 +265,7 @@ public final class NativeVerificationVisitor implements Visitor<AstNode>{
         // allow for the native to be abstract if the source is not
         // NOT allow for the native to be NOT abstract if the source is 
         
-        if ( declaredMember.getDeclaringType().getName().equals(node.getName()) 
+        if ( declaredMember.getDeclaringType().getName().equals(node.getFullname()) 
         		&& declaredMember.getDeclaringType().getKind() != LenseUnitKind.Interface 
         		&& declaredMember.isAbstract() 
         		&& !nativeMember.isAbstract()
@@ -320,7 +327,7 @@ public final class NativeVerificationVisitor implements Visitor<AstNode>{
                     CallableMemberMember<T> a = c.getParameters().get(i);
                     CallableMemberMember<T> b = n.getParameters().get(i);
 
-                    if (!(LenseTypeSystem.getInstance().areNomallyEquals(a.getType().getTypeDefinition(),b.getType().getTypeDefinition())  || LenseTypeSystem.getInstance().isPromotableTo( b.getType(), a.getType()))){
+                    if (!(typeAssistant.areNomallyEquals(a.getType().getTypeDefinition(),b.getType().getTypeDefinition())  || typeAssistant.isPromotableTo( b.getType(), a.getType()))){
                         continue outter;
                     }
                 }

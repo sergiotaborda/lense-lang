@@ -8,6 +8,7 @@ import lense.compiler.ast.ArgumentListNode;
 import lense.compiler.ast.AssignmentNode;
 import lense.compiler.ast.CaptureReifiedTypesNode;
 import lense.compiler.ast.CastNode;
+import lense.compiler.ast.ConditionalStatement;
 import lense.compiler.ast.ConstructorDeclarationNode;
 import lense.compiler.ast.ExpressionNode;
 import lense.compiler.ast.FieldOrPropertyAccessNode;
@@ -17,6 +18,8 @@ import lense.compiler.ast.MethodDeclarationNode;
 import lense.compiler.ast.MethodInvocationNode;
 import lense.compiler.ast.ReturnNode;
 import lense.compiler.ast.VariableDeclarationNode;
+import lense.compiler.context.SemanticContext;
+import lense.compiler.type.LenseTypeAssistant;
 import lense.compiler.type.variable.TypeVariable;
 import lense.compiler.typesystem.LenseTypeSystem;
 
@@ -27,7 +30,14 @@ import lense.compiler.typesystem.LenseTypeSystem;
 public final class ErasurePointClassificationVisitor implements Visitor<AstNode> {
 
 	private TypeVariable expectedType;
+	private LenseTypeAssistant typeAssistant;
 
+
+	
+	public ErasurePointClassificationVisitor(SemanticContext semanticContext) {
+		this.typeAssistant = new LenseTypeAssistant(semanticContext);
+	}
+	
 
 	@Override
 	public VisitorNext visitBeforeChildren(AstNode node) {
@@ -58,8 +68,13 @@ public final class ErasurePointClassificationVisitor implements Visitor<AstNode>
 			}
 
 			r.replace(val,  ErasurePointNode.convertTo(val, r.getExpectedType()));
-		} else if (node instanceof AssignmentNode){
-			AssignmentNode a = (AssignmentNode)node;
+		} else if ( node instanceof ConditionalStatement conditional) {
+			
+			var expression = conditional.getCondition();
+			
+			expression.getParent().replace(expression, ErasurePointNode.convertToPrimitive(expression));
+			
+		} else if (node instanceof AssignmentNode a){
 
 			a.replace(a.getRight(), ErasurePointNode.convertTo(a.getRight(), ((ExpressionNode)a.getLeft()).getTypeVariable()));
 
@@ -68,8 +83,7 @@ public final class ErasurePointClassificationVisitor implements Visitor<AstNode>
 				 a.replace((AstNode)a.getLeft(), plain);
 			}
 			
-		}else if (node instanceof VariableDeclarationNode){
-			VariableDeclarationNode v = (VariableDeclarationNode)node;
+		}else if (node instanceof VariableDeclarationNode v){
 
 			if (v.getInitializer() !=null){
 			    
@@ -77,17 +91,15 @@ public final class ErasurePointClassificationVisitor implements Visitor<AstNode>
 			    
 				v.replace(v.getInitializer(), ErasurePointNode.convertTo(v.getInitializer(), type));
 			}
-		}else if (node instanceof IndexedPropertyReadNode) {
-			IndexedPropertyReadNode m = (IndexedPropertyReadNode)node;
-
-			if (!(LenseTypeSystem.isAssignableTo(m.getTypeVariable(), LenseTypeSystem.Void())).matches() ){
+		} else if (node instanceof IndexedPropertyReadNode m) {
+	
+			if (!(typeAssistant.isAssignableTo(m.getTypeVariable(), LenseTypeSystem.Void())).matches() ){
 				// outbox return 
 				m.getParent().replace(m, ErasurePointNode.unbox(m, m.getTypeVariable()));
 			}	
-		}else if (node instanceof MethodInvocationNode){
-			MethodInvocationNode m = (MethodInvocationNode)node;
+		}else if (node instanceof MethodInvocationNode m ){
 
-			if (!m.isTupleAccessMethod() && !(LenseTypeSystem.isAssignableTo(m.getTypeVariable(), LenseTypeSystem.Void())).matches() ){
+			if (!m.isTupleAccessMethod() && !(typeAssistant.isAssignableTo(m.getTypeVariable(), LenseTypeSystem.Void())).matches() ){
 				// outbox return 
 
 			
@@ -133,9 +145,8 @@ public final class ErasurePointClassificationVisitor implements Visitor<AstNode>
 				
 			}
 
-			if (theItem instanceof ErasurePointNode){
-				ErasurePointNode box = (ErasurePointNode)theItem;
-
+			if (theItem instanceof ErasurePointNode box){
+			
 				if (box.isBoxingDirectionOut()) {
 					// trying to box in a box out = no boxing
 					item.replace(box, box.getValue());

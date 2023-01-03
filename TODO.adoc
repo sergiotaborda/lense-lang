@@ -4,7 +4,7 @@
 == Lense CLI
 
 - [x] compile
-- [x] run 
+- [ ] run 
 - [ ] test
 - [ ] document
 
@@ -22,10 +22,20 @@
 - [x] verify members are not duplicated
 - [ ] verify all method in the inheritance chain are implemented
 - [x] implicit constructor must exactly have one single parameter
+- [ ] remove transformations from semantic analyzer
+- [ ] place transformations as a strategy depending on backend
+- [ ] place reification as a strategy depending on backend
+- [ ] compile pim (platform independent module)
+- [x] use source file system (virtual file system)
+- [ ] create assemblers for each technology (vm and deployment)
+- [ ] modules lookup and validation
+- [ ] modules metadata
+
 
 == Language Features
 
-- [ ] understand that -0.0 may be a different thing than 0.0 if the target is Float. Also 0.0.symetric() == -0.0 in Float and that -0.0 = new Float32(0.0).symetric()  but not  -0.0 =/= new Float32(new Rational(0.0)); 
+
+- [x] understand that -0.0 may be a different thing than 0.0 if the target is Float. Also `0.0.symetric() == -0.0` in Float and that `-0.0 = new Float32(0.0).symetric()`  but not  `-0.0 =/= new Float32(new Rational(0.0));` 
 - [ ] validade literal number range at compile time.
 - [ ] consider target typing and/or mapping literals to objects with special `Literal` (not instanciable) object and implicit constructors 
 - [x] define variables with `let` and values with `val`. make `let` the default when not expliclity declared
@@ -33,22 +43,23 @@
 - [x] Indexes support multiple parameters `array[i]` , `matrix[i,j]` , `cube[i,j,k]`
 
 - [x] Object type 
-- [x] Sealed algebric types like: `class Boolean is true , false; `
-* [x] case classes,  ( via algebric types)
-* [x] case objects   ( via algebric types)
+- [x] Sealed algebraic types like: `class Boolean is true , false; `
+* [x] case classes,  ( via algebraic types)
+* [x] case objects   ( via algebraic types)
 - [x] enums (via sealed types)
 - [ ] Annotation
-- [ ] Enhancements
+- [x] Enhancements
 * [x] methods
 * [x] constructors
 * [x] read only properties
 * [x] native
-- [ ] data/record classes 
+- [ ] record classes 
 - [x] value classes
+- [ ] limit tuples to only be used inside methods , or remove them altogether in preference of records
 
 - [ ] validate variables used are effectively final ( so they can be used in lambdas)
      
-- [ ] Ensure  fields/properties  not initialized produce compilation erros
+- [ ] Ensure  fields/properties  not initialized produce compilation errors
 - [ ] allow to place `module.lense` in source root folder
 - [x] allow for package in files to be  optional.
 - [x] if present validate it matches the folder structure
@@ -65,7 +76,10 @@
 - [x] support properties in interfaces
 - [x] support only propeties and not fields. 
 - [x] support simple delegation using `=>` like in  `size {get = list.size}` can be  `size => list.size`
-- [ ] support type inference
+- [ ] support type inference and type classes
+- [ ] support operators in type interfaces and the 'operator' keyword
+- [ ] support serialization using type classes as factories
+- [ ] support constructors in type classes equivalent to static constructors
 - [x] support void return inference
 - [ ] support generics of generics like T<U>
 - [x] support `Type` type as base for reflection
@@ -89,7 +103,7 @@
 - [ ] Define Annotations
 - [ ] Define Enhancements (useful for operations on numbers of different types. enhancements can be native)
 * [x] Define enhancement methods
-* [ ] Define enhancement named constructors
+* [x] Define enhancement named constructors
 * [ ] Define enhancement read only/calculated properties
 * [ ] Define native enhancement
 - [ ] data/record classes 
@@ -99,7 +113,7 @@
 * [x] save immutability as an interface
 - [ ] Native Types
 * [x] full native types 
-* [ ] native peers
+* [x] native peers
 * [ ] native import like :  import native (js) jquery;
 
 ==== Fundamental Types 
@@ -117,14 +131,15 @@
 * [x] assume all whole numeric literals are natural numbers 
 * [x] assume all fractional numeric literals are rational numbers 
 * [x] define imaginary unit is 'i' and `2i` means  `Rational("2") * Complex.I`
-- [ ] Support Sequence
+- [x] Support Sequence
 * [x] define sequence literals `[1,2,3,4]`
-- [ ] Support Association
-* [x] define map literals `{ "a": 1, "b": 2 , "c" : 3}`
+- [x] Support Association
+* [x] define map literals `{ "a" -> 1, "b" -> 2 , "c" -> 3}`
+* [x] use `->` instead of : in association literals. this frees : for other uses
 - [x] Support String
 * [ ] implement string as a lightweight rope
 - [x] Support Tuples
-* [ ] support tuples desconstruction `(a, b) = (b, a)` 
+* [ ] support tuples deconstruction `(a, b) = (b, a)` 
 * [ ] identity `()` with the `void` object.
 
 === Flow Sensitive Typing
@@ -155,12 +170,12 @@
 - [ ] support auto-boxing and auto-unboxing of _native primitives_
 * [x] use auto-boxing to erase `Boolean` with primitive `boolean`  (java back-end) 
 * [x] identity bound limits in loops  
-- [/] erase numeric values to they primitive conterparts
-* [ ] erase Int32 explicitly declared variables
-* [ ] erase Int64 explicitly declared variables
+- [.] erase numeric values to they primitive conterparts
+* [x] erase Int32 explicitly declared variables
+* [x] erase Int64 explicitly declared variables
 * [ ] erase Natural declared variables accounting for bound limits are known (like in ranges). 
 * [ ] erase Integer declared variables accounting for bound limits are known (like in ranges). 
-- [ ] erase string to native charSequence. 
+- [ ] erase string to native string/charSequence. 
 - [ ] erase Maybe to native `null`. This would improve interoperability with native code
 
 === Operators
@@ -179,11 +194,11 @@
 - [x] support `-=` and `-=` operators only for some kinds. for naturals  `a = 2 ; a -= 1` (ok); `a-= 1` (ok) ; `a-= 1` (error);
 - [x] remove support `++` , `--` but maintain (Ordinal) successor() and predecessor().  Use `-=` and `+=` operators instead
 - [ ] support `?.` operator [SYNTAX]
-- [ ] support  warp operators (java default) like `&+` , `&-` ,`&*`, `&/` 
+- [x] support  warp operators (java default) like `&+` , `&-` ,`&*`, `&/` 
 - [ ] support  maybe  operators like `?+` , `?-` ,`?*`, `?/` . they handle all with Maybe and use `none` for overflow operations 
 - [ ] support  exact check operators  like `!+` , `!-` ,`!*`, `!/`. they throw OverflowException on overflow like java's AddExact, SubtractExact, MultiplyExact methods
 - [ ] bound comparison operators compositions e.x: `if (2 < x() <= 10)` transforms to `if ( y = x();  2 < y && y <= 10)` simplify if x is not a function `if (2 <x && x < 4)
-		- rewrite `if ( x() in |(2 , 10 ]|)` as `if (2 < x() <= 10)` in the case of numbers
+- [ ] rewrite `if ( x() in |(2 , 10 ]|)` as `if (2 < x() <= 10)` in the case of numbers
 
 
 
@@ -289,6 +304,6 @@ Ad elvis operator since transparent maybe is no good ?:
 
 Scala way of "all are functions" collapses the Collections variance intuition becasue functions are contravariant 
 	and collections concepts are covariant the result is an invariant collections api
-	http://www.stackoverflow.dluat.com/questions/676615/why-is-scalas-immutable-set-not-covariant-in-its-type	 
+	http://www.stackoverflow.com/questions/676615/why-is-scalas-immutable-set-not-covariant-in-its-type	 
 
 	

@@ -18,10 +18,14 @@ import lense.compiler.CompilationError;
 import lense.compiler.FundamentalTypesModuleContents;
 import lense.compiler.Import;
 import lense.compiler.ast.ClassTypeNode;
+import lense.compiler.ast.ImportDeclaration;
 import lense.compiler.ast.ImportDeclarationsListNode;
 import lense.compiler.ast.SingleImportNode;
 import lense.compiler.ast.UnitTypes;
 import lense.compiler.context.SemanticContext;
+import lense.compiler.modules.EditableModuleDescriptor;
+import lense.compiler.repository.ModuleCompilationScopeTypeRepository;
+import lense.compiler.repository.TypeRepository;
 import lense.compiler.repository.UpdatableTypeRepository;
 import lense.compiler.type.TypeDefinition;
 import lense.compiler.typesystem.PackageResolver;
@@ -34,14 +38,17 @@ public class NameResolutionPhase implements CompilerPhase {
 
 	private PackageResolver packageResolver;
 	private CompilerListener listener;
+	private TypeRepository currentModuleRepository;
 
 	/**
 	 * Constructor.
+	 * @param currentModuleRepository 
 	 * @param typeRepo
 	 */
-	public NameResolutionPhase(PackageResolver packageResolver, CompilerListener listener) {
+	public NameResolutionPhase(TypeRepository currentModuleRepository, PackageResolver packageResolver, CompilerListener listener) {
 		this.packageResolver = packageResolver;
 		this.listener= listener;
+		this.currentModuleRepository = currentModuleRepository;
 	}
 
 	/**
@@ -61,22 +68,37 @@ public class NameResolutionPhase implements CompilerPhase {
 				SingleImportNode i = (SingleImportNode)n;
 
 				if (!i.getName().isComposed()){
-					listener.error(new CompilerMessage(i.getName() + " does not exist in the default module"));
-					return new CompilationResult(new CompilationError(i.getName() + " does not exist in the default module"));
+					listener.error(new CompilerMessage(i.getName() + " does not exist in the default module", i));
+					return new CompilationResult(new CompilationError(i, i.getName() + " does not exist in the default module"));
 				}
 				
 			}
 			
-			UpdatableTypeRepository naming = new NamingTypeRepository();
+			UpdatableTypeRepository naming = new NamingTypeRepository(currentModuleRepository);
 			
 			for (ClassTypeNode ct :  t.getTypes()){
 				// cannot share semantic context among classes
 
-				String packageName = packageResolver.resolveUnitPackageName(ct.getScanPosition().getCompilationUnit());
-						
-				ct.setName(packageName + '.' + ct.getName());
+					
+				if(ct.getPackageName() == null) {
+					String packageName = packageResolver.resolveUnitPackageName(ct.getScanPosition().getCompilationUnit());
+					
+					
+					ct.setPackageName(packageName);
+				}
 				
-				SemanticContext ctx = new SemanticContext(naming, packageName, ct); 
+				var importMappings = new HashMap<String,ImportDeclaration >();
+				
+				imports.getChildren().stream().map(s -> (ImportDeclaration)s).forEach(s -> {
+					
+					var alias = s.getAlias();
+					if (alias == null) {
+						alias = s.getName().getLast().toString();
+					}
+					importMappings.put(alias, s);
+				});
+				
+				SemanticContext ctx = new SemanticContext(naming, ct.getPackageName(), ct, importMappings); 
 				
 				ct.setSemanticContext(ctx);
 				
@@ -98,18 +120,11 @@ public class NameResolutionPhase implements CompilerPhase {
 				for(Iterator<Import> it = ct.imports().iterator(); it.hasNext();){
 					Import imp = it.next();
 					if (imp.isContainer() || !imp.isUsed()) {
-						listener.warn(new CompilerMessage(imp.getTypeName().getName() + " import is declared but not used in " + ct.getName()));
+						listener.warn(new CompilerMessage(imp.getTypeName().getName() + " import is declared but not used in " + ct.getFullname()));
 						it.remove();
 					}
 				}
 				
-//			    if (!ct.getKind().isInterface() && ct.getGenericParametersCount() > 0) {
-//			    	 ct.addImport(Import.singleType(new QualifiedNameNode("lense.core.lang.reflection.ReifiedArguments"),  null).setMemberCalled(true));
-//                }
-//			    
-//			    if (!anyImported && !ct.getName().equals("lense.core.lang.Any")) {
-//			    	 ct.addImport(Import.singleType(new QualifiedNameNode("lense.core.lang.Any"),  null).setMemberCalled(true));
-//			    }
 			}
 			
 		} catch (CompilationError e){
@@ -123,8 +138,13 @@ public class NameResolutionPhase implements CompilerPhase {
 	
 	private static class NamingTypeRepository implements UpdatableTypeRepository{
 
-		private FundamentalTypesModuleContents fundamental = new FundamentalTypesModuleContents();
+	//	private FundamentalTypesModuleContents fundamental = new FundamentalTypesModuleContents(new EditableModuleDescriptor("lense.core", null));
 		private final Map<String,Map< Integer, TypeDefinition>> types = new HashMap<>();
+		private final TypeRepository currentModuleRepository;
+
+		public NamingTypeRepository(TypeRepository currentModuleRepository) {
+			this.currentModuleRepository = currentModuleRepository;
+		}
 
 		@Override
 		public Optional<TypeDefinition> resolveType(TypeSearchParameters filter) {
@@ -132,7 +152,7 @@ public class NameResolutionPhase implements CompilerPhase {
 			
 			if (map == null) {
 				
-				return fundamental.resolveType(filter);
+				return currentModuleRepository.resolveType(filter);
 				
 			} else {
 				return filter.getGenericParametersCount().map(count -> map.get(count));

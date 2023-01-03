@@ -5,6 +5,7 @@ import lense.core.lang.HashValue;
 import lense.core.lang.java.Constructor;
 import lense.core.lang.java.Signature;
 import lense.core.lang.java.ValueClass;
+import lense.core.lang.reflection.NativeType;
 import lense.core.lang.reflection.Type;
 
 @Signature("::lense.core.math.Number")
@@ -61,11 +62,11 @@ public final class ImaginaryOverReal implements Imaginary {
 	}
 	
 	public Complex plus(Real other) {
-		return Complex.rectangular(other, value);
+		return ComplexOverReal.rectangular(other, value);
 	}
 
 	public Complex minus(Real other) {
-		return Complex.rectangular(value.symmetric(), value);
+		return ComplexOverReal.rectangular(value.symmetric(), value);
 	}
 
 	public Imaginary multiply(Real other) {
@@ -105,7 +106,7 @@ public final class ImaginaryOverReal implements Imaginary {
 
 	@Override
 	public Type type() {
-		return Type.fromName(this.getClass().getName());
+		return Type.forName(this.getClass().getName());
 	}
 
 	

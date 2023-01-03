@@ -1,12 +1,14 @@
 package lense.core.math;
 
 import java.math.MathContext;
+import java.math.RoundingMode;
 
 import lense.core.lang.Any;
 import lense.core.lang.AnyValue;
 import lense.core.lang.HashValue;
 import lense.core.lang.String;
 import lense.core.lang.java.Constructor;
+import lense.core.lang.java.NativeString;
 import lense.core.lang.java.Primitives;
 import lense.core.lang.java.ValueClass;
 import lense.core.lang.reflection.Type;
@@ -52,7 +54,7 @@ public final class BigDecimal implements Real  , AnyValue {
     }
 
     public String asString(){
-        return String.valueOfNative(value.toString());
+        return NativeString.valueOfNative(value.toString());
     }
 
 
@@ -114,12 +116,19 @@ public final class BigDecimal implements Real  , AnyValue {
     
     @Override
     public Integer floor() {
-        return new BigInt(this.value.toBigInteger());
+    	if (this.isNegative()) {
+    		return this.symmetric().ceil().symmetric();
+    	}
+        return new BigInt(this.value.setScale(0, RoundingMode.FLOOR).toBigInteger());
     }
 
 	@Override
 	public Integer ceil() {
-	   throw new UnsupportedOperationException("Ceil not implmented yet in BigDecimal");
+		if (this.isNegative()) {
+    		return this.symmetric().floor().symmetric();
+    	} else {
+    		return new BigInt(this.value.setScale(0, RoundingMode.CEILING).toBigInteger());
+    	}
 	}
 
     @Override
@@ -155,12 +164,17 @@ public final class BigDecimal implements Real  , AnyValue {
 
 	@Override
 	public Type type() {
-		return Type.fromName(this.getClass().getName());
+		return Type.forName(this.getClass().getName());
 	}
 
 	@Override
 	public Integer asInteger() {
-		return floor();
+		return round();
+	}
+
+	@Override
+	public Integer round() {
+		return this.isNegative() ? this.ceil() : this.floor();
 	}
 
 	@Override
@@ -175,12 +189,12 @@ public final class BigDecimal implements Real  , AnyValue {
 
 	@Override
 	public Complex plus(Imaginary other) {
-		return Complex.rectangular(this, other.real());
+		return ComplexOverReal.rectangular(this, other.real());
 	}
 
 	@Override
 	public Complex minus(Imaginary other) {
-		return Complex.rectangular(this, other.real().symmetric());
+		return ComplexOverReal.rectangular(this, other.real().symmetric());
 	}
 	
 	@Override
@@ -221,6 +235,29 @@ public final class BigDecimal implements Real  , AnyValue {
     public HashValue hashValue() {
         return new HashValue(this.value.hashCode());
     }
+
+	@Override
+	public Real remainder(Real other) {
+		if (other.isZero()){
+			throw ArithmeticException.constructor(NativeString.valueOfNative("Cannot divide by zero"));
+		} else if (other.isOne()) {
+			return this;
+		} 
+		
+		return this.minus(other.multiply(this.divide(other).asInteger().asReal()));
+	}
+
+	@Override
+	public Real modulo(Real other) {
+		if (other.isZero()){
+			throw ArithmeticException.constructor(NativeString.valueOfNative("Cannot divide by zero"));
+		} else if (other.isOne()) {
+			return this;
+		} 
+		
+		return this.minus(other.multiply(this.divide(other).floor().asReal()));
+	}
+
 
 
 

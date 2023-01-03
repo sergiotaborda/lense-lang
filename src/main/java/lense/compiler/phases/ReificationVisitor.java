@@ -13,6 +13,7 @@ import lense.compiler.ast.ArgumentListItemNode;
 import lense.compiler.ast.ArgumentListNode;
 import lense.compiler.ast.ArgumentTypeResolverNode;
 import lense.compiler.ast.CaptureReifiedTypesNode;
+import lense.compiler.ast.CastNode;
 import lense.compiler.ast.ClassBodyNode;
 import lense.compiler.ast.ClassTypeNode;
 import lense.compiler.ast.ConstructorDeclarationNode;
@@ -20,16 +21,18 @@ import lense.compiler.ast.CreationTypeNode;
 import lense.compiler.ast.FieldDeclarationNode;
 import lense.compiler.ast.FormalParameterNode;
 import lense.compiler.ast.GenericTypeParameterNode;
-import lense.compiler.ast.ImutabilityNode;
 import lense.compiler.ast.LiteralCreation;
 import lense.compiler.ast.MethodDeclarationNode;
 import lense.compiler.ast.MethodInvocationNode;
 import lense.compiler.ast.NewInstanceCreationNode;
 import lense.compiler.ast.NewTypeResolverNode;
 import lense.compiler.ast.NumericValue;
+import lense.compiler.ast.ReadThisType;
+import lense.compiler.ast.ReadTypeByNameNode;
 import lense.compiler.ast.ReceiveReifiedTypesNodes;
 import lense.compiler.ast.ReificationScope;
 import lense.compiler.ast.TypeNode;
+import lense.compiler.ast.TypeOfInvocation;
 import lense.compiler.ast.TypeParameterTypeResolverNode;
 import lense.compiler.ast.TypeParametersListNode;
 import lense.compiler.ast.VariableReadNode;
@@ -38,9 +41,10 @@ import lense.compiler.ast.VisibilityNode;
 import lense.compiler.context.SemanticContext;
 import lense.compiler.context.VariableInfo;
 import lense.compiler.type.CallableMemberMember;
+import lense.compiler.type.LenseTypeAssistant;
 import lense.compiler.type.LenseTypeDefinition;
-import lense.compiler.type.LenseUnitKind;
 import lense.compiler.type.Method;
+import lense.compiler.type.TypeAssistant;
 import lense.compiler.type.variable.DeclaringTypeBoundedTypeVariable;
 import lense.compiler.type.variable.GenericTypeBoundToDeclaringTypeVariable;
 import lense.compiler.type.variable.RangeTypeVariable;
@@ -57,23 +61,59 @@ public final class ReificationVisitor extends AbstractScopedVisitor {
 
 	private LenseTypeDefinition currentType;
 	private MethodDeclarationNode currentMethod;
+	private TypeAssistant typeAssistant;
 	
 	public ReificationVisitor(SemanticContext semanticContext) {
 		super(semanticContext);
+		this.typeAssistant= new LenseTypeAssistant(semanticContext);
 	}
 
 	@Override
 	protected Optional<LenseTypeDefinition> getCurrentType() {
 		return Optional.of(currentType);
 	}
-
+	
 	@Override
 	public VisitorNext doVisitBeforeChildren(AstNode node) {
 
 		if (node instanceof ClassTypeNode) {
 
 			this.currentType = ((ClassTypeNode) node).getTypeDefinition();
-
+		} else if (node instanceof TypeOfInvocation typeOf) {
+			var type = typeOf.getChildren(TypeNode.class).get(0);
+			if (type.getTypeParameter() != null) {
+				
+				if (this.currentType.getKind().isEnhancement()) {
+					// look for paremeter in super
+					var generics = 	this.currentType.getSuperDefinition().getGenericParameters();
+					for (int i =0; i < generics.size(); i++) {
+						
+						if (generics.get(i).getSymbol().equals(type.getTypeParameter().getSymbol())
+								|| typeAssistant.isPromotableTo(type.getTypeParameter(), generics.get(i))
+								) {
+							
+							var methodInvocation = new MethodInvocationNode(  
+									new ReadThisType(new TypeNode(this.currentType), this.currentType.getKind()), 
+									"genericType",
+									new ArgumentListItemNode(0, new NumericValue(i, LenseTypeSystem.Int32()))
+							);
+							methodInvocation.setTypeVariable(LenseTypeSystem.Type());
+							
+							node.getParent().replace(node, new CastNode(methodInvocation, type.getTypeParameter().getTypeDefinition()));
+							break;
+						}
+					}
+				} else if (type.getTypeParameter().isFixed()) {
+					// read type by name
+					node.getParent().replace(node,
+							new ReadTypeByNameNode(type, type.getTypeParameter().getTypeDefinition().getName())
+					);
+				
+				} else {
+					throw new UnsupportedOperationException();
+				}
+			}
+			
 		} else if (node instanceof ClassBodyNode) {
 			
 			if (!this.currentType.getKind().isInterface() &&  this.currentType.isGeneric()) {
@@ -159,10 +199,13 @@ public final class ReificationVisitor extends AbstractScopedVisitor {
 					optimizedCapture = vr;
 				}
 				
+				var captureArg = new ArgumentListItemNode(0, optimizedCapture);
+				captureArg.setReificiationArgument(true);
+				
 				if (n.getArguments() == null) {
-					n.setArguments(new ArgumentListNode(new ArgumentListItemNode(0, optimizedCapture)));
+					n.setArguments(new ArgumentListNode(captureArg));
 				} else {
-					n.getArguments().addFirst(new ArgumentListItemNode(0, optimizedCapture));
+					n.getArguments().addFirst(captureArg);
 				}
 			}
 
@@ -170,28 +213,28 @@ public final class ReificationVisitor extends AbstractScopedVisitor {
 
 			ClassTypeNode n = (ClassTypeNode) node;
 
-			if (n.getKind() == LenseUnitKind.Class) {
+			if (n.getKind().isClass()) {
 				List<TypeVariable> genericParameters = getCurrentType().get().getGenericParameters();
 				if (!genericParameters.isEmpty()) {
 
 					FieldDeclarationNode field = new FieldDeclarationNode(TYPE_REIFICATION_INFO, new TypeNode("lense.core.lang.reflection.ReifiedArguments"));
 					field.setInitializedOnConstructor(true);
 					field.setVisibility(new VisibilityNode(Visibility.Private));
-					field.setImutability(new ImutabilityNode(Imutability.Imutable));
+					field.setImutability(Imutability.Imutable);
 
 					if(!n.getBody().getChildren().contains(field)) {
 						n.getBody().add(field);
 					}
 		
 				}
-			}
+			} 
 		} else if (node instanceof MethodDeclarationNode) {
 			MethodDeclarationNode m = (MethodDeclarationNode)node;
 			
 			if (!m.getMethodScopeGenerics().getChildren().isEmpty()) {
 				m.getParameters().addFirst(new FormalParameterNode(METHOD_REIFICATION_INFO, LenseTypeSystem.ReifiedArguments()));
 			}
-
+	
 		} else if (node instanceof MethodInvocationNode) {
 			MethodInvocationNode m = (MethodInvocationNode)node;
 			
@@ -220,7 +263,9 @@ public final class ReificationVisitor extends AbstractScopedVisitor {
 					}
 
 
-					ArgumentListItemNode arg = new ArgumentListItemNode(0, capture);
+					var arg = new ArgumentListItemNode(0, capture);
+					arg.setReificiationArgument(true);
+					
 					arg.setExpectedType(LenseTypeSystem.ReifiedArguments());
 					
 					m.getCall().getArguments().addFirst(arg);
@@ -295,7 +340,7 @@ public final class ReificationVisitor extends AbstractScopedVisitor {
 							
 								return new ArgumentTypeResolverNode(arg);
 								
-							} else if(arg.getExpectedType() != null && LenseTypeSystem.isAssignableTo(g, arg.getExpectedType()).matches() ) {
+							} else if(arg.getExpectedType() != null && typeAssistant.isAssignableTo(g, arg.getExpectedType()).matches() ) {
 						
 								return new ArgumentTypeResolverNode(arg);
 						

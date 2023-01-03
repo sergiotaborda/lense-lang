@@ -12,6 +12,7 @@ public class ArgumentListItemNode extends LenseAstNode{
 	private TypeVariable expectedType;
 	private boolean generic;
 	private String name;
+	private boolean isReificiationArgument =false;
 	
 	public ArgumentListItemNode(int index , AstNode node){
 	    if (node instanceof ArgumentListNode){
@@ -59,6 +60,14 @@ public class ArgumentListItemNode extends LenseAstNode{
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public boolean isReificiationArgument() {
+		return isReificiationArgument;
+	}
+
+	public void setReificiationArgument(boolean isReificiationArgument) {
+		this.isReificiationArgument = isReificiationArgument;
 	}
 
 	

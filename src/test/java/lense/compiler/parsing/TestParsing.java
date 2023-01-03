@@ -8,15 +8,21 @@ import java.io.IOException;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import compiler.FileCompilationUnit;
 import compiler.ListCompilationUnitSet;
+import compiler.SourceFileCompilationUnit;
 import compiler.StringCompilationUnit;
+import compiler.filesystem.DiskSourceFileSystem;
+import compiler.filesystem.SourceFolder;
+import compiler.filesystem.SourcePath;
 import lense.compiler.LenseSourceCompiler;
 
 public class TestParsing {
 
 
+	SourceFolder baseFolder = DiskSourceFileSystem.instance().folder(new File(".").getAbsoluteFile().getParentFile());
 	
+	
+
 	@Test @Ignore
 	public void testLiteralSequence() throws IOException {
 
@@ -56,24 +62,24 @@ public class TestParsing {
 
 	@Test @Ignore
 	public void testByteArray()  {
-		File file = new File(new File(".").getAbsoluteFile().getParentFile(),"src/main/sdk/source/lense/core/lang/BitArray.lense");
-		
+		var file =  baseFolder.file(SourcePath.of("src","main","sdk","source","lense","code","lang", "BitArray.lense")); 
+
 		assertTrue("File does not exist", file.exists());
 
 		ListCompilationUnitSet unitSet = new ListCompilationUnitSet();
-		unitSet.add(new FileCompilationUnit(file));
+		unitSet.add(new SourceFileCompilationUnit(file));
 
 		new LenseSourceCompiler().parse(unitSet).sendToList();
 	}
 	
 	@Test @Ignore
 	public void testLinkedList()  {
-		File file = new File(new File(".").getAbsoluteFile().getParentFile(),"src/main/sdk/source/lense/core/collections/LinkedList.lense");
-		
+		var file =  baseFolder.file(SourcePath.of("src","main","sdk","source","lense","code","collections", "LinkedList.lense")); 
+
 		assertTrue("File does not exist", file.exists());
 
 		ListCompilationUnitSet unitSet = new ListCompilationUnitSet();
-		unitSet.add(new FileCompilationUnit(file));
+		unitSet.add(new SourceFileCompilationUnit(file));
 
 		new LenseSourceCompiler().parse(unitSet).sendToList();
 	}

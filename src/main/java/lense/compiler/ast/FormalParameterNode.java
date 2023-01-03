@@ -15,7 +15,7 @@ public class FormalParameterNode extends LenseAstNode implements TypedNode {
 	
 	private TypeNode type;
 	private String name;
-	private ImutabilityNode imutability;
+	private Imutability imutability;
 	private Visibility visibility = Visibility.Undefined;
 	private boolean methodTypeBound;
 	
@@ -74,12 +74,12 @@ public class FormalParameterNode extends LenseAstNode implements TypedNode {
 	/**
 	 * @param astNode
 	 */
-	public void setImutability(ImutabilityNode imutability) {
+	public void setImutability(Imutability imutability) {
 		this.imutability = imutability;
 	}
 	
-	public Imutability getImutabilityValue() {
-		return this.imutability == null ? Imutability.Mutable : imutability.getImutability();
+	public Imutability getImutability() {
+		return this.imutability == null ? Imutability.Imutable : imutability;
 	}
 	
 	public Visibility getVisibility() {

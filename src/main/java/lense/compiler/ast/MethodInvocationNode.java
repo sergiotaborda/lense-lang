@@ -6,6 +6,7 @@ package lense.compiler.ast;
 import java.util.Map;
 
 import compiler.syntax.AstNode;
+import lense.compiler.type.Method;
 import lense.compiler.type.TypeMember;
 import lense.compiler.type.variable.TypeVariable;
 
@@ -24,6 +25,7 @@ public class MethodInvocationNode extends NeedTypeCalculationNode {
 	private Map<String, TypeVariable> boundedTypes;
 	private TypeMember member;
 	private boolean staticInvocation;
+	private boolean enchamentCall;
 	private boolean tupleAccessMethod;
 
     public MethodInvocationNode (){}
@@ -31,12 +33,6 @@ public class MethodInvocationNode extends NeedTypeCalculationNode {
     public MethodInvocationNode (AstNode access , String name, ArgumentListItemNode singleArgument){
         setCall(new MethodCallNode(name, new ArgumentListNode(singleArgument)));
         setAccess(access);
-    }
-    
-    public MethodInvocationNode (TypeMember member,AstNode access , ArgumentListItemNode singleArgument){
-        setCall(new MethodCallNode(member.getName(), new ArgumentListNode(singleArgument)));
-        setAccess(access);
-        this.member = member;
     }
     
     public MethodInvocationNode (AstNode access , String name, ArgumentListItemNode ... arguments){
@@ -49,7 +45,13 @@ public class MethodInvocationNode extends NeedTypeCalculationNode {
         setAccess(access);
     }
 
-    public MethodInvocationNode (TypeMember member, AstNode access , ArgumentListItemNode ... arguments){
+    public MethodInvocationNode (Method member,AstNode access , ArgumentListItemNode singleArgument){
+        setCall(new MethodCallNode(member.getName(), new ArgumentListNode(singleArgument)));
+        setAccess(access);
+        this.member = member;
+    }
+    
+    public MethodInvocationNode (Method member, AstNode access , ArgumentListItemNode ... arguments){
         setCall(new MethodCallNode(member.getName(), new ArgumentListNode(arguments)));
         setAccess(access);
         this.member = member;
@@ -165,5 +167,17 @@ public class MethodInvocationNode extends NeedTypeCalculationNode {
 
 	public void setTupleAccessMethod(boolean tupleAccessMethod) {
 		this.tupleAccessMethod = tupleAccessMethod;
+	}
+
+	public boolean isEnchamentCall() {
+		return enchamentCall;
+	}
+
+	public void setEnchamentCall(boolean enchamentCall) {
+		this.enchamentCall = enchamentCall;
+		if (enchamentCall) {
+			this.staticInvocation = true;
+		}
+	
 	}
 }

@@ -1,8 +1,9 @@
 package lense.compiler.crosscompile.java;
 
-import java.io.File;
+import java.util.List;
 
 import compiler.CompilerBackEnd;
+import compiler.filesystem.SourceFolder;
 import lense.compiler.CompilerBackEndFactory;
 import lense.compiler.FileLocations;
 
@@ -13,9 +14,11 @@ public class JavaBinaryBackEndFactory implements CompilerBackEndFactory {
 		 return new OutToJavaClass(target);
 	}
 
-	@Override
-	public void setClasspath(File base) {
 
+	@Override
+	public void setClasspath(List<SourceFolder> classpath) {
+		// no-op
+		
 	}
 
 

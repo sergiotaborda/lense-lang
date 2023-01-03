@@ -15,7 +15,8 @@ import lense.core.math.Imaginary;
 import lense.core.math.Complex;
 import lense.core.math.BigFloat;
 import lense.core.math.RealLineElement;
-
+import lense.core.lang.HashValue;
+import lense.core.math.Comparison;
 /{
 	A fraction n/d 
 }/
@@ -50,21 +51,24 @@ public value class BigRational implements Rational {
 			throw new ArithmeticException("Cannot create a Rational with zero as denominator"); 
 		}
 		
+		mutable let normalizedNumerator = numerator;
+		mutable let normalizedDenominator = denominator;
+
 		if (numerator == 0){
 			// all forms of zero are the same. 
-			denominator = 1;
+			normalizedDenominator = 1;
 		} else if (denominator < 0){ // let the numerator carrie the sign
-			numerator = -numerator;
-			denominator = -denominator;
+			normalizedNumerator = -normalizedNumerator;
+			normalizedDenominator = -normalizedDenominator;
 		}
 		
-		if (denominator != 1 ){
-			let gcd = numerator.gcd(denominator);
-			numerator = numerator \ gcd;
-            denominator = denominator \ gcd;
+		if (normalizedDenominator != 1 ){
+			let gcd = normalizedNumerator.gcd(normalizedDenominator);
+			normalizedNumerator = normalizedNumerator \ gcd;
+            normalizedDenominator = normalizedDenominator \ gcd;
 		}
 		
-		return new BigRational(numerator , denominator.abs());
+		return new BigRational(normalizedNumerator , normalizedDenominator.abs());
 	}
 	
 	private simplify( numerator : Integer,  denominator : Integer ) : BigRational {
@@ -73,24 +77,28 @@ public value class BigRational implements Rational {
 
 	private simplify( numerator : Integer,  denominator : Natural ) : BigRational {
 	
+		mutable let normalizedNumerator = numerator;
+		mutable let normalizedDenominator = denominator;
+
 		if (numerator == 0){
 			// all forms of zero are the same. 
-			denominator = 1;
+			normalizedDenominator = 1;
 		} 
 		
-		if (denominator != 1 ){
-			let gcd = numerator.gcd(denominator);
+		if (normalizedDenominator != 1 ){
+			let gcd = normalizedNumerator.gcd(normalizedDenominator);
 			
 			// TODO log (gcd)
-			numerator = numerator \ gcd;
-            denominator = denominator \ gcd;
+			normalizedNumerator = normalizedNumerator \ gcd;
+            normalizedDenominator = normalizedDenominator \ gcd;
 		}
 		
-		return new BigRational(numerator , denominator);
+		return new BigRational(normalizedNumerator , normalizedDenominator);
 	
 	}
 	
 	public asFloat() => new BigFloat.valueOf(this);
+	public asInteger() => round();
 
 	public override equalsTo(other : Any) : Boolean {
 
@@ -191,7 +199,7 @@ public value class BigRational implements Rational {
 			throw new ArithmeticException("Cannot divide by zero"); 
 		}
 		
-		var n = other.denominator * this.numerator;
+		mutable let n = other.denominator * this.numerator;
 		if (other.numerator < 0){ // set the sign in the final numerator 
 			n = -n;
 		}
@@ -248,6 +256,27 @@ public value class BigRational implements Rational {
 		}
 	}
 
+	public round() => this >= 0 ? this.floor(): this.ceil();
+
+	public remainder(other: Real): Real {
+		if (other == 0){
+			throw new ArithmeticException("Cannot divide by zero");
+		} else if (other == 1) {
+			return this;
+		} 
+
+		return this - (other * (this / other).asInteger());
+	}
+
+	public modulo(other: Real): Real {
+		if (other == 0){
+			throw new ArithmeticException("Cannot divide by zero");
+		} else if (other == 1) {
+			return this;
+		} 
+
+		return this - (other * (this / other).floor());
+	}
 
 
     public raiseTo(exponent : Real) : Real {
@@ -263,7 +292,7 @@ public value class BigRational implements Rational {
         } else if (exponent.isWhole()){
             let p : Integer = exponent.floor();
             let n : Natural = p.abs();
-            var result : Rational = new BigRational(this.numerator ^^ n, this.denominator ^^ n);
+            mutable let result : Rational = new BigRational(this.numerator ^^ n, this.denominator ^^ n);
             if (p < 0) {
                 result = result.invert();
             } 
@@ -290,7 +319,7 @@ public value class BigRational implements Rational {
 	}
 	
 	public abs() : Real {
-	  var n = this.numerator;
+	  mutable let n = this.numerator;
 	  if (n < 0 ){
 	  	n = -n;
 	  }

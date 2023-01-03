@@ -1,14 +1,24 @@
 
-import lense.core.math.Number;
-import lense.core.math.BigInt;
+import lense.core.lang.String;
+import lense.core.lang.Summable;
 import lense.core.math.RealLineElement;
+import lense.core.lang.Boolean;
+import lense.core.math.Complex;
+import lense.core.math.Imaginary;
+import lense.core.math.Rational;
+import lense.core.math.Natural;
+import lense.core.math.Real;
+import lense.core.math.Integer;
 
-public interface Whole extends RealLineElement {
 
-	public constructor parse( other: String){
-		return new BigInt.parse(other);
-	}
+public interface Whole extends RealLineElement satisfies Summable<Whole,Whole,Whole>{
 
+	public native implicit  constructor parse( other: String);
+
+   public satisfy sum(a: Whole, b: Whole): Whole {
+      return a.plus(b);
+   }
+   
 	public isOne() : Boolean;
 
 	public plus( n : Imaginary) : Complex;
@@ -21,8 +31,25 @@ public interface Whole extends RealLineElement {
 	public divide( n : Whole) : Rational;
 
 	public wholeDivide (other : Whole) : Whole; 
+	/{	
+		Returns the Remainder, r, of the whole devision such that
+		
+		D = d * q + r and q = D \ d 
+		
+		so r = D - (d * (D \ d)) 
+		
+		
+	}/
 	public remainder (other : Whole) : Whole; 	
-	
+
+	/{	
+		Returns the Modulo, mod, of the arithemtic modulus operation
+		
+		so D mod d = D - (d * floor(D / d)) 
+		
+	}/
+	public modulo (other : Whole) : Whole; 
+
 	public isNegative() : Boolean;
 	public isPositive() : Boolean;
 

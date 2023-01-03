@@ -21,6 +21,9 @@ public class DeclaringTypeBoundedTypeVariable extends CalculatedTypeVariable  {
 	private String symbol;
 
 	public DeclaringTypeBoundedTypeVariable (TypeDefinition declaringType, int parameterIndex, String symbol, Variance positionVariance){
+		if (declaringType.getGenericParameters().isEmpty()) {
+			throw new IllegalArgumentException("Declaring type must be generic");
+		}
 	    this.positionVariance = positionVariance;
 		this.declaringType = declaringType;
 		this.parameterIndex= parameterIndex;
@@ -32,7 +35,12 @@ public class DeclaringTypeBoundedTypeVariable extends CalculatedTypeVariable  {
 	}
 	
 	protected TypeVariable original(){
-		return declaringType.getGenericParameters().get(parameterIndex);
+		return getDeclaringType().getGenericParameters().get(parameterIndex);
+	}
+	
+	@Override
+	public String toString() {
+		return original().toString();
 	}
 	
 	public Optional<String> getSymbol(){
@@ -58,7 +66,7 @@ public class DeclaringTypeBoundedTypeVariable extends CalculatedTypeVariable  {
 
     @Override
     public void ensureNotFundamental(Function<TypeDefinition, TypeDefinition> convert) {
-        this.declaringType = convert.apply(this.declaringType);
+        this.declaringType = convert.apply(this.getDeclaringType());
     }
 
 
@@ -67,11 +75,16 @@ public class DeclaringTypeBoundedTypeVariable extends CalculatedTypeVariable  {
 	}
 	
     private boolean equals(DeclaringTypeBoundedTypeVariable other) {
-    	return this.parameterIndex == other.parameterIndex && this.declaringType.equals(other.declaringType);
+    	return this.parameterIndex == other.parameterIndex && this.getDeclaringType().equals(other.getDeclaringType());
     }
     
 	public int hashCode(){
-		return parameterIndex ^ declaringType.hashCode();
+		return parameterIndex ^ getDeclaringType().hashCode();
+	}
+
+	
+	public TypeDefinition getDeclaringType() {
+		return declaringType;
 	}
 
 

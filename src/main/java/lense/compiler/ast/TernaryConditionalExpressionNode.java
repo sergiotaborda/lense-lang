@@ -6,7 +6,7 @@ package lense.compiler.ast;
 /**
  * 
  */
-public class TernaryConditionalExpressionNode extends ExpressionNode implements ConditionalStatement{
+public class TernaryConditionalExpressionNode extends ExpressionNode implements ConditionalStatement {
 	
 	private ExpressionNode thenExpression;
 	private ExpressionNode elseExpression;

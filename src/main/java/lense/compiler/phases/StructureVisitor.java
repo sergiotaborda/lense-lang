@@ -36,12 +36,14 @@ import lense.compiler.context.SemanticContext;
 import lense.compiler.context.VariableInfo;
 import lense.compiler.type.Constructor;
 import lense.compiler.type.ConstructorParameter;
+import lense.compiler.type.LenseTypeAssistant;
 import lense.compiler.type.LenseTypeDefinition;
 import lense.compiler.type.LenseUnitKind;
 import lense.compiler.type.Method;
 import lense.compiler.type.MethodParameter;
 import lense.compiler.type.MethodReturn;
 import lense.compiler.type.MethodSignature;
+import lense.compiler.type.TypeAssistant;
 import lense.compiler.type.TypeDefinition;
 import lense.compiler.type.TypeMember;
 import lense.compiler.type.variable.DeclaringTypeBoundedTypeVariable;
@@ -61,12 +63,16 @@ public class StructureVisitor extends AbstractScopedVisitor {
 	private LenseTypeDefinition currentType;
 	private boolean secondPass;
 	private CompilerListener listener;
+	private final Map<TypeVariable, List<TypeDefinition>> enhancements;
+	private TypeAssistant typeAssitant;
 
-	public StructureVisitor (CompilerListener listener, LenseTypeDefinition currentType, SemanticContext semanticContext , boolean secondPass){
+	public StructureVisitor (CompilerListener listener, LenseTypeDefinition currentType, SemanticContext semanticContext ,Map<TypeVariable, List<TypeDefinition>> enhancements,  boolean secondPass){
 		super(semanticContext);
 		this.currentType = currentType;
 		this.secondPass = secondPass;
 		this.listener = listener;
+		this.enhancements = enhancements;
+		this.typeAssitant = new LenseTypeAssistant(semanticContext);
 	}
 	
     @Override
@@ -116,7 +122,7 @@ public class StructureVisitor extends AbstractScopedVisitor {
         	for(AstNode a : n.getMethodScopeGenerics().getChildren()) {
 				GenericTypeParameterNode g = (GenericTypeParameterNode)a;
 				
-				RangeTypeVariable range = new RangeTypeVariable(g.getTypeNode().getName(), g.getVariance(), LenseTypeSystem.Any(), LenseTypeSystem.Nothing());
+				var range = RangeTypeVariable.allRange(g.getTypeNode().getName(), g.getVariance());
 				
 				this.getSemanticContext().currentScope().defineTypeVariable(g.getTypeNode().getName(), range, n);
 
@@ -216,7 +222,7 @@ public class StructureVisitor extends AbstractScopedVisitor {
 
 			resolveTypeDefinition(f.getTypeNode(),Variance.Invariant);
 
-			currentType.addField(f.getName(), f.getTypeNode().getTypeVariable(), f.getImutabilityValue());
+			currentType.addField(f.getName(), f.getTypeNode().getTypeVariable(), f.getImutability(), f.getVisibility().getVisibility());
 	
 		} else if (node instanceof MethodDeclarationNode) {
 			MethodDeclarationNode m = (MethodDeclarationNode)node;
@@ -228,7 +234,7 @@ public class StructureVisitor extends AbstractScopedVisitor {
 					
 					ReturnNode r = op.get();
 					
-					SemanticVisitor sv = new SemanticVisitor(this.getSemanticContext(), this.listener);
+					SemanticVisitor sv = new SemanticVisitor(this.getSemanticContext(), this.listener, this.enhancements);
 
 					TreeTransverser.transverse( node, sv);
 					
@@ -278,7 +284,7 @@ public class StructureVisitor extends AbstractScopedVisitor {
 
 			}
 			
-			Optional<Method> declaredMethodBySignature = currentType.getDeclaredMethodBySignature(signature);
+			Optional<Method> declaredMethodBySignature = typeAssitant.getDeclaredMethodBySignature(currentType, signature);
 			if (declaredMethodBySignature.isPresent()){
 				if (secondPass) {
 					method = declaredMethodBySignature.get();
@@ -290,6 +296,7 @@ public class StructureVisitor extends AbstractScopedVisitor {
 				method.setDefault(m.isDefault());
 				method.setOverride(m.isOverride());
 				method.setNative(m.isNative());
+				method.setSatisfy(m.isSatisfy());
 				
 				currentType.addMethod(method);
 			}
@@ -322,9 +329,9 @@ public class StructureVisitor extends AbstractScopedVisitor {
 						params[i++] = var.getTypeNode().getTypeParameter();
 					}
 
-					property = currentType.addIndexer(pp, p.getAcessor() != null, p.getModifier() != null, params);
+					property = currentType.addIndexer(pp, p.getVisibility(), p.getAcessor() != null, p.getModifier() != null, params);
 				} else {
-					property = currentType.addProperty(p.getName(), pp, p.getAcessor() != null, p.getModifier() != null);
+					property = currentType.addProperty(p.getName(), pp, p.getVisibility(), p.getAcessor() != null, p.getModifier() != null);
 				}
 
 			} else {
@@ -348,9 +355,9 @@ public class StructureVisitor extends AbstractScopedVisitor {
 						params[i++] = var.getTypeNode().getTypeParameter();
 					}
 
-					property = currentType.addIndexer(pp, p.getAcessor() != null, p.getModifier() != null, params);
+					property = currentType.addIndexer(pp,p.getVisibility(), p.getAcessor() != null, p.getModifier() != null, params);
 				} else {
-					property = currentType.addProperty(p.getName(), pp, p.getAcessor() != null, p.getModifier() != null);
+					property = currentType.addProperty(p.getName(), pp, p.getVisibility(), p.getAcessor() != null, p.getModifier() != null);
 				}
 			}
 			
@@ -425,6 +432,7 @@ public class StructureVisitor extends AbstractScopedVisitor {
 		for (AstNode p : parameters.getChildren()){
 			FormalParameterNode f = (FormalParameterNode)p;
 			resolveTypeDefinition(f.getTypeNode(), Variance.ContraVariant);
+			
 		}
 
 
@@ -432,13 +440,24 @@ public class StructureVisitor extends AbstractScopedVisitor {
 
 		for (int i = 0; i < params.length; i++) {
 			FormalParameterNode var = (FormalParameterNode) parameters.getChildren().get(i);
+			
+			
+			if (var.getTypeVariable() == null){
+				 LenseTypeSystem.getInstance().getForName(var.getTypeNode().getName(), var.getTypeNode().getTypeParametersCount()).ifPresent(t -> {
+					 var.setTypeVariable(t);
+					 var.getTypeNode().setTypeVariable(t);
+					 var.getTypeNode().setTypeParameter(t);
+				 });
+			}
 			if (var.getTypeVariable() == null){
 
-				Optional<Integer> opIndex = var.getTypeNode().getTypeParameter().getSymbol().flatMap(s -> currentType.getGenericParameterIndexBySymbol(s));
+				Optional<Integer> opIndex = Optional.ofNullable(var.getTypeNode())
+						.map(it -> it.getTypeParameter())
+						.flatMap(it -> it.getSymbol()).flatMap(s -> currentType.getGenericParameterIndexBySymbol(s));
 
 
 				if (!opIndex.isPresent()){
-					throw new CompilationError(parameters, var.getTypeNode().getTypeParameter().getSymbol() + " is not a generic type parameter in type " + currentType.getName());
+					throw new CompilationError(parameters, var.getTypeNode().getName() + " is not a generic type parameter in type " + currentType.getName());
 				}
 				lense.compiler.type.variable.TypeVariable tv = new DeclaringTypeBoundedTypeVariable(currentType, opIndex.get(), var.getTypeNode().getTypeParameter().getSymbol().get(), Variance.ContraVariant);
 

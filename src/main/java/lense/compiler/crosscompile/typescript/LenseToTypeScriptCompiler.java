@@ -1,50 +1,44 @@
 package lense.compiler.crosscompile.typescript;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.nio.file.FileVisitResult;
-import java.nio.file.FileVisitor;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.attribute.BasicFileAttributes;
+import java.io.InputStreamReader;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
+import compiler.filesystem.SourceFile;
+import compiler.filesystem.SourceFolder;
+import compiler.filesystem.SourceWalker;
+import compiler.filesystem.SourceWalkerResult;
 import lense.compiler.CompilationError;
 import lense.compiler.FileLocations;
-import lense.compiler.FundamentalTypesModuleContents;
 import lense.compiler.LenseCompiler;
-import lense.compiler.asm.LoadedLenseTypeDefinition;
+import lense.compiler.NativeSourceInfo;
 import lense.compiler.ast.ModuleNode;
 import lense.compiler.crosscompile.ErasurePhase;
-import lense.compiler.crosscompile.javascript.JsCompilerBackEndFactory;
+import lense.compiler.dependency.DependencyRelationship;
 import lense.compiler.modules.ModulesRepository;
 import lense.compiler.phases.CompositePhase;
 import lense.compiler.phases.DesugarPhase;
 import lense.compiler.repository.UpdatableTypeRepository;
-import lense.compiler.type.LenseUnitKind;
 import lense.compiler.type.TypeDefinition;
-import lense.compiler.typesystem.LenseTypeSystem;
 
 public class LenseToTypeScriptCompiler extends LenseCompiler{
 
     public LenseToTypeScriptCompiler(ModulesRepository globalRepository) {
-        super("ts", globalRepository, new JsCompilerBackEndFactory());
+        super("ts", globalRepository, new TsCompilerBackEndFactory());
     }
 
-    @Override
-    protected void createModuleArchive(FileLocations locations, ModuleNode module, File base, Set<String> applications)
-            throws IOException, FileNotFoundException {
-        // no-to
-        // TODO pack with a web packer like commons-js
-    }
 
     @Override
-    protected void initCorePhase(CompositePhase corePhase, Map<String, File> nativeTypes, UpdatableTypeRepository typeContainer) {
+    protected void initCorePhase(CompositePhase corePhase,  Map<String, NativeSourceInfo> nativeTypes, UpdatableTypeRepository typeContainer) {
         DesugarPhase desugarProperties = new DesugarPhase(this.getCompilerListener());
         desugarProperties.setInnerPropertyPrefix("_");
         
@@ -55,106 +49,107 @@ public class LenseToTypeScriptCompiler extends LenseCompiler{
     }
 
     @Override
-    protected void collectNative(FileLocations fileLocations, Map<String, File> nativeTypes) throws IOException {
+    protected void collectNative(FileLocations fileLocations, Map<String, NativeSourceInfo> nativeTypes) throws IOException {
+    	
 		if (!fileLocations.getNativeFolder().exists()){
 			return;
 		}
 
-		List<File> files = new LinkedList<>();
+		List<SourceFile> tsFiles = new LinkedList<>();
+		Map<SourceFile, SourceFile> lenseFiles = new HashMap<>();
 
-		final Path rootDir = fileLocations.getNativeFolder().toPath();
-
-
-		Files.walkFileTree(rootDir, new FileVisitor<Path>() {
-
-			@Override
-			public FileVisitResult preVisitDirectory(Path path, BasicFileAttributes atts) throws IOException {
-				return FileVisitResult.CONTINUE;
-			}
+		var rootDir = fileLocations.getNativeFolder();
+	    
+		rootDir.walkTree(new SourceWalker(){
 
 			@Override
-			public FileVisitResult visitFile(Path path, BasicFileAttributes mainAtts)
-					throws IOException {
-
-				if (path.toString().endsWith(".ts")){
-					files.add(path.toFile());
+			public SourceWalkerResult visitFile(SourceFile file) {
+				if (file.getName().endsWith(".ts")){
+					tsFiles.add(file);
+					var relativePath = fileLocations.getNativeFolder().getPath().relativize(file.getPath());
+					
+					var sourcePathName = relativePath.toString().replace(".ts", ".lense").replace('>', File.separatorChar);
+					var source = fileLocations.getSourceFolder().file(sourcePathName);
+					if (source.exists()) {
+						lenseFiles.put(file, source);
+					}
+					
 				}
-				return FileVisitResult.CONTINUE;
+				return SourceWalkerResult.CONTINUE;
 			}
 
-			@Override
-			public FileVisitResult postVisitDirectory(Path path,
-					IOException exc) throws IOException {
-				return FileVisitResult.CONTINUE;
-			}
-
-			@Override
-			public FileVisitResult visitFileFailed(Path path, IOException exc)
-					throws IOException {
-				exc.printStackTrace();
-
-				return path.equals(rootDir)? FileVisitResult.TERMINATE:FileVisitResult.CONTINUE;
-			}
 		});
-    
-		for (File n : files){
-			String packageFile = n.getAbsolutePath().substring(rootDir.toString().length());
+
+		if(tsFiles.isEmpty()) {
+			return;
+		}
 		
-			var name = n.getName().substring(0,  n.getName().length() - 3);
+		
+		// compile all files
+		outter: for (var n : tsFiles){
 			
-			File source = resolveNativeFile(n.getParentFile(), name);
-
-
-
-			File target = new File(fileLocations.getTargetFolder(),packageFile);
-
-			target.getParentFile().mkdirs();
-
 		
-			Files.copy(source.toPath(), target.toPath());
-				
-			nativeTypes.put(name, target);
+			var name = n.getName().substring(0,  n.getName().length() - 5);
+			var source = resolveNativeFile(n.parentFolder(), name);
 
+			try (var reader = new BufferedReader(new InputStreamReader(n.inputStream()))){
+				if (!name.equals("Placeholder") && reader.lines().anyMatch(line -> line.startsWith("@Placeholder"))) {
+					continue outter;
+				}
+			}
+			
+			var packagePath = rootDir.getPath().relativize(n.getPath()).getParent();
+			var packageFolder = fileLocations.getTargetFolder().folder(packagePath);
+			
+			var target =  packageFolder.file(name  + ".ts");
+
+			target.parentFolder().ensureExists();
+
+			if (source.isPresent() && !source.get().exists()){
+				throw new CompilationError("Compiled file with TS compiler does not exist (" + source.toString() +"). ");
+			} else {
+				source.get().moveTo(target);
+				
+			
+				var lense = lenseFiles.get(n);
+				nativeTypes.put(packagePath.join(".") + "." + name, new NativeSourceInfo(target, lense));
+
+			}
 
 		}
-    }
 
-	@Override
-	protected File resolveNativeFile(File folder, String name) {
-		return  new File( folder, name + ".ts");
+    }
+	
+    @Override
+	protected List<TypeDefinition> extactTypeDefinitionFromNativeType(UpdatableTypeRepository currentTypeRepository,
+			Collection<NativeSourceInfo> nativeFiles) throws IOException {
+
+		
+	    var nativeTypesDefs = new LinkedList<TypeDefinition>();
+	 
+		return nativeTypesDefs;
 	}
 
 	@Override
-	protected List<TypeDefinition> extactTypeDefinitionFronNativeType(
-			UpdatableTypeRepository currentModuleRepository,
-			Collection<File> nativeFiles
-	) throws IOException {
+	protected void createModuleArchive(FileLocations locations, ModuleNode module, Set<String> applications)
+			throws IOException, FileNotFoundException {
+		// TODO Auto-generated method stub
 		
-	    var nativeTypesDefs = new LinkedList<TypeDefinition>();
-	    var fundamentalTypesModuleContents = new FundamentalTypesModuleContents();
-	      
-	    // TODO read from defenition metadata
-		for( File target : nativeFiles) {
-			
-			var name = target.getName().substring(0, target.getName().length() - 3);
-			
-	
-			var types = fundamentalTypesModuleContents.resolveTypesMap(name);
-			
-			TypeDefinition type;
-			if (types.size() == 1) {
-				type = types.values().iterator().next();
-			} else {
-				LenseUnitKind kind = name.equals(name.toLowerCase())  ?  LenseUnitKind.Object : LenseUnitKind.Unkown;
-				
-	  			type =  new LoadedLenseTypeDefinition(name, kind, null);
-			}
+	}
 
-      		currentModuleRepository.registerType(type, type.getGenericParameters().size());
-      		
-      		nativeTypesDefs.add(type);
-  		}
-		
-		return nativeTypesDefs;
+
+
+
+
+	@Override
+	protected Optional<SourceFile> resolveNativeFile(SourceFolder folder, String name) {
+		return Optional.of(folder.file(name + ".ts"));
+	}
+
+
+
+	@Override
+	protected boolean shouldGraphContain(DependencyRelationship parameter) {
+		return DependencyRelationship.Structural == parameter;
 	}
 }

@@ -1,18 +1,15 @@
 import lense.core.math.Real;
 import lense.core.math.Whole;
-import lense.core.math.BigFloat;
 import lense.core.math.SignedNumber;
 import lense.core.math.RealLineElement;
+import lense.core.lang.Boolean;
 
 public  interface Float extends SignedNumber, RealLineElement {
 
-	public implicit constructor  valueOf(other : Whole) {
-		return new BigFloat.valueOf(other.asInteger());
-	}
 
-	public implicit constructor  valueOf(other : Real) {
-		return new BigFloat.valueOf(other);
-	}
+	public native implicit constructor  valueOf(other : Whole);
+
+	public native implicit constructor  valueOf(other : Real);
 
 	public isNaN(): Boolean;
 	public isNegativeZero() : Boolean;
@@ -31,8 +28,9 @@ public  interface Float extends SignedNumber, RealLineElement {
 
  	public invert() : Float;
 
-	public ceil() : Integer;
-	public floor() : Integer;
+	public ceil(): Float;
+	public floor(): Float;
+	public round(): Float;
 
 	public plus (other: Float): Float;
 	public minus (other: Float): Float;
@@ -42,4 +40,7 @@ public  interface Float extends SignedNumber, RealLineElement {
 	public raiseTo(other : Float) : Float;
 	public log() : Float;
 	public exp() : Float;
+
+	public remainder( other: Float) : Float;
+	public modulo(other: Float) : Float;
 }

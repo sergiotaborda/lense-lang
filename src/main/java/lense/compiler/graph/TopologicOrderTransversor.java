@@ -1,10 +1,12 @@
 package lense.compiler.graph;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Set;
 
+import lense.compiler.dependency.CyclicDependencyResolver;
 import lense.compiler.graph.Graph.Edge;
 import lense.compiler.graph.Graph.Vertex;
 import lense.compiler.graph.VertextInfoManager.VertexInfo;
@@ -54,7 +56,7 @@ public class TopologicOrderTransversor<E, V> extends AbstractGraphTransversor<E,
 
 			while (!q.isEmpty()) {
 
-				GraphTranverseListener<V, E> broadcastEvent = this.getListenerSet();
+				var broadcastEvent = this.getListenerSet();
 
 				int iterations;
 				for (iterations = 0; !q.isEmpty(); iterations++) {
@@ -119,13 +121,13 @@ public class TopologicOrderTransversor<E, V> extends AbstractGraphTransversor<E,
 								}
 							}
 						} else {
-							throw new CycleFoundException();
+							throw new CycleFoundException(new CyclicDependencyResolver().resolveIncidentCycle(graph).orElse(Collections.emptyList()));
 						}
 					}
 					
 					
 				} else if (iterations > all.size()) {
-					throw new CycleFoundException();
+					throw new CycleFoundException(new CyclicDependencyResolver().resolveIncidentCycle(graph).orElse(Collections.emptyList()));
 				}
 			}
 

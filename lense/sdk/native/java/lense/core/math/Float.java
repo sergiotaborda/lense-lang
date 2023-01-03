@@ -23,8 +23,9 @@ public interface Float extends RealLineElement, SignedNumber {
     
     public Float invert();
     
-    public Integer floor();
-    public Integer ceil();
+    public Float floor();
+    public Float ceil();
+    public Float round();
     
 	public Float plus (Float other);
 	public Float minus (Float other);
@@ -36,5 +37,6 @@ public interface Float extends RealLineElement, SignedNumber {
 	public Float log();
 	public Float exp();
 
-
+	public Float remainder(Float other);
+	public Float modulo(Float other);
 }

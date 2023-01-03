@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import lense.compiler.type.variable.TypeVariable;
-import lense.compiler.typesystem.LenseTypeSystem;
 import lense.compiler.typesystem.Visibility;
 
 /**
@@ -23,6 +22,7 @@ public class Method implements CallableMember<Method> {
 	private boolean isDefault = false;
 	private boolean isOverride = false;
 	private boolean isNative = false;
+	private boolean isSatisfy = false;
 	
 	private boolean errased = false;
 	private Method superMethod;
@@ -286,6 +286,14 @@ public class Method implements CallableMember<Method> {
     public void setErased(boolean errased) {
         this.errased = errased;
     }
+
+	public boolean isSatisfy() {
+		return isSatisfy;
+	}
+
+	public void setSatisfy(boolean isSatisfy) {
+		this.isSatisfy = isSatisfy;
+	}
 
 
 }

@@ -15,7 +15,9 @@ public class ImplementationModifierNode extends LenseAstNode {
 	private boolean isDefault;
 	private boolean isOverride;
 	private boolean isValueClass;
-	private boolean isImmutable;
+	private boolean isTypeClass;
+	private boolean isMutable;
+	private boolean isSatisfy;
 	
 	/**
 	 * Constructor.
@@ -26,6 +28,8 @@ public class ImplementationModifierNode extends LenseAstNode {
 	}
 
 	public ImplementationModifierNode merge(ImplementationModifierNode other) {
+		if (other == null) return this;
+		
 		ImplementationModifierNode n = new ImplementationModifierNode();
 		
 		n.isAbstract = this.isAbstract || other.isAbstract;
@@ -35,7 +39,9 @@ public class ImplementationModifierNode extends LenseAstNode {
 		n.isDefault = this.isDefault || other.isDefault;
 		n.isOverride = this.isOverride || other.isOverride;
 		n.isValueClass = this.isValueClass || other.isValueClass;
-		n.isImmutable = this.isImmutable || other.isImmutable;
+		n.setTypeClass(this.isTypeClass() || other.isTypeClass());
+		n.isMutable = this.isMutable || other.isMutable;
+		n.isSatisfy = this.isSatisfy || other.isSatisfy;
 		
 		return n;
 	}
@@ -99,12 +105,32 @@ public class ImplementationModifierNode extends LenseAstNode {
 	}
 
 	public boolean isImmutable() {
-		return isImmutable;
+		return !isMutable;
 	}
 	
+	
+	public boolean isMutable() {
+		return isMutable;
+	}
 
-	public void setImmutable(boolean isImmutable) {
-		this.isImmutable = isImmutable;
+	public void setMutable(boolean isMutable) {
+		this.isMutable = isMutable;
+	}
+
+	public boolean isTypeClass() {
+		return isTypeClass;
+	}
+
+	public void setTypeClass(boolean isTypeClass) {
+		this.isTypeClass = isTypeClass;
+	}
+
+	public boolean isSatisfy() {
+		return isSatisfy;
+	}
+
+	public void setSatisfy(boolean isSatisfy) {
+		this.isSatisfy = isSatisfy;
 	}
 
 }

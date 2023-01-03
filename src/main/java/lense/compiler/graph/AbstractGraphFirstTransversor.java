@@ -27,7 +27,7 @@ public abstract class AbstractGraphFirstTransversor<E,V> extends AbstractGraphTr
 		LinkedList<Vertex<V, E>> q = new LinkedList<Vertex<V, E>>();
 		q.add(start); 
 
-		GraphTranverseListener broadcastEvent = this.getListenerSet();
+		var broadcastEvent = this.getListenerSet();
 		
 		while(!q.isEmpty()){
 			Vertex<V, E> v = this.nextVertex(q);

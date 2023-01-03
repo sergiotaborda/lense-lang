@@ -8,21 +8,40 @@ import lense.core.lang.Any;
 import lense.core.lang.AnyValue;
 import lense.core.lang.HashValue;
 import lense.core.lang.java.Constructor;
-import lense.core.lang.java.NonNull;
+import lense.core.lang.java.NativeString;
 import lense.core.lang.java.Primitives;
 import lense.core.lang.java.ValueClass;
+import lense.core.lang.reflection.NativeType;
 import lense.core.lang.reflection.Type;
 
 @ValueClass
 public final class BigNatural implements Natural , BigDecimalConvertable , BigIntegerConvertable , AnyValue{
 
+	private static BigNatural ZERO = new BigNatural(0);
+	private static BigNatural ONE = new BigNatural(1);
+	private static BigNatural TEN = new BigNatural(10);
+	
 	@Constructor(isImplicit = false, paramsSignature = "lense.core.lang.String")
     public static BigNatural parse(lense.core.lang.String other) {
 	    return new BigNatural(new BigInteger(other.toString()));
 	}
 	
-	
-	private BigInteger value;
+	@Constructor(isImplicit = false, paramsSignature = "")
+	public static BigNatural zero() {
+		return ZERO;
+	}
+
+	@Constructor(isImplicit = false, paramsSignature = "")
+	public static BigNatural one() {
+		return ONE;
+	}
+
+	@Constructor(isImplicit = false, paramsSignature = "")
+	public static BigNatural ten() {
+		return TEN;
+	}
+
+	BigInteger value;
 
 	public BigNatural(long value) {
 		this.value = BigInteger.valueOf(value);
@@ -55,7 +74,7 @@ public final class BigNatural implements Natural , BigDecimalConvertable , BigIn
 	}
 
 	public lense.core.lang.String asString(){
-		return lense.core.lang.String.valueOfNative(value.toString()); 
+		return NativeString.valueOfNative(value.toString()); 
 	}
 
 	@Override
@@ -76,7 +95,7 @@ public final class BigNatural implements Natural , BigDecimalConvertable , BigIn
 	@Override
 	public Natural predecessor() {
 		if (value.signum() == 0){
-			throw ArithmeticException.constructor(lense.core.lang.String.valueOfNative("min predecessor reached"));
+			throw ArithmeticException.constructor(NativeString.valueOfNative("min predecessor reached"));
 		}
 		return new BigNatural(value.subtract(BigInteger.ONE));
 	}
@@ -88,11 +107,6 @@ public final class BigNatural implements Natural , BigDecimalConvertable , BigIn
 
 	public int toPrimitiveInt() {
 		return this.value.intValue();
-	}
-
-	@Override
-	public int modulus(int n) {
-		return this.value.remainder(BigInteger.valueOf(n)).intValueExact();
 	}
 
 	public Natural raiseTo( Natural other){
@@ -135,6 +149,10 @@ public final class BigNatural implements Natural , BigDecimalConvertable , BigIn
 	}
 
 	public Natural remainder(Natural other) {
+		if (other.isZero()){
+			throw ArithmeticException.constructor(NativeString.valueOfNative("Cannot divide by zero"));
+		}  
+		
 		if (other instanceof BigIntegerConvertable) {
 			return new BigNatural(this.value.remainder(((BigIntegerConvertable) other).toJavaBigInteger())).reduce();
 		}
@@ -235,7 +253,7 @@ public final class BigNatural implements Natural , BigDecimalConvertable , BigIn
 
 	@Override
 	public Type type() {
-		return Type.fromName(this.getClass().getName());
+		return Type.forName(this.getClass().getName());
 	}
 
 	@Override
@@ -244,21 +262,21 @@ public final class BigNatural implements Natural , BigDecimalConvertable , BigIn
 	}
 
 	@Override
-	public @NonNull Progression upTo( Natural other) {
+	public Progression upTo(Any other) {
 		if (other instanceof Natural) {
-			return new NativeOrdinalProgression(this, other, true);
+			return new NativeOrdinalProgression(this, (Natural)other, true);
 		}
 		throw new ClassCastException("other is not a Natural");
 	}
 
 	@Override
-	public Progression upToExclusive(Natural other) {
+	public Progression upToExclusive(Any other) {
 		if (other instanceof Natural) {
-			return new NativeOrdinalProgression(this, other, false);
+			return new NativeOrdinalProgression(this, (Natural)other, false);
 		}
 		throw new ClassCastException("other is not a Natural");
 	}
-
+	
 	@Override
 	public Integer wholeDivide(Integer other) {
 		return divide(other).floor();
@@ -330,12 +348,12 @@ public final class BigNatural implements Natural , BigDecimalConvertable , BigIn
 	
 	@Override
 	public Complex plus(Imaginary n) {
-		return Complex.rectangular(this.asReal(), n.real());
+		return ComplexOverReal.rectangular(this.asReal(), n.real());
 	}
 
 	@Override
 	public Complex minus(Imaginary n) {
-		return Complex.rectangular(this.asReal(), n.real().symmetric());
+		return ComplexOverReal.rectangular(this.asReal(), n.real().symmetric());
 	}
 
 	@Override
@@ -358,9 +376,15 @@ public final class BigNatural implements Natural , BigDecimalConvertable , BigIn
 
 	@Override
 	public Whole remainder(Whole other) {
+		if (other.isZero()){
+			throw ArithmeticException.constructor(NativeString.valueOfNative("Cannot divide by zero"));
+		}  
+		
 		if (other instanceof Natural) {
 			return remainder((Natural)other);
 		}
 		return this.asInteger().remainder(other);
 	}
+
+
 }

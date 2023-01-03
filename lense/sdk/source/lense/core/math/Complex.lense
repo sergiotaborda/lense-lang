@@ -3,17 +3,14 @@ import lense.core.math.Number;
 import lense.core.math.Imaginary;
 import lense.core.math.Real;
 import lense.core.math.ArithmeticException;
-import lense.core.math.ComplexOverReal;
 
 public interface Complex extends Number {
 
+   //  remove. use ComplexEnhancment
+	public native constructor rectangular(r : Real, img : Real);
 
-	public constructor rectangular(r : Real, img : Real) {
-		return new ComplexOverReal.rectangular(r, img);
-	}
-
-	public let real : Real;
-	public let imaginary : Real;
+	public real : Real;
+	public imaginary : Real;
 
 	public plus( other : Complex) : Complex;
 

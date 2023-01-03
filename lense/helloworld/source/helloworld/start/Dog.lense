@@ -1,8 +1,0 @@
-
-import helloworld.start.Mammal;
-
-public class Dog extends Mammal {
-
-	public override overridable() {}
-	//public override overridableOnce() {} // error
-}

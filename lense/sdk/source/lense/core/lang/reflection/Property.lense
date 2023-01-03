@@ -2,8 +2,7 @@
 import lense.core.math.Integer;
 import lense.core.lang.String;
 
-public native class Property {
+public interface Property {
 
-	protected native constructor();
-	public native name : String {get;} 
+	public name : String {get;} 
 } 
