@@ -2,6 +2,7 @@ package lense.core.lang;
 
 import lense.core.lang.java.Base;
 import lense.core.lang.java.Constructor;
+import lense.core.lang.java.NativeString;
 import lense.core.math.Int32;
 import lense.core.math.Integer;
 import lense.core.math.NativeNumerics;
@@ -78,7 +79,7 @@ public class Byte extends Base implements Binary{
 
 	@Override
 	public String asString() {
-		return String.valueOfNative(java.lang.Integer.toString(value));
+		return NativeString.valueOfNative(java.lang.Integer.toString(value));
 	}
 
     @Override

@@ -9,6 +9,7 @@ import compiler.CompilerPhase;
 import compiler.filesystem.SourceFile;
 import compiler.trees.TreeTransverser;
 import lense.compiler.CompilationError;
+import lense.compiler.NativeSourceInfo;
 import lense.compiler.ast.ClassTypeNode;
 import lense.compiler.ast.UnitTypes;
 import lense.compiler.repository.UpdatableTypeRepository;
@@ -19,10 +20,10 @@ public final class JavalizePhase implements CompilerPhase {
 	protected static String AutoGenerateAsString = "AutoGenerateAsString";
 	
 	private CompilerListener listener;
-	private Map<String, SourceFile> nativeTypes;
+	private Map<String, NativeSourceInfo> nativeTypes;
     private UpdatableTypeRepository typeContainer;
 	
-	public JavalizePhase (CompilerListener listener, Map<String, SourceFile> nativeTypes, UpdatableTypeRepository typeContainer){
+	public JavalizePhase (CompilerListener listener, Map<String, NativeSourceInfo> nativeTypes, UpdatableTypeRepository typeContainer){
 		this.listener = listener;
 		this.nativeTypes = nativeTypes;
 		this.typeContainer = typeContainer;

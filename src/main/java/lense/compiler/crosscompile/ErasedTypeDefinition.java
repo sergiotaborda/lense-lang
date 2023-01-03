@@ -168,8 +168,8 @@ public final class ErasedTypeDefinition implements TypeDefinition{
 	}
 
 	@Override
-	public List<TypeDefinition> getImplementedTypeClasses() {
-		return originalType.getImplementedTypeClasses();
+	public List<TypeDefinition> getSatisfiedTypeClasses() {
+		return originalType.getSatisfiedTypeClasses();
 	}
 
 

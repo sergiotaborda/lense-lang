@@ -6,6 +6,7 @@ import lense.core.lang.AnyValue;
 import lense.core.lang.HashValue;
 import lense.core.lang.java.Base;
 import lense.core.lang.java.Constructor;
+import lense.core.lang.java.NativeString;
 import lense.core.lang.java.Primitives;
 import lense.core.lang.java.ValueClass;
 import lense.core.lang.reflection.Type;
@@ -45,7 +46,7 @@ public final class Float32 extends Base implements Float , AnyValue{
 	}
 	
 	public lense.core.lang.String asString(){
-		return lense.core.lang.String.valueOfNative(java.lang.Float.toString(value));
+		return NativeString.valueOfNative(java.lang.Float.toString(value));
 	}
 	
 

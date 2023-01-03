@@ -19,7 +19,7 @@ public class CompilationError extends compiler.CompilationError {
 	}
 	
 	public CompilationError(ScanPositionHolder holder, String msg) {
-		super(holder,  msg);
+		this(holder == null ? null : holder.getScanPosition(),  msg);
 	}
 	
 

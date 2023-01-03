@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import compiler.AstCompiler;
@@ -18,6 +19,7 @@ import compiler.filesystem.SourceFolder;
 import lense.compiler.FileLocations;
 import lense.compiler.LenseCompiler;
 import lense.compiler.LenseLanguage;
+import lense.compiler.NativeSourceInfo;
 import lense.compiler.PathPackageResolver;
 import lense.compiler.TypeMembersNotLoadedError;
 import lense.compiler.TypeNotFoundError;
@@ -42,7 +44,7 @@ public class LenseToPimCompiler extends LenseCompiler {
 
 	private final static PimCompilerBackEndFactory compilerBackEndFactory = new PimCompilerBackEndFactory();
 	private FileLocations fileLocations;
-	private Map<String, SourceFile> compilerNativeTypes = new HashMap<String, SourceFile>();
+	private Map<String, NativeSourceInfo> compilerNativeTypes = new HashMap<>();
 	private CompositePhase corePhase;
 	
 	public LenseToPimCompiler(
@@ -54,7 +56,7 @@ public class LenseToPimCompiler extends LenseCompiler {
 	@Override
 	protected void initCorePhase(
 			CompositePhase corePhase, 
-			Map<String, SourceFile> nativeTypes,
+			Map<String, NativeSourceInfo> nativeTypes,
 			UpdatableTypeRepository typeContainer
 	) {
 		this.corePhase = corePhase;
@@ -70,7 +72,7 @@ public class LenseToPimCompiler extends LenseCompiler {
 
 
 	@Override
-	protected void collectNative(FileLocations fileLocations, Map<String, SourceFile> nativeTypes) throws IOException {
+	protected void collectNative(FileLocations fileLocations, Map<String, NativeSourceInfo> nativeTypes) throws IOException {
 		this.fileLocations = fileLocations;
 		
 //	    var sourcePath = this.fileLocations.getSourceFolder().getPath();
@@ -145,17 +147,17 @@ public class LenseToPimCompiler extends LenseCompiler {
 	}
 
 	@Override
-	protected SourceFile resolveNativeFile(SourceFolder folder, String name) {
+	protected Optional<SourceFile> resolveNativeFile(SourceFolder folder, String name) {
 		
 		var s = compilerNativeTypes.get(name.replace('\\', '.'));
-		return s;
+		return Optional.ofNullable(s).map(it -> it.nativeCompiledFile());
 		//return this.fileLocations.getSourceFolder().file(name + ".lense");
 	}
 	
 	@Override
 	protected List<TypeDefinition> extactTypeDefinitionFromNativeType(
 			UpdatableTypeRepository currentTypeRepository,
-			Collection<SourceFile> files
+			Collection<NativeSourceInfo> files
 	) throws IOException {
 		
 	    var deque = new LinkedList<SourceFile>();

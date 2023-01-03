@@ -32,6 +32,7 @@ public class LoadedClassBuilder {
 	private String signature;
 	private String caseValues;
 	private String caseTypes;
+	private boolean isFinalOverride = false;
 	private final UpdatableTypeRepository typeContainer;
 
 	Map<String, TypeMember> properties = new HashMap<String, TypeMember>();
@@ -67,6 +68,10 @@ public class LoadedClassBuilder {
 	public void setName(String name) {
 		this.name = name;
 	}
+	
+	public void setIsFinalOverride(boolean value) {
+		this.isFinalOverride = value;
+	}
 
 	public void setKind(LenseUnitKind kind) {
 		this.kind = kind;
@@ -87,7 +92,6 @@ public class LoadedClassBuilder {
 	public void setInterfaces(String[] interfaces) {
 		this.interfaces = interfaces;
 	}
-
 
 	public LenseTypeDefinition build() {
 
@@ -209,7 +213,11 @@ public class LoadedClassBuilder {
 		def.setKind(kind);
 		def.setPlataformSpecific(plataformSpecific || fullName.startsWith("lense.core.lang.java"));
 		def.setNative(isNative);
-
+		
+		if (isFinalOverride) {
+			def.setFinal(true);
+			def.setAbstract(false);
+		}
 
 
 		def.setCaseValues(Stream.of(Strings.split(this.caseValues, ",")).map( c -> this.resolveTypeByNameAndKind(c, LenseUnitKind.Object)).collect(Collectors.toList()));

@@ -6,7 +6,5 @@ import lense.core.lang.java.Signature;
 public interface RealLineElement extends  Number, Comparable {
 
 	public Float asFloat();
-	public boolean isNegative();
-	public boolean isPositive();
 
 }

@@ -5,8 +5,16 @@ import lense.core.collections.Sequence;
 import lense.core.lang.Boolean;
 import lense.core.math.Natural;
 
-public native class String implements Sequence<Character> {
+public native final class String 
+   implements Sequence<Character> 
+   satisfies Concatenable<String, String, String> 
+   {
 
+
+   public satisfy concatenate(a : String, b: String) : String {
+      return a.concat(b);
+   }
+   
 	public native concat( other : String): String;
 
 	public native indexOf( other : String) : Natural?;

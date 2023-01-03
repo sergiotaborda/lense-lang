@@ -34,6 +34,7 @@ import lense.core.math.Comparison;
 import math.numbers.Sum;
 import helloworld.start.Sequences;
 import helloworld.start.types.SumEnhancement;
+import helloworld.start.types.ConcatEnhancement;
 import helloworld.start.types.MultiplicationEnhancement;
 import helloworld.start.types.Number;
 import helloworld.start.Kilometer;
@@ -64,13 +65,20 @@ public class Main extends ConsoleApplication {
 		assert(new Number(12) == totalSum);
 
 
-
 		let totalMultiplication = numbers.multiply();
 
 		console.println("Multiplication of numbers is : {{ totalMultiplication }}");
 
 		assert(new Number(48) == totalMultiplication);
+		
+		
+		let names = ["a", "b", "c"];
+		
+		let total = names.concat();
+		
+		assert("abc" == total);
 	}
+	
 
 	private demoProtectedAccess(){
 		
@@ -377,12 +385,23 @@ public class Main extends ConsoleApplication {
 		assert ( b == (a + 4) , "18446744073709551615 + 4 is not 18446744073709551619 is {{ a + 4 }}" );
 		
 	}
+	
+	private demoStringComparison(){
+	   
+	   mutable let comparison = "abc" == "abc";
+	   assert(comparison);
+	   
+	   let a = "abc";
+	   comparison = a == "abc";
+      assert(comparison);
+	}
 
   	public override onStart()  {
 
-	
-
   	 	console.println("Begin " ++ this.type().name); 
+
+
+      demoStringComparison();
 
 		demoTypeClassEnhancement();
 	
@@ -416,6 +435,13 @@ public class Main extends ConsoleApplication {
 		let interval2 : Interval<Integer> = |[ -2, 19 )|; // TODO better promotions
 
 		console.println(interval2);
+		
+		let integer = - 3;
+		let natural = 2;
+		
+		let c = natural + integer;
+		
+		assert( -1 == c);
 
 		let a  = interval2.start;
 		let b  = interval2.end;
@@ -424,7 +450,7 @@ public class Main extends ConsoleApplication {
   	 	
   	 	let cx = 3 + 4i;
 
-  	    let r = cx.abs();
+  	   let r = cx.abs();
   	 
   	 	console.println("Complex is : {{ cx }} with magnitude :{{ r }} "); 
   	 

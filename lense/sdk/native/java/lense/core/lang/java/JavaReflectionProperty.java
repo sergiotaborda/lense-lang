@@ -1,9 +1,9 @@
-package lense.core.lang.reflection;
+package lense.core.lang.java;
 
 import java.lang.reflect.Method;
 
 import lense.core.lang.String;
-import lense.core.lang.java.Base;
+import lense.core.lang.reflection.Property;
 
 public class JavaReflectionProperty extends Base implements Property {
 
@@ -15,7 +15,7 @@ public class JavaReflectionProperty extends Base implements Property {
 
 	@Override
 	public String getName() {
-		return String.valueOfNative(javaMethod.getName());
+		return NativeString.valueOfNative(javaMethod.getName());
 	}
 
 

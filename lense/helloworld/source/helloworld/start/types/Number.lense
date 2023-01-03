@@ -17,7 +17,7 @@ public value class Number satisfies MultiplicativeMonoid<Number> , AdditiveMonoi
 		return new Number(a.value * b.value);
 	}
 
-	public satisfy plusOperator(a : Number, b : Number) : Number {
+	public satisfy plus(a : Number, b : Number) : Number {
 		return new Number(a.value + b.value);
 	}
 

@@ -8,9 +8,9 @@ import lense.core.lang.AnyValue;
 import lense.core.lang.HashValue;
 import lense.core.lang.String;
 import lense.core.lang.java.Constructor;
+import lense.core.lang.java.NativeString;
 import lense.core.lang.java.Primitives;
 import lense.core.lang.java.ValueClass;
-import lense.core.lang.reflection.NativeType;
 import lense.core.lang.reflection.Type;
 
 @ValueClass
@@ -54,7 +54,7 @@ public final class BigDecimal implements Real  , AnyValue {
     }
 
     public String asString(){
-        return String.valueOfNative(value.toString());
+        return NativeString.valueOfNative(value.toString());
     }
 
 
@@ -239,7 +239,7 @@ public final class BigDecimal implements Real  , AnyValue {
 	@Override
 	public Real remainder(Real other) {
 		if (other.isZero()){
-			throw ArithmeticException.constructor(lense.core.lang.String.valueOfNative("Cannot divide by zero"));
+			throw ArithmeticException.constructor(NativeString.valueOfNative("Cannot divide by zero"));
 		} else if (other.isOne()) {
 			return this;
 		} 
@@ -250,7 +250,7 @@ public final class BigDecimal implements Real  , AnyValue {
 	@Override
 	public Real modulo(Real other) {
 		if (other.isZero()){
-			throw ArithmeticException.constructor(lense.core.lang.String.valueOfNative("Cannot divide by zero"));
+			throw ArithmeticException.constructor(NativeString.valueOfNative("Cannot divide by zero"));
 		} else if (other.isOne()) {
 			return this;
 		} 

@@ -1,1 +1,1 @@
-"C:\Program Files\Java\jdk-16.0.1\bin\java.exe" -cp "helloworld.jar;libs/*" helloworld.start.Bootstrap
+"C:\Program Files\Java\jdk-19\bin\java.exe" -cp "helloworld.jar;libs/*" helloworld.start.Bootstrap

@@ -6,6 +6,7 @@ import compiler.filesystem.SourceFile;
 import compiler.syntax.AstNode;
 import compiler.trees.Visitor;
 import lense.compiler.CompilationError;
+import lense.compiler.NativeSourceInfo;
 import lense.compiler.ast.ArgumentListItemNode;
 import lense.compiler.ast.BlockNode;
 import lense.compiler.ast.ConstructorDeclarationNode;
@@ -23,9 +24,9 @@ import lense.compiler.typesystem.Visibility;
 
 public final class NativePeerVisitor implements Visitor<AstNode>{
 
-	Map<String, SourceFile> nativeTypes;
+	Map<String, NativeSourceInfo> nativeTypes;
 	
-	public NativePeerVisitor(Map<String, SourceFile> nativeTypes) {
+	public NativePeerVisitor(Map<String, NativeSourceInfo> nativeTypes) {
 		this.nativeTypes = nativeTypes;
 	}
 

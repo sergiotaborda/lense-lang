@@ -1,8 +1,10 @@
-package lense.core.lang.reflection;
+package lense.core.lang.java;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import lense.core.lang.reflection.ReifiedArguments;
+import lense.core.lang.reflection.TypeResolver;
 import lense.core.math.NativeNumberFactory;
 import lense.core.math.Natural;
 

@@ -1,6 +1,7 @@
 package lense.core.lang;
 
 import lense.core.lang.java.Constructor;
+import lense.core.lang.java.NativeString;
 import lense.core.lang.java.SingletonObject;
 import lense.core.lang.reflection.Type;
 import lense.core.lang.reflection.TypeResolver;
@@ -27,7 +28,7 @@ public final class Debug implements Any {
 
 	@Override
 	public String asString() {
-		return String.valueOfNative("DEBUG");
+		return NativeString.valueOfNative("DEBUG");
 	}
 
 

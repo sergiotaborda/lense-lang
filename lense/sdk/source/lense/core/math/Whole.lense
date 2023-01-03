@@ -1,5 +1,6 @@
 
 import lense.core.lang.String;
+import lense.core.lang.Summable;
 import lense.core.math.RealLineElement;
 import lense.core.lang.Boolean;
 import lense.core.math.Complex;
@@ -9,10 +10,15 @@ import lense.core.math.Natural;
 import lense.core.math.Real;
 import lense.core.math.Integer;
 
-public interface Whole extends RealLineElement {
+
+public interface Whole extends RealLineElement satisfies Summable<Whole,Whole,Whole>{
 
 	public native implicit  constructor parse( other: String);
 
+   public satisfy sum(a: Whole, b: Whole): Whole {
+      return a.plus(b);
+   }
+   
 	public isOne() : Boolean;
 
 	public plus( n : Imaginary) : Complex;

@@ -8,11 +8,11 @@ import lense.core.collections.Progression;
 import lense.core.lang.Any;
 import lense.core.lang.AnyValue;
 import lense.core.lang.HashValue;
+import lense.core.lang.java.NativeString;
 import lense.core.lang.java.NonNull;
 import lense.core.lang.java.PlatformSpecific;
 import lense.core.lang.java.Primitives;
 import lense.core.lang.java.Signature;
-import lense.core.lang.reflection.NativeType;
 import lense.core.lang.reflection.Type;
 
 @Signature("::lense.core.math.Natural")
@@ -26,7 +26,7 @@ public final class Natural64 implements Natural , BigDecimalConvertable , BigInt
 	@PlatformSpecific
 	public static Natural64 valueOfNative(int value){
 		if (value < 0){
-			throw ArithmeticException.constructor(lense.core.lang.String.valueOfNative("A negative integer cannot be transformed to a Natural"));
+			throw ArithmeticException.constructor(NativeString.valueOfNative("A negative integer cannot be transformed to a Natural"));
 		}
 		return new Natural64(value);
 	}
@@ -34,7 +34,7 @@ public final class Natural64 implements Natural , BigDecimalConvertable , BigInt
 	@PlatformSpecific
 	public static Natural64 valueOfNative(long value) {
 		if (value < 0){
-			throw ArithmeticException.constructor(lense.core.lang.String.valueOfNative("A negative integer cannot be transformed to a Natural"));
+			throw ArithmeticException.constructor(NativeString.valueOfNative("A negative integer cannot be transformed to a Natural"));
 		}
 		return new Natural64(value);
 	}
@@ -147,7 +147,7 @@ public final class Natural64 implements Natural , BigDecimalConvertable , BigInt
 	@Override
 	public Natural predecessor() {
 		if (value == 0L){
-			throw ArithmeticException.constructor(lense.core.lang.String.valueOfNative("min predecessor reached"));
+			throw ArithmeticException.constructor(NativeString.valueOfNative("min predecessor reached"));
 		}
 		return new Natural64(value - 1);
 	}
@@ -166,7 +166,7 @@ public final class Natural64 implements Natural , BigDecimalConvertable , BigInt
 		if (Long.compareUnsigned(this.value, java.lang.Integer.MAX_VALUE) <= 0){
 			return (int)this.value;
 		}
-		throw ArithmeticException.constructor(lense.core.lang.String.valueOfNative("To big for a primitive int"));
+		throw ArithmeticException.constructor(NativeString.valueOfNative("To big for a primitive int"));
 	}
 
 	@Override
@@ -250,7 +250,7 @@ public final class Natural64 implements Natural , BigDecimalConvertable , BigInt
 
 	@Override
 	public lense.core.lang.String asString() {
-		return lense.core.lang.String.valueOfNative(this.toString());
+		return NativeString.valueOfNative(this.toString());
 	}
 	
 
@@ -400,7 +400,7 @@ public final class Natural64 implements Natural , BigDecimalConvertable , BigInt
 	
 	public Natural remainder(Natural other) {
 		if (other.isZero()){
-			throw ArithmeticException.constructor(lense.core.lang.String.valueOfNative("Cannot divide by zero"));
+			throw ArithmeticException.constructor(NativeString.valueOfNative("Cannot divide by zero"));
 		}  
 		
 		if (other instanceof Natural64 natural){
@@ -413,7 +413,7 @@ public final class Natural64 implements Natural , BigDecimalConvertable , BigInt
 	@Override
 	public Whole remainder(Whole other) {
 		if (other.isZero()){
-			throw ArithmeticException.constructor(lense.core.lang.String.valueOfNative("Cannot divide by zero"));
+			throw ArithmeticException.constructor(NativeString.valueOfNative("Cannot divide by zero"));
 		}  
 		
 		if (other instanceof Natural) {

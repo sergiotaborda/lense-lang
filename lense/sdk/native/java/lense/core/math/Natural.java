@@ -1,16 +1,25 @@
 package lense.core.math;
 
+import lense.core.lang.Any;
 import lense.core.lang.Ordinal;
+import lense.core.lang.Summable;
 import lense.core.lang.java.Constructor;
 import lense.core.lang.java.NonNull;
-import lense.core.lang.java.PlatformSpecific;
 import lense.core.lang.java.Signature;
 
 @Signature("::lense.core.math.Whole&lense.core.math.Ordinal")
-@PlatformSpecific
-public interface Natural extends Whole , Ordinal , Progressable, Comparable {
+public interface Natural extends Whole , Ordinal , Progressable, Comparable , Summable{
 
 
+	@lense.core.lang.java.MethodSignature( 
+			returnSignature = "lense.core.math.Natural" , 
+			paramsSignature = "lense.core.math.Natural,lense.core.math.Natural" , 
+			override = false , 
+			satisfy = true, declaringType = "lense.core.lang.Summable")
+	public default Any sum (Any a, Any b) {
+		return ((Natural)a).plus((Natural)b);
+	}
+	
 
 	@Constructor(isImplicit = false, paramsSignature = "lense.core.lang.String")
 	public static Natural parse(lense.core.lang.String text){

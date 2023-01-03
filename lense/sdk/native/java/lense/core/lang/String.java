@@ -6,175 +6,215 @@ import lense.core.collections.NativeProgression;
 import lense.core.collections.Progression;
 import lense.core.collections.Sequence;
 import lense.core.lang.java.Base;
-import lense.core.lang.java.Constructor;
+import lense.core.lang.java.ConcatenatedString;
+import lense.core.lang.java.JavaReifiedArguments;
 import lense.core.lang.java.MethodSignature;
+import lense.core.lang.java.NativeString;
 import lense.core.lang.java.PlatformSpecific;
 import lense.core.lang.java.Property;
 import lense.core.lang.java.Signature;
-import lense.core.lang.reflection.JavaReifiedArguments;
+import lense.core.lang.java.SubstringView;
 import lense.core.lang.reflection.Type;
-import lense.core.lang.reflection.TypeResolver;
 import lense.core.math.NativeNumberFactory;
 import lense.core.math.Natural;
 import lense.core.math.Natural64;
 
-@Signature("::lense.core.collections.Sequence<lense.core.lang.Character>")
-public class String extends Base implements Sequence , CharSequence {
+@Signature(value = "::lense.core.collections.Sequence<lense.core.lang.Character>&lense.core.lang.Concatenable<lense.core.lang.String,lense.core.lang.String,lense.core.lang.String>",
+		isFinal = true
+)
+public abstract class String extends Base implements Sequence , CharSequence, Concatenable {
 
-	public static final String EMPTY = new String("");
+
+	private HashValue hash;
 	
-	public static final TypeResolver TYPE_RESOLVER = TypeResolver.lazy(() -> Type.forClass(String.class));
-	
-    @Constructor(paramsSignature = "")
-	public static String constructor(){
-		return EMPTY;
+	@Override
+	public HashValue hashValue() {
+		
+		if (hash == null) {
+			var iterator = this.getIterator();
+			var code = 0; 
+			
+			while(iterator.moveNext()) {
+				// use same formula as java
+				code =  code * 31 + iterator.current().hashCode();
+			}
+			
+			hash = HashValue.fromPrimitive(code);
+		}
+		
+		return hash;
 	}
 	
-	@PlatformSpecific
-	public static String valueOfNative(java.lang.String str){
-		return new String(str);
+	public boolean equalsNative(java.lang.String nativeString) {
+		return this.toString().equals(nativeString);
 	}
-	
-	private java.lang.String str;
-	
-	@PlatformSpecific
-	private String(java.lang.String str){
-		this.str = str;
-	}
+
+	public abstract java.lang.String toString();
 	
 	@Override
 	@Property(name = "size")
 	@MethodSignature(returnSignature = "lense.core.math.Natural", paramsSignature = "", declaringType = "lense.core.collections.Sequence")
-	public Natural getSize() {
-
-		return Natural64.valueOfNative(str.length());
-	}
+	public abstract Natural getSize();
 
 	@Override
 	public Iterator getIterator() {
-		throw new UnsupportedOperationException();
+		return getIndexes().getIterator().map(it ->  get((Natural)it));
 	}
+	@Override
+	public abstract lense.core.lang.Character get(Natural index);
 
 	@Override
-	public lense.core.lang.Character get(Natural index) {
-		throw new UnsupportedOperationException();
+	public Progression getIndexes(){
+		return new NativeProgression(0, this.length() - 1);
 	}
-
-	@Override
-	public Progression getIndexes() {
-		return new NativeProgression(0, this.str.length());
-	}
-
+	
 	@Override
 	public String asString() {
 		return this;
 	}
+
+	@Override
+	public abstract boolean contains(Any other);
 	
 	@Override
-	public java.lang.String toString() {
-		return str;
-	}
-
-	@Override
-	public boolean contains(Any other) {
-		if (other instanceof Character){
-			return str.indexOf(((Character)other).toPrimitiveChar()) >= 0;
-		}
-		return false;
-	}
-
-	@Override
 	public boolean containsAll(Assortment other) {
-		throw new UnsupportedOperationException();
+		if (other.getEmpty()) {
+			return true; // empty set is contained in any set
+		}
+		var iterator = other.getIterator();
+		while(iterator.moveNext()) {
+			if (!contains(iterator.current())) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	@Override
-	public boolean getEmpty() {
-		return str.isEmpty();
-	}
+	public abstract boolean getEmpty();
+
 
 	@Override
 	public boolean equalsTo(Any other) {
-		return other instanceof String && ((String)other).str.equals(this.str);
-	}
+		if (this instanceof NativeString thisString && other instanceof NativeString nativeOther) {
+			return thisString.equalsNative(nativeOther);
+		} else if (other instanceof String that) {
 
-	@Override
-	public HashValue hashValue() {
-		return new HashValue(this.str.hashCode());
-	}
+			var thatSize = that.getSize();
+			var thisSize = this.getSize();
+			
+			if (!thatSize.equals(thisSize)) {
+				return false;
+			} else if (thisSize.isZero()) {
+				return true;
+			}
+	
+			var a = this.getIterator();
+			var b = that.getIterator();
+			
+			while(a.moveNext() && b.moveNext()) {
+				if (!a.current().equals(b.current())) {
+					return false;
+				}
+			}
 
-	public String concat(String other){
-		return new String(this.str + other.str);
+		}
+		return true;
 	}
+	
+	public abstract String concat(String other);
 	
 	@PlatformSpecific
-	public String concat(java.lang.String other){
-		return new String(this.str + other);
+	public String concat(java.lang.String other) {
+		return concat(NativeString.valueOfNative(other));
 	}
 	
-	public String concat(Any other){
+	public String concat(Any other) {
 		if (other == null){
 			throw new IllegalArgumentException("argument cannot be null");
 		}
 		if (other.asString() == null){
 			throw new IllegalArgumentException("asString cannot be null");
 		}
-		return new String(this.str + other.asString().str);
+		return concat(other.asString());
 	}
-
-    @Override
-    public Type type() {
-        return TYPE_RESOLVER.resolveType();
-    }
-
+   
+	@Override
+	public Type type() {
+		 return NativeString.TYPE_RESOLVER.resolveType();
+	}
 	
-    @Override
-	public int length() {
-		return this.str.length();
-	}
 
 	@Override
-	public char charAt(int index) {
-		return this.str.charAt(index);
+	public int length() {
+		return NativeNumberFactory.toPrimitiveInt(getSize());
 	}
+
 	
+	@Override
+	public char charAt(int index) {
+		return get(NativeNumberFactory.newNatural(index)).toPrimitiveChar();
+	}
 
 	@Override
 	public CharSequence subSequence(int start, int end) {
-		return subSequence(start, end);
+		// TODO validate pre conditions
+		return subString(NativeNumberFactory.newNatural(start), NativeNumberFactory.newNatural(end - start));
 	}
 	
 	public String removeAt(Natural position) {
-		return String.valueOfNative(this.str.substring(0, NativeNumberFactory.naturalToPrimitiveInt(position)) + 
-		this.str.substring(NativeNumberFactory.naturalToPrimitiveInt(position) + 1));
+		if (position.isZero() || position.compareWith(this.getSize()).isGreater()) {
+			return this;
+		}
+		return ConcatenatedString.newInstance(
+			new SubstringView(this, Natural64.ZERO, position.predecessor()),
+			this.subString(position.successor())
+		);
 	}
 	
 	@MethodSignature(returnSignature = "lense.core.lang.Maybe<lense.core.math.Natural>" , paramsSignature = "lense.core.lang.String")
-	public Maybe indexOf(String candidate) {
-		int pos = this.str.indexOf(candidate.str);
-		
-		if (pos < 0) {
-			return None.constructor();
+	public Maybe indexOf(String candidate){
+		if (this.isEmpty()) {
+			if (candidate.isEmpty()) {
+				return Some.constructor(JavaReifiedArguments.getInstance().addType(NativeNumberFactory.NATURAL_TYPE_RESOLVER), Natural64.ZERO);
+			} else {
+				return None.NONE;
+			}
+		}
+		var fistChar = candidate.get(Natural64.ZERO);
+		Natural pos = Natural64.ZERO;
+		var iterator = this.getIterator();
+		while(iterator.moveNext()) {
+			if (iterator.current().equals(fistChar)) {
+				if (new SubstringView(this,pos, candidate.getSize()).equalsTo(candidate)) {
+					return Some.constructor(JavaReifiedArguments.getInstance().addType(NativeNumberFactory.NATURAL_TYPE_RESOLVER), pos);
+				};
+			}
+			pos = pos.successor();
 		}
 		
-		return Some.constructor(JavaReifiedArguments.getInstance().addType(NativeNumberFactory.NATURAL_TYPE_RESOLVER), Natural64.valueOfNative(pos));
-				
+		return None.NONE;
 	}
 	
 	public String subString(Natural start, Natural length) {
-		return String.valueOfNative(this.str.substring(NativeNumberFactory.naturalToPrimitiveInt(start),NativeNumberFactory.naturalToPrimitiveInt(length)));
+		return new SubstringView(this, start, length);
 	}
 	
 	public String subString(Natural start) {
-		
-		return String.valueOfNative(this.str.substring(NativeNumberFactory.naturalToPrimitiveInt(start)));
+		return new SubstringView(this, start, this.getSize().minus(start).abs());
 	}
 	
-	public boolean starstWith( String other  ) {
-		return str.startsWith(other.str);
+	public boolean starstWith(String other) {
+		return indexOf(other).valueEqualsTo(Natural64.ZERO);
 	}
 	
 	public boolean endsWith(String other ) {
-		return str.endsWith(other.str);
+		return indexOf(other).valueEqualsTo(this.getSize().minus(other.getSize()).abs());
+	}
+	
+	@Override
+	@lense.core.lang.java.MethodSignature( returnSignature = "lense.core.lang.String" , paramsSignature = "lense.core.lang.String,lense.core.lang.String" , override = true , satisfy = true, declaringType = "lense.core.lang.Concatenable")
+	public  Any concatenate(Any a, Any b){
+		return ((lense.core.lang.String)a).concat(((lense.core.lang.String)b));
 	}
 }

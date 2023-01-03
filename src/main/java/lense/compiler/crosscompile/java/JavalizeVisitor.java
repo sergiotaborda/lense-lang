@@ -10,12 +10,22 @@ import lense.compiler.ast.CastNode;
 import lense.compiler.ast.ClassTypeNode;
 import lense.compiler.ast.FormalParameterNode;
 import lense.compiler.ast.ImutabilityNode;
+import lense.compiler.ast.LenseAstNode;
 import lense.compiler.ast.MethodDeclarationNode;
 import lense.compiler.ast.MethodInvocationNode;
 import lense.compiler.ast.QualifiedNameNode;
 import lense.compiler.ast.VariableDeclarationNode;
 import lense.compiler.ast.VariableReadNode;
+import lense.compiler.ast.ArgumentListItemNode;
+import lense.compiler.ast.AssertNode;
+import lense.compiler.ast.BooleanOperation;
+import lense.compiler.ast.StringValue;
+import lense.compiler.ast.ComparisonNode;
+import lense.compiler.ast.ComparisonNode.Operation;
 import lense.compiler.context.SemanticContext;
+import lense.compiler.crosscompile.PrimitiveTypeDefinition;
+import lense.compiler.crosscompile.PrimitiveBooleanValue;
+import lense.compiler.crosscompile.PrimitiveBooleanOperationsNode;
 import lense.compiler.repository.UpdatableTypeRepository;
 import lense.compiler.type.CallableMemberMember;
 import lense.compiler.type.LenseTypeAssistant;
@@ -73,18 +83,41 @@ public final class JavalizeVisitor implements Visitor<AstNode>{
             	 }
             }
         } 
-        else if (node instanceof MethodInvocationNode){
-            MethodInvocationNode m = (MethodInvocationNode)node;
-
-
-            if (m.getAccess() != null 
+        else if (node instanceof MethodInvocationNode m){
+          
+        	 var call = m.getCall();
+        	   
+    	   if (call.getArguments().getChildren().size() == 1 && call.getName().equals("equalsTo")) {
+    		   var left = m.getAccess();
+    		   var right = call.getArguments().getFirstArgument().getFirstChild();
+    		   
+    		   if (left instanceof StringValue sleft) {
+    			   if (right instanceof StringValue sright) {
+        			   // reduce to native comparison
+    				   var nativeMethod = new MethodInvocationNode(new PrimitiveStringNode(sleft.getLiteralValue()), "equals", new ArgumentListItemNode(0, new PrimitiveStringNode(sright.getLiteralValue())));
+    				   nativeMethod.setTypeVariable(PrimitiveTypeDefinition.BOOLEAN);
+    				   m.getParent().replace(m, nativeMethod);
+        		   } else {
+        			   //  invert and use native comparison
+        			   var nativeMethod = new MethodInvocationNode(new CastNode((LenseAstNode)right, LenseTypeSystem.String()), "equalsNative", new ArgumentListItemNode(0, new PrimitiveStringNode(sleft.getLiteralValue())));
+        			   nativeMethod.setTypeVariable(PrimitiveTypeDefinition.BOOLEAN);
+    				   m.getParent().replace(m, nativeMethod);
+        		   }
+    		   } else if (right instanceof StringValue sright) {
+    			   // use native comparison
+    			   var nativeMethod = new MethodInvocationNode(new CastNode((LenseAstNode)left, LenseTypeSystem.String()), "equalsNative", new ArgumentListItemNode(0, new PrimitiveStringNode(sright.getLiteralValue())));
+    			   nativeMethod.setTypeVariable(PrimitiveTypeDefinition.BOOLEAN);
+				   m.getParent().replace(m, nativeMethod);
+    		   }
+    	   } else  if (m.getAccess() != null 
             		&& ((lense.compiler.ast.TypedNode)m.getAccess()).getTypeVariable() != null
             		&& !((lense.compiler.ast.TypedNode)m.getAccess()).getTypeVariable().getGenericParameters().isEmpty() ){
 
                 if ( m.getTypeVariable().isFixed()){
                     return ;
                 }
-                AstNode parent = m.getParent();
+                
+                var parent = m.getParent();
                 
                 if (m.getTypeVariable().isSingleType()) {
                     TypeDefinition typeDefinition = m.getTypeVariable().getTypeDefinition();
@@ -100,6 +133,7 @@ public final class JavalizeVisitor implements Visitor<AstNode>{
                     parent.replace(node, cast);
                 }
             
+               
             }
         }
         else if (node instanceof MethodDeclarationNode){
@@ -175,6 +209,39 @@ public final class JavalizeVisitor implements Visitor<AstNode>{
             	}
         	}
 
+        } else if (node instanceof AssertNode assertion) {
+           assertion.getChildren(PrimitiveBooleanValue.class).stream().findFirst().ifPresent(m ->{
+        	   
+        	  if (m.isValue()) {   // true
+        		  // remove assertion
+        		  assertion.getParent().remove(assertion);
+        	  }
+           });
+           assertion.getChildren(PrimitiveBooleanOperationsNode.class).stream().findFirst().ifPresent(m ->{
+        	   
+         	  if (m.getOperation() == BooleanOperation.LogicNegate) {
+         		  if( m.getFirstChild() instanceof PrimitiveBooleanValue booleanValue && !booleanValue.isValue()   // !false
+		     		) {
+		     		  // remove assertion
+		     		  assertion.getParent().remove(assertion);
+		     	  } else {
+		     		  // double negation
+		        		var singleOperation = m.getFirstChild();
+		        		
+		        		assertion.setReferenceValue(false);
+		        		assertion.replace(m, singleOperation);
+		     	  }
+         	  }
+         			
+            });
+        	
+        } else if (node instanceof PrimitiveBooleanOperationsNode booleanOp && booleanOp.getOperation() == BooleanOperation.LogicNegate) {
+        	if (booleanOp.getFirstChild() instanceof PrimitiveBooleanOperationsNode innerop && innerop.getOperation() == BooleanOperation.LogicNegate) {
+        		// double negation
+        		var singleOperation = innerop.getFirstChild();
+        		
+        		node.getParent().replace(node, singleOperation);
+        	}
         }
     }
 

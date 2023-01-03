@@ -134,10 +134,10 @@ public class JarTypeRepository extends AbstractTypeRepositoryWithDependencies {
 
 								//System.out.println("#1 type " + copy.name + " dependends on " + od.name + "(" + od.kind + ")");
 
-								if(other.kind != LenseUnitKind.Interface) {
+								//if(other.kind != LenseUnitKind.Interface) {
 									graph.addEdge(new DependencyRelation(DependencyRelationship.Structural),od,copy);
 
-								}
+								//}
 							}
 
 
@@ -157,10 +157,10 @@ public class JarTypeRepository extends AbstractTypeRepositoryWithDependencies {
 									set.add(other.name);
 
 									//System.out.println("#2 type " + info.name + " dependends on " + od.name + "(" + od.kind + ")");
-									if(other.kind != LenseUnitKind.Interface) {
+									//if(other.kind != LenseUnitKind.Interface) {
 										graph.addEdge(new DependencyRelation(DependencyRelationship.Structural),od,info);
 										//graph.addEdge(new DependencyRelation(DependencyRelationship.Module),od,module);
-									}
+									//}
 								}
 							}
 						}
@@ -205,7 +205,7 @@ public class JarTypeRepository extends AbstractTypeRepositoryWithDependencies {
 
 					var info = e.getVertex().getObject();
 
-					//System.out.print("# visiting " + info.name);
+					//System.out.println("# jar visiting " + info.name);
 					//System.out.println(f.isFirstcross() ? " concrete" : " proxy" );
 
 					if (f.isFirstcross()){
@@ -237,9 +237,9 @@ public class JarTypeRepository extends AbstractTypeRepositoryWithDependencies {
 						}
 					} else {
 						if (moduleRepo.resolveTypesMap(info.name).isEmpty()) {
-							var proxy = new ProxyTypeDefinition(moduleRepo, info.name);
+							var proxy = new ProxyTypeDefinition(moduleRepo, info);
 							proxies.add(proxy);
-							moduleRepo.registerType(proxy, 0);
+							moduleRepo.registerType(proxy, info.genericCount);
 						}
 					}
 

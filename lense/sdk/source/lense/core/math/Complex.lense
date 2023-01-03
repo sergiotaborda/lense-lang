@@ -6,7 +6,7 @@ import lense.core.math.ArithmeticException;
 
 public interface Complex extends Number {
 
-
+   //  remove. use ComplexEnhancment
 	public native constructor rectangular(r : Real, img : Real);
 
 	public real : Real;

@@ -5,10 +5,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import lense.compiler.modules.ModuleTypeContents;
-import lense.compiler.repository.UpdatableTypeRepository;
 import lense.compiler.type.Constructor;
 import lense.compiler.type.ConstructorParameter;
 import lense.compiler.type.Field;
@@ -24,6 +24,7 @@ import lense.compiler.type.TypeKind;
 import lense.compiler.type.TypeMember;
 import lense.compiler.type.variable.TypeVariable;
 import lense.compiler.typesystem.Imutability;
+import lense.compiler.typesystem.LenseTypeSystem;
 import lense.compiler.typesystem.Variance;
 import lense.compiler.typesystem.Visibility;
 
@@ -32,13 +33,17 @@ public class ProxyTypeDefinition extends LenseTypeDefinition  {
 	private LenseTypeDefinition originalType;
 	
 
-	private String name;
+	private final TypeDefinitionInfo info;
 
 
 	private ModuleTypeContents typeRepository;
+
+
+	private final String name;
 	
-	public ProxyTypeDefinition(ModuleTypeContents typeRepository, String name) {
-		this.name = name;
+	public ProxyTypeDefinition(ModuleTypeContents typeRepository, TypeDefinitionInfo info) {
+		this.name = info.name;
+		this.info = info;
 		this.typeRepository = typeRepository;
 	}
 	
@@ -50,17 +55,30 @@ public class ProxyTypeDefinition extends LenseTypeDefinition  {
 	private LenseTypeDefinition original() {
 		if(originalType == null) {
 			var map = typeRepository.resolveTypesMap(name);
-			throw new RuntimeException("Type " + name + " not set in proxy");
+			if (map != null && map.size() == 1) {
+				originalType = (LenseTypeDefinition) map.values().iterator().next();
+			} else {
+				throw new RuntimeException("Type " + name + " not set in proxy");
+			}
 		}
 		
 		return originalType;
 	}
 
 	public List<TypeVariable> getGenericParameters() {
-		return originalType == null ? Collections.emptyList() : originalType.getGenericParameters();
+		if (originalType != null) {
+			return originalType.getGenericParameters();
+		} else if (info.genericCount == 0) {
+			return Collections.emptyList();
+		}
+		
+		return IntStream.range(0, info.genericCount).mapToObj(i -> (TypeVariable)LenseTypeSystem.Any()).toList();
 	}
 	
 	public LenseTypeDefinition specify(List<TypeVariable> genericParameters) {
+		if (originalType == null) {
+			return this;
+		}
 		return original().specify(genericParameters);
 	}
 
@@ -357,7 +375,7 @@ public class ProxyTypeDefinition extends LenseTypeDefinition  {
 	}
 
 	public boolean isGeneric() {
-		return original().isGeneric();
+		return info.genericCount > 0;
 	}
 
 	public boolean isAlgebric() {

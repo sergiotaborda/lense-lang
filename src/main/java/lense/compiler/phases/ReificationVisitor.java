@@ -83,32 +83,34 @@ public final class ReificationVisitor extends AbstractScopedVisitor {
 			var type = typeOf.getChildren(TypeNode.class).get(0);
 			if (type.getTypeParameter() != null) {
 				
-				if (type.getTypeParameter().isFixed()) {
-					// read type by name
-					node.getParent().replace(node, new ReadTypeByNameNode(type, type.getTypeParameter().getTypeDefinition().getName()));
-				} else {
-					if (this.currentType.getKind().isEnhancement()) {
-						// look for paremeter in super
-						var generics = 	this.currentType.getSuperDefinition().getGenericParameters();
-						for (int i =0; i < generics.size(); i++) {
+				if (this.currentType.getKind().isEnhancement()) {
+					// look for paremeter in super
+					var generics = 	this.currentType.getSuperDefinition().getGenericParameters();
+					for (int i =0; i < generics.size(); i++) {
+						
+						if (generics.get(i).getSymbol().equals(type.getTypeParameter().getSymbol())
+								|| typeAssistant.isPromotableTo(type.getTypeParameter(), generics.get(i))
+								) {
 							
-							if (generics.get(i).getSymbol().get().equals(type.getTypeParameter().getSymbol().get())) {
-								
-								var methodInvocation = new MethodInvocationNode(  
-										new ReadThisType(new TypeNode(this.currentType), this.currentType.getKind()), 
-										"genericType",
-										new ArgumentListItemNode(0, new NumericValue(i, LenseTypeSystem.Int32()))
-								);
-								methodInvocation.setTypeVariable(LenseTypeSystem.Type());
-								
-								node.getParent().replace(node, new CastNode(methodInvocation, type.getTypeParameter().getTypeDefinition()));
-								break;
-							}
+							var methodInvocation = new MethodInvocationNode(  
+									new ReadThisType(new TypeNode(this.currentType), this.currentType.getKind()), 
+									"genericType",
+									new ArgumentListItemNode(0, new NumericValue(i, LenseTypeSystem.Int32()))
+							);
+							methodInvocation.setTypeVariable(LenseTypeSystem.Type());
+							
+							node.getParent().replace(node, new CastNode(methodInvocation, type.getTypeParameter().getTypeDefinition()));
+							break;
 						}
-	
-					} else {
-						throw new UnsupportedOperationException();
 					}
+				} else if (type.getTypeParameter().isFixed()) {
+					// read type by name
+					node.getParent().replace(node,
+							new ReadTypeByNameNode(type, type.getTypeParameter().getTypeDefinition().getName())
+					);
+				
+				} else {
+					throw new UnsupportedOperationException();
 				}
 			}
 			

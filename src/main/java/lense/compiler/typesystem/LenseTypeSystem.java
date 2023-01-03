@@ -470,7 +470,7 @@ public class LenseTypeSystem {
 	 * @return
 	 */
 	public static TypeDefinition Whole() {
-		return getInstance().getForName("lense.core.lang.Whole").get();
+		return getInstance().getForName("lense.core.math.Whole").get();
 	}
 
 	private LenseTypeSystem() {
@@ -570,7 +570,7 @@ public class LenseTypeSystem {
 	}
 
 	public boolean isAny(TypeDefinition type) {
-		return type.getName().equals(Any().getName());
+		return type != null && type.getName().equals(Any().getName());
 	}
 	
 	public boolean isAny(TypeVariable type) {

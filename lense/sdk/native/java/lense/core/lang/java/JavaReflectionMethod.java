@@ -1,7 +1,7 @@
-package lense.core.lang.reflection;
+package lense.core.lang.java;
 
 import lense.core.lang.String;
-import lense.core.lang.java.Base;
+import lense.core.lang.reflection.Method;
 
 public class JavaReflectionMethod extends Base implements Method {
 
@@ -13,7 +13,7 @@ public class JavaReflectionMethod extends Base implements Method {
 
 	@Override
 	public String getName() {
-		return String.valueOfNative(javaMethod.getName());
+		return NativeString.valueOfNative(javaMethod.getName());
 	}
 
 }

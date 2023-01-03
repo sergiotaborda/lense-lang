@@ -9,12 +9,12 @@
   	<dependency>
   		<groupId>compiler-little</groupId>
   		<artifactId>compiler-little</artifactId>
-  		<version>0.7.0</version>
+  		<version>0.6.0</version>
   	</dependency>
   	<dependency>
 		<groupId>org.ow2.asm</groupId>
 		<artifactId>asm</artifactId>
-		<version>9.1</version>
+		<version>9.4</version>
 	</dependency>
   </dependencies>
     <build>
@@ -32,8 +32,8 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.1</version>
         <configuration>
-          <source>16</source>
-          <target>16</target>
+          <source>19</source>
+          <target>19</target>
           <includes>
             <include>src/main/java/**/*.java</include>
           </includes>

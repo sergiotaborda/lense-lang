@@ -4,5 +4,5 @@ public type class AdditiveMonoid<T> given T is AdditiveMonoid<T> {
 
 
 	public zero() : T;
-	public plusOperator(a : T, b : T) : T;
+	public plus(a : T, b : T) : T;
 }

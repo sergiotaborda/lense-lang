@@ -3,7 +3,6 @@
  */
 package lense.compiler.phases;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -27,13 +26,11 @@ import compiler.CompilerMessage;
 import compiler.lexer.ScanPositionHolder;
 import compiler.parser.IdentifierNode;
 import compiler.parser.NameIdentifierNode;
-import compiler.parser.nodes.NumericNode;
 import compiler.syntax.AstNode;
 import compiler.trees.TreeTransverser;
 import compiler.trees.VisitorNext;
 import lense.compiler.CompilationError;
 import lense.compiler.JuxpositionNode;
-import lense.compiler.LenseNumberLiteralTokenState;
 import lense.compiler.LenseNumericBoundsSpecification;
 import lense.compiler.TypeAlreadyDefinedException;
 import lense.compiler.TypeMembersNotLoadedError;
@@ -372,7 +369,7 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 			}
 
 			// auto-abstract if interface
-			if (this.currentType != null && this.currentType.getKind() == LenseUnitKind.Interface && !m.isDefault()) {
+			if (this.currentType != null && this.currentType.getKind() == LenseUnitKind.Interface && !m.isDefault() && !m.isSatisfy() ) {
 				m.setAbstract(true);
 			}
 
@@ -707,7 +704,7 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 			if (superTypeNode != null) {
 
 				if (superTypeNode.getName().equals(myType.getName())) {
-					throw new CompilationError(t, "Type cannot inherit from it self");
+					throw new CompilationError(t, "Type cannot inherit from itself");
 				}
 
 				superType = this.getSemanticContext().typeForName(superTypeNode).getTypeDefinition();
@@ -716,6 +713,12 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 					throw new CompilationError(t,
 							"Value classes cannot inherit from other types. They can only implement interfaces");
 				}
+				
+				if (superType.isFinal()) {
+					throw new CompilationError(t,
+							"Final type " +  superType.getName() + " cannot be inherit by other types.");
+				}
+				
 				
 				checkAccess(superType);
 
@@ -1628,11 +1631,8 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 					} else {
 						throw new CompilationError(node, "Cannot call methodName at this point yet");
 					}
-					AssignmentNode assignment = new AssignmentNode(AssignmentNode.Operation.SimpleAssign);
-					assignment.setLeft(left);
-					assignment.setRight(method);
-
-					node.getParent().replace(node, assignment);
+	
+					node.getParent().replace(node, AssignmentNode.simpleAssign(left, method));
 				}
 
 			} else if (node instanceof PreExpression) {
@@ -3042,7 +3042,10 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 				
 				if (kind.isInterface() || kind.isTypeClass()) {
 					m.setVisibility(Visibility.Public);
-					m.setAbstract(true);
+				
+					m.setAbstract(!((m.isSatisfy() || m.isDefault())));
+					
+				
 				}
 				
 				
@@ -3827,8 +3830,12 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 		}
 	}
 
-	private void promoteArithmeticOperatorToMethodCall(ExpressionNode parent, ExpressionNode leftExpression,
-			ExpressionNode rightExpression, ArithmeticOperation operation) {
+	private void promoteArithmeticOperatorToMethodCall(
+			ExpressionNode parent,
+			ExpressionNode leftExpression,
+			ExpressionNode rightExpression,
+			ArithmeticOperation operation
+		) {
 
 		TypeVariable left = this.getSemanticContext().ensureNotFundamental(leftExpression.getTypeVariable());
 		TypeVariable right = this.getSemanticContext().ensureNotFundamental(rightExpression.getTypeVariable());
@@ -3878,8 +3885,10 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 				concat.setTypeVariable(left);
 
 				parent.getParent().replace(parent, concat);
-			} else if (operation == ArithmeticOperation.Division && leftExpression instanceof NumericValue
-					&& typeAssistant.isAssignableTo(right, LenseTypeSystem.Rational()).matches()) {
+			} else if (operation == ArithmeticOperation.Division 
+					&& leftExpression instanceof NumericValue
+					&& typeAssistant.isAssignableTo(right, LenseTypeSystem.Rational()).matches()
+				) {
 				// natural / rational
 
 				MethodSignature signature = new MethodSignature("invert");
@@ -3923,14 +3932,20 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 
 				}
 
-			} else if (operation == ArithmeticOperation.Division && rightExpression instanceof NumericValue
-					&& ((NumericValue) rightExpression).isOne()) {
+			} else if (operation == ArithmeticOperation.Division 
+					&& rightExpression instanceof NumericValue
+					&& ((NumericValue) rightExpression).isOne()
+				) {
+				
+				// numeric / 1 <=> numeric
 
 				parent.getParent().replace(parent, leftExpression);
 
+				
 			} else {
-				MethodSignature signature = new MethodSignature(operation.equivalentMethod(),
-						new MethodParameter(right, "text"));
+				
+				
+				MethodSignature signature = new MethodSignature(operation.equivalentMethod(),new MethodParameter(right, "operand"));
 
 				Optional<Method> method = typeAssistant.getMethodBySignature(type,signature);
 
@@ -3944,7 +3959,8 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 
 						if (operation == ArithmeticOperation.WrapMultiplication
 								|| operation == ArithmeticOperation.WrapAddition
-								|| operation == ArithmeticOperation.WrapSubtraction) {
+								|| operation == ArithmeticOperation.WrapSubtraction
+							) {
 
 							leftExpression = promote(parent, leftExpression, right, left);
 
@@ -3961,7 +3977,48 @@ public final class SemanticVisitor extends AbstractScopedVisitor {
 						}
 
 						if (!method.isPresent()) {
-							// search static operator
+						
+							// verify type class 
+							var leftType = this.getSemanticContext().ensureNotFundamental(left.getTypeDefinition());
+							var rightType = this.getSemanticContext().ensureNotFundamental(right.getTypeDefinition());
+							
+							MethodSignature binarySignature = new MethodSignature(operation.equivalentMethod(),
+									new MethodParameter(leftType),
+									new MethodParameter(rightType)
+								);
+
+							Optional<Method> binaryMethod = typeAssistant.getMethodBySignature(leftType,binarySignature);
+
+							if (!binaryMethod.isPresent()) {
+
+								binaryMethod = typeAssistant.getMethodByPromotableSignature(leftType,binarySignature);
+
+							}
+							
+							//var operatorImplementationInfo = this.typeAssistant.operatorImplementation(leftType, operation, rightType);
+							
+							if (binaryMethod.isPresent()) {
+								
+								// write instruction equivalent to: typeOf(typeClass).sum(left, right);
+								
+								var invokeOp = new MethodInvocationNode(new TypeOfInvocation(new TypeNode(leftType)),binaryMethod.get().getName(),  
+										new ArgumentListItemNode(0, leftExpression),
+										new ArgumentListItemNode(1, rightExpression)
+								);
+							
+								TypeVariable t = binaryMethod.get().getReturningType();
+								if (t == null) {
+									throw new IllegalStateException("Type cannot be null");
+								}
+								invokeOp.setTypeVariable(t);
+								
+								parent.getParent().replace(parent, invokeOp);
+								return;
+								
+								//throw new CompilationError(parent, leftType + " does not satisfies " + operatorImplementationInfo.typeClassName());
+							}
+									
+							
 							throw new CompilationError(parent, "Method " + operation.equivalentMethod() + "(" + right
 									+ ") is not defined in " + left);
 						}

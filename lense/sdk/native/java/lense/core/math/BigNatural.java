@@ -8,6 +8,7 @@ import lense.core.lang.Any;
 import lense.core.lang.AnyValue;
 import lense.core.lang.HashValue;
 import lense.core.lang.java.Constructor;
+import lense.core.lang.java.NativeString;
 import lense.core.lang.java.Primitives;
 import lense.core.lang.java.ValueClass;
 import lense.core.lang.reflection.NativeType;
@@ -73,7 +74,7 @@ public final class BigNatural implements Natural , BigDecimalConvertable , BigIn
 	}
 
 	public lense.core.lang.String asString(){
-		return lense.core.lang.String.valueOfNative(value.toString()); 
+		return NativeString.valueOfNative(value.toString()); 
 	}
 
 	@Override
@@ -94,7 +95,7 @@ public final class BigNatural implements Natural , BigDecimalConvertable , BigIn
 	@Override
 	public Natural predecessor() {
 		if (value.signum() == 0){
-			throw ArithmeticException.constructor(lense.core.lang.String.valueOfNative("min predecessor reached"));
+			throw ArithmeticException.constructor(NativeString.valueOfNative("min predecessor reached"));
 		}
 		return new BigNatural(value.subtract(BigInteger.ONE));
 	}
@@ -149,7 +150,7 @@ public final class BigNatural implements Natural , BigDecimalConvertable , BigIn
 
 	public Natural remainder(Natural other) {
 		if (other.isZero()){
-			throw ArithmeticException.constructor(lense.core.lang.String.valueOfNative("Cannot divide by zero"));
+			throw ArithmeticException.constructor(NativeString.valueOfNative("Cannot divide by zero"));
 		}  
 		
 		if (other instanceof BigIntegerConvertable) {
@@ -376,7 +377,7 @@ public final class BigNatural implements Natural , BigDecimalConvertable , BigIn
 	@Override
 	public Whole remainder(Whole other) {
 		if (other.isZero()){
-			throw ArithmeticException.constructor(lense.core.lang.String.valueOfNative("Cannot divide by zero"));
+			throw ArithmeticException.constructor(NativeString.valueOfNative("Cannot divide by zero"));
 		}  
 		
 		if (other instanceof Natural) {

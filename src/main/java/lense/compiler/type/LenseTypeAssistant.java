@@ -9,6 +9,8 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import lense.compiler.CompilationError;
+import lense.compiler.ast.ArithmeticOperation;
 import lense.compiler.context.SemanticContext;
 import lense.compiler.type.variable.RecursiveTypeVariable;
 import lense.compiler.type.variable.TypeVariable;
@@ -41,6 +43,7 @@ public class LenseTypeAssistant implements TypeAssistant {
 	@Override
 
 	public TypeVariable unionOf(TypeVariable a, TypeVariable b) {
+
 		if (a.isSingleType()) {
 			a = a.getUpperBound();
 		}
@@ -235,7 +238,7 @@ public class LenseTypeAssistant implements TypeAssistant {
 			}
 		} else {
 			// types satisfied 
-			for (TypeDefinition definiton : type.getImplementedTypeClasses()) {
+			for (TypeDefinition definiton : type.getSatisfiedTypeClasses()) {
 				TypeMatch match = isAssignableTo(definiton, target);
 				if (match.matches()) {
 					return TypeMatch.UpCast;
@@ -670,6 +673,62 @@ public class LenseTypeAssistant implements TypeAssistant {
 			 return true;
 		 }
 		 return isSuper(candidate, base.getSuperDefinition());
+	}
+
+	@Override
+	public OperatorImplementationInfo operatorImplementation(
+			TypeDefinition leftType,
+			ArithmeticOperation operation,
+			TypeDefinition rightType
+	) {
+	     var typeClassName = switch(operation) {
+	     	case Addition ->  "lense.core.lang.Summable";
+	     	case Concatenation ->  "lense.core.lang.Concatenable";
+	     	default -> null;
+	     };
+	     
+	     var operationName = switch(operation) {
+	     	case Addition ->  "sum";
+	     	case Concatenation ->  "concatenate";
+	     	default -> null;
+	     };
+	     
+	     
+	     if (typeClassName == null) {
+	    	 return new OperatorImplementationInfo(typeClassName, null ,null);
+	     }
+	     
+	     var requeredMethodSignature = new MethodSignature(operationName,
+	    		 new MethodParameter(leftType),
+	    		 new MethodParameter(rightType)
+	     );
+		
+	     var type = leftType;
+	     // try supper classes
+	     while(type != null && !this.isAny(type)) {
+	    	 var typeClass = type.getSatisfiedTypeClasses().stream()
+	    			 .filter(it -> it.getName().equals(typeClassName))
+	    			 .findAny();
+	    	 
+	    	 var method = type.getAllMembers().stream().filter(it -> it.isMethod()).map(it -> (Method)it)
+	    	 .filter(m -> m.isSatisfy() && m.getName().equals(operationName))
+	    	 .findAny()
+	    	 .filter(m -> this.isSignatureImplementedBy(requeredMethodSignature, m));
+	    	 
+	    	 if(typeClass.isPresent() && method.isPresent()){
+	    		 return new OperatorImplementationInfo(typeClassName, type , method.get());
+	    	 }
+	    	 type = type.getSuperDefinition();
+	     };
+	     
+
+	     // try interfaces
+	     
+	     return leftType.getInterfaces().stream()
+	    		 .flatMap(it -> Optional.of(operatorImplementation(it, operation, rightType))
+	    				 .filter(s -> s.typeClassImplementation().isPresent()).stream()
+	    		).findAny().orElseGet(() ->  new OperatorImplementationInfo(typeClassName, null ,null));
+
 	}
 
 }

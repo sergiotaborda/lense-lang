@@ -10,13 +10,13 @@ import lense.core.lang.AnyValue;
 import lense.core.lang.Binary;
 import lense.core.lang.HashValue;
 import lense.core.lang.java.Constructor;
+import lense.core.lang.java.NativeString;
 import lense.core.lang.java.NonNull;
 import lense.core.lang.java.PlatformSpecific;
 import lense.core.lang.java.Primitives;
 import lense.core.lang.java.Property;
 import lense.core.lang.java.Signature;
 import lense.core.lang.java.ValueClass;
-import lense.core.lang.reflection.NativeType;
 import lense.core.lang.reflection.Type;
 
 @Signature("::lense.core.math.Integer&lense.core.lang.Binary")
@@ -156,7 +156,7 @@ public class Int64 implements Integer , Binary , BigIntegerConvertable , AnyValu
 	}
 
 	public lense.core.lang.String asString(){
-		return lense.core.lang.String.valueOfNative(java.lang.Long.toString(value)); 
+		return NativeString.valueOfNative(java.lang.Long.toString(value)); 
 	}
 
 	@Override
@@ -308,7 +308,7 @@ public class Int64 implements Integer , Binary , BigIntegerConvertable , AnyValu
 	@Override
 	public Integer wholeDivide (Integer other){
 		if (other.isZero()){
-			throw ArithmeticException.constructor(lense.core.lang.String.valueOfNative("Cannot divide by zero"));
+			throw ArithmeticException.constructor(NativeString.valueOfNative("Cannot divide by zero"));
 		}  
 
 		if (other.isOne()) {
@@ -324,7 +324,7 @@ public class Int64 implements Integer , Binary , BigIntegerConvertable , AnyValu
 
 	public Integer remainder (Integer other){
 		if (other.isZero()){
-			throw ArithmeticException.constructor(lense.core.lang.String.valueOfNative("Cannot divide by zero"));
+			throw ArithmeticException.constructor(NativeString.valueOfNative("Cannot divide by zero"));
 		}  
 
 		if (other.isOne()) {
@@ -341,7 +341,7 @@ public class Int64 implements Integer , Binary , BigIntegerConvertable , AnyValu
 	@Override
 	public Whole modulo(Whole other) {
 		if (other.isZero()){
-			throw ArithmeticException.constructor(lense.core.lang.String.valueOfNative("Cannot divide by zero"));
+			throw ArithmeticException.constructor(NativeString.valueOfNative("Cannot divide by zero"));
 		}  else if (other.isOne()) {
 			return this;
 		} 

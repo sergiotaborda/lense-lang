@@ -65,7 +65,7 @@ public interface TypeDefinition extends TypeVariable {
 
 	public List<TypeDefinition> getInterfaces();
 
-	public List<TypeDefinition> getImplementedTypeClasses();
+	public List<TypeDefinition> getSatisfiedTypeClasses();
 	
 	public void updateFrom(TypeDefinition type, TypeAssistant typeAssistant);
 

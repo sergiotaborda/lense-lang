@@ -15,4 +15,5 @@ public @interface MethodSignature {
 	String declaringType() default "";
 	String boundedTypes() default "";
 	boolean override () default false;
+	boolean satisfy () default false;
 }

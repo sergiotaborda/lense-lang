@@ -6,8 +6,6 @@ import static org.objectweb.asm.Opcodes.ACC_INTERFACE;
 import static org.objectweb.asm.Opcodes.ACC_STATIC;
 import static org.objectweb.asm.Opcodes.ASM5;
 
-import java.util.Optional;
-
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
@@ -15,13 +13,7 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
 import lense.compiler.repository.UpdatableTypeRepository;
-import lense.compiler.type.LenseTypeDefinition;
 import lense.compiler.type.LenseUnitKind;
-import lense.compiler.type.variable.RangeTypeVariable;
-import lense.compiler.type.variable.TypeVariable;
-import lense.compiler.typesystem.LenseTypeSystem;
-import lense.compiler.typesystem.TypeSearchParameters;
-import lense.compiler.typesystem.Variance;
 import lense.compiler.typesystem.Visibility;
 
 public class ByteCodeReader extends ClassVisitor {
@@ -53,35 +45,15 @@ public class ByteCodeReader extends ClassVisitor {
 			loadedClassBuilder.setKind(LenseUnitKind.ValueClass);
 		} else if (desc.equals("Llense/core/lang/java/EnhancementClass;")) {
 			loadedClassBuilder.setKind(LenseUnitKind.Enhancement);
+		} else if (desc.equals("Llense/core/lang/java/TypeClass;")) {
+			loadedClassBuilder.setKind(LenseUnitKind.TypeClass);
 		}
 		
 		
 		return null;
 
 	}
-//
-//	LenseTypeDefinition resolveTypeByNameAndKind(String name, lense.compiler.type.TypeKind kind, int genericsCount) {
-//
-//		TypeSearchParameters params = new TypeSearchParameters(name, genericsCount);
-//
-//		Optional<LenseTypeDefinition> existingType = this.typeContainer.resolveType(params)
-//				.map(t -> (LenseTypeDefinition) t);
-//		if (!existingType.isPresent()) {
-//			TypeVariable[] generics = new TypeVariable[genericsCount];
-//			for (int i = 0; i < generics.length; i++) {
-//				generics[i] = new RangeTypeVariable(Optional.empty(), Variance.Invariant, LenseTypeSystem.Any(),
-//						LenseTypeSystem.Nothing());
-//			}
-//			LoadedLenseTypeDefinition type = new LoadedLenseTypeDefinition(name, kind, null, generics);
-//
-//			this.typeContainer.registerType(type, genericsCount);
-//
-//			return type;
-//
-//		} else {
-//			return existingType.get();
-//		}
-//	}
+
 
 	public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
 		
@@ -198,6 +170,8 @@ public class ByteCodeReader extends ClassVisitor {
 				loadedClassBuilder.setCaseValues(value.toString());
 			} else if ("caseTypes".equals(name)) {
 				loadedClassBuilder.setCaseTypes(value.toString());
+			} else if ("isFinal".equals(name)) {
+				loadedClassBuilder.setIsFinalOverride(true);
 			}
 		}
 
