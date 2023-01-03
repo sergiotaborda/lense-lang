@@ -519,8 +519,9 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 								writer.append(")");
 							}
 						} else {
-							writer.append("lense.core.math.NativeNumberFactory.new").append(typeName).append("(\"")
-									.append(n.toString()).append("\")");
+							writer.append("lense.core.math.NativeNumberFactory.new").append(typeName).append("(");
+							writeNumber(n);
+							writer.append(")");
 						}
 					}
 
@@ -1933,6 +1934,14 @@ public class JavaSourceWriterVisitor implements Visitor<AstNode> {
 			writer.append(str).append('L');
 		} else {
 			writer.append("\"").append(str).append("\"");
+		}
+	}
+	
+	private void writeNumber(NumericValue value) {
+		if (value.isInteger()) {
+			writeInteger(value.toString());
+		} else {
+			writer.append("\"").append(value.toString()).append("\"");
 		}
 	}
 

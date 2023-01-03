@@ -82,5 +82,15 @@ public class NumericValue extends LiteralExpressionNode {
 		if (this.getTypeVariable() == null || ( def != null && !def.getName().equals("lense.core.math.Number"))) {
 			super.setTypeVariable(type);
 		}
+	}
+
+	
+	public boolean isInteger() {
+		try {
+			number.toBigIntegerExact();
+			return true;
+		}catch (ArithmeticException e) {
+			return false;
+		}
 	} 
 }
