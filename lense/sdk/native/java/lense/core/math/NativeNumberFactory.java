@@ -54,10 +54,7 @@ public final class NativeNumberFactory {
         return new BigNatural(n);
     }
 
-    public static Imaginary newImaginary(long nativeValue) {
-        return ImaginaryOverReal.valueOf(Rational.valueOf(newInteger(nativeValue)));
-    }
-
+  
     public static Integer integerZero() {
         return Int32.ZERO;
     }
@@ -74,17 +71,40 @@ public final class NativeNumberFactory {
         return Int32.valueOfNative(nativeValue);
     }
 
+    public static Real newReal(int nativeValue) {
+        return Rational.valueOf(Int32.valueOfNative(nativeValue));
+    }
+
+    public static Real newReal(long nativeValue) {
+        return Rational.valueOf(Int64.valueOfNative(nativeValue));
+    }
+    
     public static Real newReal(String nativeValue) {
         return BigDecimal.valueOfNative(nativeValue);
     }
-
     
     public static Float newFloat(String nativeValue) {
         return Float64.valueOfNative(Double.parseDouble(nativeValue));
     }
     
+    public static BigFloat newBigFloat(int nativeValue) {
+        return BigFloat.valueOf(Int32.valueOfNative(nativeValue));
+    }
+    
+    public static BigFloat newBigFloat(long nativeValue) {
+    	  return BigFloat.valueOf(Int64.valueOfNative(nativeValue));
+    }
+    
     public static BigFloat newBigFloat(String nativeValue) {
         return BigFloat.parse(NativeString.valueOfNative(nativeValue));
+    }
+    
+    public static Imaginary newImaginary(int nativeValue) {
+        return ImaginaryOverReal.valueOf(newReal(nativeValue));
+    }
+    
+    public static Imaginary newImaginary(long nativeValue) {
+        return ImaginaryOverReal.valueOf(newReal(nativeValue));
     }
     
     public static Imaginary newImaginary(String nativeValue) {
