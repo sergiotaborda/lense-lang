@@ -46,6 +46,10 @@
 			float:left;
 			margin-left:7px;
 		}
+		
+		code {
+			color: #444;
+		}
 	</style>
 	
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
@@ -182,81 +186,327 @@
 <div class="sectionbody">
 <div class="paragraph">
 <p>Lense, like all languages, reserves some words that cannot be used as identifiers.
-Some of these reserved works are keywords, e.i. they have special meaning to the compiler. Some other are reserved to prevent use or for use in future versions.</p>
+Some of these reserved works are keywords, e.i. they have special meaning to the compiler.
+Some other are reserved to prevent use or for use in future versions.</p>
 </div>
 <table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 1. Table of all keywords</caption>
 <colgroup>
-<col style="width: 14.2857%;">
-<col style="width: 14.2857%;">
-<col style="width: 14.2857%;">
-<col style="width: 14.2857%;">
-<col style="width: 14.2857%;">
-<col style="width: 14.2857%;">
-<col style="width: 14.2858%;">
+<col style="width: 12.5%;">
+<col style="width: 12.5%;">
+<col style="width: 12.5%;">
+<col style="width: 12.5%;">
+<col style="width: 12.5%;">
+<col style="width: 12.5%;">
+<col style="width: 12.5%;">
+<col style="width: 12.5%;">
 </colgroup>
 <tbody>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">abstract</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">as</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">annotation</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">assert</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">break</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">case</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">catch</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">class</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">constructor</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">continue</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">constructor</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">default</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">do</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">else</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">enhancement</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">enum</p></td>
-</tr>
-<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">export</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">extends</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">final</p></td>
+</tr>
+<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">finally</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">for</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">get</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">given</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">if</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">implements</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">implicit</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">import</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">in</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">implicit</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">import</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">interface</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">inv</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">is</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">let</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">module</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">mutable</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">native</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">native</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">new</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">none</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">out</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">object</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">out</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">override</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">package</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">public</p></td>
-</tr>
-<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">private</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">protected</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">public</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">return</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">satisfies</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">satisfy</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">sealed</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">set</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">super</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">switch</p></td>
+</tr>
+<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">this</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">throw</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">try</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">type</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">typeOf</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">value</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">while</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>Follows a short description of each keywords uses.</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 2. Uses of each keyword</caption>
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">abstract</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Indicates a type cannot be instantiated</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">as</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Used to define an alias type name for an imported type.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">assert</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Verifies a condition, and is not satisfied, throws an exception</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">break</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Instructs loops  to terminate immediately</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">case</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Indicates a possible value in a <code>switch</code> selection</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">catch</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Part of the exception capturing clause known as try-catch-finally</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">class</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Indicates a type that participates in single inheritance</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">constructor</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Set of instructions that produce an instance of a class</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">continue</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Instructs loops  to jump to the next iteration</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">default</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Indicates "all others not specified" in a switch selection. Also indicates the method implementation can be overwritten</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">else</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Indicates an alternative for an <code>if</code> decision</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">enhancement</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Indicates a type that provides methods as extension for an existing type</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">export</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Indicates a class is visible outside the module</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">extends</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Uses to indicate inheritance</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The constant false value, of the instances of Boolean.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">final</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Indicates a class cannot be inherited</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">finally</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Part of the exception capturing clause known as try-catch-finally</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">for</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Indicates a for-each loop.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">get</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Indicates the instructions for an acessor</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">given</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Indicates a constraint in a generic type variable</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">if</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Indicates a decision based on a truth value of a condition</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">implements</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Indicates the type obeys to the contract of a given set of interfaces</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">implicit</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Indicates a constructor that the compiler will use implicitly to transform between types</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">import</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Indicates a type that is used in the code</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">in</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Indicates contra-variant type variable</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">interface</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Indicates a type that participates in multiple inheritance</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">inv</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Indicates an invariant type variable</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">is</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Used in a generic constraint to indicate the type (ex.: <code>given T is Comparable&lt;T&gt;</code>). Used as an operator to determine if an instance is of the given type (ex.: <code>a is Integer</code>).Also used to indicate possible derived types</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">let</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Indicated the definition of a immutable variable</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">module</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Begins the declaration of a module</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">mutable</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Indicates a property or variable can be reassigned</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">native</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Indicates a type or method in implemented in the platform language and not in Lense.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">new</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Invokes a constructor</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">none</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The single object that is a possible instance of Maybe that carries no information</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">object</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Indicates a class with a single instance</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">out</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Indicates a co-variant type variable</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">override</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Indicates the method overrides a default, or abstract, method defined in the parent type</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">package</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Indicates the package  in which the type belongs</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">private</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Indicates the type member is not visible to any type members of other types. Is visible only to members of the same type</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">protected</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Indicates the type member is visible only the type it self and to types that inherit from the declaring type</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">public</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Indicates the type member is visible to type members of other types</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">return</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Interrupt a method, possibly with a given result</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">satisfies</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Indicates the type obeys to the contract of a given set of type classes</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">satisfy</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Indicates the method implementation is consistent with a method in a type class</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">sealed</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><em>(not currently used)</em></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">set</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Indicated the implementation of a modifier</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">super</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Used to refer to the parent type instance</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">switch</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Indicates a decision between different possibilities</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">this</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Used to refer to the current instance, itself</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">throw</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">trait</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">try</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">let</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">while</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Used to raise an exception</p></td>
+</tr>
+<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The constant true value, of the instances of Boolean.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">try</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Part of the exception capturing clause known as try-catch-finally</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">type</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Modifier that indicates the definition of a type class</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">typeOf</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Operator to determine the type of an instance of type literal</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">value</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Modifier that indicates the definition of a value class</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">while</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Indicates a while loop or terminates a do-loop</p></td>
 </tr>
 </tbody>
 </table>
@@ -323,8 +573,9 @@ Some of these reserved works are keywords, e.i. they have special meaning to the
 					<li><a href="classes.html">Classes</a></li>
 					<li><a href="objects.html">Objects</a></li>
 					<li><a href="interfaces.html">Interfaces</a></li>
-					<li>Enums</li>
+					<li><a href="enums.html">Enums and Sealed Types</a></li>
 					<li><a href="enhancements.html">Enhancements</a></li>
+					<li><a href="typeclasses.html">Type Classes</a></li>
 				</ul>
 			</li>
 			<li class="has-children"> 

@@ -46,6 +46,10 @@
 			float:left;
 			margin-left:7px;
 		}
+		
+		code {
+			color: #444;
+		}
 	</style>
 	
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
@@ -170,12 +174,14 @@
 <h2 id="_container_literals">Container Literals</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Lense recognizes literals for `Sequence`s, `Association`s and `Tuple`s. As a rule, because Lense has type inference it must be possible to infer the type of literal from the syntax, so we need a diferent sintax for each container type.</p>
+<p>Lense recognizes literals for `Sequence`s, `Association`s and `Tuple`s. As a rule, because it must be possible to infer the type of literal from the syntax,
+ we need a diferent sintax for each container type.</p>
 </div>
 <div class="sect2">
 <h3 id="sequence-literal">Sequences</h3>
 <div class="paragraph">
-<p>In C-familly languages an array is a fundamental type and can be created literally using curly brackets <strong>{</strong> and <strong>}</strong>, but in more mathematical oriented languages such as Fortran an Julia common brackets are used.</p>
+<p>In C-familly languages an array is a fundamental type and can be created literally using curly brackets <strong>{</strong> and <strong>}</strong>, but in more mathematical oriented languages such as
+Fortran an Julia common brackets are used.</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -200,7 +206,8 @@ List&lt;int&gt; list = new List(){1, 2, 3};</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>In Lense the type of the container is fixed by the syntax and a <a href="constructors.html#conversion">conversion constructor</a> is used to copy the values to another type if need be. So no constructor is called. A runtime object is created that depends on the underlying platform. The type inside the container is inferred from the declared value types.</p>
+<p>In Lense the type of the container is fixed by the syntax and a <a href="constructors.html#conversion">conversion constructor</a> is used to copy the values to another type if need be.
+So no constructor is called. A runtime object is created that depends on the underlying platform. The type inside the container is inferred from the declared value types.</p>
 </div>
 <div class="paragraph">
 <p>Lense uses common brackets to represent <code>Sequence</code> literals. Keep in mind arrays are not fundamental types in Lense, sequences are.An array is a special (mutable) sub type of sequence.
@@ -213,7 +220,9 @@ let array : Array&lt;Natural&gt;  = [1, 2, 3];</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>The first line creates a sequence of elements 1, 2 and 3. The second line creates an array of the elements 1, 2 and 3 by first creating a sequence and them promoting it to an Array by calling its <a href="constructors.html#conversion">conversion constructor</a>. In practice the compiler is free to optimize these literal constructions and not really call the conversion constructor on <code>Array&lt;T&gt;</code>.</p>
+<p>The first line creates a sequence of elements 1, 2 and 3. The second line creates an array of the elements 1, 2 and 3 by first creating a sequence and them promoting
+it to an <code>Array</code> by calling its <a href="constructors.html#conversion">conversion constructor</a>. In practice the compiler is free to optimize these literal constructions
+and not really call the conversion constructor on <code>Array&lt;T&gt;</code>.</p>
 </div>
 </div>
 <div class="sect2">
@@ -231,7 +240,7 @@ let array : Array&lt;Natural&gt;  = [1, 2, 3];</code></pre>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code data-lang="lense" class="language-lense hljs">let sequence : Set&lt;Natural&gt; = link:toSet([1, 2, 2, 3, 4, 3];</code></pre>
+<pre class="highlightjs highlight"><code data-lang="lense" class="language-lense hljs">let sequence : Set&lt;Natural&gt; = [1, 2, 2, 3, 4, 3].toSet();</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -444,8 +453,9 @@ address.Country = "England";</code></pre>
 					<li><a href="classes.html">Classes</a></li>
 					<li><a href="objects.html">Objects</a></li>
 					<li><a href="interfaces.html">Interfaces</a></li>
-					<li>Enums</li>
+					<li><a href="enums.html">Enums and Sealed Types</a></li>
 					<li><a href="enhancements.html">Enhancements</a></li>
+					<li><a href="typeclasses.html">Type Classes</a></li>
 				</ul>
 			</li>
 			<li class="has-children"> 

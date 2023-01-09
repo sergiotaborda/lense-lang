@@ -46,6 +46,10 @@
 			float:left;
 			margin-left:7px;
 		}
+		
+		code {
+			color: #444;
+		}
 	</style>
 	
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
@@ -266,9 +270,9 @@ At this stage some work is made to validate the feature does run on the  target 
 </colgroup>
 <tbody>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Feature</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Description</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Status</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Feature</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Description</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Status</strong></p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Strong Static Typing with Inference</p></td>
@@ -327,8 +331,8 @@ At this stage some work is made to validate the feature does run on the  target 
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Immutability first</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">You have to opt out of immutability explicitly</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Exploration	(needs new design using muttable keyword)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">You have to opt out of immutability explicitly using <code>mutable</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Embrace</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Juxtaposition</p></td>
@@ -341,11 +345,6 @@ At this stage some work is made to validate the feature does run on the  target 
 <td class="tableblock halign-left valign-top"><p class="tableblock">Experimentation	(not clear interaction with native modules)</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Operator Overloading</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Operators are related to type interfaces and follow mathematical concepts</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Exploration	(needed the concept of meta type)</p></td>
-</tr>
-<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Reification</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">support availability of generic type parameter information at runtime</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Experimentation	(not clear interaction with 'is' operator)</p></td>
@@ -356,24 +355,62 @@ At this stage some work is made to validate the feature does run on the  target 
 <td class="tableblock halign-left valign-top"><p class="tableblock">Exploration	(not clear from where/how to load information)</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Monads</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">support for monads and monadic operations.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Exploration (needed the concept of meta type)</p></td>
-</tr>
-<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Native inter-op</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">call native code directly from lense code without delegation</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Envision	(not clear interaction with native modules)</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Meta type</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">meta types are for classes what classes are for instances. Also known as shapes</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Envision (not clear to define a syntax)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Type classes</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Types classes are for classes what classes are for instances. Also known as shapes</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Experimentation (base for operators, new use cases)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Operator Overloading</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Operators are related to type classes and follow mathematical concepts</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Exploration	(needed to apply type class concept)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Monads</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">support for monads and monadic operations.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Exploration (needed to apply type class concept)</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Lambdas</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">function objects made easy</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Envision (not clear is should use lambda or closure)</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_platform_status">Platform Status</h2>
+<div class="sectionbody">
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Platform</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Status</strong></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Java (JVM)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Compiles and runs</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">JavaScript/TypeScript</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Under development</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Dart</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Under consideration</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">.NET (CLR)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Under consideration</p></td>
 </tr>
 </tbody>
 </table>
@@ -440,8 +477,9 @@ At this stage some work is made to validate the feature does run on the  target 
 					<li><a href="classes.html">Classes</a></li>
 					<li><a href="objects.html">Objects</a></li>
 					<li><a href="interfaces.html">Interfaces</a></li>
-					<li>Enums</li>
+					<li><a href="enums.html">Enums and Sealed Types</a></li>
 					<li><a href="enhancements.html">Enhancements</a></li>
+					<li><a href="typeclasses.html">Type Classes</a></li>
 				</ul>
 			</li>
 			<li class="has-children"> 

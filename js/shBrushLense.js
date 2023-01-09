@@ -15,8 +15,8 @@
 						'native new null is ' +
 						'package module class object enum annotation interface trait ' +
 						'public private protected ' +
-						'in out let selead override ' +
-						'return super synchronized this throw implicit ';
+						'in out let selead satisfy satisfies given override ' +
+						'return super synchronized this type typeOf throw implicit ';
 
 		this.regexList = [
 			{ regex: SyntaxHighlighter.regexLib.singleLineCComments,	css: 'comments' },		// one line comments

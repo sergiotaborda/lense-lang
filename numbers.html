@@ -46,6 +46,10 @@
 			float:left;
 			margin-left:7px;
 		}
+		
+		code {
+			color: #444;
+		}
 	</style>
 	
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
@@ -170,89 +174,109 @@
 <h2 id="_numbers">Numbers</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Numbers are separated in specific algebraic structures that conform to the mathematical rules of their group of elements.
-All numbers are descendant types of the <code>Number</code> type. Operations are defined for each type independently.
-Lense supports Complex and Imaginary numbers. Even thought we are aware the performance of these types may not be optimal, we understand that not supporting them would be a worst decision.</p>
+<p>Numbers are separated in specific algebraic structures that conform to the mathematical rules of their group of elements.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="numeric_tower.png" alt="numeric tower">
+</div>
+</div>
+<div class="paragraph">
+<p>All numbers are descendant types of the <code>Number</code> type. Operations are defined for each type independently.
+Lense supports Complex and Imaginary numbers.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+Even thought is possible the performance of the  Complex and Imaginary types may not be optimal, Lense perfers complete design to performance.
+</td>
+</tr>
+</table>
 </div>
 <div class="ulist">
 <ul>
 <li>
-<p>Whole - numbers with no decimal part.</p>
+<p><code>Whole</code> - numbers with no decimal part.</p>
 <div class="ulist">
 <ul>
 <li>
-<p>Natural - Represents elements from the mathematical <strong>&#8469;</strong> set, i.e. positive only whole values that include zero and range from zero up to maximum value limited only by available memory</p>
+<p><code>Natural</code> - Represents elements from the mathematical <strong>&#8469;</strong> set, i.e. positive only whole values that include zero and range from zero up to maximum value limited only by available memory</p>
 </li>
 <li>
-<p>Integer - Represents elements from the mathematical <strong>&#8484;</strong> set, i.e. negative and positive whole values.</p>
+<p><code>Integer</code> - Represents elements from the mathematical <strong>&#8484;</strong> set, i.e. negative and positive whole values.</p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>Int32</code> - negative and positive whole values with range from -2<sup>31</sup> to  2<sup>31</sup>-1. Also implements <code>binary</code>.</p>
+</li>
+<li>
+<p><code>Int64</code> - negative and positive whole values with range from -2<sup>63</sup> to  2<sup>63</sup>-1. Also implements <code>binary</code>.</p>
+</li>
+<li>
+<p><code>BigInt</code> - negative and positive whole values with arbitrary range limited only by available memory</p>
+</li>
+</ul>
+</div>
 </li>
 </ul>
 </div>
 </li>
 <li>
-<p>Int16 - negative and positive whole values with range from -2<sup>15</sup> to  2<sup>15</sup>-1.</p>
-</li>
-<li>
-<p>Int32 - negative and positive whole values with range from -2<sup>31</sup> to  2<sup>31</sup>-1.</p>
-</li>
-<li>
-<p>Int64 - negative and positive whole values with range from -2<sup>63</sup> to  2<sup>63</sup>-1.</p>
-</li>
-<li>
-<p>BigInt - negative and positive whole values with arbitrary range limited only by available memory</p>
-</li>
-<li>
-<p>Real - Represents elements from the mathematical <strong>&#8477;</strong> set.</p>
+<p><code>Real</code> - Represents elements from the mathematical <strong>&#8477;</strong> set.</p>
 <div class="ulist">
 <ul>
 <li>
-<p>Rational - Represents elements from the mathematical <strong>&#8474;</strong> set, i.e. rational numbers defined by a natural numerator and a natural denominator like 2/3 or -5/8. The denominator cannot be zero.</p>
+<p><code>Rational</code> - Represents elements from the mathematical <strong>&#8474;</strong> set, i.e. rational numbers defined by a natural numerator and a natural denominator like 2/3 or -5/8. The denominator cannot be zero.</p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>BigRational</code> - Represents rational numbers using an Integer as numerator and a Natural as denominator.</p>
 </li>
 </ul>
 </div>
 </li>
 <li>
-<p>BigRational - Represents rational numbers using an Integer as numerator and a Natural as denominator.</p>
-<div class="ulist">
-<ul>
-<li>
-<p>BigDecimal - Represents elements in the <strong>&#8477;</strong> set including truncated version of irrational numbers. Negative and positive real values with arbitrary precision limited only by available memory.</p>
+<p><code>BigDecimal</code> - Represents elements in the <strong>&#8477;</strong> set including truncated version of irrational numbers. Negative and positive real values with arbitrary precision limited only by available memory.</p>
 </li>
 </ul>
 </div>
 </li>
 <li>
-<p>Float - Represent elements in the extended real line <strong>&#8477;</strong> &cup; (-&infin;, +&infin;) with suport for Not a Number (NaN)</p>
+<p><code>Float</code> - Represent elements in the extended real line <strong>&#8477;</strong> &cup; (-&infin;, +&infin;) with suport for Not a Number (NaN)</p>
 <div class="ulist">
 <ul>
 <li>
-<p>Float32 - negative and positive float values that follow 32 bits IEEE 3744 conventions</p>
+<p><code>Float32</code> - negative and positive float values that follow 32 bits IEEE 3744 conventions</p>
 </li>
 <li>
-<p>Float64 - negative and positive float values that follow 64 bits IEEE 3744 conventions</p>
+<p><code>Float64</code> - negative and positive float values that follow 64 bits IEEE 3744 conventions</p>
 </li>
 <li>
-<p>BigFloat - negative and positive float values implemented as a fraction of two Integers with special mechanics to represent -&infin;, +&infin; and NaN.</p>
+<p><code>BigFloat</code> - negative and positive float values implemented as a fraction of two Integers with special mechanics to represent -&infin;, +&infin; and NaN.</p>
 </li>
 </ul>
 </div>
 </li>
 <li>
-<p>Imaginary - Represents elements from the mathematical <strong>&#120128;</strong> set. Numbers with pure imaginary parts of the form <code>bi</code> where <code>b</code> is a <code>Field</code> and <code>i</code> is the square root of -1.</p>
+<p><code>Imaginary</code> - Represents elements from the mathematical <strong>&#120128;</strong> set. Numbers with pure imaginary parts of the form <code>bi</code> where <code>b</code> is a <code>Real</code> and <code>i</code> is the square root of -1.</p>
 <div class="ulist">
 <ul>
 <li>
-<p>ImaginaryOverReals&lt;T extends Real&gt;- uses a Real type to store the numeric value</p>
+<p><code>ImaginaryOverReals&lt;T extends Real&gt;</code> - uses a <code>Real</code> type to store the numeric value</p>
 </li>
 </ul>
 </div>
 </li>
 <li>
-<p>Complex - Represents elements from the mathematical <strong>&#8450;</strong> set. Complex numbers are of the form <code>a + bi</code> where <code>i</code> is the square root of -1.</p>
+<p><code>Complex</code> - Represents elements from the mathematical <strong>&#8450;</strong> set. Complex numbers are of the form <code>a + bi</code> where <code>i</code> is the square root of -1.</p>
 <div class="ulist">
 <ul>
 <li>
-<p>ComplexOverReals&lt;T extends Real&gt; - Use a Real to type to store a numeric value for the real part and a ImaginaryOverReals&lt;T&gt; for the imaginary part.</p>
+<p><code>ComplexOverReals&lt;T extends Real&gt;</code> - Use a <code>Real</code> type to store the real and imaginary numeric values.</p>
 </li>
 </ul>
 </div>
@@ -260,7 +284,7 @@ Lense supports Complex and Imaginary numbers. Even thought we are aware the perf
 </ul>
 </div>
 <div class="paragraph">
-<p>Type <code>Natural</code> is used as an indexer for <code>Sequence</code>. Size limits to collections like arrays, lists and maps are only bound by the limit of Natural which in turn is limited only by available memory.
+<p>Type <code>Natural</code> is use to represent sizes and as an indexer for <code>Sequence</code> s. Size limits to collections like arrays, lists and maps are only bound by the limit of Natural which in turn is limited only by available memory.
 Using a Natural to index sequences removes the necessity to check for negative indexes and because <code>Arrays</code> always have a upper limit and always are constructed by <a href="constructors.html#factory">factory like constructors</a> the implementation for each platform can accommodate different implementations according to maximum length demand.</p>
 </div>
 <div class="paragraph">
@@ -270,62 +294,65 @@ For more information on arithmetic operations  more on Lense <a href="operators.
 <div class="sect2">
 <h3 id="_number_literals">Number Literals</h3>
 <div class="paragraph">
-<p>Literals with no decimal part are always assumed <code>Natural</code> and in base ten representation. The natural values are transformed to other types as needed.
-This conversion may rise an <code>OverflowException</code> becasue a <code>Natural</code> can exceed the maximum values of other types. For example, atribuiting a natural to a Int32.
-For literals with a decimal part , they are always assumed <code>Rational</code>. This is because irrational numbers cannot , in general, be represented literally.</p>
+<p>Literals with no decimal part are always assumed <code>Natural</code> and in base ten representation. If the Literal is preceded with a <code>-</code> sign, then the literal is assumed an <code>Integer</code>.
+The natural values are transformed to other types as needed. This conversion may rise an <code>OverflowException</code> because a <code>Natural</code> can exceed the maximum values of other types.
+For example, attributing a natural to a Int32.</p>
 </div>
 <div class="paragraph">
-<p>If you need to define the type of the literal explicitly you can use specific sufixes, upper case letters for whole numbers and lowercase letters to decimal numbers.</p>
+<p>For literals with a decimal part , they are always assumed <code>Rational</code>. This is because irrational numbers cannot , in general, be represented literally.</p>
+</div>
+<div class="paragraph">
+<p>When defining variables of other types, Lense used target casting.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code data-lang="lense" class="language-lense hljs">	let Natural n = 1; // equivalent to Natural.valueOf("1")
+<pre class="highlightjs highlight"><code data-lang="lense" class="language-lense hljs">	let Natural n = 1;
 
 	// literals are always assumed to be Natural and promoted when necessary
-	let i : Int32 = 1;  // equivalent to Int32.valueOf(Natural.valueOf("1"));
-	let s : Int16 = 1;  // equivalent to Int16.valueOf(Natural.valueOf("1"));
-	let k : Int64 = 1;  // equivalent to Int64.valueOf(Natural.valueOf("1"));
-	let g : BigInt = 1;  // equivalent to BigInt.valueOf(Natural.valueOf("1"));
+	let i : Int32 = 1;
+	let k : Int64 = 1;
+	let g : BigInt = 1;
 
 	// If the target type is Whole or Integer, the literal it's equivalent to having BigInt as target
-	let w : Whole = 1; // equivalent to BigInt.valueOf(Natural.valueOf("1"));
-	let u : Integer = 1;  // equivalent to BigInt.valueOf(Natural.valueOf("1"));
+	let w : Whole = 1;
+	let u : Integer = 1;
 
-	// sufixes can be used to inform the compiler the correct type of the literal
-	// for whole numbers only uppercase prefixes are allowed
-	let ii : Int32 = 1Z;  // equivalent to Int32.valueOf("1");
-	let ss : Int16 = 1S;  // equivalent to Int16.valueOf("1");
-	let kk : Int64 = 1L;  // equivalent to Int64.valueOf("1");
-	let gg : BigInt = 1G;  // equivalent to BigInt.valueOf("1");
-
-	// Rationals are defined by the division of two whole positive values.
-	let r : Rational = 2/3; // equivalent to Natural.valueOf("2").divide(Natural.valueOf("3"))
-	let q : Rational = -5/8; // equivalent to Natural.valueOf("5").negate().divide(Natural.valueOf("8"));
-	let q : Rational = -x/y; // equivalent to Natural.valueOf(x).negate().divide(Natural.valueOf(y));
-
-	// In this case the value is a Natural being promoted to a Decimal32.
-	let f : Decimal32 = 1; // equivalent to Decimal32.valueOf(Natural.valueOf("1"));
 
 	// decimal values are always assumed to be Rational
-	let rr : Rational = 1.4 //  equivalent to Rational.valueOf("1.4");
-	let ff : Decimal32 = 1.6; // equivalent to Decimal32.valueOf(Rational.valueOf("1.6"));
-	let d  : Decimal64 = 2.0; // equivalent to Decimal64.valueOf(Rational.valueOf("2.0"));
-	let m  : BigDecimal = 1.234567890E100; // equivalent to BigDecimal.valueOf(Rational.valueOf("2.0"));
+	let rr : Rational = 1.4
+	let ff : Decimal32 = 1.6;
+	let d  : Decimal64 = 2.0;
+	let m  : BigDecimal = 1.234567890E100;
 
-	// prefixes can also be used to inform the compiler the correct type of the literal
-	// for non whole numbers only lower-case prefixes are allowed
-	let fff : Decimal32 = 1.6f; // equivalent to Decimal32.valueOf("1.6");
-	let dd : Decimal64 = 2.0d; // equivalent to Decimal64.valueOf("2.0");
-	let mm : BigDecimal = 1m; // equivalent to BigDecimal.valueOf("1");
+	// Rationals are also defined by the division of two whole values.
+	let r : Rational = 2/3;
+	let q : Rational = -5/8;
+	let q : Rational = -x/y;
 
-
-	let a : Imaginary = 2i; // equivalent to Imaginary.valueOf(Natural.valueOf("2"));
-	let b : Imaginary = 2.5i; // equivalent to Imaginary.valueOf(Rational.valueOf("2.5"));
+	// imaginary literals end with an `i`
+	let a : Imaginary = 2i;
+	let b : Imaginary = 2.5i;
 
 	let error : Imaginary = 2; // does not compile because a Natural can not be converted to an Imaginary number
 
-	let c: Complex = 5 + 2i; // equivalent to Natural.valueOf("5").plus(Imaginary.valueOf(Natural.valueOf("2")))
-	let d: Complex = 3.9 + 0.2i; // equivalent to Rational.valueOf("3.9").plus(Imaginary.valueOf(Rational.valueOf("0.2"))</code></pre>
+	// complex numbers are defined by operations between real and imaginary values
+	let c: Complex = 5 + 2i;
+	let d: Complex = 3.9 + 0.2i;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Remember that typing is optional, so its possible to just right:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="lense" class="language-lense hljs">	let n = 1;  // n is a Natural
+	let g = -1; // g is an Integer
+
+	let r = 1;0;  // r is a Rational
+	let d = -1.0; // d is an Rational
+
+	let a = 2i; // a is Imaginary
+	let c = 5 + 2i; // c is Complex</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -343,17 +370,33 @@ For literals with a decimal part , they are always assumed <code>Rational</code>
 <div class="sect3">
 <h4 id="_other_bases_for_literal_representations">Other Bases for Literal Representations</h4>
 <div class="paragraph">
-<p>Numeral literals are assumed to be represented in decimal form (base 10) for all types. For naturals it is also possible to use the hexadecimal (base 16) form.</p>
+<p>Numeral literals are assumed to be represented in decimal form (base 10) for all types.
+For naturals it is also possible to use the hexadecimal (base 16) form.</p>
 </div>
 <div class="paragraph">
 <p>The hexadecimal form begins with a <code>#</code> symbol followed by a valid hexadecimal digit: 1, 2, 3, 4, 5, 6, 7, 8, A , B, C, D , E , F. You can also use _ to separate digits like in base ten representation.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code data-lang="lense" class="language-lense hljs">	let  color : Natural = #FF_EE_00; // hexadecimal</code></pre>
+<pre class="highlightjs highlight"><code data-lang="lense" class="language-lense hljs">	let  color : Natural = #FF_EE_00; // hexadecimal
+	// or simply
+	let  color = #FF_EE_00; // hexadecimal</code></pre>
 </div>
 </div>
 </div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_arithmetic">Arithmetic</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Lense will select the implementation of Natural or Integer that best suits the literal.
+When performing arithmetic operations Lense will automatically promote the value to a larger implementation that can contain the value.
+Eventually a <code>BigNatural</code> or <code>BigInteger</code> type will be necessary.</p>
+</div>
+<div class="paragraph">
+<p>BigRational and BigFloat use Integer and Natural so the numerator and denominator is adjusted to smaller value possible.</p>
 </div>
 </div>
 </div>
@@ -418,8 +461,9 @@ For literals with a decimal part , they are always assumed <code>Rational</code>
 					<li><a href="classes.html">Classes</a></li>
 					<li><a href="objects.html">Objects</a></li>
 					<li><a href="interfaces.html">Interfaces</a></li>
-					<li>Enums</li>
+					<li><a href="enums.html">Enums and Sealed Types</a></li>
 					<li><a href="enhancements.html">Enhancements</a></li>
+					<li><a href="typeclasses.html">Type Classes</a></li>
 				</ul>
 			</li>
 			<li class="has-children"> 

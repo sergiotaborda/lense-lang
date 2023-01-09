@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8"/>
-    <title>Sequence</title>
+    <title>Erasure</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <meta name="author" content="">
@@ -170,79 +170,100 @@
 	<div class="container-fluid">
 		<div class="row row-offcanvas row-offcanvas-right">
 			 <div class="col-xs-12 col-sm-9 col-sm-push-3">
-				<div class="sect2">
-<h3 id="_sequences">Sequences</h3>
+				<div class="sect1">
+<h2 id="_sealed_types_and_objects">Sealed Types and Objects</h2>
+<div class="sectionbody">
 <div class="paragraph">
-<p>Lense supports the concept of <code>Sequence</code>. A <code>Sequence&lt;T&gt;</code> is an ordered <code>Iterable&lt;T&gt;</code> of elements of some type <code>T</code>. `Sequence`s are imutable.</p>
+<p>Lense supports limiting the sub types a type can have. Algo the objetcs a type can have. The first raises the possibility of sealed types,
+the second is a mecanhism similar to enums in other languages.</p>
 </div>
 <div class="paragraph">
-<p>In other languages the array is the primitive of choice for aggregating multiple values. However, is not imutable. There is not an imutable aggregation primitive in these languages.
-In Lense, you can use a <code>Sequence</code> most of the time, and arrays only when you are interested in modifying the contents. You can create arrays from sequences like so:</p>
+<p>Sealed Types in Lense, form a tree of types with objects as leafs. We can define a sealed types combining the <code>abstract</code> modifier with the <code>ìs</code> clause  , so:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code data-lang="lense" class="language-lense hljs">let sequence : Sequence&lt;Natural&gt;   = [1, 2, 3];
-let array : Array&lt;Natural&gt;  = [1, 2, 3];</code></pre>
+<pre class="highlightjs highlight"><code data-lang="lense" class="language-lense hljs">public abstract class ExpressionNode is OperationNode , ValueNode {  //(1)
+
+}
+
+public class OperationNode extends ExpressionNode is sum , multiplication  { //(2)
+
+}
+
+public object sum extends OperationNode  { //(3)
+
+}
+
+public object multiplication extends OperationNode  { //(3)
+
+}
+
+public class ValueNode extends ExpressionNode { //(4)
+
+	constructor (public value: Integer);  //(5)
+}</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>The first line creates a sequence of elements 1, 2 and 3. The second line creates an array of the elements 1, 2 and 3 by first creating a sequence and them promoting it to an <code>Array</code> by calling its <a href="constructors.html#conversion">conversion constructor</a>. In practice the compiler is free to optimize these literal constructions and not really call the conversion constructor on <code>Array&lt;T&gt;</code>.</p>
+<p>We define an <code>ExpressionNode</code> (<strong>1</strong>) class that can only have two sub classes: <code>OperationNode</code> and <code>ValueNode</code>.
+<code>OperationNode</code> can then only have two instances (<strong>2</strong>) called <code>sum</code> and <code>multiplication</code>. These are instances because they are defined as objects (<strong>3</strong>).
+<code>ValueNode</code> is also a <code>ExpressionNode</code> (<strong>4</strong>) but can have multiple instances, one for each <code>Integer</code></p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+In Lense, object names are writen in camel case, while types names are writen in Pascal Case.
+</td>
+</tr>
+</table>
 </div>
 <div class="paragraph">
-<p>Lense uses common brackets to represent <code>Sequence</code> literals. Keep in mind arrays are not fundamental types in Lense, sequences are. An array is a special (mutable) sub type of sequence.</p>
+<p>The explicit definition of <code>sum</code> and <code>multiplication</code> is optional if no constructors or methods need to be defined.</p>
 </div>
-<div class="sect3">
-<h4 id="_concatenation">Concatenation</h4>
 <div class="paragraph">
-<p>`Sequence`s are imutable , but you can create new sequences by concatenating other sequences.</p>
+<p>This mechanism allows the compiler to test for exaustivness when necessary.  For example, we define <code>Boolean</code> as:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code data-lang="lense" class="language-lense hljs">let even  = [2, 4, 6];
-let odd = [1, 3, 5];
-
-let all = even ++ odd;
-
-assert(link:== all[2,4,6,1,3,5];
-
-let doubleFive = all ++ 5;
-
-assert(link:== doubleFive[2,4,6,1,3,5,5];</code></pre>
+<pre class="highlightjs highlight"><code data-lang="lense" class="language-lense hljs">public abstract class Boolean is true , false  {
+ ...
+}</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>The <code>++</code> is the concatenation operator.</p>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_sub_sequence">Sub Sequence</h4>
-<div class="paragraph">
-<p>You can obtain sequences that are views of an original sequence by using the range indexer property:</p>
+<p>The compiler then knows that the only possible values of a <code>Boolean</code> are <code>true</code> and <code>false</code>. Likewise, we define Maybe as :</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code data-lang="lense" class="language-lense hljs">let sequence  = [1, 2, 3, 4, 5, 6, 7, 8];
-let subsequence = sequence[3..5];
+<pre class="highlightjs highlight"><code data-lang="lense" class="language-lense hljs">public abstract class Maybe&lt;out T&gt; is Some&lt;T&gt; ,  none {
+}
 
-assert(link:== subsequence[4,5,6];</code></pre>
+public class Some&lt;T&gt; extends Maybe&lt;T&gt; {
+	public constructor (value : T);
+}</code></pre>
 </div>
 </div>
-</div>
-<div class="sect3">
-<h4 id="_mapping_and_filtering">Mapping and Filtering</h4>
 <div class="paragraph">
-<p>`Sequence`s are `Iterable`s so you can use mapping and filtering options</p>
+<p>The compiler then knows that the only possible instances of Maybe are <code>none</code> and all instances of <code>Some</code>.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_enums">Enums</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>If we only desire to enumerate the possible instances of a type we can write:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code data-lang="lense" class="language-lense hljs">let evenSquares  = link:filter(i -&gt; i.isEven[1, 2, 3, 4, 5, 6, 7, 8].map( i -&gt; i ** 2 );</code></pre>
+<pre class="highlightjs highlight"><code data-lang="lense" class="language-lense hljs">public abstract class Comparison is equal, greater, smaller {
+
+}</code></pre>
 </div>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_strings_are_sequences">Strings are Sequences</h4>
-<div class="paragraph">
-<p><code>String`s are `Sequences&lt;Character&gt;</code> so operations on strings are basicly the same you can do over sequences. See <a href="strings.html"><code>String</code></a> for more details.</p>
 </div>
 </div>
 </div>
