@@ -9,6 +9,7 @@ import lense.compiler.Arguments;
 import lense.compiler.LenseCompiler;
 import lense.compiler.crosscompile.java.LenseToJavaCompiler;
 import lense.compiler.crosscompile.javascript.LenseToJsCompiler;
+import lense.compiler.crosscompile.typescript.LenseToTypeScriptCompiler;
 import lense.compiler.modules.ModulesRepository;
 import lense.compiler.repository.ClasspathModulesRepository;
 import lense.compiler.repository.ComposedModulesRepository;
@@ -88,6 +89,7 @@ public class LenseCompilerTool implements LenseTool{
         LenseCompiler compiler = switch (arguments.getMode().orElse(LenseCommand.Mode.JAVA)) {
 	        case JAVA -> new LenseToJavaCompiler(repo);
 	        case JAVA_SCRIPT -> new LenseToJsCompiler(repo);
+	        case TYPE_SCRIPT -> new LenseToTypeScriptCompiler(repo);
 	        default -> throw new ToolException("This target language is not supported yet");
         };
 

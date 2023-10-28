@@ -17,7 +17,6 @@ import compiler.trees.VisitorNext;
 import lense.compiler.CompilationError;
 import lense.compiler.Import;
 import lense.compiler.ast.ArgumentListNode;
-import lense.compiler.ast.AssignmentNode;
 import lense.compiler.ast.ClassTypeNode;
 import lense.compiler.ast.FieldDeclarationNode;
 import lense.compiler.ast.FieldOrPropertyAccessNode;

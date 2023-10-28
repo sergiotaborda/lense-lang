@@ -8,6 +8,7 @@ package lense.compiler.type;
  */
 public enum LenseUnitKind implements TypeKind{
 
+	Unknown,
 	Class,
 	ValueClass,
 	TypeClass,

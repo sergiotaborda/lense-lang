@@ -25,6 +25,7 @@ import lense.compiler.ast.ComparisonNode.Operation;
 import lense.compiler.context.SemanticContext;
 import lense.compiler.crosscompile.PrimitiveTypeDefinition;
 import lense.compiler.crosscompile.PrimitiveBooleanValue;
+import lense.compiler.crosscompile.PrimitiveStringNode;
 import lense.compiler.crosscompile.PrimitiveBooleanOperationsNode;
 import lense.compiler.repository.UpdatableTypeRepository;
 import lense.compiler.type.CallableMemberMember;

@@ -31,7 +31,14 @@ public class TestHelloWorldModule {
 	@Test  
     public void testHelloWorldCompilationJavaScript() {
 
-	    Assert.assertEquals(0, Lense.execute("compile:js --source=lense/helloworld".split(" ")));
+	    Assert.assertEquals(0, Lense.execute("compile:js lense/helloworld --repo=lense/sdk/compilation/modules,lense/math/compilation/modules".split(" ")));
+ 
+    }
+	
+	@Test  
+    public void testHelloWorldCompilationTypeScript() {
+
+	    Assert.assertEquals(0, Lense.execute("compile:ts lense/helloworld --repo=lense/sdk/compilation/modules,lense/math/compilation/modules".split(" ")));
  
     }
 	

@@ -104,20 +104,21 @@ public class Import {
 		return alias;
 	}
 
-	public boolean isSuper() {
-		return isSuper;
-	}
-
-	public void setSuper(boolean isSuper) {
-		this.isSuper = isSuper;
-	}
-
 	public boolean isMemberSignatureElement() {
 		return isMemberSignatureElement;
 	}
 
 	public void setMemberSignatureElement(boolean isMemberSignatureElement) {
 		this.isMemberSignatureElement = isMemberSignatureElement;
+	}
+
+
+	public boolean isSuper() {
+		return isSuper;
+	}
+
+	public void setSuper(boolean isSuper) {
+		this.isSuper = isSuper;
 	}
 
 	public boolean isNativeUse() {
